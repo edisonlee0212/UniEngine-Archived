@@ -1,5 +1,4 @@
 #pragma once
-#include "bool.h"
 namespace UniEngine {
 	
 #pragma region bool2

@@ -20,7 +20,7 @@
 #include <ImGUI/examples/imgui_impl_opengl3.h>
 #include <ImGUI/examples/imgui_impl_win32.h>
 
-#include <glad/include/glad/glad.h>
+#include <glad/glad.h>
 
 #include <glfw-3.3.2/include/GLFW/glfw3.h>
 
@@ -30,4 +30,3 @@
 #include <assimp-5.0.1/include/assimp/postprocess.h>
 #include <assimp-5.0.1/include/assimp/Importer.hpp>
 
-#include "Math.h"

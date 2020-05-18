@@ -28,9 +28,6 @@
     <Filter Include="Header Files\Core\Profiler">
       <UniqueIdentifier>{554808a9-0761-42d4-b3e9-5487cbeb6eb2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\Log">
-      <UniqueIdentifier>{8fad24c9-cae6-4eff-ab2a-368c4aa16bb3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Core\Graphics">
       <UniqueIdentifier>{2a6e81f5-f4f9-436f-a627-f3fad6e44057}</UniqueIdentifier>
     </Filter>
@@ -40,9 +37,63 @@
     <Filter Include="Header Files\Core\Math\Primitive">
       <UniqueIdentifier>{9e14800d-c30e-4e20-9d9c-cace5021a112}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\World">
+      <UniqueIdentifier>{83593953-6622-439e-bd3e-99aa0c32984f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resouce">
+      <UniqueIdentifier>{438539ef-88f1-4d0f-b607-46ca1cde3aec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resouce\AssetManagement">
+      <UniqueIdentifier>{602f039c-6df3-4506-acaf-5bebf3cbb0f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resouce\ResourceManagement">
+      <UniqueIdentifier>{02d0775a-1bac-43a8-be44-c19f959f4df1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\World\EntityManagement">
+      <UniqueIdentifier>{03819bc1-4c40-4982-a8de-e361c84458c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\World\SystemManagement">
+      <UniqueIdentifier>{238671ab-daf3-4622-b525-3a3202950f6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\MemoryManagement">
+      <UniqueIdentifier>{cd980753-1cfd-4c0c-8be6-fb7b90e4a906}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\GPUBufferManagement">
+      <UniqueIdentifier>{2bb78d1a-b936-455e-a0a1-ee98e9b9cbe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\External">
+      <UniqueIdentifier>{46576c80-f142-4473-aa78-5bd0f4d67bf1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UniEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\glad\src\glad.c">
+      <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -76,6 +127,36 @@
     </ClInclude>
     <ClInclude Include="ulong.h">
       <Filter>Header Files\Core\Math\Primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="GLObject.h">
+      <Filter>Header Files\Core\GPUBufferManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Resouce\ResourceManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
+      <Filter>Header Files\Core\MemoryManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemBase.h">
+      <Filter>Header Files\World\SystemManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Resouce\ResourceManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files\Resouce\ResourceManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Header Files\Core\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Header Files\Core\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

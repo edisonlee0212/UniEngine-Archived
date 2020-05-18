@@ -1,5 +1,14 @@
 #pragma once
 #include <math.h>
+#include "Misc.h"
+#define bool GLboolean
+#define double GLdouble
+#define float GLfloat
+#define int GLint
+#define long GLint64
+#define uint GLuint
+#define ulong GLuint64
+
 #include "bool.h"
 #include "double.h"
 #include "float.h"
@@ -96,7 +105,7 @@ namespace UniEngine {
 
 	/// <summary>Returns the bit pattern of a ulong as a long.</summary>
 
-	inline static long aslong(uint long int x) { return (long)x; }
+	inline static long aslong(ulong x) { return (long)x; }
 
 	/// <summary>Returns the bit pattern of a double as a long.</summary>
 
@@ -111,11 +120,11 @@ namespace UniEngine {
 
 	/// <summary>Returns the bit pattern of a long as a ulong.</summary>
 
-	inline static uint long int asulong(long x) { return (uint long int)x; }
+	inline static ulong asulong(long x) { return (ulong)x; }
 
 	/// <summary>Returns the bit pattern of a double as a ulong.</summary>
 
-	inline static uint long int asulong(double x) { return (uint long int)aslong(x); }
+	inline static ulong asulong(double x) { return (ulong)aslong(x); }
 
 
 	/// <summary>Returns the bit pattern of an int as a float.</summary>

@@ -1,8 +1,5 @@
 #pragma once
-#include "bool.h"
-#include <math.h>
 namespace UniEngine {
-#define uint unsigned
 #pragma region uint2
 	struct uint2 {
 		uint x, y;

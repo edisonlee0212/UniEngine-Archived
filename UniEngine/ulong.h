@@ -1,8 +1,5 @@
 #pragma once
-#include "bool.h"
-#include <math.h>
 namespace UniEngine {
-#define ulong unsigned long int
 #pragma region ulong2
 	struct ulong2 {
 		ulong x, y;

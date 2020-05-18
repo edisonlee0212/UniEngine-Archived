@@ -1,6 +1,4 @@
 #pragma once
-#include "bool.h"
-#include <math.h>
 namespace UniEngine {
 #pragma region double2
 	struct double2 {

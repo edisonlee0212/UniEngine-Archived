@@ -1,21 +1,61 @@
-// UniEngine.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-#include "Math.h"
-#include <iostream>
-using namespace UniEngine;
-int main()
+#include "UniEngine.h"
+
+UniEngine::Engine::Engine()
 {
-    std::cout << "Hello World!\n";
-    float2x2 a;
+	_Looping = false;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+void UniEngine::Engine::GLInit()
+{
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+	/*auto window = WindowManager::CreateWindow(1280, 720);
+
+	glfwSetFramebufferSizeCallback(window, WindowManager::ResizeCallback);
+	glfwSetCursorPosCallback(window, Input::CursorPositionCallback);
+	glfwSetScrollCallback(window, Input::MouseScrollCallback);
+	glfwSetKeyCallback(window, Input::KeyCallback);
+	glfwSetMouseButtonCallback(window, Input::MouseButtonCallback);*/
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		//Debug::Error("Failed to initialize GLAD");
+		exit(-1);
+	}
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_CULL_FACE);
+
+}
+
+void UniEngine::Engine::Start()
+{
+	GLInit();
+	world = new World();
+
+}
+
+void UniEngine::Engine::Loop()
+{
+	if (_Looping) return;
+	_Looping = true;
+	while (_Looping)
+	{
+		world->Update();
+	}
+}
+
+void UniEngine::Engine::End()
+{
+	delete world;
+	glfwTerminate();
+}
