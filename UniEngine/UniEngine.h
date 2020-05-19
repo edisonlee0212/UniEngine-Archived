@@ -1,5 +1,6 @@
 #pragma once
 #include "Misc.h"
+#include "Core.h"
 #include "World.h"
 namespace UniEngine {
 	class Engine {

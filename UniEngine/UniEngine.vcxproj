@@ -154,13 +154,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="GLBufferObject.cpp" />
+    <ClCompile Include="GLTexture.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="includes\glad\src\glad.c" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="GLProgram.cpp" />
+    <ClCompile Include="GLShader.cpp" />
+    <ClCompile Include="Time.cpp" />
     <ClCompile Include="UniEngine.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -170,6 +174,8 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="double.h" />
     <ClInclude Include="float.h" />
+    <ClInclude Include="GLBufferObject.h" />
+    <ClInclude Include="GLTexture.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="int.h" />
     <ClInclude Include="long.h" />
@@ -179,8 +185,10 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Misc.h" />
     <ClInclude Include="GLObject.h" />
+    <ClInclude Include="GLProgram.h" />
+    <ClInclude Include="GLShader.h" />
     <ClInclude Include="SystemBase.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Time.h" />
     <ClInclude Include="uint.h" />
     <ClInclude Include="ulong.h" />
     <ClInclude Include="UniEngine.h" />

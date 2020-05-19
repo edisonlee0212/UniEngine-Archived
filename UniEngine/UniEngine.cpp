@@ -26,7 +26,7 @@ void UniEngine::Engine::GLInit()
 	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		//Debug::Error("Failed to initialize GLAD");
+		Debug::Error("Failed to initialize GLAD");
 		exit(-1);
 	}
 

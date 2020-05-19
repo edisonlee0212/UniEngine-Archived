@@ -58,11 +58,11 @@
     <Filter Include="Header Files\Core\MemoryManagement">
       <UniqueIdentifier>{cd980753-1cfd-4c0c-8be6-fb7b90e4a906}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\GPUBufferManagement">
-      <UniqueIdentifier>{2bb78d1a-b936-455e-a0a1-ee98e9b9cbe3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\External">
       <UniqueIdentifier>{46576c80-f142-4473-aa78-5bd0f4d67bf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Time">
+      <UniqueIdentifier>{0a686eed-22ea-47bb-8c92-cf0f15d68dae}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -84,9 +84,6 @@
     <ClCompile Include="World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -94,6 +91,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLBufferObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,9 +140,6 @@
     <ClInclude Include="ulong.h">
       <Filter>Header Files\Core\Math\Primitive</Filter>
     </ClInclude>
-    <ClInclude Include="GLObject.h">
-      <Filter>Header Files\Core\GPUBufferManagement</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Resouce\ResourceManagement</Filter>
     </ClInclude>
@@ -146,9 +155,6 @@
     <ClInclude Include="SystemBase.h">
       <Filter>Header Files\World\SystemManagement</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files\Resouce\ResourceManagement</Filter>
-    </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Header Files\Resouce\ResourceManagement</Filter>
     </ClInclude>
@@ -156,6 +162,24 @@
       <Filter>Header Files\Core\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Graphics.h">
+      <Filter>Header Files\Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLObject.h">
+      <Filter>Header Files\Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLProgram.h">
+      <Filter>Header Files\Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLShader.h">
+      <Filter>Header Files\Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLBufferObject.h">
+      <Filter>Header Files\Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLTexture.h">
       <Filter>Header Files\Core\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
