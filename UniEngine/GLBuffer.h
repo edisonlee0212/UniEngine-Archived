@@ -1,25 +1,25 @@
 #pragma once
 #include "GLObject.h"
 namespace UniEngine {
-	class GLBufferObject : public GLObject
+	class GLBuffer : public GLObject
 	{
 	public:
-		GLBufferObject() {
+		GLBuffer() {
 			glGenBuffers(1, &_ID);
 		}
-		~GLBufferObject() {
+		~GLBuffer() {
 			glDeleteBuffers(1, &_ID);
 		}
 	};
 
-	class GLEBO : public GLBufferObject {
+	class GLEBO : public GLBuffer {
 	public:
 		void Load() {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ID);
 		}
 	};
 
-	class GLVBO : public GLBufferObject {
+	class GLVBO : public GLBuffer {
 	public:
 		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
 			glBindBuffer(GL_ARRAY_BUFFER, _ID);
@@ -31,7 +31,7 @@ namespace UniEngine {
 		}
 	};
 
-	class GLUBO : public GLBufferObject {
+	class GLUBO : public GLBuffer {
 		void SetData() {
 			glBindBuffer(GL_UNIFORM_BUFFER, _ID);
 		}
@@ -41,10 +41,18 @@ namespace UniEngine {
 	protected:
 		GLVBO* _VBO;
 	public:
+		static void BindDefault() {
+			glBindVertexArray(0);
+		}
 		GLVAO() {
 			glGenVertexArrays(1, &_ID);
 			_VBO = new GLVBO();
 		}
+
+		void Bind() {
+			glBindVertexArray(_ID);
+		}
+
 		void SetData(GLsizei length, GLvoid* data, GLenum usage, size_t attributeSize) {
 			glBindVertexArray(_ID);
 			_VBO->SetData(length, data, usage);

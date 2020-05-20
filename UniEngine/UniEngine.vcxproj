@@ -153,10 +153,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="GLBufferObject.cpp" />
+    <ClCompile Include="GLBuffer.cpp" />
+    <ClCompile Include="GLFrameBuffer.cpp" />
+    <ClCompile Include="GLRenderBuffer.cpp" />
     <ClCompile Include="GLTexture.cpp" />
-    <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Rendering.cpp" />
     <ClCompile Include="includes\glad\src\glad.c" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -164,6 +167,9 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="GLProgram.cpp" />
     <ClCompile Include="GLShader.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="stb.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="UniEngine.cpp" />
     <ClCompile Include="World.cpp" />
@@ -171,12 +177,15 @@
   <ItemGroup>
     <ClInclude Include="bool.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Cubemap.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="double.h" />
     <ClInclude Include="float.h" />
-    <ClInclude Include="GLBufferObject.h" />
+    <ClInclude Include="GLBuffer.h" />
+    <ClInclude Include="GLFrameBuffer.h" />
+    <ClInclude Include="GLRenderBuffer.h" />
     <ClInclude Include="GLTexture.h" />
-    <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Rendering.h" />
     <ClInclude Include="int.h" />
     <ClInclude Include="long.h" />
     <ClInclude Include="Material.h" />
@@ -187,12 +196,17 @@
     <ClInclude Include="GLObject.h" />
     <ClInclude Include="GLProgram.h" />
     <ClInclude Include="GLShader.h" />
+    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="SystemBase.h" />
+    <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="uint.h" />
     <ClInclude Include="ulong.h" />
     <ClInclude Include="UniEngine.h" />
     <ClInclude Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

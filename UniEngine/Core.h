@@ -8,5 +8,5 @@
 #include "GLShader.h"
 #include "GLProgram.h"
 #include "GLTexture.h"
-#include "GLBufferObject.h"
-
+#include "GLBuffer.h"
+#include "Rendering.h"

@@ -28,9 +28,6 @@
     <Filter Include="Header Files\Core\Profiler">
       <UniqueIdentifier>{554808a9-0761-42d4-b3e9-5487cbeb6eb2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\Graphics">
-      <UniqueIdentifier>{2a6e81f5-f4f9-436f-a627-f3fad6e44057}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Core\Thread">
       <UniqueIdentifier>{e6da78be-8d6a-4a6d-90ce-558835bcce01}</UniqueIdentifier>
     </Filter>
@@ -64,6 +61,15 @@
     <Filter Include="Header Files\Core\Time">
       <UniqueIdentifier>{0a686eed-22ea-47bb-8c92-cf0f15d68dae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core\Graphics">
+      <UniqueIdentifier>{6a337056-ecc3-4db0-bfa0-648246e76da6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Graphics\GL">
+      <UniqueIdentifier>{2a6e81f5-f4f9-436f-a627-f3fad6e44057}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Graphics\Rendering">
+      <UniqueIdentifier>{b3949ebd-9c6a-4ced-bf96-c7f2d9d2de35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UniEngine.cpp">
@@ -90,9 +96,6 @@
     <ClCompile Include="Debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Time.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,11 +105,32 @@
     <ClCompile Include="GLShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GLBufferObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GLTexture.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLFrameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stb.cpp">
+      <Filter>Source Files\External</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -140,9 +164,6 @@
     <ClInclude Include="ulong.h">
       <Filter>Header Files\Core\Math\Primitive</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Resouce\ResourceManagement</Filter>
-    </ClInclude>
     <ClInclude Include="Core.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -155,32 +176,53 @@
     <ClInclude Include="SystemBase.h">
       <Filter>Header Files\World\SystemManagement</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Header Files\Resouce\ResourceManagement</Filter>
-    </ClInclude>
     <ClInclude Include="Debug.h">
       <Filter>Header Files\Core\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>Header Files\Core\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GLObject.h">
-      <Filter>Header Files\Core\Graphics</Filter>
+      <Filter>Header Files\Core\Graphics\GL</Filter>
     </ClInclude>
     <ClInclude Include="GLProgram.h">
-      <Filter>Header Files\Core\Graphics</Filter>
+      <Filter>Header Files\Core\Graphics\GL</Filter>
     </ClInclude>
     <ClInclude Include="GLShader.h">
-      <Filter>Header Files\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="GLBufferObject.h">
-      <Filter>Header Files\Core\Graphics</Filter>
+      <Filter>Header Files\Core\Graphics\GL</Filter>
     </ClInclude>
     <ClInclude Include="GLTexture.h">
+      <Filter>Header Files\Core\Graphics\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
       <Filter>Header Files\Core\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files\Core\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLBuffer.h">
+      <Filter>Header Files\Core\Graphics\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLFrameBuffer.h">
+      <Filter>Header Files\Core\Graphics\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering.h">
+      <Filter>Header Files\Core\Graphics\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Header Files\Core\Graphics\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRenderBuffer.h">
+      <Filter>Header Files\Core\Graphics\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Header Files\Core\Graphics\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Cubemap.h">
+      <Filter>Header Files\Core\Graphics\Rendering</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

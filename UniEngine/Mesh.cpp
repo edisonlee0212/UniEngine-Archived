@@ -45,6 +45,11 @@ size_t UniEngine::Mesh::GetVerticesAmount()
 	return _Size;
 }
 
+size_t UniEngine::Mesh::Size()
+{
+	return _Size;
+}
+
 void UniEngine::Mesh::RecalculateNormal()
 {
 	if (_Size == 0 || _Vertices->size() == 0) return;
@@ -59,6 +64,11 @@ void UniEngine::Mesh::RecalculateNormal()
 		normals.push_back(normal);
 	}
 	SetAttributeArray(VertexAttribute::Normal, &normals[0]);
+}
+
+GLVAO* UniEngine::Mesh::VAO()
+{
+	return _VAO;
 }
 
 

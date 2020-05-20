@@ -3,9 +3,9 @@
 #include "Core.h"
 #include "World.h"
 namespace UniEngine {
-	class Engine {
+	class EngineDriver {
 	public:
-		Engine();
+		EngineDriver();
 		void GLInit();
 		void Start();
 		void End();

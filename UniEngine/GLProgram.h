@@ -13,6 +13,7 @@ namespace UniEngine {
     public:
         GLProgram();
         ~GLProgram();
+        void Use();
         void Link();
         void Attach(ShaderType type);
         void Detach(ShaderType type);

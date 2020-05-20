@@ -11,6 +11,11 @@ UniEngine::GLProgram::~GLProgram()
     glDeleteProgram(_ID);
 }
 
+void UniEngine::GLProgram::Use()
+{
+    glUseProgram(_ID);
+}
+
 void UniEngine::GLProgram::Link()
 {
     _VertexShader->Attach(_ID);

@@ -1,5 +1,6 @@
 #pragma once
-#include "Core.h"
+#include "Math.h"
+#include "GLBuffer.h"
 namespace UniEngine {
 	struct Vertex {
 		float3 Position;
@@ -33,9 +34,9 @@ namespace UniEngine {
 		void ClearVertices();
 		float3* GetVertices(size_t* size);
 		size_t GetVerticesAmount();
-
+		size_t Size();
 		void RecalculateNormal();
-
+		GLVAO* VAO();
 		
 		void* GetAttributeArray(VertexAttribute channel);
 		void SetAttributeArray(VertexAttribute channel, void* data);

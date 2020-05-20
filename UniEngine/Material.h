@@ -1,14 +1,17 @@
 #pragma once
 #include "Misc.h"
 #include "GLProgram.h"
-#include "GLTexture.h"
+#include "Texture2D.h"
+#include "Cubemap.h"
 namespace UniEngine {
 	class Material
 	{
-		std::vector<GLTexture*> _Textures;
+		std::vector<Texture2D*> _Texture2Ds;
+		std::vector<Cubemap*> _Cubemaps;
 		std::vector<GLProgram*> _Programs;
 	public:
-		std::vector<GLTexture*>* Textures();
+		std::vector<Texture2D*>* Textures2Ds();
+		std::vector<Cubemap*>* Cubemaps();
 		std::vector<GLProgram*>* Programs();
 	};
 }

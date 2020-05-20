@@ -1,11 +1,11 @@
 #include "UniEngine.h"
 
-UniEngine::Engine::Engine()
+UniEngine::EngineDriver::EngineDriver()
 {
 	_Looping = false;
 }
 
-void UniEngine::Engine::GLInit()
+void UniEngine::EngineDriver::GLInit()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -37,14 +37,14 @@ void UniEngine::Engine::GLInit()
 
 }
 
-void UniEngine::Engine::Start()
+void UniEngine::EngineDriver::Start()
 {
 	GLInit();
 	world = new World();
 
 }
 
-void UniEngine::Engine::Loop()
+void UniEngine::EngineDriver::Loop()
 {
 	if (_Looping) return;
 	_Looping = true;
@@ -54,7 +54,7 @@ void UniEngine::Engine::Loop()
 	}
 }
 
-void UniEngine::Engine::End()
+void UniEngine::EngineDriver::End()
 {
 	delete world;
 	glfwTerminate();

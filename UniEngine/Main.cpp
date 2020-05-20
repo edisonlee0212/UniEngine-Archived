@@ -2,7 +2,7 @@
 using namespace UniEngine;
 int main()
 {
-	Engine* engine = new Engine();
+	EngineDriver* engine = new EngineDriver();
 	engine->Start();
 	engine->End();
 	return 0;
