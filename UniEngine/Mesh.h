@@ -1,6 +1,7 @@
 #pragma once
 #include "Math.h"
 #include "GLBuffer.h"
+#include "SharedComponent.h"
 namespace UniEngine {
 	struct Vertex {
 		float3 Position;
@@ -13,15 +14,15 @@ namespace UniEngine {
 	};
 	enum VertexAttribute
 	{
-		Position,
-		Normal,
-		Tangent,
-		Bitangent,
-		Color,
-		TexCoord0,
-		TexCoord1
+		Position = 1,
+		Normal = 2,
+		Tangent = 4,
+		Bitangent = 8,
+		Color = 16,
+		TexCoord0 = 32,
+		TexCoord1 = 64
 	};
-	class Mesh
+	class Mesh : public SharedComponent
 	{
 		std::vector<float3>* _Vertices;
 		GLVAO* _VAO;
@@ -29,7 +30,7 @@ namespace UniEngine {
 	public:
 		Mesh();
 		~Mesh();
-		
+		void SetVertices(uint mask, size_t size, Vertex* vertices, unsigned* indices);
 		void SetVertices(size_t size, float3* vertices, unsigned* indices);
 		void ClearVertices();
 		float3* GetVertices(size_t* size);

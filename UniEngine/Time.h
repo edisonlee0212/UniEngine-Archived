@@ -8,6 +8,9 @@ namespace UniEngine {
 		static double _DeltaTime;
 		static double _LastFrameTime;
 		friend class TimeSystem;
+		friend class World;
+		static void AddWorldTime(double value);
+		static void AddFixedDeltaTime(double value);
 		static void SetWorldTime(double value);
 		static void SetFixedDeltaTime(double value);
 		static void SetDeltaTime(double value);

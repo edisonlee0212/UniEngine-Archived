@@ -5,6 +5,16 @@ double Time::_DeltaTime;
 double Time::_LastFrameTime;
 double Time::_FixedDeltaTime;
 
+void UniEngine::Time::AddWorldTime(double value)
+{
+	_WorldTime += value;
+}
+
+void UniEngine::Time::AddFixedDeltaTime(double value)
+{
+	_FixedDeltaTime += value;
+}
+
 void UniEngine::Time::SetWorldTime(double value)
 {
 	_WorldTime = value;

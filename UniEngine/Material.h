@@ -3,8 +3,9 @@
 #include "GLProgram.h"
 #include "Texture2D.h"
 #include "Cubemap.h"
+#include "SharedComponent.h"
 namespace UniEngine {
-	class Material
+	class Material : public SharedComponent
 	{
 		std::vector<Texture2D*> _Texture2Ds;
 		std::vector<Cubemap*> _Cubemaps;

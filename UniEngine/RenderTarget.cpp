@@ -2,7 +2,7 @@
 #include "Debug.h"
 using namespace UniEngine;
 
-UniEngine::RenderTarget::RenderTarget(uint width, uint height) : _Width(width), _Height(height)
+UniEngine::RenderTarget::RenderTarget()
 {
 	_Bound = false;
 	_FrameBuffer = new GLFrameBuffer();

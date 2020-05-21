@@ -6,11 +6,9 @@ namespace UniEngine {
 	class RenderTarget
 	{
 		GLFrameBuffer* _FrameBuffer;
-		uint _Width;
-		uint _Height;
 		bool _Bound;
 	public:
-		RenderTarget(uint width, uint height);
+		RenderTarget();
 		void AttachTexture(GLTexture* texture, GLint attachPoint);
 		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLint attachPoint);
 		void Bind();

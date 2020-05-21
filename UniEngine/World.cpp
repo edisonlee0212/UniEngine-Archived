@@ -1,29 +1,29 @@
 #include "World.h"
-
+#include "Core.h"
+#include "EntityManager.h"
 using namespace UniEngine;
-
 World::World() {
+	Entities = new EntityManager();
 }
 
 template <class T>
 T* World::CreateSystem() {
-	for (auto i : _Systems) {
-		if (dynamic_cast<T*>(i) != nullptr) {
-			return dynamic_cast<T*>(i);
-		}
+	T* system = World::GetSystem<T>();
+	if (system != nullptr) {
+		return system;
 	}
-	T* system = new T();
+	system = new T();
+	system->SetEntityManager(Entities);
 	system->OnCreate();
-	_Systems.push_back(dynamic_cast<SystemBase*>(system));
+	_Systems.push_back((SystemBase*)system);
 	return system;
 }
 template <class T>
 void World::DestroySystem() {
-	for (auto i : _Systems) {
-		if (dynamic_cast<T*>(i) != nullptr) {
-			i->OnDestroy();
-			delete i;
-		}
+	T* system = World::GetSystem<T>();
+	if (system != nullptr) {
+		system->OnDestroy();
+		delete system;
 	}
 }
 template <class T>
@@ -35,15 +35,20 @@ T* World::GetSystem() {
 	}
 }
 World::~World() {
-
 	for (auto i : _Systems) {
 		i->OnDestroy();
 		delete i;
 	}
-	
 }
 void World::Update() {
+	if (Time::FixedDeltaTime() >= _TimeStep) {
+		Time::SetFixedDeltaTime(0);
+		for (auto i : _Systems) {
+			if (i->Enabled()) i->FixedUpdate();
+		}
+	}
+	
 	for (auto i : _Systems) {
-		if (i->IsEnabled()) i->Update();
+		if (i->Enabled()) i->Update();
 	}
 }

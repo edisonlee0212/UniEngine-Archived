@@ -23,6 +23,7 @@ TextureType UniEngine::Texture2D::Type()
 
 void UniEngine::Texture2D::LoadTexture(std::string path, const std::string& directory)
 {
+    _Path = path;
     std::string filename = path;
     if (!directory._Equal(""))
         filename = directory + '/' + filename;
@@ -55,4 +56,9 @@ void UniEngine::Texture2D::LoadTexture(std::string path, const std::string& dire
         Debug::Log("Texture failed to load at path: " + filename);
         stbi_image_free(data);
     }
+}
+
+std::string UniEngine::Texture2D::Path()
+{
+    return _Path;
 }

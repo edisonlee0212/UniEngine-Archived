@@ -1,5 +1,13 @@
 #include "UniEngine.h"
 
+#include "TimeSystem.h"
+#include "InputSystem.h"
+#include "ShadowSystem.h"
+#include "RenderSystem.h"
+#include "PhysicsSystem.h"
+#include "TransformSystem.h"
+#include "SharedComponentSystem.h"
+
 UniEngine::EngineDriver::EngineDriver()
 {
 	_Looping = false;
@@ -14,6 +22,16 @@ void UniEngine::EngineDriver::GLInit()
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
+	// glfw window creation
+	// --------------------
+	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+	if (window == NULL)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return;
+	}
+	glfwMakeContextCurrent(window);
 
 	/*auto window = WindowManager::CreateWindow(1280, 720);
 
@@ -29,7 +47,6 @@ void UniEngine::EngineDriver::GLInit()
 		Debug::Error("Failed to initialize GLAD");
 		exit(-1);
 	}
-
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -41,6 +58,17 @@ void UniEngine::EngineDriver::Start()
 {
 	GLInit();
 	world = new World();
+	//Initialization System Group
+	world->CreateSystem<TimeSystem>();
+	world->CreateSystem<InputSystem>();
+
+	//Simulation System Group
+	world->CreateSystem<PhysicsSystem>();
+	world->CreateSystem<TransformSystem>();
+	world->CreateSystem<ShadowSystem>();
+
+	//Presentation System Group
+	world->CreateSystem<RenderSystem>();
 
 }
 

@@ -1,10 +1,13 @@
 #pragma once
 #include "Misc.h"
-#include "SystemBase.h"
+#include "Core.h"
 
 namespace UniEngine {
 	class World
 	{
+		std::vector<SystemBase*> _Systems;
+		double _TimeStep;
+		
 	public:
 		World();
 		template <class T>
@@ -15,9 +18,6 @@ namespace UniEngine {
 		T* GetSystem();
 		~World();
 		void Update();
-		//static EntityManager* Entities;
-		//static Camera* MainCamera;
-	private:
-		std::vector<SystemBase*> _Systems;
+		EntityManager* Entities;
 	};
 }
