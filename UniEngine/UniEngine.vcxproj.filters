@@ -126,9 +126,6 @@
     <ClCompile Include="AssimpImporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="InputSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -160,9 +157,6 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="GLTexture.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Input.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
@@ -208,6 +202,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Default.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -314,17 +329,11 @@
     <ClInclude Include="TransformSystem.h">
       <Filter>Header Files\World\SystemManagement</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>Header Files\Resouce\ResourceManagement</Filter>
-    </ClInclude>
     <ClInclude Include="WindowManager.h">
       <Filter>Header Files\Resouce\ResourceManagement</Filter>
     </ClInclude>
     <ClInclude Include="SystemBase.h">
       <Filter>Header Files\Core\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files\Resouce\AssetManagement\Scene</Filter>
     </ClInclude>
     <ClInclude Include="AssimpImporter.h">
       <Filter>Header Files\Resouce\AssetManagement\Model</Filter>
@@ -347,20 +356,38 @@
     <ClInclude Include="PointLight.h">
       <Filter>Header Files\Core\SharedComponents</Filter>
     </ClInclude>
-    <ClInclude Include="SpotLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SharedComponent.h">
       <Filter>Header Files\Core\SharedComponents</Filter>
     </ClInclude>
     <ClInclude Include="SharedComponentSystem.h">
       <Filter>Header Files\World\SystemManagement</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowSystem.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files\Resouce\ResourceManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLight.h">
+      <Filter>Header Files\Core\SharedComponents</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsSystem.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\World\SystemManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowSystem.h">
+      <Filter>Header Files\World\SystemManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIO.h">
+      <Filter>Header Files\Core\FileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Resouce\AssetManagement\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Default.h">
+      <Filter>Header Files\Resouce</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files\Resouce\ResourceManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneNode.h">
+      <Filter>Header Files\Resouce\AssetManagement\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

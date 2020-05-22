@@ -8,10 +8,24 @@ uint Rendering::_Triangles;
 void UniEngine::Rendering::DrawMeshInstanced(Mesh* mesh, Material* material, float4x4* matrices, size_t count, RenderTarget* target)
 {
 	if (_CurrentRenderTarget != target) {
-		_CurrentRenderTarget->Unbind();
 		target->Bind();
 		_CurrentRenderTarget = target;
 	}
+	DrawMeshInstanced(mesh, material, matrices, count);
+}
+
+void UniEngine::Rendering::DrawMesh(Mesh* mesh, float4x4 matrix, Material* material, RenderTarget* target)
+{
+	if (_CurrentRenderTarget != target) {
+		target->Bind();
+		_CurrentRenderTarget = target;
+	}
+	DrawMesh(mesh, matrix, material);
+}
+
+void UniEngine::Rendering::DrawMeshInstanced(Mesh* mesh, Material* material, float4x4* matrices, size_t count)
+{
+	_CurrentRenderTarget->BindDefault();
 	uint buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -81,16 +95,11 @@ void UniEngine::Rendering::DrawMeshInstanced(Mesh* mesh, Material* material, flo
 		glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
 		glActiveTexture(GL_TEXTURE0);
 	}
-	mesh->VAO()->BindDefault();
+	GLVAO::BindDefault();
 }
-
-void UniEngine::Rendering::DrawMesh(Mesh* mesh, float4x4 matrix, Material* material, RenderTarget* target)
+void UniEngine::Rendering::DrawMesh(Mesh* mesh, float4x4 matrix, Material* material)
 {
-	if (_CurrentRenderTarget != target) {
-		_CurrentRenderTarget->Unbind();
-		target->Bind();
-		_CurrentRenderTarget = target;
-	}
+	_CurrentRenderTarget->BindDefault();
 	mesh->VAO()->Bind();
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
@@ -153,9 +162,9 @@ void UniEngine::Rendering::DrawMesh(Mesh* mesh, float4x4 matrix, Material* mater
 			// and finally bind the texture
 			//glBindTexture(GL_TEXTURE_2D, Default::Textures::MissingTexture->ID());
 		}
-		
+
 		glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
 		glActiveTexture(GL_TEXTURE0);
 	}
-	mesh->VAO()->BindDefault();
+	GLVAO::BindDefault();
 }

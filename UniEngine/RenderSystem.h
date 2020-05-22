@@ -3,6 +3,7 @@
 namespace UniEngine {
 	class RenderSystem : public SystemBase
 	{
+		void DrawEntity(Entity* entity);
 	public:
 		RenderSystem();
 		void OnCreate();

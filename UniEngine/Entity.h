@@ -9,14 +9,17 @@ namespace UniEngine {
 		Entity* _Parent;
 		std::unordered_map<std::size_t, SharedComponent*>* _SharedComponents;
 		friend class EntityManager;
-		template <typename T>
-		T* GetSharedComponent();
-		template <class T>
-		void SetSharedComponent(T* value);
+		
+		
+		
 		Entity(uint key);
 		~Entity();
 		void SetParent(Entity* parent);
 	public:
+		template <class T>
+		void SetSharedComponent(T* value);
+		template <typename T>
+		T* GetSharedComponent();
 		uint Key();
 	};
 	template<typename T>
@@ -24,7 +27,7 @@ namespace UniEngine {
 	{
 		auto key = typeid(T).hash_code();
 		auto search = _SharedComponents->find(key);
-		if (search != _SharedComponents.end()) {
+		if (search != _SharedComponents->end()) {
 			return dynamic_cast<T*>(search->second);
 		}
 		return nullptr;
@@ -34,10 +37,11 @@ namespace UniEngine {
 	{
 		auto key = typeid(T).hash_code();
 		auto search = _SharedComponents->find(key);
-		if (search != _SharedComponents.end()) {
+		if (search != _SharedComponents->end()) {
 			search->second = dynamic_cast<SharedComponent*>(value);
 			return;
 		}
-		_SharedComponents->insert(key, dynamic_cast<SharedComponent*>(value));
+		dynamic_cast<SharedComponent*>(value)->SetEntity(this);
+		_SharedComponents->insert({ key, dynamic_cast<SharedComponent*>(value) });
 	}
 }

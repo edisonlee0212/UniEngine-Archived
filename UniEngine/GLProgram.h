@@ -15,7 +15,7 @@ namespace UniEngine {
         ~GLProgram();
         void Use();
         void Link();
-        void Attach(ShaderType type);
+        void Attach(ShaderType type, GLShader* shader);
         void Detach(ShaderType type);
         void SetBool(const std::string& name, bool value) const;
         void SetInt(const std::string& name, int value) const;

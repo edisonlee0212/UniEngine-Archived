@@ -1,14 +1,43 @@
 #include "World.h"
 #include "Core.h"
 #include "EntityManager.h"
+#include "TimeSystem.h"
+#include "InputSystem.h"
+#include "ShadowSystem.h"
+#include "RenderSystem.h"
+#include "PhysicsSystem.h"
+#include "TransformSystem.h"
+#include "SharedComponentSystem.h"
 using namespace UniEngine;
+
+Camera* World::_MainCamera;
+
 World::World() {
+	
 	Entities = new EntityManager();
+	//Initialization System Group
+	CreateSystem<TimeSystem>();
+	CreateSystem<InputSystem>();
+
+	//Simulation System Group
+	CreateSystem<PhysicsSystem>();
+	CreateSystem<TransformSystem>();
+	CreateSystem<ShadowSystem>();
+
+	//Presentation System Group
+	CreateSystem<RenderSystem>();
+
+	
+
+	_MainCamera = new Camera();
+	auto cameraEntity = Entities->CreateEntity();
+	cameraEntity->SetSharedComponent<Camera>(_MainCamera);
+
 }
 
 template <class T>
 T* World::CreateSystem() {
-	T* system = World::GetSystem<T>();
+	T* system = GetSystem<T>();
 	if (system != nullptr) {
 		return system;
 	}
@@ -20,7 +49,7 @@ T* World::CreateSystem() {
 }
 template <class T>
 void World::DestroySystem() {
-	T* system = World::GetSystem<T>();
+	T* system = GetSystem<T>();
 	if (system != nullptr) {
 		system->OnDestroy();
 		delete system;
@@ -51,4 +80,9 @@ void World::Update() {
 	for (auto i : _Systems) {
 		if (i->Enabled()) i->Update();
 	}
+}
+
+Camera* UniEngine::World::MainCamera()
+{
+	return _MainCamera;
 }

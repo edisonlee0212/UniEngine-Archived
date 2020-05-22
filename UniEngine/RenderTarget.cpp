@@ -39,11 +39,7 @@ void UniEngine::RenderTarget::Bind()
 	glBindFramebuffer(GL_FRAMEBUFFER, _FrameBuffer->ID());
 }
 
-void UniEngine::RenderTarget::Unbind()
+void UniEngine::RenderTarget::BindDefault()
 {
-	if (!_Bound) {
-		Debug::Error("Error");
-		return;
-	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "SharedComponentBase.h"
+#include "SharedComponent.h"
 namespace UniEngine {
 	class SpotLight :
 		public SharedComponent

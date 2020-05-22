@@ -4,9 +4,15 @@
 #include "Misc.h"
 #include "Math.h"
 #include "Time.h"
-
+#include "FileIO.h"
 #include "Rendering.h"
 #include "Entity.h"
 #include "FixedDataStorage.h"
-
+#include "Window.h"
 #include "SystemBase.h"
+
+
+#include "Camera.h"
+#include "DirectionalLight.h"
+#include "PointLight.h"
+#include "SpotLight.h"

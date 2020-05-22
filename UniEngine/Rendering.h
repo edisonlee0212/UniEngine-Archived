@@ -11,5 +11,7 @@ namespace UniEngine {
 	public:
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, float4x4* matrices, size_t count, RenderTarget* target);
 		static void DrawMesh(Mesh* mesh, float4x4 matrix, Material* material, RenderTarget* target);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, float4x4* matrices, size_t count);
+		static void DrawMesh(Mesh* mesh, float4x4 matrix, Material* material);
 	};
 }

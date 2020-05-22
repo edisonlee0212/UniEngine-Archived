@@ -4,6 +4,7 @@
 namespace UniEngine {
 	class FixedDataStorage
 	{
+		std::unordered_map<size_t, void*> _FixedDataStorage;
 		std::vector<Translation> _Translations;
 		std::vector<Rotation> _Rotations;
 		std::vector<Scale> _Scales;
@@ -26,65 +27,25 @@ namespace UniEngine {
 	template<typename T>
 	inline void FixedDataStorage::SetFixedData(uint key, T value)
 	{
-		switch (typeid(T).hash_code())
-		{
-		case typeid(Translation).hash_code():
-			_Translations[key] = dynamic_cast<T>(value);
-			break;
-		case typeid(Rotation).hash_code():
-			_Rotations[key] = dynamic_cast<T>(value);
-			break;
-		case typeid(Scale).hash_code():
-			_Scales[key] = dynamic_cast<T>(value);
-			break;
-		case typeid(LocalPosition).hash_code():
-			_LocalPositions[key] = dynamic_cast<T>(value);
-			break;
-		case typeid(LocalRotation).hash_code():
-			_LocalRotations[key] = dynamic_cast<T>(value);
-			break;
-		case typeid(LocalScale).hash_code():
-			_LocalScales[key] = dynamic_cast<T>(value);
-			break;
-		case typeid(LocalToWorld).hash_code():
-			_LocalToWorlds[key] = dynamic_cast<T>(value);
-			break;
-		case typeid(LocalToParent).hash_code():
-			_LocalToParents[key] = dynamic_cast<T>(value);
-			break;
+		auto code = typeid(T).hash_code();
+		auto search = _FixedDataStorage.find(code);
+		if (search != _FixedDataStorage.end()) {
+			std::vector<T>* list = (std::vector<T>*) search->second;
+			list->at(key) = value;
 		}
+		return;
 	}
 
 	template<typename T>
 	inline T FixedDataStorage::GetFixedData(uint key)
 	{
-		switch (typeid(T).hash_code())
-		{
-		case typeid(Translation).hash_code():
-			return _Translations[key];
-			break;
-		case typeid(Rotation).hash_code():
-			return _Rotations[key];
-			break;
-		case typeid(Scale).hash_code():
-			return _Scales[key];
-			break;
-		case typeid(LocalPosition).hash_code():
-			return _LocalPositions[key];
-			break;
-		case typeid(LocalRotation).hash_code():
-			return _LocalRotations[key];
-			break;
-		case typeid(LocalScale).hash_code():
-			return _LocalScales[key];
-			break;
-		case typeid(LocalToWorld).hash_code():
-			return _LocalToWorlds[key];
-			break;
-		case typeid(LocalToParent).hash_code():
-			return _LocalToParents[key];
-			break;
+		auto code = typeid(T).hash_code();
+		auto search = _FixedDataStorage.find(code);
+		if (search != _FixedDataStorage.end()) {
+			std::vector<T>* list = (std::vector<T>*) search->second;
+			return list->at(key);
 		}
+		return T();
 	}
 
 }

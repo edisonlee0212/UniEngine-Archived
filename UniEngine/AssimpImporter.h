@@ -2,6 +2,7 @@
 #include "Misc.h"
 #include "Core.h"
 #include "Scene.h"
+#include "SceneNode.h"
 namespace UniEngine {
     class AssimpImporter {
     public:

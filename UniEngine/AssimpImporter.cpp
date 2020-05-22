@@ -1,7 +1,9 @@
 #include "AssimpImporter.h"
+#include "Scene.h"
+
 using namespace UniEngine;
 
-void AssimpImporter::LoadScene(Scene* destination, std::string const& path) {
+void AssimpImporter::LoadScene(UniEngine::Scene* destination, std::string const& path) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	// check for errors
@@ -16,31 +18,31 @@ void AssimpImporter::LoadScene(Scene* destination, std::string const& path) {
 		aiMesh* amesh = scene->mMeshes[i];
 		Mesh* mesh = new Mesh();
 		ReadMesh(amesh, mesh);
-		destination->mMeshes.push_back(mesh);
+		destination->_Meshes.push_back(mesh);
 	}
 
 	for (uint i = 0; i < scene->mNumMaterials; i++) {
 		aiMaterial* amaterial = scene->mMaterials[i];
 		Material* pointMaterial = new Material();
-		auto loadedTexture2Ds = &destination->mTexture2Ds;
+		auto loadedTexture2Ds = &destination->_Texture2Ds;
 		ReadMaterial(directory, amaterial, pointMaterial, loadedTexture2Ds);
-		destination->mMaterials.push_back(pointMaterial);
+		destination->_Materials.push_back(pointMaterial);
 	}
-	ProcessNode(directory, scene->mRootNode, destination->mRootNode, scene);
+	ProcessNode(directory, scene->mRootNode, destination->_Root, scene);
 }
 
 void AssimpImporter::ProcessNode(std::string directory, aiNode* node, SceneNode* sceneNode, const aiScene* scene) {
 	auto transform = node->mTransformation;
-	sceneNode->mTransformation = float4x4(transform.a1, transform.a2, transform.a3, transform.a4, transform.b1, transform.b2, transform.b3, transform.b4, transform.c1, transform.c2, transform.c3, transform.c4, transform.d1, transform.d2, transform.d3, transform.d4);
+	sceneNode->_Matrix = float4x4(transform.a1, transform.a2, transform.a3, transform.a4, transform.b1, transform.b2, transform.b3, transform.b4, transform.c1, transform.c2, transform.c3, transform.c4, transform.d1, transform.d2, transform.d3, transform.d4);
 	for (uint i = 0; i < node->mNumMeshes; i++)
 	{
-		sceneNode->mMeshesIndices.push_back(node->mMeshes[i]);
+		sceneNode->_MeshIndices.push_back(node->mMeshes[i]);
 	}
 
 	for (uint i = 0; i < node->mNumChildren; i++)
 	{
 		auto n = new SceneNode(sceneNode);
-		sceneNode->mChildren.push_back(n);
+		sceneNode->_Children.push_back(n);
 		ProcessNode(directory, node->mChildren[i], n, scene);
 	}
 }

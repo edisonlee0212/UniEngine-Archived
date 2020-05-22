@@ -9,6 +9,7 @@ namespace UniEngine {
 		void OnCreate();
 		void OnDestroy();
 		void Update();
+		void FixedUpdate();
 	};
 
 }

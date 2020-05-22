@@ -1,16 +1,21 @@
-#include "Input.h"
+#include "InputManager.h"
 using namespace UniEngine;
 
-double Input::_CursorX, Input::_CursorY, Input::_CursorScrollX, Input::_CursorScrollY;
-bool Input::_CursorMoved, Input::_CursorScrolled;
-bool Input::_KeyPressed[349];
-bool Input::_KeyDown[349];
-bool Input::_KeyUp[349];
-bool Input::_MousePressed[8];
-bool Input::_MouseDown[8];
-bool Input::_MouseUp[8];
+double InputManager::_CursorX, InputManager::_CursorY, InputManager::_CursorScrollX, InputManager::_CursorScrollY;
+bool InputManager::_CursorMoved, InputManager::_CursorScrolled, InputManager::_CursorMovedChecked, InputManager::_CursorScrolledChecked;
+bool InputManager::_KeyPressed[349];
+bool InputManager::_KeyDown[349];
+bool InputManager::_KeyUp[349];
+bool InputManager::_KeyDownChecked[349];
+bool InputManager::_KeyUpChecked[349];
+bool InputManager::_MousePressed[8];
+bool InputManager::_MouseDown[8];
+bool InputManager::_MouseUp[8];
+bool InputManager::_MouseDownChecked[8];
+bool InputManager::_MouseUpChecked[8];
 
-Input::Input() {
+
+InputManager::InputManager() {
     for (int i = 0; i < 349; i++) {
         _KeyPressed[i] = false;
         _KeyDown[i] = false;
@@ -29,7 +34,7 @@ Input::Input() {
     _CursorMoved = _CursorScrolled = false;
     _CursorMovedChecked = _CursorScrolledChecked = false;
 }
-void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void InputManager::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_UNKNOWN) return;
     if (action == GLFW_PRESS) {
         _KeyPressed[key] = true;
@@ -42,7 +47,7 @@ void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, i
         _KeyUpChecked[key] = false;
     }
 }
-void Input::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+void InputManager::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_KEY_UNKNOWN) return;
     if (action == GLFW_PRESS) {
         _MousePressed[button] = true;
@@ -55,55 +60,60 @@ void Input::MouseButtonCallback(GLFWwindow* window, int button, int action, int 
         _MouseUpChecked[button] = true;
     }
 }
-void Input::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
+void InputManager::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
     _CursorMoved = true;
     _CursorX = xpos;
     _CursorY = ypos;
 }
-void Input::MouseScrollCallback(GLFWwindow* window, double xpos, double ypos) {
+void InputManager::MouseScrollCallback(GLFWwindow* window, double xpos, double ypos) {
     _CursorScrolled = true;
     _CursorScrollX = xpos;
     _CursorScrollY = ypos;
 }
-bool Input::GetKeyDown(int key) {
+bool InputManager::GetKeyDown(int key) {
     bool down = _KeyDown[key];
     _KeyDownChecked[key] = true;
     return down;
 }
-bool Input::GetKeyUp(int key) {
+bool InputManager::GetKeyUp(int key) {
     bool up = _KeyUp[key];
     _KeyUpChecked[key] = true;
     return up;
 }
-bool Input::GetKey(int key) {
+bool InputManager::GetKey(int key) {
     return _KeyPressed[key];
 }
-bool Input::GetMouseDown(int button) {
+bool InputManager::GetMouseDown(int button) {
     bool down = _MouseDown[button];
     _MouseDownChecked[button] = true;
     return down;
 }
-bool Input::GetMouseUp(int button) {
+bool InputManager::GetMouseUp(int button) {
     bool up = _MouseUp[button];
     _MouseUpChecked[button] = true;
     return up;
 }
-bool Input::GetMouse(int button) {
+bool InputManager::GetMouse(int button) {
     return _MousePressed[button];
 }
-float2 Input::GetMousePosition() {
+float2 InputManager::GetMousePosition() {
     return float2(_CursorX, _CursorY);
 }
-float2 Input::GetMouseScroll() {
+float2 InputManager::GetMouseScroll() {
     return float2(_CursorScrollX, _CursorScrollY);
 }
-bool Input::GetMouseScrolled() {
+bool InputManager::GetMouseScrolled() {
     bool scrolled = _CursorScrolled;
     _CursorScrolledChecked = true;
     return scrolled;
 }
-bool Input::GetMouseMoved() {
+bool InputManager::GetMouseMoved() {
     bool moved = _CursorMoved;
     _CursorMovedChecked = true;
     return moved;
+}
+
+void UniEngine::InputManager::Update()
+{
+
 }

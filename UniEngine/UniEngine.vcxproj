@@ -157,15 +157,17 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="Default.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FixedDataStorage.cpp" />
     <ClCompile Include="GLBuffer.cpp" />
     <ClCompile Include="GLFrameBuffer.cpp" />
     <ClCompile Include="GLRenderBuffer.cpp" />
     <ClCompile Include="GLTexture.cpp" />
-    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -180,7 +182,9 @@
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="ShadowSystem.cpp" />
+    <ClCompile Include="SharedComponent.cpp" />
     <ClCompile Include="SharedComponentSystem.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="stb.cpp" />
@@ -190,6 +194,7 @@
     <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
     <ClCompile Include="UniEngine.cpp" />
+    <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -201,10 +206,12 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="double.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityManager.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="FixedData.h" />
     <ClInclude Include="FixedDataStorage.h" />
     <ClInclude Include="float.h" />
@@ -212,7 +219,7 @@
     <ClInclude Include="GLFrameBuffer.h" />
     <ClInclude Include="GLRenderBuffer.h" />
     <ClInclude Include="GLTexture.h" />
-    <ClInclude Include="Input.h" />
+    <ClInclude Include="InputManager.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLight.h" />
@@ -230,6 +237,7 @@
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneNode.h" />
     <ClInclude Include="ShadowSystem.h" />
     <ClInclude Include="SharedComponent.h" />
     <ClInclude Include="SharedComponentSystem.h" />
@@ -242,6 +250,7 @@
     <ClInclude Include="uint.h" />
     <ClInclude Include="ulong.h" />
     <ClInclude Include="UniEngine.h" />
+    <ClInclude Include="Window.h" />
     <ClInclude Include="WindowManager.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

@@ -1,25 +1,17 @@
 #pragma once
 #include "Misc.h"
+#include "SceneNode.h"
 #include "Core.h"
 namespace UniEngine {
-	class SceneNode {
-	public:
-		float4x4 mTransformation;
-		SceneNode* mParent;
-		std::vector<SceneNode*> mChildren;
-		std::vector<int> mMeshesIndices;
-		std::vector<int> mMaterialIndices;
-		SceneNode(SceneNode* parent);
-		~SceneNode();
-	};
 	class Scene
 	{
 	public:
-		std::vector<Mesh*> mMeshes;
-		std::vector<Material*> mMaterials;
-		std::vector<Texture2D*> mTexture2Ds;
-		SceneNode* mRootNode;
+		std::vector<Mesh*> _Meshes;
+		std::vector<Material*> _Materials;
+		std::vector<Texture2D*> _Texture2Ds;
+		SceneNode* _Root;
 		Scene();
 		~Scene();
 	};
 }
+

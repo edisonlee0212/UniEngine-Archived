@@ -1,13 +1,8 @@
 #include "UniEngine.h"
-
-#include "TimeSystem.h"
-#include "InputSystem.h"
-#include "ShadowSystem.h"
-#include "RenderSystem.h"
-#include "PhysicsSystem.h"
-#include "TransformSystem.h"
-#include "SharedComponentSystem.h"
-
+#include "World.h"
+#include "WindowManager.h"
+#include "InputManager.h"
+#include "Default.h"
 UniEngine::EngineDriver::EngineDriver()
 {
 	_Looping = false;
@@ -15,31 +10,6 @@ UniEngine::EngineDriver::EngineDriver()
 
 void UniEngine::EngineDriver::GLInit()
 {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
-#endif
-	// glfw window creation
-	// --------------------
-	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return;
-	}
-	glfwMakeContextCurrent(window);
-
-	/*auto window = WindowManager::CreateWindow(1280, 720);
-
-	glfwSetFramebufferSizeCallback(window, WindowManager::ResizeCallback);
-	glfwSetCursorPosCallback(window, Input::CursorPositionCallback);
-	glfwSetScrollCallback(window, Input::MouseScrollCallback);
-	glfwSetKeyCallback(window, Input::KeyCallback);
-	glfwSetMouseButtonCallback(window, Input::MouseButtonCallback);*/
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -47,29 +17,19 @@ void UniEngine::EngineDriver::GLInit()
 		Debug::Error("Failed to initialize GLAD");
 		exit(-1);
 	}
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_CULL_FACE);
-
 }
 
 void UniEngine::EngineDriver::Start()
 {
+	WindowManager::Init();
+	WindowManager::CreateWindow(1280, 720, "Main", NULL);
 	GLInit();
+
+	
+
+	Default::Load();
 	world = new World();
-	//Initialization System Group
-	world->CreateSystem<TimeSystem>();
-	world->CreateSystem<InputSystem>();
-
-	//Simulation System Group
-	world->CreateSystem<PhysicsSystem>();
-	world->CreateSystem<TransformSystem>();
-	world->CreateSystem<ShadowSystem>();
-
-	//Presentation System Group
-	world->CreateSystem<RenderSystem>();
-
+	Loop();
 }
 
 void UniEngine::EngineDriver::Loop()
@@ -78,7 +38,11 @@ void UniEngine::EngineDriver::Loop()
 	_Looping = true;
 	while (_Looping)
 	{
+
+		WindowManager::Update(WindowManager::CurrentWindow(), Default::Textures::MissingTexture);
 		world->Update();
+		InputManager::Update();
+		WindowManager::Update();
 	}
 }
 

@@ -10,6 +10,7 @@ namespace UniEngine {
 		friend class World;
 		EntityManager();
 	public:
+		std::vector<Entity*>* Entities();
 		Entity* CreateEntity();
 		void DeleteEntity(Entity* entity);
 		void DeleteEntity(uint key);
@@ -41,6 +42,6 @@ namespace UniEngine {
 	template<typename T>
 	inline T EntityManager::GetFixedData(Entity* entity)
 	{
-		return _FixedDataStorage.GetFixedData<T>(entity->_Key);
+		return _FixedDataStorage->GetFixedData<T>(entity->_Key);
 	}
 }

@@ -48,7 +48,9 @@ namespace UniEngine {
 			glGenVertexArrays(1, &_ID);
 			_VBO = new GLVBO();
 		}
-
+		GLVBO* VBO() {
+			return _VBO;
+		}
 		void Bind() {
 			glBindVertexArray(_ID);
 		}

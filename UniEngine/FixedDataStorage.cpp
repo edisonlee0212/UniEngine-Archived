@@ -10,6 +10,14 @@ UniEngine::FixedDataStorage::FixedDataStorage()
 	_LocalScales = std::vector<LocalScale>();
 	_LocalToWorlds = std::vector<LocalToWorld>();
 	_LocalToParents = std::vector<LocalToParent>();
+	_FixedDataStorage.insert({ typeid(Translation).hash_code(), (void*)&_Translations });
+	_FixedDataStorage.insert({ typeid(Rotation).hash_code(), (void*)&_Rotations });
+	_FixedDataStorage.insert({ typeid(Scale).hash_code(), (void*)&_Scales });
+	_FixedDataStorage.insert({ typeid(LocalPosition).hash_code(), (void*)&_LocalPositions });
+	_FixedDataStorage.insert({ typeid(LocalRotation).hash_code(), (void*)&_LocalRotations });
+	_FixedDataStorage.insert({ typeid(LocalScale).hash_code(), (void*)&_LocalScales });
+	_FixedDataStorage.insert({ typeid(LocalToWorld).hash_code(), (void*)&_LocalToWorlds });
+	_FixedDataStorage.insert({ typeid(LocalToParent).hash_code(), (void*)&_LocalToParents });
 }
 void UniEngine::FixedDataStorage::PushBack()
 {

@@ -17,3 +17,7 @@ void UniEngine::SharedComponentSystem::OnDestroy()
 void UniEngine::SharedComponentSystem::Update()
 {
 }
+
+void UniEngine::SharedComponentSystem::FixedUpdate()
+{
+}

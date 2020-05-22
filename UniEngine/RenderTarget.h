@@ -12,7 +12,7 @@ namespace UniEngine {
 		void AttachTexture(GLTexture* texture, GLint attachPoint);
 		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLint attachPoint);
 		void Bind();
-		void Unbind();
+		static void BindDefault();
 	};
 
 }

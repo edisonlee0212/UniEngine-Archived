@@ -7,6 +7,11 @@ UniEngine::EntityManager::EntityManager()
 	_FixedDataStorage = new FixedDataStorage();
 }
 
+std::vector<Entity*>* UniEngine::EntityManager::Entities()
+{
+	return &_Entities;
+}
+
 Entity* UniEngine::EntityManager::CreateEntity()
 {
 	Entity* retVal = new Entity(_Entities.size());
