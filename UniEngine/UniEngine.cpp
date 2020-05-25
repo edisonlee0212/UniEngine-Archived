@@ -3,6 +3,9 @@
 #include "WindowManager.h"
 #include "InputManager.h"
 #include "Default.h"
+
+using namespace UniEngine;
+
 UniEngine::EngineDriver::EngineDriver()
 {
 	_Looping = false;
@@ -27,9 +30,9 @@ void UniEngine::EngineDriver::Start()
 
 	
 
-	Default::Load();
-	world = new World();
-	Loop();
+	
+	_World = new World();
+	Default::Load(_World);
 }
 
 void UniEngine::EngineDriver::Loop()
@@ -38,9 +41,7 @@ void UniEngine::EngineDriver::Loop()
 	_Looping = true;
 	while (_Looping)
 	{
-
-		WindowManager::Update(WindowManager::CurrentWindow(), Default::Textures::MissingTexture);
-		world->Update();
+		_World->Update();
 		InputManager::Update();
 		WindowManager::Update();
 	}
@@ -48,6 +49,12 @@ void UniEngine::EngineDriver::Loop()
 
 void UniEngine::EngineDriver::End()
 {
-	delete world;
+	delete _World;
 	glfwTerminate();
 }
+
+World* UniEngine::EngineDriver::GetWorld()
+{
+	return _World;
+}
+

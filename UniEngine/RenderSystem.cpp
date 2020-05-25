@@ -21,12 +21,12 @@ void UniEngine::RenderSystem::OnDestroy()
 
 void UniEngine::RenderSystem::Update()
 {
-
-
-	for (auto i : *(Entities()->Entities())) {
-		Rendering::DrawMesh(i->GetSharedComponent<Mesh>(),
-			Entities()->GetFixedData<LocalToWorld>(i).value,
-			i->GetSharedComponent<Material>()
-		);
+	for (auto i : *(_EntityCollection->Entities())) {
+		if (i->GetSharedComponent<Mesh>() && i->GetSharedComponent<Material>()) {
+			Rendering::DrawMesh(i->GetSharedComponent<Mesh>(),
+				_EntityCollection->GetFixedData<LocalToWorld>(i).value,
+				i->GetSharedComponent<Material>()
+			);
+		}
 	}
 }

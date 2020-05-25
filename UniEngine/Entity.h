@@ -7,15 +7,14 @@ namespace UniEngine {
 	{
 		uint _Key;
 		Entity* _Parent;
+		std::vector<Entity*> _Children;
 		std::unordered_map<std::size_t, SharedComponent*>* _SharedComponents;
-		friend class EntityManager;
-		
-		
-		
+		friend class EntityCollection;
 		Entity(uint key);
+		void RemoveChild(Entity* child);
 		~Entity();
-		void SetParent(Entity* parent);
 	public:
+		std::vector<Entity*>* Children();
 		template <class T>
 		void SetSharedComponent(T* value);
 		template <typename T>

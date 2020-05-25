@@ -1,7 +1,7 @@
 #include "Camera.h"
 //#include "WindowManager.h"
 using namespace UniEngine;
-void UniEngine::Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+float3 UniEngine::Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
 	float velocity = MovementSpeed * deltaTime;
 	if (direction == FORWARD)
@@ -16,6 +16,7 @@ void UniEngine::Camera::ProcessKeyboard(Camera_Movement direction, float deltaTi
 		Position.y += velocity;
 	if (direction == DOWN)
 		Position.y -= velocity;
+	return Position;
 }
 
 void UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)

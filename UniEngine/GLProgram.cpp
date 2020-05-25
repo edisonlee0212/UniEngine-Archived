@@ -5,6 +5,21 @@ using namespace UniEngine;
 UniEngine::GLProgram::GLProgram()
 {
     _ID = glCreateProgram();
+    _VertexShader = nullptr;
+    _FragmentShader = nullptr;
+}
+
+UniEngine::GLProgram::GLProgram(GLShader* vertexShader, GLShader* fragmentShader, GLShader* geometryShader)
+{
+    _ID = glCreateProgram();
+    _VertexShader = nullptr;
+    _FragmentShader = nullptr;
+    Attach(ShaderType::Vertex, vertexShader);
+    Attach(ShaderType::Fragment, fragmentShader);
+    _VertexShader = vertexShader;
+    _FragmentShader = fragmentShader;
+    if(geometryShader) Attach(ShaderType::Geometry, geometryShader);
+    Link();
 }
 
 UniEngine::GLProgram::~GLProgram()
@@ -20,10 +35,13 @@ void UniEngine::GLProgram::Use()
 void UniEngine::GLProgram::Link()
 {
     glLinkProgram(_ID);
-    GLint status;
+    GLint status = 0;
     glGetProgramiv(_ID, GL_LINK_STATUS, &status);
-    if (status != GL_TRUE) {
-        Debug::Log("Error");
+    if (!status) {
+        GLchar infoLog[1024];
+        std::string type = "PROGRAM";
+        glGetProgramInfoLog(_ID, 1024, NULL, infoLog);
+        Debug::Error("ERROR::PROGRAM_LINKING_ERROR of type: " + type + "\n" + infoLog + "\n -- --------------------------------------------------- -- ");
     }
 }
 

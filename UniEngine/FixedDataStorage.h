@@ -14,7 +14,8 @@ namespace UniEngine {
 		std::vector<LocalToWorld> _LocalToWorlds;
 		std::vector<LocalToParent> _LocalToParents;
 
-		friend class EntityManager;
+
+		friend class EntityCollection;
 		FixedDataStorage();
 		void PushBack();
 		void RemoveSwapBack(uint key);

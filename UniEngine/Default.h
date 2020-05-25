@@ -39,7 +39,7 @@ namespace UniEngine {
 			static Mesh* Cone;
 		};
 
-		static void Load();
+		static void Load(World* world);
 	};
 
 }

@@ -4,5 +4,5 @@ in vec2 TexCoords;
 
 void main()
 {    
-    FragColor = texture(materials[0].diffuse, TexCoords);
+    FragColor = texture(TEXTURE_DIFFUSE[0], TexCoords);
 }

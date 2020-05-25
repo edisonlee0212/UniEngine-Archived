@@ -14,8 +14,9 @@ namespace UniEngine {
 
 	class GLEBO : public GLBuffer {
 	public:
-		void Load() {
+		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ID);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, length, data, usage);
 		}
 	};
 
@@ -40,6 +41,7 @@ namespace UniEngine {
 	class GLVAO : public GLObject {
 	protected:
 		GLVBO* _VBO;
+		GLEBO* _EBO;
 	public:
 		static void BindDefault() {
 			glBindVertexArray(0);
@@ -47,10 +49,16 @@ namespace UniEngine {
 		GLVAO() {
 			glGenVertexArrays(1, &_ID);
 			_VBO = new GLVBO();
+			_EBO = new GLEBO();
 		}
 		GLVBO* VBO() {
 			return _VBO;
 		}
+
+		GLEBO* EBO() {
+			return _EBO;
+		}
+
 		void Bind() {
 			glBindVertexArray(_ID);
 		}

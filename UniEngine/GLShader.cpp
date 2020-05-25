@@ -5,6 +5,7 @@ void UniEngine::GLShader::SetCode(std::string* code)
 {
 	_Code = code;
 	_Compileable = true;
+	Compile();
 }
 
 UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
@@ -27,6 +28,29 @@ UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
 	default:
 		break;
 	}
+}
+
+UniEngine::GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
+{
+	_Code = code;
+	_ID = 0;
+	_Attachable = false;
+	_Compileable = false;
+	switch (_Type)
+	{
+	case UniEngine::ShaderType::Vertex:
+		_ID = glCreateShader(GL_VERTEX_SHADER);
+		break;
+	case UniEngine::ShaderType::Geometry:
+		_ID = glCreateShader(GL_GEOMETRY_SHADER);
+		break;
+	case UniEngine::ShaderType::Fragment:
+		_ID = glCreateShader(GL_FRAGMENT_SHADER);
+		break;
+	default:
+		break;
+	}
+	SetCode(_Code);
 }
 
 UniEngine::GLShader::~GLShader()

@@ -30,7 +30,7 @@ namespace UniEngine {
 		float4x4 Projection;
 		float4x4 View;
 	
-		void ProcessKeyboard(Camera_Movement direction, float deltaTime);
+		float3 ProcessKeyboard(Camera_Movement direction, float deltaTime);
 		void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
 		void ProcessMouseScroll(float yoffset);
 		void UpdateCameraVectors();
