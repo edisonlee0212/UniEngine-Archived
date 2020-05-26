@@ -6,7 +6,7 @@ namespace UniEngine {
 	{
 	public:
 		static void Init();
-		static Window* CreateWindow(uint width, uint height, std::string name, GLFWmonitor* monitor);
+		static Window* CreateWindow(unsigned width, unsigned height, std::string name, GLFWmonitor* monitor);
 		static std::vector<Window*>* Windows();
 		static Window* CurrentWindow();
 		static GLFWmonitor* PrimaryMonitor();

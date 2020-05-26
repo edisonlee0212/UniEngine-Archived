@@ -69,6 +69,13 @@ void UniEngine::Default::Load(World* world)
 
 	Entity* entity = world->_EntityCollection->CreateEntity();
 	
+	
+	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/quad.obj"));
+	Primitives::Quad = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	Primitives::Quad->RecalculateNormal();
+	world->_EntityCollection->DeleteEntity(entity);
+
+	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/sphere.obj"));
 	Primitives::Sphere = entity->Children()->at(0)->GetSharedComponent<Mesh>();
 	Primitives::Sphere->RecalculateNormal();
@@ -80,11 +87,7 @@ void UniEngine::Default::Load(World* world)
 	Primitives::Cube->RecalculateNormal();
 	world->_EntityCollection->DeleteEntity(entity);
 
-	entity = world->_EntityCollection->CreateEntity();
-	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/quad.obj"));
-	Primitives::Quad = entity->Children()->at(0)->GetSharedComponent<Mesh>();
-	Primitives::Quad->RecalculateNormal();
-	world->_EntityCollection->DeleteEntity(entity);
+	
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cone.obj"));

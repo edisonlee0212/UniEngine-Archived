@@ -94,6 +94,9 @@
     <Filter Include="Source Files\Engine">
       <UniqueIdentifier>{65d16a9a-ed31-4cbd-845a-cfc93c39375d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\learnopengl">
+      <UniqueIdentifier>{63e827d7-b55b-4232-a440-1596feb18684}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\glad\src\glad.c">
@@ -201,9 +204,6 @@
     <ClCompile Include="SceneNode.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowSystem.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="SharedComponent.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
@@ -231,6 +231,9 @@
     <ClCompile Include="World.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="OMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Misc.h">
@@ -255,9 +258,6 @@
       <Filter>Header Files\Core\Math\Primitive</Filter>
     </ClInclude>
     <ClInclude Include="long.h">
-      <Filter>Header Files\Core\Math\Primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="uint.h">
       <Filter>Header Files\Core\Math\Primitive</Filter>
     </ClInclude>
     <ClInclude Include="ulong.h">
@@ -368,9 +368,6 @@
     <ClInclude Include="PhysicsSystem.h">
       <Filter>Header Files\World\SystemManagement</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowSystem.h">
-      <Filter>Header Files\World\SystemManagement</Filter>
-    </ClInclude>
     <ClInclude Include="FileIO.h">
       <Filter>Header Files\Core\FileIO</Filter>
     </ClInclude>
@@ -397,6 +394,18 @@
     </ClInclude>
     <ClInclude Include="ModelManager.h">
       <Filter>Header Files\Resouce\AssetManagement\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="OMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="learnopenglcamera.h">
+      <Filter>Header Files\learnopengl</Filter>
+    </ClInclude>
+    <ClInclude Include="learnopenglshader.h">
+      <Filter>Header Files\learnopengl</Filter>
+    </ClInclude>
+    <ClInclude Include="unsigned.h">
+      <Filter>Header Files\Core\Math\Primitive</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

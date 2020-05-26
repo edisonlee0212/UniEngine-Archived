@@ -4,7 +4,6 @@
 #include "EntityCollection.h"
 #include "TimeSystem.h"
 #include "InputSystem.h"
-#include "ShadowSystem.h"
 #include "RenderSystem.h"
 #include "PhysicsSystem.h"
 #include "TransformSystem.h"
@@ -25,7 +24,6 @@ World::World() {
 	//Simulation System Group
 	CreateSystem<PhysicsSystem>();
 	CreateSystem<TransformSystem>();
-	CreateSystem<ShadowSystem>();
 
 	//Presentation System Group
 	CreateSystem<RenderSystem>();
