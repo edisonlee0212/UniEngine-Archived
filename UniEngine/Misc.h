@@ -30,3 +30,6 @@
 #include <assimp-5.0.1/include/assimp/postprocess.h>
 #include <assimp-5.0.1/include/assimp/Importer.hpp>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>

@@ -2,7 +2,7 @@
 using namespace UniEngine;
 UniEngine::Mesh::Mesh()
 {
-	_Vertices = new std::vector<float3>();
+	_Vertices = new std::vector<glm::vec3>();
 	_VAO = new GLVAO();
 	_Size = 0;
 }
@@ -276,17 +276,17 @@ size_t UniEngine::Mesh::Size()
 void UniEngine::Mesh::RecalculateNormal()
 {
 	if (_Size == 0 || _Vertices->size() == 0) return;
-	std::vector<float3> normals = std::vector<float3>();
+	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
 	for (size_t i = 0; i < _Size / 3; i++) {
 		auto v1 = _Vertices->at(3 * i);
 		auto v2 = _Vertices->at(3 * i + 1);
 		auto v3 = _Vertices->at(3 * i + 2);
-		auto normal = Cross(v1 - v2, v1 - v3);
+		auto normal = glm::cross(v1 - v2, v1 - v3);
 		normals.push_back(normal);
 		normals.push_back(normal);
 		normals.push_back(normal);
 	}
-	_VAO->SubData(12, sizeof(float3), &normals[0]);
+	_VAO->SubData(12, sizeof(glm::vec3), &normals[0]);
 }
 
 GLVAO* UniEngine::Mesh::VAO()

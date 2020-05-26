@@ -48,6 +48,8 @@ void UniEngine::EngineDriver::Loop()
 	_Looping = true;
 	while (_Looping)
 	{
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		_World->Update();
 		InputManager::Update();
 		//WindowManager::Update();

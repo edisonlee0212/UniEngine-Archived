@@ -1,5 +1,5 @@
 #include "Entity.h"
-#include "Math.h"
+
 using namespace UniEngine;
 UniEngine::Entity::Entity(unsigned key) : _Key(key)
 {

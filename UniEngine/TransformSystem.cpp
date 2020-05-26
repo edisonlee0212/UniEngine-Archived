@@ -34,16 +34,20 @@ void UniEngine::TransformSystem::Update()
 	for (auto i : *(_EntityCollection->Entities())) {
 		if (i->Parent() != nullptr) {
 			LocalToParent ltp = LocalToParent();
-			ltp.value = TRS(_EntityCollection->GetFixedData<LocalPosition>(i).value
-				, _EntityCollection->GetFixedData<LocalRotation>(i).value
-				, _EntityCollection->GetFixedData<LocalScale>(i).value);
+			auto lp = _EntityCollection->GetFixedData<LocalPosition>(i).value;
+			auto lr = _EntityCollection->GetFixedData<LocalRotation>(i).value;
+			auto ls = _EntityCollection->GetFixedData<LocalScale>(i).value;
+			ltp.value = glm::translate(glm::mat4(1.0f), lp);
+			ltp.value = glm::scale(ltp.value, ls);
 			_EntityCollection->SetFixedData<LocalToParent>(i, ltp);
 		}
 		else {
 			LocalToWorld ltw = LocalToWorld();
-			ltw.value = TRS(_EntityCollection->GetFixedData<Position>(i).value
-				, _EntityCollection->GetFixedData<Rotation>(i).value
-				, _EntityCollection->GetFixedData<Scale>(i).value);
+			auto p = _EntityCollection->GetFixedData<Position>(i).value;
+			auto r = _EntityCollection->GetFixedData<Rotation>(i).value;
+			auto s = _EntityCollection->GetFixedData<Scale>(i).value;
+			ltw.value = glm::translate(glm::mat4(1.0f), p);
+			ltw.value = glm::scale(ltw.value, s);
 			_EntityCollection->SetFixedData<LocalToWorld>(i, ltw);
 		}
 	}

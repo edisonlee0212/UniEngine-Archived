@@ -5,7 +5,7 @@ namespace UniEngine {
 	class SceneNode
 	{
 	public:
-		float4x4 _Matrix;
+		glm::mat4 _Matrix;
 		SceneNode* _Parent;
 		std::vector<SceneNode*> _Children;
 		std::vector<unsigned> _MeshIndices;

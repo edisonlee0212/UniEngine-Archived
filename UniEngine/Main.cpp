@@ -4,7 +4,7 @@
 using namespace UniEngine;
 
 EngineDriver* engine;
-void LoadNanoSuit(float3 position, float3 scale, std::string* vertShaderCode, std::string* fragShaderCode) {
+void LoadNanoSuit(glm::vec3 position, glm::vec3 scale, std::string* vertShaderCode, std::string* fragShaderCode) {
     Entity* suit = engine->GetWorld()->_EntityCollection->CreateEntity();
     Position t;
     t.value = position;
@@ -21,9 +21,9 @@ void LoadNanoSuit(float3 position, float3 scale, std::string* vertShaderCode, st
 void InitGround(std::string* vertShaderCode, std::string* fragShaderCode) {
     auto entity = engine->GetWorld()->_EntityCollection->CreateEntity();
     Position translation = Position();
-    translation.value = float3(0.0f, 0.0f, 0.0f);
+    translation.value = glm::vec3(0.0f, 0.0f, 0.0f);
     Scale scale = Scale();
-    scale.value = float3(10.0f);
+    scale.value = glm::vec3(10.0f);
     engine->GetWorld()->_EntityCollection->SetFixedData<Position>(entity, translation);
     engine->GetWorld()->_EntityCollection->SetFixedData<Scale>(entity, scale);
     entity->SetSharedComponent<Mesh>(Default::Primitives::Quad);
@@ -62,7 +62,7 @@ int main()
         + "\n"
         + FileIO::LoadFileAsString("Resources/Shaders/Fragment/Default.frag");
 
-    LoadNanoSuit(float3(-4.0f, 0.0f, 0.0f), float3(1.0f), &vertShaderCode, &fragShaderCode);
+    LoadNanoSuit(glm::vec3(-4.0f, 0.0f, 0.0f), glm::vec3(1.0f), &vertShaderCode, &fragShaderCode);
     InitGround(&vertShaderCode, &fragShaderCode);
     engine->Loop();
     engine->End();

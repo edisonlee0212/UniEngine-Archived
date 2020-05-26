@@ -96,11 +96,11 @@ bool InputManager::GetMouseUp(int button) {
 bool InputManager::GetMouse(int button) {
     return _MousePressed[button];
 }
-float2 InputManager::GetMousePosition() {
-    return float2(_CursorX, _CursorY);
+glm::vec2 InputManager::GetMousePosition() {
+    return glm::vec2(_CursorX, _CursorY);
 }
-float2 InputManager::GetMouseScroll() {
-    return float2(_CursorScrollX, _CursorScrollY);
+glm::vec2 InputManager::GetMouseScroll() {
+    return glm::vec2(_CursorScrollX, _CursorScrollY);
 }
 bool InputManager::GetMouseScrolled() {
     bool scrolled = _CursorScrolled;

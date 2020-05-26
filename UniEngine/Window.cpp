@@ -10,9 +10,9 @@ void UniEngine::Window::SetSize(unsigned width, unsigned height)
 	_Height = height;
 }
 
-float2 UniEngine::Window::GetSize()
+glm::vec2 UniEngine::Window::GetSize()
 {
-	return float2(_Width, _Height);
+	return glm::vec2(_Width, _Height);
 }
 
 GLFWwindow* UniEngine::Window::GLFWwindow()

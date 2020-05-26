@@ -9,9 +9,9 @@ namespace UniEngine {
 		static unsigned _Triangles;
 		static unsigned _DrawCall;
 	public:
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, float4x4* matrices, size_t count, RenderTarget* target);
-		static void DrawMesh(Mesh* mesh, float4x4 matrix, Material* material, RenderTarget* target);
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, float4x4* matrices, size_t count);
-		static void DrawMesh(Mesh* mesh, float4x4 matrix, Material* material);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4* matrices, size_t count, RenderTarget* target);
+		static void DrawMesh(Mesh* mesh, glm::mat4 matrix, Material* material, RenderTarget* target);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4* matrices, size_t count);
+		static void DrawMesh(Mesh* mesh, glm::mat4 matrix, Material* material);
 	};
 }

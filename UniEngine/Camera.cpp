@@ -2,7 +2,7 @@
 #include "WindowManager.h"
 using namespace UniEngine;
 
-Camera::Camera(float3 position, float3 up, float yaw, float pitch) : Front(float3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
 	Position = position;
 	WorldUp = up;
@@ -11,26 +11,26 @@ Camera::Camera(float3 position, float3 up, float yaw, float pitch) : Front(float
 	UpdateCameraVectors();
 }
 // Constructor with scalar values
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(float3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
-	Position = float3(posX, posY, posZ);
-	WorldUp = float3(upX, upY, upZ);
+	Position = glm::vec3(posX, posY, posZ);
+	WorldUp = glm::vec3(upX, upY, upZ);
 	Yaw = yaw;
 	Pitch = pitch;
 	UpdateCameraVectors();
 }
 
-float3 UniEngine::Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+glm::vec3 UniEngine::Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
 	float velocity = MovementSpeed * deltaTime;
 	if (direction == FORWARD)
-		Position = float3(Front.x, 0.0f, Front.z) * velocity + Position;
+		Position += glm::vec3(Front.x, 0.0f, Front.z) * velocity;
 	if (direction == BACKWARD)
-		Position = float3(Front.x, 0.0f, Front.z) * velocity - Position;
+		Position -= glm::vec3(Front.x, 0.0f, Front.z) * velocity;
 	if (direction == LEFT)
-		Position = float3(Right.x, 0.0f, Right.z) * velocity - Position;
+		Position -= glm::vec3(Right.x, 0.0f, Right.z) * velocity;
 	if (direction == RIGHT)
-		Position = float3(Right.x, 0.0f, Right.z) * velocity + Position;
+		Position += glm::vec3(Right.x, 0.0f, Right.z) * velocity;
 	if (direction == UP)
 		Position.y += velocity;
 	if (direction == DOWN)
@@ -72,20 +72,20 @@ void UniEngine::Camera::ProcessMouseScroll(float yoffset)
 void UniEngine::Camera::UpdateCameraVectors()
 {
 	// Calculate the new Front vector
-	float3 front;
-	front.x = Cos(Yaw / 180.0f * 3.1415926) * Cos(Pitch / 180.0f * 3.1415926);
-	front.y = Sin(Pitch / 180.0f * 3.1415926);
-	front.z = Sin(Yaw / 180.0f * 3.1415926) * Cos(Pitch / 180.0f * 3.1415926);
-	Front = Normalize(front);
+	glm::vec3 front;
+	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	front.y = sin(glm::radians(Pitch));
+	front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	Front = glm::normalize(front);
 	// Also re-calculate the Right and Up vector
-	Right = Normalize(Cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-	Up = Normalize(Cross(Right, Front));
+	Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+	Up = glm::normalize(glm::cross(Right, Front));
 	UpdateViewProj();
 }
 
 void Camera::UpdateViewProj() {
-	View = LookAt4x4(Position, Position + Front, Up);
+	View = glm::lookAt(Position, Position + Front, Up);
 	auto size = WindowManager::CurrentWindow()->GetSize();
 	if (size.x == 0 || size.y == 0) return;
-	Projection = PerspectiveFov(Zoom / 180.0f * 3.1415926, size.x / size.y, 0.1f, 100.0f);
+	Projection = glm::perspective(glm::radians(Zoom), size.x / size.y, 0.1f, 100.0f);
 }

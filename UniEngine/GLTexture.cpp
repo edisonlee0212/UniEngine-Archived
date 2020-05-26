@@ -17,25 +17,25 @@ UniEngine::GLTexture::~GLTexture()
 void UniEngine::GLTexture::SetImage1D(GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const void* data)
 {
 	glBindTexture(GL_TEXTURE_1D, _ID);
-	glTexImage1D(GL_TEXTURE_1D, internalformat, format, width, border, format, type, data);
+	glTexImage1D(GL_TEXTURE_1D, level, internalformat, width, border, format, type, data);
 }
 
 void UniEngine::GLTexture::SetImage2D(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data)
 {
 	glBindTexture(GL_TEXTURE_2D, _ID);
-	glTexImage2D(GL_TEXTURE_2D, internalformat, format, width, height, border, format, type, data);
+	glTexImage2D(GL_TEXTURE_2D, level, internalformat, width, height, border, format, type, data);
 }
 
 void UniEngine::GLTexture::SetImage3D(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void* data)
 {
 	glBindTexture(GL_TEXTURE_3D, _ID);
-	glTexImage3D(GL_TEXTURE_1D, internalformat, format, width, height, depth, border, format, type, data);
+	glTexImage3D(GL_TEXTURE_1D, level, internalformat, width, height, depth, border, format, type, data);
 }
 
 void UniEngine::GLTexture::SetCubeMap(CubeMapIndex index, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void* data)
 {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _ID);
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)index, internalformat, format, width, height, border, format, type, data);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)index, level, internalformat, width, height, border, format, type, data);
 }
 
 void UniEngine::GLTexture::SetIntParameter(GLenum target, GLenum pname, GLint param)

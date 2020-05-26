@@ -16,9 +16,6 @@
     <Filter Include="Header Files\Core">
       <UniqueIdentifier>{eeb3fc94-e880-4128-a306-244799410937}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\Math">
-      <UniqueIdentifier>{38e62dde-4580-4147-b8bd-898d3b5595d6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Core\FileIO">
       <UniqueIdentifier>{e8cd4a2d-8c45-43c1-a0b4-04937c2e90eb}</UniqueIdentifier>
     </Filter>
@@ -30,9 +27,6 @@
     </Filter>
     <Filter Include="Header Files\Core\Thread">
       <UniqueIdentifier>{e6da78be-8d6a-4a6d-90ce-558835bcce01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Math\Primitive">
-      <UniqueIdentifier>{9e14800d-c30e-4e20-9d9c-cace5021a112}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\World">
       <UniqueIdentifier>{83593953-6622-439e-bd3e-99aa0c32984f}</UniqueIdentifier>
@@ -93,9 +87,6 @@
     </Filter>
     <Filter Include="Source Files\Engine">
       <UniqueIdentifier>{65d16a9a-ed31-4cbd-845a-cfc93c39375d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\learnopengl">
-      <UniqueIdentifier>{63e827d7-b55b-4232-a440-1596feb18684}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -231,9 +222,6 @@
     <ClCompile Include="World.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="OMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Misc.h">
@@ -241,27 +229,6 @@
     </ClInclude>
     <ClInclude Include="UniEngine.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Math.h">
-      <Filter>Header Files\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="bool.h">
-      <Filter>Header Files\Core\Math\Primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="double.h">
-      <Filter>Header Files\Core\Math\Primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="float.h">
-      <Filter>Header Files\Core\Math\Primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="int.h">
-      <Filter>Header Files\Core\Math\Primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="long.h">
-      <Filter>Header Files\Core\Math\Primitive</Filter>
-    </ClInclude>
-    <ClInclude Include="ulong.h">
-      <Filter>Header Files\Core\Math\Primitive</Filter>
     </ClInclude>
     <ClInclude Include="Core.h">
       <Filter>Header Files\Core</Filter>
@@ -394,18 +361,6 @@
     </ClInclude>
     <ClInclude Include="ModelManager.h">
       <Filter>Header Files\Resouce\AssetManagement\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="OMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="learnopenglcamera.h">
-      <Filter>Header Files\learnopengl</Filter>
-    </ClInclude>
-    <ClInclude Include="learnopenglshader.h">
-      <Filter>Header Files\learnopengl</Filter>
-    </ClInclude>
-    <ClInclude Include="unsigned.h">
-      <Filter>Header Files\Core\Math\Primitive</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

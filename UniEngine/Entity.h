@@ -1,6 +1,6 @@
 #pragma once
 #include "Misc.h"
-#include "Math.h"
+
 #include "SharedComponent.h"
 namespace UniEngine {
 	class Entity

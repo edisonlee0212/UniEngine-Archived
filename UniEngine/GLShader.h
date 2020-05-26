@@ -1,6 +1,6 @@
 #pragma once
 #include "Misc.h"
-#include "Math.h"
+
 #include "GLObject.h"
 namespace UniEngine {
 	enum class ShaderType {

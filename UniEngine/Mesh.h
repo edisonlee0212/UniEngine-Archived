@@ -4,19 +4,19 @@
 #include "SharedComponent.h"
 namespace UniEngine {
 	struct Vertex {
-		float3 Position;
-		float3 Normal;
-		float3 Tangent;
-		float3 Bitangent;
-		float4 Color;
-		float2 TexCoords0;
-		float2 TexCoords1;
-		float2 TexCoords2;
-		float2 TexCoords3;
-		float2 TexCoords4;
-		float2 TexCoords5;
-		float2 TexCoords6;
-		float2 TexCoords7;
+		glm::vec3 Position;
+		glm::vec3 Normal;
+		glm::vec3 Tangent;
+		glm::vec3 Bitangent;
+		glm::vec4 Color;
+		glm::vec2 TexCoords0;
+		glm::vec2 TexCoords1;
+		glm::vec2 TexCoords2;
+		glm::vec2 TexCoords3;
+		glm::vec2 TexCoords4;
+		glm::vec2 TexCoords5;
+		glm::vec2 TexCoords6;
+		glm::vec2 TexCoords7;
 	};
 	enum class VertexAttribute
 	{
@@ -36,7 +36,7 @@ namespace UniEngine {
 	};
 	class Mesh : public SharedComponent
 	{
-		std::vector<float3>* _Vertices;
+		std::vector<glm::vec3>* _Vertices;
 		GLVAO* _VAO;
 		size_t _Size;
 	public:

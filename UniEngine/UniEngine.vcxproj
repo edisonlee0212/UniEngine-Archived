@@ -171,7 +171,6 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="ManagerBase.cpp" />
     <ClCompile Include="ModelManager.cpp" />
-    <ClCompile Include="OMesh.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="Rendering.cpp" />
@@ -201,7 +200,6 @@
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bool.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Core.h" />
@@ -209,31 +207,23 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLight.h" />
-    <ClInclude Include="double.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityCollection.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="FixedData.h" />
     <ClInclude Include="FixedDataStorage.h" />
-    <ClInclude Include="float.h" />
     <ClInclude Include="GLBuffer.h" />
     <ClInclude Include="GLFrameBuffer.h" />
     <ClInclude Include="GLRenderBuffer.h" />
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InputSystem.h" />
-    <ClInclude Include="learnopenglcamera.h" />
-    <ClInclude Include="learnopenglshader.h" />
     <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="ModelManager.h" />
-    <ClInclude Include="OMesh.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Rendering.h" />
-    <ClInclude Include="int.h" />
-    <ClInclude Include="long.h" />
     <ClInclude Include="Material.h" />
-    <ClInclude Include="Math.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Misc.h" />
@@ -252,8 +242,6 @@
     <ClInclude Include="Time.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformSystem.h" />
-    <ClInclude Include="unsigned.h" />
-    <ClInclude Include="ulong.h" />
     <ClInclude Include="UniEngine.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowManager.h" />

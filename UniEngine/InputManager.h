@@ -16,8 +16,8 @@ namespace UniEngine {
         static bool GetMouseDown(int button);
         static bool GetMouseUp(int button);
         static bool GetMouse(int button);
-        static float2 GetMousePosition();
-        static float2 GetMouseScroll();
+        static glm::vec2 GetMousePosition();
+        static glm::vec2 GetMouseScroll();
         static bool GetMouseScrolled();
         static bool GetMouseMoved();
         static void Update();

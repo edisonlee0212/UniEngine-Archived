@@ -2,7 +2,7 @@
 #include "GLObject.h"
 #include "GLRenderBuffer.h"
 #include "GLTexture.h"
-#include "Math.h"
+
 namespace UniEngine {
 	class GLFrameBuffer : public GLObject
 	{

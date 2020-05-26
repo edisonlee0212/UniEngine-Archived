@@ -1,5 +1,5 @@
 #pragma once
-#include "Math.h"
+#include "Misc.h"
 #include "SharedComponent.h"
 namespace UniEngine {
 	enum Camera_Movement {
@@ -20,11 +20,11 @@ namespace UniEngine {
 	{
 	public:
 		// camera Attributes
-		float3 Position;
-		float3 Front;
-		float3 Up;
-		float3 Right;
-		float3 WorldUp;
+		glm::vec3 Position;
+		glm::vec3 Front;
+		glm::vec3 Up;
+		glm::vec3 Right;
+		glm::vec3 WorldUp;
 		// Euler Angles
 		float Yaw;
 		float Pitch;
@@ -32,12 +32,12 @@ namespace UniEngine {
 		float MovementSpeed;
 		float MouseSensitivity;
 		float Zoom;
-		float4x4 Projection;
-		float4x4 View;
-		Camera(float3 position = float3(0.0f, 1.0f, 3.0f), float3 up = float3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+		glm::mat4 Projection;
+		glm::mat4 View;
+		Camera(glm::vec3 position = glm::vec3(0.0f, 1.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
 		// Constructor with scalar values
 		Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
-		float3 ProcessKeyboard(Camera_Movement direction, float deltaTime);
+		glm::vec3 ProcessKeyboard(Camera_Movement direction, float deltaTime);
 		void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
 		void ProcessMouseScroll(float yoffset);
 		void UpdateCameraVectors();

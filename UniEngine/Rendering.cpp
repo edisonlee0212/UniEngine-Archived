@@ -8,7 +8,7 @@ unsigned Rendering::_DrawCall;
 unsigned Rendering::_Triangles;
 
 void UniEngine::Rendering::DrawMeshInstanced(
-	Mesh* mesh, Material* material, float4x4* matrices, size_t count, RenderTarget* target)
+	Mesh* mesh, Material* material, glm::mat4* matrices, size_t count, RenderTarget* target)
 {
 	if (_CurrentRenderTarget != target) {
 		target->Bind();
@@ -18,7 +18,7 @@ void UniEngine::Rendering::DrawMeshInstanced(
 }
 
 void UniEngine::Rendering::DrawMesh(
-	Mesh* mesh, float4x4 matrix, Material* material, RenderTarget* target)
+	Mesh* mesh, glm::mat4 matrix, Material* material, RenderTarget* target)
 {
 	if (_CurrentRenderTarget != target) {
 		target->Bind();
@@ -28,14 +28,14 @@ void UniEngine::Rendering::DrawMesh(
 }
 
 void UniEngine::Rendering::DrawMeshInstanced(
-	Mesh* mesh, Material* material, float4x4* matrices, size_t count)
+	Mesh* mesh, Material* material, glm::mat4* matrices, size_t count)
 {
 	_CurrentRenderTarget->BindDefault();
 	unsigned buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	auto amount = count;
-	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(float4x4), matrices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->VAO()->Bind();
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
@@ -105,7 +105,7 @@ void UniEngine::Rendering::DrawMeshInstanced(
 }
 
 void UniEngine::Rendering::DrawMesh(
-	Mesh* mesh, float4x4 matrix, Material* material)
+	Mesh* mesh, glm::mat4 matrix, Material* material)
 {
 	_CurrentRenderTarget->BindDefault();
 	

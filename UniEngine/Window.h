@@ -1,7 +1,7 @@
 #pragma once
 #include "Misc.h"
 #include "Texture2D.h"
-#include "Math.h"
+
 #include "Default.h"
 namespace UniEngine {
 	class Window
@@ -17,7 +17,7 @@ namespace UniEngine {
 			_Width = width;
 			_Height = height;
 		};
-		float2 GetSize();
+		glm::vec2 GetSize();
 		GLFWwindow* GLFWwindow();
 		void Update(Texture2D* texture);
 	};

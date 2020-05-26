@@ -1,6 +1,6 @@
 #pragma once
 #include "Misc.h"
-#include "Math.h"
+
 #include "Entity.h"
 #include "FixedDataStorage.h"
 namespace UniEngine {

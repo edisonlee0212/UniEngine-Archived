@@ -30,7 +30,7 @@ void ModelManager::ProcessNode(std::string directory, GLProgram* program, Entity
         entities.push_back(entity);
 
         LocalScale ls;
-        ls.value = float3(1.0f);
+        ls.value = glm::vec3(1.0f);
         _World->_EntityCollection->SetFixedData<LocalPosition>(entity, LocalPosition());
         _World->_EntityCollection->SetFixedData<LocalRotation>(entity, LocalRotation());
         _World->_EntityCollection->SetFixedData<LocalScale>(entity, ls);
@@ -51,7 +51,7 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
     for (unsigned i = 0; i < aimesh->mNumVertices; i++)
     {
         Vertex vertex;
-        float3 v3; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder float3 first.
+        glm::vec3 v3; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
         // positions
         v3.x = aimesh->mVertices[i].x;
         v3.y = aimesh->mVertices[i].y;
@@ -78,7 +78,7 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
             vertex.Bitangent = v3;
             mask = mask | (1 << 3);
         }
-        float4 v4;
+        glm::vec4 v4;
         if (aimesh->mColors[0]) {
             v4.x = aimesh->mColors[0]->r;
             v4.y = aimesh->mColors[0]->g;
@@ -87,7 +87,7 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
             vertex.Color = v4;
             mask = mask | (1 << 4);
         }
-        float2 v2;
+        glm::vec2 v2;
         if (aimesh->mTextureCoords[0]) {
             v2.x = aimesh->mTextureCoords[0]->x;
             v2.y = aimesh->mTextureCoords[0]->y;
