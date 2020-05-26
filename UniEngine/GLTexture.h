@@ -12,6 +12,7 @@ namespace UniEngine {
 	class GLTexture : public GLObject
 	{
 	public:
+		static void BindDefault();
 		GLTexture();
 		~GLTexture();
 		void SetImage1D(GLint level,

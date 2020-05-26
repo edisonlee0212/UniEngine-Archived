@@ -4,14 +4,14 @@
 #include "World.h"
 namespace UniEngine {
 	class EngineDriver {
+		World* _World;
+		bool _Looping;
 	public:
 		EngineDriver();
 		void GLInit();
 		void Start();
-		void End();
-	private:
-		World* world;
-		bool _Looping;
 		void Loop();
+		void End();
+		World* GetWorld();
 	};
 }

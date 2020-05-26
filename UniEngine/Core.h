@@ -6,11 +6,9 @@
 #include "Time.h"
 #include "FileIO.h"
 #include "Rendering.h"
-#include "Entity.h"
-#include "FixedDataStorage.h"
 #include "Window.h"
-#include "SystemBase.h"
-
+#include "World.h"
+#include "ManagerBase.h"
 
 #include "Camera.h"
 #include "DirectionalLight.h"

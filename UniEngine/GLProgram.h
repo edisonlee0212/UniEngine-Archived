@@ -12,6 +12,7 @@ namespace UniEngine {
         GLShader* _GeometryShader;
     public:
         GLProgram();
+        GLProgram(GLShader* vertexShader, GLShader* fragmentShader, GLShader* geometryShader = nullptr);
         ~GLProgram();
         void Use();
         void Link();

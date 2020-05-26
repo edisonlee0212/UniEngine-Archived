@@ -1,6 +1,7 @@
 #include "World.h"
 #include "Core.h"
-#include "EntityManager.h"
+#include "ManagerBase.h"
+#include "EntityCollection.h"
 #include "TimeSystem.h"
 #include "InputSystem.h"
 #include "ShadowSystem.h"
@@ -10,11 +11,13 @@
 #include "SharedComponentSystem.h"
 using namespace UniEngine;
 
-Camera* World::_MainCamera;
 
 World::World() {
 	
-	Entities = new EntityManager();
+	_EntityCollection = new EntityCollection();
+	ManagerBase::_EntityCollection = _EntityCollection;
+	ManagerBase::_World = this;
+
 	//Initialization System Group
 	CreateSystem<TimeSystem>();
 	CreateSystem<InputSystem>();
@@ -30,7 +33,7 @@ World::World() {
 	
 
 	_MainCamera = new Camera();
-	auto cameraEntity = Entities->CreateEntity();
+	auto cameraEntity = _EntityCollection->CreateEntity();
 	cameraEntity->SetSharedComponent<Camera>(_MainCamera);
 
 }
@@ -42,7 +45,8 @@ T* World::CreateSystem() {
 		return system;
 	}
 	system = new T();
-	system->SetEntityManager(Entities);
+	system->_EntityCollection = _EntityCollection;
+	system->_World = this;
 	system->OnCreate();
 	_Systems.push_back((SystemBase*)system);
 	return system;
@@ -62,6 +66,7 @@ T* World::GetSystem() {
 			return dynamic_cast<T*>(i);
 		}
 	}
+	return nullptr;
 }
 World::~World() {
 	for (auto i : _Systems) {
