@@ -4,8 +4,8 @@
 using namespace UniEngine;
 
 RenderTarget* Rendering::_CurrentRenderTarget;
-unsigned Rendering::_DrawCall;
-unsigned Rendering::_Triangles;
+uint Rendering::_DrawCall;
+uint Rendering::_Triangles;
 
 void UniEngine::Rendering::DrawMeshInstanced(
 	Mesh* mesh, Material* material, float4x4* matrices, size_t count, RenderTarget* target)
@@ -31,7 +31,7 @@ void UniEngine::Rendering::DrawMeshInstanced(
 	Mesh* mesh, Material* material, float4x4* matrices, size_t count)
 {
 	_CurrentRenderTarget->BindDefault();
-	unsigned buffer;
+	uint buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	auto amount = count;
@@ -46,12 +46,12 @@ void UniEngine::Rendering::DrawMeshInstanced(
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
-			unsigned diffuseNr = 0;
-			unsigned ambientNr = 0;
-			unsigned emissiveNr = 0;
-			unsigned heightNr = 0;
-			unsigned specularNr = 0;
-			unsigned normalNr = 0;
+			uint diffuseNr = 0;
+			uint ambientNr = 0;
+			uint emissiveNr = 0;
+			uint heightNr = 0;
+			uint specularNr = 0;
+			uint normalNr = 0;
 
 			for (auto j = 0; j < tsize; j++)
 			{
@@ -107,7 +107,7 @@ void UniEngine::Rendering::DrawMeshInstanced(
 void UniEngine::Rendering::DrawMesh(
 	Mesh* mesh, float4x4 matrix, Material* material)
 {
-	_CurrentRenderTarget->BindDefault();
+	//_CurrentRenderTarget->BindDefault();
 	
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
@@ -119,12 +119,12 @@ void UniEngine::Rendering::DrawMesh(
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
-			unsigned diffuseNr = 0;
-			unsigned ambientNr = 0;
-			unsigned emissiveNr = 0;
-			unsigned heightNr = 0;
-			unsigned specularNr = 0;
-			unsigned normalNr = 0;
+			uint diffuseNr = 0;
+			uint ambientNr = 0;
+			uint emissiveNr = 0;
+			uint heightNr = 0;
+			uint specularNr = 0;
+			uint normalNr = 0;
 
 			for (auto j = 0; j < tsize; j++)
 			{

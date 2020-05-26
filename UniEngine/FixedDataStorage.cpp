@@ -2,7 +2,7 @@
 using namespace UniEngine;
 UniEngine::FixedDataStorage::FixedDataStorage()
 {
-	_Translations = std::vector<Position>();
+	_Translations = std::vector<Translation>();
 	_Rotations = std::vector<Rotation>() ;
 	_Scales = std::vector<Scale>();
 	_LocalPositions = std::vector<LocalPosition>();
@@ -10,7 +10,7 @@ UniEngine::FixedDataStorage::FixedDataStorage()
 	_LocalScales = std::vector<LocalScale>();
 	_LocalToWorlds = std::vector<LocalToWorld>();
 	_LocalToParents = std::vector<LocalToParent>();
-	_FixedDataStorage.insert({ typeid(Position).hash_code(), (void*)&_Translations });
+	_FixedDataStorage.insert({ typeid(Translation).hash_code(), (void*)&_Translations });
 	_FixedDataStorage.insert({ typeid(Rotation).hash_code(), (void*)&_Rotations });
 	_FixedDataStorage.insert({ typeid(Scale).hash_code(), (void*)&_Scales });
 	_FixedDataStorage.insert({ typeid(LocalPosition).hash_code(), (void*)&_LocalPositions });
@@ -21,7 +21,7 @@ UniEngine::FixedDataStorage::FixedDataStorage()
 }
 void UniEngine::FixedDataStorage::PushBack()
 {
-	_Translations.push_back(Position());
+	_Translations.push_back(Translation());
 	_Rotations.push_back(Rotation());
 	_Scales.push_back(Scale());
 	_LocalPositions.push_back(LocalPosition());
@@ -31,7 +31,7 @@ void UniEngine::FixedDataStorage::PushBack()
 	_LocalToParents.push_back(LocalToParent());
 }
 
-void UniEngine::FixedDataStorage::RemoveSwapBack(unsigned key)
+void UniEngine::FixedDataStorage::RemoveSwapBack(uint key)
 {
 	_Translations[key] = _Translations.back();
 	_Translations.pop_back();

@@ -16,8 +16,8 @@ namespace UniEngine {
 		std::vector<Entity*>* Entities();
 		Entity* CreateEntity();
 		void DeleteEntity(Entity* entity);
-		void DeleteEntity(unsigned key);
-		Entity* GetEntity(unsigned key);
+		void DeleteEntity(uint key);
+		Entity* GetEntity(uint key);
 		size_t GetEntitiesAmount();
 		template <typename T>
 

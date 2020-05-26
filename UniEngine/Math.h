@@ -1,13 +1,20 @@
 #pragma once
 #include <math.h>
 #include "Misc.h"
-#define ulong unsigned long
+#define bool GLboolean
+#define double GLdouble
+#define float GLfloat
+#define int GLint
+#define long GLint64
+#define uint GLuint
+#define ulong GLuint64
+
 #include "bool.h"
 #include "double.h"
 #include "float.h"
 #include "int.h"
 #include "long.h"
-#include "unsigned.h"
+#include "uint.h"
 #include "ulong.h"
 namespace UniEngine {
 #pragma region As
@@ -23,21 +30,21 @@ namespace UniEngine {
 		double doubleValue;
 	};
 
-	/// <summary>Returns the bit pattern of a unsigned as an int.</summary>
+	/// <summary>Returns the bit pattern of a uint as an int.</summary>
 
-	inline static int asint(unsigned x) { return (int)x; }
+	inline static int asint(uint x) { return (int)x; }
 
-	/// <summary>Returns the bit pattern of a unsigned2 as an int2.</summary>
+	/// <summary>Returns the bit pattern of a uint2 as an int2.</summary>
 
-	inline static int2 asint(unsigned2 x) { return int2((int)x.x, (int)x.y); }
+	inline static int2 asint(uint2 x) { return int2((int)x.x, (int)x.y); }
 
-	/// <summary>Returns the bit pattern of a unsigned3 as an int3.</summary>
+	/// <summary>Returns the bit pattern of a uint3 as an int3.</summary>
 
-	inline static int3 asint(unsigned3 x) { return int3((int)x.x, (int)x.y, (int)x.z); }
+	inline static int3 asint(uint3 x) { return int3((int)x.x, (int)x.y, (int)x.z); }
 
-	/// <summary>Returns the bit pattern of a unsigned4 as an int4.</summary>
+	/// <summary>Returns the bit pattern of a uint4 as an int4.</summary>
 
-	inline static int4 asint(unsigned4 x) { return int4((int)x.x, (int)x.y, (int)x.z, (int)x.w); }
+	inline static int4 asint(uint4 x) { return int4((int)x.x, (int)x.y, (int)x.z, (int)x.w); }
 
 
 	/// <summary>Returns the bit pattern of a float as an int.</summary>
@@ -62,38 +69,38 @@ namespace UniEngine {
 	inline static int4 asint(float4 x) { return int4(asint(x.x), asint(x.y), asint(x.z), asint(x.w)); }
 
 
-	/// <summary>Returns the bit pattern of an int as a unsigned.</summary>
+	/// <summary>Returns the bit pattern of an int as a uint.</summary>
 
-	inline static unsigned asunsigned(int x) { return (unsigned)x; }
+	inline static uint asuint(int x) { return (uint)x; }
 
-	/// <summary>Returns the bit pattern of an int2 as a unsigned2.</summary>
+	/// <summary>Returns the bit pattern of an int2 as a uint2.</summary>
 
-	inline static unsigned2 asunsigned(int2 x) { return unsigned2((unsigned)x.x, (unsigned)x.y); }
+	inline static uint2 asuint(int2 x) { return uint2((uint)x.x, (uint)x.y); }
 
-	/// <summary>Returns the bit pattern of an int3 as a unsigned3.</summary>
+	/// <summary>Returns the bit pattern of an int3 as a uint3.</summary>
 
-	inline static unsigned3 asunsigned(int3 x) { return unsigned3((unsigned)x.x, (unsigned)x.y, (unsigned)x.z); }
+	inline static uint3 asuint(int3 x) { return uint3((uint)x.x, (uint)x.y, (uint)x.z); }
 
-	/// <summary>Returns the bit pattern of an int4 as a unsigned4.</summary>
+	/// <summary>Returns the bit pattern of an int4 as a uint4.</summary>
 
-	inline static unsigned4 asunsigned(int4 x) { return unsigned4((unsigned)x.x, (unsigned)x.y, (unsigned)x.z, (unsigned)x.w); }
+	inline static uint4 asuint(int4 x) { return uint4((uint)x.x, (uint)x.y, (uint)x.z, (uint)x.w); }
 
 
-	/// <summary>Returns the bit pattern of a float as a unsigned.</summary>
+	/// <summary>Returns the bit pattern of a float as a uint.</summary>
 
-	inline static unsigned asunsigned(float x) { return (unsigned)asint(x); }
+	inline static uint asuint(float x) { return (uint)asint(x); }
 
-	/// <summary>Returns the bit pattern of a float2 as a unsigned2.</summary>
+	/// <summary>Returns the bit pattern of a float2 as a uint2.</summary>
 
-	inline static unsigned2 asunsigned(float2 x) { return unsigned2(asunsigned(x.x), asunsigned(x.y)); }
+	inline static uint2 asuint(float2 x) { return uint2(asuint(x.x), asuint(x.y)); }
 
-	/// <summary>Returns the bit pattern of a float3 as a unsigned3.</summary>
+	/// <summary>Returns the bit pattern of a float3 as a uint3.</summary>
 
-	inline static unsigned3 asunsigned(float3 x) { return unsigned3(asunsigned(x.x), asunsigned(x.y), asunsigned(x.z)); }
+	inline static uint3 asuint(float3 x) { return uint3(asuint(x.x), asuint(x.y), asuint(x.z)); }
 
-	/// <summary>Returns the bit pattern of a float4 as a unsigned4.</summary>
+	/// <summary>Returns the bit pattern of a float4 as a uint4.</summary>
 
-	inline static unsigned4 asunsigned(float4 x) { return unsigned4(asunsigned(x.x), asunsigned(x.y), asunsigned(x.z), asunsigned(x.w)); }
+	inline static uint4 asuint(float4 x) { return uint4(asuint(x.x), asuint(x.y), asuint(x.z), asuint(x.w)); }
 
 
 	/// <summary>Returns the bit pattern of a ulong as a long.</summary>
@@ -144,21 +151,21 @@ namespace UniEngine {
 	inline static float4 asfloat(int4 x) { return float4(asfloat(x.x), asfloat(x.y), asfloat(x.z), asfloat(x.w)); }
 
 
-	/// <summary>Returns the bit pattern of a unsigned as a float.</summary>
+	/// <summary>Returns the bit pattern of a uint as a float.</summary>
 
-	inline static float  asfloat(unsigned x) { return asfloat((int)x); }
+	inline static float  asfloat(uint x) { return asfloat((int)x); }
 
-	/// <summary>Returns the bit pattern of a unsigned2 as a float2.</summary>
+	/// <summary>Returns the bit pattern of a uint2 as a float2.</summary>
 
-	inline static float2 asfloat(unsigned2 x) { return float2(asfloat(x.x), asfloat(x.y)); }
+	inline static float2 asfloat(uint2 x) { return float2(asfloat(x.x), asfloat(x.y)); }
 
-	/// <summary>Returns the bit pattern of a unsigned3 as a float3.</summary>
+	/// <summary>Returns the bit pattern of a uint3 as a float3.</summary>
 
-	inline static float3 asfloat(unsigned3 x) { return float3(asfloat(x.x), asfloat(x.y), asfloat(x.z)); }
+	inline static float3 asfloat(uint3 x) { return float3(asfloat(x.x), asfloat(x.y), asfloat(x.z)); }
 
-	/// <summary>Returns the bit pattern of a unsigned4 as a float4.</summary>
+	/// <summary>Returns the bit pattern of a uint4 as a float4.</summary>
 
-	inline static float4 asfloat(unsigned4 x) { return float4(asfloat(x.x), asfloat(x.y), asfloat(x.z), asfloat(x.w)); }
+	inline static float4 asfloat(uint4 x) { return float4(asfloat(x.x), asfloat(x.y), asfloat(x.z), asfloat(x.w)); }
 	/// <summary>Returns the bit pattern of a long as a double.</summary>
 	inline static double asdouble(long x)
 	{
@@ -175,62 +182,62 @@ namespace UniEngine {
 #pragma endregion
 #pragma region Basic
 
-	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on two unsigned3 vectors.</summary>
-	inline static unsigned3 operator ^ (const unsigned3& lhs, const unsigned3& rhs) { return unsigned3(lhs.x ^ rhs.x, lhs.y ^ rhs.y, lhs.z ^ rhs.z); }
+	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on two uint3 vectors.</summary>
+	inline static uint3 operator ^ (const uint3& lhs, const uint3& rhs) { return uint3(lhs.x ^ rhs.x, lhs.y ^ rhs.y, lhs.z ^ rhs.z); }
 
-	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on a unsigned3 vector and a unsigned value.</summary>
-	inline static unsigned3 operator ^ (const unsigned3& lhs, unsigned rhs) { return unsigned3(lhs.x ^ rhs, lhs.y ^ rhs, lhs.z ^ rhs); }
+	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on a uint3 vector and a uint value.</summary>
+	inline static uint3 operator ^ (const uint3& lhs, uint rhs) { return uint3(lhs.x ^ rhs, lhs.y ^ rhs, lhs.z ^ rhs); }
 
-	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on a unsigned value and a unsigned3 vector.</summary>
-	inline static unsigned3 operator ^ (unsigned lhs, const unsigned3& rhs) { return unsigned3(lhs ^ rhs.x, lhs ^ rhs.y, lhs ^ rhs.z); }
+	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on a uint value and a uint3 vector.</summary>
+	inline static uint3 operator ^ (uint lhs, const uint3& rhs) { return uint3(lhs ^ rhs.x, lhs ^ rhs.y, lhs ^ rhs.z); }
 
-	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on two unsigned4 vectors.</summary>
-	inline static unsigned4 operator ^ (const unsigned4& lhs, const unsigned4& rhs) { return unsigned4(lhs.x ^ rhs.x, lhs.y ^ rhs.y, lhs.z ^ rhs.z, lhs.w ^ rhs.w); }
+	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on two uint4 vectors.</summary>
+	inline static uint4 operator ^ (const uint4& lhs, const uint4& rhs) { return uint4(lhs.x ^ rhs.x, lhs.y ^ rhs.y, lhs.z ^ rhs.z, lhs.w ^ rhs.w); }
 
-	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on a unsigned4 vector and a unsigned value.</summary>
-	inline static unsigned4 operator ^ (const unsigned4& lhs, unsigned rhs) { return unsigned4(lhs.x ^ rhs, lhs.y ^ rhs, lhs.z ^ rhs, lhs.w ^ rhs); }
+	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on a uint4 vector and a uint value.</summary>
+	inline static uint4 operator ^ (const uint4& lhs, uint rhs) { return uint4(lhs.x ^ rhs, lhs.y ^ rhs, lhs.z ^ rhs, lhs.w ^ rhs); }
 
-	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on a unsigned value and a unsigned4 vector.</summary>
-	inline static unsigned4 operator ^ (unsigned lhs, const unsigned4& rhs) { return unsigned4(lhs ^ rhs.x, lhs ^ rhs.y, lhs ^ rhs.z, lhs ^ rhs.w); }
+	/// <summary>Returns the result of a componentwise bitwise exclusive or operation on a uint value and a uint4 vector.</summary>
+	inline static uint4 operator ^ (uint lhs, const uint4& rhs) { return uint4(lhs ^ rhs.x, lhs ^ rhs.y, lhs ^ rhs.z, lhs ^ rhs.w); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on two unsigned2 vectors.</summary>
-	inline static unsigned2 operator & (const unsigned2& lhs, const unsigned2& rhs) { return unsigned2(lhs.x & rhs.x, lhs.y & rhs.y); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on two uint2 vectors.</summary>
+	inline static uint2 operator & (const uint2& lhs, const uint2& rhs) { return uint2(lhs.x & rhs.x, lhs.y & rhs.y); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on a unsigned2 vector and a unsigned value.</summary>
-	inline static unsigned2 operator & (const unsigned2& lhs, unsigned rhs) { return unsigned2(lhs.x & rhs, lhs.y & rhs); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on a uint2 vector and a uint value.</summary>
+	inline static uint2 operator & (const uint2& lhs, uint rhs) { return uint2(lhs.x & rhs, lhs.y & rhs); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on a unsigned value and a unsigned2 vector.</summary>
-	inline static unsigned2 operator & (unsigned lhs, const unsigned2& rhs) { return  unsigned2(lhs & rhs.x, lhs & rhs.y); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on a uint value and a uint2 vector.</summary>
+	inline static uint2 operator & (uint lhs, const uint2& rhs) { return  uint2(lhs & rhs.x, lhs & rhs.y); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on two unsigned3 vectors.</summary>
-	inline static unsigned3 operator & (const unsigned3& lhs, const unsigned3& rhs) { return unsigned3(lhs.x & rhs.x, lhs.y & rhs.y, lhs.z & rhs.z); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on two uint3 vectors.</summary>
+	inline static uint3 operator & (const uint3& lhs, const uint3& rhs) { return uint3(lhs.x & rhs.x, lhs.y & rhs.y, lhs.z & rhs.z); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on a unsigned3 vector and a unsigned value.</summary>
-	inline static unsigned3 operator & (const unsigned3& lhs, unsigned rhs) { return unsigned3(lhs.x & rhs, lhs.y & rhs, lhs.z & rhs); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on a uint3 vector and a uint value.</summary>
+	inline static uint3 operator & (const uint3& lhs, uint rhs) { return uint3(lhs.x & rhs, lhs.y & rhs, lhs.z & rhs); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on a unsigned value and a unsigned3 vector.</summary>
-	inline static unsigned3 operator & (unsigned lhs, const unsigned3& rhs) { return unsigned3(lhs & rhs.x, lhs & rhs.y, lhs & rhs.z); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on a uint value and a uint3 vector.</summary>
+	inline static uint3 operator & (uint lhs, const uint3& rhs) { return uint3(lhs & rhs.x, lhs & rhs.y, lhs & rhs.z); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on two unsigned4 vectors.</summary>
-	inline static unsigned4 operator & (const unsigned4& lhs, const unsigned4& rhs) { return unsigned4(lhs.x & rhs.x, lhs.y & rhs.y, lhs.z & rhs.z, lhs.w & rhs.w); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on two uint4 vectors.</summary>
+	inline static uint4 operator & (const uint4& lhs, const uint4& rhs) { return uint4(lhs.x & rhs.x, lhs.y & rhs.y, lhs.z & rhs.z, lhs.w & rhs.w); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on a unsigned4 vector and a unsigned value.</summary>
-	inline static unsigned4 operator & (const unsigned4& lhs, unsigned rhs) { return unsigned4(lhs.x & rhs, lhs.y & rhs, lhs.z & rhs, lhs.w & rhs); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on a uint4 vector and a uint value.</summary>
+	inline static uint4 operator & (const uint4& lhs, uint rhs) { return uint4(lhs.x & rhs, lhs.y & rhs, lhs.z & rhs, lhs.w & rhs); }
 
-	/// <summary>Returns the result of a componentwise bitwise and operation on a unsigned value and a unsigned4 vector.</summary>
-	inline static unsigned4 operator & (unsigned lhs, const unsigned4& rhs) { return unsigned4(lhs & rhs.x, lhs & rhs.y, lhs & rhs.z, lhs & rhs.w); }
+	/// <summary>Returns the result of a componentwise bitwise and operation on a uint value and a uint4 vector.</summary>
+	inline static uint4 operator & (uint lhs, const uint4& rhs) { return uint4(lhs & rhs.x, lhs & rhs.y, lhs & rhs.z, lhs & rhs.w); }
 
 
-	/// <summary>Returns the result of a componentwise bitwise or operation on two unsigned4 vectors.</summary>
-	inline static unsigned4 operator | (const unsigned4& lhs, const unsigned4& rhs) { return unsigned4(lhs.x | rhs.x, lhs.y | rhs.y, lhs.z | rhs.z, lhs.w | rhs.w); }
+	/// <summary>Returns the result of a componentwise bitwise or operation on two uint4 vectors.</summary>
+	inline static uint4 operator | (const uint4& lhs, const uint4& rhs) { return uint4(lhs.x | rhs.x, lhs.y | rhs.y, lhs.z | rhs.z, lhs.w | rhs.w); }
 
-	/// <summary>Returns the result of a componentwise bitwise or operation on a unsigned4 vector and a unsigned value.</summary>
+	/// <summary>Returns the result of a componentwise bitwise or operation on a uint4 vector and a uint value.</summary>
 
-	inline static unsigned4 operator | (const unsigned4& lhs, unsigned rhs) { return unsigned4(lhs.x | rhs, lhs.y | rhs, lhs.z | rhs, lhs.w | rhs); }
+	inline static uint4 operator | (const uint4& lhs, uint rhs) { return uint4(lhs.x | rhs, lhs.y | rhs, lhs.z | rhs, lhs.w | rhs); }
 
-	/// <summary>Returns the result of a componentwise bitwise or operation on a unsigned value and a unsigned4 vector.</summary>
+	/// <summary>Returns the result of a componentwise bitwise or operation on a uint value and a uint4 vector.</summary>
 
-	inline static unsigned4 operator | (unsigned lhs, const unsigned4& rhs) { return unsigned4(lhs | rhs.x, lhs | rhs.y, lhs | rhs.z, lhs | rhs.w); }
+	inline static uint4 operator | (uint lhs, const uint4& rhs) { return uint4(lhs | rhs.x, lhs | rhs.y, lhs | rhs.z, lhs | rhs.w); }
 	/// <summary>Returns the Absolute value of a int value.</summary>
 
 	inline static int Abs(int x) { return Max(-x, x); }
@@ -254,19 +261,19 @@ namespace UniEngine {
 
 	/// <summary>Returns the Absolute value of a float value.</summary>
 
-	inline static float Abs(float x) { return asfloat(asunsigned(x) & (unsigned)0x7FFFFFFF); }
+	inline static float Abs(float x) { return asfloat(asuint(x) & (uint)0x7FFFFFFF); }
 
 	/// <summary>Returns the componentwise Absolute value of a float2 vector.</summary>
 
-	inline static float2 Abs(float2 x) { return asfloat(asunsigned(x) & (unsigned)0x7FFFFFFF); }
+	inline static float2 Abs(float2 x) { return asfloat(asuint(x) & (uint)0x7FFFFFFF); }
 
 	/// <summary>Returns the componentwise Absolute value of a float3 vector.</summary>
 
-	inline static float3 Abs(float3 x) { return asfloat(asunsigned(x) & (unsigned)0x7FFFFFFF); }
+	inline static float3 Abs(float3 x) { return asfloat(asuint(x) & (uint)0x7FFFFFFF); }
 
 	/// <summary>Returns the componentwise Absolute value of a float4 vector.</summary>
 
-	inline static float4 Abs(float4 x) { return asfloat(asunsigned(x) & (unsigned)0x7FFFFFFF); }
+	inline static float4 Abs(float4 x) { return asfloat(asuint(x) & (uint)0x7FFFFFFF); }
 
 
 	/// <summary>Returns the Absolute value of a double value.</summary>
@@ -1642,451 +1649,451 @@ namespace UniEngine {
 			a.c0 * b.c3.x + a.c1 * b.c3.y + a.c2 * b.c3.z + a.c3 * b.c3.w);
 	}
 
-	/// <summary>Returns the unsigned value result of a matrix Multiplytiplication between a unsigned value and a unsigned value.</summary>
+	/// <summary>Returns the uint value result of a matrix Multiplytiplication between a uint value and a uint value.</summary>
 
-	inline static unsigned Multiply(unsigned a, unsigned b)
+	inline static uint Multiply(uint a, uint b)
 	{
 		return a * b;
 	}
 
-	/// <summary>Returns the unsigned value result of a matrix Multiplytiplication between a unsigned2 row vector and a unsigned2 column vector.</summary>
+	/// <summary>Returns the uint value result of a matrix Multiplytiplication between a uint2 row vector and a uint2 column vector.</summary>
 
-	inline static unsigned Multiply(unsigned2 a, unsigned2 b)
+	inline static uint Multiply(uint2 a, uint2 b)
 	{
 		return a.x * b.x + a.y * b.y;
 	}
 
-	/// <summary>Returns the unsigned2 row vector result of a matrix Multiplytiplication between a unsigned2 row vector and a unsigned2x2 matrix.</summary>
+	/// <summary>Returns the uint2 row vector result of a matrix Multiplytiplication between a uint2 row vector and a uint2x2 matrix.</summary>
 
-	inline static unsigned2 Multiply(unsigned2 a, unsigned2x2 b)
+	inline static uint2 Multiply(uint2 a, uint2x2 b)
 	{
-		return unsigned2(
+		return uint2(
 			a.x * b.c0.x + a.y * b.c0.y,
 			a.x * b.c1.x + a.y * b.c1.y);
 	}
 
-	/// <summary>Returns the unsigned3 row vector result of a matrix Multiplytiplication between a unsigned2 row vector and a unsigned2x3 matrix.</summary>
+	/// <summary>Returns the uint3 row vector result of a matrix Multiplytiplication between a uint2 row vector and a uint2x3 matrix.</summary>
 
-	inline static unsigned3 Multiply(unsigned2 a, unsigned2x3 b)
+	inline static uint3 Multiply(uint2 a, uint2x3 b)
 	{
-		return unsigned3(
+		return uint3(
 			a.x * b.c0.x + a.y * b.c0.y,
 			a.x * b.c1.x + a.y * b.c1.y,
 			a.x * b.c2.x + a.y * b.c2.y);
 	}
 
-	/// <summary>Returns the unsigned4 row vector result of a matrix Multiplytiplication between a unsigned2 row vector and a unsigned2x4 matrix.</summary>
+	/// <summary>Returns the uint4 row vector result of a matrix Multiplytiplication between a uint2 row vector and a uint2x4 matrix.</summary>
 
-	inline static unsigned4 Multiply(unsigned2 a, unsigned2x4 b)
+	inline static uint4 Multiply(uint2 a, uint2x4 b)
 	{
-		return unsigned4(
+		return uint4(
 			a.x * b.c0.x + a.y * b.c0.y,
 			a.x * b.c1.x + a.y * b.c1.y,
 			a.x * b.c2.x + a.y * b.c2.y,
 			a.x * b.c3.x + a.y * b.c3.y);
 	}
 
-	/// <summary>Returns the unsigned value result of a matrix Multiplytiplication between a unsigned3 row vector and a unsigned3 column vector.</summary>
+	/// <summary>Returns the uint value result of a matrix Multiplytiplication between a uint3 row vector and a uint3 column vector.</summary>
 
-	inline static unsigned Multiply(unsigned3 a, unsigned3 b)
+	inline static uint Multiply(uint3 a, uint3 b)
 	{
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	/// <summary>Returns the unsigned2 row vector result of a matrix Multiplytiplication between a unsigned3 row vector and a unsigned3x2 matrix.</summary>
+	/// <summary>Returns the uint2 row vector result of a matrix Multiplytiplication between a uint3 row vector and a uint3x2 matrix.</summary>
 
-	inline static unsigned2 Multiply(unsigned3 a, unsigned3x2 b)
+	inline static uint2 Multiply(uint3 a, uint3x2 b)
 	{
-		return unsigned2(
+		return uint2(
 			a.x * b.c0.x + a.y * b.c0.y + a.z * b.c0.z,
 			a.x * b.c1.x + a.y * b.c1.y + a.z * b.c1.z);
 	}
 
-	/// <summary>Returns the unsigned3 row vector result of a matrix Multiplytiplication between a unsigned3 row vector and a unsigned3x3 matrix.</summary>
+	/// <summary>Returns the uint3 row vector result of a matrix Multiplytiplication between a uint3 row vector and a uint3x3 matrix.</summary>
 
-	inline static unsigned3 Multiply(unsigned3 a, unsigned3x3 b)
+	inline static uint3 Multiply(uint3 a, uint3x3 b)
 	{
-		return unsigned3(
+		return uint3(
 			a.x * b.c0.x + a.y * b.c0.y + a.z * b.c0.z,
 			a.x * b.c1.x + a.y * b.c1.y + a.z * b.c1.z,
 			a.x * b.c2.x + a.y * b.c2.y + a.z * b.c2.z);
 	}
 
-	/// <summary>Returns the unsigned4 row vector result of a matrix Multiplytiplication between a unsigned3 row vector and a unsigned3x4 matrix.</summary>
+	/// <summary>Returns the uint4 row vector result of a matrix Multiplytiplication between a uint3 row vector and a uint3x4 matrix.</summary>
 
-	inline static unsigned4 Multiply(unsigned3 a, unsigned3x4 b)
+	inline static uint4 Multiply(uint3 a, uint3x4 b)
 	{
-		return unsigned4(
+		return uint4(
 			a.x * b.c0.x + a.y * b.c0.y + a.z * b.c0.z,
 			a.x * b.c1.x + a.y * b.c1.y + a.z * b.c1.z,
 			a.x * b.c2.x + a.y * b.c2.y + a.z * b.c2.z,
 			a.x * b.c3.x + a.y * b.c3.y + a.z * b.c3.z);
 	}
 
-	/// <summary>Returns the unsigned value result of a matrix Multiplytiplication between a unsigned4 row vector and a unsigned4 column vector.</summary>
+	/// <summary>Returns the uint value result of a matrix Multiplytiplication between a uint4 row vector and a uint4 column vector.</summary>
 
-	inline static unsigned Multiply(unsigned4 a, unsigned4 b)
+	inline static uint Multiply(uint4 a, uint4 b)
 	{
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
 
-	/// <summary>Returns the unsigned2 row vector result of a matrix Multiplytiplication between a unsigned4 row vector and a unsigned4x2 matrix.</summary>
+	/// <summary>Returns the uint2 row vector result of a matrix Multiplytiplication between a uint4 row vector and a uint4x2 matrix.</summary>
 
-	inline static unsigned2 Multiply(unsigned4 a, unsigned4x2 b)
+	inline static uint2 Multiply(uint4 a, uint4x2 b)
 	{
-		return unsigned2(
+		return uint2(
 			a.x * b.c0.x + a.y * b.c0.y + a.z * b.c0.z + a.w * b.c0.w,
 			a.x * b.c1.x + a.y * b.c1.y + a.z * b.c1.z + a.w * b.c1.w);
 	}
 
-	/// <summary>Returns the unsigned3 row vector result of a matrix Multiplytiplication between a unsigned4 row vector and a unsigned4x3 matrix.</summary>
+	/// <summary>Returns the uint3 row vector result of a matrix Multiplytiplication between a uint4 row vector and a uint4x3 matrix.</summary>
 
-	inline static unsigned3 Multiply(unsigned4 a, unsigned4x3 b)
+	inline static uint3 Multiply(uint4 a, uint4x3 b)
 	{
-		return unsigned3(
+		return uint3(
 			a.x * b.c0.x + a.y * b.c0.y + a.z * b.c0.z + a.w * b.c0.w,
 			a.x * b.c1.x + a.y * b.c1.y + a.z * b.c1.z + a.w * b.c1.w,
 			a.x * b.c2.x + a.y * b.c2.y + a.z * b.c2.z + a.w * b.c2.w);
 	}
 
-	/// <summary>Returns the unsigned4 row vector result of a matrix Multiplytiplication between a unsigned4 row vector and a unsigned4x4 matrix.</summary>
+	/// <summary>Returns the uint4 row vector result of a matrix Multiplytiplication between a uint4 row vector and a uint4x4 matrix.</summary>
 
-	inline static unsigned4 Multiply(unsigned4 a, unsigned4x4 b)
+	inline static uint4 Multiply(uint4 a, uint4x4 b)
 	{
-		return unsigned4(
+		return uint4(
 			a.x * b.c0.x + a.y * b.c0.y + a.z * b.c0.z + a.w * b.c0.w,
 			a.x * b.c1.x + a.y * b.c1.y + a.z * b.c1.z + a.w * b.c1.w,
 			a.x * b.c2.x + a.y * b.c2.y + a.z * b.c2.z + a.w * b.c2.w,
 			a.x * b.c3.x + a.y * b.c3.y + a.z * b.c3.z + a.w * b.c3.w);
 	}
 
-	/// <summary>Returns the unsigned2 column vector result of a matrix Multiplytiplication between a unsigned2x2 matrix and a unsigned2 column vector.</summary>
+	/// <summary>Returns the uint2 column vector result of a matrix Multiplytiplication between a uint2x2 matrix and a uint2 column vector.</summary>
 
-	inline static unsigned2 Multiply(unsigned2x2 a, unsigned2 b)
+	inline static uint2 Multiply(uint2x2 a, uint2 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y;
 	}
 
-	/// <summary>Returns the unsigned2x2 matrix result of a matrix Multiplytiplication between a unsigned2x2 matrix and a unsigned2x2 matrix.</summary>
+	/// <summary>Returns the uint2x2 matrix result of a matrix Multiplytiplication between a uint2x2 matrix and a uint2x2 matrix.</summary>
 
-	inline static unsigned2x2 Multiply(unsigned2x2 a, unsigned2x2 b)
+	inline static uint2x2 Multiply(uint2x2 a, uint2x2 b)
 	{
-		return unsigned2x2(
+		return uint2x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y);
 	}
 
-	/// <summary>Returns the unsigned2x3 matrix result of a matrix Multiplytiplication between a unsigned2x2 matrix and a unsigned2x3 matrix.</summary>
+	/// <summary>Returns the uint2x3 matrix result of a matrix Multiplytiplication between a uint2x2 matrix and a uint2x3 matrix.</summary>
 
-	inline static unsigned2x3 Multiply(unsigned2x2 a, unsigned2x3 b)
+	inline static uint2x3 Multiply(uint2x2 a, uint2x3 b)
 	{
-		return unsigned2x3(
+		return uint2x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y,
 			a.c0 * b.c2.x + a.c1 * b.c2.y);
 	}
 
-	/// <summary>Returns the unsigned2x4 matrix result of a matrix Multiplytiplication between a unsigned2x2 matrix and a unsigned2x4 matrix.</summary>
+	/// <summary>Returns the uint2x4 matrix result of a matrix Multiplytiplication between a uint2x2 matrix and a uint2x4 matrix.</summary>
 
-	inline static unsigned2x4 Multiply(unsigned2x2 a, unsigned2x4 b)
+	inline static uint2x4 Multiply(uint2x2 a, uint2x4 b)
 	{
-		return unsigned2x4(
+		return uint2x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y,
 			a.c0 * b.c2.x + a.c1 * b.c2.y,
 			a.c0 * b.c3.x + a.c1 * b.c3.y);
 	}
 
-	/// <summary>Returns the unsigned2 column vector result of a matrix Multiplytiplication between a unsigned2x3 matrix and a unsigned3 column vector.</summary>
+	/// <summary>Returns the uint2 column vector result of a matrix Multiplytiplication between a uint2x3 matrix and a uint3 column vector.</summary>
 
-	inline static unsigned2 Multiply(unsigned2x3 a, unsigned3 b)
+	inline static uint2 Multiply(uint2x3 a, uint3 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y + a.c2 * b.z;
 	}
 
-	/// <summary>Returns the unsigned2x2 matrix result of a matrix Multiplytiplication between a unsigned2x3 matrix and a unsigned3x2 matrix.</summary>
+	/// <summary>Returns the uint2x2 matrix result of a matrix Multiplytiplication between a uint2x3 matrix and a uint3x2 matrix.</summary>
 
-	inline static unsigned2x2 Multiply(unsigned2x3 a, unsigned3x2 b)
+	inline static uint2x2 Multiply(uint2x3 a, uint3x2 b)
 	{
-		return unsigned2x2(
+		return uint2x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z);
 	}
 
-	/// <summary>Returns the unsigned2x3 matrix result of a matrix Multiplytiplication between a unsigned2x3 matrix and a unsigned3x3 matrix.</summary>
+	/// <summary>Returns the uint2x3 matrix result of a matrix Multiplytiplication between a uint2x3 matrix and a uint3x3 matrix.</summary>
 
-	inline static unsigned2x3 Multiply(unsigned2x3 a, unsigned3x3 b)
+	inline static uint2x3 Multiply(uint2x3 a, uint3x3 b)
 	{
-		return unsigned2x3(
+		return uint2x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z);
 	}
 
-	/// <summary>Returns the unsigned2x4 matrix result of a matrix Multiplytiplication between a unsigned2x3 matrix and a unsigned3x4 matrix.</summary>
+	/// <summary>Returns the uint2x4 matrix result of a matrix Multiplytiplication between a uint2x3 matrix and a uint3x4 matrix.</summary>
 
-	inline static unsigned2x4 Multiply(unsigned2x3 a, unsigned3x4 b)
+	inline static uint2x4 Multiply(uint2x3 a, uint3x4 b)
 	{
-		return unsigned2x4(
+		return uint2x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z,
 			a.c0 * b.c3.x + a.c1 * b.c3.y + a.c2 * b.c3.z);
 	}
 
-	/// <summary>Returns the unsigned2 column vector result of a matrix Multiplytiplication between a unsigned2x4 matrix and a unsigned4 column vector.</summary>
+	/// <summary>Returns the uint2 column vector result of a matrix Multiplytiplication between a uint2x4 matrix and a uint4 column vector.</summary>
 
-	inline static unsigned2 Multiply(unsigned2x4 a, unsigned4 b)
+	inline static uint2 Multiply(uint2x4 a, uint4 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y + a.c2 * b.z + a.c3 * b.w;
 	}
 
-	/// <summary>Returns the unsigned2x2 matrix result of a matrix Multiplytiplication between a unsigned2x4 matrix and a unsigned4x2 matrix.</summary>
+	/// <summary>Returns the uint2x2 matrix result of a matrix Multiplytiplication between a uint2x4 matrix and a uint4x2 matrix.</summary>
 
-	inline static unsigned2x2 Multiply(unsigned2x4 a, unsigned4x2 b)
+	inline static uint2x2 Multiply(uint2x4 a, uint4x2 b)
 	{
-		return unsigned2x2(
+		return uint2x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w);
 	}
 
-	/// <summary>Returns the unsigned2x3 matrix result of a matrix Multiplytiplication between a unsigned2x4 matrix and a unsigned4x3 matrix.</summary>
+	/// <summary>Returns the uint2x3 matrix result of a matrix Multiplytiplication between a uint2x4 matrix and a uint4x3 matrix.</summary>
 
-	inline static unsigned2x3 Multiply(unsigned2x4 a, unsigned4x3 b)
+	inline static uint2x3 Multiply(uint2x4 a, uint4x3 b)
 	{
-		return unsigned2x3(
+		return uint2x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z + a.c3 * b.c2.w);
 	}
 
-	/// <summary>Returns the unsigned2x4 matrix result of a matrix Multiplytiplication between a unsigned2x4 matrix and a unsigned4x4 matrix.</summary>
+	/// <summary>Returns the uint2x4 matrix result of a matrix Multiplytiplication between a uint2x4 matrix and a uint4x4 matrix.</summary>
 
-	inline static unsigned2x4 Multiply(unsigned2x4 a, unsigned4x4 b)
+	inline static uint2x4 Multiply(uint2x4 a, uint4x4 b)
 	{
-		return unsigned2x4(
+		return uint2x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z + a.c3 * b.c2.w,
 			a.c0 * b.c3.x + a.c1 * b.c3.y + a.c2 * b.c3.z + a.c3 * b.c3.w);
 	}
 
-	/// <summary>Returns the unsigned3 column vector result of a matrix Multiplytiplication between a unsigned3x2 matrix and a unsigned2 column vector.</summary>
+	/// <summary>Returns the uint3 column vector result of a matrix Multiplytiplication between a uint3x2 matrix and a uint2 column vector.</summary>
 
-	inline static unsigned3 Multiply(unsigned3x2 a, unsigned2 b)
+	inline static uint3 Multiply(uint3x2 a, uint2 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y;
 	}
 
-	/// <summary>Returns the unsigned3x2 matrix result of a matrix Multiplytiplication between a unsigned3x2 matrix and a unsigned2x2 matrix.</summary>
+	/// <summary>Returns the uint3x2 matrix result of a matrix Multiplytiplication between a uint3x2 matrix and a uint2x2 matrix.</summary>
 
-	inline static unsigned3x2 Multiply(unsigned3x2 a, unsigned2x2 b)
+	inline static uint3x2 Multiply(uint3x2 a, uint2x2 b)
 	{
-		return unsigned3x2(
+		return uint3x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y);
 	}
 
-	/// <summary>Returns the unsigned3x3 matrix result of a matrix Multiplytiplication between a unsigned3x2 matrix and a unsigned2x3 matrix.</summary>
+	/// <summary>Returns the uint3x3 matrix result of a matrix Multiplytiplication between a uint3x2 matrix and a uint2x3 matrix.</summary>
 
-	inline static unsigned3x3 Multiply(unsigned3x2 a, unsigned2x3 b)
+	inline static uint3x3 Multiply(uint3x2 a, uint2x3 b)
 	{
-		return unsigned3x3(
+		return uint3x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y,
 			a.c0 * b.c2.x + a.c1 * b.c2.y);
 	}
 
-	/// <summary>Returns the unsigned3x4 matrix result of a matrix Multiplytiplication between a unsigned3x2 matrix and a unsigned2x4 matrix.</summary>
+	/// <summary>Returns the uint3x4 matrix result of a matrix Multiplytiplication between a uint3x2 matrix and a uint2x4 matrix.</summary>
 
-	inline static unsigned3x4 Multiply(unsigned3x2 a, unsigned2x4 b)
+	inline static uint3x4 Multiply(uint3x2 a, uint2x4 b)
 	{
-		return unsigned3x4(
+		return uint3x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y,
 			a.c0 * b.c2.x + a.c1 * b.c2.y,
 			a.c0 * b.c3.x + a.c1 * b.c3.y);
 	}
 
-	/// <summary>Returns the unsigned3 column vector result of a matrix Multiplytiplication between a unsigned3x3 matrix and a unsigned3 column vector.</summary>
+	/// <summary>Returns the uint3 column vector result of a matrix Multiplytiplication between a uint3x3 matrix and a uint3 column vector.</summary>
 
-	inline static unsigned3 Multiply(unsigned3x3 a, unsigned3 b)
+	inline static uint3 Multiply(uint3x3 a, uint3 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y + a.c2 * b.z;
 	}
 
-	/// <summary>Returns the unsigned3x2 matrix result of a matrix Multiplytiplication between a unsigned3x3 matrix and a unsigned3x2 matrix.</summary>
+	/// <summary>Returns the uint3x2 matrix result of a matrix Multiplytiplication between a uint3x3 matrix and a uint3x2 matrix.</summary>
 
-	inline static unsigned3x2 Multiply(unsigned3x3 a, unsigned3x2 b)
+	inline static uint3x2 Multiply(uint3x3 a, uint3x2 b)
 	{
-		return unsigned3x2(
+		return uint3x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z);
 	}
 
-	/// <summary>Returns the unsigned3x3 matrix result of a matrix Multiplytiplication between a unsigned3x3 matrix and a unsigned3x3 matrix.</summary>
+	/// <summary>Returns the uint3x3 matrix result of a matrix Multiplytiplication between a uint3x3 matrix and a uint3x3 matrix.</summary>
 
-	inline static unsigned3x3 Multiply(unsigned3x3 a, unsigned3x3 b)
+	inline static uint3x3 Multiply(uint3x3 a, uint3x3 b)
 	{
-		return unsigned3x3(
+		return uint3x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z);
 	}
 
-	/// <summary>Returns the unsigned3x4 matrix result of a matrix Multiplytiplication between a unsigned3x3 matrix and a unsigned3x4 matrix.</summary>
+	/// <summary>Returns the uint3x4 matrix result of a matrix Multiplytiplication between a uint3x3 matrix and a uint3x4 matrix.</summary>
 
-	inline static unsigned3x4 Multiply(unsigned3x3 a, unsigned3x4 b)
+	inline static uint3x4 Multiply(uint3x3 a, uint3x4 b)
 	{
-		return unsigned3x4(
+		return uint3x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z,
 			a.c0 * b.c3.x + a.c1 * b.c3.y + a.c2 * b.c3.z);
 	}
 
-	/// <summary>Returns the unsigned3 column vector result of a matrix Multiplytiplication between a unsigned3x4 matrix and a unsigned4 column vector.</summary>
+	/// <summary>Returns the uint3 column vector result of a matrix Multiplytiplication between a uint3x4 matrix and a uint4 column vector.</summary>
 
-	inline static unsigned3 Multiply(unsigned3x4 a, unsigned4 b)
+	inline static uint3 Multiply(uint3x4 a, uint4 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y + a.c2 * b.z + a.c3 * b.w;
 	}
 
-	/// <summary>Returns the unsigned3x2 matrix result of a matrix Multiplytiplication between a unsigned3x4 matrix and a unsigned4x2 matrix.</summary>
+	/// <summary>Returns the uint3x2 matrix result of a matrix Multiplytiplication between a uint3x4 matrix and a uint4x2 matrix.</summary>
 
-	inline static unsigned3x2 Multiply(unsigned3x4 a, unsigned4x2 b)
+	inline static uint3x2 Multiply(uint3x4 a, uint4x2 b)
 	{
-		return unsigned3x2(
+		return uint3x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w);
 	}
 
-	/// <summary>Returns the unsigned3x3 matrix result of a matrix Multiplytiplication between a unsigned3x4 matrix and a unsigned4x3 matrix.</summary>
+	/// <summary>Returns the uint3x3 matrix result of a matrix Multiplytiplication between a uint3x4 matrix and a uint4x3 matrix.</summary>
 
-	inline static unsigned3x3 Multiply(unsigned3x4 a, unsigned4x3 b)
+	inline static uint3x3 Multiply(uint3x4 a, uint4x3 b)
 	{
-		return unsigned3x3(
+		return uint3x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z + a.c3 * b.c2.w);
 	}
 
-	/// <summary>Returns the unsigned3x4 matrix result of a matrix Multiplytiplication between a unsigned3x4 matrix and a unsigned4x4 matrix.</summary>
+	/// <summary>Returns the uint3x4 matrix result of a matrix Multiplytiplication between a uint3x4 matrix and a uint4x4 matrix.</summary>
 
-	inline static unsigned3x4 Multiply(unsigned3x4 a, unsigned4x4 b)
+	inline static uint3x4 Multiply(uint3x4 a, uint4x4 b)
 	{
-		return unsigned3x4(
+		return uint3x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z + a.c3 * b.c2.w,
 			a.c0 * b.c3.x + a.c1 * b.c3.y + a.c2 * b.c3.z + a.c3 * b.c3.w);
 	}
 
-	/// <summary>Returns the unsigned4 column vector result of a matrix Multiplytiplication between a unsigned4x2 matrix and a unsigned2 column vector.</summary>
+	/// <summary>Returns the uint4 column vector result of a matrix Multiplytiplication between a uint4x2 matrix and a uint2 column vector.</summary>
 
-	inline static unsigned4 Multiply(unsigned4x2 a, unsigned2 b)
+	inline static uint4 Multiply(uint4x2 a, uint2 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y;
 	}
 
-	/// <summary>Returns the unsigned4x2 matrix result of a matrix Multiplytiplication between a unsigned4x2 matrix and a unsigned2x2 matrix.</summary>
+	/// <summary>Returns the uint4x2 matrix result of a matrix Multiplytiplication between a uint4x2 matrix and a uint2x2 matrix.</summary>
 
-	inline static unsigned4x2 Multiply(unsigned4x2 a, unsigned2x2 b)
+	inline static uint4x2 Multiply(uint4x2 a, uint2x2 b)
 	{
-		return unsigned4x2(
+		return uint4x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y);
 	}
 
-	/// <summary>Returns the unsigned4x3 matrix result of a matrix Multiplytiplication between a unsigned4x2 matrix and a unsigned2x3 matrix.</summary>
+	/// <summary>Returns the uint4x3 matrix result of a matrix Multiplytiplication between a uint4x2 matrix and a uint2x3 matrix.</summary>
 
-	inline static unsigned4x3 Multiply(unsigned4x2 a, unsigned2x3 b)
+	inline static uint4x3 Multiply(uint4x2 a, uint2x3 b)
 	{
-		return unsigned4x3(
+		return uint4x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y,
 			a.c0 * b.c2.x + a.c1 * b.c2.y);
 	}
 
-	/// <summary>Returns the unsigned4x4 matrix result of a matrix Multiplytiplication between a unsigned4x2 matrix and a unsigned2x4 matrix.</summary>
+	/// <summary>Returns the uint4x4 matrix result of a matrix Multiplytiplication between a uint4x2 matrix and a uint2x4 matrix.</summary>
 
-	inline static unsigned4x4 Multiply(unsigned4x2 a, unsigned2x4 b)
+	inline static uint4x4 Multiply(uint4x2 a, uint2x4 b)
 	{
-		return unsigned4x4(
+		return uint4x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y,
 			a.c0 * b.c1.x + a.c1 * b.c1.y,
 			a.c0 * b.c2.x + a.c1 * b.c2.y,
 			a.c0 * b.c3.x + a.c1 * b.c3.y);
 	}
 
-	/// <summary>Returns the unsigned4 column vector result of a matrix Multiplytiplication between a unsigned4x3 matrix and a unsigned3 column vector.</summary>
+	/// <summary>Returns the uint4 column vector result of a matrix Multiplytiplication between a uint4x3 matrix and a uint3 column vector.</summary>
 
-	inline static unsigned4 Multiply(unsigned4x3 a, unsigned3 b)
+	inline static uint4 Multiply(uint4x3 a, uint3 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y + a.c2 * b.z;
 	}
 
-	/// <summary>Returns the unsigned4x2 matrix result of a matrix Multiplytiplication between a unsigned4x3 matrix and a unsigned3x2 matrix.</summary>
+	/// <summary>Returns the uint4x2 matrix result of a matrix Multiplytiplication between a uint4x3 matrix and a uint3x2 matrix.</summary>
 
-	inline static unsigned4x2 Multiply(unsigned4x3 a, unsigned3x2 b)
+	inline static uint4x2 Multiply(uint4x3 a, uint3x2 b)
 	{
-		return unsigned4x2(
+		return uint4x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z);
 	}
 
-	/// <summary>Returns the unsigned4x3 matrix result of a matrix Multiplytiplication between a unsigned4x3 matrix and a unsigned3x3 matrix.</summary>
+	/// <summary>Returns the uint4x3 matrix result of a matrix Multiplytiplication between a uint4x3 matrix and a uint3x3 matrix.</summary>
 
-	inline static unsigned4x3 Multiply(unsigned4x3 a, unsigned3x3 b)
+	inline static uint4x3 Multiply(uint4x3 a, uint3x3 b)
 	{
-		return unsigned4x3(
+		return uint4x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z);
 	}
 
-	/// <summary>Returns the unsigned4x4 matrix result of a matrix Multiplytiplication between a unsigned4x3 matrix and a unsigned3x4 matrix.</summary>
+	/// <summary>Returns the uint4x4 matrix result of a matrix Multiplytiplication between a uint4x3 matrix and a uint3x4 matrix.</summary>
 
-	inline static unsigned4x4 Multiply(unsigned4x3 a, unsigned3x4 b)
+	inline static uint4x4 Multiply(uint4x3 a, uint3x4 b)
 	{
-		return unsigned4x4(
+		return uint4x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z,
 			a.c0 * b.c3.x + a.c1 * b.c3.y + a.c2 * b.c3.z);
 	}
 
-	/// <summary>Returns the unsigned4 column vector result of a matrix Multiplytiplication between a unsigned4x4 matrix and a unsigned4 column vector.</summary>
+	/// <summary>Returns the uint4 column vector result of a matrix Multiplytiplication between a uint4x4 matrix and a uint4 column vector.</summary>
 
-	inline static unsigned4 Multiply(unsigned4x4 a, unsigned4 b)
+	inline static uint4 Multiply(uint4x4 a, uint4 b)
 	{
 		return a.c0 * b.x + a.c1 * b.y + a.c2 * b.z + a.c3 * b.w;
 	}
 
-	/// <summary>Returns the unsigned4x2 matrix result of a matrix Multiplytiplication between a unsigned4x4 matrix and a unsigned4x2 matrix.</summary>
+	/// <summary>Returns the uint4x2 matrix result of a matrix Multiplytiplication between a uint4x4 matrix and a uint4x2 matrix.</summary>
 
-	inline static unsigned4x2 Multiply(unsigned4x4 a, unsigned4x2 b)
+	inline static uint4x2 Multiply(uint4x4 a, uint4x2 b)
 	{
-		return unsigned4x2(
+		return uint4x2(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w);
 	}
 
-	/// <summary>Returns the unsigned4x3 matrix result of a matrix Multiplytiplication between a unsigned4x4 matrix and a unsigned4x3 matrix.</summary>
+	/// <summary>Returns the uint4x3 matrix result of a matrix Multiplytiplication between a uint4x4 matrix and a uint4x3 matrix.</summary>
 
-	inline static unsigned4x3 Multiply(unsigned4x4 a, unsigned4x3 b)
+	inline static uint4x3 Multiply(uint4x4 a, uint4x3 b)
 	{
-		return unsigned4x3(
+		return uint4x3(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z + a.c3 * b.c2.w);
 	}
 
-	/// <summary>Returns the unsigned4x4 matrix result of a matrix Multiplytiplication between a unsigned4x4 matrix and a unsigned4x4 matrix.</summary>
+	/// <summary>Returns the uint4x4 matrix result of a matrix Multiplytiplication between a uint4x4 matrix and a uint4x4 matrix.</summary>
 
-	inline static unsigned4x4 Multiply(unsigned4x4 a, unsigned4x4 b)
+	inline static uint4x4 Multiply(uint4x4 a, uint4x4 b)
 	{
-		return unsigned4x4(
+		return uint4x4(
 			a.c0 * b.c0.x + a.c1 * b.c0.y + a.c2 * b.c0.z + a.c3 * b.c0.w,
 			a.c0 * b.c1.x + a.c1 * b.c1.y + a.c2 * b.c1.z + a.c3 * b.c1.w,
 			a.c0 * b.c2.x + a.c1 * b.c2.y + a.c2 * b.c2.z + a.c3 * b.c2.w,
@@ -2155,12 +2162,12 @@ namespace UniEngine {
 		float3x3 retVal;
 		float4 v2 = v + v;
 
-		unsigned3 npn = unsigned3(0x80000000, 0x00000000, 0x80000000);
-		unsigned3 nnp = unsigned3(0x80000000, 0x80000000, 0x00000000);
-		unsigned3 pnn = unsigned3(0x00000000, 0x80000000, 0x80000000);
-		retVal.c0 = v2.y * asfloat(asunsigned(float3(v.y, v.x, v.w)) ^ npn) - v2.z * asfloat(asunsigned(float3(v.z, v.w, v.x)) ^ pnn) + float3(1, 0, 0);
-		retVal.c1 = v2.z * asfloat(asunsigned(float3(v.w, v.z, v.y)) ^ nnp) - v2.x * asfloat(asunsigned(float3(v.y, v.x, v.w)) ^ npn) + float3(0, 1, 0);
-		retVal.c2 = v2.x * asfloat(asunsigned(float3(v.z, v.w, v.x)) ^ pnn) - v2.y * asfloat(asunsigned(float3(v.w, v.z, v.y)) ^ nnp) + float3(0, 0, 1);
+		uint3 npn = uint3(0x80000000, 0x00000000, 0x80000000);
+		uint3 nnp = uint3(0x80000000, 0x80000000, 0x00000000);
+		uint3 pnn = uint3(0x00000000, 0x80000000, 0x80000000);
+		retVal.c0 = v2.y * asfloat(asuint(float3(v.y, v.x, v.w)) ^ npn) - v2.z * asfloat(asuint(float3(v.z, v.w, v.x)) ^ pnn) + float3(1, 0, 0);
+		retVal.c1 = v2.z * asfloat(asuint(float3(v.w, v.z, v.y)) ^ nnp) - v2.x * asfloat(asuint(float3(v.y, v.x, v.w)) ^ npn) + float3(0, 1, 0);
+		retVal.c2 = v2.x * asfloat(asuint(float3(v.z, v.w, v.x)) ^ pnn) - v2.y * asfloat(asuint(float3(v.w, v.z, v.y)) ^ nnp) + float3(0, 0, 1);
 		return retVal;
 	}
 
@@ -2179,14 +2186,14 @@ namespace UniEngine {
 		float3 u_inv_cosa = u - u * cosa;  // u * (1.0f - cosa);
 		float4 t = float4(u * sina, cosa);
 
-		unsigned3 ppn = unsigned3(0x00000000, 0x00000000, 0x80000000);
-		unsigned3 npp = unsigned3(0x80000000, 0x00000000, 0x00000000);
-		unsigned3 pnp = unsigned3(0x00000000, 0x80000000, 0x00000000);
+		uint3 ppn = uint3(0x00000000, 0x00000000, 0x80000000);
+		uint3 npp = uint3(0x80000000, 0x00000000, 0x00000000);
+		uint3 pnp = uint3(0x00000000, 0x80000000, 0x00000000);
 
 		return float3x3(
-			u.x * u_inv_cosa + asfloat(asunsigned(float3(t.w, t.z, t.y)) ^ ppn),
-			u.y * u_inv_cosa + asfloat(asunsigned(float3(t.z, t.w, t.x)) ^ npp),
-			u.z * u_inv_cosa + asfloat(asunsigned(float3(t.y, t.x, t.w)) ^ pnp)
+			u.x * u_inv_cosa + asfloat(asuint(float3(t.w, t.z, t.y)) ^ ppn),
+			u.y * u_inv_cosa + asfloat(asuint(float3(t.z, t.w, t.x)) ^ npp),
+			u.z * u_inv_cosa + asfloat(asuint(float3(t.y, t.x, t.w)) ^ pnp)
 		);
 	}
 
@@ -2493,15 +2500,15 @@ namespace UniEngine {
 		float4 u_inv_cosa = u - u * cosa;  // u * (1.0f - cosa);
 		float4 t = float4(float3(u.x, u.y, u.z) * sina, cosa);
 
-		unsigned4 ppnp = unsigned4(0x00000000, 0x00000000, 0x80000000, 0x00000000);
-		unsigned4 nppp = unsigned4(0x80000000, 0x00000000, 0x00000000, 0x00000000);
-		unsigned4 pnpp = unsigned4(0x00000000, 0x80000000, 0x00000000, 0x00000000);
-		unsigned4 mask = unsigned4(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000);
+		uint4 ppnp = uint4(0x00000000, 0x00000000, 0x80000000, 0x00000000);
+		uint4 nppp = uint4(0x80000000, 0x00000000, 0x00000000, 0x00000000);
+		uint4 pnpp = uint4(0x00000000, 0x80000000, 0x00000000, 0x00000000);
+		uint4 mask = uint4(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000);
 
 		return float4x4(
-			u.x * u_inv_cosa + asfloat((asunsigned(float4(t.w, t.z, t.y, t.x)) ^ ppnp) & mask),
-			u.y * u_inv_cosa + asfloat((asunsigned(float4(t.z, t.w, t.x, t.x)) ^ nppp) & mask),
-			u.z * u_inv_cosa + asfloat((asunsigned(float4(t.y, t.x, t.w, t.x)) ^ pnpp) & mask),
+			u.x * u_inv_cosa + asfloat((asuint(float4(t.w, t.z, t.y, t.x)) ^ ppnp) & mask),
+			u.y * u_inv_cosa + asfloat((asuint(float4(t.z, t.w, t.x, t.x)) ^ nppp) & mask),
+			u.z * u_inv_cosa + asfloat((asuint(float4(t.y, t.x, t.w, t.x)) ^ pnpp) & mask),
 			float4(0.0f, 0.0f, 0.0f, 1.0f)
 		);
 

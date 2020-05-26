@@ -77,7 +77,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>includes;includes\assimp-5.0.1\x64\include;includes\assimp-5.0.1\include;includes\glfw-3.3.2\include;includes\glad\include;includes\ImGUI\examples;includes\ImGUI;includes\glad\include\glad;includes\glad\include\KHR;includes\glm;$(IncludePath)</IncludePath>
+    <IncludePath>includes;includes\assimp-5.0.1\x64\include;includes\assimp-5.0.1\include;includes\glfw-3.3.2\include;includes\glad\include;includes\ImGUI\examples;includes\ImGUI;includes\glad\include\glad;\includes\glad\include\KHR;$(IncludePath)</IncludePath>
     <SourcePath>includes\glfw-3.3.2\src;includes\glad\src;src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -171,7 +171,6 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="ManagerBase.cpp" />
     <ClCompile Include="ModelManager.cpp" />
-    <ClCompile Include="OMesh.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="Rendering.cpp" />
@@ -186,6 +185,7 @@
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="ShadowSystem.cpp" />
     <ClCompile Include="SharedComponent.cpp" />
     <ClCompile Include="SharedComponentSystem.cpp" />
     <ClCompile Include="SpotLight.cpp" />
@@ -222,11 +222,8 @@
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InputSystem.h" />
-    <ClInclude Include="learnopenglcamera.h" />
-    <ClInclude Include="learnopenglshader.h" />
     <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="ModelManager.h" />
-    <ClInclude Include="OMesh.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Rendering.h" />
@@ -244,6 +241,7 @@
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
+    <ClInclude Include="ShadowSystem.h" />
     <ClInclude Include="SharedComponent.h" />
     <ClInclude Include="SharedComponentSystem.h" />
     <ClInclude Include="SpotLight.h" />
@@ -252,7 +250,7 @@
     <ClInclude Include="Time.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformSystem.h" />
-    <ClInclude Include="unsigned.h" />
+    <ClInclude Include="uint.h" />
     <ClInclude Include="ulong.h" />
     <ClInclude Include="UniEngine.h" />
     <ClInclude Include="Window.h" />

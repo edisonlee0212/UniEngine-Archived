@@ -50,10 +50,9 @@ void UniEngine::WindowManager::Init()
 	}
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 	glfwSetMonitorCallback(SetMonitorCallback);
-	
 }
 
-Window* WindowManager::CreateWindow(unsigned width, unsigned height, std::string name, GLFWmonitor* monitor) {
+Window* WindowManager::CreateWindow(uint width, uint height, std::string name, GLFWmonitor* monitor) {
 	// glfw window creation
 	// --------------------
 	auto window = glfwCreateWindow(width, height, name.c_str(), monitor, NULL);
@@ -92,7 +91,7 @@ GLFWmonitor* UniEngine::WindowManager::PrimaryMonitor()
 void UniEngine::WindowManager::Update()
 {
 	for (auto i : _Windows) {
- 		glfwSwapBuffers(i->GLFWwindow());
+		glfwSwapBuffers(i->GLFWwindow());
 	}
 	glfwPollEvents();
 }

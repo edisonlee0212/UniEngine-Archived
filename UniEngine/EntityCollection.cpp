@@ -51,7 +51,7 @@ void UniEngine::EntityCollection::DeleteEntity(Entity* entity)
 	delete entity;
 }
 
-void UniEngine::EntityCollection::DeleteEntity(unsigned key)
+void UniEngine::EntityCollection::DeleteEntity(uint key)
 {
 	Entity* entity = _Entities.at(key);
 	for (auto i : entity->_Children) {
@@ -65,7 +65,7 @@ void UniEngine::EntityCollection::DeleteEntity(unsigned key)
 	delete entity;
 }
 
-Entity* UniEngine::EntityCollection::GetEntity(unsigned key)
+Entity* UniEngine::EntityCollection::GetEntity(uint key)
 {
 	return _Entities.at(key);
 }

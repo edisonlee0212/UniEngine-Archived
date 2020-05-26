@@ -5,7 +5,7 @@ namespace UniEngine {
 	struct FixedData {
 
 	};
-	struct Position : FixedData {
+	struct Translation : FixedData {
 		float3 value;
 	};
 	struct Scale : FixedData {

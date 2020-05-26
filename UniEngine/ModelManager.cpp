@@ -21,22 +21,19 @@ void ModelManager::LoadModel(Entity* root, std::string const& path, GLProgram* s
 
 void ModelManager::ProcessNode(std::string directory, GLProgram* program, Entity* parent, std::vector<Texture2D*>* Texture2DsLoaded, aiNode* node, const aiScene* scene)
 {
-    for (unsigned i = 0; i < node->mNumMeshes; i++)
+    for (uint i = 0; i < node->mNumMeshes; i++)
     {
         // the node object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         auto entity = ReadMesh(directory, program, Texture2DsLoaded, mesh, scene);
         entities.push_back(entity);
-
-        LocalScale ls;
-        ls.value = float3(1.0f);
-        _World->_EntityCollection->SetFixedData<LocalPosition>(entity, LocalPosition());
-        _World->_EntityCollection->SetFixedData<LocalRotation>(entity, LocalRotation());
-        _World->_EntityCollection->SetFixedData<LocalScale>(entity, ls);
+        LocalToParent ltp;
+        ltp.value = float4x4(1.0f);
+        _World->_EntityCollection->SetFixedData<LocalToParent>(entity, ltp);
         _World->_EntityCollection->SetParent(entity, parent);
     }
-    for (unsigned i = 0; i < node->mNumChildren; i++)
+    for (uint i = 0; i < node->mNumChildren; i++)
     {
         ProcessNode(directory, program, parent, Texture2DsLoaded, node->mChildren[i], scene);
     }
@@ -44,11 +41,11 @@ void ModelManager::ProcessNode(std::string directory, GLProgram* program, Entity
 
 Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::vector<Texture2D*>* Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
     Entity* entity = _World->_EntityCollection->CreateEntity();
-    unsigned mask = 1;
+    uint mask = 1;
     std::vector<Vertex> vertices;
-    std::vector<unsigned> indices;
+    std::vector<uint> indices;
     // Walk through each of the mesh's vertices
-    for (unsigned i = 0; i < aimesh->mNumVertices; i++)
+    for (uint i = 0; i < aimesh->mNumVertices; i++)
     {
         Vertex vertex;
         float3 v3; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder float3 first.
@@ -140,18 +137,18 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
         vertices.push_back(vertex);
     }
     // now wak through each of the mesh's _Faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-    for (unsigned i = 0; i < aimesh->mNumFaces; i++)
+    for (uint i = 0; i < aimesh->mNumFaces; i++)
     {
         aiFace face = aimesh->mFaces[i];
         // retrieve all indices of the face and store them in the indices vector
-        for (unsigned j = 0; j < face.mNumIndices; j++)
+        for (uint j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
     // process materials
     aiMaterial* pointMaterial = scene->mMaterials[aimesh->mMaterialIndex];
 
     auto mesh = new Mesh();
-    mesh->SetVertices(mask, indices.size(), &vertices, &indices);
+    mesh->SetVertices(mask, indices.size(), &vertices[0], &indices[0]);
 
     entity->SetSharedComponent<Mesh>(mesh);
     auto material = new Material();
@@ -174,13 +171,13 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
 std::vector<Texture2D*> ModelManager::LoadMaterialTextures(std::string directory, std::vector<Texture2D*>* Texture2DsLoaded, aiMaterial* mat, aiTextureType type, TextureType typeName)
 {
     std::vector<Texture2D*> Texture2Ds;
-    for (unsigned i = 0; i < mat->GetTextureCount(type); i++)
+    for (uint i = 0; i < mat->GetTextureCount(type); i++)
     {
         aiString str;
         mat->GetTexture(type, i, &str);
         // check if Texture2D was loaded before and if so, continue to next iteration: skip loading a new Texture2D
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded->size(); j++)
+        for (uint j = 0; j < Texture2DsLoaded->size(); j++)
         {
             if (std::strcmp(Texture2DsLoaded->at(j)->Path().c_str(), str.C_Str()) == 0)
             {

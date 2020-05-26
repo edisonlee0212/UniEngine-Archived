@@ -1,7 +1,7 @@
 #include "Entity.h"
 #include "Math.h"
 using namespace UniEngine;
-UniEngine::Entity::Entity(unsigned key) : _Key(key)
+UniEngine::Entity::Entity(uint key) : _Key(key)
 {
 	_Parent = nullptr;
 	_Children = std::vector<Entity*>();
@@ -18,17 +18,12 @@ UniEngine::Entity::~Entity()
 	delete _SharedComponents;
 }
 
-Entity* UniEngine::Entity::Parent()
-{
-	return _Parent;
-}
-
 std::vector<Entity*>* UniEngine::Entity::Children()
 {
 	return &_Children;
 }
 
-unsigned UniEngine::Entity::Key()
+uint UniEngine::Entity::Key()
 {
 	return _Key;
 }

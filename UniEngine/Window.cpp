@@ -4,7 +4,7 @@
 #include "Default.h"
 using namespace UniEngine;
 
-void UniEngine::Window::SetSize(unsigned width, unsigned height)
+void UniEngine::Window::SetSize(uint width, uint height)
 {
 	_Width = width;
 	_Height = height;

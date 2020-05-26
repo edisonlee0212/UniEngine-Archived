@@ -7,12 +7,12 @@ namespace UniEngine {
 	class Window
 	{
 		GLFWwindow* _Window;
-		unsigned _Width;
-		unsigned _Height;
+		uint _Width;
+		uint _Height;
 		friend class WindowManager;
-		void SetSize(unsigned width, unsigned height);
+		void SetSize(uint width, uint height);
 	public:
-		Window(GLFWwindow* window, unsigned width, unsigned height) {
+		Window(GLFWwindow* window, uint width, uint height) {
 			_Window = window;
 			_Width = width;
 			_Height = height;

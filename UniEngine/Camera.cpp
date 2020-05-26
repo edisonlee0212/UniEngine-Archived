@@ -1,25 +1,6 @@
 #include "Camera.h"
-#include "WindowManager.h"
+//#include "WindowManager.h"
 using namespace UniEngine;
-
-Camera::Camera(float3 position, float3 up, float yaw, float pitch) : Front(float3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-{
-	Position = position;
-	WorldUp = up;
-	Yaw = yaw;
-	Pitch = pitch;
-	UpdateCameraVectors();
-}
-// Constructor with scalar values
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(float3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-{
-	Position = float3(posX, posY, posZ);
-	WorldUp = float3(upX, upY, upZ);
-	Yaw = yaw;
-	Pitch = pitch;
-	UpdateCameraVectors();
-}
-
 float3 UniEngine::Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
 	float velocity = MovementSpeed * deltaTime;
@@ -85,7 +66,7 @@ void UniEngine::Camera::UpdateCameraVectors()
 
 void Camera::UpdateViewProj() {
 	View = LookAt4x4(Position, Position + Front, Up);
-	auto size = WindowManager::CurrentWindow()->GetSize();
-	if (size.x == 0 || size.y == 0) return;
-	Projection = PerspectiveFov(Zoom / 180.0f * 3.1415926, size.x / size.y, 0.1f, 100.0f);
+	//auto size = WindowManager::CurrentWindow()->GetSize();
+	//if (size.x == 0 || size.y == 0) return;
+	Projection = PerspectiveFov(Zoom / 180.0f * 3.1415926, 1920.0f / 1080, 0.1f, 100.0f);
 }

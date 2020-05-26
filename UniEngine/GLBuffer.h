@@ -69,10 +69,12 @@ namespace UniEngine {
 			for (size_t i = 0; i < attributeSize; i++) {
 				glEnableVertexAttribArray(i);
 			}
+			glBindVertexArray(0);
 		}
 		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
 			glBindVertexArray(_ID);
 			_VBO->SubData(offset, size, data);
+			glBindVertexArray(0);
 		}
 
 		void SetAttributePointer(GLuint index,
@@ -83,6 +85,7 @@ namespace UniEngine {
 			const void* pointer) {
 			glBindVertexArray(_ID);
 			glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+			glBindVertexArray(0);
 		}
 
 		~GLVAO() {
