@@ -5,7 +5,7 @@ namespace UniEngine {
 	class FixedDataStorage
 	{
 		std::unordered_map<size_t, void*> _FixedDataStorage;
-		std::vector<Translation> _Translations;
+		std::vector<Position> _Translations;
 		std::vector<Rotation> _Rotations;
 		std::vector<Scale> _Scales;
 		std::vector<LocalPosition> _LocalPositions;
@@ -18,15 +18,15 @@ namespace UniEngine {
 		friend class EntityCollection;
 		FixedDataStorage();
 		void PushBack();
-		void RemoveSwapBack(uint key);
+		void RemoveSwapBack(unsigned key);
 		template <typename T>
-		void SetFixedData(uint key, T value);
+		void SetFixedData(unsigned key, T value);
 		template <typename T>
-		T GetFixedData(uint key);
+		T GetFixedData(unsigned key);
 	};
 	
 	template<typename T>
-	inline void FixedDataStorage::SetFixedData(uint key, T value)
+	inline void FixedDataStorage::SetFixedData(unsigned key, T value)
 	{
 		auto code = typeid(T).hash_code();
 		auto search = _FixedDataStorage.find(code);
@@ -38,7 +38,7 @@ namespace UniEngine {
 	}
 
 	template<typename T>
-	inline T FixedDataStorage::GetFixedData(uint key)
+	inline T FixedDataStorage::GetFixedData(unsigned key)
 	{
 		auto code = typeid(T).hash_code();
 		auto search = _FixedDataStorage.find(code);

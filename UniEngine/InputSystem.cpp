@@ -11,9 +11,11 @@ void UniEngine::InputSystem::OnCreate()
 {
 	glGenBuffers(1, &_CameraMatricesBufferID);
 	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(float4x4) + sizeof(float4x4), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(float4x4) + sizeof(float4), NULL, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, _CameraMatricesBufferID, 0, 2 * sizeof(float4x4));
+	
+	
 	Enable();
 }
 
@@ -67,13 +69,9 @@ void UniEngine::InputSystem::Update()
 	_World->MainCamera()->UpdateViewProj();
 
 	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float4x4), &_World->MainCamera()->Projection);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float4x4), sizeof(float4x4), &_World->MainCamera()->View);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(float4x4), sizeof(float3), &_World->MainCamera()->Position);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float4x4), &_World->MainCamera()->Projection.c0.x);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float4x4), sizeof(float4x4), &_World->MainCamera()->View.c0.x);
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(float4x4), sizeof(float3), &_World->MainCamera()->Position.x);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 }

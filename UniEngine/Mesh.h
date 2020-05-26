@@ -42,7 +42,7 @@ namespace UniEngine {
 	public:
 		Mesh();
 		~Mesh();
-		void SetVertices(uint mask, size_t size, Vertex* vertices, uint* indices);
+		void SetVertices(unsigned mask, size_t size, std::vector<Vertex>* vertices, std::vector<unsigned>* indices);
 		void ClearVertices();
 		size_t GetVerticesAmount();
 		size_t Size();
