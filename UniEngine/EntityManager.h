@@ -1,18 +1,15 @@
 #pragma once
 #include "Misc.h"
-#include "Math.h"
-#include "Entity.h"
-#include "FixedDataStorage.h"
+#include "Core.h"
 namespace UniEngine {
-	class EntityCollection
+	class EntityManager
 	{
 		std::vector<Entity*> _Entities;
 		FixedDataStorage* _FixedDataStorage;
 
 		friend class World;
-		EntityCollection();
+		EntityManager();
 	public:
-		void SetParent(Entity* child, Entity* parent);
 		std::vector<Entity*>* Entities();
 		Entity* CreateEntity();
 		void DeleteEntity(Entity* entity);
@@ -20,7 +17,6 @@ namespace UniEngine {
 		Entity* GetEntity(uint key);
 		size_t GetEntitiesAmount();
 		template <typename T>
-
 		T GetComponent(Entity* entity);
 		template <typename T>
 		void SetComponent(Entity* entity, T value);
@@ -30,21 +26,21 @@ namespace UniEngine {
 		T GetFixedData(Entity* entity);
 	};
 	template<typename T>
-	inline T EntityCollection::GetComponent(Entity* entity)
+	inline T EntityManager::GetComponent(Entity* entity)
 	{
 		return T();
 	}
 	template<typename T>
-	inline void EntityCollection::SetComponent(Entity* entity, T value)
+	inline void EntityManager::SetComponent(Entity* entity, T value)
 	{
 	}
 	template<typename T>
-	inline void EntityCollection::SetFixedData(Entity* entity, T value)
+	inline void EntityManager::SetFixedData(Entity* entity, T value)
 	{
-		_FixedDataStorage->SetFixedData(entity->_Key, value);
+		_FixedDataStorage.SetFixedData(entity->_Key, value);
 	}
 	template<typename T>
-	inline T EntityCollection::GetFixedData(Entity* entity)
+	inline T EntityManager::GetFixedData(Entity* entity)
 	{
 		return _FixedDataStorage->GetFixedData<T>(entity->_Key);
 	}

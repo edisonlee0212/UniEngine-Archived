@@ -1,18 +1,19 @@
 #pragma once
-#include "EntityCollection.h"
+#include "Core.h"
+#include "EntityManager.h"
 namespace UniEngine {
-	class World;
 	class SystemBase
 	{
 	protected:
 		friend class World;
 		bool _Enabled;
-		World* _World;
-		EntityCollection* _EntityCollection;
+		EntityManager* _Entities;
+		void SetEntityManager(EntityManager* entityManager);
 		void Enable();
 		void Disable();
 	public:
 		bool Enabled();
+		EntityManager* Entities();
 		SystemBase();
 		virtual void OnCreate() {}
 		virtual void OnDestroy() {}

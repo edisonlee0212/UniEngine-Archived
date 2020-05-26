@@ -1,9 +1,14 @@
 #include "SystemBase.h"
-#include "EntityCollection.h"
+#include "EntityManager.h"
 using namespace UniEngine;
 SystemBase::SystemBase()
 {
 	_Enabled = false;
+}
+
+void SystemBase::SetEntityManager(UniEngine::EntityManager* entityManager)
+{
+	_Entities = entityManager;
 }
 
 void SystemBase::Enable()
@@ -27,3 +32,7 @@ bool SystemBase::Enabled()
 	return _Enabled;
 }
 
+EntityManager* UniEngine::SystemBase::Entities()
+{
+	return _Entities;
+}

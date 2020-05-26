@@ -1,12 +1,9 @@
-struct Material{
-	float shininess;
+struct Material {
+    sampler2D diffuse;
+    sampler2D specular;
+    sampler2D normal;
+    sampler2D height;
+    float shininess;
 };
 
-uniform Material material;
-
-uniform sampler2D TEXTURE_DIFFUSE[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_SPECULAR[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_AMBIENT[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_EMISSIVE[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_HEIGHT[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_NORMAL[MAX_TEXTURES_AMOUNT];
+uniform Material materials[MAX_MATERIALS_AMOUNT];

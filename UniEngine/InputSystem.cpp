@@ -25,18 +25,19 @@ void UniEngine::InputSystem::OnDestroy()
 void UniEngine::InputSystem::Update()
 {
 #pragma region Handle Movement
+
 	if (InputManager::GetKey(GLFW_KEY_W))
-		_World->MainCamera()->ProcessKeyboard(FORWARD, Time::DeltaTime());
+		World::MainCamera()->ProcessKeyboard(FORWARD, Time::DeltaTime());
 	if (InputManager::GetKey(GLFW_KEY_S))
-		_World->MainCamera()->ProcessKeyboard(BACKWARD, Time::DeltaTime());
+		World::MainCamera()->ProcessKeyboard(BACKWARD, Time::DeltaTime());
 	if (InputManager::GetKey(GLFW_KEY_A))
-		_World->MainCamera()->ProcessKeyboard(LEFT, Time::DeltaTime());
+		World::MainCamera()->ProcessKeyboard(LEFT, Time::DeltaTime());
 	if (InputManager::GetKey(GLFW_KEY_D))
-		_World->MainCamera()->ProcessKeyboard(RIGHT, Time::DeltaTime());
+		World::MainCamera()->ProcessKeyboard(RIGHT, Time::DeltaTime());
 	if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT))
-		_World->MainCamera()->ProcessKeyboard(UP, Time::DeltaTime());
+		World::MainCamera()->ProcessKeyboard(UP, Time::DeltaTime());
 	if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL))
-		_World->MainCamera()->ProcessKeyboard(DOWN, Time::DeltaTime());
+		World::MainCamera()->ProcessKeyboard(DOWN, Time::DeltaTime());
 #pragma endregion
 
 #pragma region HandleMouse
@@ -51,7 +52,7 @@ void UniEngine::InputSystem::Update()
 	_LastX = position.x;
 	_LastY = position.y;
 	if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
-		if (xoffset != 0 || yoffset != 0)_World->MainCamera()->ProcessMouseMovement(xoffset, yoffset);
+		if (xoffset != 0 || yoffset != 0)World::MainCamera()->ProcessMouseMovement(xoffset, yoffset);
 		position = InputManager::GetMouseScroll();
 		if (!startScroll) {
 			_LastScrollY = position.y;
@@ -59,21 +60,21 @@ void UniEngine::InputSystem::Update()
 		}
 		float yscrolloffset = -position.y + _LastScrollY;
 		_LastScrollY = position.y;
-		if (yscrolloffset != 0)_World->MainCamera()->ProcessMouseScroll(yscrolloffset);
+		if (yscrolloffset != 0)World::MainCamera()->ProcessMouseScroll(yscrolloffset);
 
 
 	}
 #pragma endregion
-	_World->MainCamera()->UpdateViewProj();
+	World::MainCamera()->UpdateViewProj();
 
 	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float4x4), &_World->MainCamera()->Projection);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float4x4), &World::MainCamera()->Projection);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float4x4), sizeof(float4x4), &_World->MainCamera()->View);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(float4x4), sizeof(float4x4), &World::MainCamera()->View);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(float4x4), sizeof(float3), &_World->MainCamera()->Position);
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(float4x4), sizeof(float3), &World::MainCamera()->Position);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 }

@@ -13,5 +13,5 @@ void main()
     
     vec3 result = CalculateLights(norm, viewDir, FragPos);
     
-    FragColor = vec4(result, 1.0) * texture(TEXTURE_DIFFUSE[0], TexCoords);
+    FragColor = vec4(result, 1.0) * texture(materials[0].diffuse, TexCoords);
 }

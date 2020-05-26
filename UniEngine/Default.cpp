@@ -1,6 +1,7 @@
 #include "Default.h"
 #include "Core.h"
-#include "ModelManager.h"
+#include "AssimpImporter.h"
+#include "Scene.h"
 using namespace UniEngine;
 
 GLProgram* Default::Screen::ScreenProgram;
@@ -18,7 +19,7 @@ Mesh* Default::Primitives::Quad;
 Mesh* Default::Primitives::Cone;
 Mesh* Default::Primitives::Cylinder;
 
-void UniEngine::Default::Load(World* world)
+void UniEngine::Default::Load()
 {
 	float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 		// positions   // texCoords
@@ -53,7 +54,7 @@ void UniEngine::Default::Load(World* world)
 
 	ShaderIncludes::MainCamera = new std::string(FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Include/MainCamera.inc")));
 
-	std::string add = "#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) + "\n";
+	std::string add = "#define MAX_MATERIALS_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) + "\n";
 	ShaderIncludes::Material = new std::string(add + FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Include/Material.inc")));
 
 	add =
@@ -67,34 +68,33 @@ void UniEngine::Default::Load(World* world)
 	Textures::UV = new Texture2D(TextureType::DIFFUSE);
 	Textures::UV->LoadTexture(FileIO::GetPath("Textures/uv-test.png"), "");
 
-	Entity* entity = world->_EntityCollection->CreateEntity();
-	
-	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/sphere.obj"));
-	Primitives::Sphere = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	Scene* scene = new Scene();
+	AssimpImporter::LoadScene(scene, FileIO::GetPath("Primitives/sphere.obj"));
+	Primitives::Sphere = scene->_Meshes[0];
 	Primitives::Sphere->RecalculateNormal();
-	world->_EntityCollection->DeleteEntity(entity);
+	delete scene;
 
-	entity = world->_EntityCollection->CreateEntity();
-	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cube.obj"));
-	Primitives::Cube = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	scene = new Scene();
+	AssimpImporter::LoadScene(scene, FileIO::GetPath("Primitives/cube.obj"));
+	Primitives::Cube = scene->_Meshes[0];
 	Primitives::Cube->RecalculateNormal();
-	world->_EntityCollection->DeleteEntity(entity);
+	delete scene;
 
-	entity = world->_EntityCollection->CreateEntity();
-	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/quad.obj"));
-	Primitives::Quad = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	scene = new Scene();
+	AssimpImporter::LoadScene(scene, FileIO::GetPath("Primitives/quad.obj"));
+	Primitives::Quad = scene->_Meshes[0];
 	Primitives::Quad->RecalculateNormal();
-	world->_EntityCollection->DeleteEntity(entity);
+	delete scene;
 
-	entity = world->_EntityCollection->CreateEntity();
-	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cone.obj"));
-	Primitives::Cone = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	scene = new Scene();
+	AssimpImporter::LoadScene(scene, FileIO::GetPath("Primitives/cone.obj"));
+	Primitives::Cone = scene->_Meshes[0];
 	Primitives::Cone->RecalculateNormal();
-	world->_EntityCollection->DeleteEntity(entity);
+	delete scene;
 
-	entity = world->_EntityCollection->CreateEntity();
-	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cylinder.obj"));
-	Primitives::Cylinder = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	scene = new Scene();
+	AssimpImporter::LoadScene(scene, FileIO::GetPath("Primitives/cylinder.obj"));
+	Primitives::Cylinder = scene->_Meshes[0];
 	Primitives::Cylinder->RecalculateNormal();
-	world->_EntityCollection->DeleteEntity(entity);
+	delete scene;
 }

@@ -1,9 +1,5 @@
 #include "GLTexture.h"
 using namespace UniEngine;
-void UniEngine::GLTexture::BindDefault()
-{
-	glActiveTexture(GL_TEXTURE0);
-}
 UniEngine::GLTexture::GLTexture()
 {
 	glGenTextures(1, &_ID);

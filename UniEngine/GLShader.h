@@ -19,7 +19,6 @@ namespace UniEngine {
 	public:
 		void SetCode(std::string* code);
 		GLShader(ShaderType type);
-		GLShader(ShaderType type, std::string* code);
 		~GLShader();
 		ShaderType Type();
 		bool Attachable();
