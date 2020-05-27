@@ -1,12 +1,14 @@
 #pragma once
 #include "Misc.h"
 #include "Core.h"
+#include "Window.h"
+#include "RenderManager.h"
 namespace UniEngine {
 	class WindowManager
 	{
 	public:
 		static void Init();
-		static Window* CreateWindow(unsigned width, unsigned height, std::string name, GLFWmonitor* monitor);
+		static GLFWwindow* CreateGLFWwindow(unsigned width, unsigned height, std::string name, GLFWmonitor* monitor);
 		static std::vector<Window*>* Windows();
 		static Window* CurrentWindow();
 		static GLFWmonitor* PrimaryMonitor();
@@ -14,6 +16,7 @@ namespace UniEngine {
 		static void Update(Window* window, Texture2D* texture);
 		static void ResizeCallback(GLFWwindow*, int, int);
 		static void SetMonitorCallback(GLFWmonitor* monitor, int event);
+		static Window* CreateWindow(GLFWwindow* window, unsigned resolutionX, unsigned resolutionY);
 	private:
 		static std::vector<GLFWmonitor*> _Monitors;
 		static GLFWmonitor* _PrimaryMonitor;

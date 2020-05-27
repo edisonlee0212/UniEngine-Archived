@@ -1,8 +1,8 @@
 #pragma once
 #include "Misc.h"
 #include "EntityCollection.h"
-#include "SystemBase.h"
-#include "Camera.h"
+#include "Core.h"
+#include "RenderManager.h"
 namespace UniEngine {
 	class World
 	{
@@ -11,6 +11,7 @@ namespace UniEngine {
 		Camera* _MainCamera;
 	public:
 		World();
+		void Init();
 		template <class T>
 		T* CreateSystem();
 		template <class T>

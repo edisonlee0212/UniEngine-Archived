@@ -4,6 +4,7 @@ using namespace UniEngine;
 std::vector<Entity*> ModelManager::entities = std::vector<Entity*>();
 
 void ModelManager::LoadModel(Entity* root, std::string const& path, GLProgram* shader, bool gamma) {
+    stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -80,60 +81,64 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
         }
         glm::vec4 v4;
         if (aimesh->mColors[0]) {
-            v4.x = aimesh->mColors[0]->r;
-            v4.y = aimesh->mColors[0]->g;
-            v4.z = aimesh->mColors[0]->b;
-            v4.w = aimesh->mColors[0]->a;
+            v4.x = aimesh->mColors[0][i].r;
+            v4.y = aimesh->mColors[0][i].g;
+            v4.z = aimesh->mColors[0][i].b;
+            v4.w = aimesh->mColors[0][i].a;
             vertex.Color = v4;
             mask = mask | (1 << 4);
         }
         glm::vec2 v2;
         if (aimesh->mTextureCoords[0]) {
-            v2.x = aimesh->mTextureCoords[0]->x;
-            v2.y = aimesh->mTextureCoords[0]->y;
+            v2.x = aimesh->mTextureCoords[0][i].x;
+            v2.y = aimesh->mTextureCoords[0][i].y;
             vertex.TexCoords0 = v2;
             mask = mask | (1 << 5);
         }
+        else {
+            vertex.TexCoords0 = glm::vec2(0.0f, 0.0f);
+            mask = mask | (1 << 5);
+        }
         if (aimesh->mTextureCoords[1]) {
-            v2.x = aimesh->mTextureCoords[1]->x;
-            v2.y = aimesh->mTextureCoords[1]->y;
+            v2.x = aimesh->mTextureCoords[1][i].x;
+            v2.y = aimesh->mTextureCoords[1][i].y;
             vertex.TexCoords1 = v2;
             mask = mask | (1 << 6);
         }
         if (aimesh->mTextureCoords[2]) {
-            v2.x = aimesh->mTextureCoords[2]->x;
-            v2.y = aimesh->mTextureCoords[2]->y;
+            v2.x = aimesh->mTextureCoords[2][i].x;
+            v2.y = aimesh->mTextureCoords[2][i].y;
             vertex.TexCoords2 = v2;
             mask = mask | (1 << 7);
         }
         if (aimesh->mTextureCoords[3]) {
-            v2.x = aimesh->mTextureCoords[3]->x;
-            v2.y = aimesh->mTextureCoords[3]->y;
+            v2.x = aimesh->mTextureCoords[3][i].x;
+            v2.y = aimesh->mTextureCoords[3][i].y;
             vertex.TexCoords3 = v2;
             mask = mask | (1 << 8);
         }
         if (aimesh->mTextureCoords[4]) {
-            v2.x = aimesh->mTextureCoords[4]->x;
-            v2.y = aimesh->mTextureCoords[4]->y;
+            v2.x = aimesh->mTextureCoords[4][i].x;
+            v2.y = aimesh->mTextureCoords[4][i].y;
             vertex.TexCoords4 = v2;
             mask = mask | (1 << 9);
 
         }
         if (aimesh->mTextureCoords[5]) {
-            v2.x = aimesh->mTextureCoords[5]->x;
-            v2.y = aimesh->mTextureCoords[5]->y;
+            v2.x = aimesh->mTextureCoords[5][i].x;
+            v2.y = aimesh->mTextureCoords[5][i].y;
             vertex.TexCoords5 = v2;
             mask = mask | (1 << 10);
         }
         if (aimesh->mTextureCoords[6]) {
-            v2.x = aimesh->mTextureCoords[6]->x;
-            v2.y = aimesh->mTextureCoords[6]->y;
+            v2.x = aimesh->mTextureCoords[6][i].x;
+            v2.y = aimesh->mTextureCoords[6][i].y;
             vertex.TexCoords6 = v2;
             mask = mask | (1 << 11);
         }
         if (aimesh->mTextureCoords[7]) {
-            v2.x = aimesh->mTextureCoords[7]->x;
-            v2.y = aimesh->mTextureCoords[7]->y;
+            v2.x = aimesh->mTextureCoords[7][i].x;
+            v2.y = aimesh->mTextureCoords[7][i].y;
             vertex.TexCoords7 = v2;
             mask = mask | (1 << 12);
         }
@@ -151,7 +156,7 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
     aiMaterial* pointMaterial = scene->mMaterials[aimesh->mMaterialIndex];
 
     auto mesh = new Mesh();
-    mesh->SetVertices(mask, indices.size(), &vertices, &indices);
+    mesh->SetVertices(mask, &vertices, &indices);
 
     entity->SetSharedComponent<Mesh>(mesh);
     auto material = new Material();

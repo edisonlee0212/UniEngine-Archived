@@ -8,6 +8,7 @@
 #include "PhysicsSystem.h"
 #include "TransformSystem.h"
 #include "SharedComponentSystem.h"
+#include "WindowManager.h"
 using namespace UniEngine;
 
 
@@ -17,6 +18,12 @@ World::World() {
 	ManagerBase::_EntityCollection = _EntityCollection;
 	ManagerBase::_World = this;
 
+	
+
+}
+
+void UniEngine::World::Init()
+{
 	//Initialization System Group
 	CreateSystem<TimeSystem>();
 	CreateSystem<InputSystem>();
@@ -28,13 +35,14 @@ World::World() {
 	//Presentation System Group
 	CreateSystem<RenderSystem>();
 
-	
 
-	_MainCamera = new Camera();
+
+	_MainCamera = new Camera(WindowManager::CurrentWindow());
 	auto cameraEntity = _EntityCollection->CreateEntity();
 	cameraEntity->SetSharedComponent<Camera>(_MainCamera);
-
 }
+
+
 
 template <class T>
 T* World::CreateSystem() {

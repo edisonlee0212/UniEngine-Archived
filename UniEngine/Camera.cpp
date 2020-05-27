@@ -1,20 +1,49 @@
 #include "Camera.h"
 #include "WindowManager.h"
+
 using namespace UniEngine;
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+unsigned Camera::_CameraInfoBufferID;
+
+void UniEngine::Camera::UpdateMatrices()
 {
-	Position = position;
-	WorldUp = up;
+	glBindBuffer(GL_UNIFORM_BUFFER, _CameraInfoBufferID);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(Projection));
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(View));
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec3), glm::value_ptr(_Position));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void UniEngine::Camera::GenerateMatrices()
+{
+	glGenBuffers(1, &_CameraInfoBufferID);
+	glBindBuffer(GL_UNIFORM_BUFFER, _CameraInfoBufferID);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, _CameraInfoBufferID, 0, 2 * sizeof(glm::mat4));
+	
+}
+
+RenderTarget* UniEngine::Camera::GetRenderTarget()
+{
+	return _RenderTarget;
+}
+
+Camera::Camera(RenderTarget* renderTarget, glm::vec3 position, glm::vec3 up, float yaw, float pitch) : _Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+{
+	_RenderTarget = renderTarget;
+	_Position = position;
+	_WorldUp = up;
 	Yaw = yaw;
 	Pitch = pitch;
 	UpdateCameraVectors();
 }
 // Constructor with scalar values
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+Camera::Camera(RenderTarget* renderTarget, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : _Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
-	Position = glm::vec3(posX, posY, posZ);
-	WorldUp = glm::vec3(upX, upY, upZ);
+	_RenderTarget = renderTarget;
+	_Position = glm::vec3(posX, posY, posZ);
+	_WorldUp = glm::vec3(upX, upY, upZ);
 	Yaw = yaw;
 	Pitch = pitch;
 	UpdateCameraVectors();
@@ -24,18 +53,18 @@ glm::vec3 UniEngine::Camera::ProcessKeyboard(Camera_Movement direction, float de
 {
 	float velocity = MovementSpeed * deltaTime;
 	if (direction == FORWARD)
-		Position += glm::vec3(Front.x, 0.0f, Front.z) * velocity;
+		_Position += glm::vec3(_Front.x, 0.0f, _Front.z) * velocity;
 	if (direction == BACKWARD)
-		Position -= glm::vec3(Front.x, 0.0f, Front.z) * velocity;
+		_Position -= glm::vec3(_Front.x, 0.0f, _Front.z) * velocity;
 	if (direction == LEFT)
-		Position -= glm::vec3(Right.x, 0.0f, Right.z) * velocity;
+		_Position -= glm::vec3(_Right.x, 0.0f, _Right.z) * velocity;
 	if (direction == RIGHT)
-		Position += glm::vec3(Right.x, 0.0f, Right.z) * velocity;
+		_Position += glm::vec3(_Right.x, 0.0f, _Right.z) * velocity;
 	if (direction == UP)
-		Position.y += velocity;
+		_Position.y += velocity;
 	if (direction == DOWN)
-		Position.y -= velocity;
-	return Position;
+		_Position.y -= velocity;
+	return _Position;
 }
 
 void UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
@@ -76,16 +105,16 @@ void UniEngine::Camera::UpdateCameraVectors()
 	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
 	front.y = sin(glm::radians(Pitch));
 	front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-	Front = glm::normalize(front);
+	_Front = glm::normalize(front);
 	// Also re-calculate the Right and Up vector
-	Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-	Up = glm::normalize(glm::cross(Right, Front));
+	_Right = glm::normalize(glm::cross(_Front, _WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+	_Up = glm::normalize(glm::cross(_Right, _Front));
 	UpdateViewProj();
 }
 
 void Camera::UpdateViewProj() {
-	View = glm::lookAt(Position, Position + Front, Up);
-	auto size = WindowManager::CurrentWindow()->GetSize();
+	View = glm::lookAt(_Position, _Position + _Front, _Up);
+	auto size = _RenderTarget->GetResolution();
 	if (size.x == 0 || size.y == 0) return;
 	Projection = glm::perspective(glm::radians(Zoom), size.x / size.y, 0.1f, 100.0f);
 }

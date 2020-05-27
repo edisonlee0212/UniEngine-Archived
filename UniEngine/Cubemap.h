@@ -1,6 +1,6 @@
 #pragma once
 #include "Misc.h"
-#include "GLTexture.h"
+#include "Core.h"
 namespace UniEngine {
 	class Cubemap
 	{

@@ -4,18 +4,10 @@
 using namespace UniEngine;
 UniEngine::InputSystem::InputSystem()
 {
-
 }
 
 void UniEngine::InputSystem::OnCreate()
 {
-	glGenBuffers(1, &_CameraMatricesBufferID);
-	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, _CameraMatricesBufferID, 0, 2 * sizeof(glm::mat4));
-	
-	
 	Enable();
 }
 
@@ -40,7 +32,6 @@ void UniEngine::InputSystem::Update()
 	if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL))
 		_World->MainCamera()->ProcessKeyboard(DOWN, Time::DeltaTime());
 #pragma endregion
-
 #pragma region HandleMouse
 	auto position = InputManager::GetMousePosition();
 	if (!startMouse) {
@@ -66,12 +57,4 @@ void UniEngine::InputSystem::Update()
 
 	}
 #pragma endregion
-	_World->MainCamera()->UpdateViewProj();
-
-	glBindBuffer(GL_UNIFORM_BUFFER, _CameraMatricesBufferID);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(_World->MainCamera()->Projection));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_World->MainCamera()->View));
-	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec3), glm::value_ptr(_World->MainCamera()->Position));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
 }

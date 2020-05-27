@@ -1,7 +1,6 @@
 #pragma once
 #include "Math.h"
-#include "GLBuffer.h"
-#include "SharedComponent.h"
+#include "Core.h"
 namespace UniEngine {
 	struct Vertex {
 		glm::vec3 Position;
@@ -36,17 +35,17 @@ namespace UniEngine {
 	};
 	class Mesh : public SharedComponent
 	{
-		std::vector<glm::vec3>* _Vertices;
+		std::vector<Vertex>* _Vertices;
 		GLVAO* _VAO;
 		size_t _Size;
 	public:
 		Mesh();
 		~Mesh();
-		void SetVertices(unsigned mask, size_t size, std::vector<Vertex>* vertices, std::vector<unsigned>* indices);
+		void SetVertices(unsigned mask, std::vector<Vertex>* vertices, std::vector<unsigned>* indices);
 		void ClearVertices();
 		size_t GetVerticesAmount();
 		size_t Size();
-		void RecalculateNormal();
+		void RecalculateNormal(std::vector<unsigned>* indices);
 		GLVAO* VAO();
 		
 		void* GetAttributeArray(VertexAttribute channel);

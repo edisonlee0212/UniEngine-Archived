@@ -1,5 +1,4 @@
 #include "SystemBase.h"
-#include "EntityCollection.h"
 using namespace UniEngine;
 SystemBase::SystemBase()
 {

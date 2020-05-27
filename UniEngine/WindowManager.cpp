@@ -10,7 +10,7 @@ Window* WindowManager::_CurrentWindow;
 
 void WindowManager::ResizeCallback(GLFWwindow* window, int width, int height) {
 	for (auto i : _Windows) {
-		if (i->GLFWwindow() == window) i->SetSize(width, height);
+		if (i->GetGLFWWinwow() == window) i->SetSizeCallback(width, height);
 	}
 }
 
@@ -34,12 +34,22 @@ void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int even
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 }
 
+Window* UniEngine::WindowManager::CreateWindow(GLFWwindow* window, unsigned resolutionX, unsigned resolutionY)
+{
+	auto w = new Window(window, resolutionX, resolutionY);
+	_CurrentWindow = w;
+	_Windows.push_back(w);
+	return w;
+}
+
 void UniEngine::WindowManager::Init()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
@@ -53,7 +63,7 @@ void UniEngine::WindowManager::Init()
 	
 }
 
-Window* WindowManager::CreateWindow(unsigned width, unsigned height, std::string name, GLFWmonitor* monitor) {
+GLFWwindow* WindowManager::CreateGLFWwindow(unsigned width, unsigned height, std::string name, GLFWmonitor* monitor) {
 	// glfw window creation
 	// --------------------
 	auto window = glfwCreateWindow(width, height, name.c_str(), monitor, NULL);
@@ -68,11 +78,11 @@ Window* WindowManager::CreateWindow(unsigned width, unsigned height, std::string
 		return nullptr;
 	}
 	glfwMakeContextCurrent(window);
-	auto w = new Window(window, width, height);
-	_CurrentWindow = w;
-	_Windows.push_back(w);
-	return w;
+	
+	return window;
 }
+
+
 
 std::vector<Window*>* UniEngine::WindowManager::Windows()
 {
@@ -92,9 +102,8 @@ GLFWmonitor* UniEngine::WindowManager::PrimaryMonitor()
 void UniEngine::WindowManager::Update()
 {
 	for (auto i : _Windows) {
- 		glfwSwapBuffers(i->GLFWwindow());
+		i->Update();
 	}
-	glfwPollEvents();
 }
 
 void UniEngine::WindowManager::Update(Window* window, Texture2D* texture)

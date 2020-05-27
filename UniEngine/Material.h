@@ -1,9 +1,8 @@
 #pragma once
 #include "Misc.h"
-#include "GLProgram.h"
+#include "Core.h"
 #include "Texture2D.h"
 #include "Cubemap.h"
-#include "SharedComponent.h"
 namespace UniEngine {
 	class Material : public SharedComponent
 	{

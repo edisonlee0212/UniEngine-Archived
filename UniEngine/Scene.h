@@ -1,4 +1,5 @@
 #pragma once
+#include "RenderManager.h"
 #include "Misc.h"
 #include "SceneNode.h"
 #include "Core.h"

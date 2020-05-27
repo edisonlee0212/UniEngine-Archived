@@ -1,6 +1,5 @@
 #include "Default.h"
-#include "Core.h"
-#include "ModelManager.h"
+#include "World.h"
 using namespace UniEngine;
 
 GLProgram* Default::Screen::ScreenProgram;
@@ -33,6 +32,7 @@ void UniEngine::Default::Load(World* world)
 
 	Screen::ScreenVAO = new GLVAO();
 	auto quadVBO = Screen::ScreenVAO->VBO()->ID();
+	Screen::ScreenVAO->Bind();
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
@@ -72,19 +72,16 @@ void UniEngine::Default::Load(World* world)
 	
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/quad.obj"));
 	Primitives::Quad = entity->Children()->at(0)->GetSharedComponent<Mesh>();
-	Primitives::Quad->RecalculateNormal();
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/sphere.obj"));
 	Primitives::Sphere = entity->Children()->at(0)->GetSharedComponent<Mesh>();
-	Primitives::Sphere->RecalculateNormal();
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cube.obj"));
 	Primitives::Cube = entity->Children()->at(0)->GetSharedComponent<Mesh>();
-	Primitives::Cube->RecalculateNormal();
 	world->_EntityCollection->DeleteEntity(entity);
 
 	
@@ -92,12 +89,10 @@ void UniEngine::Default::Load(World* world)
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cone.obj"));
 	Primitives::Cone = entity->Children()->at(0)->GetSharedComponent<Mesh>();
-	Primitives::Cone->RecalculateNormal();
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cylinder.obj"));
 	Primitives::Cylinder = entity->Children()->at(0)->GetSharedComponent<Mesh>();
-	Primitives::Cylinder->RecalculateNormal();
 	world->_EntityCollection->DeleteEntity(entity);
 }

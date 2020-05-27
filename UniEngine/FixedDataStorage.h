@@ -1,6 +1,5 @@
 #pragma once
-
-#include "FixedData.h"
+#include "Core.h"
 namespace UniEngine {
 	class FixedDataStorage
 	{

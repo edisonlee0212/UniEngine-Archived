@@ -1,6 +1,7 @@
 #pragma once
 #include "Misc.h"
-
+#include "FixedData.h"
+#include "ComponentBase.h"
 #include "SharedComponent.h"
 namespace UniEngine {
 	class Entity

@@ -1,6 +1,9 @@
 #pragma once
 #include "Misc.h"
 #include "Core.h"
+#include "ModelManager.h"
+#include "RenderManager.h"
+
 namespace UniEngine {
 	class Default {
 	public:

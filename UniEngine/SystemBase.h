@@ -1,7 +1,7 @@
 #pragma once
-#include "EntityCollection.h"
 namespace UniEngine {
 	class World;
+	class EntityCollection;
 	class SystemBase
 	{
 	protected:

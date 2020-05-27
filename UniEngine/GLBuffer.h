@@ -63,18 +63,19 @@ namespace UniEngine {
 			glBindVertexArray(_ID);
 		}
 
-		void SetData(GLsizei length, GLvoid* data, GLenum usage, size_t attributeSize) {
+		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
 			glBindVertexArray(_ID);
 			_VBO->SetData(length, data, usage);
-			for (size_t i = 0; i < attributeSize; i++) {
-				glEnableVertexAttribArray(i);
-			}
 		}
 		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
 			glBindVertexArray(_ID);
 			_VBO->SubData(offset, size, data);
 		}
 
+		void EnableAttributeArray(GLuint index)
+		{
+			glEnableVertexAttribArray(index);
+		}
 		void SetAttributePointer(GLuint index,
 			GLint size,
 			GLenum type,

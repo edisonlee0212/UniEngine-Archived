@@ -1,5 +1,6 @@
 #pragma once
 #include "Core.h"
+#include "RenderManager.h"
 namespace UniEngine {
     class ModelManager : public ManagerBase
     {

@@ -5,12 +5,20 @@
 
 #include "Time.h"
 #include "FileIO.h"
-#include "Rendering.h"
-#include "Window.h"
-#include "World.h"
-#include "ManagerBase.h"
 
-#include "Camera.h"
-#include "DirectionalLight.h"
-#include "PointLight.h"
-#include "SpotLight.h"
+
+#include "Entity.h"
+
+
+#include "ManagerBase.h"
+#include "SystemBase.h"
+
+
+#include "GLBuffer.h"
+#include "GLFrameBuffer.h"
+#include "GLObject.h"
+#include "GLProgram.h"
+#include "GLRenderBuffer.h"
+#include "GLShader.h"
+#include "GLTexture.h"
+

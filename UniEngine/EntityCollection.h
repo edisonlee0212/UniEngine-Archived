@@ -1,14 +1,11 @@
 #pragma once
-#include "Misc.h"
-
-#include "Entity.h"
+#include "Core.h"
 #include "FixedDataStorage.h"
 namespace UniEngine {
 	class EntityCollection
 	{
 		std::vector<Entity*> _Entities;
 		FixedDataStorage* _FixedDataStorage;
-
 		friend class World;
 		EntityCollection();
 	public:
@@ -20,7 +17,6 @@ namespace UniEngine {
 		Entity* GetEntity(unsigned key);
 		size_t GetEntitiesAmount();
 		template <typename T>
-
 		T GetComponent(Entity* entity);
 		template <typename T>
 		void SetComponent(Entity* entity, T value);

@@ -1,5 +1,5 @@
 #include "TransformSystem.h"
-
+#include "EntityCollection.h"
 void UniEngine::TransformSystem::CalculateTransform(Entity* parent)
 {
 	for (auto i : *(parent->Children())) {
