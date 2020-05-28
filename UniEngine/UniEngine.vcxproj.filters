@@ -55,9 +55,6 @@
     <Filter Include="Header Files\Core\Graphics\GL">
       <UniqueIdentifier>{2a6e81f5-f4f9-436f-a627-f3fad6e44057}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\Graphics\Rendering">
-      <UniqueIdentifier>{b3949ebd-9c6a-4ced-bf96-c7f2d9d2de35}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{9680c336-c490-4568-b27e-a14b66a8803c}</UniqueIdentifier>
     </Filter>
@@ -93,6 +90,9 @@
     </Filter>
     <Filter Include="Header Files\Resouce\Resource\SharedComponents">
       <UniqueIdentifier>{c66c8d9c-e292-4949-a2ae-0f31e7416a03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Math">
+      <UniqueIdentifier>{357eec4d-c72d-496e-8e8e-469c26020a14}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -228,6 +228,18 @@
     <ClCompile Include="FixedDataStorage.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedComponentStorage.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Misc.h">
@@ -326,9 +338,6 @@
     <ClInclude Include="FixedData.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="SharedComponent.h">
-      <Filter>Header Files\Core\Entity</Filter>
-    </ClInclude>
     <ClInclude Include="ComponentBase.h">
       <Filter>Header Files\Core\Entity</Filter>
     </ClInclude>
@@ -367,6 +376,45 @@
     </ClInclude>
     <ClInclude Include="FixedDataStorage.h">
       <Filter>Header Files\World\EntityManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="bool.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="double.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="float.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="int.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="long.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ulong.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="unsigned.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedComponentBase.h">
+      <Filter>Header Files\Core\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedComponentStorage.h">
+      <Filter>Header Files\World\EntityManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialComponent.h">
+      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshComponent.h">
+      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

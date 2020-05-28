@@ -1,12 +1,12 @@
 #pragma once
+#include "Misc.h"
 namespace UniEngine {
 	class Entity;
-	class SharedComponent {
+	class SharedComponentBase {
 		friend class Entity;
 		Entity* _Entity;
 		void SetEntity(Entity* entity);
 	public:
-		virtual void Update() {};
-		virtual void FixedUpdate() {};
+		virtual std::size_t GetHashCode() = 0;
 	};
 }

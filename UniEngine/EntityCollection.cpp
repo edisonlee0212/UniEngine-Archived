@@ -5,6 +5,7 @@ UniEngine::EntityCollection::EntityCollection()
 {
 	_Entities = std::vector<Entity*>();
 	_FixedDataStorage = new FixedDataStorage();
+	_SharedComponentStorage = new SharedComponentStorage();
 }
 
 void UniEngine::EntityCollection::SetParent(Entity* child, Entity* parent)

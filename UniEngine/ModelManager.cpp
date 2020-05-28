@@ -1,5 +1,7 @@
 #include "ModelManager.h"
 #include "World.h"
+#include "MeshComponent.h"
+#include "MaterialComponent.h"
 using namespace UniEngine;
 std::vector<Entity*> ModelManager::entities = std::vector<Entity*>();
 
@@ -157,10 +159,13 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
 
     auto mesh = new Mesh();
     mesh->SetVertices(mask, &vertices, &indices);
-
-    entity->SetSharedComponent<Mesh>(mesh);
+    MeshComponent* meshComponent = new MeshComponent();
+    meshComponent->Value = mesh;
+    _EntityCollection->SetSharedComponent<MeshComponent>(entity, meshComponent);
     auto material = new Material();
-    entity->SetSharedComponent<Material>(material);
+    MaterialComponent* materialComponent = new MaterialComponent();
+    materialComponent->Value = material;
+    _EntityCollection->SetSharedComponent<MaterialComponent>(entity, materialComponent);
     if(program != nullptr) material->Programs()->push_back(program);
     std::vector<Texture2D*>* Texture2Ds = material->Textures2Ds();
     std::vector<Texture2D*> diffuseMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_DIFFUSE, TextureType::DIFFUSE);

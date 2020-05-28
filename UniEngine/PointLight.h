@@ -2,7 +2,7 @@
 #include "Core.h"
 namespace UniEngine {
 	class PointLight :
-		public SharedComponent
+		public SharedComponentBase
 	{
 	};
 }

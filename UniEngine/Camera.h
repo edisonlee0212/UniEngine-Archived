@@ -17,8 +17,7 @@ namespace UniEngine {
 	const float SPEED = 2.5f;
 	const float SENSITIVITY = 0.1f;
 	const float ZOOM = 45.0f;
-	class Camera :
-		public SharedComponent
+	class Camera
 	{
 		static unsigned _CameraInfoBufferID;
 		RenderTarget* _RenderTarget;

@@ -4,7 +4,7 @@
 #include "Texture2D.h"
 #include "Cubemap.h"
 namespace UniEngine {
-	class Material : public SharedComponent
+	class Material
 	{
 		std::vector<Texture2D*> _Texture2Ds;
 		std::vector<Cubemap*> _Cubemaps;

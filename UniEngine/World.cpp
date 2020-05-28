@@ -9,6 +9,7 @@
 #include "TransformSystem.h"
 #include "SharedComponentSystem.h"
 #include "WindowManager.h"
+#include "CameraComponent.h"
 using namespace UniEngine;
 
 
@@ -39,7 +40,9 @@ void UniEngine::World::Init()
 
 	_MainCamera = new Camera(WindowManager::CurrentWindow());
 	auto cameraEntity = _EntityCollection->CreateEntity();
-	cameraEntity->SetSharedComponent<Camera>(_MainCamera);
+	CameraComponent* cameraComponent = new CameraComponent();
+	cameraComponent->Value = _MainCamera;
+	_EntityCollection->SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent) ;
 }
 
 

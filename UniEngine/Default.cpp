@@ -1,5 +1,7 @@
 #include "Default.h"
 #include "World.h"
+#include "MeshComponent.h"
+
 using namespace UniEngine;
 
 GLProgram* Default::Screen::ScreenProgram;
@@ -71,28 +73,28 @@ void UniEngine::Default::Load(World* world)
 	
 	
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/quad.obj"));
-	Primitives::Quad = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	Primitives::Quad = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/sphere.obj"));
-	Primitives::Sphere = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	Primitives::Sphere = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cube.obj"));
-	Primitives::Cube = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	Primitives::Cube = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
 	world->_EntityCollection->DeleteEntity(entity);
 
 	
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cone.obj"));
-	Primitives::Cone = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	Primitives::Cone = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cylinder.obj"));
-	Primitives::Cylinder = entity->Children()->at(0)->GetSharedComponent<Mesh>();
+	Primitives::Cylinder = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
 	world->_EntityCollection->DeleteEntity(entity);
 }

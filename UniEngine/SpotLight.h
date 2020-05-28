@@ -2,7 +2,7 @@
 #include "Core.h"
 namespace UniEngine {
 	class SpotLight :
-		public SharedComponent
+		public SharedComponentBase
 	{
 	};
 }

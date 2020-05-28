@@ -1,5 +1,18 @@
 #include "TransformSystem.h"
 #include "EntityCollection.h"
+#include "Math.h"
+using namespace UniEngine;
+glm::mat4 UniEngine::TransformSystem::TRS(glm::vec3 translation, glm::vec4 rotation, glm::vec3 scale) {
+	
+	float4 r = float4(rotation.x, rotation.y, rotation.z, rotation.w);
+	float3x3 rm = Asfloat3x3(r);
+	return glm::mat4(
+		glm::vec4(rm.c0.x * scale.x, rm.c0.y * scale.x, rm.c0.z * scale.x, 0.0f),
+		glm::vec4(rm.c1.x * scale.x, rm.c1.y * scale.x, rm.c1.z * scale.x, 0.0f),
+		glm::vec4(rm.c2.x * scale.x, rm.c2.y * scale.x, rm.c2.z * scale.x, 0.0f),
+		glm::vec4(translation, 1.0f));
+}
+
 void UniEngine::TransformSystem::CalculateTransform(Entity* parent)
 {
 	for (auto i : *(parent->Children())) {
@@ -37,8 +50,7 @@ void UniEngine::TransformSystem::Update()
 			auto lp = _EntityCollection->GetFixedData<LocalPosition>(i).value;
 			auto lr = _EntityCollection->GetFixedData<LocalRotation>(i).value;
 			auto ls = _EntityCollection->GetFixedData<LocalScale>(i).value;
-			ltp.value = glm::translate(glm::mat4(1.0f), lp);
-			ltp.value = glm::scale(ltp.value, ls);
+			ltp.value = TRS(lp, lr, ls);
 			_EntityCollection->SetFixedData<LocalToParent>(i, ltp);
 		}
 		else {
@@ -46,8 +58,7 @@ void UniEngine::TransformSystem::Update()
 			auto p = _EntityCollection->GetFixedData<Position>(i).value;
 			auto r = _EntityCollection->GetFixedData<Rotation>(i).value;
 			auto s = _EntityCollection->GetFixedData<Scale>(i).value;
-			ltw.value = glm::translate(glm::mat4(1.0f), p);
-			ltw.value = glm::scale(ltw.value, s);
+			ltw.value = TRS(p, r, s);
 			_EntityCollection->SetFixedData<LocalToWorld>(i, ltw);
 		}
 	}

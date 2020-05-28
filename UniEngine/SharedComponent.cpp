@@ -1,6 +1,6 @@
-#include "SharedComponent.h"
+#include "SharedComponentBase.h"
 
-void UniEngine::SharedComponent::SetEntity(Entity* entity)
+void UniEngine::SharedComponentBase::SetEntity(Entity* entity)
 {
 	_Entity = entity;
 }

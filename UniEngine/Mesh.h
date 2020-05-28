@@ -33,7 +33,7 @@ namespace UniEngine {
 		TexCoord6 = 1 << 11,
 		TexCoord7 = 1 << 12
 	};
-	class Mesh : public SharedComponent
+	class Mesh
 	{
 		std::vector<Vertex>* _Vertices;
 		GLVAO* _VAO;

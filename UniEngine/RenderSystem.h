@@ -4,6 +4,7 @@
 namespace UniEngine {
 	class RenderSystem : public SystemBase
 	{
+		void RenderToCamera(Camera* camera);
 		void DrawEntity(Entity* entity, Camera* camera);
 	public:
 		RenderSystem();
