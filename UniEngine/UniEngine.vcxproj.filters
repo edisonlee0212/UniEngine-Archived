@@ -228,17 +228,14 @@
     <ClCompile Include="FixedDataStorage.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CameraComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SharedComponentStorage.cpp">
       <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshMaterialComponent.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -407,13 +404,10 @@
     <ClInclude Include="SharedComponentStorage.h">
       <Filter>Header Files\World\EntityManagement</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialComponent.h">
-      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
-    </ClInclude>
     <ClInclude Include="CameraComponent.h">
       <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
-    <ClInclude Include="MeshComponent.h">
+    <ClInclude Include="MeshMaterialComponent.h">
       <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
   </ItemGroup>

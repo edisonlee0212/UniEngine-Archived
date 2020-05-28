@@ -1,7 +1,6 @@
 #include "ModelManager.h"
 #include "World.h"
-#include "MeshComponent.h"
-#include "MaterialComponent.h"
+#include "MeshMaterialComponent.h"
 using namespace UniEngine;
 std::vector<Entity*> ModelManager::entities = std::vector<Entity*>();
 
@@ -159,13 +158,8 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
 
     auto mesh = new Mesh();
     mesh->SetVertices(mask, &vertices, &indices);
-    MeshComponent* meshComponent = new MeshComponent();
-    meshComponent->Value = mesh;
-    _EntityCollection->SetSharedComponent<MeshComponent>(entity, meshComponent);
+
     auto material = new Material();
-    MaterialComponent* materialComponent = new MaterialComponent();
-    materialComponent->Value = material;
-    _EntityCollection->SetSharedComponent<MaterialComponent>(entity, materialComponent);
     if(program != nullptr) material->Programs()->push_back(program);
     std::vector<Texture2D*>* Texture2Ds = material->Textures2Ds();
     std::vector<Texture2D*> diffuseMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_DIFFUSE, TextureType::DIFFUSE);
@@ -179,6 +173,12 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
     // 4. height maps
     std::vector<Texture2D*> heightMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_AMBIENT, TextureType::HEIGHT);
     Texture2Ds->insert(Texture2Ds->end(), heightMaps.begin(), heightMaps.end());
+    
+    
+    MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
+    meshMaterial->_Mesh = mesh;
+    meshMaterial->_Material = material;
+    _EntityCollection->SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
     return entity;
 }
 std::vector<Texture2D*> ModelManager::LoadMaterialTextures(std::string directory, std::vector<Texture2D*>* Texture2DsLoaded, aiMaterial* mat, aiTextureType type, TextureType typeName)

@@ -171,8 +171,7 @@
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="ManagerBase.cpp" />
-    <ClCompile Include="MaterialComponent.cpp" />
-    <ClCompile Include="MeshComponent.cpp" />
+    <ClCompile Include="MeshMaterialComponent.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -229,9 +228,8 @@
     <ClInclude Include="int.h" />
     <ClInclude Include="long.h" />
     <ClInclude Include="ManagerBase.h" />
-    <ClInclude Include="MaterialComponent.h" />
     <ClInclude Include="Math.h" />
-    <ClInclude Include="MeshComponent.h" />
+    <ClInclude Include="MeshMaterialComponent.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLight.h" />

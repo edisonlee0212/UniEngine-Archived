@@ -1,6 +1,6 @@
 #include "Default.h"
 #include "World.h"
-#include "MeshComponent.h"
+#include "MeshMaterialComponent.h"
 
 using namespace UniEngine;
 
@@ -73,28 +73,28 @@ void UniEngine::Default::Load(World* world)
 	
 	
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/quad.obj"));
-	Primitives::Quad = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
+	Primitives::Quad = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/sphere.obj"));
-	Primitives::Sphere = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
+	Primitives::Sphere = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cube.obj"));
-	Primitives::Cube = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
+	Primitives::Cube = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
 	world->_EntityCollection->DeleteEntity(entity);
 
 	
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cone.obj"));
-	Primitives::Cone = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
+	Primitives::Cone = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
 	world->_EntityCollection->DeleteEntity(entity);
 
 	entity = world->_EntityCollection->CreateEntity();
 	ModelManager::LoadModel(entity, FileIO::GetPath("Primitives/cylinder.obj"));
-	Primitives::Cylinder = world->_EntityCollection->GetSharedComponent<MeshComponent>(entity->Children()->at(0))->Value;
+	Primitives::Cylinder = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
 	world->_EntityCollection->DeleteEntity(entity);
 }

@@ -1,7 +1,6 @@
 #include "RenderSystem.h"
 #include "World.h"
-#include "MeshComponent.h"
-#include "MaterialComponent.h"
+#include "MeshMaterialComponent.h"
 using namespace UniEngine;
 
 void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
@@ -21,7 +20,7 @@ void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
 	for (auto i : *(_EntityCollection->Entities())) {
-		if (_EntityCollection->GetSharedComponent<MeshComponent>(i) && _EntityCollection->GetSharedComponent<MaterialComponent>(i)) {
+		if (_EntityCollection->GetSharedComponent<MeshMaterialComponent>(i)) {
 			DrawEntity(i, camera);
 		}
 	}
@@ -29,9 +28,10 @@ void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
 
 void UniEngine::RenderSystem::DrawEntity(Entity* entity, Camera* camera)
 {
-	RenderManager::DrawMesh(_EntityCollection->GetSharedComponent<MeshComponent>(entity)->Value,
+	auto meshMaterial = _EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity);
+	RenderManager::DrawMesh(meshMaterial->_Mesh,
 		_EntityCollection->GetFixedData<LocalToWorld>(entity).value,
-		_EntityCollection->GetSharedComponent<MaterialComponent>(entity)->Value, camera);
+		meshMaterial->_Material, camera);
 }
 UniEngine::RenderSystem::RenderSystem()
 {

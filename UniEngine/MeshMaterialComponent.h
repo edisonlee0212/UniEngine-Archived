@@ -1,12 +1,15 @@
 #pragma once
 #include "SharedComponentBase.h"
+#include "Core.h"
 #include "RenderManager.h"
 namespace UniEngine {
-	class MeshComponent :
+	class MeshMaterialComponent :
 		public SharedComponentBase
 	{
 	public:
-		Mesh* Value;
-		std::size_t GetHashCode();
+		Mesh* _Mesh;
+		Material* _Material;
+		size_t GetHashCode();
 	};
 }
+

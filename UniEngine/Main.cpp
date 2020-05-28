@@ -1,8 +1,7 @@
 #include "Default.h"
 #include "UniEngine.h"
 #include "ModelManager.h"
-#include "MeshComponent.h"
-#include "MaterialComponent.h"
+#include "MeshMaterialComponent.h"
 using namespace UniEngine;
 
 EngineDriver* engine;
@@ -43,9 +42,7 @@ void InitGround(std::string* vertShaderCode, std::string* fragShaderCode) {
     scale.value = glm::vec3(10.0f);
     engine->GetWorld()->_EntityCollection->SetFixedData<Position>(entity, translation);
     engine->GetWorld()->_EntityCollection->SetFixedData<Scale>(entity, scale);
-    MeshComponent* meshComponent = new MeshComponent();
-    meshComponent->Value = Default::Primitives::Quad;
-    engine->GetWorld()->_EntityCollection->SetSharedComponent<MeshComponent>(entity, meshComponent);
+    
     //entity->SetSharedComponent<Mesh>(Default::Primitives::Quad);
     auto mat = new Material();
     mat->Programs()->push_back(
@@ -57,9 +54,10 @@ void InitGround(std::string* vertShaderCode, std::string* fragShaderCode) {
     auto texture = new Texture2D(TextureType::DIFFUSE);
     texture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
     mat->Textures2Ds()->push_back(texture);
-    MaterialComponent* materialComponent = new MaterialComponent();
-    materialComponent->Value = mat;
-    engine->GetWorld()->_EntityCollection->SetSharedComponent<MaterialComponent>(entity, materialComponent);
+    MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
+    meshMaterial->_Mesh = Default::Primitives::Quad;
+    meshMaterial->_Material = mat;
+    engine->GetWorld()->_EntityCollection->SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
 }
 
 int main()
