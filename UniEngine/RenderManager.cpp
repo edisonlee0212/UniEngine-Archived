@@ -185,3 +185,19 @@ void UniEngine::RenderManager::DrawMesh(
 	}
 	GLVAO::BindDefault();
 }
+
+void UniEngine::RenderManager::Start()
+{
+	RenderManager::_CurrentRenderTarget = nullptr;
+	_Triangles = 0;
+	_DrawCall = 0;
+}
+unsigned UniEngine::RenderManager::Triangles()
+{
+	return _Triangles;
+}
+
+unsigned UniEngine::RenderManager::DrawCall()
+{
+	return _DrawCall;
+}

@@ -2,7 +2,7 @@
 #include "Misc.h"
 #include "Core.h"
 namespace UniEngine {
-    class InputManager
+    class InputManager : public ManagerBase
     {
     public:
         InputManager();

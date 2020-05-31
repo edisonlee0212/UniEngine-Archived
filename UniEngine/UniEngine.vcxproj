@@ -168,6 +168,13 @@
     <ClCompile Include="GLFrameBuffer.cpp" />
     <ClCompile Include="GLRenderBuffer.cpp" />
     <ClCompile Include="GLTexture.cpp" />
+    <ClCompile Include="includes\ImGUI\examples\imgui_impl_glfw.cpp" />
+    <ClCompile Include="includes\ImGUI\examples\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="includes\ImGUI\examples\imgui_impl_win32.cpp" />
+    <ClCompile Include="includes\ImGUI\imgui.cpp" />
+    <ClCompile Include="includes\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="includes\ImGUI\imgui_draw.cpp" />
+    <ClCompile Include="includes\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="ManagerBase.cpp" />

@@ -121,10 +121,14 @@ void UniEngine::EngineDriver::Loop()
 	_Looping = true;
 	while (_Looping)
 	{
+        RenderManager::Start();
+
+
+        glfwPollEvents();
 		_World->Update();
 		InputManager::Update();
 		WindowManager::Update();
-        glfwPollEvents();
+        
 	}
 }
 

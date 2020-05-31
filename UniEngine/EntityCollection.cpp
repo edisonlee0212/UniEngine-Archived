@@ -41,29 +41,18 @@ void UniEngine::EntityCollection::DeleteEntity(Entity* entity)
 	}
 	SetParent(entity, nullptr);
 	int index = entity->_Key;
-	if(index == _Entities.size() - 1)_Entities.pop_back();
-	else {
-		_Entities.at(index) = _Entities.back();
-		_Entities.pop_back();
-		_Entities.at(index)->_Key = index;
-	}
+	_Entities.at(index) = _Entities.back();
+	_Entities.at(index)->_Key = index;
+	_Entities.pop_back();
 	_FixedDataStorage->RemoveSwapBack(index);
-
+	_SharedComponentStorage->DeleteEntity(entity);
 	delete entity;
 }
 
 void UniEngine::EntityCollection::DeleteEntity(unsigned key)
 {
 	Entity* entity = _Entities.at(key);
-	for (auto i : entity->_Children) {
-		DeleteEntity(i);
-	}
-	SetParent(entity, nullptr);
-	_Entities.at(key) = _Entities.back();
-	_Entities.pop_back();
-	_Entities.at(key)->_Key = key;
-	_FixedDataStorage->RemoveSwapBack(key);
-	delete entity;
+	DeleteEntity(entity);
 }
 
 Entity* UniEngine::EntityCollection::GetEntity(unsigned key)

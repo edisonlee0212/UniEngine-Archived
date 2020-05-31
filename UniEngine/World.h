@@ -7,8 +7,12 @@ namespace UniEngine {
 	class World
 	{
 		std::vector<SystemBase*> _Systems;
-		double _TimeStep;
+		float _TimeStep;
 		Camera* _MainCamera;
+
+		inline void InitImGui();
+		inline void DrawInfoWindow();
+
 	public:
 		World();
 		void Init();

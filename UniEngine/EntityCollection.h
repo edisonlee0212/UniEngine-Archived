@@ -35,9 +35,12 @@ namespace UniEngine {
 		T GetFixedData(Entity* entity);
 
 		template <typename T>
-		std::vector<Entity*> QueryEntityBySharedComponent(T* value);
+		std::unordered_map<unsigned, Entity*>* QueryEntityBySharedComponent(T* value);
 		template <typename T>
-		std::vector<T*> QuerySharedComponent();
+		std::vector<T*> QuerySharedComponentAsList();
+		template <typename T>
+		std::unordered_map<std::size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* QuerySharedComponentMap();
+
 	};
 	template<typename T>
 	inline T* EntityCollection::GetSharedComponent(Entity* entity)
@@ -69,42 +72,24 @@ namespace UniEngine {
 		return _FixedDataStorage->GetFixedData<T>(entity->_Key);
 	}
 	template<typename T>
-	inline std::vector<Entity*> EntityCollection::QueryEntityBySharedComponent(T* value)
+	inline std::unordered_map<unsigned, Entity*>* EntityCollection::QueryEntityBySharedComponent(T* value)
 	{
-		auto list = std::vector<Entity*>();
-		SharedComponentBase* in = dynamic_cast<SharedComponentBase*>(value);
-		auto key = typeid(T).hash_code();
-		auto search = _SharedComponentStorage->_SharedComponentsStorage.find(key);
-		if (search != _SharedComponentStorage->_SharedComponentsStorage.end()) {
-			//If we find the shared component class, we look for the specific shared component
-			std::unordered_map<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* result = search->second;
-			auto insearch = result->find(in->GetHashCode());
-			if (insearch != result->end()) {
-				//If we find the specific shared component, we insert the entity to the list. Note that 
-				std::unordered_map<unsigned, Entity*>* elist = insearch->second->second;
-				for (std::pair<unsigned, Entity*> i : *elist) {
-					list.push_back(i.second);
-				}
-			}
-		}
+		return _SharedComponentStorage->GetEntitiesMap(value);
+	}
 
-		return list;
+	template<typename T>
+	inline std::unordered_map<std::size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* EntityCollection::QuerySharedComponentMap()
+	{
+		return _SharedComponentStorage->GetSharedComponentMap<T>();
 	}
 	template<typename T>
-	inline std::vector<T*> EntityCollection::QuerySharedComponent()
+	inline std::vector<T*> EntityCollection::QuerySharedComponentAsList()
 	{
 		auto list = std::vector<T*>();
-
-		auto key = typeid(T).hash_code();
-		auto search = _SharedComponentStorage->_SharedComponentsStorage.find(key);
-		if (search != _SharedComponentStorage->_SharedComponentsStorage.end()) {
-			//If we find the shared component class, we look for the specific shared component
-			std::unordered_map<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* result = search->second;
-			for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *result) {
-				list.push_back(dynamic_cast<T*>(i.second->first));
-			}
+		auto result = QuerySharedComponentMap<T>();
+		for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *result) {
+			list.push_back(dynamic_cast<T*>(i.second->first));
 		}
-
 		return list;
 	}
 }

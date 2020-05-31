@@ -4,7 +4,7 @@
 #include "Window.h"
 #include "RenderManager.h"
 namespace UniEngine {
-	class WindowManager
+	class WindowManager : public ManagerBase
 	{
 	public:
 		static void Init();

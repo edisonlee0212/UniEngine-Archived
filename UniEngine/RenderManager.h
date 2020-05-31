@@ -23,6 +23,10 @@ namespace UniEngine {
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4* matrices, size_t count);
 		static void DrawMesh(Mesh* mesh, glm::mat4 matrix, Material* material);
 	public:
+		static void Start();
+		static unsigned Triangles();
+		static unsigned DrawCall();
+
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4* matrices, size_t count, Camera* camera);
 		static void DrawMesh(Mesh* mesh, glm::mat4 matrix, Material* material, Camera* camera);
 
