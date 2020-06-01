@@ -10,6 +10,7 @@ UniEngine::FixedDataStorage::FixedDataStorage()
 	_LocalScales = std::vector<LocalScale>();
 	_LocalToWorlds = std::vector<LocalToWorld>();
 	_LocalToParents = std::vector<LocalToParent>();
+	_CameraMasks = std::vector<CameraMask>();
 	_FixedDataStorage.insert({ typeid(Position).hash_code(), (void*)&_Translations });
 	_FixedDataStorage.insert({ typeid(Rotation).hash_code(), (void*)&_Rotations });
 	_FixedDataStorage.insert({ typeid(Scale).hash_code(), (void*)&_Scales });
@@ -18,6 +19,7 @@ UniEngine::FixedDataStorage::FixedDataStorage()
 	_FixedDataStorage.insert({ typeid(LocalScale).hash_code(), (void*)&_LocalScales });
 	_FixedDataStorage.insert({ typeid(LocalToWorld).hash_code(), (void*)&_LocalToWorlds });
 	_FixedDataStorage.insert({ typeid(LocalToParent).hash_code(), (void*)&_LocalToParents });
+	_FixedDataStorage.insert({ typeid(CameraMask).hash_code(), (void*)&_CameraMasks });
 }
 void UniEngine::FixedDataStorage::PushBack()
 {
@@ -29,6 +31,7 @@ void UniEngine::FixedDataStorage::PushBack()
 	_LocalScales.push_back(LocalScale());
 	_LocalToWorlds.push_back(LocalToWorld());
 	_LocalToParents.push_back(LocalToParent());
+	_CameraMasks.push_back(CameraMask());
 }
 
 void UniEngine::FixedDataStorage::RemoveSwapBack(unsigned key)
@@ -56,4 +59,7 @@ void UniEngine::FixedDataStorage::RemoveSwapBack(unsigned key)
 
 	_LocalToParents[key] = _LocalToParents.back();
 	_LocalToParents.pop_back();
+
+	_CameraMasks[key] = _CameraMasks.back();
+	_CameraMasks.pop_back();
 }

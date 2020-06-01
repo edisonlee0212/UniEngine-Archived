@@ -156,10 +156,11 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="ComponentStorage.cpp" />
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Default.cpp" />
-    <ClCompile Include="DirectionalLight.cpp" />
+    <ClCompile Include="DirectionalLightComponent.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityCollection.cpp" />
     <ClCompile Include="FileIO.cpp" />
@@ -177,11 +178,12 @@
     <ClCompile Include="includes\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="LightingManager.cpp" />
     <ClCompile Include="ManagerBase.cpp" />
     <ClCompile Include="MeshMaterialComponent.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
-    <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="PointLightComponent.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="includes\glad\src\glad.c" />
     <ClCompile Include="Main.cpp" />
@@ -197,7 +199,7 @@
     <ClCompile Include="SharedComponent.cpp" />
     <ClCompile Include="SharedComponentStorage.cpp" />
     <ClCompile Include="SharedComponentSystem.cpp" />
-    <ClCompile Include="SpotLight.cpp" />
+    <ClCompile Include="SpotLightComponent.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="SystemBase.cpp" />
     <ClCompile Include="Texture2D.cpp" />
@@ -214,11 +216,12 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="ComponentBase.h" />
+    <ClInclude Include="ComponentStorage.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
-    <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="double.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityCollection.h" />
@@ -233,13 +236,14 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="int.h" />
+    <ClInclude Include="LightingManager.h" />
     <ClInclude Include="long.h" />
     <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MeshMaterialComponent.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="PhysicsSystem.h" />
-    <ClInclude Include="PointLight.h" />
+    <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Memory.h" />
@@ -255,7 +259,7 @@
     <ClInclude Include="SharedComponentBase.h" />
     <ClInclude Include="SharedComponentStorage.h" />
     <ClInclude Include="SharedComponentSystem.h" />
-    <ClInclude Include="SpotLight.h" />
+    <ClInclude Include="SpotLightComponent.h" />
     <ClInclude Include="SystemBase.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Time.h" />

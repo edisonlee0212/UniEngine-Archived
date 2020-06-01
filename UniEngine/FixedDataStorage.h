@@ -12,7 +12,7 @@ namespace UniEngine {
 		std::vector<LocalScale> _LocalScales;
 		std::vector<LocalToWorld> _LocalToWorlds;
 		std::vector<LocalToParent> _LocalToParents;
-
+		std::vector<CameraMask> _CameraMasks;
 
 		friend class EntityCollection;
 		FixedDataStorage();

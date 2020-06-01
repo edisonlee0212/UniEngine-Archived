@@ -52,6 +52,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Use();
+		program->SetFloat("material.shininess", material->Shininess());
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
@@ -124,6 +125,7 @@ void UniEngine::RenderManager::DrawMesh(
 		auto program = programs->at(i);
 		program->Use();
 		program->SetFloat4x4("model", matrix);
+		program->SetFloat("material.shininess", material->Shininess());
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();

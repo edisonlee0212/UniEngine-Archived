@@ -2,15 +2,28 @@
 #include "Core.h"
 #include "FixedDataStorage.h"
 #include "SharedComponentStorage.h"
+#include "ComponentStorage.h"
 namespace UniEngine {
 	class EntityCollection
 	{
 		std::vector<Entity*> _Entities;
 		FixedDataStorage* _FixedDataStorage;
 		SharedComponentStorage* _SharedComponentStorage;
+		ComponentStorage* _ComponentStorage;
 		friend class World;
 		EntityCollection();
+
+		template<typename T>
+		size_t GetArchetypeSize(T arg);
+		template<typename T, typename... Ts>
+		size_t GetArchetypeSize(T arg, Ts... args);
+
+
 	public:
+		template<typename T, typename... Ts>
+		void CreateEntityArchetype(T arg, Ts... args);
+
+
 		void SetParent(Entity* child, Entity* parent);
 		std::vector<Entity*>* Entities();
 		Entity* CreateEntity();
@@ -42,6 +55,29 @@ namespace UniEngine {
 		std::unordered_map<std::size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* QuerySharedComponentMap();
 
 	};
+
+#pragma region EntityArchetype
+	template<typename T>
+	inline size_t EntityCollection::GetArchetypeSize(T arg)
+	{
+		return sizeof(T);
+	}
+
+	template<typename T, typename ...Ts>
+	inline size_t EntityCollection::GetArchetypeSize(T arg, Ts... args)
+	{
+		return sizeof(T) + GetArchetypeSize(args...);
+	}
+
+	template<typename T, typename ...Ts>
+	inline void EntityCollection::CreateEntityArchetype(T arg, Ts... args)
+	{
+		size_t archetypeSize = GetArchetypeSize(arg, args...);
+
+	}
+#pragma endregion
+
+#pragma region Get & Set
 	template<typename T>
 	inline T* EntityCollection::GetSharedComponent(Entity* entity)
 	{
@@ -71,6 +107,9 @@ namespace UniEngine {
 	{
 		return _FixedDataStorage->GetFixedData<T>(entity->_Key);
 	}
+#pragma endregion
+	
+#pragma region Query
 	template<typename T>
 	inline std::unordered_map<unsigned, Entity*>* EntityCollection::QueryEntityBySharedComponent(T* value)
 	{
@@ -92,4 +131,5 @@ namespace UniEngine {
 		}
 		return list;
 	}
+#pragma endregion
 }

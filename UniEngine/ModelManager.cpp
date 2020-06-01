@@ -160,6 +160,9 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
     mesh->SetVertices(mask, &vertices, &indices);
 
     auto material = new Material();
+    float shininess;
+    pointMaterial->Get(AI_MATKEY_SHININESS, shininess);
+    material->SetShininess(shininess);
     if(program != nullptr) material->Programs()->push_back(program);
     std::vector<Texture2D*>* Texture2Ds = material->Textures2Ds();
     std::vector<Texture2D*> diffuseMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_DIFFUSE, TextureType::DIFFUSE);

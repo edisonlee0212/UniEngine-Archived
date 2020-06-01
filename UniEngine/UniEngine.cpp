@@ -2,9 +2,10 @@
 #include "World.h"
 #include "WindowManager.h"
 #include "InputManager.h"
+#include "LightingManager.h"
 #include "Default.h"
 
-
+#pragma region OpenGL Debugging
 GLenum glCheckError_(const char* file, int line)
 {
     GLenum errorCode;
@@ -73,6 +74,7 @@ void APIENTRY glDebugOutput(GLenum source,
     std::cout << std::endl;
 }
 
+#pragma endregion
 using namespace UniEngine;
 
 UniEngine::EngineDriver::EngineDriver()
@@ -109,7 +111,7 @@ void UniEngine::EngineDriver::Start()
     Camera::GenerateMatrices();
 	
 
-	
+    LightingManager::Init();
 	_World = new World();
     _World->Init();
 	Default::Load(_World);
@@ -122,7 +124,7 @@ void UniEngine::EngineDriver::Loop()
 	while (_Looping)
 	{
         RenderManager::Start();
-
+        LightingManager::Start();
 
         glfwPollEvents();
 		_World->Update();

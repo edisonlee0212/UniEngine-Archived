@@ -1,6 +1,7 @@
 #include "RenderSystem.h"
+#include "CameraComponent.h"
 #include "World.h"
-
+#include "Default.h"
 using namespace UniEngine;
 
 void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
@@ -45,6 +46,8 @@ void UniEngine::RenderSystem::DrawEntity(Entity* entity, Camera* camera, MeshMat
 
 UniEngine::RenderSystem::RenderSystem()
 {
+
+
 	
 }
 
@@ -62,5 +65,9 @@ void UniEngine::RenderSystem::OnDestroy()
 void UniEngine::RenderSystem::Update()
 {
 
-	RenderToCamera(_World->MainCamera());
+
+	auto CMap = _EntityCollection->QuerySharedComponentMap<CameraComponent>();
+	for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *CMap) {
+		RenderToCamera(dynamic_cast<CameraComponent*>(i.second->first)->Value);
+	}
 }

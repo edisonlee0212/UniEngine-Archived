@@ -4,7 +4,6 @@ namespace UniEngine {
 	class InputSystem :
 		public SystemBase
 	{
-		
 		float _LastX = 0, _LastY = 0, _LastScrollY = 0;
 		bool startMouse = false;
 		bool startScroll = false;

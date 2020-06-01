@@ -33,8 +33,17 @@ namespace UniEngine {
 	};
 
 	class GLUBO : public GLBuffer {
-		void SetData() {
+	public:
+		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
 			glBindBuffer(GL_UNIFORM_BUFFER, _ID);
+			glBufferData(GL_UNIFORM_BUFFER, length, data, usage);
+		}
+		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
+			glBindBuffer(GL_UNIFORM_BUFFER, _ID);
+			glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+		}
+		void SetBase(GLuint index) {
+			glBindBufferBase(GL_UNIFORM_BUFFER, index, _ID);
 		}
 	};
 

@@ -4,8 +4,11 @@ namespace UniEngine {
 	class SharedComponentStorage
 	{
 		friend class EntityCollection;
-		//<classtypekey, <objkey, pair<obj, entities>>>
-		std::unordered_map<std::size_t, std::unordered_map<std::size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>*> _SharedComponentsStorage;
+		//umap<classtypehashcode, umap<sharedcomponenthashcode, pair<sharedcomponent, umap<entitykey, entity>>>>
+		std::unordered_map<std::size_t, 
+			std::unordered_map<std::size_t, 
+				std::pair<SharedComponentBase*, 
+					std::unordered_map<unsigned, Entity*>*>*>*> _SharedComponentsStorage;
 
 	public:
 		SharedComponentStorage();

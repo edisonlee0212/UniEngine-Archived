@@ -30,4 +30,10 @@ namespace UniEngine {
 	struct LocalToParent : FixedData {
 		glm::mat4 value;
 	};
+	struct CameraMask : FixedData
+	{
+		unsigned value;
+		CameraMask() { value = 0; }
+	};
+
 }

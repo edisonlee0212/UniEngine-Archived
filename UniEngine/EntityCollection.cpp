@@ -6,6 +6,8 @@ UniEngine::EntityCollection::EntityCollection()
 	_Entities = std::vector<Entity*>();
 	_FixedDataStorage = new FixedDataStorage();
 	_SharedComponentStorage = new SharedComponentStorage();
+	_ComponentStorage = new ComponentStorage();
+	CreateEntityArchetype<Position, Rotation>(Position(), Rotation());
 }
 
 void UniEngine::EntityCollection::SetParent(Entity* child, Entity* parent)

@@ -42,8 +42,7 @@ void InitGround(std::string* vertShaderCode, std::string* fragShaderCode) {
     scale.value = glm::vec3(10.0f);
     engine->GetWorld()->_EntityCollection->SetFixedData<Position>(entity, translation);
     engine->GetWorld()->_EntityCollection->SetFixedData<Scale>(entity, scale);
-    
-    //entity->SetSharedComponent<Mesh>(Default::Primitives::Quad);
+
     auto mat = new Material();
     mat->Programs()->push_back(
         new GLProgram(
@@ -52,8 +51,9 @@ void InitGround(std::string* vertShaderCode, std::string* fragShaderCode) {
         )
     );
     auto texture = new Texture2D(TextureType::DIFFUSE);
-    texture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
+    texture->LoadTexture(FileIO::GetPath("Textures/floor.png"), "");
     mat->Textures2Ds()->push_back(texture);
+    mat->SetShininess(32.0f);
     MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
     meshMaterial->_Mesh = Default::Primitives::Quad;
     meshMaterial->_Material = mat;
@@ -69,7 +69,7 @@ int main()
         + "\n"
         + *Default::ShaderIncludes::MainCamera +
         +"\n"
-        + FileIO::LoadFileAsString("Resources/Shaders/Vertex/Default.vert");
+        + FileIO::LoadFileAsString("Resources/Shaders/Vertex/LightDefault.vert");
 
 
     std::string fragShaderCode = std::string("#version 460 core")
@@ -80,11 +80,11 @@ int main()
         + "\n"
         + *Default::ShaderIncludes::Lights
         + "\n"
-        + FileIO::LoadFileAsString("Resources/Shaders/Fragment/Default.frag");
+        + FileIO::LoadFileAsString("Resources/Shaders/Fragment/MultipleLights.frag");
 
     //LoadNanoSuit(glm::vec3(-4.0f, 0.0f, 0.0f), glm::vec3(1.0f), &vertShaderCode, &fragShaderCode);
 
-    LoadBackpack(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.0f), &vertShaderCode, &fragShaderCode);
+    LoadBackpack(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(1.0f), &vertShaderCode, &fragShaderCode);
 
     InitGround(&vertShaderCode, &fragShaderCode);
     engine->Loop();
