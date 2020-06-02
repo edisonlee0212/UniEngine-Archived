@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Misc.h"
 #include "Core.h"
 namespace UniEngine {
@@ -11,6 +11,8 @@ namespace UniEngine {
 		unsigned _ResolutionY;
 		void AttachTexture(GLTexture* texture, GLint attachPoint);
 		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLint attachPoint);
+		GLTexture* SetTexture2D(GLint attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type = GL_FLOAT, const void* data = nullptr);
+		GLRenderBuffer* SetRenderBuffer(GLint attachPoint, GLenum internalformat​);
 	public:
 		RenderTarget();
 		glm::vec2 GetResolution();

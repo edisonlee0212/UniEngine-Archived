@@ -264,6 +264,9 @@
     <ClCompile Include="LightingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DirectionalShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Misc.h">
@@ -442,6 +445,9 @@
     </ClInclude>
     <ClInclude Include="LightingManager.h">
       <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalShadowMap.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

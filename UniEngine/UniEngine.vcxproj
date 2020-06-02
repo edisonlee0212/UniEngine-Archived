@@ -161,6 +161,7 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Default.cpp" />
     <ClCompile Include="DirectionalLightComponent.cpp" />
+    <ClCompile Include="DirectionalShadowMap.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityCollection.cpp" />
     <ClCompile Include="FileIO.cpp" />
@@ -222,6 +223,7 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
+    <ClInclude Include="DirectionalShadowMap.h" />
     <ClInclude Include="double.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityCollection.h" />

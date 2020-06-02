@@ -1,4 +1,4 @@
-#include "RenderTarget.h"
+﻿#include "RenderTarget.h"
 #include "Debug.h"
 #include "RenderManager.h"
 using namespace UniEngine;
@@ -32,9 +32,24 @@ void UniEngine::RenderTarget::AttachRenderBuffer(GLRenderBuffer* renderBuffer, G
 	_FrameBuffer->AttachRenderBuffer(renderBuffer, attachPoint);
 }
 
+GLTexture* UniEngine::RenderTarget::SetTexture2D(GLint attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type, const void* data)
+{
+	GLTexture* retVal = new GLTexture();
+	retVal->SetImage2D(level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
+	AttachTexture(retVal, attachPoint);
+	return retVal;
+}
+
+GLRenderBuffer* UniEngine::RenderTarget::SetRenderBuffer(GLint attachPoint, GLenum internalformat​)
+{
+	GLRenderBuffer* retVal = new GLRenderBuffer();
+	retVal->AllocateStorage(internalformat​, _ResolutionX, _ResolutionY);
+	AttachRenderBuffer(retVal, attachPoint);
+	return retVal;
+}
+
 void UniEngine::RenderTarget::Bind()
 {
-	
 	if (_Bound) {
 		Debug::Error("Error");
 		return;
@@ -46,7 +61,7 @@ void UniEngine::RenderTarget::Bind()
 	}
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	
+	glViewport(0, 0, _ResolutionX, _ResolutionY);
 	RenderManager::_CurrentRenderTarget = this;
 }
 

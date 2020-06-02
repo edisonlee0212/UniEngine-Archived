@@ -1,6 +1,7 @@
 #include "RenderManager.h"
+#include "LightingManager.h"
 using namespace UniEngine;
-
+GLenum RenderManager::_TextureStartIndex = 2;
 RenderTarget* RenderManager::_CurrentRenderTarget;
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;
@@ -13,7 +14,6 @@ void UniEngine::RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material,
 
 void UniEngine::RenderManager::DrawMesh(Mesh* mesh, glm::mat4 matrix, Material* material, Camera* camera)
 {
-
 	DrawMesh(mesh, matrix, material, camera->GetRenderTarget());
 }
 
@@ -52,7 +52,12 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Use();
-		program->SetFloat("material.shininess", material->Shininess());
+		for (auto j : material->_FloatPropertyList) {
+			program->SetFloat(j.first, j.second);
+		}
+		for (auto j : material->_Float4x4PropertyList) {
+			program->SetFloat4x4(j.first, j.second);
+		}
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
@@ -68,7 +73,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				std::string name = "";
 				int size = -1;
 				auto texture = textures->at(j);
-				texture->Texture()->Activate(GL_TEXTURE0 + j);
+				texture->Texture()->Activate(GL_TEXTURE0 + _TextureStartIndex + j);
 				switch (texture->Type())
 				{
 				case TextureType::DIFFUSE:
@@ -104,7 +109,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				default:
 					break;
 				}
-				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", j);
+				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", _TextureStartIndex + j);
 				texture->Texture()->Bind(GL_TEXTURE_2D);
 			}
 		}
@@ -124,8 +129,21 @@ void UniEngine::RenderManager::DrawMesh(
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Use();
+		program->SetFloat3("lightPos", LightingManager::_LightPos);
+		program->SetFloat3("lightDir", LightingManager::_LightDir);
+		program->SetFloat4x4("lightSpaceMatrix", LightingManager::_LightSpaceMatrix);
+
+		GLTexture::Activate(GL_TEXTURE0);
+		program->SetInt("shadowMap", 0);
+		LightingManager::_DirectionalLightShadowMap->DepthMap()->Bind(GL_TEXTURE_2D);
+		
 		program->SetFloat4x4("model", matrix);
-		program->SetFloat("material.shininess", material->Shininess());
+		for (auto j : material->_FloatPropertyList) {
+			program->SetFloat(j.first, j.second);
+		}
+		for (auto j : material->_Float4x4PropertyList) {
+			program->SetFloat4x4(j.first, j.second);
+		}
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
@@ -141,7 +159,8 @@ void UniEngine::RenderManager::DrawMesh(
 				std::string name = "";
 				int size = -1;
 				auto texture = textures->at(j);
-				texture->Texture()->Activate(GL_TEXTURE0 + j);
+				
+				GLTexture::Activate(GL_TEXTURE0 + _TextureStartIndex + j);
 				switch (texture->Type())
 				{
 				case TextureType::DIFFUSE:
@@ -177,7 +196,7 @@ void UniEngine::RenderManager::DrawMesh(
 				default:
 					break;
 				}
-				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", j);
+				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", _TextureStartIndex + j);
 				texture->Texture()->Bind(GL_TEXTURE_2D);
 			}
 		}

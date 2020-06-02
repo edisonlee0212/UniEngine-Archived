@@ -17,17 +17,10 @@ UniEngine::Window::Window(GLFWwindow* window, unsigned width, unsigned height)
 	_Height = height;
 	_ResolutionY = height;
 	_ResolutionX = width;
-	_ColorTexture = new GLTexture();
-	_ColorTexture->SetImage2D(0, GL_RGB, _ResolutionX, _ResolutionY, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	_ColorTexture = SetTexture2D(GL_COLOR_ATTACHMENT0, 0, GL_RGB, 0, GL_RGB, GL_UNSIGNED_BYTE);
 	_ColorTexture->SetIntParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_ColorTexture->SetIntParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	AttachTexture(_ColorTexture, GL_COLOR_ATTACHMENT0);
-
-	_RenderBuffer = new GLRenderBuffer();
-	_RenderBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _ResolutionX, _ResolutionY);
-	AttachRenderBuffer(_RenderBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
-	Bind();
-	RenderTarget::BindDefault();
+	_RenderBuffer = SetRenderBuffer(GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH24_STENCIL8);
 }
 
 glm::vec2 UniEngine::Window::GetWindowSize()

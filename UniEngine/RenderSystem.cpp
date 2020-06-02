@@ -23,9 +23,9 @@ void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
 
 	auto MMMap = _EntityCollection->QuerySharedComponentMap<MeshMaterialComponent>();
 	for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *MMMap) {
-		if (!i.second->second->empty()) {
-			auto entity = i.second->second->begin()->second;
-			DrawEntity(entity, camera, dynamic_cast<MeshMaterialComponent*>(i.second->first));
+		std::unordered_map<unsigned, Entity*>* entityMap = i.second->second;
+		for(auto j : *entityMap){
+			DrawEntity(j.second, camera, dynamic_cast<MeshMaterialComponent*>(i.second->first));
 		}
 	}
 }

@@ -1,5 +1,9 @@
 #include "LightingManager.h"
 #include "Default.h"
+#include "EntityCollection.h"
+#include "MeshMaterialComponent.h"
+
+
 using namespace UniEngine;
 GLUBO* LightingManager::_DirectionalLightBlock;
 GLUBO* LightingManager::_PointLightBlock;
@@ -12,6 +16,12 @@ std::vector<SpotLight> LightingManager::_SpotLights;
 bool LightingManager::_UpdateDirectionalLightBlock;
 bool LightingManager::_UpdatePointLightBlock;
 bool LightingManager::_UpdateSpotLightBlock;
+
+DirectionalShadowMap* LightingManager::_DirectionalLightShadowMap;
+GLProgram* LightingManager::_DirectionalLightProgram;
+glm::mat4 LightingManager::_LightSpaceMatrix;
+glm::vec3 LightingManager::_LightPos;
+glm::vec3 LightingManager::_LightDir;
 
 void UniEngine::LightingManager::Init()
 {
@@ -61,6 +71,16 @@ void UniEngine::LightingManager::Init()
 	_UpdateDirectionalLightBlock = true;
 	_UpdatePointLightBlock = true;
 	_UpdateSpotLightBlock = true;
+
+	_DirectionalLightShadowMap = new DirectionalShadowMap();
+	std::string vertShaderCode = std::string("#version 460 core\n") + 
+		FileIO::LoadFileAsString("Resources/Shaders/Vertex/DirectionalLightShadowMap.vert");
+	std::string fragShaderCode = std::string("#version 460 core\n") + 
+		FileIO::LoadFileAsString("Resources/Shaders/Fragment/DirectionalLightShadowMap.frag");
+	_DirectionalLightProgram = new GLProgram(
+			new GLShader(ShaderType::Vertex, &vertShaderCode),
+			new GLShader(ShaderType::Fragment, &fragShaderCode)
+		);
 }
 
 void UniEngine::LightingManager::Start()
@@ -69,6 +89,38 @@ void UniEngine::LightingManager::Start()
 		auto dl = _DirectionalLights[0];
 		dl.direction = glm::vec4(0.0f, -glm::abs(glm::sin(Time::WorldTime() / 2.0f)), glm::cos(Time::WorldTime() / 2.0f), 0.0f);
 		_DirectionalLights[0] = dl;
+		glm::mat4 lightProjection, lightView;
+
+		_LightDir = glm::vec3(dl.direction);
+		_LightPos = glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(Time::WorldTime() / 2.0f)), 20.0f * glm::cos(Time::WorldTime() / 2.0f));
+		float near_plane = 1.0f, far_plane = 50.0f;
+		lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
+		lightView = glm::lookAt(_LightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		_LightSpaceMatrix = lightProjection * lightView;
+
+		_DirectionalLightShadowMap->Bind();
+		glEnable(GL_DEPTH_TEST);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glCullFace(GL_FRONT);
+		
+		
+		_DirectionalLightProgram->Use();
+		_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", _LightSpaceMatrix);
+
+		auto MMMap = _EntityCollection->QuerySharedComponentMap<MeshMaterialComponent>();
+		for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *MMMap) {
+			std::unordered_map<unsigned, Entity*>* entityMap = i.second->second;
+			for (auto j : *entityMap) {
+				auto entity = j.second;
+				auto mesh = _EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity)->_Mesh;
+				
+				_DirectionalLightProgram->SetFloat4x4("model", _EntityCollection->GetFixedData<LocalToWorld>(entity).value);
+
+				mesh->VAO()->Bind();
+				glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+			}
+		}
+		glCullFace(GL_BACK);
 	}
 	if (_UpdateDirectionalLightBlock) {
 		size_t size = _DirectionalLights.size();
@@ -88,4 +140,6 @@ void UniEngine::LightingManager::Start()
 		size = size * sizeof(SpotLight);
 		if (size != 0)_SpotLightBlock->SubData(16, size, &_SpotLights[0]);
 	}
+
+
 }

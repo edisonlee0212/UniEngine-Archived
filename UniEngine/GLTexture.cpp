@@ -29,7 +29,7 @@ void UniEngine::GLTexture::SetImage2D(GLint level, GLint internalformat, GLsizei
 void UniEngine::GLTexture::SetImage3D(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void* data)
 {
 	glBindTexture(GL_TEXTURE_3D, _ID);
-	glTexImage3D(GL_TEXTURE_1D, level, internalformat, width, height, depth, border, format, type, data);
+	glTexImage3D(GL_TEXTURE_3D, level, internalformat, width, height, depth, border, format, type, data);
 }
 
 void UniEngine::GLTexture::SetCubeMap(CubeMapIndex index, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void* data)
@@ -48,6 +48,12 @@ void UniEngine::GLTexture::SetFloatParameter(GLenum target, GLenum pname, GLfloa
 {
 	glBindTexture(target, _ID);
 	glTexParameterf(target, pname, param);
+}
+
+void UniEngine::GLTexture::SetFloat4Parameter(GLenum target, GLenum pname, GLfloat* param)
+{
+	glBindTexture(target, _ID);
+	glTexParameterfv(target, pname, param);
 }
 
 void UniEngine::GLTexture::Activate(GLenum texture)

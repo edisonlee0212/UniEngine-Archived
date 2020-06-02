@@ -6,18 +6,15 @@
 namespace UniEngine {
 	class Material
 	{
+		friend class RenderManager;
 		std::vector<Texture2D*> _Texture2Ds;
 		std::vector<Cubemap*> _Cubemaps;
 		std::vector<GLProgram*> _Programs;
-		float _Shininess;
-		float _Reflectivity;
-		float _Opacity;
-		float _TransparencyFactor;
-		float _BumpScaling;
+		std::unordered_map<std::string, float> _FloatPropertyList;
+		std::unordered_map<std::string, glm::mat4> _Float4x4PropertyList;
 	public:
-		float Shininess();
-		void SetShininess(float value);
-
+		void SetMaterialProperty(std::string name, float value);
+		void SetMaterialProperty(std::string name, glm::mat4 value);
 		std::vector<Texture2D*>* Textures2Ds();
 		std::vector<Cubemap*>* Cubemaps();
 		std::vector<GLProgram*>* Programs();

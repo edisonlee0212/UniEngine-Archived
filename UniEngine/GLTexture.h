@@ -40,7 +40,8 @@ namespace UniEngine {
 			GLenum type,
 			const void* data);
 		void SetFloatParameter(GLenum target, GLenum pname, GLfloat param);
-		void Activate(GLenum texture);
+		void SetFloat4Parameter(GLenum target, GLenum pname, GLfloat* param);
+		static void Activate(GLenum texture);
 		void Bind(GLenum target);
 		void SetIntParameter(GLenum target, GLenum pname, GLint param);
 		void SetCubeMap(CubeMapIndex index, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void* data);

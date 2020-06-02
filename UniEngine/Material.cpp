@@ -1,14 +1,14 @@
 #include "Material.h"
 using namespace UniEngine;
 
-float UniEngine::Material::Shininess()
+void UniEngine::Material::SetMaterialProperty(std::string name, float value)
 {
-	return _Shininess;
+	_FloatPropertyList[name] = value;
 }
 
-void UniEngine::Material::SetShininess(float value)
+void UniEngine::Material::SetMaterialProperty(std::string name, glm::mat4 value)
 {
-	_Shininess = value;
+	_Float4x4PropertyList[name] = value;
 }
 
 std::vector<Texture2D*>* UniEngine::Material::Textures2Ds()
