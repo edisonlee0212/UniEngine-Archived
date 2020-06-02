@@ -105,11 +105,10 @@ void UniEngine::EngineDriver::GLInit()
 void UniEngine::EngineDriver::Start()
 {
  	WindowManager::Init();
-	auto glfwwindow = WindowManager::CreateGLFWwindow(1280, 720, "Main", NULL);
+	auto glfwwindow = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	GLInit();
-	WindowManager::CreateWindow(glfwwindow, 1280, 720);
+	WindowManager::CreateWindow(glfwwindow, 1600, 900);
     Camera::GenerateMatrices();
-	
 
     LightingManager::Init();
 	_World = new World();

@@ -46,7 +46,7 @@ void UniEngine::LightingManager::Init()
 	DirectionalLight dl = DirectionalLight();
 	dl.direction = glm::vec4(0.0f, -1.0f, 0.5f, 0.0f);
 	dl.ambient = glm::vec4(0.5f);
-	dl.diffuse = glm::vec4(0.5f);
+	dl.diffuse = glm::vec4(1.0f);
 	dl.specular = glm::vec4(0.5f);
 	_DirectionalLights.push_back(dl);
 
@@ -73,37 +73,39 @@ void UniEngine::LightingManager::Init()
 	_UpdateSpotLightBlock = true;
 
 	_DirectionalLightShadowMap = new DirectionalShadowMap();
-	std::string vertShaderCode = std::string("#version 460 core\n") + 
+	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Resources/Shaders/Vertex/DirectionalLightShadowMap.vert");
-	std::string fragShaderCode = std::string("#version 460 core\n") + 
+	std::string fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Resources/Shaders/Fragment/DirectionalLightShadowMap.frag");
 	_DirectionalLightProgram = new GLProgram(
-			new GLShader(ShaderType::Vertex, &vertShaderCode),
-			new GLShader(ShaderType::Fragment, &fragShaderCode)
-		);
+		new GLShader(ShaderType::Vertex, &vertShaderCode),
+		new GLShader(ShaderType::Fragment, &fragShaderCode)
+	);
 }
 
 void UniEngine::LightingManager::Start()
 {
 	if (_DirectionalLights.size() > 0) {
 		auto dl = _DirectionalLights[0];
-		dl.direction = glm::vec4(0.0f, -glm::abs(glm::sin(Time::WorldTime() / 2.0f)), glm::cos(Time::WorldTime() / 2.0f), 0.0f);
+		glm::vec3 lightTarget = glm::vec3(0.0f);
+		_LightPos = glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(Time::WorldTime() / 2.0f)), -20.0f * glm::cos(Time::WorldTime() / 2.0f));
+		dl.direction = glm::normalize(glm::vec4(lightTarget.x - _LightPos.x, lightTarget.y - _LightPos.y, lightTarget.z - _LightPos.z, 0.0f));
 		_DirectionalLights[0] = dl;
 		glm::mat4 lightProjection, lightView;
 
 		_LightDir = glm::vec3(dl.direction);
-		_LightPos = glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(Time::WorldTime() / 2.0f)), 20.0f * glm::cos(Time::WorldTime() / 2.0f));
+
 		float near_plane = 1.0f, far_plane = 50.0f;
 		lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
-		lightView = glm::lookAt(_LightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightView = glm::lookAt(_LightPos, lightTarget, glm::vec3(0.0, 1.0, 0.0));
 		_LightSpaceMatrix = lightProjection * lightView;
 
 		_DirectionalLightShadowMap->Bind();
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_FRONT);
-		
-		
+
+
 		_DirectionalLightProgram->Use();
 		_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", _LightSpaceMatrix);
 
@@ -113,7 +115,7 @@ void UniEngine::LightingManager::Start()
 			for (auto j : *entityMap) {
 				auto entity = j.second;
 				auto mesh = _EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity)->_Mesh;
-				
+
 				_DirectionalLightProgram->SetFloat4x4("model", _EntityCollection->GetFixedData<LocalToWorld>(entity).value);
 
 				mesh->VAO()->Bind();
