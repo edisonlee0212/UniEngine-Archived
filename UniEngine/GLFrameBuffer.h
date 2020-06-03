@@ -16,6 +16,7 @@ namespace UniEngine {
 		bool Depth();
 		bool Stencil();
 		void AttachRenderBuffer(GLRenderBuffer* buffer, GLint attachPoint);
+		void AttachTexture2D(GLTexture* texture, GLint attachPoint);
 		void AttachTexture(GLTexture* texture, GLint attachPoint);
 	};
 }

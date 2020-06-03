@@ -129,13 +129,20 @@ void UniEngine::RenderManager::DrawMesh(
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Use();
-		program->SetFloat3("lightPos", LightingManager::_LightPos);
-		program->SetFloat3("lightDir", LightingManager::_LightDir);
-		program->SetFloat4x4("lightSpaceMatrix", LightingManager::_LightSpaceMatrix);
-
+		program->SetFloat3("directionalLightPos", LightingManager::_DirLightPos);
+		program->SetFloat3("directionalLightDir", LightingManager::_DirLightDir);
+		program->SetFloat4x4("lightSpaceMatrix", LightingManager::_DirLightSpaceMatrix);
 		GLTexture::Activate(GL_TEXTURE0);
-		program->SetInt("shadowMap", 0);
+		program->SetInt("directionalShadowMap", 0);
 		LightingManager::_DirectionalLightShadowMap->DepthMap()->Bind(GL_TEXTURE_2D);
+		program->SetFloat3("pointLightPos", LightingManager::_PointLightPos);
+		program->SetFloat("farPlane", LightingManager::_PointLightFarPlane);
+		GLTexture::Activate(GL_TEXTURE1);
+		program->SetInt("pointShadowMap", 1);
+		LightingManager::_PointLightShadowMap->DepthCubeMap()->Bind(GL_TEXTURE_CUBE_MAP);
+
+
+		
 		
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {

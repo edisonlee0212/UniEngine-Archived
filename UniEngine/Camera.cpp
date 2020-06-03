@@ -114,7 +114,7 @@ void UniEngine::Camera::UpdateCameraVectors()
 
 void Camera::UpdateViewProj() {
 	View = glm::lookAt(_Position, _Position + _Front, _Up);
-	auto size = _RenderTarget->GetResolution();
-	if (size.x == 0 || size.y == 0) return;
-	Projection = glm::perspective(glm::radians(Zoom), size.x / size.y, 0.1f, 100.0f);
+	auto ratio = _RenderTarget->GetResolutionRatio();
+	if (ratio == 0) return;
+	Projection = glm::perspective(glm::radians(Zoom), ratio, 0.1f, 100.0f);
 }

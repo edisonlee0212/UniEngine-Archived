@@ -5,12 +5,12 @@
 namespace UniEngine {
 	class EngineDriver {
 		World* _World;
-		bool _Looping;
+		bool _Loopable;
 	public:
 		EngineDriver();
 		void GLInit();
 		void Start();
-		void Loop();
+		bool Loop();
 		void End();
 		World* GetWorld();
 	};

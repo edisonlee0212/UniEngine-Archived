@@ -50,7 +50,7 @@ void UniEngine::GLFrameBuffer::AttachRenderBuffer(GLRenderBuffer* buffer, GLint 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachPoint, GL_RENDERBUFFER, buffer->ID());
 }
 
-void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLint attachPoint)
+void UniEngine::GLFrameBuffer::AttachTexture2D(GLTexture* texture, GLint attachPoint)
 {
 	switch (attachPoint)
 	{
@@ -70,4 +70,26 @@ void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLint attachPoi
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, attachPoint, GL_TEXTURE_2D, texture->ID(), 0);
+}
+
+void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLint attachPoint)
+{
+	switch (attachPoint)
+	{
+	case GL_DEPTH_ATTACHMENT:
+		_Depth = true;
+		break;
+	case GL_STENCIL_ATTACHMENT:
+		_Stencil = true;
+		break;
+	case GL_DEPTH_STENCIL_ATTACHMENT:
+		_Depth = true;
+		_Stencil = true;
+		break;
+	default:
+		_Color = true;
+		break;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
+	glFramebufferTexture(GL_FRAMEBUFFER, attachPoint, texture->ID(), 0);
 }

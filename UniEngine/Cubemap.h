@@ -4,14 +4,12 @@
 namespace UniEngine {
 	class Cubemap
 	{
-		GLTexture* texture0;
-		GLTexture* texture1;
-		GLTexture* texture2;
-		GLTexture* texture3;
-		GLTexture* texture4;
-		GLTexture* texture5;
+		GLTexture* _Texture;
+		std::vector<std::string> _Paths;
 	public:
 		Cubemap();
+		void LoadCubeMap(std::vector<std::string> paths);
+		std::vector<std::string> Paths();
 	};
 }
 

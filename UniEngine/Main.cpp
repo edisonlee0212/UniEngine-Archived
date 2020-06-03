@@ -85,7 +85,12 @@ int main()
     LoadBackpack(glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(1.0f), &vertShaderCode, &fragShaderCode);
 
     InitGround(&vertShaderCode, &fragShaderCode);
-    engine->Loop();
+    
+    bool loopable = true;
+    while (loopable) {
+        loopable = engine->Loop();
+    }
+    
     engine->End();
     return 0;
 }

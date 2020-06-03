@@ -185,6 +185,7 @@
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PointLightComponent.cpp" />
+    <ClCompile Include="PointShadowMap.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="includes\glad\src\glad.c" />
     <ClCompile Include="Main.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLightComponent.h" />
+    <ClInclude Include="PointShadowMap.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Memory.h" />

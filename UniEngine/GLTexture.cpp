@@ -32,7 +32,7 @@ void UniEngine::GLTexture::SetImage3D(GLint level, GLint internalformat, GLsizei
 	glTexImage3D(GL_TEXTURE_3D, level, internalformat, width, height, depth, border, format, type, data);
 }
 
-void UniEngine::GLTexture::SetCubeMap(CubeMapIndex index, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void* data)
+void UniEngine::GLTexture::SetCubeMap(CubeMapIndex index, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data)
 {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _ID);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)index, level, internalformat, width, height, border, format, type, data);

@@ -40,7 +40,6 @@ void UniEngine::Texture2D::LoadTexture(std::string path, const std::string& dire
         else if (nrComponents == 4)
             format = GL_RGBA;
 
-        _Texture->Bind(GL_TEXTURE_2D);
         _Texture->SetImage2D(0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 

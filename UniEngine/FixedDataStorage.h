@@ -17,7 +17,7 @@ namespace UniEngine {
 		friend class EntityCollection;
 		FixedDataStorage();
 		void PushBack();
-		void RemoveSwapBack(unsigned key);
+		void DeleteEntity(unsigned key);
 		template <typename T>
 		void SetFixedData(unsigned key, T value);
 		template <typename T>

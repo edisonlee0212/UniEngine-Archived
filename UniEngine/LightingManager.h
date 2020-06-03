@@ -7,6 +7,8 @@
 #include "PointLightComponent.h"
 #include "SpotLightComponent.h"
 #include "DirectionalShadowMap.h"
+#include "PointShadowMap.h"
+
 namespace UniEngine {
 	class LightingManager :
 		public ManagerBase
@@ -24,11 +26,18 @@ namespace UniEngine {
 		static bool _UpdateSpotLightBlock;
 
 		static GLProgram* _DirectionalLightProgram;
+		static GLProgram* _PointLightProgram;
 		friend class RenderManager;
 		static DirectionalShadowMap* _DirectionalLightShadowMap;
-		static glm::mat4 _LightSpaceMatrix;
-		static glm::vec3 _LightPos;
-		static glm::vec3 _LightDir;
+		static PointShadowMap* _PointLightShadowMap;
+		static glm::mat4 _DirLightSpaceMatrix;
+		static glm::vec3 _DirLightPos;
+		static glm::vec3 _DirLightDir;
+
+		
+		static float _PointLightFarPlane;
+		static glm::vec3 _PointLightPos;
+
 	public:
 		static void Init();
 		static void Start();

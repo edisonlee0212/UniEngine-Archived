@@ -14,6 +14,21 @@ glm::vec2 UniEngine::RenderTarget::GetResolution()
 	return glm::vec2(_ResolutionX, _ResolutionY);
 }
 
+float UniEngine::RenderTarget::GetResolutionRatio()
+{
+	if (_ResolutionX == 0 || _ResolutionY == 0) return 0;
+	return (float)_ResolutionX / (float)_ResolutionY;
+}
+
+void UniEngine::RenderTarget::AttachTexture2D(GLTexture* texture, GLint attachPoint)
+{
+	if (_Bound) {
+		Debug::Error("Error");
+		return;
+	}
+	_FrameBuffer->AttachTexture2D(texture, attachPoint);
+}
+
 void UniEngine::RenderTarget::AttachTexture(GLTexture* texture, GLint attachPoint)
 {
 	if (_Bound) {
@@ -36,6 +51,19 @@ GLTexture* UniEngine::RenderTarget::SetTexture2D(GLint attachPoint, GLint level,
 {
 	GLTexture* retVal = new GLTexture();
 	retVal->SetImage2D(level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
+	AttachTexture2D(retVal, attachPoint);
+	return retVal;
+}
+
+GLTexture* UniEngine::RenderTarget::SetCubeMap(GLint attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type, const void* data)
+{
+	GLTexture* retVal = new GLTexture();
+	retVal->SetCubeMap((CubeMapIndex)0, level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
+	retVal->SetCubeMap((CubeMapIndex)1, level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
+	retVal->SetCubeMap((CubeMapIndex)2, level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
+	retVal->SetCubeMap((CubeMapIndex)3, level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
+	retVal->SetCubeMap((CubeMapIndex)4, level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
+	retVal->SetCubeMap((CubeMapIndex)5, level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
 	AttachTexture(retVal, attachPoint);
 	return retVal;
 }

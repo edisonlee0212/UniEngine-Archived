@@ -3,7 +3,6 @@ vec3 CalculateLights(vec3 normal, vec3 viewDir, vec3 fragPos);
 
 struct DirectionalLight {
     vec3 direction;
-    vec3 ambient;
     vec3 diffuse;
     vec3 specular;
 };
@@ -15,7 +14,6 @@ struct PointLight {
     float linear;
     float quadratic;
 
-    vec3 ambient;
     vec3 diffuse;
     vec3 specular;
 };
@@ -30,7 +28,6 @@ struct SpotLight {
     float linear;
     float quadratic;
   
-    vec3 ambient;
     vec3 diffuse;
     vec3 specular;       
 };
