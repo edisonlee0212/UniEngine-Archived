@@ -1,105 +1,239 @@
 #pragma once
 #include "Core.h"
 namespace UniEngine {
+
+	typedef std::size_t Index;
+	
+	typedef std::unordered_map<Entity*, Index> OsIMap;
+	typedef std::vector<Entity*> OsList;
+	typedef std::pair<OsIMap*, OsList*> OC;
+
+	typedef std::pair<SharedComponentBase*, OC*> SCOC;
+	typedef std::unordered_map<std::size_t, Index> SCOCsIMap;
+	typedef std::vector<SCOC*> SCOCsList;
+
+	typedef std::pair<SCOCsIMap*, SCOCsList*> SCOCC;
+	typedef std::unordered_map<std::size_t, SCOCC*> SCOCsStorage;
 	class SharedComponentStorage
 	{
 		friend class EntityCollection;
-		//umap<classtypehashcode, umap<sharedcomponenthashcode, pair<sharedcomponent, umap<entitykey, entity>>>>
-		std::unordered_map<std::size_t, 
-			std::unordered_map<std::size_t, 
-				std::pair<SharedComponentBase*, 
-					std::unordered_map<unsigned, Entity*>*>*>*> _SharedComponentsStorage;
-
+		SCOCsStorage _SCsStorage;
 	public:
 		SharedComponentStorage();
 
 		void DeleteEntity(Entity* entity);
 
-		template <typename T>
-		std::unordered_map<std::size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* GetSharedComponentMap();
+		bool RemoveSC(SCOCC* scocc, Entity* entity);
 
 		template <typename T>
-		std::unordered_map<unsigned, Entity*>* GetEntitiesMap(T* value);
+		SCOCC* GetSCOCC();
+		
+		template <typename T>
+		SCOCsIMap* GetSCOCsIMap();
 
 		template <typename T>
-		T* GetSharedComponent(Entity* entity);
+		SCOCsList* GetSCOCsList();
 
 		template <typename T>
-		void SetSharedComponent(Entity* entity, T* value);
+		SCOCsIMap* GetSCOCsIMap(SCOCC* scocc);
+
+		template <typename T>
+		SCOCsList* GetSCOCsList(SCOCC* scocc);
+
+		template <typename T>
+		SCOC* GetSCOC(T* value);
+
+		template <typename T>
+		SCOC* GetSCOC(T* value, SCOCC* scocc);
+
+		template <typename T>
+		OC* GetOC(T* value);
+
+		template <typename T>
+		OsIMap* GetOsIMap(T* value);
+
+		template <typename T>
+		OsList* GetOsList(T* value);
+
+		template <typename T>
+		bool SetSC(Entity* entity, T* value);
+
+		template <typename T>
+		T* GetSC(Entity* entity);
+
+		
+
+		template <typename T>
+		bool RemoveSC(Entity* entity);
+
 	};
-
+	
 	template<typename T>
-	inline std::unordered_map<std::size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* SharedComponentStorage::GetSharedComponentMap()
+	inline SCOCC* SharedComponentStorage::GetSCOCC()
 	{
 		auto key = typeid(T).hash_code();
-		auto search = _SharedComponentsStorage.find(key);
-		if (search != _SharedComponentsStorage.end()) {
+		auto search = _SCsStorage.find(key);
+		if (search != _SCsStorage.end()) {
 			return search->second;
 		}
 		return nullptr;
 	}
 
 	template<typename T>
-	inline std::unordered_map<unsigned, Entity*>* SharedComponentStorage::GetEntitiesMap(T* value)
+	inline SCOCsIMap* SharedComponentStorage::GetSCOCsIMap()
 	{
-		SharedComponentBase* in = dynamic_cast<SharedComponentBase*>(value);
-		std::unordered_map<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* result = GetSharedComponentMap<T>();
-		if (result != nullptr) {
-			auto insearch = result->find(in->GetHashCode());
-			if (insearch != result->end()) {
-				return insearch->second->second;
-			}
+		SCOCC* scocc = GetSCOCC<T>();
+		if (scocc == nullptr) return nullptr;
+		return scocc->first;
+	}
+
+	template<typename T>
+	inline SCOCsList* SharedComponentStorage::GetSCOCsList()
+	{
+		SCOCC* scocc = GetSCOCC<T>();
+		if (scocc == nullptr) return nullptr;
+		return scocc->second;
+	}
+
+	template<typename T>
+	inline SCOCsIMap* SharedComponentStorage::GetSCOCsIMap(SCOCC* scocc)
+	{
+		return scocc->first;
+	}
+
+	template<typename T>
+	inline SCOCsList* SharedComponentStorage::GetSCOCsList(SCOCC* scocc)
+	{
+		return scocc->second;
+	}
+
+	template<typename T>
+	inline SCOC* SharedComponentStorage::GetSCOC(T* value)
+	{
+		SCOCC* scocc = GetSCOCC<T>();
+		if (scocc == nullptr) return nullptr;
+		SCOCsIMap* map = scocc->first;
+		SCOCsList* list = scocc->second;
+		auto key = dynamic_cast<SharedComponentBase*>(value)->GetHashCode();
+		auto search = map->find(key);
+		if (search != map->end()) {
+			return list->at(search->second);
 		}
 		return nullptr;
 	}
 
 	template<typename T>
-	inline T* SharedComponentStorage::GetSharedComponent(Entity* entity)
+	inline SCOC* SharedComponentStorage::GetSCOC(T* value, SCOCC* scocc)
 	{
-		auto result = GetSharedComponentMap<T>();
-		if (result != nullptr) {
-			for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *result)
-			{
-				std::unordered_map<unsigned, Entity*>* map = i.second->second;
-				auto insearch = map->find(entity->Key());
-				if (insearch != map->end()) {
-					return dynamic_cast<T*>(i.second->first);
+		SCOCsIMap* map = scocc->first;
+		SCOCsList* list = scocc->second;
+		auto key = dynamic_cast<SharedComponentBase*>(value)->GetHashCode();
+		auto search = map->find(key);
+		if (search != map->end()) {
+			return list->at(search->second);
+		}
+		return nullptr;
+	}
+
+	template<typename T>
+	inline OC* SharedComponentStorage::GetOC(T* value)
+	{
+		SCOC* scoc = GetSCOC<T>(value);
+		if (scoc == nullptr) return nullptr;
+		return scoc->second;
+	}
+
+	template<typename T>
+	inline OsIMap* SharedComponentStorage::GetOsIMap(T* value)
+	{
+		OC* oc = GetOC<T>(value);
+		if (oc == nullptr) return nullptr;
+		return oc->first;
+	}
+
+	template<typename T>
+	inline OsList* SharedComponentStorage::GetOsList(T* value)
+	{
+		OC* oc = GetOC<T>(value);
+		if (oc == nullptr) return nullptr;
+		return oc->second;
+	}
+
+	template<typename T>
+	inline bool SharedComponentStorage::SetSC(Entity* entity, T* value)
+	{
+		//Firstly we make sure this entity doesn't contain same type of sc.
+		RemoveSC<T>(entity);
+
+		SCOCC* scocc = GetSCOCC<T>();
+		if (scocc == nullptr) {
+			//If we cant find the type of class
+			OsIMap* map = new OsIMap();
+			map->insert({entity, 0});
+			OsList* list = new OsList();
+			list->push_back(entity);
+			OC* oc = new OC(map, list);
+			SCOC* scoc = new SCOC(dynamic_cast<SharedComponentBase*>(value), oc);
+			SCOCsIMap* scmap = new SCOCsIMap();
+			scmap->insert({ dynamic_cast<SharedComponentBase*>(value)->GetHashCode(), 0 });
+			SCOCsList* sclist = new SCOCsList();
+			sclist->push_back(scoc);
+			_SCsStorage.insert({ typeid(T).hash_code(), new SCOCC(scmap, sclist)});
+		}
+		else {
+			SCOC* scoc = GetSCOC<T>(value, scocc);
+			if (scoc == nullptr) {
+				//If we can't find the sc
+				OsIMap* map = new OsIMap();
+				map->insert({ entity, 0 });
+				OsList* list = new OsList();
+				list->push_back(entity);
+				OC* oc = new OC(map, list);
+				SCOC* scoc = new SCOC(dynamic_cast<SharedComponentBase*>(value), oc);
+				scocc->first->insert({ dynamic_cast<SharedComponentBase*>(value)->GetHashCode(), scocc->second->size() });
+				scocc->second->push_back(scoc);
+			}
+			else {
+				auto map = scoc->second->first;
+				auto list = scoc->second->second;
+				auto search = map->find(entity);
+				if (search == map->end()) {
+					//if we can't find the entity
+					map->insert({ entity, 0 });
+					OsList* list = new OsList();
+					map->insert({ entity, list->size() });
+					list->push_back(entity);
 				}
 			}
 		}
+		return true;
+	}
 
+	template<typename T>
+	inline T* SharedComponentStorage::GetSC(Entity* entity)
+	{
+		SCOCC* scocc = GetSCOCC<T>();
+		SCOCsList* list = scocc->second;
+		for (SCOC* i : *list) {
+			OsIMap* map = i->second->first;
+			auto search = map->find(entity);
+			if (search != map->end()) {
+				return dynamic_cast<T*>(i->first);
+			}
+		}
 		return nullptr;
 	}
 
 	template<typename T>
-	inline void SharedComponentStorage::SetSharedComponent(Entity* entity, T* value)
+	inline bool SharedComponentStorage::RemoveSC(Entity* entity)
 	{
-		SharedComponentBase* in = dynamic_cast<SharedComponentBase*>(value);
-		auto key = typeid(T).hash_code();
-		auto result = GetSharedComponentMap<T>();
-		if (result != nullptr) {
-			auto insearch = result->find(in->GetHashCode());
-			if (insearch != result->end()) {
-				//If we find the specific shared component, we insert the entity to the list. Note that 
-				std::unordered_map<unsigned, Entity*>* list = insearch->second->second;
-				auto esearch = list->find(entity->Key());
-				list->insert({ entity->Key(), entity });
-			}
-			else {
-				//If we can't find the specific shared component.
-				auto map = new std::unordered_map<unsigned, Entity*>();
-				map->insert({ entity->Key(), entity });
-				auto pair = new std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>(in, map);
-				result->insert({ in->GetHashCode(), pair });
-			}
+		SCOCC* scocc = GetSCOCC<T>();
+		if (scocc != nullptr) {
+			return RemoveSC(scocc, entity);
 		}
 		else {
-			auto map = new std::unordered_map<unsigned, Entity*>();
-			map->insert({ entity->Key(), entity });
-			auto pair = new std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>(in, map);
-			auto cmap = new std::unordered_map<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>();
-			cmap->insert({ in->GetHashCode(), pair });
-			_SharedComponentsStorage.insert({ key, cmap });
+			return false;
 		}
 	}
+
 }

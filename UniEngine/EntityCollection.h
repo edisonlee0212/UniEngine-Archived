@@ -48,12 +48,9 @@ namespace UniEngine {
 		T GetFixedData(Entity* entity);
 
 		template <typename T>
-		std::unordered_map<unsigned, Entity*>* QueryEntityBySharedComponent(T* value);
+		std::vector<Entity*>* QueryEntities(T* value);
 		template <typename T>
-		std::vector<T*> QuerySharedComponentAsList();
-		template <typename T>
-		std::unordered_map<std::size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* QuerySharedComponentMap();
-
+		std::vector<std::pair<SharedComponentBase*, OC*>*>* QuerySharedComponents();
 	};
 
 #pragma region EntityArchetype
@@ -81,12 +78,12 @@ namespace UniEngine {
 	template<typename T>
 	inline T* EntityCollection::GetSharedComponent(Entity* entity)
 	{
-		return _SharedComponentStorage->GetSharedComponent<T>(entity);
+		return _SharedComponentStorage->GetSC<T>(entity);
 	}
 	template<typename T>
 	inline void EntityCollection::SetSharedComponent(Entity* entity, T* value)
 	{
-		_SharedComponentStorage->SetSharedComponent<T>(entity, value);
+		_SharedComponentStorage->SetSC<T>(entity, value);
 	}
 	template<typename T>
 	inline T EntityCollection::GetComponent(Entity* entity)
@@ -111,25 +108,15 @@ namespace UniEngine {
 	
 #pragma region Query
 	template<typename T>
-	inline std::unordered_map<unsigned, Entity*>* EntityCollection::QueryEntityBySharedComponent(T* value)
+	inline std::vector<Entity*>* EntityCollection::QueryEntities(T* value)
 	{
-		return _SharedComponentStorage->GetEntitiesMap(value);
+		return _SharedComponentStorage->GetOsList<T>(value);
 	}
 
 	template<typename T>
-	inline std::unordered_map<std::size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*>* EntityCollection::QuerySharedComponentMap()
+	inline std::vector<std::pair<SharedComponentBase*, OC*>*>* EntityCollection::QuerySharedComponents()
 	{
-		return _SharedComponentStorage->GetSharedComponentMap<T>();
-	}
-	template<typename T>
-	inline std::vector<T*> EntityCollection::QuerySharedComponentAsList()
-	{
-		auto list = std::vector<T*>();
-		auto result = QuerySharedComponentMap<T>();
-		for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *result) {
-			list.push_back(dynamic_cast<T*>(i.second->first));
-		}
-		return list;
+		return _SharedComponentStorage->GetSCOCsList<T>();
 	}
 #pragma endregion
 }

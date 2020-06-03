@@ -34,7 +34,7 @@ void UniEngine::FixedDataStorage::PushBack()
 	_CameraMasks.push_back(CameraMask());
 }
 
-void UniEngine::FixedDataStorage::RemoveSwapBack(unsigned key)
+void UniEngine::FixedDataStorage::DeleteEntity(unsigned key)
 {
 	_Translations[key] = _Translations.back();
 	_Translations.pop_back();

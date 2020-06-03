@@ -46,8 +46,10 @@ void UniEngine::EntityCollection::DeleteEntity(Entity* entity)
 	_Entities.at(index) = _Entities.back();
 	_Entities.at(index)->_Key = index;
 	_Entities.pop_back();
-	_FixedDataStorage->RemoveSwapBack(index);
+
+	_FixedDataStorage->DeleteEntity(index);
 	_SharedComponentStorage->DeleteEntity(entity);
+
 	delete entity;
 }
 

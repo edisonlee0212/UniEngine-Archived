@@ -109,19 +109,17 @@ void UniEngine::LightingManager::Start()
 		_DirectionalLightProgram->Use();
 		_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", _LightSpaceMatrix);
 
-		auto MMMap = _EntityCollection->QuerySharedComponentMap<MeshMaterialComponent>();
-		for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *MMMap) {
-			std::unordered_map<unsigned, Entity*>* entityMap = i.second->second;
-			for (auto j : *entityMap) {
-				auto entity = j.second;
-				auto mesh = _EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity)->_Mesh;
-
-				_DirectionalLightProgram->SetFloat4x4("model", _EntityCollection->GetFixedData<LocalToWorld>(entity).value);
-
+		auto meshMaterials = _EntityCollection->QuerySharedComponents<MeshMaterialComponent>();
+		for (auto i : *meshMaterials) {
+			auto entities = _EntityCollection->QueryEntities<MeshMaterialComponent>(dynamic_cast<MeshMaterialComponent*>(i->first));
+			for (auto j : *entities) {
+				auto mesh = dynamic_cast<MeshMaterialComponent*>(i->first)->_Mesh;
+				_DirectionalLightProgram->SetFloat4x4("model", _EntityCollection->GetFixedData<LocalToWorld>(j).value);
 				mesh->VAO()->Bind();
 				glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
 			}
 		}
+
 		glCullFace(GL_BACK);
 	}
 	if (_UpdateDirectionalLightBlock) {

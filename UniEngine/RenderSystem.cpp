@@ -21,6 +21,7 @@ void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
 
+	/*
 	auto MMMap = _EntityCollection->QuerySharedComponentMap<MeshMaterialComponent>();
 	for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *MMMap) {
 		std::unordered_map<unsigned, Entity*>* entityMap = i.second->second;
@@ -28,6 +29,15 @@ void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
 			DrawEntity(j.second, camera, dynamic_cast<MeshMaterialComponent*>(i.second->first));
 		}
 	}
+	*/
+	auto meshMaterials = _EntityCollection->QuerySharedComponents<MeshMaterialComponent>();
+	for (auto i : *meshMaterials) {
+		auto entities = _EntityCollection->QueryEntities<MeshMaterialComponent>(dynamic_cast<MeshMaterialComponent*>(i->first));
+		for (auto j : *entities) {
+			DrawEntity(j, camera, dynamic_cast<MeshMaterialComponent*>(i->first));
+		}
+	}
+
 }
 
 void UniEngine::RenderSystem::DrawEntity(Entity* entity, Camera* camera)
@@ -64,10 +74,8 @@ void UniEngine::RenderSystem::OnDestroy()
 
 void UniEngine::RenderSystem::Update()
 {
-
-
-	auto CMap = _EntityCollection->QuerySharedComponentMap<CameraComponent>();
-	for (std::pair<size_t, std::pair<SharedComponentBase*, std::unordered_map<unsigned, Entity*>*>*> i : *CMap) {
-		RenderToCamera(dynamic_cast<CameraComponent*>(i.second->first)->Value);
+	auto cameras = _EntityCollection->QuerySharedComponents<CameraComponent>();
+	for (auto i : *cameras) {
+		RenderToCamera(dynamic_cast<CameraComponent*>(i->first)->Value);
 	}
 }
