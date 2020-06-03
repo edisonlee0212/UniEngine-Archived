@@ -100,5 +100,7 @@ void main()
 
     vec3 result = CalculateLights(norm, viewDir, fs_in.FragPos);
 
-    FragColor = vec4((ambient + (1.0 - directionalLightshadow - pointLightShadow) * result) * color, 1.0);
+    float lightness = 1.0 - directionalLightshadow - pointLightShadow;
+    if(lightness < 0.0) lightness = 0.0;
+    FragColor = vec4((ambient + lightness * result) * color, 1.0);
 }
