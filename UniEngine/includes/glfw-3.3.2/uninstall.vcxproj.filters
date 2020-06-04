@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\lllll\Documents\GitHub\UniEngine\UniEngine\includes\glfw-3.3.2\CMakeFiles\b0945b5759a0bb8491e832397f6a2c0f\uninstall.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\lllll\Documents\GitHub\UniEngine\UniEngine\includes\glfw-3.3.2\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\lllll\Documents\GitHub\UniEngine\UniEngine\includes\glfw-3.3.2\CMakeFiles\uninstall" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{69A460E9-7986-3E07-8314-AABFC92A7D61}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

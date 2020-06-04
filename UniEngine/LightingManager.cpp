@@ -52,7 +52,8 @@ void UniEngine::LightingManager::Init()
 	_EntityCollection->SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	_EntityCollection->SetFixedData<Scale>(dle, scale);
 	_EntityCollection->SetSharedComponent<MeshMaterialComponent>(dle, dlmmc);
-
+	//_EntityCollection->RemoveSharedComponent<MeshMaterialComponent>(dle);
+	//_EntityCollection->SetSharedComponent<MeshMaterialComponent>(dle, dlmmc);
 
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;

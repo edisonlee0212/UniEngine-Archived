@@ -36,6 +36,9 @@ namespace UniEngine {
 		T* GetSharedComponent(Entity* entity);
 		template <typename T>
 		void SetSharedComponent(Entity* entity, T* value);
+		template <typename T>
+		void RemoveSharedComponent(Entity* entity);
+
 
 		template <typename T>
 		T GetComponent(Entity* entity);
@@ -84,6 +87,11 @@ namespace UniEngine {
 	inline void EntityCollection::SetSharedComponent(Entity* entity, T* value)
 	{
 		_SharedComponentStorage->SetSC<T>(entity, value);
+	}
+	template<typename T>
+	inline void EntityCollection::RemoveSharedComponent(Entity* entity)
+	{
+		_SharedComponentStorage->RemoveSC<T>(entity);
 	}
 	template<typename T>
 	inline T EntityCollection::GetComponent(Entity* entity)
