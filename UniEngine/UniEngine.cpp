@@ -110,11 +110,11 @@ void UniEngine::EngineDriver::Start()
 	WindowManager::CreateWindow(glfwwindow, 1600, 900);
 	Camera::GenerateMatrices();
 
-	LightingManager::Init();
+	
 	_World = new World();
 	_World->Init();
 	Default::Load(_World);
-
+	LightingManager::Init();
 	_Loopable = true;
 }
 

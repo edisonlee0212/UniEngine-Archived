@@ -13,7 +13,7 @@ UniEngine::PointShadowMap::PointShadowMap(float resolutionX, float resolutionY)
 	_DepthCubeMap->SetIntParameter(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-GLTexture* UniEngine::PointShadowMap::DepthCubeMap()
+GLTexture* UniEngine::PointShadowMap::DepthMap()
 {
 	return _DepthCubeMap;
 }

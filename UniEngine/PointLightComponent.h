@@ -4,11 +4,7 @@ namespace UniEngine {
 	struct PointLight
 	{
 		glm::vec4 position;
-
-		float constant;
-		float linear;
-		float quadratic;
-
+		glm::vec4 constantLinearQuadFarPlane;
 		glm::vec4 diffuse;
 		glm::vec4 specular;
 	};
@@ -17,7 +13,12 @@ namespace UniEngine {
 		public SharedComponentBase
 	{
 	public:
-		PointLight value;
+		float constant;
+		float linear;
+		float quadratic;
+		float farPlane;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
 		size_t GetHashCode();
 	};
 }

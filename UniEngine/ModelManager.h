@@ -5,7 +5,7 @@ namespace UniEngine {
     class ModelManager : public ManagerBase
     {
     public:
-        static void LoadModel(Entity* root, std::string const& path, GLProgram* shader = nullptr, bool gamma = false);
+        static void LoadModelAsEntity(Entity* root, std::string const& path, GLProgram* shader = nullptr, bool gamma = false);
     private:
         static std::vector<Entity*> entities;
         static void ProcessNode(std::string, GLProgram* shader, Entity*, std::vector<Texture2D*>*, aiNode*, const aiScene*);

@@ -252,9 +252,6 @@
     <ClCompile Include="DirectionalLightComponent.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="DirectionalShadowMap.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="LightingManager.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
@@ -269,6 +266,9 @@
     </ClCompile>
     <ClCompile Include="PointShadowMap.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLightShadowMap.cpp">
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -449,10 +449,10 @@
     <ClInclude Include="LightingManager.h">
       <Filter>Header Files\Resouce\Manager\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="DirectionalShadowMap.h">
+    <ClInclude Include="PointShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PointShadowMap.h">
+    <ClInclude Include="DirectionalLightShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

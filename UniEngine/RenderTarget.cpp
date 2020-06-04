@@ -20,7 +20,16 @@ float UniEngine::RenderTarget::GetResolutionRatio()
 	return (float)_ResolutionX / (float)_ResolutionY;
 }
 
-void UniEngine::RenderTarget::AttachTexture2D(GLTexture* texture, GLint attachPoint)
+void UniEngine::RenderTarget::AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer)
+{
+	if (_Bound) {
+		Debug::Error("Error");
+		return;
+	}
+	_FrameBuffer->AttachTextureLayer(texture, attachPoint, layer);
+}
+
+void UniEngine::RenderTarget::AttachTexture2D(GLTexture* texture, GLenum attachPoint)
 {
 	if (_Bound) {
 		Debug::Error("Error");
@@ -29,7 +38,7 @@ void UniEngine::RenderTarget::AttachTexture2D(GLTexture* texture, GLint attachPo
 	_FrameBuffer->AttachTexture2D(texture, attachPoint);
 }
 
-void UniEngine::RenderTarget::AttachTexture(GLTexture* texture, GLint attachPoint)
+void UniEngine::RenderTarget::AttachTexture(GLTexture* texture, GLenum attachPoint)
 {
 	if (_Bound) {
 		Debug::Error("Error");
@@ -38,7 +47,7 @@ void UniEngine::RenderTarget::AttachTexture(GLTexture* texture, GLint attachPoin
 	_FrameBuffer->AttachTexture(texture, attachPoint);
 }
 
-void UniEngine::RenderTarget::AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLint attachPoint)
+void UniEngine::RenderTarget::AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLenum attachPoint)
 {
 	if (_Bound) {
 		Debug::Error("Error");
@@ -47,7 +56,7 @@ void UniEngine::RenderTarget::AttachRenderBuffer(GLRenderBuffer* renderBuffer, G
 	_FrameBuffer->AttachRenderBuffer(renderBuffer, attachPoint);
 }
 
-GLTexture* UniEngine::RenderTarget::SetTexture2D(GLint attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type, const void* data)
+GLTexture* UniEngine::RenderTarget::SetTexture2D(GLenum attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type, const void* data)
 {
 	GLTexture* retVal = new GLTexture();
 	retVal->SetImage2D(level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
@@ -55,7 +64,7 @@ GLTexture* UniEngine::RenderTarget::SetTexture2D(GLint attachPoint, GLint level,
 	return retVal;
 }
 
-GLTexture* UniEngine::RenderTarget::SetCubeMap(GLint attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type, const void* data)
+GLTexture* UniEngine::RenderTarget::SetCubeMap(GLenum attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type, const void* data)
 {
 	GLTexture* retVal = new GLTexture();
 	retVal->SetCubeMap((CubeMapIndex)0, level, internalformat, _ResolutionX, _ResolutionY, border, format, type, data);
@@ -68,7 +77,7 @@ GLTexture* UniEngine::RenderTarget::SetCubeMap(GLint attachPoint, GLint level, G
 	return retVal;
 }
 
-GLRenderBuffer* UniEngine::RenderTarget::SetRenderBuffer(GLint attachPoint, GLenum internalformat​)
+GLRenderBuffer* UniEngine::RenderTarget::SetRenderBuffer(GLenum attachPoint, GLenum internalformat​)
 {
 	GLRenderBuffer* retVal = new GLRenderBuffer();
 	retVal->AllocateStorage(internalformat​, _ResolutionX, _ResolutionY);
@@ -87,7 +96,8 @@ void UniEngine::RenderTarget::Bind()
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
 	}
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 	glViewport(0, 0, _ResolutionX, _ResolutionY);
 	RenderManager::_CurrentRenderTarget = this;

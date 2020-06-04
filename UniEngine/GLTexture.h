@@ -12,6 +12,7 @@ namespace UniEngine {
 	class GLTexture : public GLObject
 	{
 	public:
+		static GLuint _CurrentBinding;
 		static void BindDefault();
 		GLTexture();
 		~GLTexture();
@@ -31,6 +32,16 @@ namespace UniEngine {
 			GLenum type,
 			const void* data);
 		void SetImage3D(GLint level,
+			GLint internalformat,
+			GLsizei width,
+			GLsizei height,
+			GLsizei depth,
+			GLint border,
+			GLenum format,
+			GLenum type,
+			const void* data);
+
+		void SetImage2DArray(GLint level,
 			GLint internalformat,
 			GLsizei width,
 			GLsizei height,

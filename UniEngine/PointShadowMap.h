@@ -10,7 +10,7 @@ namespace UniEngine {
 		GLTexture* _DepthCubeMap;
 	public:
 		PointShadowMap(float resolutionX = 2048.0f, float resolutionY = 2048.0f);
-		GLTexture* DepthCubeMap();
+		GLTexture* DepthMap();
 	};
 
 }

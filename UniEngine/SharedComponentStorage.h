@@ -199,8 +199,6 @@ namespace UniEngine {
 				auto search = map->find(entity);
 				if (search == map->end()) {
 					//if we can't find the entity
-					map->insert({ entity, 0 });
-					OsList* list = new OsList();
 					map->insert({ entity, list->size() });
 					list->push_back(entity);
 				}

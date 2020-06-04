@@ -9,12 +9,14 @@ namespace UniEngine {
 	protected:
 		unsigned _ResolutionX;
 		unsigned _ResolutionY;
-		void AttachTexture2D(GLTexture* texture, GLint attachPoint);
-		void AttachTexture(GLTexture* texture, GLint attachPoint);
-		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLint attachPoint);
-		GLTexture* SetTexture2D(GLint attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type = GL_FLOAT, const void* data = nullptr);
-		GLTexture* SetCubeMap(GLint attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type = GL_FLOAT, const void* data = nullptr);
-		GLRenderBuffer* SetRenderBuffer(GLint attachPoint, GLenum internalformat​);
+
+		void AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer);
+		void AttachTexture2D(GLTexture* texture, GLenum attachPoint);
+		void AttachTexture(GLTexture* texture, GLenum attachPoint);
+		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLenum attachPoint);
+		GLTexture* SetTexture2D(GLenum attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type = GL_FLOAT, const void* data = nullptr);
+		GLTexture* SetCubeMap(GLenum attachPoint, GLint level, GLint internalformat, GLint border, GLenum format, GLenum type = GL_FLOAT, const void* data = nullptr);
+		GLRenderBuffer* SetRenderBuffer(GLenum attachPoint, GLenum internalformat​);
 	public:
 		RenderTarget();
 		glm::vec2 GetResolution();

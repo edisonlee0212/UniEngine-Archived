@@ -24,27 +24,17 @@ void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
 
 	auto meshMaterials = _EntityCollection->QuerySharedComponents<MeshMaterialComponent>();
 	for (auto i : *meshMaterials) {
-		auto entities = _EntityCollection->QueryEntities<MeshMaterialComponent>(dynamic_cast<MeshMaterialComponent*>(i->first));
+		MeshMaterialComponent* mmc = dynamic_cast<MeshMaterialComponent*>(i->first);
+		auto entities = _EntityCollection->QueryEntities<MeshMaterialComponent>(mmc);
 		for (auto j : *entities) {
-			DrawEntity(j, camera, dynamic_cast<MeshMaterialComponent*>(i->first));
+			RenderManager::DrawMesh(mmc->_Mesh,
+				_EntityCollection->GetFixedData<LocalToWorld>(j).value,
+				mmc->_Material, camera);
 		}
 	}
 
 }
 
-void UniEngine::RenderSystem::DrawEntity(Entity* entity, Camera* camera)
-{
-	auto meshMaterial = _EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity);
-	RenderManager::DrawMesh(meshMaterial->_Mesh,
-		_EntityCollection->GetFixedData<LocalToWorld>(entity).value,
-		meshMaterial->_Material, camera);
-}
-void UniEngine::RenderSystem::DrawEntity(Entity* entity, Camera* camera, MeshMaterialComponent* meshMaterialComponent)
-{
-	RenderManager::DrawMesh(meshMaterialComponent->_Mesh,
-		_EntityCollection->GetFixedData<LocalToWorld>(entity).value,
-		meshMaterialComponent->_Material, camera);
-}
 
 UniEngine::RenderSystem::RenderSystem()
 {

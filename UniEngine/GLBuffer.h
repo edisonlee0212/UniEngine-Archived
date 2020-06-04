@@ -52,6 +52,7 @@ namespace UniEngine {
 		GLVBO* _VBO;
 		GLEBO* _EBO;
 	public:
+		static GLuint _CurrentBinding;
 		static void BindDefault() {
 			glBindVertexArray(0);
 		}

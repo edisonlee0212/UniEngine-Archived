@@ -129,18 +129,13 @@ void UniEngine::RenderManager::DrawMesh(
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Use();
-		program->SetFloat3("directionalLightPos", LightingManager::_DirLightPos);
-		program->SetFloat3("directionalLightDir", LightingManager::_DirLightDir);
-		program->SetFloat4x4("lightSpaceMatrix", LightingManager::_DirLightSpaceMatrix);
 		GLTexture::Activate(GL_TEXTURE0);
 		program->SetInt("directionalShadowMap", 0);
-		LightingManager::_DirectionalLightShadowMap->DepthMap()->Bind(GL_TEXTURE_2D);
-		program->SetFloat3("pointLightPos", LightingManager::_PointLightPos);
-		program->SetFloat("farPlane", LightingManager::_PointLightFarPlane);
+		LightingManager::_DirectionalLightShadowMap->DepthMap()->Bind(GL_TEXTURE_2D_ARRAY);
 		GLTexture::Activate(GL_TEXTURE1);
 		program->SetInt("pointShadowMap", 1);
-		LightingManager::_PointLightShadowMap->DepthCubeMap()->Bind(GL_TEXTURE_CUBE_MAP);
-
+		//LightingManager::_PointLightShadowMap->DepthMap()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
+		LightingManager::_PointLightShadowMap->DepthMap()->Bind(GL_TEXTURE_CUBE_MAP);
 
 		
 		

@@ -1,58 +1,6 @@
-//Function to use:
 vec3 CalculateLights(vec3 normal, vec3 viewDir, vec3 fragPos);
 
-struct DirectionalLight {
-    vec3 direction;
-    vec3 diffuse;
-    vec3 specular;
-};
 
-struct PointLight {
-    vec3 position;
-    
-    float constant;
-    float linear;
-    float quadratic;
-
-    vec3 diffuse;
-    vec3 specular;
-};
-
-struct SpotLight {
-    vec3 position;
-    vec3 direction;
-    float cutOff;
-    float outerCutOff;
-  
-    float constant;
-    float linear;
-    float quadratic;
-  
-    vec3 diffuse;
-    vec3 specular;       
-};
-
-layout (std140, binding = 1) uniform DirectionalLightBlock
-{
-    int DirectionalLightCount;
-    DirectionalLight DirectionalLights[DIRECTIONAL_LIGHTS_AMOUNT];
-};
-
-layout (std140, binding = 2) uniform PointsLightBlock
-{
-    int PointLightCount;
-    PointLight PointLights[POINT_LIGHTS_AMOUNT];
-};
-
-layout (std140, binding = 3) uniform SpotLightBlock
-{
-    int SpotLightCount;
-    SpotLight SpotLights[SPOT_LIGHTS_AMOUNT];
-};
-
-
-
-// function prototypes
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -99,7 +47,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
     // attenuation
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float attenuation = 1.0 / (light.constantLinearQuadFarPlane.x + light.constantLinearQuadFarPlane.y * distance + light.constantLinearQuadFarPlane.z * (distance * distance));    
     // combine results
     vec3 diffuse = light.diffuse * diff;
     vec3 specular = light.specular * spec;

@@ -4,7 +4,7 @@
 using namespace UniEngine;
 std::vector<Entity*> ModelManager::entities = std::vector<Entity*>();
 
-void ModelManager::LoadModel(Entity* root, std::string const& path, GLProgram* shader, bool gamma) {
+void ModelManager::LoadModelAsEntity(Entity* root, std::string const& path, GLProgram* shader, bool gamma) {
     stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
     Assimp::Importer importer;
