@@ -131,12 +131,10 @@ void UniEngine::RenderManager::DrawMesh(
 		program->Use();
 		GLTexture::Activate(GL_TEXTURE0);
 		program->SetInt("directionalShadowMap", 0);
-		LightingManager::_DirectionalLightShadowMap->DepthMap()->Bind(GL_TEXTURE_2D_ARRAY);
+		LightingManager::_DirectionalLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
 		GLTexture::Activate(GL_TEXTURE1);
 		program->SetInt("pointShadowMap", 1);
-		//LightingManager::_PointLightShadowMap->DepthMap()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
-		LightingManager::_PointLightShadowMap->DepthMap()->Bind(GL_TEXTURE_CUBE_MAP);
-
+		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
 		
 		
 		program->SetFloat4x4("model", matrix);

@@ -7,7 +7,7 @@
 #include "PointLightComponent.h"
 #include "SpotLightComponent.h"
 #include "DirectionalLightShadowMap.h"
-#include "PointShadowMap.h"
+#include "PointLightShadowMap.h"
 #include "Default.h"
 namespace UniEngine {
 	class LightingManager :
@@ -29,7 +29,7 @@ namespace UniEngine {
 		static GLProgram* _PointLightProgram;
 		friend class RenderManager;
 		static DirectionalLightShadowMap* _DirectionalLightShadowMap;
-		static PointShadowMap* _PointLightShadowMap;
+		static PointLightShadowMap* _PointLightShadowMap;
 
 	public:
 		static void Init();

@@ -4,9 +4,10 @@
 namespace UniEngine {
 	class RenderTarget
 	{
-		GLFrameBuffer* _FrameBuffer;
+		
 		bool _Bound;
 	protected:
+		GLFrameBuffer* _FrameBuffer;
 		unsigned _ResolutionX;
 		unsigned _ResolutionY;
 

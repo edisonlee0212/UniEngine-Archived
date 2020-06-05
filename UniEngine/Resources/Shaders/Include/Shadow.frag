@@ -55,7 +55,7 @@ float DirectionalLightShadowCalculation(vec4[DIRECTIONAL_LIGHTS_AMOUNT] fragPosL
 float PointLightShadowCalculation(vec3 fragPos)
 {
     vec3 viewPos = CameraPosition;
-    float sum = 0.0;
+    float sum = 1.0;
     for(int i = 0; i < PointLightCount; i++){
         vec3 lightPos = PointLights[i].position;
         float far_plane = PointLights[i].constantLinearQuadFarPlane.w;
@@ -64,19 +64,17 @@ float PointLightShadowCalculation(vec3 fragPos)
         float currentDepth = length(fragToLight);
         if(currentDepth > far_plane) continue;
         float shadow = 0.0;
-        float bias = 0.2;
+        float bias = 0.3;
         int samples = 20;
         float viewDistance = length(viewPos - fragPos);
         float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
         for(int j = 0; j < samples; ++j)
         {
-            float closestDepth = texture(pointShadowMap, fragToLight + gridSamplingDisk[j] * diskRadius).r;
-            closestDepth *= far_plane;   // undo mapping [0;1]
-            if(currentDepth - bias > closestDepth)
-                shadow += 1.0;
+            shadow -= texture(pointShadowMap, vec4((fragToLight + gridSamplingDisk[j] * diskRadius), i), currentDepth / far_plane, bias);
         }
         shadow /= float(samples);
         sum = sum + shadow;
     }
+    if(sum < 0.0) sum = 0.0;
     return sum;
 }
