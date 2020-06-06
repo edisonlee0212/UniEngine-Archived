@@ -1,5 +1,5 @@
 float DirectionalLightShadowCalculation(vec4[DIRECTIONAL_LIGHTS_AMOUNT] fragPosLightSpaces, vec3 normal);
-float PointLightShadowCalculation(vec3 fragPos);
+float PointLightShadowCalculation(vec3 fragPos, vec3 normal);
 
 
 // array of offset direction for sampling
@@ -50,7 +50,7 @@ float DirectionalLightShadowCalculation(vec4[DIRECTIONAL_LIGHTS_AMOUNT] fragPosL
     return sum;
 }
 
-float PointLightShadowCalculation(vec3 fragPos)
+float PointLightShadowCalculation(vec3 fragPos, vec3 normal)
 {
     vec3 viewPos = CameraPosition;
     float sum = 0.0;
@@ -62,7 +62,7 @@ float PointLightShadowCalculation(vec3 fragPos)
         float currentDepth = length(fragToLight);
         if(currentDepth > far_plane) continue;
         float shadow = 0.0;
-        float bias = 0.3;
+        float bias = max(0.05 * (1.0 - dot(normal, fragToLight)), 0.5);
         int samples = 20;
         float viewDistance = length(viewPos - fragPos);
         float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;

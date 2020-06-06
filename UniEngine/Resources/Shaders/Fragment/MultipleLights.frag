@@ -20,7 +20,7 @@ void main()
 
 
     float directionalLightshadow = DirectionalLightShadowCalculation(fs_in.FragPosLightSpaces, norm);
-    float pointLightShadow = PointLightShadowCalculation(fs_in.FragPos);
+    float pointLightShadow = PointLightShadowCalculation(fs_in.FragPos, norm);
 
     vec3 result = CalculateLights(norm, viewDir, fs_in.FragPos);
 
