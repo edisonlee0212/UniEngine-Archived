@@ -70,5 +70,5 @@ uniform sampler2D TEXTURE_HEIGHT[MAX_TEXTURES_AMOUNT];
 uniform sampler2D TEXTURE_NORMAL[MAX_TEXTURES_AMOUNT];
 
 //Shadow
-uniform sampler2DArray directionalShadowMap;
+uniform sampler2DArrayShadow directionalShadowMap;
 uniform samplerCubeArrayShadow pointShadowMap;

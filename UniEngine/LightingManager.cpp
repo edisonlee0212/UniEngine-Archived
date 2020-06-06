@@ -53,7 +53,7 @@ void UniEngine::LightingManager::Init()
 	_EntityCollection->SetFixedData<Scale>(dle, scale);
 	_EntityCollection->SetSharedComponent<MeshMaterialComponent>(dle, dlmmc);
 	
-
+	
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;
 	plmmc->_Material = Default::Materials::StandardMaterial;
@@ -191,9 +191,6 @@ void UniEngine::LightingManager::Start()
 					_EntityCollection->SetFixedData<Position>(lightEntity, p);
 				default:
 					break;
-				}
-				if (i == 0) {
-					
 				}
 #pragma endregion		
 				glm::vec3 position = _EntityCollection->GetFixedData<Position>(lightEntity).value;

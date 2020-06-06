@@ -25,8 +25,6 @@ float DirectionalLightShadowCalculation(vec4[DIRECTIONAL_LIGHTS_AMOUNT] fragPosL
         }
         // transform to [0,1] range
         projCoords = projCoords * 0.5 + 0.5;
-        // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-        float closestDepth = texture(directionalShadowMap, vec3(projCoords.xy, i)).r; 
         // get depth of current fragment from light's perspective
         float currentDepth = projCoords.z;
 
@@ -42,20 +40,20 @@ float DirectionalLightShadowCalculation(vec4[DIRECTIONAL_LIGHTS_AMOUNT] fragPosL
         {
             for(int y = -1; y <= 1; ++y)
             {
-                float pcfDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i)).r; 
-                shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+                shadow += texture(directionalShadowMap, vec4(projCoords.xy + vec2(x, y) * texelSize, i, currentDepth - bias)); 
             }    
         }
         shadow /= 9.0;
         sum = sum + shadow;
     }
+    if(DirectionalLightCount != 0) sum /= DirectionalLightCount;
     return sum;
 }
 
 float PointLightShadowCalculation(vec3 fragPos)
 {
     vec3 viewPos = CameraPosition;
-    float sum = 1.0;
+    float sum = 0.0;
     for(int i = 0; i < PointLightCount; i++){
         vec3 lightPos = PointLights[i].position;
         float far_plane = PointLights[i].constantLinearQuadFarPlane.w;
@@ -68,13 +66,17 @@ float PointLightShadowCalculation(vec3 fragPos)
         int samples = 20;
         float viewDistance = length(viewPos - fragPos);
         float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
+        float compare = 0.0;
         for(int j = 0; j < samples; ++j)
         {
-            shadow -= texture(pointShadowMap, vec4((fragToLight + gridSamplingDisk[j] * diskRadius), i), currentDepth / far_plane, bias);
+            shadow += texture(pointShadowMap, vec4((fragToLight + gridSamplingDisk[j] * diskRadius), i), (currentDepth - bias) / far_plane, 0);
         }
         shadow /= float(samples);
-        sum = sum + shadow;
+        sum += shadow;
+
+        //shadow += texture(pointShadowMap, vec4(fragToLight, i), (currentDepth - bias) / far_plane, 0);
+        //if(shadow > 0.0) sum = 1.0;
     }
-    if(sum < 0.0) sum = 0.0;
+    if(sum > 1.0) sum = 1.0;
     return sum;
 }
