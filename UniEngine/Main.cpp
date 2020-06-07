@@ -2,9 +2,39 @@
 #include "UniEngine.h"
 #include "ModelManager.h"
 #include "MeshMaterialComponent.h"
+#include "SCTreeSystem.h"
 using namespace UniEngine;
 
+#include "Tree.h"
+using namespace SCTree;
+
+void LoadModelAsEntity(std::string path, glm::vec3 position, glm::vec3 scale);
+void InitGround();
+
+
 EngineDriver* engine;
+
+
+int main()
+{
+    engine = new EngineDriver();
+    engine->Start();
+    InitGround();
+    World* world = engine->GetWorld();
+    SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
+    ts->BuildTree();
+    //LoadModelAsEntity(std::string("Resources/Models/nanosuit/nanosuit.obj"), glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(0.5f));
+    //LoadModelAsEntity(std::string("Resources/Models/backpack/backpack.obj"), glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(1.0f));
+    
+    
+    bool loopable = true;
+    while (loopable) {
+        loopable = engine->Loop();
+    }
+    
+    engine->End();
+    return 0;
+}
 
 void LoadModelAsEntity(std::string path, glm::vec3 position, glm::vec3 scale) {
     Entity* suit = engine->GetWorld()->_EntityCollection->CreateEntity();
@@ -38,27 +68,4 @@ void InitGround() {
     meshMaterial->_Material = mat;
     engine->GetWorld()->_EntityCollection->SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
 }
-
-int main()
-{
-    engine = new EngineDriver();
-    engine->Start();
-
-    
-    LoadModelAsEntity(std::string("Resources/Models/nanosuit/nanosuit.obj"), 
-        glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(0.5f));
-    LoadModelAsEntity(std::string("Resources/Models/backpack/backpack.obj"), 
-        glm::vec3(0.0f, 3.0f, 0.0f), glm::vec3(1.0f));
-
-    InitGround();
-    
-    bool loopable = true;
-    while (loopable) {
-        loopable = engine->Loop();
-    }
-    
-    engine->End();
-    return 0;
-}
-
 

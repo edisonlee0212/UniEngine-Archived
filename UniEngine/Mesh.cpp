@@ -14,21 +14,6 @@ UniEngine::Mesh::~Mesh()
 
 void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, std::vector<unsigned>* indices)
 {
-	/*
-	_Size = size;
-	_Vertices = vertices;
-	_VAO->SetData(vertices->size() * sizeof(Vertex), &vertices->at(0), GL_STATIC_DRAW, 0);
-	_VAO->EBO()->SetData(size * sizeof(unsigned), &indices->at(0), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	// vertex normals
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
-	// vertex texture coords
-	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords0));
-	*/
-	//TODO: Attribute Pointer 格式需要更改
 	size_t vsize = vertices->size();
 	std::vector<glm::vec3> positions = std::vector<glm::vec3>();
 	std::vector<glm::vec3> normals = std::vector<glm::vec3>();

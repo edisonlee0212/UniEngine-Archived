@@ -1,9 +1,5 @@
 #include "UniEngine.h"
-#include "World.h"
-#include "WindowManager.h"
-#include "InputManager.h"
-#include "LightingManager.h"
-#include "Default.h"
+
 
 #pragma region OpenGL Debugging
 GLenum glCheckError_(const char* file, int line)

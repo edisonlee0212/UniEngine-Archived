@@ -172,6 +172,27 @@
     <Filter Include="Source Files\SpaceColonizationTree">
       <UniqueIdentifier>{2a5696a2-56c0-46db-81b7-4bbd493e6438}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\SpaceColonizationTree\Envelope">
+      <UniqueIdentifier>{2092378b-123b-44ea-9259-6f2acab870ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SpaceColonizationTree\Branch">
+      <UniqueIdentifier>{314eaa29-3842-43bb-b562-1c70d14b555c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SpaceColonizationTree\Branch">
+      <UniqueIdentifier>{b66317e8-0b28-4516-8b81-52bac3bcd3c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SpaceColonizationTree\Math">
+      <UniqueIdentifier>{388e6185-ee89-4927-b6a4-fe245d22bd8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SpaceColonizationTree\Math">
+      <UniqueIdentifier>{c5aa683d-172f-43de-8a1c-29a31968fbc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SpaceColonizationTree\System">
+      <UniqueIdentifier>{c428ecb7-4f0c-4200-90db-cbd6e6d2a827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SpaceColonizationTree\System">
+      <UniqueIdentifier>{e5225930-8997-4ff8-9230-bfa9f28fbb06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\glad\src\glad.c">
@@ -344,6 +365,30 @@
     </ClCompile>
     <ClCompile Include="Default.cpp">
       <Filter>Source Files\UniEngine\Resource\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Envelope.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Envelope</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeEnvelope.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Envelope</Filter>
+    </ClCompile>
+    <ClCompile Include="Branch.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Branch</Filter>
+    </ClCompile>
+    <ClCompile Include="RingMesh.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Branch</Filter>
+    </ClCompile>
+    <ClCompile Include="Curve.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="BezierCurve.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Tree.cpp">
+      <Filter>Source Files\SpaceColonizationTree</Filter>
+    </ClCompile>
+    <ClCompile Include="SCTreeSystem.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -527,8 +572,32 @@
     <ClInclude Include="UniEngine.h">
       <Filter>Header Files\UniEngine</Filter>
     </ClInclude>
+    <ClInclude Include="Envelope.h">
+      <Filter>Header Files\SpaceColonizationTree\Envelope</Filter>
+    </ClInclude>
     <ClInclude Include="Misc.h">
-      <Filter>Header Files\UniEngine</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeEnvelope.h">
+      <Filter>Header Files\SpaceColonizationTree\Envelope</Filter>
+    </ClInclude>
+    <ClInclude Include="Branch.h">
+      <Filter>Header Files\SpaceColonizationTree\Branch</Filter>
+    </ClInclude>
+    <ClInclude Include="RingMesh.h">
+      <Filter>Header Files\SpaceColonizationTree\Branch</Filter>
+    </ClInclude>
+    <ClInclude Include="Curve.h">
+      <Filter>Header Files\SpaceColonizationTree\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="BezierCurve.h">
+      <Filter>Header Files\SpaceColonizationTree\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Tree.h">
+      <Filter>Header Files\SpaceColonizationTree</Filter>
+    </ClInclude>
+    <ClInclude Include="SCTreeSystem.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

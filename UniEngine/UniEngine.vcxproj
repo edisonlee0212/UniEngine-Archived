@@ -157,16 +157,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BezierCurve.cpp" />
+    <ClCompile Include="Branch.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="ComponentStorage.cpp" />
+    <ClCompile Include="CubeEnvelope.cpp" />
     <ClCompile Include="Cubemap.cpp" />
+    <ClCompile Include="Curve.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Default.cpp" />
     <ClCompile Include="DirectionalLightComponent.cpp" />
     <ClCompile Include="DirectionalLightShadowMap.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityCollection.cpp" />
+    <ClCompile Include="Envelope.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FixedDataStorage.cpp" />
     <ClCompile Include="GLBuffer.cpp" />
@@ -199,8 +204,10 @@
     <ClCompile Include="GLShader.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="RingMesh.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="SCTreeSystem.cpp" />
     <ClCompile Include="SharedComponentStorage.cpp" />
     <ClCompile Include="SharedComponentSystem.cpp" />
     <ClCompile Include="SpotLightComponent.cpp" />
@@ -210,19 +217,24 @@
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
+    <ClCompile Include="Tree.cpp" />
     <ClCompile Include="UniEngine.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="bool.h" />
+    <ClInclude Include="Branch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="ComponentStorage.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="CubeEnvelope.h" />
     <ClInclude Include="Cubemap.h" />
+    <ClInclude Include="Curve.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
@@ -230,6 +242,7 @@
     <ClInclude Include="double.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityCollection.h" />
+    <ClInclude Include="Envelope.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="FixedData.h" />
     <ClInclude Include="FixedDataStorage.h" />
@@ -260,8 +273,10 @@
     <ClInclude Include="GLShader.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="RingMesh.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
+    <ClInclude Include="SCTreeSystem.h" />
     <ClInclude Include="SharedComponentBase.h" />
     <ClInclude Include="SharedComponentStorage.h" />
     <ClInclude Include="SharedComponentSystem.h" />
@@ -271,6 +286,7 @@
     <ClInclude Include="Time.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformSystem.h" />
+    <ClInclude Include="Tree.h" />
     <ClInclude Include="ulong.h" />
     <ClInclude Include="UniEngine.h" />
     <ClInclude Include="unsigned.h" />
