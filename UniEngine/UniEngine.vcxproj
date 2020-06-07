@@ -201,7 +201,6 @@
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneNode.cpp" />
-    <ClCompile Include="SharedComponent.cpp" />
     <ClCompile Include="SharedComponentStorage.cpp" />
     <ClCompile Include="SharedComponentSystem.cpp" />
     <ClCompile Include="SpotLightComponent.cpp" />

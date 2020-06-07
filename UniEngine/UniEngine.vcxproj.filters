@@ -13,447 +13,522 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Core">
-      <UniqueIdentifier>{eeb3fc94-e880-4128-a306-244799410937}</UniqueIdentifier>
+    <Filter Include="Header Files\UniEngine">
+      <UniqueIdentifier>{e57161b0-41d7-4e46-a4f9-176f73b072c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\FileIO">
-      <UniqueIdentifier>{e8cd4a2d-8c45-43c1-a0b4-04937c2e90eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Debug">
-      <UniqueIdentifier>{b07e275d-b36e-45fb-9c79-027722df4c8e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Profiler">
-      <UniqueIdentifier>{554808a9-0761-42d4-b3e9-5487cbeb6eb2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Thread">
-      <UniqueIdentifier>{e6da78be-8d6a-4a6d-90ce-558835bcce01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\World">
+    <Filter Include="Header Files\UniEngine\World">
       <UniqueIdentifier>{83593953-6622-439e-bd3e-99aa0c32984f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce">
-      <UniqueIdentifier>{438539ef-88f1-4d0f-b607-46ca1cde3aec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\World\EntityManagement">
+    <Filter Include="Header Files\UniEngine\World\EntityManagement">
       <UniqueIdentifier>{03819bc1-4c40-4982-a8de-e361c84458c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\World\SystemManagement">
-      <UniqueIdentifier>{238671ab-daf3-4622-b525-3a3202950f6f}</UniqueIdentifier>
+    <Filter Include="Header Files\UniEngine\Resouce">
+      <UniqueIdentifier>{438539ef-88f1-4d0f-b607-46ca1cde3aec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\MemoryManagement">
-      <UniqueIdentifier>{cd980753-1cfd-4c0c-8be6-fb7b90e4a906}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\External">
-      <UniqueIdentifier>{46576c80-f142-4473-aa78-5bd0f4d67bf1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Time">
-      <UniqueIdentifier>{0a686eed-22ea-47bb-8c92-cf0f15d68dae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Graphics">
-      <UniqueIdentifier>{6a337056-ecc3-4db0-bfa0-648246e76da6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Graphics\GL">
-      <UniqueIdentifier>{2a6e81f5-f4f9-436f-a627-f3fad6e44057}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core">
-      <UniqueIdentifier>{9680c336-c490-4568-b27e-a14b66a8803c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Engine">
-      <UniqueIdentifier>{65d16a9a-ed31-4cbd-845a-cfc93c39375d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core\Entity">
-      <UniqueIdentifier>{fcd70b3a-4113-4500-a599-3a9e0cfde2bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resouce\Manager">
+    <Filter Include="Header Files\UniEngine\Resouce\Manager">
       <UniqueIdentifier>{0825eac2-d066-4b1c-b658-c240e998ce26}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce\Manager\Model">
+    <Filter Include="Header Files\UniEngine\Resouce\Manager\Model">
       <UniqueIdentifier>{43424d8a-3ad1-4053-9401-e75dbc1ab36e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce\Manager\Input">
+    <Filter Include="Header Files\UniEngine\Resouce\Manager\Input">
       <UniqueIdentifier>{d62e3e0d-b9c4-4e3b-98ba-5046fdbfa8f4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce\Manager\Window">
+    <Filter Include="Header Files\UniEngine\Resouce\Manager\Window">
       <UniqueIdentifier>{b022447e-b830-4406-878a-b26ecf38fcd0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce\Asset">
+    <Filter Include="Header Files\UniEngine\Resouce\Manager\Rendering">
+      <UniqueIdentifier>{c1d6f406-0b51-4a78-8cb1-66cf22961c59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Resouce\Asset">
       <UniqueIdentifier>{602f039c-6df3-4506-acaf-5bebf3cbb0f7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce\Asset\Scene">
+    <Filter Include="Header Files\UniEngine\Resouce\Asset\Scene">
       <UniqueIdentifier>{8091404a-701d-4472-a838-8d24a48daf83}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce\Resource">
+    <Filter Include="Header Files\UniEngine\Resouce\Resource">
       <UniqueIdentifier>{02d0775a-1bac-43a8-be44-c19f959f4df1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce\Resource\SharedComponents">
+    <Filter Include="Header Files\UniEngine\Resouce\Resource\SharedComponents">
       <UniqueIdentifier>{c66c8d9c-e292-4949-a2ae-0f31e7416a03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\Math">
+    <Filter Include="Header Files\UniEngine\Core">
+      <UniqueIdentifier>{eeb3fc94-e880-4128-a306-244799410937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\FileIO">
+      <UniqueIdentifier>{e8cd4a2d-8c45-43c1-a0b4-04937c2e90eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Debug">
+      <UniqueIdentifier>{b07e275d-b36e-45fb-9c79-027722df4c8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Profiler">
+      <UniqueIdentifier>{554808a9-0761-42d4-b3e9-5487cbeb6eb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Thread">
+      <UniqueIdentifier>{e6da78be-8d6a-4a6d-90ce-558835bcce01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Time">
+      <UniqueIdentifier>{0a686eed-22ea-47bb-8c92-cf0f15d68dae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Graphics">
+      <UniqueIdentifier>{6a337056-ecc3-4db0-bfa0-648246e76da6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Entity">
+      <UniqueIdentifier>{fcd70b3a-4113-4500-a599-3a9e0cfde2bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Math">
       <UniqueIdentifier>{357eec4d-c72d-496e-8e8e-469c26020a14}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resouce\Manager\Rendering">
-      <UniqueIdentifier>{c1d6f406-0b51-4a78-8cb1-66cf22961c59}</UniqueIdentifier>
+    <Filter Include="Header Files\SpaceColonizationTree">
+      <UniqueIdentifier>{7b12d1c9-e788-4842-a3eb-eb05c7c0b9a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SpaceColonizationTree\Envelope">
+      <UniqueIdentifier>{598f1b1d-e0e5-4d8f-ab9d-6b4994d5c517}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Memory">
+      <UniqueIdentifier>{cd980753-1cfd-4c0c-8be6-fb7b90e4a906}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\Core\Graphics\OpenGL">
+      <UniqueIdentifier>{2a6e81f5-f4f9-436f-a627-f3fad6e44057}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UniEngine\World\Systems">
+      <UniqueIdentifier>{238671ab-daf3-4622-b525-3a3202950f6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine">
+      <UniqueIdentifier>{d73ebe6c-7e38-4c2f-ab3d-0a7d8f7f2e96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core">
+      <UniqueIdentifier>{9680c336-c490-4568-b27e-a14b66a8803c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\Debug">
+      <UniqueIdentifier>{fb4cd52c-d38a-491f-b2ca-e0ccbe82ac9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\Entity">
+      <UniqueIdentifier>{529f9b77-c537-4392-9e4d-3d4b0c174998}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\FileIO">
+      <UniqueIdentifier>{dd90871a-9872-4069-99c3-be72bf8a5b12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\Graphics">
+      <UniqueIdentifier>{78db37f9-2328-463c-8f00-6c79cc5230cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\Graphics\OpenGL">
+      <UniqueIdentifier>{613e4110-ed17-4cf2-9357-eb5f12311d23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\Memory">
+      <UniqueIdentifier>{d556f1e2-0384-4a7a-981a-c80b801f8720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\Profiler">
+      <UniqueIdentifier>{09eca9b6-a8e9-4981-acc6-fa45a9034636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\Thread">
+      <UniqueIdentifier>{8dd4cb15-d4ab-4a9f-a025-b4da12ce3db2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Core\Time">
+      <UniqueIdentifier>{0a19053a-15bc-4d54-937b-a65f726cfaa6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\World">
+      <UniqueIdentifier>{4187b118-b426-429e-8500-86f25ee77b8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\World\EntityManagement">
+      <UniqueIdentifier>{f40ff274-fc64-4a41-a634-916c82ab928a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\World\SystemManagement">
+      <UniqueIdentifier>{798603fd-f352-4fb0-8d0e-09e33e69b001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource">
+      <UniqueIdentifier>{65d16a9a-ed31-4cbd-845a-cfc93c39375d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Asset">
+      <UniqueIdentifier>{95d1e61a-e105-4831-b9aa-ba47a08488c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Asset\Scene">
+      <UniqueIdentifier>{467570f9-680b-47d7-bf2e-65e92fae61d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Manager">
+      <UniqueIdentifier>{34511259-d03f-4095-8b94-8e1d343f8011}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Manager\Input">
+      <UniqueIdentifier>{ee3c30db-c0c5-48bc-b89d-44338923412e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Manager\Window">
+      <UniqueIdentifier>{9511244c-1a9b-4ff3-9ce1-2bd128c54dc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Manager\Model">
+      <UniqueIdentifier>{b9a1bad5-16ca-4638-9400-5b502cd55f58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Manager\Rendering">
+      <UniqueIdentifier>{b2be5621-e101-4536-8986-fec460250508}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Resource">
+      <UniqueIdentifier>{12f3ed7f-3406-4b01-a0f8-02afe71e086b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\Resource\Resource\SharedComponent">
+      <UniqueIdentifier>{f26897c5-0b52-4718-b05a-6c8196a045dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine\External">
+      <UniqueIdentifier>{46576c80-f142-4473-aa78-5bd0f4d67bf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SpaceColonizationTree">
+      <UniqueIdentifier>{2a5696a2-56c0-46db-81b7-4bbd493e6438}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\glad\src\glad.c">
-      <Filter>Source Files\External</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stb.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Cubemap.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLBuffer.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLFrameBuffer.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLProgram.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLRenderBuffer.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLShader.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLTexture.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Memory.cpp">
-      <Filter>Source Files\Core</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
     <ClCompile Include="SystemBase.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Time.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Default.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityCollection.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="FileIO.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="InputManager.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="InputSystem.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="ManagerBase.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelManager.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsSystem.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderSystem.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneNode.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="SharedComponent.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="SharedComponentSystem.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="TimeSystem.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformSystem.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="UniEngine.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowManager.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="World.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTarget.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="FixedDataStorage.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="SharedComponentStorage.cpp">
-      <Filter>Source Files\Engine</Filter>
+      <Filter>Source Files\UniEngine\Core</Filter>
     </ClCompile>
     <ClCompile Include="includes\ImGUI\examples\imgui_impl_glfw.cpp">
-      <Filter>Source Files\External</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
     <ClCompile Include="includes\ImGUI\examples\imgui_impl_opengl3.cpp">
-      <Filter>Source Files\External</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
     <ClCompile Include="includes\ImGUI\examples\imgui_impl_win32.cpp">
-      <Filter>Source Files\External</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
     <ClCompile Include="includes\ImGUI\imgui.cpp">
-      <Filter>Source Files\External</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
     <ClCompile Include="includes\ImGUI\imgui_draw.cpp">
-      <Filter>Source Files\External</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
     <ClCompile Include="includes\ImGUI\imgui_demo.cpp">
-      <Filter>Source Files\External</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
     <ClCompile Include="includes\ImGUI\imgui_widgets.cpp">
-      <Filter>Source Files\External</Filter>
+      <Filter>Source Files\UniEngine\External</Filter>
     </ClCompile>
-    <ClCompile Include="CameraComponent.cpp">
-      <Filter>Source Files\Engine</Filter>
+    <ClCompile Include="Debug.cpp">
+      <Filter>Source Files\UniEngine\Core\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source Files\UniEngine\Core\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
+      <Filter>Source Files\UniEngine\Core\FileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory.cpp">
+      <Filter>Source Files\UniEngine\Core\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="GLBuffer.cpp">
+      <Filter>Source Files\UniEngine\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLFrameBuffer.cpp">
+      <Filter>Source Files\UniEngine\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLProgram.cpp">
+      <Filter>Source Files\UniEngine\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderBuffer.cpp">
+      <Filter>Source Files\UniEngine\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLShader.cpp">
+      <Filter>Source Files\UniEngine\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLTexture.cpp">
+      <Filter>Source Files\UniEngine\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>Source Files\UniEngine\Core\Time</Filter>
     </ClCompile>
     <ClCompile Include="ComponentStorage.cpp">
-      <Filter>Source Files\Engine</Filter>
+      <Filter>Source Files\UniEngine\World\EntityManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityCollection.cpp">
+      <Filter>Source Files\UniEngine\World\EntityManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="FixedDataStorage.cpp">
+      <Filter>Source Files\UniEngine\World\EntityManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedComponentStorage.cpp">
+      <Filter>Source Files\UniEngine\World\EntityManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedComponentSystem.cpp">
+      <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="InputSystem.cpp">
+      <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderSystem.cpp">
+      <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeSystem.cpp">
+      <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformSystem.cpp">
+      <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files\UniEngine\Resource\Asset\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>Source Files\UniEngine\Resource\Asset\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagerBase.cpp">
+      <Filter>Source Files\UniEngine\Core</Filter>
     </ClCompile>
     <ClCompile Include="DirectionalLightComponent.cpp">
-      <Filter>Source Files\Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="LightingManager.cpp">
-      <Filter>Source Files\Engine</Filter>
+      <Filter>Source Files\UniEngine\Resource\Resource\SharedComponent</Filter>
     </ClCompile>
     <ClCompile Include="MeshMaterialComponent.cpp">
-      <Filter>Source Files\Engine</Filter>
+      <Filter>Source Files\UniEngine\Resource\Resource\SharedComponent</Filter>
     </ClCompile>
     <ClCompile Include="PointLightComponent.cpp">
-      <Filter>Source Files\Engine</Filter>
+      <Filter>Source Files\UniEngine\Resource\Resource\SharedComponent</Filter>
     </ClCompile>
     <ClCompile Include="SpotLightComponent.cpp">
-      <Filter>Source Files\Engine</Filter>
+      <Filter>Source Files\UniEngine\Resource\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraComponent.cpp">
+      <Filter>Source Files\UniEngine\Resource\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="DirectionalLightShadowMap.cpp">
-      <Filter>Source Files\Engine</Filter>
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="PointLightShadowMap.cpp">
-      <Filter>Source Files\Engine</Filter>
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelManager.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingManager.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>Source Files\UniEngine\Resource\Manager\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source Files\UniEngine\World</Filter>
+    </ClCompile>
+    <ClCompile Include="UniEngine.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="Default.cpp">
+      <Filter>Source Files\UniEngine\Resource\Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Misc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UniEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Core.h">
-      <Filter>Header Files\Core</Filter>
+      <Filter>Header Files\UniEngine\Core</Filter>
     </ClInclude>
     <ClInclude Include="Memory.h">
-      <Filter>Header Files\Core\MemoryManagement</Filter>
+      <Filter>Header Files\UniEngine\Core\Memory</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h">
-      <Filter>Header Files\Core\Debug</Filter>
+      <Filter>Header Files\UniEngine\Core\Debug</Filter>
     </ClInclude>
     <ClInclude Include="GLObject.h">
-      <Filter>Header Files\Core\Graphics\GL</Filter>
+      <Filter>Header Files\UniEngine\Core\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="GLProgram.h">
-      <Filter>Header Files\Core\Graphics\GL</Filter>
+      <Filter>Header Files\UniEngine\Core\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="GLShader.h">
-      <Filter>Header Files\Core\Graphics\GL</Filter>
+      <Filter>Header Files\UniEngine\Core\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="GLTexture.h">
-      <Filter>Header Files\Core\Graphics\GL</Filter>
+      <Filter>Header Files\UniEngine\Core\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="GLBuffer.h">
-      <Filter>Header Files\Core\Graphics\GL</Filter>
+      <Filter>Header Files\UniEngine\Core\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="GLFrameBuffer.h">
-      <Filter>Header Files\Core\Graphics\GL</Filter>
+      <Filter>Header Files\UniEngine\Core\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="GLRenderBuffer.h">
-      <Filter>Header Files\Core\Graphics\GL</Filter>
+      <Filter>Header Files\UniEngine\Core\Graphics\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="Time.h">
-      <Filter>Header Files\Core\Time</Filter>
+      <Filter>Header Files\UniEngine\Core\Time</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
-      <Filter>Header Files\Core\Entity</Filter>
+      <Filter>Header Files\UniEngine\Core\Entity</Filter>
     </ClInclude>
     <ClInclude Include="TimeSystem.h">
-      <Filter>Header Files\World\SystemManagement</Filter>
+      <Filter>Header Files\UniEngine\World\Systems</Filter>
     </ClInclude>
     <ClInclude Include="RenderSystem.h">
-      <Filter>Header Files\World\SystemManagement</Filter>
+      <Filter>Header Files\UniEngine\World\Systems</Filter>
     </ClInclude>
     <ClInclude Include="TransformSystem.h">
-      <Filter>Header Files\World\SystemManagement</Filter>
+      <Filter>Header Files\UniEngine\World\Systems</Filter>
     </ClInclude>
     <ClInclude Include="InputSystem.h">
-      <Filter>Header Files\World\SystemManagement</Filter>
+      <Filter>Header Files\UniEngine\World\Systems</Filter>
     </ClInclude>
     <ClInclude Include="SharedComponentSystem.h">
-      <Filter>Header Files\World\SystemManagement</Filter>
+      <Filter>Header Files\UniEngine\World\Systems</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsSystem.h">
-      <Filter>Header Files\World\SystemManagement</Filter>
+      <Filter>Header Files\UniEngine\World\Systems</Filter>
     </ClInclude>
     <ClInclude Include="FileIO.h">
-      <Filter>Header Files\Core\FileIO</Filter>
+      <Filter>Header Files\UniEngine\Core\FileIO</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Header Files\Resouce\Asset\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Window.h">
-      <Filter>Header Files\Resouce\Resource</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Asset\Scene</Filter>
     </ClInclude>
     <ClInclude Include="SceneNode.h">
-      <Filter>Header Files\Resouce\Asset\Scene</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Asset\Scene</Filter>
     </ClInclude>
     <ClInclude Include="ManagerBase.h">
-      <Filter>Header Files\Core</Filter>
+      <Filter>Header Files\UniEngine\Core</Filter>
     </ClInclude>
     <ClInclude Include="ModelManager.h">
-      <Filter>Header Files\Resouce\Manager\Model</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Model</Filter>
     </ClInclude>
     <ClInclude Include="World.h">
-      <Filter>Header Files\World</Filter>
+      <Filter>Header Files\UniEngine\World</Filter>
     </ClInclude>
     <ClInclude Include="SystemBase.h">
-      <Filter>Header Files\Core</Filter>
+      <Filter>Header Files\UniEngine\Core</Filter>
     </ClInclude>
     <ClInclude Include="FixedData.h">
-      <Filter>Header Files\Core</Filter>
+      <Filter>Header Files\UniEngine\Core</Filter>
     </ClInclude>
     <ClInclude Include="ComponentBase.h">
-      <Filter>Header Files\Core\Entity</Filter>
+      <Filter>Header Files\UniEngine\Core\Entity</Filter>
     </ClInclude>
     <ClInclude Include="RenderManager.h">
-      <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Cubemap.h">
-      <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
-      <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Texture2D.h">
-      <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
-      <Filter>Header Files\Resouce\Manager\Input</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Input</Filter>
     </ClInclude>
     <ClInclude Include="WindowManager.h">
-      <Filter>Header Files\Resouce\Manager\Window</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Window</Filter>
     </ClInclude>
     <ClInclude Include="Default.h">
-      <Filter>Header Files\Resouce\Resource</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Resource</Filter>
     </ClInclude>
     <ClInclude Include="EntityCollection.h">
-      <Filter>Header Files\World\EntityManagement</Filter>
+      <Filter>Header Files\UniEngine\World\EntityManagement</Filter>
     </ClInclude>
     <ClInclude Include="FixedDataStorage.h">
-      <Filter>Header Files\World\EntityManagement</Filter>
+      <Filter>Header Files\UniEngine\World\EntityManagement</Filter>
     </ClInclude>
     <ClInclude Include="bool.h">
-      <Filter>Header Files\Core\Math</Filter>
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="double.h">
-      <Filter>Header Files\Core\Math</Filter>
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="float.h">
-      <Filter>Header Files\Core\Math</Filter>
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="int.h">
-      <Filter>Header Files\Core\Math</Filter>
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="long.h">
-      <Filter>Header Files\Core\Math</Filter>
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="Math.h">
-      <Filter>Header Files\Core\Math</Filter>
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="ulong.h">
-      <Filter>Header Files\Core\Math</Filter>
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="unsigned.h">
-      <Filter>Header Files\Core\Math</Filter>
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="SharedComponentBase.h">
-      <Filter>Header Files\Core\Entity</Filter>
+      <Filter>Header Files\UniEngine\Core\Entity</Filter>
     </ClInclude>
     <ClInclude Include="SharedComponentStorage.h">
-      <Filter>Header Files\World\EntityManagement</Filter>
+      <Filter>Header Files\UniEngine\World\EntityManagement</Filter>
     </ClInclude>
     <ClInclude Include="CameraComponent.h">
-      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
     <ClInclude Include="MeshMaterialComponent.h">
-      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
     <ClInclude Include="ComponentStorage.h">
-      <Filter>Header Files\World\EntityManagement</Filter>
+      <Filter>Header Files\UniEngine\World\EntityManagement</Filter>
     </ClInclude>
     <ClInclude Include="DirectionalLightComponent.h">
-      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
     <ClInclude Include="PointLightComponent.h">
-      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
     <ClInclude Include="SpotLightComponent.h">
-      <Filter>Header Files\Resouce\Resource\SharedComponents</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
     <ClInclude Include="LightingManager.h">
-      <Filter>Header Files\Resouce\Manager\Rendering</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="DirectionalLightShadowMap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="PointLightShadowMap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\UniEngine\Resouce\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files\UniEngine\Resouce\Manager\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="UniEngine.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Misc.h">
+      <Filter>Header Files\UniEngine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
