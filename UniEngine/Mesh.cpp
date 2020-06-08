@@ -247,8 +247,6 @@ size_t UniEngine::Mesh::Size()
 
 void UniEngine::Mesh::RecalculateNormal(std::vector<unsigned>* indices)
 {
-	//if (mask & (unsigned)VertexAttribute::Normal)
-	//	_VAO->SubData(vsize * sizeof(glm::vec3), vsize * sizeof(glm::vec3), &normals[0]);
 	std::vector<std::vector<glm::vec3>> normalLists = std::vector<std::vector<glm::vec3>>();
 	auto size = _Vertices->size();
 	for (auto i = 0; i < size; i++) {

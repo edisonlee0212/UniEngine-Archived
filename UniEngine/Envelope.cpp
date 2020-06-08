@@ -1,5 +1,6 @@
 #include "Envelope.h"
 
+using namespace UniEngine;
 SCTree::Envelope::Envelope(glm::vec3 spaceOffset, glm::vec3 spaceSize)
 {
 	_SpaceOffset = spaceOffset;
@@ -55,6 +56,13 @@ void SCTree::Envelope::Clear()
 bool SCTree::Envelope::PointsGenerated()
 {
 	return _PointsGenerated;
+}
+
+void SCTree::Envelope::Draw(Camera* camera, Material* pointMaterial)
+{
+	if (_PointMatrices.size() > 0) {
+		RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, pointMaterial, &_PointMatrices[0], _PointMatrices.size(), camera);
+	}
 }
 
 std::vector<glm::vec3>* SCTree::Envelope::PointPositions()

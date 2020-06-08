@@ -2,14 +2,15 @@
 #include "CubeEnvelope.h"
 #include "MeshMaterialComponent.h"
 #include "FixedData.h"
+#include "SurfaceOfRevolutionEnvelope.h"
+#include "CoilEnvelope.h"
+#include "CylinderEnvelope.h"
 using namespace SCTree;
 void SCTree::SCTreeSystem::OnCreate()
 {
 	_EnvelopePointMaterial = new Material();
 
-
 	_TreePointMaterial = new Material();
-
 
 	_TreeMeshMaterial = new Material();
 
@@ -30,16 +31,16 @@ void SCTree::SCTreeSystem::BuildEnvelope() {
 	switch (_SelectedEnvelopeType)
 	{
 	case 0:
-		_Envelope = new CubeEnvelope(glm::vec3(-2.0f, 2.0f, -2.0f), glm::vec3(6.0f, 6.0f, 6.0f));
+		_Envelope = new SurfaceOfRevolutionEnvelope(glm::vec3(-2.0f, 2.0f, -2.0f), glm::vec3(6.0f, 6.0f, 6.0f));
 		break;
 	case 1:
-		//_Envelope = new SurfaceOfRevelutionEnvelope(_EnvelopeRadius, _MaxHeight, _EnvelopeRadius, -_EnvelopeRadius, _MinHeight, -_EnvelopeRadius, _EnvelopePointMaterial);
+		_Envelope = new CubeEnvelope(glm::vec3(-2.0f, 2.0f, -2.0f), glm::vec3(6.0f, 6.0f, 6.0f));
 		break;
 	case 2:
-		//_Envelope = new CylinderEnvelope(_EnvelopeRadius, _MaxHeight, _EnvelopeRadius, -_EnvelopeRadius, _MinHeight, -_EnvelopeRadius, _EnvelopePointMaterial);
+		_Envelope = new CylinderEnvelope(glm::vec3(-2.0f, 2.0f, -2.0f), glm::vec3(6.0f, 6.0f, 6.0f));
 		break;
 	case 3:
-		//_Envelope = new CoilEnvelope(_EnvelopeRadius, _MaxHeight, _EnvelopeRadius, -_EnvelopeRadius, _MinHeight, -_EnvelopeRadius, _EnvelopePointMaterial);
+		_Envelope = new CoilEnvelope(glm::vec3(-2.0f, 2.0f, -2.0f), glm::vec3(6.0f, 6.0f, 6.0f));
 		break;
 	default:
 		_Envelope = new CubeEnvelope(glm::vec3(0.0f, 6.0f, 0.0f), glm::vec3(4.0f, 4.0f, 4.0f));
@@ -86,11 +87,10 @@ void SCTree::SCTreeSystem::OnDestroy() {
 static const char* EnvelopeTypes[]{ "SurfaceOfRevo", "Cube", "Cylinder", "Coil" };
 
 void SCTree::SCTreeSystem::Update() {
-	//EnvelopeGUIMenu();
-	//TreeGUIMenu();
-	//if (_Envelope != nullptr) _Envelope->Draw();
-	//if (_Tree != nullptr) _Tree->Draw(_World->MainCamera());
-	
+	EnvelopeGUIMenu();
+	TreeGUIMenu();
+	if (_Envelope != nullptr && _Tree->_NeedsToGrow) _Envelope->Draw(_World->MainCamera(), Default::Materials::StandardInstancedMaterial);
+	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(_World->MainCamera(), Default::Materials::StandardInstancedMaterial);
 }
 
 void SCTree::SCTreeSystem::FixedUpdate() {
@@ -115,4 +115,29 @@ void SCTree::SCTreeSystem::FixedUpdate() {
 			RemoveEnvelope();
 		}
 	}
+}
+
+inline void  SCTree::SCTreeSystem::EnvelopeGUIMenu() {
+	ImGui::Begin("Envelope Controller");
+	ImGui::Combo("Envelope Type", &_SelectedEnvelopeType, EnvelopeTypes, IM_ARRAYSIZE(EnvelopeTypes), 3);
+	if (ImGui::Button("Create Aattraction Points")) BuildEnvelope();
+	ImGui::SliderInt("Point Amount", &_PointsCount, 100, 16000);
+	//ImGui::SliderFloat("Envelope Radius", &_EnvelopeRadius, 1.0f, 5.0f);
+	//ImGui::SliderFloat("Minmum Height", &_MinHeight, 0.1f, _MaxHeight);
+	//ImGui::SliderFloat("Maximum Height", &_MaxHeight, _MinHeight, 10.0f);
+	if (ImGui::Button("Clear Aattraction Points")) RemoveEnvelope();
+	ImGui::End();
+}
+
+inline void  SCTree::SCTreeSystem::TreeGUIMenu() {
+	ImGui::Begin("Tree Controller");
+	std::string text = std::string(_DrawOrgan ? "Hide" : "Draw") + " Leaves";
+	if (ImGui::Button(text.c_str())) _DrawOrgan = !_DrawOrgan;
+	ImGui::SliderFloat("Grow Distance", &_GrowDist, 0.2f, 0.5f);
+	ImGui::SliderFloat("Attract Distance Multiplier", &_AttractDitsMult, 1.0f, 5.0f);
+	ImGui::SliderFloat("Remove Distance Multiplier", &_RemoveDistMult, 0.1f, 0.9f);
+	if (ImGui::Button("Build Tree")) BuildTree();
+	if (ImGui::Button("Delete Tree")) RemoveTree();
+	ImGui::Text("Iteration = %d", _Iteration);
+	ImGui::End();
 }

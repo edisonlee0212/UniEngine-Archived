@@ -1,5 +1,83 @@
 #include "UniEngine.h"
+GLenum glCheckError_(const char* file, int line);
+#define glCheckError() glCheckError_(__FILE__, __LINE__)
 
+void APIENTRY glDebugOutput(GLenum source,
+	GLenum type,
+	unsigned int id,
+	GLenum severity,
+	GLsizei length,
+	const char* message,
+	const void* userParam);
+
+using namespace UniEngine;
+
+UniEngine::EngineDriver::EngineDriver()
+{
+	_Loopable = false;
+}
+
+void UniEngine::EngineDriver::GLInit()
+{
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		Debug::Error("Failed to initialize GLAD");
+		exit(-1);
+	}
+	// enable OpenGL debug context if context allows for debug context
+	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+	{
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
+		glDebugMessageCallback(glDebugOutput, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	}
+}
+
+void UniEngine::EngineDriver::Start()
+{
+	WindowManager::Init();
+	auto glfwwindow = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
+	GLInit();
+	WindowManager::CreateWindow(glfwwindow, 1600, 900);
+	Camera::GenerateMatrices();
+
+	
+	_World = new World();
+	_World->Init();
+	Default::Load(_World);
+	LightingManager::Init();
+	_Loopable = true;
+}
+
+bool UniEngine::EngineDriver::Loop()
+{
+	if (!_Loopable) {
+		return false;
+	}
+	RenderManager::Start();
+	LightingManager::Start();
+
+	glfwPollEvents();
+	_World->Update();
+	InputManager::Update();
+	WindowManager::Update();
+	return true;
+}
+
+void UniEngine::EngineDriver::End()
+{
+	delete _World;
+	glfwTerminate();
+}
+
+World* UniEngine::EngineDriver::GetWorld()
+{
+	return _World;
+}
 
 #pragma region OpenGL Debugging
 GLenum glCheckError_(const char* file, int line)
@@ -71,72 +149,3 @@ void APIENTRY glDebugOutput(GLenum source,
 }
 
 #pragma endregion
-using namespace UniEngine;
-
-UniEngine::EngineDriver::EngineDriver()
-{
-	_Loopable = false;
-}
-
-void UniEngine::EngineDriver::GLInit()
-{
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		Debug::Error("Failed to initialize GLAD");
-		exit(-1);
-	}
-	// enable OpenGL debug context if context allows for debug context
-	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-	{
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
-		glDebugMessageCallback(glDebugOutput, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	}
-}
-
-void UniEngine::EngineDriver::Start()
-{
-	WindowManager::Init();
-	auto glfwwindow = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
-	GLInit();
-	WindowManager::CreateWindow(glfwwindow, 1600, 900);
-	Camera::GenerateMatrices();
-
-	
-	_World = new World();
-	_World->Init();
-	Default::Load(_World);
-	LightingManager::Init();
-	_Loopable = true;
-}
-
-bool UniEngine::EngineDriver::Loop()
-{
-	if (!_Loopable) {
-		return false;
-	}
-	RenderManager::Start();
-	LightingManager::Start();
-
-	glfwPollEvents();
-	_World->Update();
-	InputManager::Update();
-	WindowManager::Update();
-	return true;
-}
-
-void UniEngine::EngineDriver::End()
-{
-	delete _World;
-	glfwTerminate();
-}
-
-World* UniEngine::EngineDriver::GetWorld()
-{
-	return _World;
-}
-

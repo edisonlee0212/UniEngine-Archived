@@ -1,5 +1,7 @@
 #pragma once
 #include "Misc.h"
+#include "UniEngine.h"
+using namespace UniEngine;
 namespace SCTree {
 	class Envelope
 	{
@@ -10,7 +12,6 @@ namespace SCTree {
 		std::vector<glm::mat4> _PointMatrices;
 		bool _PointsGenerated;
 		Envelope(glm::vec3 spaceOffset, glm::vec3 spaceSize);
-		
 	public:
 		~Envelope();
 		virtual bool IsInEnvelope(glm::vec3 point) = 0;
@@ -19,6 +20,7 @@ namespace SCTree {
 		void RemovePointSwapBack(int index);
 		void Clear();
 		bool PointsGenerated();
+		void Draw(Camera* camera, Material* pointMaterial);
 		std::vector<glm::vec3>* PointPositions();
 	};
 }

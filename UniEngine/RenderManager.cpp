@@ -8,7 +8,6 @@ unsigned RenderManager::_Triangles;
 
 void UniEngine::RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4* matrices, size_t count, Camera* camera)
 {
-
 	DrawMeshInstanced(mesh, material, matrices, count, camera->GetRenderTarget());
 }
 
@@ -43,15 +42,37 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	unsigned buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	auto amount = count;
-	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+
 	mesh->VAO()->Bind();
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
 		RenderManager::_DrawCall++;
-		RenderManager::_Triangles += mesh->Size() / 3;
+		RenderManager::_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
 		program->Use();
+		GLTexture::Activate(GL_TEXTURE0);
+		program->SetInt("directionalShadowMap", 0);
+		LightingManager::_DirectionalLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
+		GLTexture::Activate(GL_TEXTURE1);
+		program->SetInt("pointShadowMap", 1);
+		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
+
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);
 		}
@@ -73,7 +94,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				std::string name = "";
 				int size = -1;
 				auto texture = textures->at(j);
-				texture->Texture()->Activate(GL_TEXTURE0 + _TextureStartIndex + j);
+
+				GLTexture::Activate(GL_TEXTURE0 + _TextureStartIndex + j);
 				switch (texture->Type())
 				{
 				case TextureType::DIFFUSE:
@@ -113,8 +135,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				texture->Texture()->Bind(GL_TEXTURE_2D);
 			}
 		}
-		mesh->VAO()->Bind();
-		glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, amount);
+		glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
 		GLTexture::BindDefault();
 	}
 	GLVAO::BindDefault();

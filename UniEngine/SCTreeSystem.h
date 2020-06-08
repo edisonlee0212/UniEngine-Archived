@@ -42,6 +42,7 @@ namespace SCTree {
 		Tree* _Tree;
 
 		bool _DrawOrgan;
-
+		void EnvelopeGUIMenu();
+		void TreeGUIMenu();
 	};
 }

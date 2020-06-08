@@ -11,15 +11,12 @@ namespace SCTree {
 		bool _NeedsToGrow, _MeshGenerated, _OrganGenerated;
 		int _MaxGrowIteration;
 		glm::vec3 _Position;
-		Material* _PointMaterial;
-		Material* _MeshMaterial;
-		Material* _OrganMaterial;
 		Mesh* _Mesh;
 		std::vector<glm::mat4> _PointMatrices;
 		std::vector<glm::mat4> _LeafList;
 		Tree(glm::vec3 position, Material* pointMaterial, Material* meshMaterial, Material* organMaterial);
 
-		void Draw(Camera* camera, bool drawOrgan = true);
+		void Draw(Camera* camera, Material* pointMaterial, bool drawOrgan = true);
 
 		~Tree();
 

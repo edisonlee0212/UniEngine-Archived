@@ -6,6 +6,7 @@ using namespace UniEngine;
 
 GLProgram* Default::GLPrograms::ScreenProgram;
 GLProgram* Default::GLPrograms::StandardProgram;
+GLProgram* Default::GLPrograms::StandardInstancedProgram;
 GLVAO* Default::GLPrograms::ScreenVAO;
 std::string* Default::ShaderIncludes::Uniform;
 std::string* Default::ShaderIncludes::Lights;
@@ -22,6 +23,7 @@ Mesh* Default::Primitives::Cone;
 Mesh* Default::Primitives::Cylinder;
 
 Material* Default::Materials::StandardMaterial;
+Material* Default::Materials::StandardInstancedMaterial;
 
 void UniEngine::Default::Load(World* world)
 {
@@ -81,7 +83,7 @@ void UniEngine::Default::Load(World* world)
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Resources/Shaders/Vertex/LightDefault.vert");
+		+ FileIO::LoadFileAsString("Resources/Shaders/Vertex/Standard.vert");
 
 
 	fragShaderCode = std::string("#version 460 core\n")
@@ -91,7 +93,7 @@ void UniEngine::Default::Load(World* world)
 		+ "\n"
 		+ *Default::ShaderIncludes::Lights
 		+ "\n"
-		+ FileIO::LoadFileAsString("Resources/Shaders/Fragment/MultipleLights.frag");
+		+ FileIO::LoadFileAsString("Resources/Shaders/Fragment/Standard.frag");
 
 	GLShader* standardvert = new GLShader(ShaderType::Vertex);
 	standardvert->SetCode(&vertShaderCode);
@@ -104,10 +106,31 @@ void UniEngine::Default::Load(World* world)
 	delete standardvert;
 	delete standardfrag;
 
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString("Resources/Shaders/Vertex/StandardInstanced.vert");
+
+	standardvert = new GLShader(ShaderType::Vertex);
+	standardvert->SetCode(&vertShaderCode);
+	standardfrag = new GLShader(ShaderType::Fragment);
+	standardfrag->SetCode(&fragShaderCode);
+	GLPrograms::StandardInstancedProgram = new GLProgram();
+	GLPrograms::StandardInstancedProgram->Attach(ShaderType::Vertex, standardvert);
+	GLPrograms::StandardInstancedProgram->Attach(ShaderType::Fragment, standardfrag);
+	GLPrograms::StandardInstancedProgram->Link();
+	delete standardvert;
+	delete standardfrag;
+
 	Materials::StandardMaterial = new Material();
 	Materials::StandardMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	Materials::StandardMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
 	Materials::StandardMaterial->SetMaterialProperty("material.shininess", 32.0f);
+
+	Materials::StandardInstancedMaterial = new Material();
+	Materials::StandardInstancedMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
+	Materials::StandardInstancedMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
+	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
 
 	Entity* entity = world->_EntityCollection->CreateEntity();
 	

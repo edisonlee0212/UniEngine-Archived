@@ -19,7 +19,7 @@ World::World() {
 	_EntityCollection = new EntityCollection();
 	ManagerBase::_EntityCollection = _EntityCollection;
 	ManagerBase::_World = this;
-
+	_TimeStep = 0.2f;
 	InitImGui();
 
 }

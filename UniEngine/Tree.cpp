@@ -2,9 +2,6 @@
 
 SCTree::Tree::Tree(glm::vec3 position, Material* pointMaterial, Material* meshMaterial, Material* organMaterial)
 	: _Position(position),
-	_PointMaterial(pointMaterial),
-	_MeshMaterial(meshMaterial),
-	_OrganMaterial(organMaterial),
 	_GrowingBranches(std::vector<Branch*>()),
 	_NeedsToGrow(false),
 	_Root(new Branch(position, nullptr, true, 1)),
@@ -14,18 +11,10 @@ SCTree::Tree::Tree(glm::vec3 position, Material* pointMaterial, Material* meshMa
 {
 }
 
-void SCTree::Tree::Draw(Camera* camera, bool drawOrgan)
+void SCTree::Tree::Draw(Camera* camera, Material* pointMaterial, bool drawOrgan)
 {
 	if (_PointMatrices.size() > 0) {
-		if (_MeshGenerated) {
-			glm::mat4 matrix = glm::translate(glm::mat4(1.0f), _Position);
-			matrix = glm::scale(matrix, glm::vec3(1.0f));
-			RenderManager::DrawMesh(_Mesh, matrix, _MeshMaterial, camera);
-			if (drawOrgan && _OrganGenerated) {
-				RenderManager::DrawMeshInstanced(Default::Primitives::Quad, _OrganMaterial, &_LeafList[0], _LeafList.size(), camera);
-			}
-		}
-		else RenderManager::DrawMeshInstanced(Default::Primitives::Cube, _PointMaterial, &_PointMatrices[0], _PointMatrices.size(), camera);
+		RenderManager::DrawMeshInstanced(Default::Primitives::Cube, pointMaterial, &_PointMatrices[0], _PointMatrices.size(), camera);
 	}
 }
 

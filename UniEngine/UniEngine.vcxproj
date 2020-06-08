@@ -161,10 +161,12 @@
     <ClCompile Include="Branch.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="CoilEnvelope.cpp" />
     <ClCompile Include="ComponentStorage.cpp" />
     <ClCompile Include="CubeEnvelope.cpp" />
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="Curve.cpp" />
+    <ClCompile Include="CylinderEnvelope.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Default.cpp" />
     <ClCompile Include="DirectionalLightComponent.cpp" />
@@ -212,6 +214,7 @@
     <ClCompile Include="SharedComponentSystem.cpp" />
     <ClCompile Include="SpotLightComponent.cpp" />
     <ClCompile Include="stb.cpp" />
+    <ClCompile Include="SurfaceOfRevolutionEnvelope.cpp" />
     <ClCompile Include="SystemBase.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Time.cpp" />
@@ -229,12 +232,14 @@
     <ClInclude Include="Branch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="CoilEnvelope.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="ComponentStorage.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="CubeEnvelope.h" />
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="Curve.h" />
+    <ClInclude Include="CylinderEnvelope.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
@@ -281,6 +286,7 @@
     <ClInclude Include="SharedComponentStorage.h" />
     <ClInclude Include="SharedComponentSystem.h" />
     <ClInclude Include="SpotLightComponent.h" />
+    <ClInclude Include="SurfaceOfRevolutionEnvelope.h" />
     <ClInclude Include="SystemBase.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Time.h" />

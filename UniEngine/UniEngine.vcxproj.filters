@@ -388,7 +388,16 @@
       <Filter>Source Files\SpaceColonizationTree</Filter>
     </ClCompile>
     <ClCompile Include="SCTreeSystem.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\SpaceColonizationTree\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SurfaceOfRevolutionEnvelope.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Envelope</Filter>
+    </ClCompile>
+    <ClCompile Include="CylinderEnvelope.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Envelope</Filter>
+    </ClCompile>
+    <ClCompile Include="CoilEnvelope.cpp">
+      <Filter>Source Files\SpaceColonizationTree\Envelope</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -597,7 +606,16 @@
       <Filter>Header Files\SpaceColonizationTree</Filter>
     </ClInclude>
     <ClInclude Include="SCTreeSystem.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\SpaceColonizationTree\System</Filter>
+    </ClInclude>
+    <ClInclude Include="SurfaceOfRevolutionEnvelope.h">
+      <Filter>Header Files\SpaceColonizationTree\Envelope</Filter>
+    </ClInclude>
+    <ClInclude Include="CylinderEnvelope.h">
+      <Filter>Header Files\SpaceColonizationTree\Envelope</Filter>
+    </ClInclude>
+    <ClInclude Include="CoilEnvelope.h">
+      <Filter>Header Files\SpaceColonizationTree\Envelope</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

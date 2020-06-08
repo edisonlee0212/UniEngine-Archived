@@ -13,6 +13,7 @@ namespace UniEngine {
 			static GLVAO* ScreenVAO;
 
 			static GLProgram* StandardProgram;
+			static GLProgram* StandardInstancedProgram;
 		};
 
 		static class ShaderIncludes {
@@ -48,6 +49,7 @@ namespace UniEngine {
 		static class Materials {
 		public:
 			static Material* StandardMaterial;
+			static Material* StandardInstancedMaterial;
 		};
 
 		static void Load(World* world);
