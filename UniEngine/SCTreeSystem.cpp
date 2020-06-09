@@ -122,7 +122,7 @@ void SCTree::SCTreeSystem::Update() {
 	EnvelopeGUIMenu();
 	TreeGUIMenu();
 	if (_Envelope != nullptr) _Envelope->Draw(_World->MainCamera(), _EnvelopePointMaterial, glm::vec3(_TreeSize));
-	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(_World->MainCamera(), _TreePointMaterial, glm::vec3(_TreeSize));
+	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(_World->MainCamera(), _TreePointMaterial, glm::vec3(_TreeSize) );
 	if (_TreeEntity != nullptr) {
 		Scale scale;
 		scale.value = glm::vec3(_TreeSize);

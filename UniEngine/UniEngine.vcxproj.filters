@@ -199,6 +199,18 @@
     <Filter Include="Source Files\SpaceColonizationTree\Organ">
       <UniqueIdentifier>{254597b1-8cb0-45b7-8211-4af1ed76ac7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Universe">
+      <UniqueIdentifier>{720336fd-2866-46bf-a760-a3a999de9fd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Universe">
+      <UniqueIdentifier>{75ebf9e8-590a-4161-ae70-183b366f9b04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities">
+      <UniqueIdentifier>{6a3b927d-d973-49b4-b941-97f6a0e80446}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{3ad9a345-ef25-43f1-8b12-a8db0ebd23a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\glad\src\glad.c">
@@ -407,6 +419,9 @@
     </ClCompile>
     <ClCompile Include="InstancedMeshMaterialComponent.cpp">
       <Filter>Source Files\UniEngine\Resource\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraController.cpp">
+      <Filter>Source Files\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -628,6 +643,9 @@
     </ClInclude>
     <ClInclude Include="InstancedMeshMaterialComponent.h">
       <Filter>Header Files\UniEngine\Resouce\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraController.h">
+      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -18,6 +18,19 @@ void UniEngine::InputSystem::OnDestroy()
 
 void UniEngine::InputSystem::Update()
 {
+	for (auto i = 0; i < 349; i++) {
+		if (InputManager::_KeyDownChecked[i]) InputManager::_KeyDown[i] = false;
+		if (InputManager::_KeyUpChecked[i]) InputManager::_KeyUp[i] = false;
+	}
+
+	for (auto i = 0; i < 8; i++) {
+		if (InputManager::_MouseDownChecked[i]) InputManager::_MouseDown[i] = false;
+		if (InputManager::_MouseUpChecked[i]) InputManager::_MouseUp[i] = false;
+	}
+
+	if (InputManager::_CursorMovedChecked) InputManager::_CursorMoved = false;
+	if (InputManager::_CursorScrolledChecked) InputManager::_CursorScrolled = false;
+
 #pragma region Handle Movement
 	if (InputManager::GetKey(GLFW_KEY_W))
 		_World->MainCamera()->ProcessKeyboard(FORWARD, Time::DeltaTime());

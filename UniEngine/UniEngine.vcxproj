@@ -161,6 +161,7 @@
     <ClCompile Include="Branch.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="CoilEnvelope.cpp" />
     <ClCompile Include="ComponentStorage.cpp" />
     <ClCompile Include="CubeEnvelope.cpp" />
@@ -233,6 +234,7 @@
     <ClInclude Include="Branch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="CameraController.h" />
     <ClInclude Include="CoilEnvelope.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="ComponentStorage.h" />

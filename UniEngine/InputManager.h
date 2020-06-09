@@ -22,6 +22,7 @@ namespace UniEngine {
         static bool GetMouseMoved();
         static void Update();
     private:
+        friend class InputSystem;
         static bool _KeyPressed[349];
         static bool _KeyDown[349];
         static bool _KeyUp[349];
