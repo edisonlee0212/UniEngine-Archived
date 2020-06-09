@@ -11,10 +11,10 @@ SCTree::Tree::Tree(glm::vec3 position, Material* pointMaterial, Material* meshMa
 {
 }
 
-void SCTree::Tree::Draw(Camera* camera, Material* pointMaterial, bool drawOrgan)
+void SCTree::Tree::Draw(Camera* camera, Material* pointMaterial, glm::vec3 scale, bool drawOrgan)
 {
 	if (_PointMatrices.size() > 0) {
-		RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, pointMaterial, glm::mat4(1.0f), &_PointMatrices[0], _PointMatrices.size(), camera);
+		RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, pointMaterial, glm::scale(glm::mat4(1.0f), scale), &_PointMatrices[0], _PointMatrices.size(), camera);
 	}
 }
 

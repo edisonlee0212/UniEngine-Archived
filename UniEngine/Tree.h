@@ -16,7 +16,7 @@ namespace SCTree {
 		std::vector<glm::mat4> _LeafList;
 		Tree(glm::vec3 position, Material* pointMaterial, Material* meshMaterial, Material* organMaterial);
 		
-		void Draw(Camera* camera, Material* pointMaterial, bool drawOrgan = true);
+		void Draw(Camera* camera, Material* pointMaterial, glm::vec3 scale, bool drawOrgan = true);
 
 		~Tree();
 

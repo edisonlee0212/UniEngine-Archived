@@ -58,10 +58,10 @@ bool SCTree::Envelope::PointsGenerated()
 	return _PointsGenerated;
 }
 
-void SCTree::Envelope::Draw(Camera* camera, Material* pointMaterial)
+void SCTree::Envelope::Draw(Camera* camera, Material* pointMaterial, glm::vec3 scale)
 {
 	if (_PointMatrices.size() > 0) {
-		RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, pointMaterial, glm::mat4(1.0f), &_PointMatrices[0], _PointMatrices.size(), camera);
+		RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, pointMaterial, glm::scale(glm::mat4(1.0f), scale), &_PointMatrices[0], _PointMatrices.size(), camera);
 	}
 }
 

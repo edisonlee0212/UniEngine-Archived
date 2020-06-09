@@ -32,7 +32,7 @@ namespace SCTree {
 		Texture2D* _TreeMeshTexture;
 		Material* _TreeLeafMaterial;
 		Texture2D* _TreeLeafTexture;
-
+		
 		int _PointsCount;
 		Entity* _TreeEntity;
 		InstancedMeshMaterialComponent* _TreeLeaves;
@@ -44,6 +44,7 @@ namespace SCTree {
 		Tree* _Tree;
 		float _EnvelopeRadius, _MinHeight, _MaxHeight;
 		bool _DrawOrgan;
+		float _TreeSize;
 		void EnvelopeGUIMenu();
 		void TreeGUIMenu();
 	};

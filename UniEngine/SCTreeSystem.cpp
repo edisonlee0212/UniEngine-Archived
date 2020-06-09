@@ -38,6 +38,7 @@ void SCTree::SCTreeSystem::OnCreate()
 	_EnvelopeRadius = 6.0f;
 	_MinHeight = 2.0f;
 	_MaxHeight = 8.0f;
+	_TreeSize = 1.0f;
 	_DrawOrgan = false;
 	Enable();
 }
@@ -120,8 +121,13 @@ static const char* EnvelopeTypes[]{ "SurfaceOfRevo", "Cube", "Cylinder", "Coil" 
 void SCTree::SCTreeSystem::Update() {
 	EnvelopeGUIMenu();
 	TreeGUIMenu();
-	if (_Envelope != nullptr) _Envelope->Draw(_World->MainCamera(), _EnvelopePointMaterial);
-	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(_World->MainCamera(), _TreePointMaterial);
+	if (_Envelope != nullptr) _Envelope->Draw(_World->MainCamera(), _EnvelopePointMaterial, glm::vec3(_TreeSize));
+	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(_World->MainCamera(), _TreePointMaterial, glm::vec3(_TreeSize));
+	if (_TreeEntity != nullptr) {
+		Scale scale;
+		scale.value = glm::vec3(_TreeSize);
+		_EntityCollection->SetFixedData<Scale>(_TreeEntity, scale);
+	}
 }
 
 void SCTree::SCTreeSystem::FixedUpdate() {
@@ -145,7 +151,7 @@ void SCTree::SCTreeSystem::FixedUpdate() {
 			Position pos;
 			pos.value = _Tree->_Position;
 			Scale scale;
-			scale.value = glm::vec3(1.0f);
+			scale.value = glm::vec3(1.5f);
 			_EntityCollection->SetFixedData<Position>(_TreeEntity, pos);
 			_EntityCollection->SetFixedData<Scale>(_TreeEntity, scale);
 			RemoveEnvelope();
@@ -185,6 +191,7 @@ inline void  SCTree::SCTreeSystem::TreeGUIMenu() {
 			}
 		}
 	}
+	ImGui::SliderFloat("Tree Size", &_TreeSize, 0.2f, 5.0f);
 	ImGui::SliderFloat("Grow Distance", &_GrowDist, 0.2f, 0.5f);
 	ImGui::SliderFloat("Attract Distance Multiplier", &_AttractDitsMult, 1.0f, 5.0f);
 	ImGui::SliderFloat("Remove Distance Multiplier", &_RemoveDistMult, 0.1f, 0.9f);

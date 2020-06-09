@@ -15,7 +15,7 @@ uniform mat4 model;
 
 void main()
 {
-    mat4 matrix = aInstanceMatrix * model;
+    mat4 matrix = model * aInstanceMatrix;
 	vs_out.FragPos = vec3(matrix * vec4(aPos, 1.0));
     vs_out.Normal = mat3(transpose(inverse(matrix))) * aNormal;
     vs_out.TexCoords = aTexCoords;    

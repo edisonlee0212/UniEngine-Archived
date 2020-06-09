@@ -20,7 +20,7 @@ namespace SCTree {
 		void RemovePointSwapBack(int index);
 		void Clear();
 		bool PointsGenerated();
-		void Draw(Camera* camera, Material* pointMaterial);
+		void Draw(Camera* camera, Material* pointMaterial, glm::vec3 scale);
 		std::vector<glm::vec3>* PointPositions();
 	};
 }
