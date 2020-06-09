@@ -1,16 +1,16 @@
 #pragma once
 #include "SharedComponentBase.h"
+#include "Core.h"
 #include "Mesh.h"
 #include "Material.h"
-#include "Core.h"
 namespace UniEngine {
-	class MeshMaterialComponent :
+	class InstancedMeshMaterialComponent :
 		public SharedComponentBase
 	{
 	public:
+		std::vector<glm::mat4>* _Matrices;
 		Mesh* _Mesh;
 		Material* _Material;
 		size_t GetHashCode();
 	};
 }
-

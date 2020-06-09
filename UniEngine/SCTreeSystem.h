@@ -34,13 +34,15 @@ namespace SCTree {
 		Texture2D* _TreeLeafTexture;
 
 		int _PointsCount;
-
+		Entity* _TreeEntity;
+		InstancedMeshMaterialComponent* _TreeLeaves;
+		MeshMaterialComponent* _TreeMesh;
 		Envelope* _Envelope;
 		int _SelectedEnvelopeType;
 		float _GrowDist, _AttractDitsMult, _RemoveDistMult, _AttractDist, _RemoveDist;
 		int _Iteration;
 		Tree* _Tree;
-
+		float _EnvelopeRadius, _MinHeight, _MaxHeight;
 		bool _DrawOrgan;
 		void EnvelopeGUIMenu();
 		void TreeGUIMenu();

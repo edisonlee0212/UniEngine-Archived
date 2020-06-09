@@ -132,33 +132,35 @@ void UniEngine::Default::Load(World* world)
 	Materials::StandardInstancedMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
 	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
 
-	Entity* entity = world->_EntityCollection->CreateEntity();
+	EntityCollection* ec = world->GetEntityCollection();
+
+	Entity* entity = ec->CreateEntity();
 	
 
 	
 	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/quad.obj"));
-	Primitives::Quad = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	world->_EntityCollection->DeleteEntity(entity);
+	Primitives::Quad = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
 
-	entity = world->_EntityCollection->CreateEntity();
+	entity = ec->CreateEntity();
 	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/sphere.obj"));
-	Primitives::Sphere = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	world->_EntityCollection->DeleteEntity(entity);
+	Primitives::Sphere = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
 
-	entity = world->_EntityCollection->CreateEntity();
+	entity = ec->CreateEntity();
 	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cube.obj"));
-	Primitives::Cube = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	world->_EntityCollection->DeleteEntity(entity);
+	Primitives::Cube = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
 
 	
 
-	entity = world->_EntityCollection->CreateEntity();
+	entity = ec->CreateEntity();
 	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cone.obj"));
-	Primitives::Cone = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	world->_EntityCollection->DeleteEntity(entity);
+	Primitives::Cone = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
 
-	entity = world->_EntityCollection->CreateEntity();
+	entity = ec->CreateEntity();
 	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cylinder.obj"));
-	Primitives::Cylinder = world->_EntityCollection->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	world->_EntityCollection->DeleteEntity(entity);
+	Primitives::Cylinder = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
 }

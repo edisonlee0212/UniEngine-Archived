@@ -2,7 +2,7 @@
 #include "Misc.h"
 #include "Core.h"
 #include "Window.h"
-#include "RenderManager.h"
+#include "Texture2D.h"
 namespace UniEngine {
 	class WindowManager : public ManagerBase
 	{

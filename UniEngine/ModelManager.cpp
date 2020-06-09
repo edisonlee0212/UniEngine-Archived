@@ -33,10 +33,10 @@ void ModelManager::ProcessNode(std::string directory, GLProgram* program, Entity
 
         LocalScale ls;
         ls.value = glm::vec3(1.0f);
-        _World->_EntityCollection->SetFixedData<LocalPosition>(entity, LocalPosition());
-        _World->_EntityCollection->SetFixedData<LocalRotation>(entity, LocalRotation());
-        _World->_EntityCollection->SetFixedData<LocalScale>(entity, ls);
-        _World->_EntityCollection->SetParent(entity, parent);
+        _EntityCollection->SetFixedData<LocalPosition>(entity, LocalPosition());
+        _EntityCollection->SetFixedData<LocalRotation>(entity, LocalRotation());
+        _EntityCollection->SetFixedData<LocalScale>(entity, ls);
+        _EntityCollection->SetParent(entity, parent);
     }
     for (unsigned i = 0; i < node->mNumChildren; i++)
     {
@@ -45,7 +45,7 @@ void ModelManager::ProcessNode(std::string directory, GLProgram* program, Entity
 }
 
 Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::vector<Texture2D*>* Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
-    Entity* entity = _World->_EntityCollection->CreateEntity();
+    Entity* entity = _EntityCollection->CreateEntity();
     unsigned mask = 1;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;

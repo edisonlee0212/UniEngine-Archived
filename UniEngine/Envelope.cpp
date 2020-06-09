@@ -61,7 +61,7 @@ bool SCTree::Envelope::PointsGenerated()
 void SCTree::Envelope::Draw(Camera* camera, Material* pointMaterial)
 {
 	if (_PointMatrices.size() > 0) {
-		RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, pointMaterial, &_PointMatrices[0], _PointMatrices.size(), camera);
+		RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, pointMaterial, glm::mat4(1.0f), &_PointMatrices[0], _PointMatrices.size(), camera);
 	}
 }
 

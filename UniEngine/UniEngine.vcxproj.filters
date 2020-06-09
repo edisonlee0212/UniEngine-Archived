@@ -193,6 +193,12 @@
     <Filter Include="Source Files\SpaceColonizationTree\System">
       <UniqueIdentifier>{e5225930-8997-4ff8-9230-bfa9f28fbb06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\SpaceColonizationTree\Organ">
+      <UniqueIdentifier>{8a30d4cc-fd59-4d16-b191-03df40958cc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SpaceColonizationTree\Organ">
+      <UniqueIdentifier>{254597b1-8cb0-45b7-8211-4af1ed76ac7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\glad\src\glad.c">
@@ -398,6 +404,9 @@
     </ClCompile>
     <ClCompile Include="CoilEnvelope.cpp">
       <Filter>Source Files\SpaceColonizationTree\Envelope</Filter>
+    </ClCompile>
+    <ClCompile Include="InstancedMeshMaterialComponent.cpp">
+      <Filter>Source Files\UniEngine\Resource\Resource\SharedComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -616,6 +625,9 @@
     </ClInclude>
     <ClInclude Include="CoilEnvelope.h">
       <Filter>Header Files\SpaceColonizationTree\Envelope</Filter>
+    </ClInclude>
+    <ClInclude Include="InstancedMeshMaterialComponent.h">
+      <Filter>Header Files\UniEngine\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

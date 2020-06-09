@@ -9,7 +9,7 @@ namespace UniEngine {
 		std::vector<SystemBase*> _Systems;
 		float _TimeStep;
 		Camera* _MainCamera;
-
+		EntityCollection* _EntityCollection;
 		inline void InitImGui();
 		inline void DrawInfoWindow();
 
@@ -24,7 +24,7 @@ namespace UniEngine {
 		T* GetSystem();
 		~World();
 		void Update();
-		EntityCollection* _EntityCollection;
+		EntityCollection* GetEntityCollection();
 		Camera* MainCamera();
 	};
 

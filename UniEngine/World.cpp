@@ -77,6 +77,11 @@ void World::Update() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+EntityCollection* UniEngine::World::GetEntityCollection()
+{
+	return _EntityCollection;
+}
+
 Camera* UniEngine::World::MainCamera()
 {
 	return _MainCamera;

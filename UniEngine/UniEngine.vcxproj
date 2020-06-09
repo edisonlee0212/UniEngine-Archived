@@ -189,6 +189,7 @@
     <ClCompile Include="includes\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="InstancedMeshMaterialComponent.cpp" />
     <ClCompile Include="LightingManager.cpp" />
     <ClCompile Include="ManagerBase.cpp" />
     <ClCompile Include="MeshMaterialComponent.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="InstancedMeshMaterialComponent.h" />
     <ClInclude Include="int.h" />
     <ClInclude Include="LightingManager.h" />
     <ClInclude Include="long.h" />

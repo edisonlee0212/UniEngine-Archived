@@ -35,9 +35,10 @@ namespace UniEngine {
 	};
 	class Mesh
 	{
-		std::vector<Vertex>* _Vertices;
 		GLVAO* _VAO;
-		size_t _Size;
+		size_t _VerticesSize;
+		size_t _IndicesSize;
+		unsigned _Mask;
 	public:
 		Mesh();
 		~Mesh();
@@ -45,9 +46,9 @@ namespace UniEngine {
 		void ClearVertices();
 		size_t GetVerticesAmount();
 		size_t Size();
-		void RecalculateNormal(std::vector<unsigned>* indices);
+		void RecalculateNormal(std::vector<Vertex>* vertices, std::vector<unsigned>* indices);
 		GLVAO* VAO();
-		
+		void Enable();
 		void* GetAttributeArray(VertexAttribute channel);
 	};
 }

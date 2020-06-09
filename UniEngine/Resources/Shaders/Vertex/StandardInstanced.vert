@@ -1,7 +1,7 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 5) in vec2 aTexCoords;
-layout (location = 3) in mat4 aInstanceMatrix;
+layout (location = 12) in mat4 aInstanceMatrix;
 
 
 out VS_OUT {
@@ -11,11 +11,13 @@ out VS_OUT {
     vec4 FragPosLightSpaces[DIRECTIONAL_LIGHTS_AMOUNT];
 } vs_out;
 
+uniform mat4 model;
 
 void main()
 {
-	vs_out.FragPos = vec3(aInstanceMatrix * vec4(aPos, 1.0));
-    vs_out.Normal = mat3(transpose(inverse(aInstanceMatrix))) * aNormal;
+    mat4 matrix = aInstanceMatrix * model;
+	vs_out.FragPos = vec3(matrix * vec4(aPos, 1.0));
+    vs_out.Normal = mat3(transpose(inverse(matrix))) * aNormal;
     vs_out.TexCoords = aTexCoords;    
 
     for(int i = 0; i < DirectionalLightCount; i++){

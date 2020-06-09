@@ -27,6 +27,9 @@ namespace UniEngine {
 
 		static GLProgram* _DirectionalLightProgram;
 		static GLProgram* _PointLightProgram;
+		static GLProgram* _DirectionalLightInstancedProgram;
+		static GLProgram* _PointLightInstancedProgram;
+		
 		friend class RenderManager;
 		static DirectionalLightShadowMap* _DirectionalLightShadowMap;
 		static PointLightShadowMap* _PointLightShadowMap;

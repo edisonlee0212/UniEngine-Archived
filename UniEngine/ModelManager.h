@@ -1,6 +1,7 @@
 #pragma once
 #include "Core.h"
-#include "RenderManager.h"
+#include "Texture2D.h"
+#include "MeshMaterialComponent.h"
 namespace UniEngine {
     class ModelManager : public ManagerBase
     {

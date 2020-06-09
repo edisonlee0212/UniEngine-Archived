@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "World.h"
 #include "RenderManager.h"
+#include "ModelManager.h"
 #include "WindowManager.h"
 #include "InputManager.h"
 #include "LightingManager.h"

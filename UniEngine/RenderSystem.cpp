@@ -23,24 +23,37 @@ void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
 
 
 	auto meshMaterials = _EntityCollection->QuerySharedComponents<MeshMaterialComponent>();
-	for (auto i : *meshMaterials) {
-		MeshMaterialComponent* mmc = dynamic_cast<MeshMaterialComponent*>(i->first);
-		auto entities = _EntityCollection->QueryEntities<MeshMaterialComponent>(mmc);
-		for (auto j : *entities) {
-			RenderManager::DrawMesh(mmc->_Mesh,
-				_EntityCollection->GetFixedData<LocalToWorld>(j).value,
-				mmc->_Material, camera);
+	if (meshMaterials != nullptr) {
+		for (auto i : *meshMaterials) {
+			MeshMaterialComponent* mmc = dynamic_cast<MeshMaterialComponent*>(i->first);
+			auto entities = _EntityCollection->QueryEntities<MeshMaterialComponent>(mmc);
+			for (auto j : *entities) {
+				RenderManager::DrawMesh(
+					mmc->_Mesh, mmc->_Material,
+					_EntityCollection->GetFixedData<LocalToWorld>(j).value,
+					camera);
+			}
 		}
 	}
-
+	auto instancedMeshMaterials = _EntityCollection->QuerySharedComponents<InstancedMeshMaterialComponent>();
+	if (instancedMeshMaterials != nullptr) {
+		for (auto i : *instancedMeshMaterials) {
+			InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(i->first);
+			auto entities = _EntityCollection->QueryEntities<InstancedMeshMaterialComponent>(immc);
+			for (auto j : *entities) {
+				RenderManager::DrawMeshInstanced(
+					immc->_Mesh, immc->_Material,
+					_EntityCollection->GetFixedData<LocalToWorld>(j).value,
+					&immc->_Matrices->at(0), immc->_Matrices->size(),
+					camera);
+			}
+		}
+	}
 }
 
 
 UniEngine::RenderSystem::RenderSystem()
-{
-
-
-	
+{	
 }
 
 void UniEngine::RenderSystem::OnCreate()

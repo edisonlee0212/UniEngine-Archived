@@ -15,7 +15,7 @@ namespace SCTree {
 		std::vector<glm::mat4> _PointMatrices;
 		std::vector<glm::mat4> _LeafList;
 		Tree(glm::vec3 position, Material* pointMaterial, Material* meshMaterial, Material* organMaterial);
-
+		
 		void Draw(Camera* camera, Material* pointMaterial, bool drawOrgan = true);
 
 		~Tree();
@@ -25,7 +25,7 @@ namespace SCTree {
 		void Grow(float growDist, float attractionDist, float removeDist, Envelope* envelope, glm::vec3 tropism = glm::vec3(0.0f),
 			float distDec = 0.015f, float minDist = 0.01f, float decimationDistChild = 0.02f, float decimationDistParent = 0.02f);
 
-		void CalculateMesh(int resolution = 16, int triangleLimit = 8192);
+		void CalculateMesh(int resolution = 4, int triangleLimit = 8192);
 	private:
 		inline void CalculateRadius();
 

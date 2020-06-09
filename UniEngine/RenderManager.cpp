@@ -6,38 +6,49 @@ RenderTarget* RenderManager::_CurrentRenderTarget;
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;
 
-void UniEngine::RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4* matrices, size_t count, Camera* camera)
+
+void UniEngine::RenderManager::DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera)
 {
-	DrawMeshInstanced(mesh, material, matrices, count, camera->GetRenderTarget());
+	DrawMeshInstanced(immc->_Mesh, immc->_Material, matrix, matrices, count, camera);
 }
 
-void UniEngine::RenderManager::DrawMesh(Mesh* mesh, glm::mat4 matrix, Material* material, Camera* camera)
+void UniEngine::RenderManager::DrawMesh(MeshMaterialComponent* mmc, glm::mat4 matrix, Camera* camera)
 {
-	DrawMesh(mesh, matrix, material, camera->GetRenderTarget());
+	DrawMesh(mmc->_Mesh, mmc->_Material, matrix, camera);
+}
+
+void UniEngine::RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera)
+{
+	DrawMeshInstanced(mesh, material, matrix, matrices, count, camera->GetRenderTarget());
+}
+
+void UniEngine::RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, Camera* camera)
+{
+	DrawMesh(mesh, material, matrix, camera->GetRenderTarget());
 }
 
 void UniEngine::RenderManager::DrawMeshInstanced(
-	Mesh* mesh, Material* material, glm::mat4* matrices, size_t count, RenderTarget* target)
+	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target)
 {
 	if (_CurrentRenderTarget != target) {
 		target->Bind();
 		_CurrentRenderTarget = target;
 	}
-	DrawMeshInstanced(mesh, material, matrices, count);
+	DrawMeshInstanced(mesh, material, matrix, matrices, count);
 }
 
 void UniEngine::RenderManager::DrawMesh(
-	Mesh* mesh, glm::mat4 matrix, Material* material, RenderTarget* target)
+	Mesh* mesh, Material* material, glm::mat4 matrix, RenderTarget* target)
 {
 	if (_CurrentRenderTarget != target) {
 		target->Bind();
 		_CurrentRenderTarget = target;
 	}
-	DrawMesh(mesh, matrix, material);
+	DrawMesh(mesh, material, matrix);
 }
 
 void UniEngine::RenderManager::DrawMeshInstanced(
-	Mesh* mesh, Material* material, glm::mat4* matrices, size_t count)
+	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count)
 {
 	unsigned buffer;
 	glGenBuffers(1, &buffer);
@@ -46,19 +57,19 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 
 	mesh->VAO()->Bind();
 
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(12);
+	glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	glEnableVertexAttribArray(13);
+	glVertexAttribPointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	glEnableVertexAttribArray(14);
+	glVertexAttribPointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(15);
+	glVertexAttribPointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
 
-	glVertexAttribDivisor(3, 1);
-	glVertexAttribDivisor(4, 1);
-	glVertexAttribDivisor(5, 1);
-	glVertexAttribDivisor(6, 1);
+	glVertexAttribDivisor(12, 1);
+	glVertexAttribDivisor(13, 1);
+	glVertexAttribDivisor(14, 1);
+	glVertexAttribDivisor(15, 1);
 
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
@@ -73,6 +84,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		program->SetInt("pointShadowMap", 1);
 		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
 
+		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);
 		}
@@ -139,11 +151,13 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		GLTexture::BindDefault();
 	}
 	GLVAO::BindDefault();
+	glDeleteBuffers(1, &buffer);
 }
 
 void UniEngine::RenderManager::DrawMesh(
-	Mesh* mesh, glm::mat4 matrix, Material* material)
+	Mesh* mesh, Material* material, glm::mat4 matrix)
 {
+	mesh->VAO()->Bind();
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
 		RenderManager::_DrawCall++;
@@ -221,7 +235,6 @@ void UniEngine::RenderManager::DrawMesh(
 				texture->Texture()->Bind(GL_TEXTURE_2D);
 			}
 		}
-		mesh->VAO()->Bind();
 		glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
 		GLTexture::BindDefault();
 	}
@@ -243,3 +256,4 @@ unsigned UniEngine::RenderManager::DrawCall()
 {
 	return _DrawCall;
 }
+
