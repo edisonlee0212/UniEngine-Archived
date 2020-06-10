@@ -24,6 +24,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>UniEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>UniEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -77,16 +78,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>includes;includes\Assimp\include;includes\glfw-3.3.2\include;includes\glad\include;includes\ImGUI\examples;includes\ImGUI;includes\glad\include\glad;includes\glad\include\KHR;includes\glm;$(IncludePath)</IncludePath>
-    <SourcePath>includes\glfw-3.3.2\src;includes\glad\src;src;$(SourcePath)</SourcePath>
+    <IncludePath>..\includes;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
+    <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>includes;includes\Assimp\include;includes\GLFW\include;includes\glad\include;includes\ImGUI\examples;includes\ImGUI;includes\glad\include\glad;includes\glad\include\KHR;includes\glm;$(IncludePath)</IncludePath>
-    <SourcePath>includes\GLFW\src;includes\glad\src;src;$(SourcePath)</SourcePath>
+    <IncludePath>..\includes;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
+    <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -116,7 +117,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;includes\glfw-3.3.2\src\Debug\glfw3.lib;includes\Assimp\code\Debug\assimp-vc142-mtd.lib;includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Debug\glfw3.lib;..\includes\Assimp\code\Debug\assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,10 +154,18 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;includes\GLFW\src\Release\glfw3.lib;includes\Assimp\code\Release\assimp-vc142-mt.lib;includes\Assimp\contrib\irrXML\Release\IrrXML.lib;includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Release\glfw3.lib;..\includes\Assimp\code\Release\assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\glad\src\glad.c" />
+    <ClCompile Include="..\includes\ImGUI\examples\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\includes\ImGUI\examples\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\includes\ImGUI\examples\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\includes\ImGUI\imgui.cpp" />
+    <ClCompile Include="..\includes\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="..\includes\ImGUI\imgui_draw.cpp" />
+    <ClCompile Include="..\includes\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="BezierCurve.cpp" />
     <ClCompile Include="Branch.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -179,32 +188,24 @@
     <ClCompile Include="FixedDataStorage.cpp" />
     <ClCompile Include="GLBuffer.cpp" />
     <ClCompile Include="GLFrameBuffer.cpp" />
+    <ClCompile Include="GLProgram.cpp" />
     <ClCompile Include="GLRenderBuffer.cpp" />
+    <ClCompile Include="GLShader.cpp" />
     <ClCompile Include="GLTexture.cpp" />
-    <ClCompile Include="includes\ImGUI\examples\imgui_impl_glfw.cpp" />
-    <ClCompile Include="includes\ImGUI\examples\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="includes\ImGUI\examples\imgui_impl_win32.cpp" />
-    <ClCompile Include="includes\ImGUI\imgui.cpp" />
-    <ClCompile Include="includes\ImGUI\imgui_demo.cpp" />
-    <ClCompile Include="includes\ImGUI\imgui_draw.cpp" />
-    <ClCompile Include="includes\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InstancedMeshMaterialComponent.cpp" />
     <ClCompile Include="LightingManager.cpp" />
+    <ClCompile Include="Main.cpp" />
     <ClCompile Include="ManagerBase.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshMaterialComponent.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PointLightComponent.cpp" />
     <ClCompile Include="PointLightShadowMap.cpp" />
     <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="includes\glad\src\glad.c" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Memory.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="GLProgram.cpp" />
-    <ClCompile Include="GLShader.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RingMesh.cpp" />
@@ -229,7 +230,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BezierCurve.h" />
-    <ClInclude Include="UEbool.h" />
     <ClInclude Include="Branch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
@@ -246,38 +246,34 @@
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
-    <ClInclude Include="UEdouble.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityCollection.h" />
     <ClInclude Include="Envelope.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="FixedData.h" />
     <ClInclude Include="FixedDataStorage.h" />
-    <ClInclude Include="UEfloat.h" />
     <ClInclude Include="GLBuffer.h" />
     <ClInclude Include="GLFrameBuffer.h" />
+    <ClInclude Include="GLObject.h" />
+    <ClInclude Include="GLProgram.h" />
     <ClInclude Include="GLRenderBuffer.h" />
+    <ClInclude Include="GLShader.h" />
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstancedMeshMaterialComponent.h" />
-    <ClInclude Include="UEint.h" />
     <ClInclude Include="LightingManager.h" />
-    <ClInclude Include="UElong.h" />
     <ClInclude Include="ManagerBase.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mathemetics.h" />
+    <ClInclude Include="Memory.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshMaterialComponent.h" />
+    <ClInclude Include="Misc.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="PointLightShadowMap.h" />
     <ClInclude Include="RenderManager.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Memory.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Misc.h" />
-    <ClInclude Include="GLObject.h" />
-    <ClInclude Include="GLProgram.h" />
-    <ClInclude Include="GLShader.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RingMesh.h" />
@@ -295,9 +291,14 @@
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="Tree.h" />
+    <ClInclude Include="UEbool.h" />
+    <ClInclude Include="UEdouble.h" />
+    <ClInclude Include="UEfloat.h" />
+    <ClInclude Include="UEint.h" />
+    <ClInclude Include="UElong.h" />
     <ClInclude Include="UEulong.h" />
-    <ClInclude Include="UniEngine.h" />
     <ClInclude Include="UEunsigned.h" />
+    <ClInclude Include="UniEngine.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowManager.h" />
     <ClInclude Include="World.h" />

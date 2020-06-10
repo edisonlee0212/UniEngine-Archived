@@ -1,0 +1,453 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\UniEngine">
+      <UniqueIdentifier>{8546ec01-e6fa-4887-96c9-c2ad0e8ab187}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UniEngine">
+      <UniqueIdentifier>{063b1cae-f678-4214-a91a-535c8e23c498}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TimeSystem.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TransformSystem.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Tree.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UEbool.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UEdouble.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UEfloat.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UEint.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UElong.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UEulong.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UEunsigned.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UniEngine.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Window.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WindowManager.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\World.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BezierCurve.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Branch.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Camera.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CameraComponent.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CameraController.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CameraControlSystem.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CoilEnvelope.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ComponentBase.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ComponentStorage.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CubeEnvelope.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Cubemap.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Curve.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CylinderEnvelope.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Debug.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Default.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectionalLightComponent.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectionalLightShadowMap.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Entity.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EntityCollection.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Envelope.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FileIO.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FixedData.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FixedDataStorage.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLBuffer.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLFrameBuffer.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLObject.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLProgram.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLRenderBuffer.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLShader.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLTexture.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InputManager.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InstancedMeshMaterialComponent.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LightingManager.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ManagerBase.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Material.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mathemetics.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Memory.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mesh.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MeshMaterialComponent.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Misc.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ModelManager.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PhysicsSystem.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PointLightComponent.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PointLightShadowMap.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderManager.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderSystem.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderTarget.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RingMesh.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Scene.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SceneNode.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SCTreeSystem.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SharedComponentBase.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SharedComponentStorage.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SharedComponentSystem.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SOREnvelope.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SpotLightComponent.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SurfaceOfRevolutionEnvelope.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SystemBase.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Texture2D.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Time.h">
+      <Filter>Header Files\UniEngine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Debug.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Default.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DirectionalLightComponent.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DirectionalLightShadowMap.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entity.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntityCollection.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Envelope.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileIO.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FixedDataStorage.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLBuffer.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLFrameBuffer.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLProgram.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLRenderBuffer.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLShader.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLTexture.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputManager.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InstancedMeshMaterialComponent.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LightingManager.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ManagerBase.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Material.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Memory.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MeshMaterialComponent.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ModelManager.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicsSystem.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PointLightComponent.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PointLightShadowMap.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderManager.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderSystem.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderTarget.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RingMesh.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneNode.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SCTreeSystem.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SharedComponentStorage.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SharedComponentSystem.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SOREnvelope.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpotLightComponent.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stb.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SurfaceOfRevolutionEnvelope.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SystemBase.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture2D.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Time.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TimeSystem.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TransformSystem.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tree.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UniEngine.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Window.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WindowManager.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\World.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BezierCurve.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Branch.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CameraComponent.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CameraController.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CameraControlSystem.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CoilEnvelope.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComponentStorage.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CubeEnvelope.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cubemap.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Curve.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CylinderEnvelope.cpp">
+      <Filter>Source Files\UniEngine</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

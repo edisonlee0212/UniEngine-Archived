@@ -1,0 +1,194 @@
+#include "UniEngine.h"
+#include "SCTreeSystem.h"
+#include "CameraControlSystem.h"
+using namespace Utilities;
+using namespace UniEngine;
+using namespace SCTree;
+void DrawInfoWindow(World* world);
+void LoadModelAsEntity(EntityCollection* entityCollection, std::string path, glm::vec3 position, glm::vec3 scale);
+void InitGround(EntityCollection* entityCollection);
+int main()
+{
+	EngineDriver* engine = new EngineDriver();
+	engine->Start();
+#pragma region ImGUI
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	ImGui_ImplGlfw_InitForOpenGL(WindowManager::CurrentWindow()->GetGLFWWinwow(), true);
+	ImGui_ImplOpenGL3_Init("#version 460 core");
+	ImGui::StyleColorsDark();
+#pragma endregion
+
+#pragma region Preparations
+	World* world = engine->GetWorld();
+	EntityCollection* ec = world->GetEntityCollection();
+	Time* time = world->GetTime();
+	bool enableSCTreeSystem = false;
+	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
+
+	Camera* mainCamera = new Camera(WindowManager::CurrentWindow());
+	auto cameraEntity = ec->CreateEntity();
+	Position pos;
+	pos.value = glm::vec3(0.0f, 5.0f, 0.0f);
+	ec->SetFixedData<Position>(cameraEntity, pos);
+	CameraComponent* cameraComponent = new CameraComponent();
+	cameraComponent->Value = mainCamera;
+	ec->SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
+	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
+	ccs->SetSensitivity(0.1f);
+	ccs->SetVelocity(15.0f);
+	ccs->Enable();
+	ccs->SetTargetCamera(cameraEntity);
+
+	
+#pragma endregion
+
+#pragma region Models
+	InitGround(ec);
+	LoadModelAsEntity(ec, std::string("Resources/Models/nanosuit/nanosuit.obj"), glm::vec3(6.0f, 0.0f, -4.0f), glm::vec3(0.5f));
+	LoadModelAsEntity(ec, std::string("Resources/Models/backpack/backpack.obj"), glm::vec3(6.0f, 3.0f, 0.0f), glm::vec3(1.0f));
+#pragma endregion
+	
+#pragma region Lights
+	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
+	dlmmc->_Mesh = Default::Primitives::Cylinder;
+	dlmmc->_Material = Default::Materials::StandardMaterial;
+	Scale scale;
+	scale.value = glm::vec3(0.5f);
+
+	DirectionalLightComponent* dlc = new DirectionalLightComponent();
+	dlc->diffuse = glm::vec3(1.0f);
+	dlc->specular = glm::vec3(0.5f);
+	Entity* dle = ec->CreateEntity();
+	ec->SetSharedComponent<DirectionalLightComponent>(dle, dlc);
+	ec->SetFixedData<Scale>(dle, scale);
+	ec->SetSharedComponent<MeshMaterialComponent>(dle, dlmmc);
+
+	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
+	plmmc->_Mesh = Default::Primitives::Sphere;
+	plmmc->_Material = Default::Materials::StandardMaterial;
+	scale.value = glm::vec3(0.5f);
+
+	PointLightComponent* plc = new PointLightComponent();
+	plc->constant = 1.0f;
+	plc->linear = 0.09f;
+	plc->quadratic = 0.032f;
+	plc->farPlane = 70.0f;
+	plc->diffuse = glm::vec3(2.0f);
+	plc->specular = glm::vec3(5.0f);
+	Entity* ple = ec->CreateEntity();
+	ec->SetSharedComponent<PointLightComponent>(ple, plc);
+	ec->SetFixedData<Scale>(ple, scale);
+	ec->SetSharedComponent<MeshMaterialComponent>(ple, plmmc);
+
+	plc = new PointLightComponent();
+	plc->constant = 1.0f;
+	plc->linear = 0.09f;
+	plc->quadratic = 0.032f;
+	plc->farPlane = 70.0f;
+	plc->diffuse = glm::vec3(2.0f);
+	plc->specular = glm::vec3(5.0f);
+	Entity* ple2 = ec->CreateEntity();
+	ec->SetSharedComponent<PointLightComponent>(ple2, plc);
+	ec->SetFixedData<Scale>(ple2, scale);
+	ec->SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);
+#pragma endregion
+
+#pragma region EngineLoop
+	bool loopable = true;
+
+
+	while (loopable) {
+		
+		loopable = engine->LoopStart();
+#pragma region LightsPosition
+		Position p;
+		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(time->WorldTime() / 2.0f)), -20.0f * glm::cos(time->WorldTime() / 2.0f)), 0.0f);
+		ec->SetFixedData<Position>(dle, p);
+		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->WorldTime() / 2.0f), 20.0f * glm::abs(glm::sin(time->WorldTime() / 2.0f)), 0.0f), 0.0f);
+		ec->SetFixedData<Position>(ple, p);
+		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(time->WorldTime() / 2.0f), 15.0f, 20.0f * glm::sin(time->WorldTime() / 2.0f)), 0.0f);
+		ec->SetFixedData<Position>(ple2, p);
+#pragma endregion
+		loopable = engine->Loop();
+		DrawInfoWindow(world);
+		loopable = engine->LoopEnd();
+	}
+	engine->End();
+#pragma endregion
+	return 0;
+}
+#pragma region ModelLoading
+void LoadModelAsEntity(EntityCollection* entityCollection, std::string path, glm::vec3 position, glm::vec3 scale) {
+	Entity* suit = entityCollection->CreateEntity();
+	Position t;
+	t.value = position;
+	Scale s;
+	s.value = scale;
+	entityCollection->SetFixedData<Position>(suit, t);
+	entityCollection->SetFixedData<Scale>(suit, s);
+
+	ModelManager::LoadModelAsEntity(suit, path, Default::GLPrograms::StandardProgram);
+}
+
+void InitGround(EntityCollection* entityCollection) {
+	auto entity = entityCollection->CreateEntity();
+	Position translation = Position();
+	translation.value = glm::vec3(0.0f, 0.0f, 0.0f);
+	Scale scale = Scale();
+	scale.value = glm::vec3(20.0f);
+	entityCollection->SetFixedData<Position>(entity, translation);
+	entityCollection->SetFixedData<Scale>(entity, scale);
+
+	auto mat = new Material();
+	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	auto texture = new Texture2D(TextureType::DIFFUSE);
+	texture->LoadTexture(FileIO::GetPath("Textures/floor.png"), "");
+	mat->Textures2Ds()->push_back(texture);
+	mat->SetMaterialProperty("material.shininess", 32.0f);
+	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
+	meshMaterial->_Mesh = Default::Primitives::Quad;
+	meshMaterial->_Material = mat;
+	entityCollection->SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
+}
+#pragma endregion
+
+void DrawInfoWindow(World* world) {
+	ImGui::Begin("World Info");
+	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+	int tris = RenderManager::Triangles();
+	std::string trisstr = "";
+	if (tris < 999) {
+		trisstr += std::to_string(tris);
+	}
+	else if (tris < 999999) {
+		trisstr += std::to_string((int)(tris / 1000)) + "K";
+	}
+	else {
+		trisstr += std::to_string((int)(tris / 1000000)) + "M";
+	}
+	trisstr += " tris";
+	ImGui::Text(trisstr.c_str());
+
+	ImGui::Text("%d drawcall", RenderManager::DrawCall());
+
+	ImGui::End();
+
+	ImGui::Begin("Logs");
+	int size = Debug::mLogMessages.size();
+	std::string logs = "";
+	for (int i = size - 1; i > 0; i--) {
+		if (i < size - 50) break;
+		logs += *Debug::mLogMessages[i];
+	}
+	ImGui::Text(logs.c_str());
+	ImGui::End();
+}
+
+Time* UniEngine::World::GetTime()
+{
+	return _Time;
+}
+
