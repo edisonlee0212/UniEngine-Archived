@@ -1,6 +1,6 @@
 #include "TransformSystem.h"
 #include "EntityCollection.h"
-#include "Math.h"
+#include "Mathemetics.h"
 using namespace UniEngine;
 glm::mat4 UniEngine::TransformSystem::TRS(glm::vec3 translation, glm::vec4 rotation, glm::vec3 scale) {
 	

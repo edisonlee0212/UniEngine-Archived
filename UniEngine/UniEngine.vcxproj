@@ -229,7 +229,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BezierCurve.h" />
-    <ClInclude Include="bool.h" />
+    <ClInclude Include="UEbool.h" />
     <ClInclude Include="Branch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
@@ -246,25 +246,25 @@
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
-    <ClInclude Include="double.h" />
+    <ClInclude Include="UEdouble.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityCollection.h" />
     <ClInclude Include="Envelope.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="FixedData.h" />
     <ClInclude Include="FixedDataStorage.h" />
-    <ClInclude Include="float.h" />
+    <ClInclude Include="UEfloat.h" />
     <ClInclude Include="GLBuffer.h" />
     <ClInclude Include="GLFrameBuffer.h" />
     <ClInclude Include="GLRenderBuffer.h" />
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstancedMeshMaterialComponent.h" />
-    <ClInclude Include="int.h" />
+    <ClInclude Include="UEint.h" />
     <ClInclude Include="LightingManager.h" />
-    <ClInclude Include="long.h" />
+    <ClInclude Include="UElong.h" />
     <ClInclude Include="ManagerBase.h" />
-    <ClInclude Include="Math.h" />
+    <ClInclude Include="Mathemetics.h" />
     <ClInclude Include="MeshMaterialComponent.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="PhysicsSystem.h" />
@@ -295,15 +295,12 @@
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="Tree.h" />
-    <ClInclude Include="ulong.h" />
+    <ClInclude Include="UEulong.h" />
     <ClInclude Include="UniEngine.h" />
-    <ClInclude Include="unsigned.h" />
+    <ClInclude Include="UEunsigned.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowManager.h" />
     <ClInclude Include="World.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

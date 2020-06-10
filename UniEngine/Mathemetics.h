@@ -2,13 +2,13 @@
 #include <math.h>
 #include "Misc.h"
 
-#include "bool.h"
-#include "double.h"
-#include "float.h"
-#include "int.h"
-#include "long.h"
-#include "unsigned.h"
-#include "ulong.h"
+#include "UEbool.h"
+#include "UEdouble.h"
+#include "UEfloat.h"
+#include "UEint.h"
+#include "UElong.h"
+#include "UEunsigned.h"
+#include "UEulong.h"
 namespace UniEngine {
 #pragma region As
 	union IntFloatUnion

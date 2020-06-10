@@ -536,30 +536,6 @@
     <ClInclude Include="FixedDataStorage.h">
       <Filter>Header Files\UniEngine\World\EntityManagement</Filter>
     </ClInclude>
-    <ClInclude Include="bool.h">
-      <Filter>Header Files\UniEngine\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="double.h">
-      <Filter>Header Files\UniEngine\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="float.h">
-      <Filter>Header Files\UniEngine\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="int.h">
-      <Filter>Header Files\UniEngine\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="long.h">
-      <Filter>Header Files\UniEngine\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Math.h">
-      <Filter>Header Files\UniEngine\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="ulong.h">
-      <Filter>Header Files\UniEngine\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="unsigned.h">
-      <Filter>Header Files\UniEngine\Core\Math</Filter>
-    </ClInclude>
     <ClInclude Include="SharedComponentBase.h">
       <Filter>Header Files\UniEngine\Core\Entity</Filter>
     </ClInclude>
@@ -641,8 +617,29 @@
     <ClInclude Include="CameraControlSystem.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
+    <ClInclude Include="Mathemetics.h">
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEbool.h">
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEdouble.h">
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEfloat.h">
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEint.h">
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UElong.h">
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEulong.h">
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEunsigned.h">
+      <Filter>Header Files\UniEngine\Core\Math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

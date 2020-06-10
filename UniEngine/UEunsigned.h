@@ -1,5 +1,5 @@
 #pragma once
-#include "bool.h"
+#include "UEbool.h"
 #include <math.h>
 namespace UniEngine {
 #pragma region unsigned2
