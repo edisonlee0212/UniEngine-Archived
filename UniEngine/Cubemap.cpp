@@ -1,4 +1,5 @@
 #include "Cubemap.h"
+#include <stb/stb_image.h>
 
 UniEngine::Cubemap::Cubemap()
 {

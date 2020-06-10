@@ -1,5 +1,7 @@
 #include "Texture2D.h"
 #include "Debug.h"
+#include <stb/stb_image.h>
+
 using namespace UniEngine;
 UniEngine::Texture2D::Texture2D(TextureType type) : _Type(type)
 {

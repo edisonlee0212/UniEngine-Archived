@@ -2,6 +2,9 @@
 #include "Core.h"
 #include "Texture2D.h"
 #include "MeshMaterialComponent.h"
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
 namespace UniEngine {
     class ModelManager : public ManagerBase
     {
