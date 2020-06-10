@@ -23,13 +23,13 @@
 
 #include <glad/glad.h>
 
-#include <glfw-3.3.2/include/GLFW/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include <stb/stb_image.h>
 
-#include <assimp-5.0.1/include/assimp/scene.h>
-#include <assimp-5.0.1/include/assimp/postprocess.h>
-#include <assimp-5.0.1/include/assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
