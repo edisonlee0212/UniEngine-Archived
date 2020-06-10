@@ -16,7 +16,9 @@ namespace UniEngine {
 		EngineDriver();
 		void GLInit();
 		void Start();
+		bool LoopStart();
 		bool Loop();
+		bool LoopEnd();
 		void End();
 		World* GetWorld();
 	};

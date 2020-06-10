@@ -3,6 +3,7 @@
 namespace UniEngine {
 	class TimeSystem : public SystemBase
 	{
+		float _TimeStep;
 	public:
 		TimeSystem();
 		void OnCreate();

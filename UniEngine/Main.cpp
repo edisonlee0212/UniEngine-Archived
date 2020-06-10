@@ -1,17 +1,48 @@
 #include "UniEngine.h"
 #include "SCTreeSystem.h"
+#include "CameraControlSystem.h"
+using namespace Utilities;
 using namespace UniEngine;
 using namespace SCTree;
+void DrawInfoWindow(World* world);
 void LoadModelAsEntity(EntityCollection* entityCollection, std::string path, glm::vec3 position, glm::vec3 scale);
 void InitGround(EntityCollection* entityCollection);
 int main()
 {
-#pragma region Preparations
 	EngineDriver* engine = new EngineDriver();
 	engine->Start();
+#pragma region ImGUI
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	ImGui_ImplGlfw_InitForOpenGL(WindowManager::CurrentWindow()->GetGLFWWinwow(), true);
+	ImGui_ImplOpenGL3_Init("#version 460 core");
+	ImGui::StyleColorsDark();
+#pragma endregion
+
+#pragma region Preparations
 	World* world = engine->GetWorld();
-	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
 	EntityCollection* ec = world->GetEntityCollection();
+	Time* time = world->GetTime();
+	bool enableSCTreeSystem = false;
+	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
+
+	Camera* mainCamera = new Camera(WindowManager::CurrentWindow());
+	auto cameraEntity = ec->CreateEntity();
+	Position pos;
+	pos.value = glm::vec3(0.0f, 5.0f, 0.0f);
+	ec->SetFixedData<Position>(cameraEntity, pos);
+	CameraComponent* cameraComponent = new CameraComponent();
+	cameraComponent->Value = mainCamera;
+	ec->SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
+	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
+	ccs->SetSensitivity(0.1f);
+	ccs->SetVelocity(15.0f);
+	ccs->Enable();
+	ccs->SetTargetCamera(cameraEntity);
+
+	
 #pragma endregion
 
 #pragma region Models
@@ -67,17 +98,23 @@ int main()
 
 #pragma region EngineLoop
 	bool loopable = true;
+
+
 	while (loopable) {
+		
+		loopable = engine->LoopStart();
 #pragma region LightsPosition
 		Position p;
-		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(Time::WorldTime() / 2.0f)), -20.0f * glm::cos(Time::WorldTime() / 2.0f)), 0.0f);
+		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(time->WorldTime() / 2.0f)), -20.0f * glm::cos(time->WorldTime() / 2.0f)), 0.0f);
 		ec->SetFixedData<Position>(dle, p);
-		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(Time::WorldTime() / 2.0f), 20.0f * glm::abs(glm::sin(Time::WorldTime() / 2.0f)), 0.0f), 0.0f);
+		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->WorldTime() / 2.0f), 20.0f * glm::abs(glm::sin(time->WorldTime() / 2.0f)), 0.0f), 0.0f);
 		ec->SetFixedData<Position>(ple, p);
-		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(Time::WorldTime() / 2.0f), 15.0f, 20.0f * glm::sin(Time::WorldTime() / 2.0f)), 0.0f);
+		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(time->WorldTime() / 2.0f), 15.0f, 20.0f * glm::sin(time->WorldTime() / 2.0f)), 0.0f);
 		ec->SetFixedData<Position>(ple2, p);
 #pragma endregion
 		loopable = engine->Loop();
+		DrawInfoWindow(world);
+		loopable = engine->LoopEnd();
 	}
 	engine->End();
 #pragma endregion
@@ -118,5 +155,40 @@ void InitGround(EntityCollection* entityCollection) {
 }
 #pragma endregion
 
+void DrawInfoWindow(World* world) {
+	ImGui::Begin("World Info");
+	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+	int tris = RenderManager::Triangles();
+	std::string trisstr = "";
+	if (tris < 999) {
+		trisstr += std::to_string(tris);
+	}
+	else if (tris < 999999) {
+		trisstr += std::to_string((int)(tris / 1000)) + "K";
+	}
+	else {
+		trisstr += std::to_string((int)(tris / 1000000)) + "M";
+	}
+	trisstr += " tris";
+	ImGui::Text(trisstr.c_str());
 
+	ImGui::Text("%d drawcall", RenderManager::DrawCall());
+
+	ImGui::End();
+
+	ImGui::Begin("Logs");
+	int size = Debug::mLogMessages.size();
+	std::string logs = "";
+	for (int i = size - 1; i > 0; i--) {
+		if (i < size - 50) break;
+		logs += *Debug::mLogMessages[i];
+	}
+	ImGui::Text(logs.c_str());
+	ImGui::End();
+}
+
+Time* UniEngine::World::GetTime()
+{
+	return _Time;
+}
 

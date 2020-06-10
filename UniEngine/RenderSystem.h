@@ -5,7 +5,7 @@ namespace UniEngine {
 
 	class RenderSystem : public SystemBase
 	{
-		void RenderToCamera(Camera* camera);
+		void RenderToCamera(CameraComponent* camera, Entity* cameraEntity);
 	public:
 		RenderSystem();
 		void OnCreate();

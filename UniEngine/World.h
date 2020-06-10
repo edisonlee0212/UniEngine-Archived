@@ -6,16 +6,13 @@
 namespace UniEngine {
 	class World
 	{
+		Time* _Time;
 		std::vector<SystemBase*> _Systems;
-		float _TimeStep;
-		Camera* _MainCamera;
 		EntityCollection* _EntityCollection;
-		inline void InitImGui();
-		inline void DrawInfoWindow();
-
 	public:
 		World();
 		void Init();
+		Time* GetTime();
 		template <class T>
 		T* CreateSystem();
 		template <class T>
@@ -25,7 +22,6 @@ namespace UniEngine {
 		~World();
 		void Update();
 		EntityCollection* GetEntityCollection();
-		Camera* MainCamera();
 	};
 
 	template <class T>
@@ -37,6 +33,7 @@ namespace UniEngine {
 		system = new T();
 		system->_EntityCollection = _EntityCollection;
 		system->_World = this;
+		system->_Time = _Time;
 		system->OnCreate();
 		_Systems.push_back((SystemBase*)system);
 		return system;

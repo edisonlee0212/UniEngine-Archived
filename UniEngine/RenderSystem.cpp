@@ -4,12 +4,12 @@
 #include "Default.h"
 using namespace UniEngine;
 
-void UniEngine::RenderSystem::RenderToCamera(Camera* camera)
+void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, Entity* cameraEntity)
 {
-	camera->UpdateCameraVectors();
-	camera->UpdateViewProj();
+
+	Camera* camera = cameraComponent->Value;
 	camera->GetRenderTarget()->Bind();
-	camera->UpdateMatrices();
+	camera->UpdateMatrices(_EntityCollection->GetFixedData<Position>(cameraEntity).value);
 
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -71,6 +71,10 @@ void UniEngine::RenderSystem::Update()
 {
 	auto cameras = _EntityCollection->QuerySharedComponents<CameraComponent>();
 	for (auto i : *cameras) {
-		RenderToCamera(dynamic_cast<CameraComponent*>(i->first)->Value);
+		CameraComponent* cc = dynamic_cast<CameraComponent*>(i->first);
+		std::vector<Entity*>* entities = _EntityCollection->QueryEntities<CameraComponent>(cc);
+		RenderToCamera(cc, entities->at(0));
 	}
+
+	
 }

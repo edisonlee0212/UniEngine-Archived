@@ -1,12 +1,13 @@
 #pragma once
 #include "Core.h"
 #include "ManagerBase.h"
+#include "CameraComponent.h"
 #include "MeshMaterialComponent.h"
 #include "InstancedMeshMaterialComponent.h"
 #include "RenderTarget.h"
 
 
-#include "Camera.h"
+
 #include "Cubemap.h"
 #include "Texture2D.h"
 

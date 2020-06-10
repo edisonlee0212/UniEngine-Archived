@@ -294,9 +294,6 @@
     <ClCompile Include="SharedComponentSystem.cpp">
       <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
     </ClCompile>
-    <ClCompile Include="InputSystem.cpp">
-      <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
-    </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
       <Filter>Source Files\UniEngine\World\SystemManagement</Filter>
     </ClCompile>
@@ -420,7 +417,7 @@
     <ClCompile Include="InstancedMeshMaterialComponent.cpp">
       <Filter>Source Files\UniEngine\Resource\Resource\SharedComponent</Filter>
     </ClCompile>
-    <ClCompile Include="CameraController.cpp">
+    <ClCompile Include="CameraControlSystem.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
@@ -468,9 +465,6 @@
       <Filter>Header Files\UniEngine\World\Systems</Filter>
     </ClInclude>
     <ClInclude Include="TransformSystem.h">
-      <Filter>Header Files\UniEngine\World\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="InputSystem.h">
       <Filter>Header Files\UniEngine\World\Systems</Filter>
     </ClInclude>
     <ClInclude Include="SharedComponentSystem.h">
@@ -644,7 +638,7 @@
     <ClInclude Include="InstancedMeshMaterialComponent.h">
       <Filter>Header Files\UniEngine\Resouce\Resource\SharedComponents</Filter>
     </ClInclude>
-    <ClInclude Include="CameraController.h">
+    <ClInclude Include="CameraControlSystem.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>

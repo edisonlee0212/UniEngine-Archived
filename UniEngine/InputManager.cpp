@@ -1,7 +1,10 @@
 #include "InputManager.h"
 using namespace UniEngine;
 
-double InputManager::_CursorX, InputManager::_CursorY, InputManager::_CursorScrollX, InputManager::_CursorScrollY;
+double InputManager::_CursorX;
+double InputManager::_CursorY;
+double InputManager::_CursorScrollX;
+double InputManager::_CursorScrollY;
 bool InputManager::_CursorMoved, InputManager::_CursorScrolled, InputManager::_CursorMovedChecked, InputManager::_CursorScrolledChecked;
 bool InputManager::_KeyPressed[349];
 bool InputManager::_KeyDown[349];
@@ -15,7 +18,7 @@ bool InputManager::_MouseDownChecked[8];
 bool InputManager::_MouseUpChecked[8];
 
 
-InputManager::InputManager() {
+void InputManager::Init() {
     for (int i = 0; i < 349; i++) {
         _KeyPressed[i] = false;
         _KeyDown[i] = false;
@@ -115,5 +118,16 @@ bool InputManager::GetMouseMoved() {
 
 void UniEngine::InputManager::Update()
 {
+    for (auto i = 0; i < 349; i++) {
+        if (InputManager::_KeyDownChecked[i]) InputManager::_KeyDown[i] = false;
+        if (InputManager::_KeyUpChecked[i]) InputManager::_KeyUp[i] = false;
+    }
 
+    for (auto i = 0; i < 8; i++) {
+        if (InputManager::_MouseDownChecked[i]) InputManager::_MouseDown[i] = false;
+        if (InputManager::_MouseUpChecked[i]) InputManager::_MouseUp[i] = false;
+    }
+
+    if (InputManager::_CursorMovedChecked) InputManager::_CursorMoved = false;
+    if (InputManager::_CursorScrolledChecked) InputManager::_CursorScrolled = false;
 }

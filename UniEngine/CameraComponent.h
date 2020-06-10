@@ -1,6 +1,6 @@
 #pragma once
 #include "SharedComponentBase.h"
-#include "RenderManager.h"
+#include "Camera.h"
 namespace UniEngine {
 	class CameraComponent :
 		public SharedComponentBase

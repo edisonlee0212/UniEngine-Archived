@@ -63,9 +63,9 @@ void SCTree::SCTreeSystem::BuildEnvelope() {
 		_Envelope = new CubeEnvelope(glm::vec3(-_EnvelopeRadius / 2.0f, _MinHeight, -_EnvelopeRadius / 2.0f), glm::vec3(_EnvelopeRadius, _MaxHeight - _MinHeight, _EnvelopeRadius));
 		break;
 	}
-	Debug::Log("Generating attraction points...");
+	//Debug::Log("Generating attraction points...");
 	_Envelope->GeneratePoints(_PointsCount);
-	Debug::Log("Attraction points generation complete. [Amount: " + std::to_string(_PointsCount) + "]");
+	//Debug::Log("Attraction points generation complete. [Amount: " + std::to_string(_PointsCount) + "]");
 }
 
 
@@ -76,9 +76,9 @@ void SCTree::SCTreeSystem::BuildTree() {
 	_Tree = new Tree(glm::vec3(0.0f), Default::Materials::StandardMaterial, Default::Materials::StandardMaterial, Default::Materials::StandardMaterial);
 	_AttractDist = _GrowDist * _AttractDitsMult;
 	_RemoveDist = _GrowDist * _RemoveDistMult;
-	Debug::Log("Trunk growing...");
+	//Debug::Log("Trunk growing...");
 	_Tree->GrowTrunk(_GrowDist, _AttractDist, _Envelope, glm::vec3(0.0f));
-	Debug::Log("Trunk grow complete.");
+	//Debug::Log("Trunk grow complete.");
 }
 
 void SCTree::SCTreeSystem::RemoveTree() {
@@ -90,15 +90,15 @@ void SCTree::SCTreeSystem::RemoveTree() {
 		_EntityCollection->DeleteEntity(_TreeEntity);
 		_TreeEntity = nullptr;
 	}
-	if (_TreeLeaves != nullptr) { 
-		delete _TreeLeaves; 
+	if (_TreeLeaves != nullptr) {
+		delete _TreeLeaves;
 		_TreeLeaves = nullptr;
 	}
-	if (_TreeMesh != nullptr) { 
+	if (_TreeMesh != nullptr) {
 		delete _TreeMesh;
 		_TreeMesh = nullptr;
 	}
-	
+
 }
 
 void SCTree::SCTreeSystem::RemoveEnvelope() {
@@ -121,8 +121,9 @@ static const char* EnvelopeTypes[]{ "SurfaceOfRevo", "Cube", "Cylinder", "Coil" 
 void SCTree::SCTreeSystem::Update() {
 	EnvelopeGUIMenu();
 	TreeGUIMenu();
-	if (_Envelope != nullptr) _Envelope->Draw(_World->MainCamera(), _EnvelopePointMaterial, glm::vec3(_TreeSize));
-	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(_World->MainCamera(), _TreePointMaterial, glm::vec3(_TreeSize) );
+	Camera* mainCamera = dynamic_cast<CameraComponent*>(_EntityCollection->QuerySharedComponents<CameraComponent>()->at(0)->first)->Value;
+	if (_Envelope != nullptr) _Envelope->Draw(mainCamera, _EnvelopePointMaterial, glm::vec3(_TreeSize));
+	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(mainCamera, _TreePointMaterial, glm::vec3(_TreeSize));
 	if (_TreeEntity != nullptr) {
 		Scale scale;
 		scale.value = glm::vec3(_TreeSize);
@@ -159,7 +160,7 @@ void SCTree::SCTreeSystem::FixedUpdate() {
 	}
 }
 
-inline void  SCTree::SCTreeSystem::EnvelopeGUIMenu() {
+void SCTree::SCTreeSystem::EnvelopeGUIMenu() {
 	ImGui::Begin("Envelope Controller");
 	ImGui::Combo("Envelope Type", &_SelectedEnvelopeType, EnvelopeTypes, IM_ARRAYSIZE(EnvelopeTypes), 3);
 	if (ImGui::Button("Create Aattraction Points")) BuildEnvelope();
@@ -171,10 +172,10 @@ inline void  SCTree::SCTreeSystem::EnvelopeGUIMenu() {
 	ImGui::End();
 }
 
-inline void  SCTree::SCTreeSystem::TreeGUIMenu() {
+void SCTree::SCTreeSystem::TreeGUIMenu() {
 	ImGui::Begin("Tree Controller");
 	std::string text = std::string(_DrawOrgan ? "Draw" : "Hide") + " Organs";
-	if (ImGui::Button(text.c_str())) { 
+	if (ImGui::Button(text.c_str())) {
 		_DrawOrgan = !_DrawOrgan;
 		if (_DrawOrgan) {
 			if (_TreeEntity != nullptr) {

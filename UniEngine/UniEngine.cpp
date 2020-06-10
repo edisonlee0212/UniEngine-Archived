@@ -40,6 +40,7 @@ void UniEngine::EngineDriver::GLInit()
 void UniEngine::EngineDriver::Start()
 {
 	WindowManager::Init();
+	InputManager::Init();
 	auto glfwwindow = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	GLInit();
 	WindowManager::CreateWindow(glfwwindow, 1600, 900);
@@ -53,17 +54,41 @@ void UniEngine::EngineDriver::Start()
 	_Loopable = true;
 }
 
+bool UniEngine::EngineDriver::LoopStart()
+{
+	if (!_Loopable) {
+		return false;
+	}
+	glfwPollEvents();
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	RenderManager::Start();
+	LightingManager::Start();
+	return true;
+}
+
 bool UniEngine::EngineDriver::Loop()
 {
 	if (!_Loopable) {
 		return false;
 	}
-	RenderManager::Start();
-	LightingManager::Start();
 
-	glfwPollEvents();
 	_World->Update();
+	
+	return true;
+}
+
+bool UniEngine::EngineDriver::LoopEnd()
+{
+	if (!_Loopable) {
+		return false;
+	}
+	
 	InputManager::Update();
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	WindowManager::Update();
 	return true;
 }

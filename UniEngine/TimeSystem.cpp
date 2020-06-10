@@ -2,13 +2,14 @@
 #include "Time.h"
 UniEngine::TimeSystem::TimeSystem()
 {
-	Time::SetWorldTime(0);
-	Time::SetDeltaTime(0);
-	Time::SetLastFrameTime(0);
-	Time::SetFixedDeltaTime(0);
+	
 }
 void UniEngine::TimeSystem::OnCreate()
 {
+	_Time->_WorldTime = 0;
+	_Time->_DeltaTime = 0;
+	_Time->_LastFrameTime = 0;
+	_Time->_FixedDeltaTime = 0;
 	Enable();
 }
 
@@ -20,8 +21,13 @@ void UniEngine::TimeSystem::OnDestroy()
 void UniEngine::TimeSystem::Update()
 {
 	double currentFrame = glfwGetTime();
-	Time::SetDeltaTime(currentFrame - Time::LastFrameTime());
-	Time::AddWorldTime(Time::DeltaTime());
-	Time::SetLastFrameTime(currentFrame);
-	Time::AddFixedDeltaTime(Time::DeltaTime());
+	_Time->_DeltaTime = currentFrame - _Time->_LastFrameTime;
+	_Time->AddWorldTime(_Time->_DeltaTime);
+	_Time->_LastFrameTime = currentFrame;
+	_Time->AddFixedDeltaTime(_Time->_DeltaTime);
+
+	ImGui::Begin("Time Info");
+	ImGui::SliderFloat("sec/step", &(_Time->_TimeStep), 0.05f, 1.0f);
+	ImGui::End();
+	
 }

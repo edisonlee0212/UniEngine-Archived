@@ -3,23 +3,21 @@ namespace UniEngine {
 	class Time
 	{
 	private:
-		static double _WorldTime;
-		static double _FixedDeltaTime;
-		static double _DeltaTime;
-		static double _LastFrameTime;
+		double _WorldTime;
+		double _FixedDeltaTime;
+		double _DeltaTime;
+		double _LastFrameTime;
+		float _TimeStep;
 		friend class TimeSystem;
 		friend class World;
-		static void AddWorldTime(double value);
-		static void AddFixedDeltaTime(double value);
-		static void SetWorldTime(double value);
-		static void SetFixedDeltaTime(double value);
-		static void SetDeltaTime(double value);
-		static void SetLastFrameTime(double value);
+		void AddWorldTime(double value);
+		void AddFixedDeltaTime(double value);
 	public:
-		static double WorldTime();
-		static double FixedDeltaTime();
-		static double DeltaTime();
-		static double LastFrameTime();
+		float TimeStep();
+		double WorldTime();
+		float FixedDeltaTime();
+		float DeltaTime();
+		float LastFrameTime();
 	};
 
 }
