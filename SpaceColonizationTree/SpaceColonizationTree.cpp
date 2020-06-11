@@ -1,26 +1,17 @@
 #include "UniEngine.h"
 #include "SCTreeSystem.h"
 #include "CameraControlSystem.h"
-
+#include "ModelManager.h"
 using namespace UniEngine;
 using namespace SCTree;
 using namespace Utilities;
-void DrawInfoWindow(World* world);
 void LoadModelAsEntity(EntityCollection* entityCollection, std::string path, glm::vec3 position, glm::vec3 scale);
 void InitGround(EntityCollection* entityCollection);
 int main()
 {
 	EngineDriver* engine = new EngineDriver();
 	engine->Start();
-#pragma region ImGUI
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
 
-	ImGui_ImplGlfw_InitForOpenGL(WindowManager::CurrentWindow()->GetGLFWWinwow(), true);
-	ImGui_ImplOpenGL3_Init("#version 460 core");
-	ImGui::StyleColorsDark();
-#pragma endregion
 
 #pragma region Preparations
 	World* world = engine->GetWorld();
@@ -28,6 +19,9 @@ int main()
 	EngineTime* time = world->GetTime();
 	bool enableSCTreeSystem = false;
 	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
+	ts->Enable();
+	ts->BuildEnvelope();
+	ts->BuildTree();
 
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow());
 	auto cameraEntity = ec->CreateEntity();
@@ -114,7 +108,7 @@ int main()
 		ec->SetFixedData<Position>(ple2, p);
 #pragma endregion
 		loopable = engine->Loop();
-		DrawInfoWindow(world);
+		
 		loopable = engine->LoopEnd();
 	}
 	engine->End();
@@ -156,40 +150,6 @@ void InitGround(EntityCollection* entityCollection) {
 }
 #pragma endregion
 
-void DrawInfoWindow(World* world) {
-	ImGui::Begin("World Info");
-	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-	int tris = RenderManager::Triangles();
-	std::string trisstr = "";
-	if (tris < 999) {
-		trisstr += std::to_string(tris);
-	}
-	else if (tris < 999999) {
-		trisstr += std::to_string((int)(tris / 1000)) + "K";
-	}
-	else {
-		trisstr += std::to_string((int)(tris / 1000000)) + "M";
-	}
-	trisstr += " tris";
-	ImGui::Text(trisstr.c_str());
 
-	ImGui::Text("%d drawcall", RenderManager::DrawCall());
 
-	ImGui::End();
-
-	ImGui::Begin("Logs");
-	int size = Debug::mLogMessages.size();
-	std::string logs = "";
-	for (int i = size - 1; i > 0; i--) {
-		if (i < size - 50) break;
-		logs += *Debug::mLogMessages[i];
-	}
-	ImGui::Text(logs.c_str());
-	ImGui::End();
-}
-
-EngineTime* UniEngine::World::GetTime()
-{
-	return _Time;
-}
 

@@ -78,13 +78,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
+    <IncludePath>..\includes\Assimp\include;..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
     <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
+    <IncludePath>..\includes\Assimp\include;..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
     <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
@@ -135,7 +135,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Debug\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Debug\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,7 +155,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Release\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Release\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -194,6 +194,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshMaterialComponent.h" />
     <ClInclude Include="Misc.h" />
+    <ClInclude Include="ModelManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLightComponent.h" />
@@ -257,6 +258,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshMaterialComponent.cpp" />
     <ClCompile Include="Misc.cpp" />
+    <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

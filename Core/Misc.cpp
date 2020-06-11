@@ -78,3 +78,25 @@ GLenum RenderManager::_TextureStartIndex = 2;
 RenderTarget* RenderManager::_CurrentRenderTarget;
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;
+
+#include "Default.h"
+GLProgram* Default::GLPrograms::ScreenProgram;
+GLProgram* Default::GLPrograms::StandardProgram;
+GLProgram* Default::GLPrograms::StandardInstancedProgram;
+GLVAO* Default::GLPrograms::ScreenVAO;
+std::string* Default::ShaderIncludes::Uniform;
+std::string* Default::ShaderIncludes::Lights;
+std::string* Default::ShaderIncludes::Shadow;
+
+Texture2D* Default::Textures::MissingTexture;
+Texture2D* Default::Textures::UV;
+Texture2D* Default::Textures::StandardTexture;
+
+Mesh* Default::Primitives::Sphere;
+Mesh* Default::Primitives::Cube;
+Mesh* Default::Primitives::Quad;
+Mesh* Default::Primitives::Cone;
+Mesh* Default::Primitives::Cylinder;
+
+Material* Default::Materials::StandardMaterial;
+Material* Default::Materials::StandardInstancedMaterial;

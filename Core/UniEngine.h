@@ -6,7 +6,7 @@
 #include "InputManager.h"
 #include "LightingManager.h"
 namespace UniEngine {
-	class EngineDriver {
+	class UECORE_API EngineDriver {
 		World* _World;
 		bool _Loopable;
 	public:

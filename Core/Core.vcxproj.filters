@@ -148,6 +148,9 @@
     <Filter Include="Source Files\External">
       <UniqueIdentifier>{db3b2b10-e8ad-4b22-bd69-df5b9ae96ffe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Resource\Manager\Model">
+      <UniqueIdentifier>{0d2b0169-09a9-4d40-ada6-d6fd594d9344}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -342,6 +345,9 @@
     <ClInclude Include="khrplatform.h">
       <Filter>Header Files\Core\Graphics\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="ModelManager.h">
+      <Filter>Header Files\Resource\Manager\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -363,9 +369,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UniEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Default.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileIO.cpp">
@@ -496,6 +499,12 @@
     </ClCompile>
     <ClCompile Include="glad.c">
       <Filter>Source Files\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelManager.cpp">
+      <Filter>Source Files\Resource\Manager\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Default.cpp">
+      <Filter>Source Files\Resource</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

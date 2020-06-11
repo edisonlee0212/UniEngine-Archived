@@ -2,17 +2,8 @@
 #include "Default.h"
 #include "World.h"
 #include "MeshMaterialComponent.h"
-
+#include "ModelManager.h"
 using namespace UniEngine;
-
-GLProgram* Default::GLPrograms::ScreenProgram;
-GLProgram* Default::GLPrograms::StandardProgram;
-GLProgram* Default::GLPrograms::StandardInstancedProgram;
-GLVAO* Default::GLPrograms::ScreenVAO;
-std::string* Default::ShaderIncludes::Uniform;
-std::string* Default::ShaderIncludes::Lights;
-std::string* Default::ShaderIncludes::Shadow;
-
 
 void UniEngine::Default::Load(World* world)
 {
@@ -36,7 +27,7 @@ void UniEngine::Default::Load(World* world)
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-	
+
 	GLShader* screenvert = new GLShader(ShaderType::Vertex);
 	std::string vertShaderCode = std::string(FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Vertex/screen.vert")));
 	screenvert->SetCode(&vertShaderCode);
@@ -51,7 +42,7 @@ void UniEngine::Default::Load(World* world)
 	delete screenvert;
 	delete screenfrag;
 
-	std::string add = 
+	std::string add =
 		"#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
 		"\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxDirectionalLightAmount) +
 		"\n#define POINT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxPointLightAmount) +
@@ -60,6 +51,14 @@ void UniEngine::Default::Load(World* world)
 	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Include/Uniform.inc")));
 	ShaderIncludes::Shadow = new std::string(FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Include/Shadow.frag")));
 	ShaderIncludes::Lights = new std::string(FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Include/Lights.frag")));
+
+	Textures::MissingTexture = new Texture2D(TextureType::DIFFUSE);
+	Textures::MissingTexture->LoadTexture(FileIO::GetPath("Textures/texture-missing.png"), "");
+	Textures::UV = new Texture2D(TextureType::DIFFUSE);
+	Textures::UV->LoadTexture(FileIO::GetPath("Textures/uv-test.png"), "");
+	Textures::StandardTexture = new Texture2D(TextureType::DIFFUSE);
+	Textures::StandardTexture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
+
 
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
@@ -102,4 +101,46 @@ void UniEngine::Default::Load(World* world)
 	GLPrograms::StandardInstancedProgram->Link();
 	delete standardvert;
 	delete standardfrag;
+
+	Materials::StandardMaterial = new Material();
+	Materials::StandardMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	Materials::StandardMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
+	Materials::StandardMaterial->SetMaterialProperty("material.shininess", 32.0f);
+
+	Materials::StandardInstancedMaterial = new Material();
+	Materials::StandardInstancedMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
+	Materials::StandardInstancedMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
+	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
+
+	EntityCollection* ec = world->GetEntityCollection();
+
+	Entity* entity = ec->CreateEntity();
+
+
+
+	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/quad.obj"));
+	Primitives::Quad = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
+
+	entity = ec->CreateEntity();
+	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/sphere.obj"));
+	Primitives::Sphere = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
+
+	entity = ec->CreateEntity();
+	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cube.obj"));
+	Primitives::Cube = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
+
+
+
+	entity = ec->CreateEntity();
+	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cone.obj"));
+	Primitives::Cone = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
+
+	entity = ec->CreateEntity();
+	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cylinder.obj"));
+	Primitives::Cylinder = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
+	ec->DeleteEntity(entity);
 }

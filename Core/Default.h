@@ -3,9 +3,9 @@
 #include "RenderManager.h"
 
 namespace UniEngine {
-	class Default {
+	class UECORE_API Default {
 	public:
-		static class GLPrograms {
+		static class UECORE_API GLPrograms {
 		public:
 			static GLProgram* ScreenProgram;
 			static GLVAO* ScreenVAO;
@@ -14,7 +14,7 @@ namespace UniEngine {
 			static GLProgram* StandardInstancedProgram;
 		};
 
-		static class ShaderIncludes {
+		static class UECORE_API ShaderIncludes {
 		public:
 			static std::string* Uniform;
 
@@ -26,6 +26,28 @@ namespace UniEngine {
 			const static size_t MaxPointLightAmount = 16;
 			const static size_t MaxSpotLightAmount = 16;
 			static std::string* Lights;
+		};
+
+		static class UECORE_API Textures {
+		public:
+			static Texture2D* MissingTexture;
+			static Texture2D* UV;
+			static Texture2D* StandardTexture;
+		};
+
+		static class UECORE_API Primitives {
+		public:
+			static Mesh* Sphere;
+			static Mesh* Cube;
+			static Mesh* Quad;
+			static Mesh* Cylinder;
+			static Mesh* Cone;
+		};
+
+		static class UECORE_API Materials {
+		public:
+			static Material* StandardMaterial;
+			static Material* StandardInstancedMaterial;
 		};
 
 		static void Load(World* world);

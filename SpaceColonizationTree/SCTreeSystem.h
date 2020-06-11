@@ -45,7 +45,6 @@ namespace SCTree {
 		float _EnvelopeRadius, _MinHeight, _MaxHeight;
 		bool _DrawOrgan;
 		float _TreeSize;
-		void EnvelopeGUIMenu();
-		void TreeGUIMenu();
+
 	};
 }

@@ -119,8 +119,6 @@ void SCTree::SCTreeSystem::OnDestroy() {
 static const char* EnvelopeTypes[]{ "SurfaceOfRevo", "Cube", "Cylinder", "Coil" };
 
 void SCTree::SCTreeSystem::Update() {
-	EnvelopeGUIMenu();
-	TreeGUIMenu();
 	Camera* mainCamera = dynamic_cast<CameraComponent*>(_EntityCollection->QuerySharedComponents<CameraComponent>()->at(0)->first)->Value;
 	if (_Envelope != nullptr) _Envelope->Draw(mainCamera, _EnvelopePointMaterial, glm::vec3(_TreeSize));
 	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(mainCamera, _TreePointMaterial, glm::vec3(_TreeSize));
@@ -158,46 +156,4 @@ void SCTree::SCTreeSystem::FixedUpdate() {
 			RemoveEnvelope();
 		}
 	}
-}
-
-void SCTree::SCTreeSystem::EnvelopeGUIMenu() {
-	ImGui::Begin("Envelope Controller");
-	ImGui::Combo("Envelope Type", &_SelectedEnvelopeType, EnvelopeTypes, IM_ARRAYSIZE(EnvelopeTypes), 3);
-	if (ImGui::Button("Create Aattraction Points")) BuildEnvelope();
-	ImGui::SliderInt("Point Amount", &_PointsCount, 100, 16000);
-	ImGui::SliderFloat("Envelope Radius", &_EnvelopeRadius, 1.0f, 10.0f);
-	ImGui::SliderFloat("Minmum Height", &_MinHeight, 0.1f, _MaxHeight);
-	ImGui::SliderFloat("Maximum Height", &_MaxHeight, _MinHeight, 20.0f);
-	if (ImGui::Button("Clear Aattraction Points")) RemoveEnvelope();
-	ImGui::End();
-}
-
-void SCTree::SCTreeSystem::TreeGUIMenu() {
-	ImGui::Begin("Tree Controller");
-	std::string text = std::string(_DrawOrgan ? "Draw" : "Hide") + " Organs";
-	if (ImGui::Button(text.c_str())) {
-		_DrawOrgan = !_DrawOrgan;
-		if (_DrawOrgan) {
-			if (_TreeEntity != nullptr) {
-				if (_TreeLeaves != nullptr) {
-					_EntityCollection->RemoveSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity);
-				}
-			}
-		}
-		else {
-			if (_TreeEntity != nullptr) {
-				if (_TreeLeaves != nullptr) {
-					_EntityCollection->SetSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity, _TreeLeaves);
-				}
-			}
-		}
-	}
-	ImGui::SliderFloat("Tree Size", &_TreeSize, 0.2f, 5.0f);
-	ImGui::SliderFloat("Grow Distance", &_GrowDist, 0.2f, 0.5f);
-	ImGui::SliderFloat("Attract Distance Multiplier", &_AttractDitsMult, 1.0f, 5.0f);
-	ImGui::SliderFloat("Remove Distance Multiplier", &_RemoveDistMult, 0.1f, 0.9f);
-	if (ImGui::Button("Build Tree")) BuildTree();
-	if (ImGui::Button("Delete Tree")) RemoveTree();
-	ImGui::Text("Iteration = %d", _Iteration);
-	ImGui::End();
 }

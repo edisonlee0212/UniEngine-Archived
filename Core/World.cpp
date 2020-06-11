@@ -62,4 +62,7 @@ EntityCollection* UniEngine::World::GetEntityCollection()
 	return _EntityCollection;
 }
 
-
+EngineTime* UniEngine::World::GetTime()
+{
+	return _Time;
+}
