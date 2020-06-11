@@ -5,6 +5,9 @@
 
 #upload all resource file.
 !Resources/*
+#upload all includes
+!includes/*
+
 
 # User-specific files
 *.rsuser
