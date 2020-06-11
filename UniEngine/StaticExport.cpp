@@ -100,3 +100,6 @@ Mesh* Default::Primitives::Cylinder;
 
 Material* Default::Materials::StandardMaterial;
 Material* Default::Materials::StandardInstancedMaterial;
+
+#include "RenderSystem.h"
+bool RenderSystem::_EnableWireFrame;

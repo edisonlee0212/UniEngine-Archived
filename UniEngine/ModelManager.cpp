@@ -2,7 +2,7 @@
 #include "ModelManager.h"
 #include "World.h"
 #include "MeshMaterialComponent.h"
-#include <stb/stb_image.h>
+#include <stb_image.h>
 
 using namespace UniEngine;
 std::vector<Entity*> ModelManager::entities = std::vector<Entity*>();

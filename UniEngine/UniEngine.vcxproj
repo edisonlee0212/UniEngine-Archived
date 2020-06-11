@@ -24,6 +24,7 @@
     <ProjectGuid>{324d4482-9924-4f0b-aba0-e6e9ba51b02f}</ProjectGuid>
     <RootNamespace>Core</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>UniEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -78,14 +79,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\includes\Assimp\include;..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\GLFW\src;..\src;$(SourcePath)</SourcePath>
+    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glad\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
+    <SourcePath>..\includes\GLFW\src;$(SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\includes\Assimp\include;..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\GLFW\src;..\src;$(SourcePath)</SourcePath>
+    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glad\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
+    <SourcePath>..\includes\GLFW\src;$(SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -126,7 +127,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLAD_GLAPI_EXPORT;_DEBUG;CORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLAD_GLAPI_EXPORT;_DEBUG;UNIENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -144,7 +145,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLAD_GLAPI_EXPORT;NDEBUG;CORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLAD_GLAPI_EXPORT;NDEBUG;UNIENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -294,7 +295,7 @@
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshMaterialComponent.cpp" />
-    <ClCompile Include="Misc.cpp" />
+    <ClCompile Include="StaticExport.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

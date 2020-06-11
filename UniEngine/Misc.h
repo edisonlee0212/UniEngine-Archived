@@ -26,12 +26,12 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtx/transform.hpp>
+#include <gtc/type_ptr.hpp>
 
-#ifdef CORE_EXPORTS
+#ifdef UNIENGINE_EXPORTS
 #define UECORE_API __declspec(dllexport)
 #else
 #define UECORE_API __declspec(dllimport)

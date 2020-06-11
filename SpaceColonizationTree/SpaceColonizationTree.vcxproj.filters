@@ -37,12 +37,15 @@
     <Filter Include="Source Files\Tree\Branch">
       <UniqueIdentifier>{a048d3ee-a5f6-472a-9be0-3015f77e1be5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{5ab053ff-762e-40a7-aa2c-b47f2b11e85d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Systems">
+      <UniqueIdentifier>{252376e1-3c8e-41f5-bd01-17b11b59ee94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SpaceColonizationTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SCTreeSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CoilEnvelope.cpp">
@@ -72,18 +75,18 @@
     <ClCompile Include="RingMesh.cpp">
       <Filter>Source Files\Tree\Branch</Filter>
     </ClCompile>
-    <ClCompile Include="CameraControlSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tree.cpp">
       <Filter>Source Files\Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraControlSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="SCTreeSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SCTreeSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoilEnvelope.h">
@@ -114,7 +117,10 @@
       <Filter>Header Files\Envelope</Filter>
     </ClInclude>
     <ClInclude Include="CameraControlSystem.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="SCTreeSystem.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

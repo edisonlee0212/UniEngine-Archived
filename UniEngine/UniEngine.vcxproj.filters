@@ -389,9 +389,6 @@
     <ClCompile Include="Debug.cpp">
       <Filter>Source Files\Core\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Misc.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files\Core\Entity</Filter>
     </ClCompile>
@@ -556,6 +553,9 @@
     </ClCompile>
     <ClCompile Include="imgui_impl_opengl3.cpp">
       <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticExport.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

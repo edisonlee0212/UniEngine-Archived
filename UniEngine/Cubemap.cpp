@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Cubemap.h"
-#include <stb/stb_image.h>
+#include <stb_image.h>
 
 UniEngine::Cubemap::Cubemap()
 {

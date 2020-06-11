@@ -12,8 +12,13 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 	camera->GetRenderTarget()->Bind();
 	camera->UpdateMatrices(_EntityCollection->GetFixedData<Position>(cameraEntity).value);
 
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	if (_EnableWireFrame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_BLEND);
@@ -53,13 +58,18 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 }
 
 
+void UniEngine::RenderSystem::SetWireFrameMode(bool value)
+{
+	_EnableWireFrame = value;
+}
+
 UniEngine::RenderSystem::RenderSystem()
 {	
 }
 
 void UniEngine::RenderSystem::OnCreate()
 {
-	
+	_EnableWireFrame = false;
 	Enable();
 }
 

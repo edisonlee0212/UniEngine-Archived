@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Texture2D.h"
-#include <stb/stb_image.h>
+#include <stb_image.h>
 
 using namespace UniEngine;
 UniEngine::Texture2D::Texture2D(TextureType type) : _Type(type)
