@@ -1,0 +1,501 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{50b40ba6-6799-454b-aeab-8ab6d818fe29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{908e1bd5-b041-40a5-a151-af0ecb34355a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Debug">
+      <UniqueIdentifier>{7b2dc77f-e7be-4126-b86f-93a017977770}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Debug">
+      <UniqueIdentifier>{15780c82-ea80-4c5f-9573-09b759078a45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Entity">
+      <UniqueIdentifier>{7e381009-eb58-4a19-b9d4-a66ef54411d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Entity">
+      <UniqueIdentifier>{b21c31b9-05f4-4485-b4f9-79e7806f7357}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\FileIO">
+      <UniqueIdentifier>{c32e06c9-5d95-4b25-9a38-41a428debd52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Graphics">
+      <UniqueIdentifier>{253df4b1-7ee0-4e7b-9f55-8372a4a64c39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Graphics\OpenGL">
+      <UniqueIdentifier>{20792b8a-f0e0-4801-991a-957b617d95c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Math">
+      <UniqueIdentifier>{5fac143e-3180-428f-a0d2-5aba05a1a456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Memory">
+      <UniqueIdentifier>{c9fb6c44-ef06-4240-99e5-d0aea952b63e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Profiler">
+      <UniqueIdentifier>{fd374a7d-06c8-4456-81fe-36c239420de6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Thread">
+      <UniqueIdentifier>{3c9563b8-f32a-46d4-8e60-bf436514ff4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core\Time">
+      <UniqueIdentifier>{32ffcaa7-f518-429f-945c-da91248bd957}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource">
+      <UniqueIdentifier>{dbca06b1-d1f9-4e4f-8783-811867853664}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\Asset">
+      <UniqueIdentifier>{4f8380f0-a61e-404d-bf0d-fbe6f52c6184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\Asset\Scene">
+      <UniqueIdentifier>{0a83b809-7ca6-4e4b-90f2-2d2f5ba874c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\Manager">
+      <UniqueIdentifier>{5f364dd2-ef88-4cb5-b742-359d46d2ccc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\Manager\Input">
+      <UniqueIdentifier>{a9f840bf-14fd-417a-a501-3ca615605c08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\Manager\Model">
+      <UniqueIdentifier>{3260ec06-616a-49f7-90db-fb9f72c57f61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\Manager\Rendering">
+      <UniqueIdentifier>{7ab163c2-3e06-42f1-bac1-c119e0b1d8e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\Manager\Window">
+      <UniqueIdentifier>{e7e12a2a-5caf-4caf-b428-7994e60aa507}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\SharedComponents">
+      <UniqueIdentifier>{c1fba296-b4af-4d60-9de6-4d3637ec95ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\World">
+      <UniqueIdentifier>{73f9c545-06f5-499b-a31c-c3789338d65c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\World\Entity">
+      <UniqueIdentifier>{ac6c5a76-4a8e-4aae-9eff-063f566b1d33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\World\System">
+      <UniqueIdentifier>{261bf353-eeb2-4529-ad8a-54480043ed5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\FileIO">
+      <UniqueIdentifier>{b0088e24-5cdc-4623-a5ff-f44ba1115f27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Graphics">
+      <UniqueIdentifier>{dd47b8c2-5348-42c8-bb4a-6d72bc7c46b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Graphics\OpenGL">
+      <UniqueIdentifier>{dbc54f3f-f844-440f-a4d4-f174b5a3f008}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Memory">
+      <UniqueIdentifier>{235b9071-eddc-4a4d-928a-fe2d2b2ce441}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Profiler">
+      <UniqueIdentifier>{0545ddcb-0c91-46ab-a9b2-035d796cbfc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Thread">
+      <UniqueIdentifier>{cfdb19de-f239-4349-9fa5-665107cf9d35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core\Time">
+      <UniqueIdentifier>{bf645fd2-e674-4b64-a99a-4d64ed88b640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource">
+      <UniqueIdentifier>{1c8b910f-251b-446e-a0f5-22ae0ff94f9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\Asset">
+      <UniqueIdentifier>{044ca4de-41cf-4918-9b9c-9db261496f37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\Asset\Scene">
+      <UniqueIdentifier>{75dfd9a0-6d65-4aed-9995-fb8b8cbe66f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\Manager">
+      <UniqueIdentifier>{a5deae8c-3e4f-4595-822d-d86fd9a44f03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\Manager\Input">
+      <UniqueIdentifier>{f1ccd168-af9c-4c5d-956f-74be91a22133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\Manager\Rendering">
+      <UniqueIdentifier>{a84dcb55-783b-484d-9b67-316f019967c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\Manager\Window">
+      <UniqueIdentifier>{24212c05-bf3d-4918-b0c1-87e4e105353a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\SharedComponent">
+      <UniqueIdentifier>{38693c77-a117-47b3-ade0-8f4fa54bf0bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\World">
+      <UniqueIdentifier>{666538bf-0639-472e-b308-bc4f45d80e7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\World\Entity">
+      <UniqueIdentifier>{85efa08c-2bc7-4174-8506-26b713249bf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\World\System">
+      <UniqueIdentifier>{5e7affdb-525a-4e62-976e-d931b9c44bc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\External">
+      <UniqueIdentifier>{db3b2b10-e8ad-4b22-bd69-df5b9ae96ffe}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Header Files\Core\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentBase.h">
+      <Filter>Header Files\Core\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Header Files\Core\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedComponentBase.h">
+      <Filter>Header Files\Core\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="FixedData.h">
+      <Filter>Header Files\Core\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UniEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIO.h">
+      <Filter>Header Files\Core\FileIO</Filter>
+    </ClInclude>
+    <ClInclude Include="GLBuffer.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLFrameBuffer.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLObject.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLProgram.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRenderBuffer.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLShader.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLTexture.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="UEbool.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEdouble.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEfloat.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEint.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UElong.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEulong.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="UEunsigned.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Mathemetics.h">
+      <Filter>Header Files\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
+      <Filter>Header Files\Core\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Resource\Asset\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneNode.h">
+      <Filter>Header Files\Resource\Asset\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagerBase.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemBase.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files\Resource\Manager\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Cubemap.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLightShadowMap.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingManager.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLightShadowMap.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderManager.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files\Resource\Manager\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowManager.h">
+      <Filter>Header Files\Resource\Manager\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Header Files\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLightComponent.h">
+      <Filter>Header Files\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="InstancedMeshMaterialComponent.h">
+      <Filter>Header Files\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLightComponent.h">
+      <Filter>Header Files\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLightComponent.h">
+      <Filter>Header Files\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshMaterialComponent.h">
+      <Filter>Header Files\Resource\SharedComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentStorage.h">
+      <Filter>Header Files\World\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityCollection.h">
+      <Filter>Header Files\World\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="FixedDataStorage.h">
+      <Filter>Header Files\World\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedComponentStorage.h">
+      <Filter>Header Files\World\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsSystem.h">
+      <Filter>Header Files\World\System</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderSystem.h">
+      <Filter>Header Files\World\System</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedComponentSystem.h">
+      <Filter>Header Files\World\System</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeSystem.h">
+      <Filter>Header Files\World\System</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>Header Files\World\System</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Default.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineTime.h">
+      <Filter>Header Files\Core\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="glad.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="khrplatform.h">
+      <Filter>Header Files\Core\Graphics\OpenGL</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug.cpp">
+      <Filter>Source Files\Core\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Misc.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source Files\Core\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="stb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UniEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Default.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
+      <Filter>Source Files\Core\FileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="GLBuffer.cpp">
+      <Filter>Source Files\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLFrameBuffer.cpp">
+      <Filter>Source Files\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLProgram.cpp">
+      <Filter>Source Files\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderBuffer.cpp">
+      <Filter>Source Files\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLShader.cpp">
+      <Filter>Source Files\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLTexture.cpp">
+      <Filter>Source Files\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory.cpp">
+      <Filter>Source Files\Core\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files\Resource\Asset\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>Source Files\Resource\Asset\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files\Resource\Manager\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLightShadowMap.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingManager.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLightShadowMap.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files\Resource\Manager\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>Source Files\Resource\Manager\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraComponent.cpp">
+      <Filter>Source Files\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLightComponent.cpp">
+      <Filter>Source Files\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="InstancedMeshMaterialComponent.cpp">
+      <Filter>Source Files\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshMaterialComponent.cpp">
+      <Filter>Source Files\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLightComponent.cpp">
+      <Filter>Source Files\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLightComponent.cpp">
+      <Filter>Source Files\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentStorage.cpp">
+      <Filter>Source Files\World\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityCollection.cpp">
+      <Filter>Source Files\World\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="FixedDataStorage.cpp">
+      <Filter>Source Files\World\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedComponentStorage.cpp">
+      <Filter>Source Files\World\System</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>Source Files\World\System</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderSystem.cpp">
+      <Filter>Source Files\World\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedComponentSystem.cpp">
+      <Filter>Source Files\World\System</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeSystem.cpp">
+      <Filter>Source Files\World\System</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformSystem.cpp">
+      <Filter>Source Files\World\System</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagerBase.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemBase.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineTime.cpp">
+      <Filter>Source Files\Core\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Source Files\Core\Graphics\OpenGL</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,5 +1,4 @@
 #pragma once
-#include "Math.h"
 #include "Misc.h"
 namespace UniEngine {
 	struct FixedData {

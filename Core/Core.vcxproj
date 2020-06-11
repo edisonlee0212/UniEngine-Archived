@@ -20,34 +20,33 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{F9422322-F15D-4D5B-B47C-A28A04331AD1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>UniEngine</RootNamespace>
+    <ProjectGuid>{324d4482-9924-4f0b-aba0-e6e9ba51b02f}</ProjectGuid>
+    <RootNamespace>Core</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>UniEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -73,187 +72,110 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>includes;$(IncludePath)</IncludePath>
-    <SourcePath>includes\glfw-3.3.2\src;includes\glad\src;src;$(SourcePath)</SourcePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\includes;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
-    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
+    <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\includes;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
+    <IncludePath>..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</IncludePath>
     <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;includes\glfw-3.3.2\x64\src\Debug\glfw3.lib;includes\assimp-5.0.1\x64\code\Debug\assimp-vc142-mtd.lib;includes\assimp-5.0.1\x64\contrib\irrXML\Debug\IrrXMLd.lib;includes\assimp-5.0.1\x64\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Debug\glfw3.lib;..\includes\Assimp\code\Debug\assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;CORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Debug\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;CORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Release\glfw3.lib;..\includes\Assimp\code\Release\assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Release\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\includes\glad\src\glad.c" />
-    <ClCompile Include="..\includes\ImGUI\examples\imgui_impl_glfw.cpp" />
-    <ClCompile Include="..\includes\ImGUI\examples\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="..\includes\ImGUI\examples\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\includes\ImGUI\imgui.cpp" />
-    <ClCompile Include="..\includes\ImGUI\imgui_demo.cpp" />
-    <ClCompile Include="..\includes\ImGUI\imgui_draw.cpp" />
-    <ClCompile Include="..\includes\ImGUI\imgui_widgets.cpp" />
-    <ClCompile Include="BezierCurve.cpp" />
-    <ClCompile Include="Branch.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CameraComponent.cpp" />
-    <ClCompile Include="CameraControlSystem.cpp" />
-    <ClCompile Include="CoilEnvelope.cpp" />
-    <ClCompile Include="ComponentStorage.cpp" />
-    <ClCompile Include="CubeEnvelope.cpp" />
-    <ClCompile Include="Cubemap.cpp" />
-    <ClCompile Include="Curve.cpp" />
-    <ClCompile Include="CylinderEnvelope.cpp" />
-    <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="Default.cpp" />
-    <ClCompile Include="DirectionalLightComponent.cpp" />
-    <ClCompile Include="DirectionalLightShadowMap.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EntityCollection.cpp" />
-    <ClCompile Include="Envelope.cpp" />
-    <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="FixedDataStorage.cpp" />
-    <ClCompile Include="GLBuffer.cpp" />
-    <ClCompile Include="GLFrameBuffer.cpp" />
-    <ClCompile Include="GLProgram.cpp" />
-    <ClCompile Include="GLRenderBuffer.cpp" />
-    <ClCompile Include="GLShader.cpp" />
-    <ClCompile Include="GLTexture.cpp" />
-    <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="InstancedMeshMaterialComponent.cpp" />
-    <ClCompile Include="LightingManager.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="ManagerBase.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Memory.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshMaterialComponent.cpp" />
-    <ClCompile Include="ModelManager.cpp" />
-    <ClCompile Include="PhysicsSystem.cpp" />
-    <ClCompile Include="PointLightComponent.cpp" />
-    <ClCompile Include="PointLightShadowMap.cpp" />
-    <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="RenderSystem.cpp" />
-    <ClCompile Include="RenderTarget.cpp" />
-    <ClCompile Include="RingMesh.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneNode.cpp" />
-    <ClCompile Include="SCTreeSystem.cpp" />
-    <ClCompile Include="SharedComponentStorage.cpp" />
-    <ClCompile Include="SharedComponentSystem.cpp" />
-    <ClCompile Include="SpotLightComponent.cpp" />
-    <ClCompile Include="stb.cpp" />
-    <ClCompile Include="SurfaceOfRevolutionEnvelope.cpp" />
-    <ClCompile Include="SystemBase.cpp" />
-    <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="Time.cpp" />
-    <ClCompile Include="TimeSystem.cpp" />
-    <ClCompile Include="TransformSystem.cpp" />
-    <ClCompile Include="Tree.cpp" />
-    <ClCompile Include="UniEngine.cpp" />
-    <ClCompile Include="Window.cpp" />
-    <ClCompile Include="WindowManager.cpp" />
-    <ClCompile Include="World.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="BezierCurve.h" />
-    <ClInclude Include="Branch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
-    <ClInclude Include="CameraControlSystem.h" />
-    <ClInclude Include="CoilEnvelope.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="ComponentStorage.h" />
     <ClInclude Include="Core.h" />
-    <ClInclude Include="CubeEnvelope.h" />
     <ClInclude Include="Cubemap.h" />
-    <ClInclude Include="Curve.h" />
-    <ClInclude Include="CylinderEnvelope.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityCollection.h" />
-    <ClInclude Include="Envelope.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="FixedData.h" />
     <ClInclude Include="FixedDataStorage.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="glad.h" />
     <ClInclude Include="GLBuffer.h" />
     <ClInclude Include="GLFrameBuffer.h" />
     <ClInclude Include="GLObject.h" />
@@ -263,6 +185,7 @@
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstancedMeshMaterialComponent.h" />
+    <ClInclude Include="khrplatform.h" />
     <ClInclude Include="LightingManager.h" />
     <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="Material.h" />
@@ -271,28 +194,24 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshMaterialComponent.h" />
     <ClInclude Include="Misc.h" />
-    <ClInclude Include="ModelManager.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="PointLightShadowMap.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RenderTarget.h" />
-    <ClInclude Include="RingMesh.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
-    <ClInclude Include="SCTreeSystem.h" />
     <ClInclude Include="SharedComponentBase.h" />
     <ClInclude Include="SharedComponentStorage.h" />
     <ClInclude Include="SharedComponentSystem.h" />
     <ClInclude Include="SpotLightComponent.h" />
-    <ClInclude Include="SurfaceOfRevolutionEnvelope.h" />
     <ClInclude Include="SystemBase.h" />
     <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="Time.h" />
+    <ClInclude Include="EngineTime.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformSystem.h" />
-    <ClInclude Include="Tree.h" />
     <ClInclude Include="UEbool.h" />
     <ClInclude Include="UEdouble.h" />
     <ClInclude Include="UEfloat.h" />
@@ -304,6 +223,67 @@
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowManager.h" />
     <ClInclude Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="ComponentStorage.cpp" />
+    <ClCompile Include="Cubemap.cpp" />
+    <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="Default.cpp" />
+    <ClCompile Include="DirectionalLightComponent.cpp" />
+    <ClCompile Include="DirectionalLightShadowMap.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="EntityCollection.cpp" />
+    <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="FixedDataStorage.cpp" />
+    <ClCompile Include="glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="GLBuffer.cpp" />
+    <ClCompile Include="GLFrameBuffer.cpp" />
+    <ClCompile Include="GLProgram.cpp" />
+    <ClCompile Include="GLRenderBuffer.cpp" />
+    <ClCompile Include="GLShader.cpp" />
+    <ClCompile Include="GLTexture.cpp" />
+    <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="InstancedMeshMaterialComponent.cpp" />
+    <ClCompile Include="LightingManager.cpp" />
+    <ClCompile Include="ManagerBase.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshMaterialComponent.cpp" />
+    <ClCompile Include="Misc.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp" />
+    <ClCompile Include="PointLightComponent.cpp" />
+    <ClCompile Include="PointLightShadowMap.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="SharedComponentStorage.cpp" />
+    <ClCompile Include="SharedComponentSystem.cpp" />
+    <ClCompile Include="SpotLightComponent.cpp" />
+    <ClCompile Include="stb.cpp" />
+    <ClCompile Include="SystemBase.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="EngineTime.cpp" />
+    <ClCompile Include="TimeSystem.cpp" />
+    <ClCompile Include="TransformSystem.cpp" />
+    <ClCompile Include="UniEngine.cpp" />
+    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="WindowManager.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
