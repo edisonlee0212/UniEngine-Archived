@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpaceColonizationTree", "Sp
 		{324D4482-9924-4F0B-ABA0-E6E9BA51B02F} = {324D4482-9924-4F0B-ABA0-E6E9BA51B02F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Planet", "Planet\Planet.vcxproj", "{46B10A7B-3432-4644-87AA-96B018D7BC7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,6 +36,14 @@ Global
 		{DD4342C8-7A2B-48A4-8F9A-702292AA8F1F}.Release|x64.Build.0 = Release|x64
 		{DD4342C8-7A2B-48A4-8F9A-702292AA8F1F}.Release|x86.ActiveCfg = Release|Win32
 		{DD4342C8-7A2B-48A4-8F9A-702292AA8F1F}.Release|x86.Build.0 = Release|Win32
+		{46B10A7B-3432-4644-87AA-96B018D7BC7C}.Debug|x64.ActiveCfg = Debug|x64
+		{46B10A7B-3432-4644-87AA-96B018D7BC7C}.Debug|x64.Build.0 = Debug|x64
+		{46B10A7B-3432-4644-87AA-96B018D7BC7C}.Debug|x86.ActiveCfg = Debug|Win32
+		{46B10A7B-3432-4644-87AA-96B018D7BC7C}.Debug|x86.Build.0 = Debug|Win32
+		{46B10A7B-3432-4644-87AA-96B018D7BC7C}.Release|x64.ActiveCfg = Release|x64
+		{46B10A7B-3432-4644-87AA-96B018D7BC7C}.Release|x64.Build.0 = Release|x64
+		{46B10A7B-3432-4644-87AA-96B018D7BC7C}.Release|x86.ActiveCfg = Release|Win32
+		{46B10A7B-3432-4644-87AA-96B018D7BC7C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

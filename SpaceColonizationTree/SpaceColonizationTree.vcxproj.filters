@@ -22,17 +22,20 @@
     <Filter Include="Header Files\Branch">
       <UniqueIdentifier>{22ad1618-02ca-4f04-9cff-7dcc47c556ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Envelope">
-      <UniqueIdentifier>{3010721d-d01d-4577-88aa-1a24d1c91fa3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Math">
       <UniqueIdentifier>{dea37f00-c2e6-49dc-aa02-36cc6cf20874}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Branch">
-      <UniqueIdentifier>{a048d3ee-a5f6-472a-9be0-3015f77e1be5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\External">
       <UniqueIdentifier>{2ce01755-a202-4b69-87d1-f748796b6845}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tree">
+      <UniqueIdentifier>{a809f382-a51b-44f0-9224-38c516800d82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tree\Envelope">
+      <UniqueIdentifier>{3010721d-d01d-4577-88aa-1a24d1c91fa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tree\Branch">
+      <UniqueIdentifier>{a048d3ee-a5f6-472a-9be0-3015f77e1be5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,23 +45,20 @@
     <ClCompile Include="SCTreeSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CoilEnvelope.cpp">
-      <Filter>Source Files\Envelope</Filter>
+      <Filter>Source Files\Tree\Envelope</Filter>
     </ClCompile>
     <ClCompile Include="CubeEnvelope.cpp">
-      <Filter>Source Files\Envelope</Filter>
+      <Filter>Source Files\Tree\Envelope</Filter>
     </ClCompile>
     <ClCompile Include="CylinderEnvelope.cpp">
-      <Filter>Source Files\Envelope</Filter>
+      <Filter>Source Files\Tree\Envelope</Filter>
     </ClCompile>
     <ClCompile Include="Envelope.cpp">
-      <Filter>Source Files\Envelope</Filter>
+      <Filter>Source Files\Tree\Envelope</Filter>
     </ClCompile>
     <ClCompile Include="SurfaceOfRevolutionEnvelope.cpp">
-      <Filter>Source Files\Envelope</Filter>
+      <Filter>Source Files\Tree\Envelope</Filter>
     </ClCompile>
     <ClCompile Include="BezierCurve.cpp">
       <Filter>Source Files\Math</Filter>
@@ -67,13 +67,16 @@
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="Branch.cpp">
-      <Filter>Source Files\Branch</Filter>
+      <Filter>Source Files\Tree\Branch</Filter>
     </ClCompile>
     <ClCompile Include="RingMesh.cpp">
-      <Filter>Source Files\Branch</Filter>
+      <Filter>Source Files\Tree\Branch</Filter>
     </ClCompile>
     <ClCompile Include="CameraControlSystem.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tree.cpp">
+      <Filter>Source Files\Tree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -53,6 +53,14 @@ void UniEngine::EngineDriver::Start()
 	Default::Load(_World);
 	LightingManager::Init();
 	_Loopable = true;
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	ImGui_ImplGlfw_InitForOpenGL(WindowManager::CurrentWindow()->GetGLFWWinwow(), true);
+	ImGui_ImplOpenGL3_Init("#version 460 core");
+	ImGui::StyleColorsDark();
 }
 
 bool UniEngine::EngineDriver::LoopStart()
@@ -61,7 +69,10 @@ bool UniEngine::EngineDriver::LoopStart()
 		return false;
 	}
 	glfwPollEvents();
-
+	
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 	RenderManager::Start();
 	LightingManager::Start();
 	return true;
@@ -85,6 +96,9 @@ bool UniEngine::EngineDriver::LoopEnd()
 	}
 	
 	InputManager::Update();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	WindowManager::Update();
 	return true;
 }

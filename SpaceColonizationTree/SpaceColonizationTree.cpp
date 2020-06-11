@@ -11,8 +11,7 @@ int main()
 {
 	EngineDriver* engine = new EngineDriver();
 	engine->Start();
-
-
+	
 #pragma region Preparations
 	World* world = engine->GetWorld();
 	EntityCollection* ec = world->GetEntityCollection();
@@ -96,7 +95,6 @@ int main()
 
 
 	while (loopable) {
-
 		loopable = engine->LoopStart();
 #pragma region LightsPosition
 		Position p;
@@ -108,6 +106,9 @@ int main()
 		ec->SetFixedData<Position>(ple2, p);
 #pragma endregion
 		loopable = engine->Loop();
+		ImGui::Begin("World Info");
+		ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+		ImGui::End();
 		
 		loopable = engine->LoopEnd();
 	}

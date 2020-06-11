@@ -53,11 +53,10 @@ struct gladGLversionStruct {
 };
 
 typedef void* (* GLADloadproc)(const char *name);
-
 #ifndef GLAPI
 # if defined(GLAD_GLAPI_EXPORT)
 #  if defined(_WIN32) || defined(__CYGWIN__)
-#   if defined(GLAD_GLAPI_EXPORT_BUILD)
+#   if defined(CORE_EXPORTS)
 #    if defined(__GNUC__)
 #     define GLAPI __attribute__ ((dllexport)) extern
 #    else

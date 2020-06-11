@@ -18,15 +18,13 @@
 #define OMP_THREAD_AMOUNT 8
 
 
-#include <ImGUI/imgui.h>
-#include <ImGUI/examples/imgui_impl_glfw.h>
-#include <ImGUI/examples/imgui_impl_opengl3.h>
-#include <ImGUI/examples/imgui_impl_win32.h>
-
-#include <glad/glad.h>
+#include "glad.h"
 
 #include <GLFW/glfw3.h>
-
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_win32.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
