@@ -29,10 +29,10 @@ void UniEngine::Default::Load(World* world)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	GLShader* screenvert = new GLShader(ShaderType::Vertex);
-	std::string vertShaderCode = std::string(FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Vertex/screen.vert")));
+	std::string vertShaderCode = std::string(FileIO::LoadFileAsString("Shaders/Vertex/screen.vert"));
 	screenvert->SetCode(&vertShaderCode);
 	GLShader* screenfrag = new GLShader(ShaderType::Fragment);
-	std::string fragShaderCode = std::string(FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Fragment/screen.frag")));
+	std::string fragShaderCode = std::string(FileIO::LoadFileAsString("Shaders/Fragment/screen.frag"));
 	screenfrag->SetCode(&fragShaderCode);
 	GLPrograms::ScreenProgram = new GLProgram();
 	GLPrograms::ScreenProgram->Attach(ShaderType::Vertex, screenvert);
@@ -48,9 +48,9 @@ void UniEngine::Default::Load(World* world)
 		"\n#define POINT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxPointLightAmount) +
 		"\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
 
-	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Include/Uniform.inc")));
-	ShaderIncludes::Shadow = new std::string(FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Include/Shadow.frag")));
-	ShaderIncludes::Lights = new std::string(FileIO::LoadFileAsString(FileIO::GetPath("Shaders/Include/Lights.frag")));
+	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString("Shaders/Include/Uniform.inc"));
+	ShaderIncludes::Shadow = new std::string(FileIO::LoadFileAsString("Shaders/Include/Shadow.frag"));
+	ShaderIncludes::Lights = new std::string(FileIO::LoadFileAsString("Shaders/Include/Lights.frag"));
 
 	Textures::MissingTexture = new Texture2D(TextureType::DIFFUSE);
 	Textures::MissingTexture->LoadTexture(FileIO::GetPath("Textures/texture-missing.png"), "");
@@ -63,7 +63,7 @@ void UniEngine::Default::Load(World* world)
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Resources/Shaders/Vertex/Standard.vert");
+		+ FileIO::LoadFileAsString("Shaders/Vertex/Standard.vert");
 
 
 	fragShaderCode = std::string("#version 460 core\n")
@@ -73,7 +73,7 @@ void UniEngine::Default::Load(World* world)
 		+ "\n"
 		+ *Default::ShaderIncludes::Lights
 		+ "\n"
-		+ FileIO::LoadFileAsString("Resources/Shaders/Fragment/Standard.frag");
+		+ FileIO::LoadFileAsString("Shaders/Fragment/Standard.frag");
 
 	GLShader* standardvert = new GLShader(ShaderType::Vertex);
 	standardvert->SetCode(&vertShaderCode);
@@ -89,7 +89,7 @@ void UniEngine::Default::Load(World* world)
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Resources/Shaders/Vertex/StandardInstanced.vert");
+		+ FileIO::LoadFileAsString("Shaders/Vertex/StandardInstanced.vert");
 
 	standardvert = new GLShader(ShaderType::Vertex);
 	standardvert->SetCode(&vertShaderCode);

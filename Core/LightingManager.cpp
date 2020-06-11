@@ -22,16 +22,16 @@ void UniEngine::LightingManager::Init()
 #pragma region DirectionalLight
 	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount);
 	std::string vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Resources/Shaders/Vertex/DirectionalLightShadowMap.vert");
+		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
 	std::string fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Resources/Shaders/Fragment/DirectionalLightShadowMap.frag");
+		FileIO::LoadFileAsString("Shaders/Fragment/DirectionalLightShadowMap.frag");
 	_DirectionalLightProgram = new GLProgram(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
 	);
 
 	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Resources/Shaders/Vertex/DirectionalLightShadowMapInstanced.vert");
+		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMapInstanced.vert");
 	_DirectionalLightInstancedProgram = new GLProgram(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
@@ -40,11 +40,11 @@ void UniEngine::LightingManager::Init()
 #pragma region PointLight
 	_PointLightShadowMap = new PointLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount);
 	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Resources/Shaders/Vertex/PointLightShadowMap.vert");
+		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMap.vert");
 	fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Resources/Shaders/Fragment/PointLightShadowMap.frag");
+		FileIO::LoadFileAsString("Shaders/Fragment/PointLightShadowMap.frag");
 	std::string geomShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Resources/Shaders/Geometry/PointLightShadowMap.geom");
+		FileIO::LoadFileAsString("Shaders/Geometry/PointLightShadowMap.geom");
 
 	_PointLightProgram = new GLProgram(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
@@ -53,7 +53,7 @@ void UniEngine::LightingManager::Init()
 	);
 
 	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Resources/Shaders/Vertex/PointLightShadowMapInstanced.vert");
+		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMapInstanced.vert");
 	_PointLightInstancedProgram = new GLProgram(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode),
