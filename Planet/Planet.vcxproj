@@ -78,12 +78,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <ExecutablePath>..\includes\Assimp\include;..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</ExecutablePath>
+    <ExecutablePath>..\includes\Assimp\include;..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</ExecutablePath>
     <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>..\includes\Assimp\include;..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\ImGUI\examples;..\includes\ImGUI;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</ExecutablePath>
+    <ExecutablePath>..\includes\Assimp\include;..\includes;..\includes\GLFW\include;..\includes\glad\include;..\includes\glad\include\glad;..\includes\glad\include\KHR;..\includes\glm;$(IncludePath)</ExecutablePath>
     <SourcePath>..\includes\GLFW\src;..\includes\glad\src;..\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

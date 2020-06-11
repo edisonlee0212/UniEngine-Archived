@@ -96,7 +96,7 @@ bool UniEngine::EngineDriver::LoopEnd()
 	}
 	
 	InputManager::Update();
-
+	DrawInfoWindow();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	WindowManager::Update();
@@ -113,6 +113,39 @@ World* UniEngine::EngineDriver::GetWorld()
 {
 	return _World;
 }
+
+void UniEngine::EngineDriver::DrawInfoWindow() {
+	ImGui::Begin("World Info");
+	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+	int tris = RenderManager::Triangles();
+	std::string trisstr = "";
+	if (tris < 999) {
+		trisstr += std::to_string(tris);
+	}
+	else if (tris < 999999) {
+		trisstr += std::to_string((int)(tris / 1000)) + "K";
+	}
+	else {
+		trisstr += std::to_string((int)(tris / 1000000)) + "M";
+	}
+	trisstr += " tris";
+	ImGui::Text(trisstr.c_str());
+
+	ImGui::Text("%d drawcall", RenderManager::DrawCall());
+
+	ImGui::End();
+
+	ImGui::Begin("Logs");
+	int size = Debug::mLogMessages.size();
+	std::string logs = "";
+	for (int i = size - 1; i > 0; i--) {
+		if (i < size - 50) break;
+		logs += *Debug::mLogMessages[i];
+	}
+	ImGui::Text(logs.c_str());
+	ImGui::End();
+}
+
 
 #pragma region OpenGL Debugging
 GLenum glCheckError_(const char* file, int line)

@@ -26,5 +26,7 @@ void UniEngine::TimeSystem::Update()
 	_Time->AddWorldTime(_Time->_DeltaTime);
 	_Time->_LastFrameTime = currentFrame;
 	_Time->AddFixedDeltaTime(_Time->_DeltaTime);
-	
+	ImGui::Begin("Time Info");
+	ImGui::SliderFloat("sec/step", &(_Time->_TimeStep), 0.05f, 1.0f);
+	ImGui::End();
 }

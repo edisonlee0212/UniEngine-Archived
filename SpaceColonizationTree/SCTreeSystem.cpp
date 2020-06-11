@@ -44,6 +44,7 @@ void SCTree::SCTreeSystem::OnCreate()
 }
 
 void SCTree::SCTreeSystem::BuildEnvelope() {
+	RemoveTree();
 	RemoveEnvelope();
 	switch (_SelectedEnvelopeType)
 	{
@@ -63,9 +64,9 @@ void SCTree::SCTreeSystem::BuildEnvelope() {
 		_Envelope = new CubeEnvelope(glm::vec3(-_EnvelopeRadius / 2.0f, _MinHeight, -_EnvelopeRadius / 2.0f), glm::vec3(_EnvelopeRadius, _MaxHeight - _MinHeight, _EnvelopeRadius));
 		break;
 	}
-	//Debug::Log("Generating attraction points...");
+	Debug::Log("Generating attraction points...");
 	_Envelope->GeneratePoints(_PointsCount);
-	//Debug::Log("Attraction points generation complete. [Amount: " + std::to_string(_PointsCount) + "]");
+	Debug::Log("Attraction points generation complete. [Amount: " + std::to_string(_PointsCount) + "]");
 }
 
 

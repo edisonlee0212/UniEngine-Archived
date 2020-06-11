@@ -9,6 +9,7 @@ namespace UniEngine {
 	class UECORE_API EngineDriver {
 		World* _World;
 		bool _Loopable;
+		void DrawInfoWindow();
 	public:
 		EngineDriver();
 		void GLInit();
@@ -18,5 +19,6 @@ namespace UniEngine {
 		bool LoopEnd();
 		void End();
 		World* GetWorld();
+		
 	};
 }
