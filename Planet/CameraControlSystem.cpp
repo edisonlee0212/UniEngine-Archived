@@ -1,6 +1,6 @@
 #include "CameraControlSystem.h"
 
-void SpaceColonizationTree::CameraControlSystem::Update()
+void Planet::CameraControlSystem::Update()
 {
 	Position cameraPosition = _EntityCollection->GetFixedData<Position>(_TargetCameraEntity);
 	glm::vec3 position = cameraPosition.value;
@@ -50,19 +50,19 @@ void SpaceColonizationTree::CameraControlSystem::Update()
 	}
 }
 
-void SpaceColonizationTree::CameraControlSystem::SetTargetCamera(Entity* targetCameraEntity)
+void Planet::CameraControlSystem::SetTargetCamera(Entity* targetCameraEntity)
 {
 	_TargetCameraEntity = targetCameraEntity;
 	_TargetCameraComponent = _EntityCollection->GetSharedComponent<CameraComponent>(_TargetCameraEntity);
 	_TargetCamera = _TargetCameraComponent->Value;
 }
 
-void SpaceColonizationTree::CameraControlSystem::SetVelocity(float velocity)
+void Planet::CameraControlSystem::SetVelocity(float velocity)
 {
 	_Velocity = velocity;
 }
 
-void SpaceColonizationTree::CameraControlSystem::SetSensitivity(float sensitivity)
+void Planet::CameraControlSystem::SetSensitivity(float sensitivity)
 {
 	_Sensitivity = sensitivity;
 }

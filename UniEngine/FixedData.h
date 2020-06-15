@@ -11,7 +11,7 @@ namespace UniEngine {
 		glm::vec3 value;
 	};
 	struct UECORE_API Rotation : FixedData {
-		glm::vec4 value;
+		glm::quat value;
 	};
 	struct UECORE_API LocalPosition : FixedData
 	{
@@ -21,7 +21,7 @@ namespace UniEngine {
 		glm::vec3 value;
 	};
 	struct UECORE_API LocalRotation : FixedData {
-		glm::vec4 value;
+		glm::quat value;
 	};
 	struct UECORE_API LocalToWorld : FixedData {
 		glm::mat4 value;

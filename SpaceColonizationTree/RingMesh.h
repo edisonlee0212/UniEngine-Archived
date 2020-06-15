@@ -2,7 +2,7 @@
 #include "Misc.h"
 #include "UniEngine.h"
 using namespace UniEngine;
-namespace SCTree {
+namespace SpaceColonizationTree {
 	struct RingMesh
 	{
 		glm::vec3 StartPosition, EndPosition;

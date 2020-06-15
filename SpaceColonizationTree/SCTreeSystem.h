@@ -3,7 +3,7 @@
 #include "Envelope.h"
 #include "Tree.h"
 using namespace UniEngine;
-namespace SCTree {
+namespace SpaceColonizationTree {
 	class SCTreeSystem :
 		public SystemBase
 	{

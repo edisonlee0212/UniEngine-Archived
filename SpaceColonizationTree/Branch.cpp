@@ -1,7 +1,7 @@
 #include "Branch.h"
-using namespace SCTree;
+using namespace SpaceColonizationTree;
 
-SCTree::Branch::Branch(glm::vec3 position, Branch* parent, bool isTrunk, int growIteration, float initialRadius)
+SpaceColonizationTree::Branch::Branch(glm::vec3 position, Branch* parent, bool isTrunk, int growIteration, float initialRadius)
 	:position(position),
 	parent(parent),
 	isTrunk(isTrunk),
@@ -15,14 +15,14 @@ SCTree::Branch::Branch(glm::vec3 position, Branch* parent, bool isTrunk, int gro
 	isSubdivided = false;
 }
 
-SCTree::Branch::~Branch()
+SpaceColonizationTree::Branch::~Branch()
 {
 	for (auto i : mChildren) {
 		delete i;
 	}
 }
 
-void SCTree::Branch::CollectPoint(std::vector<glm::mat4>* matrices)
+void SpaceColonizationTree::Branch::CollectPoint(std::vector<glm::mat4>* matrices)
 {
 	if (!isSubdivided) {
 		matrices->push_back(transform);
@@ -40,7 +40,7 @@ void SCTree::Branch::CollectPoint(std::vector<glm::mat4>* matrices)
 	}
 }
 
-float SCTree::Branch::CalculateRadius(int _MaxGrowIteration, float n, float minRadius)
+float SpaceColonizationTree::Branch::CalculateRadius(int _MaxGrowIteration, float n, float minRadius)
 {
 	if (mChildren.size() == 0) return radius;
 	float radVal = 0.0f;
@@ -54,7 +54,7 @@ float SCTree::Branch::CalculateRadius(int _MaxGrowIteration, float n, float minR
 	return radius;
 }
 
-Branch* SCTree::Branch::Grow(float growDist, bool growTrunk, glm::vec3 tropism, float distDec, float minDist, float decimationDistChild, float decimationDistParent)
+Branch* SpaceColonizationTree::Branch::Grow(float growDist, bool growTrunk, glm::vec3 tropism, float distDec, float minDist, float decimationDistChild, float decimationDistParent)
 {
 	if (growDir == glm::vec3(0.0f)) return nullptr;
 	float actualDist = growDist - distDec * growIteration;
@@ -72,7 +72,7 @@ Branch* SCTree::Branch::Grow(float growDist, bool growTrunk, glm::vec3 tropism, 
 	return newBranch;
 }
 
-void SCTree::Branch::Relocation()
+void SpaceColonizationTree::Branch::Relocation()
 {
 	for (auto i : mChildren) {
 		i->Relocation();
@@ -81,7 +81,7 @@ void SCTree::Branch::Relocation()
 	}
 }
 
-void SCTree::Branch::Subdivision(glm::vec3 fromPos, glm::vec3 fromDir, float fromRadius)
+void SpaceColonizationTree::Branch::Subdivision(glm::vec3 fromPos, glm::vec3 fromDir, float fromRadius)
 {
 	auto distance = glm::distance(fromPos, position);
 	int amount = distance / ((fromRadius + radius) / 2.0f);
@@ -107,7 +107,7 @@ void SCTree::Branch::Subdivision(glm::vec3 fromPos, glm::vec3 fromDir, float fro
 	}
 }
 
-void SCTree::Branch::CalculateMesh(glm::vec3 rootPos, std::vector<Vertex>* vertices, int resolution)
+void SpaceColonizationTree::Branch::CalculateMesh(glm::vec3 rootPos, std::vector<Vertex>* vertices, int resolution)
 {
 	for (auto i : mRings) {
 		i.AppendPoints(vertices, resolution);
@@ -139,7 +139,7 @@ void SCTree::Branch::CalculateMesh(glm::vec3 rootPos, std::vector<Vertex>* verti
 	}
 }
 
-void SCTree::Branch::GenerateOrgan(std::vector<glm::mat4>* matrices, int _MaxGrowIteration, int maxLeaf)
+void SpaceColonizationTree::Branch::GenerateOrgan(std::vector<glm::mat4>* matrices, int _MaxGrowIteration, int maxLeaf)
 {
 	for (auto i : mChildren) i->GenerateOrgan(matrices, _MaxGrowIteration);
 	if (isTrunk) return;

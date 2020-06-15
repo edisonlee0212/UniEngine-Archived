@@ -1,6 +1,6 @@
 #pragma once
 #include "Envelope.h"
-namespace SCTree {
+namespace SpaceColonizationTree {
 	class SurfaceOfRevolutionEnvelope :
 		public Envelope
 	{

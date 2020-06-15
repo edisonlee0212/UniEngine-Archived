@@ -8,6 +8,7 @@
 #include <list>
 #include <set>
 #include <vector>
+#include <queue>
 #include <memory>
 #include <utility>
 #include <unordered_map>
@@ -27,6 +28,7 @@
 #include "imgui_impl_win32.h"
 
 #include <glm.hpp>
+#include <gtc/quaternion.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtx/transform.hpp>
 #include <gtc/type_ptr.hpp>

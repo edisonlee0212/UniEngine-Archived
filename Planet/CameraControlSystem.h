@@ -1,7 +1,7 @@
 #pragma once
 #include "UniEngine.h"
 using namespace UniEngine;
-namespace SpaceColonizationTree {
+namespace Planet {
     class CameraControlSystem :
         public SystemBase
     {
@@ -19,5 +19,4 @@ namespace SpaceColonizationTree {
         void SetVelocity(float velocity);
         void SetSensitivity(float sensitivity);
     };
-
 }

@@ -1,6 +1,6 @@
 #include "BezierCurve.h"
-using namespace SCTree;
-SCTree::BezierCurve::BezierCurve(glm::vec3 cp0, glm::vec3 cp1, glm::vec3 cp2, glm::vec3 cp3) : Curve(),
+using namespace SpaceColonizationTree;
+SpaceColonizationTree::BezierCurve::BezierCurve(glm::vec3 cp0, glm::vec3 cp1, glm::vec3 cp2, glm::vec3 cp3) : Curve(),
 	_CP0(cp0),
 	_CP1(cp1),
 	_CP2(cp2),
@@ -8,7 +8,7 @@ SCTree::BezierCurve::BezierCurve(glm::vec3 cp0, glm::vec3 cp1, glm::vec3 cp2, gl
 {
 }
 
-glm::vec3 SCTree::BezierCurve::GetPoint(float t)
+glm::vec3 SpaceColonizationTree::BezierCurve::GetPoint(float t)
 {
 	float b0, b1, b2, b3;
 	b0 = (1.0f - t) * (1.0f - t) * (1.0f - t);

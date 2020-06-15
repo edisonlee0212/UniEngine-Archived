@@ -1,6 +1,6 @@
 #pragma once
 #include "Misc.h"
-namespace SCTree {
+namespace SpaceColonizationTree {
 	class Curve
 	{
 	public:

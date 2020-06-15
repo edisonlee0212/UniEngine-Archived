@@ -1,6 +1,6 @@
 #include "Curve.h"
 
-void SCTree::Curve::GetUniformCurve(size_t pointAmount, std::vector<glm::vec3>* points)
+void SpaceColonizationTree::Curve::GetUniformCurve(size_t pointAmount, std::vector<glm::vec3>* points)
 {
 	float step = 1.0f / (pointAmount - 1);
 	for (size_t i = 0; i <= pointAmount; i++) {

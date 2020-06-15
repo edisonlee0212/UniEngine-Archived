@@ -5,7 +5,7 @@ namespace UniEngine {
 		public SystemBase
 	{
 		void CalculateTransform(Entity* parent);
-		glm::mat4 TRS(glm::vec3 translation, glm::vec4 rotation, glm::vec3 scale);
+		glm::mat4 TRS(glm::vec3 translation, glm::quat rotation, glm::vec3 scale);
 	public:
 		TransformSystem();
 		void OnCreate();

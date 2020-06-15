@@ -1,11 +1,11 @@
 #include "CoilEnvelope.h"
 
-SCTree::CoilEnvelope::CoilEnvelope(glm::vec3 spaceOffset, glm::vec3 spaceSize)
+SpaceColonizationTree::CoilEnvelope::CoilEnvelope(glm::vec3 spaceOffset, glm::vec3 spaceSize)
 	: Envelope(spaceOffset, spaceSize)
 {
 }
 
-bool SCTree::CoilEnvelope::IsInEnvelope(glm::vec3 point)
+bool SpaceColonizationTree::CoilEnvelope::IsInEnvelope(glm::vec3 point)
 {
 	float h = point.y;
 	glm::vec2 xz = glm::vec2(point.x, point.z);

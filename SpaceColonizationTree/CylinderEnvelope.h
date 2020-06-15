@@ -1,7 +1,7 @@
 #pragma once
 #include "Envelope.h"
 #include "Misc.h"
-namespace SCTree {
+namespace SpaceColonizationTree {
 	class CylinderEnvelope :
 		public Envelope
 	{

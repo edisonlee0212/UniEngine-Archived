@@ -1,6 +1,6 @@
 #include "RingMesh.h"
 
-SCTree::RingMesh::RingMesh(glm::vec3 startPosition, glm::vec3 endPosition, glm::vec3 startAxis, glm::vec3 endAxis, float startRadius, float endRadius)
+SpaceColonizationTree::RingMesh::RingMesh(glm::vec3 startPosition, glm::vec3 endPosition, glm::vec3 startAxis, glm::vec3 endAxis, float startRadius, float endRadius)
 	: StartPosition(startPosition),
 	EndPosition(endPosition),
 	StartAxis(startAxis),
@@ -10,7 +10,7 @@ SCTree::RingMesh::RingMesh(glm::vec3 startPosition, glm::vec3 endPosition, glm::
 {
 }
 
-void SCTree::RingMesh::AppendPoints(std::vector<Vertex>* vertices, int resolution)
+void SpaceColonizationTree::RingMesh::AppendPoints(std::vector<Vertex>* vertices, int resolution)
 {
 	std::vector<Vertex> startRing;
 	std::vector<Vertex> endRing;
@@ -50,7 +50,7 @@ void SCTree::RingMesh::AppendPoints(std::vector<Vertex>* vertices, int resolutio
 	vertices->push_back(startRing[0]);
 }
 
-inline glm::vec3 SCTree::RingMesh::GetPoint(float angle, bool isStart)
+inline glm::vec3 SpaceColonizationTree::RingMesh::GetPoint(float angle, bool isStart)
 {
 	glm::vec3 position;
 	glm::vec3 tmp = glm::vec3(0.0f);

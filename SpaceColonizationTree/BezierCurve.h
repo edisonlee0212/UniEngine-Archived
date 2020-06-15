@@ -1,6 +1,6 @@
 #pragma once
 #include "Curve.h"
-namespace SCTree {
+namespace SpaceColonizationTree {
 	class BezierCurve :
 		public Curve
 	{

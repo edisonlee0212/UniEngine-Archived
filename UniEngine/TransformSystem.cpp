@@ -1,17 +1,9 @@
 #include "pch.h"
 #include "TransformSystem.h"
 #include "EntityCollection.h"
-#include "Mathemetics.h"
 using namespace UniEngine;
-glm::mat4 UniEngine::TransformSystem::TRS(glm::vec3 translation, glm::vec4 rotation, glm::vec3 scale) {
-	
-	float4 r = float4(rotation.x, rotation.y, rotation.z, rotation.w);
-	float3x3 rm = Asfloat3x3(r);
-	return glm::mat4(
-		glm::vec4(rm.c0.x * scale.x, rm.c0.y * scale.x, rm.c0.z * scale.x, 0.0f),
-		glm::vec4(rm.c1.x * scale.x, rm.c1.y * scale.x, rm.c1.z * scale.x, 0.0f),
-		glm::vec4(rm.c2.x * scale.x, rm.c2.y * scale.x, rm.c2.z * scale.x, 0.0f),
-		glm::vec4(translation, 1.0f));
+glm::mat4 UniEngine::TransformSystem::TRS(glm::vec3 translation, glm::quat rotation, glm::vec3 scale) {
+	return glm::scale(glm::translate(glm::mat4_cast(rotation), translation), scale);
 }
 
 void UniEngine::TransformSystem::CalculateTransform(Entity* parent)

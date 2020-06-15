@@ -2,7 +2,10 @@
 //
 
 #include "UniEngine.h"
+#include "RenderSystem.h"
+#include "CameraControlSystem.h"
 using namespace UniEngine;
+using namespace Planet;
 void LoadModelAsEntity(EntityCollection* entityCollection, std::string path, glm::vec3 position, glm::vec3 scale);
 void InitGround(EntityCollection* entityCollection);
 int main()
@@ -26,7 +29,11 @@ int main()
 	cameraComponent->Value = mainCamera;
 	ec->SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
 	
-
+	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
+	ccs->SetSensitivity(0.1f);
+	ccs->SetVelocity(15.0f);
+	ccs->Enable();
+	ccs->SetTargetCamera(cameraEntity);
 #pragma endregion
 
 #pragma region Models
@@ -82,8 +89,8 @@ int main()
 
 #pragma region EngineLoop
 	bool loopable = true;
-
-
+	RenderSystem::SetWireFrameMode(true);
+	
 	while (loopable) {
 		loopable = engine->LoopStart();
 #pragma region LightsPosition

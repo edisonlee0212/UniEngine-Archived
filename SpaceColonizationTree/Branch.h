@@ -4,7 +4,7 @@
 #include "UniEngine.h"
 #include "BezierCurve.h"
 using namespace UniEngine;
-namespace SCTree {
+namespace SpaceColonizationTree {
 	class Branch
 	{
 	public:

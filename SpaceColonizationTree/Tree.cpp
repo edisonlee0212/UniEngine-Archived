@@ -1,6 +1,6 @@
 #include "Tree.h"
 
-SCTree::Tree::Tree(glm::vec3 position, Material* pointMaterial, Material* meshMaterial, Material* organMaterial)
+SpaceColonizationTree::Tree::Tree(glm::vec3 position, Material* pointMaterial, Material* meshMaterial, Material* organMaterial)
 	: _Position(position),
 	_GrowingBranches(std::vector<Branch*>()),
 	_NeedsToGrow(false),
@@ -11,19 +11,19 @@ SCTree::Tree::Tree(glm::vec3 position, Material* pointMaterial, Material* meshMa
 {
 }
 
-void SCTree::Tree::Draw(Camera* camera, Material* pointMaterial, glm::vec3 scale, bool drawOrgan)
+void SpaceColonizationTree::Tree::Draw(Camera* camera, Material* pointMaterial, glm::vec3 scale, bool drawOrgan)
 {
 	if (_PointMatrices.size() > 0) {
 		RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, pointMaterial, glm::scale(glm::mat4(1.0f), scale), &_PointMatrices[0], _PointMatrices.size(), camera);
 	}
 }
 
-SCTree::Tree::~Tree()
+SpaceColonizationTree::Tree::~Tree()
 {
 	delete _Root;
 }
 
-void SCTree::Tree::GrowTrunk(float growDist, float attractionDist, Envelope* envelope, glm::vec3 tropism)
+void SpaceColonizationTree::Tree::GrowTrunk(float growDist, float attractionDist, Envelope* envelope, glm::vec3 tropism)
 {
 	bool found = false;
 	int timeOut = 1000;
@@ -54,7 +54,7 @@ void SCTree::Tree::GrowTrunk(float growDist, float attractionDist, Envelope* env
 	_NeedsToGrow = true;
 }
 
-void SCTree::Tree::Grow(float growDist, float attractionDist, float removeDist, Envelope* envelope, glm::vec3 tropism, float distDec, float minDist, float decimationDistChild, float decimationDistParent)
+void SpaceColonizationTree::Tree::Grow(float growDist, float attractionDist, float removeDist, Envelope* envelope, glm::vec3 tropism, float distDec, float minDist, float decimationDistChild, float decimationDistParent)
 {
 	auto pointsList = envelope->PointPositions();
 	auto size = _GrowingBranches.size();
@@ -163,7 +163,7 @@ void SCTree::Tree::Grow(float growDist, float attractionDist, float removeDist, 
 	CollectPoints();
 }
 
-void SCTree::Tree::CalculateMesh(int resolution, int triangleLimit)
+void SpaceColonizationTree::Tree::CalculateMesh(int resolution, int triangleLimit)
 {
 	int maxVerticesAmount = triangleLimit * 3;
 	_MeshGenerated = false;
@@ -185,26 +185,26 @@ void SCTree::Tree::CalculateMesh(int resolution, int triangleLimit)
 	_MeshGenerated = true;
 }
 
-inline void SCTree::Tree::CalculateRadius() {
+inline void SpaceColonizationTree::Tree::CalculateRadius() {
 	_Root->CalculateRadius(_MaxGrowIteration, 3.0f);
 }
 
-inline void SCTree::Tree::CollectPoints() {
+inline void SpaceColonizationTree::Tree::CollectPoints() {
 	_PointMatrices.clear();
 	_Root->CollectPoint(&_PointMatrices);
 }
 
-inline void SCTree::Tree::NodeRelocation() {
+inline void SpaceColonizationTree::Tree::NodeRelocation() {
 	Debug::Log("Node Relocation...");
 	_Root->Relocation();
 }
 
-inline void SCTree::Tree::NodeSubdivision() {
+inline void SpaceColonizationTree::Tree::NodeSubdivision() {
 	Debug::Log("Node Subdivision...");
 	_Root->Subdivision(_Position, glm::vec3(0.0f, 1.0f, 0.0f), 1);
 }
 
-inline void SCTree::Tree::GenerateOrgan() {
+inline void SpaceColonizationTree::Tree::GenerateOrgan() {
 	Debug::Log("Generating Organ...");
 	_Root->GenerateOrgan(&_LeafList, _MaxGrowIteration);
 	_OrganGenerated = true;

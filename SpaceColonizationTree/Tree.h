@@ -2,7 +2,7 @@
 #include "Misc.h"
 #include "Branch.h"
 #include "Envelope.h"
-namespace SCTree {
+namespace SpaceColonizationTree {
 	class Tree
 	{
 	public:

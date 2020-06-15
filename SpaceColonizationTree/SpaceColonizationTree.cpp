@@ -3,8 +3,7 @@
 #include "CameraControlSystem.h"
 
 using namespace UniEngine;
-using namespace SCTree;
-using namespace Utilities;
+using namespace SpaceColonizationTree;
 void LoadModelAsEntity(EntityCollection* entityCollection, std::string path, glm::vec3 position, glm::vec3 scale);
 void InitGround(EntityCollection* entityCollection);
 int main()

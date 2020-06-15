@@ -3,8 +3,8 @@
 #include "SurfaceOfRevolutionEnvelope.h"
 #include "CoilEnvelope.h"
 #include "CylinderEnvelope.h"
-using namespace SCTree;
-void SCTree::SCTreeSystem::OnCreate()
+using namespace SpaceColonizationTree;
+void SpaceColonizationTree::SCTreeSystem::OnCreate()
 {
 	_EnvelopePointMaterial = new Material();
 	_EnvelopePointMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
@@ -43,7 +43,7 @@ void SCTree::SCTreeSystem::OnCreate()
 	Enable();
 }
 
-void SCTree::SCTreeSystem::BuildEnvelope() {
+void SpaceColonizationTree::SCTreeSystem::BuildEnvelope() {
 	RemoveTree();
 	RemoveEnvelope();
 	switch (_SelectedEnvelopeType)
@@ -70,7 +70,7 @@ void SCTree::SCTreeSystem::BuildEnvelope() {
 }
 
 
-void SCTree::SCTreeSystem::BuildTree() {
+void SpaceColonizationTree::SCTreeSystem::BuildTree() {
 	if (_Envelope == nullptr || !_Envelope->PointsGenerated()) BuildEnvelope();
 	RemoveTree();
 	_Iteration = 0;
@@ -82,7 +82,7 @@ void SCTree::SCTreeSystem::BuildTree() {
 	//Debug::Log("Trunk grow complete.");
 }
 
-void SCTree::SCTreeSystem::RemoveTree() {
+void SpaceColonizationTree::SCTreeSystem::RemoveTree() {
 	if (_Tree != nullptr) {
 		delete _Tree;
 		_Tree = nullptr;
@@ -102,12 +102,12 @@ void SCTree::SCTreeSystem::RemoveTree() {
 
 }
 
-void SCTree::SCTreeSystem::RemoveEnvelope() {
+void SpaceColonizationTree::SCTreeSystem::RemoveEnvelope() {
 	if (_Envelope != nullptr) delete _Envelope;
 	_Envelope = nullptr;
 }
 
-void SCTree::SCTreeSystem::OnDestroy() {
+void SpaceColonizationTree::SCTreeSystem::OnDestroy() {
 	Disable();
 	delete _EnvelopePointMaterial;
 	delete _EnvelopeTexture;
@@ -119,7 +119,7 @@ void SCTree::SCTreeSystem::OnDestroy() {
 
 static const char* EnvelopeTypes[]{ "SurfaceOfRevo", "Cube", "Cylinder", "Coil" };
 
-void SCTree::SCTreeSystem::Update() {
+void SpaceColonizationTree::SCTreeSystem::Update() {
 	EnvelopeGUIMenu();
 	TreeGUIMenu();
 	Camera* mainCamera = dynamic_cast<CameraComponent*>(_EntityCollection->QuerySharedComponents<CameraComponent>()->at(0)->first)->Value;
@@ -132,7 +132,7 @@ void SCTree::SCTreeSystem::Update() {
 	}
 }
 
-void SCTree::SCTreeSystem::FixedUpdate() {
+void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 	if (_Envelope != nullptr && _Tree != nullptr) {
 		if (_Tree->_NeedsToGrow) {
 			_Iteration++;
@@ -161,7 +161,7 @@ void SCTree::SCTreeSystem::FixedUpdate() {
 	}
 }
 
-void SCTree::SCTreeSystem::EnvelopeGUIMenu() {
+void SpaceColonizationTree::SCTreeSystem::EnvelopeGUIMenu() {
 	ImGui::Begin("Envelope Controller");
 	ImGui::Combo("Envelope Type", &_SelectedEnvelopeType, EnvelopeTypes, IM_ARRAYSIZE(EnvelopeTypes), 3);
 	if (ImGui::Button("Create Aattraction Points")) BuildEnvelope();
@@ -173,7 +173,7 @@ void SCTree::SCTreeSystem::EnvelopeGUIMenu() {
 	ImGui::End();
 }
 
-void SCTree::SCTreeSystem::TreeGUIMenu() {
+void SpaceColonizationTree::SCTreeSystem::TreeGUIMenu() {
 	ImGui::Begin("Tree Controller");
 	std::string text = std::string(_DrawOrgan ? "Draw" : "Hide") + " Organs";
 	if (ImGui::Button(text.c_str())) {
