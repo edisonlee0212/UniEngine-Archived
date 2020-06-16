@@ -24,7 +24,7 @@ int main()
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow());
 	auto cameraEntity = ec->CreateEntity();
 	Position pos;
-	pos.value = glm::vec3(0.0f, 5.0f, 0.0f);
+	pos.value = glm::vec3(0.0f, 5.0f, 10.0f);
 	ec->SetFixedData<Position>(cameraEntity, pos);
 	CameraComponent* cameraComponent = new CameraComponent();
 	cameraComponent->Value = mainCamera;
@@ -40,8 +40,8 @@ int main()
 
 #pragma region Models
 	InitGround(ec);
-	LoadModelAsEntity(ec, FileIO::GetPath("Models/nanosuit/nanosuit.obj"), glm::vec3(6.0f, 0.0f, -4.0f), glm::vec3(0.5f));
-	LoadModelAsEntity(ec, FileIO::GetPath("Models/backpack/backpack.obj"), glm::vec3(6.0f, 3.0f, 0.0f), glm::vec3(1.0f));
+	//LoadModelAsEntity(ec, FileIO::GetPath("Models/nanosuit/nanosuit.obj"), glm::vec3(6.0f, 0.0f, -4.0f), glm::vec3(0.5f));
+	//LoadModelAsEntity(ec, FileIO::GetPath("Models/backpack/backpack.obj"), glm::vec3(6.0f, 3.0f, 0.0f), glm::vec3(1.0f));
 #pragma endregion
 
 #pragma region Lights

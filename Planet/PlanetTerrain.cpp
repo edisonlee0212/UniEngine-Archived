@@ -11,9 +11,9 @@ Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, Material* surfaceMaterial,
 	_SurfaceMaterial = surfaceMaterial;
 	_SharedVertices = std::vector<Vertex>();
     size_t resolution = info.Resolution;
-	_SharedVertices.reserve(resolution * resolution);
+	_SharedVertices.resize(resolution * resolution);
 	_SharedTriangles = std::vector<unsigned>();
-	_SharedTriangles.reserve(resolution * resolution);
+	_SharedTriangles.resize(resolution * resolution * 6);
 	size_t triIndex = 0;
     for (size_t y = 0; y < resolution; y++)
     {
@@ -56,3 +56,4 @@ Planet::PlanetTerrain::~PlanetTerrain()
     }
     _RecycledChunkList.clear();
 }
+

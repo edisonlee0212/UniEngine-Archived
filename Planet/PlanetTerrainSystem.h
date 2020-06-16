@@ -16,5 +16,8 @@ namespace Planet{
         void Update();
         void FixedUpdate();
         void Remove(std::vector<TerrainChunk*>* list, unsigned index);
+        void GenerateTerrain(PlanetTerrain* planetTerrain, TerrainChunk* targetChunk);
+        void SetCameraEntity(Entity* targetEntity);
+        void CreatePlanet(PlanetInfo info);
     };
 }

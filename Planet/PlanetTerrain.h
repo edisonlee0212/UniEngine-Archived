@@ -7,9 +7,9 @@ namespace Planet {
 		glm::dvec3 Position;
 		glm::quat Rotation;
 		unsigned MaxLodLevel;
+		float LodDistance;
 		double Radius;
 		unsigned Index;
-		double Radius;
 		unsigned Resolution;
 	};
 
@@ -23,6 +23,7 @@ namespace Planet {
 	{
 		friend class PlanetTerrainSystem;
 		std::vector<TerrainChunk*> _ChunkList;
+
 		std::vector<TerrainChunk*> _RecycledChunkList;
 		PlanetInfo _Info;
 		Material* _SurfaceMaterial;	
@@ -31,6 +32,7 @@ namespace Planet {
 		std::vector<unsigned> _SharedTriangles;
 
 	public:
+		
 		size_t GetHashCode();
 		PlanetTerrain(PlanetInfo info, Material* surfaceMaterial, std::queue<TerrainChunk*>* generationQueue);
 		~PlanetTerrain();

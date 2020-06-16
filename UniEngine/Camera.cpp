@@ -19,8 +19,9 @@ void UniEngine::Camera::UpdateMatrices(glm::vec3 position)
 	View = glm::lookAt(position, position + _Front, _Up);
 	auto ratio = _RenderTarget->GetResolutionRatio();
 	if (ratio == 0) return;
-	Projection = glm::perspective(glm::radians(Zoom), ratio, 0.1f, 100.0f);
-
+	Projection = glm::perspective(glm::radians(Zoom), ratio, 0.1f, 1000.0f);
+	
+	
 	glBindBuffer(GL_UNIFORM_BUFFER, _CameraInfoBufferID);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(Projection));
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(View));
