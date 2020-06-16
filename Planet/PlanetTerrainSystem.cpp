@@ -35,6 +35,11 @@ void Planet::PlanetTerrainSystem::SetCameraEntity(Entity* targetEntity)
 	_TargetCameraEntity = targetEntity;
 }
 
+void Planet::PlanetTerrainSystem::SetMaxMeshAmount(unsigned amount)
+{
+	_MaxRecycledMeshAmount = amount;
+}
+
 void Planet::PlanetTerrainSystem::CreatePlanet(PlanetInfo info)
 {
 	PlanetTerrain* terrain = new PlanetTerrain(info, Default::Materials::StandardMaterial, &_GenerationQueue);
@@ -47,7 +52,7 @@ void Planet::PlanetTerrainSystem::CreatePlanet(PlanetInfo info)
 		}
 		auto size = terrain->_ChunkList.size();
 		chunk->Index = size;
-		chunk->ToRecycle = false;
+		chunk->TooFar = false;
 		terrain->_ChunkList.push_back(chunk);
 	}
 }
@@ -56,6 +61,7 @@ void Planet::PlanetTerrainSystem::OnCreate()
 {
 	_GenerationQueue = std::queue<TerrainChunk*>();
 	_PlanetTerrainList = std::vector<PlanetTerrain*>();
+	_MaxRecycledMeshAmount = 50;
 }
 
 void Planet::PlanetTerrainSystem::Update()
@@ -69,10 +75,8 @@ void Planet::PlanetTerrainSystem::Update()
 			RenderManager::DrawMesh(planetChunks[j]->_Mesh, Default::Materials::StandardMaterial, matrix, camera);
 		}
 	}
-}
 
-void Planet::PlanetTerrainSystem::FixedUpdate()
-{
+
 	Position cameraPos = _EntityCollection->GetFixedData<Position>(_TargetCameraEntity);
 
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
@@ -83,42 +87,54 @@ void Planet::PlanetTerrainSystem::FixedUpdate()
 			auto chunk = planetTerrain->_ChunkList[j];
 			if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraPos.value)
 				< (planetInfo.LodDistance * planetInfo.Radius / glm::pow(2, chunk->DetailLevel + 1))) {
-				if (chunk->C0 != nullptr) {
-					_GenerationQueue.push(chunk->C0);
-					//TODO: Dont forget to reset index.
-					Remove(&planetTerrain->_RecycledChunkList, chunk->C0->Index);
+				if (chunk->DetailLevel < planetInfo.MaxLodLevel) {
+					if (chunk->C0 != nullptr) {
+						_GenerationQueue.push(chunk->C0);
+						//TODO: Dont forget to reset index.
+						Remove(&planetTerrain->_RecycledChunkList, chunk->C0->Index);
+					}
+					else {
+						//TODO: Dont forget to reset index.
+						chunk->C0 = new TerrainChunk(chunk, 0, chunk->DetailLevel + 1, glm::ivec2(chunk->ChunkCoordinate.x * 2, chunk->ChunkCoordinate.y * 2 + 1), ChunkDirection::UpperLeft, chunk->LocalUp);
+						_GenerationQueue.push(chunk->C0);
+
+					}
+					if (chunk->C1 != nullptr) {
+						_GenerationQueue.push(chunk->C1);
+						Remove(&planetTerrain->_RecycledChunkList, chunk->C1->Index);
+					}
+					else {
+						chunk->C1 = new TerrainChunk(chunk, 0, chunk->DetailLevel + 1, glm::ivec2(chunk->ChunkCoordinate.x * 2 + 1, chunk->ChunkCoordinate.y * 2 + 1), ChunkDirection::UpperRight, chunk->LocalUp);
+						_GenerationQueue.push(chunk->C1);
+					}
+					if (chunk->C2 != nullptr) {
+						_GenerationQueue.push(chunk->C2);
+						Remove(&planetTerrain->_RecycledChunkList, chunk->C2->Index);
+					}
+					else {
+						chunk->C2 = new TerrainChunk(chunk, 0, chunk->DetailLevel + 1, glm::ivec2(chunk->ChunkCoordinate.x * 2, chunk->ChunkCoordinate.y * 2), ChunkDirection::LowerLeft, chunk->LocalUp);
+						_GenerationQueue.push(chunk->C2);
+					}
+					if (chunk->C3 != nullptr) {
+						_GenerationQueue.push(chunk->C3);
+						Remove(&planetTerrain->_RecycledChunkList, chunk->C3->Index);
+					}
+					else {
+						chunk->C3 = new TerrainChunk(chunk, 0, chunk->DetailLevel + 1, glm::ivec2(chunk->ChunkCoordinate.x * 2 + 1, chunk->ChunkCoordinate.y * 2), ChunkDirection::LowerRight, chunk->LocalUp);
+						_GenerationQueue.push(chunk->C3);
+					}
+					//_RecycleQueue.push(chunk->Index);
+					Remove(&planetTerrain->_ChunkList, j);
+					planetTerrain->_WaitingList.push_back(chunk);
+					chunk->ToRecycle = true;
 				}
-				else {
-					//TODO: Dont forget to reset index.
-					_GenerationQueue.push(new TerrainChunk(chunk, 0, chunk->DetailLevel + 1, glm::ivec2(chunk->ChunkCoordinate.x * 2, chunk->ChunkCoordinate.y * 2 + 1), ChunkDirection::UpperLeft, chunk->LocalUp));
-					
-				}
-				if (chunk->C1 != nullptr) {
-					_GenerationQueue.push(chunk->C1);
-					Remove(&planetTerrain->_RecycledChunkList, chunk->C1->Index);
-				}
-				else {
-					_GenerationQueue.push(new TerrainChunk(chunk, 0, chunk->DetailLevel + 1, glm::ivec2(chunk->ChunkCoordinate.x * 2 + 1, chunk->ChunkCoordinate.y * 2 + 1), ChunkDirection::UpperRight, chunk->LocalUp));
-				}
-				if (chunk->C2 != nullptr) {
-					_GenerationQueue.push(chunk->C2);
-					Remove(&planetTerrain->_RecycledChunkList, chunk->C2->Index);
-				}
-				else {
-					_GenerationQueue.push(new TerrainChunk(chunk, 0, chunk->DetailLevel + 1, glm::ivec2(chunk->ChunkCoordinate.x * 2, chunk->ChunkCoordinate.y * 2), ChunkDirection::LowerLeft, chunk->LocalUp));
-				}
-				if (chunk->C3 != nullptr) {
-					_GenerationQueue.push(chunk->C3);
-					Remove(&planetTerrain->_RecycledChunkList, chunk->C3->Index);
-				}
-				else {
-					_GenerationQueue.push(new TerrainChunk(chunk, 0, chunk->DetailLevel + 1, glm::ivec2(chunk->ChunkCoordinate.x * 2 + 1, chunk->ChunkCoordinate.y * 2), ChunkDirection::LowerRight, chunk->LocalUp));
-				}
-				_RecycleQueue.push(chunk->Index);
 			}
-			else
+			else if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraPos.value)
+				> (planetInfo.LodDistance * planetInfo.Radius / glm::pow(2, chunk->DetailLevel)))
 			{
-				planetTerrain->_ChunkList[j]->ToRecycle = true;
+				if (chunk->Parent != nullptr) {
+					chunk->TooFar = true;
+				}
 			}
 		}
 
@@ -149,6 +165,10 @@ void Planet::PlanetTerrainSystem::FixedUpdate()
 			c2->Index = size + 1;
 			c3->Index = size + 2;
 			c4->Index = size + 3;
+			c1->TooFar = false;
+			c2->TooFar = false;
+			c3->TooFar = false;
+			c4->TooFar = false;
 			c1->ToRecycle = false;
 			c2->ToRecycle = false;
 			c3->ToRecycle = false;
@@ -157,23 +177,35 @@ void Planet::PlanetTerrainSystem::FixedUpdate()
 			planetTerrain->_ChunkList.push_back(c2);
 			planetTerrain->_ChunkList.push_back(c3);
 			planetTerrain->_ChunkList.push_back(c4);
-			auto recycle = planetTerrain->_ChunkList[_RecycleQueue.front()];
-			Remove(&planetTerrain->_ChunkList, _RecycleQueue.front());
-			recycle->Index = planetTerrain->_RecycledChunkList.size();
-			planetTerrain->_RecycledChunkList.push_back(recycle);
-			_RecycleQueue.pop();
 		}
 
+		for (auto j : planetTerrain->_WaitingList) {
+			j->Index = planetTerrain->_RecycledChunkList.size();
+			planetTerrain->_RecycledChunkList.push_back(j);
+		}
+
+		planetTerrain->_WaitingList.clear();
+
 		//3. Scan and collapse.
-		for (auto i = 0; i < planetTerrain->_RecycledChunkList.size(); i++) {
-			auto chunk = planetTerrain->_RecycledChunkList[i];
+		for (auto j = 0; j < planetTerrain->_RecycledChunkList.size(); j++) {
+			auto chunk = planetTerrain->_RecycledChunkList[j];
 			if (chunk->C0 == nullptr || chunk->C1 == nullptr || chunk->C2 == nullptr || chunk->C3 == nullptr) continue;
-			if (chunk->C0->ToRecycle && chunk->C1->ToRecycle && chunk->C2->ToRecycle && chunk->C3->ToRecycle) {
+			if (chunk->C0->ToRecycle || chunk->C1->ToRecycle || chunk->C2->ToRecycle || chunk->C3->ToRecycle) continue;
+			if (chunk->C0->TooFar && chunk->C1->TooFar && chunk->C2->TooFar && chunk->C3->TooFar) {
+				Remove(&planetTerrain->_RecycledChunkList, j);
 				_GenerationQueue.push(chunk);
-				_RecycleQueue.push(chunk->C0->Index);
-				_RecycleQueue.push(chunk->C1->Index);
-				_RecycleQueue.push(chunk->C2->Index);
-				_RecycleQueue.push(chunk->C3->Index);
+				Remove(&planetTerrain->_ChunkList, chunk->C0->Index);
+				planetTerrain->_WaitingList.push_back(chunk->C0);
+				chunk->C0->ToRecycle = true;
+				Remove(&planetTerrain->_ChunkList, chunk->C1->Index);
+				planetTerrain->_WaitingList.push_back(chunk->C1);
+				chunk->C1->ToRecycle = true;
+				Remove(&planetTerrain->_ChunkList, chunk->C2->Index);
+				planetTerrain->_WaitingList.push_back(chunk->C2);
+				chunk->C2->ToRecycle = true;
+				Remove(&planetTerrain->_ChunkList, chunk->C3->Index);
+				planetTerrain->_WaitingList.push_back(chunk->C3);
+				chunk->C3->ToRecycle = true;
 			}
 		}
 
@@ -185,37 +217,29 @@ void Planet::PlanetTerrainSystem::FixedUpdate()
 			if (chunk->_Mesh == nullptr) {
 				GenerateTerrain(planetTerrain, chunk);
 			}
-			auto size = planetTerrain->_ChunkList.size();
-			chunk->Index = size;
+			chunk->Index = planetTerrain->_ChunkList.size();
+			chunk->TooFar = false;
 			chunk->ToRecycle = false;
 			planetTerrain->_ChunkList.push_back(chunk);
+		}
 
-			auto recycle = planetTerrain->_ChunkList[_RecycleQueue.front()];
-			Remove(&planetTerrain->_ChunkList, _RecycleQueue.front());
-			recycle->Index = planetTerrain->_RecycledChunkList.size();
-			planetTerrain->_RecycledChunkList.push_back(recycle);
-			_RecycleQueue.pop();
+		for (auto j : planetTerrain->_WaitingList) {
+			j->Index = planetTerrain->_RecycledChunkList.size();
+			planetTerrain->_RecycledChunkList.push_back(j);
+		}
+		planetTerrain->_WaitingList.clear();
 
-			recycle = planetTerrain->_ChunkList[_RecycleQueue.front()];
-			Remove(&planetTerrain->_ChunkList, _RecycleQueue.front());
-			recycle->Index = planetTerrain->_RecycledChunkList.size();
-			planetTerrain->_RecycledChunkList.push_back(recycle);
-			_RecycleQueue.pop();
-
-			recycle = planetTerrain->_ChunkList[_RecycleQueue.front()];
-			Remove(&planetTerrain->_ChunkList, _RecycleQueue.front());
-			recycle->Index = planetTerrain->_RecycledChunkList.size();
-			planetTerrain->_RecycledChunkList.push_back(recycle);
-			_RecycleQueue.pop();
-
-			recycle = planetTerrain->_ChunkList[_RecycleQueue.front()];
-			Remove(&planetTerrain->_ChunkList, _RecycleQueue.front());
-			recycle->Index = planetTerrain->_RecycledChunkList.size();
-			planetTerrain->_RecycledChunkList.push_back(recycle);
-			_RecycleQueue.pop();
-
+		//Release mesh from GPU memory.
+		for (auto j = _MaxRecycledMeshAmount; j < planetTerrain->_RecycledChunkList.size(); j++) {
+			delete planetTerrain->_RecycledChunkList[i]->_Mesh;
+			planetTerrain->_RecycledChunkList[i]->_Mesh = nullptr;
 		}
 	}
+
+}
+
+void Planet::PlanetTerrainSystem::FixedUpdate()
+{
 }
 
 void Planet::PlanetTerrainSystem::Remove(std::vector<TerrainChunk*>* list, unsigned index)

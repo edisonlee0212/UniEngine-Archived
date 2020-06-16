@@ -19,6 +19,7 @@ namespace Planet {
         ChunkDirection Direction;
         TerrainChunk* Parent;
         unsigned Index;
+        bool TooFar;
         bool ToRecycle;
         //The index of four children, upperleft = 0, upperright = 1, lower left = 2, lower right = 3.
         TerrainChunk* C0;

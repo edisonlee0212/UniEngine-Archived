@@ -24,7 +24,7 @@ int main()
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow());
 	auto cameraEntity = ec->CreateEntity();
 	Position pos;
-	pos.value = glm::vec3(0.0f, 5.0f, 10.0f);
+	pos.value = glm::vec3(0.0f, 5.0f, 20.0f);
 	ec->SetFixedData<Position>(cameraEntity, pos);
 	CameraComponent* cameraComponent = new CameraComponent();
 	cameraComponent->Value = mainCamera;
@@ -43,17 +43,31 @@ int main()
 	PlanetInfo pi;
 	pi.Position = glm::dvec3(0.0f, 0.0f, 0.0f);
 	pi.Rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
-	pi.MaxLodLevel = 3;
+	pi.MaxLodLevel = 8;
+	pi.LodDistance = 2.0f;
+	pi.Radius = 10.0;
+	pi.Index = 0;
+	pi.Resolution = 64;
+	pts->CreatePlanet(pi);
+
+	pi.Position = glm::dvec3(35.0f, 0.0f, 0.0f);
+	pi.MaxLodLevel = 20;
+	pi.LodDistance = 2.0f;
+	pi.Radius = 15.0;
+	pi.Index = 1;
+	pts->CreatePlanet(pi);
+
+	pi.Position = glm::dvec3(-20.0f, 0.0f, 0.0f);
+	pi.MaxLodLevel = 4;
 	pi.LodDistance = 2.0f;
 	pi.Radius = 5.0;
-	pi.Index = 0;
-	pi.Resolution = 32;
+	pi.Index = 2;
 	pts->CreatePlanet(pi);
 
 #pragma endregion
 
 #pragma region Models
-	InitGround(ec);
+	//InitGround(ec);
 	//LoadModelAsEntity(ec, FileIO::GetPath("Models/nanosuit/nanosuit.obj"), glm::vec3(6.0f, 0.0f, -4.0f), glm::vec3(0.5f));
 	//LoadModelAsEntity(ec, FileIO::GetPath("Models/backpack/backpack.obj"), glm::vec3(6.0f, 3.0f, 0.0f), glm::vec3(1.0f));
 #pragma endregion
@@ -105,19 +119,27 @@ int main()
 
 #pragma region EngineLoop
 	bool loopable = true;
-	RenderSystem::SetWireFrameMode(true);
-	
+	//RenderSystem::SetWireFrameMode(true);
+	bool wireFrame = false;
 	while (loopable) {
 		loopable = engine->LoopStart();
 #pragma region LightsPosition
 		Position p;
-		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(time->WorldTime() / 2.0f)), -20.0f * glm::cos(time->WorldTime() / 2.0f)), 0.0f);
+		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(time->WorldTime() / 2.0f), -20.0f * glm::cos(time->WorldTime() / 2.0f)), 0.0f);
 		ec->SetFixedData<Position>(dle, p);
-		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->WorldTime() / 2.0f), 20.0f * glm::abs(glm::sin(time->WorldTime() / 2.0f)), 0.0f), 0.0f);
+		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->WorldTime() / 2.0f), 20.0f * glm::sin(time->WorldTime() / 2.0f), 0.0f), 0.0f);
 		ec->SetFixedData<Position>(ple, p);
 		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(time->WorldTime() / 2.0f), 15.0f, 20.0f * glm::sin(time->WorldTime() / 2.0f)), 0.0f);
 		ec->SetFixedData<Position>(ple2, p);
 #pragma endregion
+
+		ImGui::Begin("Wire Frame");
+		std::string text = std::string(wireFrame ? "Disable" : "Enable");
+		if (ImGui::Button(text.c_str())) {
+			wireFrame = !wireFrame;
+			RenderSystem::SetWireFrameMode(wireFrame);
+		}
+		ImGui::End();
 		loopable = engine->Loop();
 		loopable = engine->LoopEnd();
 	}

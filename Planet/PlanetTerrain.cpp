@@ -36,6 +36,7 @@ Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, Material* surfaceMaterial,
     }
 
     generationQueue->push(new TerrainChunk(nullptr, 0, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(1, 0, 0)));
+    
     generationQueue->push(new TerrainChunk(nullptr, 1, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 1, 0)));
     generationQueue->push(new TerrainChunk(nullptr, 2, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, 1)));
     generationQueue->push(new TerrainChunk(nullptr, 3, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(-1, 0, 0)));

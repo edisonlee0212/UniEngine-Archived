@@ -23,7 +23,7 @@ namespace Planet {
 	{
 		friend class PlanetTerrainSystem;
 		std::vector<TerrainChunk*> _ChunkList;
-
+		std::vector<TerrainChunk*> _WaitingList;
 		std::vector<TerrainChunk*> _RecycledChunkList;
 		PlanetInfo _Info;
 		Material* _SurfaceMaterial;	

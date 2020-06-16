@@ -32,6 +32,7 @@ glm::dvec3 Planet::TerrainChunk::ChunkCenterPosition(glm::dvec3 planetPosition, 
 Planet::TerrainChunk::TerrainChunk(TerrainChunk* parent, unsigned index, unsigned detailLevel, glm::ivec2 chunkCoordinate, ChunkDirection direction, glm::dvec3 localUp)
 {
 	Index = index;
+	TooFar = false;
 	ToRecycle = false;
 	_Mesh = nullptr;
 	C0 = C1 = C2 = C3 = nullptr;
