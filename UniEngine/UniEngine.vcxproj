@@ -199,11 +199,10 @@
     <ClInclude Include="LightingManager.h" />
     <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="Material.h" />
-    <ClInclude Include="Mathemetics.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshMaterialComponent.h" />
-    <ClInclude Include="Misc.h" />
+    <ClInclude Include="UniEngineAPI.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PhysicsSystem.h" />
@@ -223,13 +222,6 @@
     <ClInclude Include="EngineTime.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformSystem.h" />
-    <ClInclude Include="UEbool.h" />
-    <ClInclude Include="UEdouble.h" />
-    <ClInclude Include="UEfloat.h" />
-    <ClInclude Include="UEint.h" />
-    <ClInclude Include="UElong.h" />
-    <ClInclude Include="UEulong.h" />
-    <ClInclude Include="UEunsigned.h" />
     <ClInclude Include="UniEngine.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowManager.h" />

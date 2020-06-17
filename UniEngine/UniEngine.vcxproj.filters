@@ -40,9 +40,6 @@
     <Filter Include="Header Files\Core\Graphics\OpenGL">
       <UniqueIdentifier>{20792b8a-f0e0-4801-991a-957b617d95c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Core\Math">
-      <UniqueIdentifier>{5fac143e-3180-428f-a0d2-5aba05a1a456}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Core\Memory">
       <UniqueIdentifier>{c9fb6c44-ef06-4240-99e5-d0aea952b63e}</UniqueIdentifier>
     </Filter>
@@ -177,9 +174,6 @@
     <ClInclude Include="FixedData.h">
       <Filter>Header Files\Core\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Misc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="UniEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -206,30 +200,6 @@
     </ClInclude>
     <ClInclude Include="GLTexture.h">
       <Filter>Header Files\Core\Graphics\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="UEbool.h">
-      <Filter>Header Files\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="UEdouble.h">
-      <Filter>Header Files\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="UEfloat.h">
-      <Filter>Header Files\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="UEint.h">
-      <Filter>Header Files\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="UElong.h">
-      <Filter>Header Files\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="UEulong.h">
-      <Filter>Header Files\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="UEunsigned.h">
-      <Filter>Header Files\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Mathemetics.h">
-      <Filter>Header Files\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="Memory.h">
       <Filter>Header Files\Core\Memory</Filter>
@@ -377,6 +347,9 @@
     </ClInclude>
     <ClInclude Include="imgui_impl_opengl3.h">
       <Filter>Header Files\External</Filter>
+    </ClInclude>
+    <ClInclude Include="UniEngineAPI.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

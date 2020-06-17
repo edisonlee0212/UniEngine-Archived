@@ -1,5 +1,5 @@
 #pragma once
-#include "Misc.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
 	class Entity;
 	class UECORE_API SharedComponentBase {

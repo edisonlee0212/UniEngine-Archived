@@ -73,7 +73,6 @@ namespace UniEngine {
 	inline void EntityCollection::CreateEntityArchetype(T arg, Ts... args)
 	{
 		size_t archetypeSize = GetArchetypeSize(arg, args...);
-
 	}
 #pragma endregion
 
