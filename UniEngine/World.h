@@ -8,8 +8,10 @@ namespace UniEngine {
 		EngineTime* _Time;
 		std::vector<SystemBase*> _Systems;
 		EntityCollection* _EntityCollection;
+		size_t _Index;
 	public:
-		World();
+		size_t GetIndex();
+		World(size_t index);
 		void Init();
 		EngineTime* GetTime();
 		template <class T>

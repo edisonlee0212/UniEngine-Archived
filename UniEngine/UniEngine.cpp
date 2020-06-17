@@ -48,7 +48,7 @@ void UniEngine::EngineDriver::Start()
 	Camera::GenerateMatrices();
 
 	
-	_World = new World();
+	_World = new World(0);
 	_World->Init();
 	Default::Load(_World);
 	LightingManager::Init();

@@ -4,35 +4,39 @@
 #include "UniEngine.h"
 #include <iostream>
 using namespace UniEngine;
-using namespace UniEngine::Entities;
 int main()
 {
     std::cout << "Hello World!\n";
-    EntityManager em = EntityManager();
-    EntityArchetype a = em.CreateEntityArchetype<Position, Rotation>(Position(), Rotation());
+    EngineDriver* engine = new EngineDriver();
+    engine->Start();
 
-    Entities::Entity e = em.CreateEntity(a);
+#pragma region Preparations
+    World* world = engine->GetWorld();
+    Entities::EntityManager::SetWorld(world);
+    Entities::EntityArchetype a = Entities::EntityManager::CreateEntityArchetype<Position, Rotation>(Position(), Rotation());
 
-    em.DeleteEntity(e);
-    em.DeleteEntity(e);
+    Entities::Entity e = Entities::EntityManager::CreateEntity(a);
 
-    e = em.CreateEntity(a);
-    e = em.CreateEntity(a);
+    Entities::EntityManager::DeleteEntity(e);
+    Entities::EntityManager::DeleteEntity(e);
 
-    EntityArchetype a1 = em.CreateEntityArchetype<Position, Rotation, LocalPosition>(Position(), Rotation(), LocalPosition());
-    e = em.CreateEntity(a1);
-    em.DeleteEntity(e);
-    e = em.CreateEntity(a1);
-    e = em.CreateEntity(a);
+    e = Entities::EntityManager::CreateEntity(a);
+    e = Entities::EntityManager::CreateEntity(a);
+
+    Entities::EntityArchetype a1 = Entities::EntityManager::CreateEntityArchetype<Position, Rotation, LocalPosition>(Position(), Rotation(), LocalPosition());
+    e = Entities::EntityManager::CreateEntity(a1);
+    Entities::EntityManager::DeleteEntity(e);
+    e = Entities::EntityManager::CreateEntity(a1);
+    e = Entities::EntityManager::CreateEntity(a);
     
     Position pos;
     pos.value = glm::vec3(0.0f, 0.1f, 0.5f);
     Rotation rot;
     rot.value = glm::quat(1, 2, 3, 4);
-    em.SetComponentData<Position>(e, pos);
-    em.SetComponentData<Rotation>(e, rot);
-    pos = em.GetComponentData<Position>(e);
-    rot = em.GetComponentData<Rotation>(e);
+    Entities::EntityManager::SetComponentData<Position>(e, pos);
+    Entities::EntityManager::SetComponentData<Rotation>(e, rot);
+    pos = Entities::EntityManager::GetComponentData<Position>(e);
+    rot = Entities::EntityManager::GetComponentData<Rotation>(e);
     Debug::Log("Finished");
 }
 

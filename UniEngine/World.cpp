@@ -13,8 +13,12 @@
 
 using namespace UniEngine;
 
+size_t UniEngine::World::GetIndex() {
+	return _Index;
+}
 
-World::World() {
+World::World(size_t index) {
+	_Index = index;
 	_Time = new EngineTime();
 	_EntityCollection = new EntityCollection();
 	ManagerBase::_EntityCollection = _EntityCollection;

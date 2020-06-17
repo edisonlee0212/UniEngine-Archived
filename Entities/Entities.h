@@ -7,8 +7,11 @@ namespace UniEngine {
 			//Position in Entity Array
 			unsigned Index;
 			unsigned Version;
-			bool operator==(const Entity& other) const {
+			bool operator ==(const Entity& other) const {
 				return (other.Index == Index) && (other.Version == Version);
+			}
+			bool operator !=(const Entity& other) const {
+				return (other.Index != Index) || (other.Version != Version);
 			}
 		};
 
@@ -20,6 +23,19 @@ namespace UniEngine {
 			size_t Offset;
 		};
 
+		template<typename T>
+		ComponentType typeof() {
+			ComponentType type;
+			type.Size = sizeof(T);
+			type.Offset = 0;
+			type.TypeID = typeid(T).hash_code();
+			return type;
+		}
+
+		bool ComponentTypeComparator(ComponentType a, ComponentType b) {
+			return a.TypeID < b.TypeID;
+		}
+
 		const size_t ARCHETYPECHUNK_SIZE = 16384;
 
 		struct ComponentDataChunk {
@@ -27,7 +43,6 @@ namespace UniEngine {
 			void* Data;
 			template<typename T>
 			T GetData(unsigned offset);
-
 			template<typename T>
 			void SetData(unsigned offset, T data);
 		};
@@ -43,8 +58,8 @@ namespace UniEngine {
 
 		struct EntityInfo {
 			Entity Entity;
-			size_t ArchetypeIndex;
-			size_t ChunkIndex;
+			size_t ArchetypeInfoIndex;
+			size_t ChunkArrayIndex;
 		};
 
 		struct EntityArchetypeInfo {
@@ -59,93 +74,82 @@ namespace UniEngine {
 		};
 
 		struct ENTITIES_API EntityQuery {
-			size_t ComponentsSize;
-			std::vector<ComponentType> ComponentTypes;
+			std::vector<ComponentType> AllComponentTypes;
+			std::vector<ComponentType> AnyComponentTypes;
+			std::vector<ComponentType> NoneComponentTypes;
 		};
 
 #pragma endregion	
-		typedef std::pair<EntityArchetypeInfo*, ComponentDataChunkArray*> EntityArchetypeStorage;
-		class ENTITIES_API EntityManager : ManagerBase {
-			std::vector<EntityInfo> _Entities;
-			std::vector<EntityArchetypeStorage> _EntityArchetypes;
-			std::vector<std::queue<Entity>> _EntityPool;
+		struct ENTITIES_API EntityArchetypeStorage {
+			EntityArchetypeInfo* ArchetypeInfo;
+			ComponentDataChunkArray* ChunkArray;
+			EntityArchetypeStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array);
+		};
+
+		struct ENTITIES_API EntityComponentStorage {
+			size_t Index;
+			std::vector<EntityInfo> Entities;
+			std::vector<EntityArchetypeStorage> EntityArchetypes;
+			std::vector<std::queue<Entity>> EntityPool;
+		};
+
+		class ENTITIES_API EntityManager : public ManagerBase {
+			static std::vector<EntityComponentStorage*> _EntityComponentStorage;
+			static std::vector<EntityInfo>* _Entities;
+			static std::vector<EntityArchetypeStorage>* _EntityArchetypes;
+			static std::vector<std::queue<Entity>>* _EntityPool;
 #pragma region EntityArchetypeHelpers
 			template<typename T>
-			size_t GenerateEntityArchetype(EntityArchetypeInfo* entityArchetypeInfo, T arg);
+			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
 			template<typename T, typename... Ts>
-			size_t GenerateEntityArchetype(EntityArchetypeInfo* entityArchetypeInfo, T arg, Ts... args);
-			template<typename T>
-			size_t GenerateEntityQuery(EntityQuery* entityQuery, T arg);
+			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg, Ts... args);
 			template<typename T, typename... Ts>
-			size_t GenerateEntityQuery(EntityQuery* entityQuery, T arg, Ts... args);
+			static std::vector<ComponentType> CollectComponentTypes(T arg, Ts... args);
 #pragma endregion
 		public:
+			static void SetWorld(World* world);
 			template<typename T, typename... Ts>
-			EntityArchetype CreateEntityArchetype(T arg, Ts... args);
-			template<typename T, typename... Ts>
-			EntityQuery CreateEntityQuery(T arg, Ts... args);
+			static EntityArchetype CreateEntityArchetype(T arg, Ts... args);
 
-
-			Entity CreateEntity(EntityArchetype archetype);
-			void DeleteEntity(Entity entity);
+			static Entity CreateEntity(EntityArchetype archetype);
+			static void DeleteEntity(Entity entity);
 
 			template<typename T>
-			void SetComponentData(Entity entity, T value);
+			static void SetComponentData(Entity entity, T value);
 			template<typename T>
-			T GetComponentData(Entity entity);
+			static T GetComponentData(Entity entity);
 
-			EntityArchetype GetEntityArchetype(Entity entity);
-
-
+			static EntityArchetype GetEntityArchetype(Entity entity);
 		};
 		template<typename T>
-		inline size_t EntityManager::GenerateEntityArchetype(EntityArchetypeInfo* entityArchetypeInfo, T arg)
+		inline size_t EntityManager::CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg)
 		{
-			auto componentSize = sizeof(T);
-			ComponentType type;
-			type.TypeID = typeid(T).hash_code();
-			type.Size = componentSize;
-			type.Offset = 0;
-			entityArchetypeInfo->ComponentTypes.push_back(type);
-			return componentSize;
+			ComponentType type = typeof<T>();
+			componentTypes->push_back(type);
+			return type.Size;
 		}
 
 		template<typename T, typename ...Ts>
-		inline size_t EntityManager::GenerateEntityArchetype(EntityArchetypeInfo* entityArchetypeInfo, T arg, Ts ...args)
+		inline size_t EntityManager::CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg, Ts ...args)
 		{
-			auto offset = GenerateEntityArchetype(entityArchetypeInfo, args...);
-			auto componentSize = sizeof(T);
-			ComponentType type;
-			type.TypeID = typeid(T).hash_code();
-			type.Size = componentSize;
-			type.Offset = offset;
-			entityArchetypeInfo->ComponentTypes.push_back(type);
-			return componentSize + offset;
-		}
-
-		template<typename T>
-		inline size_t EntityManager::GenerateEntityQuery(EntityQuery* entityQuery, T arg)
-		{
-			auto componentSize = sizeof(T);
-			ComponentType type;
-			type.TypeID = typeid(T).hash_code();
-			type.Size = componentSize;
-			type.Offset = 0;
-			entityQuery->ComponentTypes.push_back(type);
-			return componentSize;
+			auto offset = CollectComponentTypes(componentTypes, args...);
+			ComponentType type = typeof<T>();
+			componentTypes->push_back(type);
+			return type.Size + offset;
 		}
 
 		template<typename T, typename ...Ts>
-		inline size_t EntityManager::GenerateEntityQuery(EntityQuery* entityQuery, T arg, Ts ...args)
+		inline std::vector<ComponentType> EntityManager::CollectComponentTypes(T arg, Ts ...args)
 		{
-			auto offset = GenerateEntityArchetype(entityQuery, args...);
-			auto componentSize = sizeof(T);
-			ComponentType type;
-			type.TypeID = typeid(T).hash_code();
-			type.Size = componentSize;
-			type.Offset = offset;
-			entityQuery->ComponentTypes.push_back(type);
-			return componentSize + offset;
+			std::vector<ComponentType> retVal = std::vector<ComponentType>();
+			CollectComponentTypes(&retVal, arg, args...);
+			std::sort(retVal.begin(), retVal.end(), ComponentTypeComparator);
+			size_t offset = 0;
+			for (int i = 0; i < retVal.size(); i++) {
+				retVal[i].Offset = offset;
+				offset += retVal[i].Size;
+			}
+			return retVal;
 		}
 
 		template<typename T, typename ...Ts>
@@ -153,34 +157,27 @@ namespace UniEngine {
 		{
 			EntityArchetypeInfo* info = new EntityArchetypeInfo();
 			info->EntityCount = 0;
-			info->ComponentTypes = std::vector<ComponentType>();
-			info->EntitySize = GenerateEntityArchetype(info, arg, args...);
+			info->ComponentTypes = CollectComponentTypes(arg, args...);
+			info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
 			info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
 			EntityArchetype retVal;
-			retVal.Index = _EntityArchetypes.size();
+			retVal.Index = _EntityArchetypes->size();
 			info->Index = retVal.Index;
-			_EntityArchetypes.push_back(EntityArchetypeStorage(info, new ComponentDataChunkArray()));
-			_EntityPool.push_back(std::queue<Entity>());
+			_EntityArchetypes->push_back(EntityArchetypeStorage(info, new ComponentDataChunkArray()));
+			_EntityPool->push_back(std::queue<Entity>());
 			return retVal;
 		}
 
-		template<typename T, typename ...Ts>
-		inline EntityQuery EntityManager::CreateEntityQuery(T arg, Ts ...args)
-		{
-			EntityQuery retVal;
-			retVal.ComponentsSize = GenerateEntityQuery(&retVal, arg, args...);
-			return retVal;
-		}
 
 		template<typename T>
 		inline void EntityManager::SetComponentData(Entity entity, T value)
 		{
-			EntityInfo info = _Entities[entity.Index];
+			EntityInfo info = _Entities->at(entity.Index);
 			if (info.Entity == entity) {
-				EntityArchetypeInfo* chunkInfo = _EntityArchetypes[info.ArchetypeIndex].first;
-				unsigned chunkIndex = info.ChunkIndex / chunkInfo->ChunkCapacity;
-				unsigned chunkPointer = info.ChunkIndex % chunkInfo->ChunkCapacity;
-				ComponentDataChunk chunk = _EntityArchetypes[info.ArchetypeIndex].second->Chunks[chunkIndex];
+				EntityArchetypeInfo* chunkInfo = _EntityArchetypes->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+				unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+				unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+				ComponentDataChunk chunk = _EntityArchetypes->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 				unsigned offset = 0;
 				size_t id = typeid(T).hash_code();
 				for (int i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
@@ -200,12 +197,12 @@ namespace UniEngine {
 		template<typename T>
 		inline T EntityManager::GetComponentData(Entity entity)
 		{
-			EntityInfo info = _Entities[entity.Index];
+			EntityInfo info = _Entities->at(entity.Index);
 			if (info.Entity == entity) {
-				EntityArchetypeInfo* chunkInfo = _EntityArchetypes[info.ArchetypeIndex].first;
-				unsigned chunkIndex = info.ChunkIndex / chunkInfo->ChunkCapacity;
-				unsigned chunkPointer = info.ChunkIndex % chunkInfo->ChunkCapacity;
-				ComponentDataChunk chunk = _EntityArchetypes[info.ArchetypeIndex].second->Chunks[chunkIndex];
+				EntityArchetypeInfo* chunkInfo = _EntityArchetypes->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+				unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+				unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+				ComponentDataChunk chunk = _EntityArchetypes->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 				unsigned offset = 0;
 				size_t id = typeid(T).hash_code();
 				for (int i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
