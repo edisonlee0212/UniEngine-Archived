@@ -10,9 +10,6 @@ namespace UniEngine {
 			double _DeltaTime;
 			double _LastFrameTime;
 			float _TimeStep;
-
-
-			void AddWorldTime(double value);
 			void AddFixedDeltaTime(double value);
 		public:
 			float TimeStep();

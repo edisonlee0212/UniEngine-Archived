@@ -7,7 +7,7 @@
 using namespace UniEngine;
 int main()
 {
-    EngineDriver* engine = new EngineDriver();
+    Engine* engine = new Engine();
     engine->Start();
     World* world = engine->GetWorld();
     Entities::EntityManager::SetWorld(world);

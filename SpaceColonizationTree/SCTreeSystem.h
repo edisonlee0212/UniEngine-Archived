@@ -34,7 +34,7 @@ namespace SpaceColonizationTree {
 		Texture2D* _TreeLeafTexture;
 		
 		int _PointsCount;
-		Entity* _TreeEntity;
+		Entity _TreeEntity;
 		InstancedMeshMaterialComponent* _TreeLeaves;
 		MeshMaterialComponent* _TreeMesh;
 		Envelope* _Envelope;

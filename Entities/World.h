@@ -11,6 +11,8 @@ namespace UniEngine {
 			std::vector<SystemBase*> _Systems;
 			size_t _Index;
 		public:
+			void SetWorldTime(double time);
+			void SetTimeStep(float timeStep);
 			size_t GetIndex();
 			World(size_t index);
 			void Init();

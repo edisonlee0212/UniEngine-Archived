@@ -68,6 +68,7 @@ void UniEngine::Entities::EntityManager::DeleteEntity(Entity entity)
 {
 	EntityInfo info = _Entities->at(entity.Index);
 	if (info.Entity == entity) {
+		_EntitySharedComponentStorage->DeleteEntity(info.Entity);
 		info.Entity.Version++;
 		_EntityPool->at(info.ArchetypeInfoIndex).push(info.Entity);
 		//Set to version 0, marks it as deleted.

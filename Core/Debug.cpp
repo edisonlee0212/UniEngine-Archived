@@ -10,5 +10,6 @@ void Debug::Log(std::string msg) {
 }
 
 void Debug::Error(std::string msg) {
+	std::cout << msg.c_str() << std::endl;
 	mErrorMessages.push_back(new std::string(msg + "\n"));
 }

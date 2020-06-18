@@ -2,7 +2,7 @@
 
 void SpaceColonizationTree::CameraControlSystem::Update()
 {
-	Position cameraPosition = _EntityCollection->GetFixedData<Position>(_TargetCameraEntity);
+	Position cameraPosition = EntityManager::GetComponentData<Position>(_TargetCameraEntity);
 	glm::vec3 position = cameraPosition.value;
 	glm::vec3 front = _TargetCamera->_Front;
 	glm::vec3 right = _TargetCamera->_Right;
@@ -25,7 +25,7 @@ void SpaceColonizationTree::CameraControlSystem::Update()
 		position.y -= _Velocity * (float)_Time->DeltaTime();
 	}
 	cameraPosition.value = position;
-	_EntityCollection->SetFixedData<Position>(_TargetCameraEntity, cameraPosition);
+	EntityManager::SetComponentData<Position>(_TargetCameraEntity, cameraPosition);
 
 	auto mousePosition = InputManager::GetMousePosition();
 	if (!startMouse) {
@@ -50,10 +50,10 @@ void SpaceColonizationTree::CameraControlSystem::Update()
 	}
 }
 
-void SpaceColonizationTree::CameraControlSystem::SetTargetCamera(Entity* targetCameraEntity)
+void SpaceColonizationTree::CameraControlSystem::SetTargetCamera(Entity targetCameraEntity)
 {
 	_TargetCameraEntity = targetCameraEntity;
-	_TargetCameraComponent = _EntityCollection->GetSharedComponent<CameraComponent>(_TargetCameraEntity);
+	_TargetCameraComponent = EntityManager::GetSharedComponent<CameraComponent>(_TargetCameraEntity);
 	_TargetCamera = _TargetCameraComponent->Value;
 }
 

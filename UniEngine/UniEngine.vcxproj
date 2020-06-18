@@ -79,15 +79,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\GLEW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\GLFW\src;..\Core;$(SourcePath)</SourcePath>
+    <IncludePath>..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
+    <SourcePath>..\includes\glad\src;$(VC_SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\GLEW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\GLFW\src;$(SourcePath)</SourcePath>
+    <IncludePath>..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
+    <SourcePath>..\includes\glad\src;$(VC_SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -137,7 +139,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;Core.lib;Entities.lib;..\includes\GLFW\src\Debug\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;Core.lib;Entities.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Core\$(IntDir);..\Entities\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -164,7 +166,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;Core.lib;Entities.lib;..\includes\GLFW\src\Release\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;Core.lib;Entities.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Core\$(IntDir);..\Entities\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -181,6 +183,15 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="imconfig.h" />
+    <ClInclude Include="imgui.h" />
+    <ClInclude Include="imgui_impl_glfw.h" />
+    <ClInclude Include="imgui_impl_opengl3.h" />
+    <ClInclude Include="imgui_impl_win32.h" />
+    <ClInclude Include="imgui_internal.h" />
+    <ClInclude Include="imstb_rectpack.h" />
+    <ClInclude Include="imstb_textedit.h" />
+    <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstancedMeshMaterialComponent.h" />
     <ClInclude Include="LightingManager.h" />
@@ -215,6 +226,13 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="DirectionalLightComponent.cpp" />
     <ClCompile Include="DirectionalLightShadowMap.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="imgui_demo.cpp" />
+    <ClCompile Include="imgui_draw.cpp" />
+    <ClCompile Include="imgui_impl_glfw.cpp" />
+    <ClCompile Include="imgui_impl_opengl3.cpp" />
+    <ClCompile Include="imgui_impl_win32.cpp" />
+    <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InstancedMeshMaterialComponent.cpp" />
     <ClCompile Include="LightingManager.cpp" />

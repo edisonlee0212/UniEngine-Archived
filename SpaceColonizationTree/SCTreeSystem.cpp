@@ -40,6 +40,7 @@ void SpaceColonizationTree::SCTreeSystem::OnCreate()
 	_MaxHeight = 8.0f;
 	_TreeSize = 1.0f;
 	_DrawOrgan = false;
+	_TreeEntity.Version = 0;
 	Enable();
 }
 
@@ -77,9 +78,9 @@ void SpaceColonizationTree::SCTreeSystem::BuildTree() {
 	_Tree = new Tree(glm::vec3(0.0f), Default::Materials::StandardMaterial, Default::Materials::StandardMaterial, Default::Materials::StandardMaterial);
 	_AttractDist = _GrowDist * _AttractDitsMult;
 	_RemoveDist = _GrowDist * _RemoveDistMult;
-	//Debug::Log("Trunk growing...");
+	Debug::Log("Trunk growing...");
 	_Tree->GrowTrunk(_GrowDist, _AttractDist, _Envelope, glm::vec3(0.0f));
-	//Debug::Log("Trunk grow complete.");
+	Debug::Log("Trunk grow complete.");
 }
 
 void SpaceColonizationTree::SCTreeSystem::RemoveTree() {
@@ -87,9 +88,9 @@ void SpaceColonizationTree::SCTreeSystem::RemoveTree() {
 		delete _Tree;
 		_Tree = nullptr;
 	}
-	if (_TreeEntity != nullptr) {
-		_EntityCollection->DeleteEntity(_TreeEntity);
-		_TreeEntity = nullptr;
+	if (_TreeEntity.Version != 0) {
+		EntityManager::DeleteEntity(_TreeEntity);
+		_TreeEntity.Version = 0;
 	}
 	if (_TreeLeaves != nullptr) {
 		delete _TreeLeaves;
@@ -122,13 +123,13 @@ static const char* EnvelopeTypes[]{ "SurfaceOfRevo", "Cube", "Cylinder", "Coil" 
 void SpaceColonizationTree::SCTreeSystem::Update() {
 	EnvelopeGUIMenu();
 	TreeGUIMenu();
-	Camera* mainCamera = dynamic_cast<CameraComponent*>(_EntityCollection->QuerySharedComponents<CameraComponent>()->at(0)->first)->Value;
+	Camera* mainCamera = dynamic_cast<CameraComponent*>(EntityManager::QuerySharedComponents<CameraComponent>()->at(0)->first)->Value;
 	if (_Envelope != nullptr) _Envelope->Draw(mainCamera, _EnvelopePointMaterial, glm::vec3(_TreeSize));
 	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(mainCamera, _TreePointMaterial, glm::vec3(_TreeSize));
-	if (_TreeEntity != nullptr) {
+	if (_TreeEntity.Version != 0) {
 		Scale scale;
 		scale.value = glm::vec3(_TreeSize);
-		_EntityCollection->SetFixedData<Scale>(_TreeEntity, scale);
+		EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
 	}
 }
 
@@ -139,23 +140,24 @@ void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 			_Tree->Grow(_GrowDist, _AttractDist, _RemoveDist, _Envelope, glm::vec3(0.0f), 0.015f, 0.05f, 0.02f, 0.02f);
 		}
 		else {
-			_TreeEntity = _EntityCollection->CreateEntity();
+			EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+			_TreeEntity = EntityManager::CreateEntity(archetype);
 			_TreeLeaves = new InstancedMeshMaterialComponent();
 			_TreeLeaves->_Material = _TreeLeafMaterial;
 			_TreeLeaves->_Mesh = Default::Primitives::Quad;
 			_TreeLeaves->_Matrices = &_Tree->_LeafList;
-			_EntityCollection->SetSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity, _TreeLeaves);
+			EntityManager::SetSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity, _TreeLeaves);
 
 			_TreeMesh = new MeshMaterialComponent();
 			_TreeMesh->_Material = _TreeMeshMaterial;
 			_TreeMesh->_Mesh = _Tree->_Mesh;
-			_EntityCollection->SetSharedComponent<MeshMaterialComponent>(_TreeEntity, _TreeMesh);
+			EntityManager::SetSharedComponent<MeshMaterialComponent>(_TreeEntity, _TreeMesh);
 			Position pos;
 			pos.value = _Tree->_Position;
 			Scale scale;
 			scale.value = glm::vec3(1.5f);
-			_EntityCollection->SetFixedData<Position>(_TreeEntity, pos);
-			_EntityCollection->SetFixedData<Scale>(_TreeEntity, scale);
+			EntityManager::SetComponentData<Position>(_TreeEntity, pos);
+			EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
 			RemoveEnvelope();
 		}
 	}
@@ -179,16 +181,16 @@ void SpaceColonizationTree::SCTreeSystem::TreeGUIMenu() {
 	if (ImGui::Button(text.c_str())) {
 		_DrawOrgan = !_DrawOrgan;
 		if (_DrawOrgan) {
-			if (_TreeEntity != nullptr) {
+			if (_TreeEntity.Version != 0) {
 				if (_TreeLeaves != nullptr) {
-					_EntityCollection->RemoveSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity);
+					EntityManager::RemoveSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity);
 				}
 			}
 		}
 		else {
-			if (_TreeEntity != nullptr) {
+			if (_TreeEntity.Version != 0) {
 				if (_TreeLeaves != nullptr) {
-					_EntityCollection->SetSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity, _TreeLeaves);
+					EntityManager::SetSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity, _TreeLeaves);
 				}
 			}
 		}

@@ -5,12 +5,14 @@
 #include "InputManager.h"
 #include "LightingManager.h"
 namespace UniEngine {
-	class UNIENGINE_API EngineDriver {
+	class UNIENGINE_API Engine {
 		World* _World;
 		bool _Loopable;
+		double _RealWorldTime;
+		float _TimeStep;
 		void DrawInfoWindow();
 	public:
-		EngineDriver();
+		Engine();
 		void GLInit();
 		void Start();
 		bool LoopStart();

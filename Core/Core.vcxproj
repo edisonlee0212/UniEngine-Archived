@@ -79,14 +79,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\GLFW\src;$(VC_SourcePath);</SourcePath>
+    <IncludePath>..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
+    <SourcePath>$(VC_SourcePath);..\includes\glad\src</SourcePath>
+    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\GLFW\src;$(VC_SourcePath);</SourcePath>
+    <IncludePath>..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
+    <SourcePath>$(VC_SourcePath);..\includes\glad\src</SourcePath>
+    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -135,7 +137,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Debug\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -156,7 +158,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Release\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -166,7 +168,6 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="glad.h" />
     <ClInclude Include="GLBuffer.h" />
     <ClInclude Include="GLFrameBuffer.h" />
     <ClInclude Include="GLObject.h" />
@@ -174,51 +175,24 @@
     <ClInclude Include="GLRenderBuffer.h" />
     <ClInclude Include="GLShader.h" />
     <ClInclude Include="GLTexture.h" />
-    <ClInclude Include="imconfig.h" />
-    <ClInclude Include="imgui.h" />
-    <ClInclude Include="imgui_impl_glfw.h" />
-    <ClInclude Include="imgui_impl_opengl3.h" />
-    <ClInclude Include="imgui_impl_win32.h" />
-    <ClInclude Include="imgui_internal.h" />
-    <ClInclude Include="imstb_rectpack.h" />
-    <ClInclude Include="imstb_textedit.h" />
-    <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="khrplatform.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\glad\src\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="glad.cpp" />
     <ClCompile Include="GLBuffer.cpp" />
     <ClCompile Include="GLFrameBuffer.cpp" />
     <ClCompile Include="GLProgram.cpp" />
     <ClCompile Include="GLRenderBuffer.cpp" />
     <ClCompile Include="GLShader.cpp" />
     <ClCompile Include="GLTexture.cpp" />
-    <ClCompile Include="imgui.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_demo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_draw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_impl_glfw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_impl_opengl3.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_impl_win32.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_widgets.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

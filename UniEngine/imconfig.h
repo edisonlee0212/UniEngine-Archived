@@ -20,6 +20,8 @@
 
 //---- Define attributes of all API symbols declarations, e.g. for DLL under Windows
 // Using dear imgui via a shared library is not recommended, because of function call overhead and because we don't guarantee backward nor forward ABI compatibility.
+//#define IMGUI_API __declspec( dllexport )
+//#define IMGUI_API __declspec( dllimport )
 #ifdef UNIENGINE_EXPORTS
 #define IMGUI_API __declspec(dllexport)
 #else

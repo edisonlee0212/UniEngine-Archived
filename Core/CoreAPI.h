@@ -18,14 +18,9 @@
 
 #define OMP_THREAD_AMOUNT 8
 
-#include "glad.h"
+#include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_win32.h"
 
 #include <glm.hpp>
 #include <gtc/quaternion.hpp>

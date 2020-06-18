@@ -9,8 +9,10 @@ namespace UniEngine {
 	};
 	class UNIENGINE_API Model
 	{
-		ModelNode _RootNode;
+		ModelNode* _RootNode;
 	public:
+		Model();
+		~Model();
 		ModelNode* RootNode();
 	};
 }

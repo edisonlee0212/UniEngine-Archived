@@ -9,7 +9,7 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
-	EngineDriver* engine = new EngineDriver();
+	Engine* engine = new Engine();
 	engine->Start();
 
 #pragma region Preparations
@@ -24,7 +24,7 @@ int main()
 
 	auto cameraEntity = EntityManager::CreateEntity(archetype);
 	Position pos;
-	pos.value = glm::vec3(0.0f, 5.0f, 20.0f);
+	pos.value = glm::vec3(0.0f, 5.0f, 25.0f);
 	EntityManager::SetComponentData<Position>(cameraEntity, pos);
 	CameraComponent* cameraComponent = new CameraComponent();
 	cameraComponent->Value = mainCamera;

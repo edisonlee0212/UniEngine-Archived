@@ -22,6 +22,9 @@ Model* UniEngine::ModelManager::LoadModel(std::string const& path, GLProgram* sh
     std::string directory = path.substr(0, path.find_last_of('/'));
     std::vector<Texture2D*>* Texture2DsLoaded = new std::vector<Texture2D*>();
     Model* retVal = new Model();
+    EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+    Entity entity = EntityManager::CreateEntity(archetype);
+    retVal->RootNode()->Node = entity;
     ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
     return retVal;
 }

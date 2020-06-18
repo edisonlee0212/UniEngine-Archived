@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "UniEngine.h"
+#include "RenderSystem.h"
+#include "TransformSystem.h"
+#include "PhysicsSystem.h"
 GLenum glCheckError_(const char* file, int line);
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
@@ -13,12 +16,12 @@ void APIENTRY glDebugOutput(GLenum source,
 
 using namespace UniEngine;
 
-UniEngine::EngineDriver::EngineDriver()
+UniEngine::Engine::Engine()
 {
 	_Loopable = false;
 }
 
-void UniEngine::EngineDriver::GLInit()
+void UniEngine::Engine::GLInit()
 {
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -38,8 +41,9 @@ void UniEngine::EngineDriver::GLInit()
 	}
 }
 
-void UniEngine::EngineDriver::Start()
+void UniEngine::Engine::Start()
 {
+	_TimeStep = 0.1f;
 	WindowManager::Init();
 	InputManager::Init();
 	auto glfwwindow = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
@@ -51,6 +55,16 @@ void UniEngine::EngineDriver::Start()
 	_World = new World(0);
 	EntityManager::SetWorld(_World);
 	_World->Init();
+	
+	//Initialization System Group
+	
+	//Simulation System Group
+	_World->CreateSystem<PhysicsSystem>();
+	_World->CreateSystem<TransformSystem>();
+
+	//Presentation System Group
+	_World->CreateSystem<RenderSystem>();
+	
 	Default::Load(_World);
 	LightingManager::Init();
 	_Loopable = true;
@@ -64,22 +78,30 @@ void UniEngine::EngineDriver::Start()
 	ImGui::StyleColorsDark();
 }
 
-bool UniEngine::EngineDriver::LoopStart()
+bool UniEngine::Engine::LoopStart()
 {
 	if (!_Loopable) {
 		return false;
 	}
 	glfwPollEvents();
-	
+	_RealWorldTime = glfwGetTime();
+	_World->SetWorldTime(_RealWorldTime);
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	ImGui::Begin("Time Info");
+	float previousTimeStep = _TimeStep;
+	ImGui::SliderFloat("sec/step", &_TimeStep, 0.05f, 1.0f);
+	ImGui::End();
+
+	if (previousTimeStep != _TimeStep)_World->SetTimeStep(_TimeStep);
+
 	RenderManager::Start();
 	LightingManager::Start();
 	return true;
 }
 
-bool UniEngine::EngineDriver::Loop()
+bool UniEngine::Engine::Loop()
 {
 	if (!_Loopable) {
 		return false;
@@ -90,7 +112,7 @@ bool UniEngine::EngineDriver::Loop()
 	return true;
 }
 
-bool UniEngine::EngineDriver::LoopEnd()
+bool UniEngine::Engine::LoopEnd()
 {
 	if (!_Loopable) {
 		return false;
@@ -104,18 +126,18 @@ bool UniEngine::EngineDriver::LoopEnd()
 	return true;
 }
 
-void UniEngine::EngineDriver::End()
+void UniEngine::Engine::End()
 {
 	delete _World;
 	glfwTerminate();
 }
 
-World* UniEngine::EngineDriver::GetWorld()
+World* UniEngine::Engine::GetWorld()
 {
 	return _World;
 }
 
-void UniEngine::EngineDriver::DrawInfoWindow() {
+void UniEngine::Engine::DrawInfoWindow() {
 	ImGui::Begin("World Info");
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 	int tris = RenderManager::Triangles();

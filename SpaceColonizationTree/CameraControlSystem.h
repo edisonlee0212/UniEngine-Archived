@@ -5,7 +5,7 @@ namespace SpaceColonizationTree {
     class CameraControlSystem :
         public SystemBase
     {
-        Entity* _TargetCameraEntity;
+        Entity _TargetCameraEntity;
         CameraComponent* _TargetCameraComponent;
         Camera* _TargetCamera;
         float _Velocity;
@@ -15,7 +15,7 @@ namespace SpaceColonizationTree {
         bool startScroll = false;
     public:
         void Update();
-        void SetTargetCamera(Entity* targetCameraEntity);
+        void SetTargetCamera(Entity targetCameraEntity);
         void SetVelocity(float velocity);
         void SetSensitivity(float sensitivity);
     };
