@@ -1,10 +1,9 @@
 #pragma once
-#include "SharedComponentBase.h"
-#include "Core.h"
+#include "UniEngineAPI.h"
 #include "Mesh.h"
 #include "Material.h"
 namespace UniEngine {
-	class UECORE_API InstancedMeshMaterialComponent :
+	class UNIENGINE_API InstancedMeshMaterialComponent :
 		public SharedComponentBase
 	{
 	public:

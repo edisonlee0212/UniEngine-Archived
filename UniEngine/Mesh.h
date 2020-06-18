@@ -1,7 +1,7 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	struct UECORE_API Vertex {
+	struct UNIENGINE_API Vertex {
 		glm::vec3 Position;
 		glm::vec3 Normal;
 		glm::vec3 Tangent;
@@ -16,7 +16,7 @@ namespace UniEngine {
 		glm::vec2 TexCoords6;
 		glm::vec2 TexCoords7;
 	};
-	enum class UECORE_API VertexAttribute
+	enum class UNIENGINE_API VertexAttribute
 	{
 		Position = 1,
 		Normal = 1 << 1,
@@ -32,7 +32,7 @@ namespace UniEngine {
 		TexCoord6 = 1 << 11,
 		TexCoord7 = 1 << 12
 	};
-	class UECORE_API Mesh
+	class UNIENGINE_API Mesh
 	{
 		GLVAO* _VAO;
 		size_t _VerticesSize;

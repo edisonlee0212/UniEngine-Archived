@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	class UECORE_API RenderTarget
+	class UNIENGINE_API RenderTarget
 	{
 		
 		bool _Bound;

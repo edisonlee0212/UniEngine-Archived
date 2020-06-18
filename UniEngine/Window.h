@@ -1,8 +1,8 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 #include "RenderManager.h"
 namespace UniEngine {
-	class UECORE_API Window : public RenderTarget
+	class UNIENGINE_API Window : public RenderTarget
 	{
 		GLFWwindow* _Window;
 		GLTexture* _ColorTexture;

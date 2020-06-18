@@ -1,16 +1,14 @@
 // EntitiesTest.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #include "Entities.h"
+#include "EntityManager.h"
 #include "UniEngine.h"
 #include <iostream>
 using namespace UniEngine;
 int main()
 {
-    std::cout << "Hello World!\n";
     EngineDriver* engine = new EngineDriver();
     engine->Start();
-
-#pragma region Preparations
     World* world = engine->GetWorld();
     Entities::EntityManager::SetWorld(world);
     Entities::EntityArchetype a = Entities::EntityManager::CreateEntityArchetype<Position, Rotation>(Position(), Rotation());

@@ -1,6 +1,5 @@
 #pragma once
-#include "Core.h"
-#include "ManagerBase.h"
+#include "UniEngineAPI.h"
 #include "CameraComponent.h"
 #include "MeshMaterialComponent.h"
 #include "InstancedMeshMaterialComponent.h"
@@ -13,7 +12,7 @@
 
 
 namespace UniEngine {
-	class UECORE_API RenderManager : public ManagerBase
+	class UNIENGINE_API RenderManager : public ManagerBase
 	{
 		static GLenum _TextureStartIndex;
 

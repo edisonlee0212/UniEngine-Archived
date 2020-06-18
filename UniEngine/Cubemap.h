@@ -1,7 +1,7 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	class UECORE_API Cubemap
+	class UNIENGINE_API Cubemap
 	{
 		GLTexture* _Texture;
 		std::vector<std::string> _Paths;

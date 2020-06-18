@@ -1,8 +1,8 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 #include "RenderTarget.h"
 namespace UniEngine {
-	class UECORE_API DirectionalLightShadowMap :
+	class UNIENGINE_API DirectionalLightShadowMap :
 		public RenderTarget
 	{
 		GLTexture* _DepthMapArray;

@@ -2,6 +2,25 @@
 #include "InputManager.h"
 using namespace UniEngine;
 
+double InputManager::_CursorX;
+double InputManager::_CursorY;
+double InputManager::_CursorScrollX;
+double InputManager::_CursorScrollY;
+bool InputManager::_CursorMoved;
+bool InputManager::_CursorScrolled;
+bool InputManager::_CursorMovedChecked;
+bool InputManager::_CursorScrolledChecked;
+bool InputManager::_KeyPressed[349];
+bool InputManager::_KeyDown[349];
+bool InputManager::_KeyUp[349];
+bool InputManager::_KeyDownChecked[349];
+bool InputManager::_KeyUpChecked[349];
+bool InputManager::_MousePressed[8];
+bool InputManager::_MouseDown[8];
+bool InputManager::_MouseUp[8];
+bool InputManager::_MouseDownChecked[8];
+bool InputManager::_MouseUpChecked[8];
+
 void InputManager::Init() {
     for (int i = 0; i < 349; i++) {
         _KeyPressed[i] = false;

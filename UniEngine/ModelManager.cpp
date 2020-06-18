@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "ModelManager.h"
-#include "World.h"
 #include "MeshMaterialComponent.h"
 #include <stb_image.h>
 
 using namespace UniEngine;
-std::vector<Entity*> ModelManager::entities = std::vector<Entity*>();
+std::vector<Entity> ModelManager::entities = std::vector<Entity>();
 
-void ModelManager::LoadModelAsEntity(Entity* root, std::string const& path, GLProgram* shader, bool gamma) {
+Model* UniEngine::ModelManager::LoadModel(std::string const& path, GLProgram* shader, bool gamma)
+{
     stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
     Assimp::Importer importer;
@@ -16,15 +16,17 @@ void ModelManager::LoadModelAsEntity(Entity* root, std::string const& path, GLPr
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
         Debug::Error("ERROR::ASSIMP::" + std::string(importer.GetErrorString()));
-        return;
+        return nullptr;
     }
     // retrieve the directory path of the filepath
     std::string directory = path.substr(0, path.find_last_of('/'));
     std::vector<Texture2D*>* Texture2DsLoaded = new std::vector<Texture2D*>();
-    ProcessNode(directory, shader, root, Texture2DsLoaded, scene->mRootNode, scene);
+    Model* retVal = new Model();
+    ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
+    return retVal;
 }
 
-void ModelManager::ProcessNode(std::string directory, GLProgram* program, Entity* parent, std::vector<Texture2D*>* Texture2DsLoaded, aiNode* node, const aiScene* scene)
+void ModelManager::ProcessNode(std::string directory, GLProgram* program, ModelNode* modelNode, std::vector<Texture2D*>* Texture2DsLoaded, aiNode* node, const aiScene* scene)
 {
     for (unsigned i = 0; i < node->mNumMeshes; i++)
     {
@@ -33,22 +35,26 @@ void ModelManager::ProcessNode(std::string directory, GLProgram* program, Entity
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         auto entity = ReadMesh(directory, program, Texture2DsLoaded, mesh, scene);
         entities.push_back(entity);
-
+        modelNode->Node = entity;
         LocalScale ls;
-        ls.value = glm::vec3(1.0f);
-        _EntityCollection->SetFixedData<LocalPosition>(entity, LocalPosition());
-        _EntityCollection->SetFixedData<LocalRotation>(entity, LocalRotation());
-        _EntityCollection->SetFixedData<LocalScale>(entity, ls);
-        _EntityCollection->SetParent(entity, parent);
+        ls.value = glm::vec3(1.0f); 
+        EntityManager::SetComponentData<LocalPosition>(entity, LocalPosition());
+        EntityManager::SetComponentData<LocalRotation>(entity, LocalRotation());
+        EntityManager::SetComponentData<LocalScale>(entity, ls);
+        //EntityManager::SetParent(entity, parent);
     }
     for (unsigned i = 0; i < node->mNumChildren; i++)
     {
-        ProcessNode(directory, program, parent, Texture2DsLoaded, node->mChildren[i], scene);
+        ModelNode* childNode = new ModelNode();
+        childNode->Parent = modelNode;
+        modelNode->Children.push_back(childNode);
+        ProcessNode(directory, program, childNode, Texture2DsLoaded, node->mChildren[i], scene);
     }
 }
 
-Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::vector<Texture2D*>* Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
-    Entity* entity = _EntityCollection->CreateEntity();
+Entity ModelManager::ReadMesh(std::string directory, GLProgram* program, std::vector<Texture2D*>* Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
+    EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+    Entity entity = EntityManager::CreateEntity(archetype);
     unsigned mask = 1;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
@@ -184,7 +190,7 @@ Entity* ModelManager::ReadMesh(std::string directory, GLProgram* program, std::v
     MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
     meshMaterial->_Mesh = mesh;
     meshMaterial->_Material = material;
-    _EntityCollection->SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
+    EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
     return entity;
 }
 std::vector<Texture2D*> ModelManager::LoadMaterialTextures(std::string directory, std::vector<Texture2D*>* Texture2DsLoaded, aiMaterial* mat, aiTextureType type, TextureType typeName)

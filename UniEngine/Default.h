@@ -1,11 +1,11 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 #include "RenderManager.h"
 
 namespace UniEngine {
-	class UECORE_API Default {
+	class UNIENGINE_API Default {
 	public:
-		static class UECORE_API GLPrograms {
+		static class UNIENGINE_API GLPrograms {
 		public:
 			static GLProgram* ScreenProgram;
 			static GLVAO* ScreenVAO;
@@ -14,7 +14,7 @@ namespace UniEngine {
 			static GLProgram* StandardInstancedProgram;
 		};
 
-		static class UECORE_API ShaderIncludes {
+		static class UNIENGINE_API ShaderIncludes {
 		public:
 			static std::string* Uniform;
 
@@ -28,14 +28,14 @@ namespace UniEngine {
 			static std::string* Lights;
 		};
 
-		static class UECORE_API Textures {
+		static class UNIENGINE_API Textures {
 		public:
 			static Texture2D* MissingTexture;
 			static Texture2D* UV;
 			static Texture2D* StandardTexture;
 		};
 
-		static class UECORE_API Primitives {
+		static class UNIENGINE_API Primitives {
 		public:
 			static Mesh* Sphere;
 			static Mesh* Cube;
@@ -44,7 +44,7 @@ namespace UniEngine {
 			static Mesh* Cone;
 		};
 
-		static class UECORE_API Materials {
+		static class UNIENGINE_API Materials {
 		public:
 			static Material* StandardMaterial;
 			static Material* StandardInstancedMaterial;

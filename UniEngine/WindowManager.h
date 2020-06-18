@@ -1,9 +1,9 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 #include "Window.h"
 #include "Texture2D.h"
 namespace UniEngine {
-	class UECORE_API WindowManager : public ManagerBase
+	class UNIENGINE_API WindowManager : public ManagerBase
 	{
 	public:
 		static void Init();

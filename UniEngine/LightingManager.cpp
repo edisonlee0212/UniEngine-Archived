@@ -1,8 +1,29 @@
 #include "pch.h"
 #include "LightingManager.h"
-#include "EntityCollection.h"
 #include "MeshMaterialComponent.h"
 using namespace UniEngine;
+
+GLUBO* LightingManager::_DirectionalLightBlock;
+GLUBO* LightingManager::_PointLightBlock;
+GLUBO* LightingManager::_SpotLightBlock;
+
+DirectionalLight LightingManager::_DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
+PointLight LightingManager::_PointLights[Default::ShaderIncludes::MaxPointLightAmount];
+SpotLight LightingManager::_SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
+
+bool LightingManager::_UpdateDirectionalLightBlock;
+bool LightingManager::_UpdatePointLightBlock;
+bool LightingManager::_UpdateSpotLightBlock;
+
+DirectionalLightShadowMap* LightingManager::_DirectionalLightShadowMap;
+PointLightShadowMap* LightingManager::_PointLightShadowMap;
+
+GLProgram* LightingManager::_DirectionalLightProgram;
+GLProgram* LightingManager::_PointLightProgram;
+GLProgram* LightingManager::_DirectionalLightInstancedProgram;
+GLProgram* LightingManager::_PointLightInstancedProgram;
+
+
 void UniEngine::LightingManager::Init()
 {
 #pragma region LightInfoBlocks
@@ -68,13 +89,13 @@ void UniEngine::LightingManager::Init()
 void UniEngine::LightingManager::Start()
 {
 	if (_UpdateDirectionalLightBlock) {
-		auto directionLightsList = _EntityCollection->QuerySharedComponents<DirectionalLightComponent>();
+		auto directionLightsList = EntityManager::QuerySharedComponents<DirectionalLightComponent>();
 		if (directionLightsList != nullptr) {
 			size_t size = directionLightsList->size();
 			for (int i = 0; i < size; i++) {
 				SCOC* scoc = directionLightsList->at(i);
-				Entity* lightEntity = scoc->second->second->at(0);
-				glm::vec3 position = _EntityCollection->GetFixedData<Position>(lightEntity).value;
+				Entity lightEntity = scoc->second->second->at(0);
+				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
 				_DirectionalLights[i].position = glm::vec4(position, 0);
 				glm::vec3 lightTarget = glm::vec3(0.0f);
 				_DirectionalLights[i].direction = glm::normalize(glm::vec4(lightTarget.x - _DirectionalLights[i].position.x, lightTarget.y - _DirectionalLights[i].position.y, lightTarget.z - _DirectionalLights[i].position.z, 0.0f));
@@ -99,14 +120,14 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLightProgram->Use();
 				_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix);
 
-				auto meshMaterials = _EntityCollection->QuerySharedComponents<MeshMaterialComponent>();
+				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
 				if (meshMaterials != nullptr) {
 					for (auto i : *meshMaterials) {
 						auto mmc = dynamic_cast<MeshMaterialComponent*>(i->first);
-						auto entities = _EntityCollection->QueryEntities<MeshMaterialComponent>(mmc);
+						auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
 						for (auto j : *entities) {
 							auto mesh = mmc->_Mesh;
-							_DirectionalLightProgram->SetFloat4x4("model", _EntityCollection->GetFixedData<LocalToWorld>(j).value);
+							_DirectionalLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
 							mesh->VAO()->Bind();
 							glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
 						}
@@ -116,14 +137,14 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLightInstancedProgram->Use();
 				_DirectionalLightInstancedProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix);
 
-				auto instancedMeshMaterials = _EntityCollection->QuerySharedComponents<InstancedMeshMaterialComponent>();
+				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto i : *instancedMeshMaterials) {
 						InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(i->first);
-						auto entities = _EntityCollection->QueryEntities<InstancedMeshMaterialComponent>(immc);
+						auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
 						for (auto j : *entities) {
 							auto mesh = immc->_Mesh;
-							_DirectionalLightInstancedProgram->SetFloat4x4("model", _EntityCollection->GetFixedData<LocalToWorld>(j).value);
+							_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
 							unsigned buffer;
 							glGenBuffers(1, &buffer);
 							glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -141,13 +162,13 @@ void UniEngine::LightingManager::Start()
 	}
 	
 	if (_UpdatePointLightBlock) {
-		auto pointLightsList = _EntityCollection->QuerySharedComponents<PointLightComponent>();
+		auto pointLightsList = EntityManager::QuerySharedComponents<PointLightComponent>();
 		if (pointLightsList != nullptr) {
 			size_t size = pointLightsList->size();
 			for (int i = 0; i < size; i++) {
 				SCOC* scoc = pointLightsList->at(i);
-				Entity* lightEntity = scoc->second->second->at(0);	
-				glm::vec3 position = _EntityCollection->GetFixedData<Position>(lightEntity).value;
+				Entity lightEntity = scoc->second->second->at(0);	
+				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
 				_PointLights[i].position = glm::vec4(position, 0);
 				PointLightComponent* plc = dynamic_cast<PointLightComponent*>(scoc->first);
 				_PointLights[i].constantLinearQuadFarPlane.x = plc->constant;
@@ -185,12 +206,12 @@ void UniEngine::LightingManager::Start()
 				_PointLightProgram->SetFloat("far_plane", _PointLights[i].constantLinearQuadFarPlane.w);
 				_PointLightProgram->SetFloat3("lightPos", lightPos);
 
-				auto meshMaterials = _EntityCollection->QuerySharedComponents<MeshMaterialComponent>();
+				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
 				for (auto j : *meshMaterials) {
-					auto entities = _EntityCollection->QueryEntities<MeshMaterialComponent>(dynamic_cast<MeshMaterialComponent*>(j->first));
+					auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(dynamic_cast<MeshMaterialComponent*>(j->first));
 					for (auto k : *entities) {
 						auto mesh = dynamic_cast<MeshMaterialComponent*>(j->first)->_Mesh;
-						_PointLightProgram->SetFloat4x4("model", _EntityCollection->GetFixedData<LocalToWorld>(k).value);
+						_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(k).value);
 						mesh->VAO()->Bind();
 						glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
 					}
@@ -208,14 +229,14 @@ void UniEngine::LightingManager::Start()
 				_PointLightInstancedProgram->SetFloat("far_plane", _PointLights[i].constantLinearQuadFarPlane.w);
 				_PointLightInstancedProgram->SetFloat3("lightPos", lightPos);
 
-				auto instancedMeshMaterials = _EntityCollection->QuerySharedComponents<InstancedMeshMaterialComponent>();
+				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto i : *instancedMeshMaterials) {
 						InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(i->first);
-						auto entities = _EntityCollection->QueryEntities<InstancedMeshMaterialComponent>(immc);
+						auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
 						for (auto j : *entities) {
 							auto mesh = immc->_Mesh;
-							_PointLightInstancedProgram->SetFloat4x4("model", _EntityCollection->GetFixedData<LocalToWorld>(j).value);
+							_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
 							unsigned buffer;
 							glGenBuffers(1, &buffer);
 							glBindBuffer(GL_ARRAY_BUFFER, buffer);

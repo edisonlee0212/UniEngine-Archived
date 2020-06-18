@@ -1,7 +1,7 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	class UECORE_API  SharedComponentSystem :
+	class UNIENGINE_API SharedComponentSystem :
 		public SystemBase
 	{
 	public:

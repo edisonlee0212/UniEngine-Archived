@@ -1,6 +1,5 @@
 #pragma once
-#include "Core.h"
-#include "ManagerBase.h"
+#include "UniEngineAPI.h"
 
 #include "RenderManager.h"
 
@@ -11,7 +10,7 @@
 #include "PointLightShadowMap.h"
 #include "Default.h"
 namespace UniEngine {
-	class UECORE_API LightingManager :
+	class UNIENGINE_API LightingManager :
 		public ManagerBase
 	{
 		static GLUBO* _DirectionalLightBlock;

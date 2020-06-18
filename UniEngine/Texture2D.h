@@ -1,7 +1,7 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-    enum class UECORE_API TextureType {
+    enum class UNIENGINE_API TextureType {
         NONE = 0,
         DIFFUSE = 1,
         SPECULAR = 2,
@@ -24,7 +24,7 @@ namespace UniEngine {
 
         UNKNOWN = 18
     };
-	class UECORE_API Texture2D
+	class UNIENGINE_API Texture2D
 	{
         TextureType _Type;
         GLTexture* _Texture;

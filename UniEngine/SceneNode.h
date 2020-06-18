@@ -1,5 +1,5 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
 	class SceneNode
 	{

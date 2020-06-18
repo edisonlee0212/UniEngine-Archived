@@ -7,7 +7,7 @@ namespace Planet{
         public SystemBase
     {
         std::vector<PlanetTerrain*> _PlanetTerrainList;
-        Entity* _TargetCameraEntity;
+        Entity _TargetCameraEntity;
         std::queue<TerrainChunk*> _GenerationQueue;
         unsigned _MaxRecycledMeshAmount;
     public:
@@ -16,7 +16,7 @@ namespace Planet{
         void FixedUpdate();
         void Remove(std::vector<TerrainChunk*>* list, unsigned index);
         void GenerateTerrain(PlanetTerrain* planetTerrain, TerrainChunk* targetChunk);
-        void SetCameraEntity(Entity* targetEntity);
+        void SetCameraEntity(Entity targetEntity);
         void SetMaxMeshAmount(unsigned amount);
         void CreatePlanet(PlanetInfo info);
     };

@@ -3,6 +3,12 @@
 #include "InputManager.h"
 using namespace UniEngine;
 
+GLFWmonitor* WindowManager::_PrimaryMonitor;
+std::vector<GLFWmonitor*> WindowManager::_Monitors;
+std::vector<Window*> WindowManager::_Windows;
+Window* WindowManager::_CurrentWindow;
+
+
 void WindowManager::ResizeCallback(GLFWwindow* window, int width, int height) {
 	for (auto i : _Windows) {
 		if (i->GetGLFWWinwow() == window) i->SetSizeCallback(width, height);

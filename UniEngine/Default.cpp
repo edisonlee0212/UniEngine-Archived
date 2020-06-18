@@ -5,6 +5,28 @@
 #include "ModelManager.h"
 using namespace UniEngine;
 
+GLProgram* Default::GLPrograms::ScreenProgram;
+GLProgram* Default::GLPrograms::StandardProgram;
+GLProgram* Default::GLPrograms::StandardInstancedProgram;
+GLVAO* Default::GLPrograms::ScreenVAO;
+std::string* Default::ShaderIncludes::Uniform;
+std::string* Default::ShaderIncludes::Lights;
+std::string* Default::ShaderIncludes::Shadow;
+
+Texture2D* Default::Textures::MissingTexture;
+Texture2D* Default::Textures::UV;
+Texture2D* Default::Textures::StandardTexture;
+
+Mesh* Default::Primitives::Sphere;
+Mesh* Default::Primitives::Cube;
+Mesh* Default::Primitives::Quad;
+Mesh* Default::Primitives::Cone;
+Mesh* Default::Primitives::Cylinder;
+
+Material* Default::Materials::StandardMaterial;
+Material* Default::Materials::StandardInstancedMaterial;
+
+
 void UniEngine::Default::Load(World* world)
 {
 	float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -112,35 +134,24 @@ void UniEngine::Default::Load(World* world)
 	Materials::StandardInstancedMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
 	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
 
-	EntityCollection* ec = world->GetEntityCollection();
 
-	Entity* entity = ec->CreateEntity();
+	Model* model = ModelManager::LoadModel(FileIO::GetPath("Primitives/quad.obj"));
+	Primitives::Quad = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
+	delete model;
 
+	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/sphere.obj"));
+	Primitives::Sphere = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
+	delete model;
 
+	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cube.obj"));
+	Primitives::Cube = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
+	delete model;
 
-	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/quad.obj"));
-	Primitives::Quad = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	ec->DeleteEntity(entity);
+	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cone.obj"));
+	Primitives::Cone = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
+	delete model;
 
-	entity = ec->CreateEntity();
-	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/sphere.obj"));
-	Primitives::Sphere = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	ec->DeleteEntity(entity);
-
-	entity = ec->CreateEntity();
-	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cube.obj"));
-	Primitives::Cube = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	ec->DeleteEntity(entity);
-
-
-
-	entity = ec->CreateEntity();
-	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cone.obj"));
-	Primitives::Cone = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	ec->DeleteEntity(entity);
-
-	entity = ec->CreateEntity();
-	ModelManager::LoadModelAsEntity(entity, FileIO::GetPath("Primitives/cylinder.obj"));
-	Primitives::Cylinder = ec->GetSharedComponent<MeshMaterialComponent>(entity->Children()->at(0))->_Mesh;
-	ec->DeleteEntity(entity);
+	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cylinder.obj"));
+	Primitives::Cylinder = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
+	delete model;
 }

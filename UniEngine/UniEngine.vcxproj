@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -79,13 +79,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glad\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\GLFW\src;$(SourcePath)</SourcePath>
+    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\GLEW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
+    <SourcePath>..\includes\GLFW\src;..\Core;$(SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glad\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
+    <IncludePath>..\includes\Assimp\include;..\includes\GLFW\include;..\includes\GLEW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
     <SourcePath>..\includes\GLFW\src;$(SourcePath)</SourcePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
@@ -131,13 +131,20 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>../Core;../Entities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Debug\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;Core.lib;Entities.lib;..\includes\GLFW\src\Debug\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Core\$(IntDir);..\Entities\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "..\Core\$(IntDir)Core.dll" "$(OutDir)"
+xcopy /y /d "..\Entities\$(IntDir)Entities.dll" "$(OutDir)"
+xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -149,6 +156,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>../Core;../Entities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,138 +164,67 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;..\includes\GLFW\src\Release\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;Core.lib;Entities.lib;..\includes\GLFW\src\Release\glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Core\$(IntDir);..\Entities\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "..\Core\$(IntDir)Core.dll" "$(OutDir)"
+xcopy /y /d "..\Entities\$(IntDir)Entities.dll" "$(OutDir)"
+xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
-    <ClInclude Include="ComponentBase.h" />
-    <ClInclude Include="ComponentStorage.h" />
-    <ClInclude Include="Core.h" />
     <ClInclude Include="Cubemap.h" />
-    <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
-    <ClInclude Include="Entity.h" />
-    <ClInclude Include="EntityCollection.h" />
-    <ClInclude Include="FileIO.h" />
-    <ClInclude Include="FixedData.h" />
-    <ClInclude Include="FixedDataStorage.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="glad.h" />
-    <ClInclude Include="GLBuffer.h" />
-    <ClInclude Include="GLFrameBuffer.h" />
-    <ClInclude Include="GLObject.h" />
-    <ClInclude Include="GLProgram.h" />
-    <ClInclude Include="GLRenderBuffer.h" />
-    <ClInclude Include="GLShader.h" />
-    <ClInclude Include="GLTexture.h" />
-    <ClInclude Include="imconfig.h" />
-    <ClInclude Include="imgui.h" />
-    <ClInclude Include="imgui_impl_glfw.h" />
-    <ClInclude Include="imgui_impl_opengl3.h" />
-    <ClInclude Include="imgui_impl_win32.h" />
-    <ClInclude Include="imgui_internal.h" />
-    <ClInclude Include="imstb_rectpack.h" />
-    <ClInclude Include="imstb_textedit.h" />
-    <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstancedMeshMaterialComponent.h" />
-    <ClInclude Include="khrplatform.h" />
     <ClInclude Include="LightingManager.h" />
-    <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="Material.h" />
-    <ClInclude Include="Memory.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshMaterialComponent.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="PhysicsSystem.h" />
+    <ClInclude Include="PointLightComponent.h" />
+    <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="SharedComponentSystem.h" />
+    <ClInclude Include="SpotLightComponent.h" />
+    <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UniEngineAPI.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PhysicsSystem.h" />
-    <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="PointLightShadowMap.h" />
     <ClInclude Include="RenderManager.h" />
-    <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
-    <ClInclude Include="SharedComponentBase.h" />
-    <ClInclude Include="SharedComponentStorage.h" />
-    <ClInclude Include="SharedComponentSystem.h" />
-    <ClInclude Include="SpotLightComponent.h" />
-    <ClInclude Include="SystemBase.h" />
     <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="EngineTime.h" />
-    <ClInclude Include="TimeSystem.h" />
-    <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UniEngine.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WindowManager.h" />
-    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
-    <ClCompile Include="ComponentStorage.cpp" />
     <ClCompile Include="Cubemap.cpp" />
-    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Default.cpp" />
     <ClCompile Include="DirectionalLightComponent.cpp" />
     <ClCompile Include="DirectionalLightShadowMap.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EntityCollection.cpp" />
-    <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="FixedDataStorage.cpp" />
-    <ClCompile Include="glad.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="GLBuffer.cpp" />
-    <ClCompile Include="GLFrameBuffer.cpp" />
-    <ClCompile Include="GLProgram.cpp" />
-    <ClCompile Include="GLRenderBuffer.cpp" />
-    <ClCompile Include="GLShader.cpp" />
-    <ClCompile Include="GLTexture.cpp" />
-    <ClCompile Include="imgui.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_demo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_draw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_impl_glfw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_impl_opengl3.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_impl_win32.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="imgui_widgets.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InstancedMeshMaterialComponent.cpp" />
     <ClCompile Include="LightingManager.cpp" />
-    <ClCompile Include="ManagerBase.cpp" />
     <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshMaterialComponent.cpp" />
-    <ClCompile Include="StaticExport.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="PhysicsSystem.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="SharedComponentSystem.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -295,27 +232,19 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PointLightComponent.cpp" />
     <ClCompile Include="PointLightShadowMap.cpp" />
     <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneNode.cpp" />
-    <ClCompile Include="SharedComponentStorage.cpp" />
-    <ClCompile Include="SharedComponentSystem.cpp" />
     <ClCompile Include="SpotLightComponent.cpp" />
     <ClCompile Include="stb.cpp" />
-    <ClCompile Include="SystemBase.cpp" />
     <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="EngineTime.cpp" />
-    <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
     <ClCompile Include="UniEngine.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowManager.cpp" />
-    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

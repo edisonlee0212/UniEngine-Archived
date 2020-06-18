@@ -1,9 +1,9 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 #include "Texture2D.h"
 #include "Cubemap.h"
 namespace UniEngine {
-	class UECORE_API Material
+	class UNIENGINE_API Material
 	{
 		friend class RenderManager;
 		std::vector<Texture2D*> _Texture2Ds;

@@ -3,6 +3,12 @@
 #include "LightingManager.h"
 using namespace UniEngine;
 
+GLenum RenderManager::_TextureStartIndex = 2;
+RenderTarget* RenderManager::_CurrentRenderTarget;
+unsigned RenderManager::_DrawCall;
+unsigned RenderManager::_Triangles;
+
+
 void UniEngine::RenderManager::DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera)
 {
 	DrawMeshInstanced(immc->_Mesh, immc->_Material, matrix, matrices, count, camera);

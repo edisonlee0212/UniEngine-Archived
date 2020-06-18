@@ -4,6 +4,8 @@
 
 using namespace UniEngine;
 
+unsigned Camera::_CameraInfoBufferID;
+
 void UniEngine::Camera::UpdateMatrices(glm::vec3 position)
 {
 	// Calculate the new Front vector

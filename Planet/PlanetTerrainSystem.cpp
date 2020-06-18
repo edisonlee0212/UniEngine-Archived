@@ -30,7 +30,7 @@ void Planet::PlanetTerrainSystem::GenerateTerrain(PlanetTerrain* planetTerrain, 
 	targetChunk->_Mesh = mesh;
 }
 
-void Planet::PlanetTerrainSystem::SetCameraEntity(Entity* targetEntity)
+void Planet::PlanetTerrainSystem::SetCameraEntity(Entity targetEntity)
 {
 	_TargetCameraEntity = targetEntity;
 }
@@ -66,7 +66,7 @@ void Planet::PlanetTerrainSystem::OnCreate()
 
 void Planet::PlanetTerrainSystem::Update()
 {
-	auto camera = _EntityCollection->GetSharedComponent<CameraComponent>(_TargetCameraEntity)->Value;
+	auto camera = EntityManager::GetSharedComponent<CameraComponent>(_TargetCameraEntity)->Value;
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetChunks = _PlanetTerrainList[i]->_ChunkList;
 		auto planetInfo = _PlanetTerrainList[i]->_Info;
@@ -77,7 +77,7 @@ void Planet::PlanetTerrainSystem::Update()
 	}
 
 
-	Position cameraPos = _EntityCollection->GetFixedData<Position>(_TargetCameraEntity);
+	Position cameraPos = EntityManager::GetComponentData<Position>(_TargetCameraEntity);
 
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetTerrain = _PlanetTerrainList[i];

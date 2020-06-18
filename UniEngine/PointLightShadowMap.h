@@ -1,10 +1,10 @@
 #pragma once
 #include "RenderTarget.h"
-#include "Core.h"
+#include "UniEngineAPI.h"
 
 namespace UniEngine {
 
-	class UECORE_API PointLightShadowMap :
+	class UNIENGINE_API PointLightShadowMap :
 		public RenderTarget
 	{
 		GLTexture* _DepthCubeMapArray;

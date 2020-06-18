@@ -1,7 +1,7 @@
 #pragma once
+#include "UniEngineAPI.h"
 #include "RenderManager.h"
 #include "SceneNode.h"
-#include "Core.h"
 namespace UniEngine {
 	class Scene
 	{

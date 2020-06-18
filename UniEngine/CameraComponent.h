@@ -1,9 +1,8 @@
 #pragma once
-#include "Core.h"
-#include "SharedComponentBase.h"
+#include "UniEngineAPI.h"
 #include "Camera.h"
 namespace UniEngine {
-	class UECORE_API CameraComponent :
+	class UNIENGINE_API CameraComponent :
 		public SharedComponentBase
 	{	
 	public:

@@ -1,8 +1,7 @@
 #pragma once
-#include "Core.h"
-#include "SharedComponentBase.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	struct UECORE_API SpotLight
+	struct UNIENGINE_API SpotLight
 	{
 		glm::vec4 position;
 		glm::vec4 direction;
@@ -16,7 +15,7 @@ namespace UniEngine {
 		glm::vec4 diffuse;
 		glm::vec4 specular;
 	};
-	class UECORE_API SpotLightComponent :
+	class UNIENGINE_API SpotLightComponent :
 		public SharedComponentBase
 	{
 	public:

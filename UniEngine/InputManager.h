@@ -1,7 +1,7 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-    class UECORE_API InputManager : public ManagerBase
+    class UNIENGINE_API InputManager : public ManagerBase
     {
     public:
         static void Init();

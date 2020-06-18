@@ -1,12 +1,12 @@
 #pragma once
-#include "Core.h"
+#include "UniEngineAPI.h"
 #include "RenderTarget.h"
 
 namespace UniEngine {
 	const float YAW = -90.0f;
 	const float PITCH = 0.0f;
 	const float ZOOM = 45.0f;
-	class UECORE_API Camera
+	class UNIENGINE_API Camera
 	{
 		static unsigned _CameraInfoBufferID;
 		RenderTarget* _RenderTarget;

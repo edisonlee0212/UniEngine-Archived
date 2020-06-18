@@ -1,8 +1,7 @@
 #pragma once
-#include "Core.h"
-#include "SharedComponentBase.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	struct UECORE_API PointLight
+	struct UNIENGINE_API PointLight
 	{
 		glm::vec4 position;
 		glm::vec4 constantLinearQuadFarPlane;
@@ -10,7 +9,7 @@ namespace UniEngine {
 		glm::vec4 specular;
 	};
 
-	class UECORE_API PointLightComponent :
+	class UNIENGINE_API PointLightComponent :
 		public SharedComponentBase
 	{
 	public:

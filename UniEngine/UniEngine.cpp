@@ -49,6 +49,7 @@ void UniEngine::EngineDriver::Start()
 
 	
 	_World = new World(0);
+	EntityManager::SetWorld(_World);
 	_World->Init();
 	Default::Load(_World);
 	LightingManager::Init();
