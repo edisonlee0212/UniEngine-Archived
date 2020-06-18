@@ -57,9 +57,11 @@ Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetyp
 		//TODO: Update version when we delete entity.
 		retVal = _EntityPool->at(archetype.Index).front();
 		_EntityPool->at(archetype.Index).pop();
-		EntityInfo info = _Entities->at(retVal.Index);
-		EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
-		storage.ChunkArray->Entities[info.ChunkArrayIndex] = retVal;
+		EntityInfo entityInfo = _Entities->at(retVal.Index);
+		EntityComponentStorage storage = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex);
+		storage.ChunkArray->Entities[entityInfo.ChunkArrayIndex] = retVal;
+		entityInfo.Entity = retVal;
+		_Entities->at(retVal.Index) = entityInfo;
 	}
 	return retVal;
 }

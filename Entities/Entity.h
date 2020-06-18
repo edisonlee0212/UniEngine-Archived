@@ -65,8 +65,14 @@ namespace UniEngine {
 			size_t TypeID;
 			//Size of component
 			size_t Size;
-			//Starting point of the component
+			//Starting point of the component, this part is not comparable
 			size_t Offset;
+			bool operator ==(const ComponentType& other) const {
+				return (other.TypeID == TypeID) && (other.Size == Size);
+			}
+			bool operator !=(const ComponentType& other) const {
+				return (other.TypeID != TypeID) || (other.Size != Size);
+			}
 		};
 
 		template<typename T>

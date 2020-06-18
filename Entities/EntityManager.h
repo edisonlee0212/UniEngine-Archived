@@ -95,11 +95,30 @@ namespace UniEngine {
 			info->ComponentTypes = CollectComponentTypes(arg, args...);
 			info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
 			info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
+			int duplicateIndex = -1;
+			for (auto i = 0; i < _EntityComponentStorage->size(); i++) {
+				EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
+				if (info->ChunkCapacity != compareInfo->ChunkCapacity) continue;
+				if (info->EntitySize != compareInfo->EntitySize) continue;
+				bool typeCheck = true;
+				for (auto j = 0; j < compareInfo->ComponentTypes.size(); j++) {
+					if (info->ComponentTypes[j] != compareInfo->ComponentTypes[j]) typeCheck = false;
+				}
+				if (typeCheck) {
+					duplicateIndex = compareInfo->Index;
+					break;
+				}
+			}
 			EntityArchetype retVal;
-			retVal.Index = _EntityComponentStorage->size();
-			info->Index = retVal.Index;
-			_EntityComponentStorage->push_back(EntityComponentStorage(info, new ComponentDataChunkArray()));
-			_EntityPool->push_back(std::queue<Entity>());
+			if (duplicateIndex == -1) {
+				retVal.Index = _EntityComponentStorage->size();
+				info->Index = retVal.Index;
+				_EntityComponentStorage->push_back(EntityComponentStorage(info, new ComponentDataChunkArray()));
+				_EntityPool->push_back(std::queue<Entity>());
+			}
+			else {
+				retVal.Index = duplicateIndex;
+			}
 			return retVal;
 		}
 
@@ -107,7 +126,9 @@ namespace UniEngine {
 		template<typename T>
 		inline void EntityManager::SetComponentData(Entity entity, T value)
 		{
-			EntityInfo info = _Entities->at(entity.Index);
+			EntityInfo info;
+			info = _Entities->at(entity.Index);
+			
 			if (info.Entity == entity) {
 				EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 				unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;

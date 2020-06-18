@@ -12,9 +12,13 @@ int main()
     World* world = engine->GetWorld();
     Entities::EntityManager::SetWorld(world);
     Entities::EntityArchetype a = Entities::EntityManager::CreateEntityArchetype<Position, Rotation>(Position(), Rotation());
-
+    std::cout << a.Index << "\n";
+    Entities::EntityArchetype b = Entities::EntityManager::CreateEntityArchetype<Position, Rotation>(Position(), Rotation());
+    std::cout << b.Index << "\n";
+    Entities::EntityArchetype c = Entities::EntityManager::CreateEntityArchetype<Position, Rotation>(Position(), Rotation());
+    std::cout << c.Index << "\n";
     Entities::Entity e = Entities::EntityManager::CreateEntity(a);
-
+    
     Entities::EntityManager::DeleteEntity(e);
     Entities::EntityManager::DeleteEntity(e);
 
