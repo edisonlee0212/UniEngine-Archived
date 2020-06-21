@@ -78,7 +78,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		RenderManager::_DrawCall++;
 		RenderManager::_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
-		program->Use();
+		program->Bind();
 		GLTexture::Activate(GL_TEXTURE0);
 		program->SetInt("directionalShadowMap", 0);
 		LightingManager::_DirectionalLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
@@ -165,7 +165,7 @@ void UniEngine::RenderManager::DrawMesh(
 		RenderManager::_DrawCall++;
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
-		program->Use();
+		program->Bind();
 		GLTexture::Activate(GL_TEXTURE0);
 		program->SetInt("directionalShadowMap", 0);
 		LightingManager::_DirectionalLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
