@@ -9,9 +9,11 @@ namespace UniEngine {
 	class CORE_API GLShader : public GLObject
 	{
 		std::string* _Code;
+		GLuint _ID;
 		ShaderType _Type;
 		bool _Attachable;
 		bool _Compileable;
+		
 	public:
 		void SetCode(std::string* code);
 		GLShader(ShaderType type);

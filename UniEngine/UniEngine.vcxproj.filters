@@ -25,6 +25,9 @@
     <Filter Include="Header Files\Resource\Manager">
       <UniqueIdentifier>{5f364dd2-ef88-4cb5-b742-359d46d2ccc7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Resource\Manager\Input">
+      <UniqueIdentifier>{a9f840bf-14fd-417a-a501-3ca615605c08}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\Resource\Manager\Model">
       <UniqueIdentifier>{3260ec06-616a-49f7-90db-fb9f72c57f61}</UniqueIdentifier>
     </Filter>
@@ -75,9 +78,6 @@
     </Filter>
     <Filter Include="Source Files\External">
       <UniqueIdentifier>{10d94e26-7228-417a-a4f0-1e081e421a3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\Manager\Input">
-      <UniqueIdentifier>{a9f840bf-14fd-417a-a501-3ca615605c08}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
