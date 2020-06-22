@@ -3,14 +3,12 @@
 namespace UniEngine {
 	class CORE_API GLRenderBuffer : public GLObject
 	{
-		static GLuint _CurrentBinding;
 	public:
-		void Bind();
-		static void BindDefault();
 		GLRenderBuffer();
 		~GLRenderBuffer();
 		void AllocateStorage(GLenum internalformat​, GLsizei width​, GLsizei height);
 		void Attach(GLenum attachment, GLuint frameBufferID);
+		//void Detach();
 	};
 }
 

@@ -4,16 +4,15 @@
 namespace UniEngine {
 	class CORE_API GLProgram : public GLObject
 	{
+        GLuint _ID;
         GLShader* _VertexShader;
         GLShader* _FragmentShader;
         GLShader* _GeometryShader;
-        static GLuint _CurrentBinding;
     public:
-        void Bind() const;
-        static void BindDefault();
         GLProgram();
         GLProgram(GLShader* vertexShader, GLShader* fragmentShader, GLShader* geometryShader = nullptr);
         ~GLProgram();
+        void Use();
         void Link();
         void Attach(ShaderType type, GLShader* shader);
         void Detach(ShaderType type);

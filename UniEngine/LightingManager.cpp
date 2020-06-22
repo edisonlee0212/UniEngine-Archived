@@ -117,7 +117,7 @@ void UniEngine::LightingManager::Start()
 				glEnable(GL_DEPTH_TEST);
 				glClear(GL_DEPTH_BUFFER_BIT);
 
-				_DirectionalLightProgram->Bind();
+				_DirectionalLightProgram->Use();
 				_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix);
 
 				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
@@ -134,7 +134,7 @@ void UniEngine::LightingManager::Start()
 					}
 				}
 				
-				_DirectionalLightInstancedProgram->Bind();
+				_DirectionalLightInstancedProgram->Use();
 				_DirectionalLightInstancedProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix);
 
 				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
@@ -195,7 +195,7 @@ void UniEngine::LightingManager::Start()
 				shadowTransforms[5] = shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 
 
-				_PointLightProgram->Bind();
+				_PointLightProgram->Use();
 				_PointLightProgram->SetInt("index", i);
 				_PointLightProgram->SetFloat4x4("shadowMatrices[0]", shadowTransforms[0]);
 				_PointLightProgram->SetFloat4x4("shadowMatrices[1]", shadowTransforms[1]);
@@ -218,7 +218,7 @@ void UniEngine::LightingManager::Start()
 				}
 
 
-				_PointLightInstancedProgram->Bind();
+				_PointLightInstancedProgram->Use();
 				_PointLightInstancedProgram->SetInt("index", i);
 				_PointLightInstancedProgram->SetFloat4x4("shadowMatrices[0]", shadowTransforms[0]);
 				_PointLightInstancedProgram->SetFloat4x4("shadowMatrices[1]", shadowTransforms[1]);

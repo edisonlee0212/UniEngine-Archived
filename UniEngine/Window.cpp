@@ -46,7 +46,7 @@ void UniEngine::Window::Update(Texture2D* texture)
 	glDisable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
 	auto program = Default::GLPrograms::ScreenProgram;
-	program->Bind();
+	program->Use();
 	
 	Default::GLPrograms::ScreenVAO->Bind();
 	texture->Texture()->Bind(GL_TEXTURE_2D);
@@ -66,7 +66,7 @@ void UniEngine::Window::Update()
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	auto program = Default::GLPrograms::ScreenProgram;
-	program->Bind();
+	program->Use();
 
 	Default::GLPrograms::ScreenVAO->Bind();
 	//Default::Textures::UV->Texture()->Bind(GL_TEXTURE_2D);
