@@ -55,18 +55,18 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	GLVBO* matricesBuffer = new GLVBO();
 	matricesBuffer->SetData(count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
-	GLVAO::EnableAttributeArray(12);
-	GLVAO::SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-	GLVAO::EnableAttributeArray(13);
-	GLVAO::SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-	GLVAO::EnableAttributeArray(14);
-	GLVAO::SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-	GLVAO::EnableAttributeArray(15);
-	GLVAO::SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-	GLVAO::SetAttributeDivisor(12, 1);
-	GLVAO::SetAttributeDivisor(13, 1);
-	GLVAO::SetAttributeDivisor(14, 1);
-	GLVAO::SetAttributeDivisor(15, 1);
+	mesh->VAO()->EnableAttributeArray(12);
+	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	mesh->VAO()->EnableAttributeArray(13);
+	mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	mesh->VAO()->EnableAttributeArray(14);
+	mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	mesh->VAO()->EnableAttributeArray(15);
+	mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	mesh->VAO()->SetAttributeDivisor(12, 1);
+	mesh->VAO()->SetAttributeDivisor(13, 1);
+	mesh->VAO()->SetAttributeDivisor(14, 1);
+	mesh->VAO()->SetAttributeDivisor(15, 1);
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
 		RenderManager::_DrawCall++;
@@ -154,10 +154,10 @@ void UniEngine::RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 matrix)
 {
 	mesh->Enable();
-	GLVAO::DisableAttributeArray(12);
-	GLVAO::DisableAttributeArray(13);
-	GLVAO::DisableAttributeArray(14);
-	GLVAO::DisableAttributeArray(15);
+	mesh->VAO()->DisableAttributeArray(12);
+	mesh->VAO()->DisableAttributeArray(13);
+	mesh->VAO()->DisableAttributeArray(14);
+	mesh->VAO()->DisableAttributeArray(15);
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
 		RenderManager::_DrawCall++;

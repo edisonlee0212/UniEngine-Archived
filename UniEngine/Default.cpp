@@ -41,14 +41,12 @@ void UniEngine::Default::Load(World* world)
 	};
 
 	GLPrograms::ScreenVAO = new GLVAO();
-	auto quadVBO = GLPrograms::ScreenVAO->VBO()->ID();
-	GLPrograms::ScreenVAO->Bind();
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	auto quadVBO = GLPrograms::ScreenVAO->VBO();
+	GLPrograms::ScreenVAO->SetData(sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	GLPrograms::ScreenVAO->EnableAttributeArray(0);
+	GLPrograms::ScreenVAO->SetAttributePointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	GLPrograms::ScreenVAO->EnableAttributeArray(1);
+	GLPrograms::ScreenVAO->SetAttributePointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	GLShader* screenvert = new GLShader(ShaderType::Vertex);
 	std::string vertShaderCode = std::string(FileIO::LoadFileAsString("Shaders/Vertex/screen.vert"));

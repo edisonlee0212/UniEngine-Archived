@@ -49,9 +49,6 @@
     <Filter Include="Source Files\Resource\Manager\Input">
       <UniqueIdentifier>{f1ccd168-af9c-4c5d-956f-74be91a22133}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Resource\Manager\Rendering">
-      <UniqueIdentifier>{a84dcb55-783b-484d-9b67-316f019967c3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Resource\Manager\Window">
       <UniqueIdentifier>{24212c05-bf3d-4918-b0c1-87e4e105353a}</UniqueIdentifier>
     </Filter>
@@ -78,6 +75,12 @@
     </Filter>
     <Filter Include="Header Files\Resource\Manager\Input">
       <UniqueIdentifier>{a9f840bf-14fd-417a-a501-3ca615605c08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\Rendering">
+      <UniqueIdentifier>{a84dcb55-783b-484d-9b67-316f019967c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\Manager\Render">
+      <UniqueIdentifier>{381e113b-2cd0-42e3-b73f-24ed202d65c8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -228,34 +231,31 @@
       <Filter>Source Files\Resource\Manager\Input</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Cubemap.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="DirectionalLightShadowMap.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="LightingManager.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="PointLightShadowMap.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="RenderTarget.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Texture2D.cpp">
-      <Filter>Source Files\Resource\Manager\Rendering</Filter>
+      <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
       <Filter>Source Files\Resource\Manager\Window</Filter>
@@ -322,6 +322,9 @@
     </ClCompile>
     <ClCompile Include="imgui_impl_win32.cpp">
       <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>Source Files\Resource\Manager\Render</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

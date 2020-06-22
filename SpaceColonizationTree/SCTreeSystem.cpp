@@ -34,7 +34,7 @@ void SpaceColonizationTree::SCTreeSystem::OnCreate()
 	_GrowDist = 0.3f;
 	_AttractDitsMult = 2.5f;
 	_RemoveDistMult = 0.5f;
-	_PointsCount = 4000;
+	_PointsCount = 1000;
 	_EnvelopeRadius = 6.0f;
 	_MinHeight = 2.0f;
 	_MaxHeight = 8.0f;

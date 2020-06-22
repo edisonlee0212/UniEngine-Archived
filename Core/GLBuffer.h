@@ -145,27 +145,31 @@ namespace UniEngine {
 			_VBO->SubData(offset, size, data);
 		}
 
-		static void EnableAttributeArray(GLuint index)
+		void EnableAttributeArray(GLuint index)
 		{
+			Bind();
 			glEnableVertexAttribArray(index);
 		}
 
-		static void DisableAttributeArray(GLuint index)
+		void DisableAttributeArray(GLuint index)
 		{
+			Bind();
 			glDisableVertexAttribArray(index);
 		}
 
-		static void SetAttributePointer(GLuint index,
+		void SetAttributePointer(GLuint index,
 			GLint size,
 			GLenum type,
 			GLboolean normalized,
 			GLsizei stride,
 			const void* pointer) {
+			Bind();
 			glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 		}
 
-		static void SetAttributeDivisor(GLuint index,
+		void SetAttributeDivisor(GLuint index,
 			GLuint divisor) {
+			Bind();
 			glVertexAttribDivisor(index, divisor);
 		}
 

@@ -4,7 +4,7 @@
 
 using namespace UniEngine;
 
-unsigned Camera::_CameraInfoBufferID;
+GLUBO* Camera::_CameraData;
 
 void UniEngine::Camera::UpdateMatrices(glm::vec3 position)
 {
@@ -21,24 +21,18 @@ void UniEngine::Camera::UpdateMatrices(glm::vec3 position)
 	View = glm::lookAt(position, position + _Front, _Up);
 	auto ratio = _RenderTarget->GetResolutionRatio();
 	if (ratio == 0) return;
-	Projection = glm::perspective(glm::radians(Zoom), ratio, 0.1f, 1000.0f);
+	Projection = glm::perspective(glm::radians(FOV), ratio, _Near, _Far);
 	
-	
-	glBindBuffer(GL_UNIFORM_BUFFER, _CameraInfoBufferID);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(Projection));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(View));
-	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec3), glm::value_ptr(position));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	_CameraData->SubData(0, sizeof(glm::mat4), glm::value_ptr(Projection));
+	_CameraData->SubData(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(View));
+	_CameraData->SubData(2 * sizeof(glm::mat4), sizeof(glm::vec3), glm::value_ptr(position));
 }
 
 void UniEngine::Camera::GenerateMatrices()
 {
-	glGenBuffers(1, &_CameraInfoBufferID);
-	glBindBuffer(GL_UNIFORM_BUFFER, _CameraInfoBufferID);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, _CameraInfoBufferID, 0, 2 * sizeof(glm::mat4));
-	
+	_CameraData = new GLUBO();
+	_CameraData->SetData(2 * sizeof(glm::mat4) + sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
+	_CameraData->SetRange(0, 0, 2 * sizeof(glm::mat4));
 }
 
 RenderTarget* UniEngine::Camera::GetRenderTarget()
@@ -46,11 +40,13 @@ RenderTarget* UniEngine::Camera::GetRenderTarget()
 	return _RenderTarget;
 }
 
-Camera::Camera(RenderTarget* renderTarget, float yaw, float pitch) : _Front(glm::vec3(0.0f, 0.0f, -1.0f)), Zoom(ZOOM)
+Camera::Camera(RenderTarget* renderTarget, float yaw, float pitch, float nearPlane, float farPlane) : _Front(glm::vec3(0.0f, 0.0f, -1.0f)), FOV(DEFAULTFOV)
 {
 	_RenderTarget = renderTarget;
 	Yaw = yaw;
 	Pitch = pitch;
+	_Near = nearPlane;
+	_Far = farPlane;
 }
 
 void UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch)
@@ -73,10 +69,10 @@ void UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, float
 
 void UniEngine::Camera::ProcessMouseScroll(float yoffset)
 {
-	if (Zoom >= 1.0f && Zoom <= 45.0f)
-		Zoom -= yoffset;
-	if (Zoom <= 1.0f)
-		Zoom = 1.0f;
-	if (Zoom >= 45.0f)
-		Zoom = 45.0f;
+	if (FOV >= 1.0f && FOV <= 45.0f)
+		FOV -= yoffset;
+	if (FOV <= 1.0f)
+		FOV = 1.0f;
+	if (FOV >= 45.0f)
+		FOV = 45.0f;
 }

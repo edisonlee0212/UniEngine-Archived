@@ -162,65 +162,65 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 	}
 #pragma endregion
 #pragma region AttributePointer
-	GLVAO::EnableAttributeArray(0);
-	GLVAO::SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-	GLVAO::EnableAttributeArray(1);
-	GLVAO::SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * _VerticesSize));
+	_VAO->EnableAttributeArray(0);
+	_VAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+	_VAO->EnableAttributeArray(1);
+	_VAO->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * _VerticesSize));
 	
 	attributeSize = 2 * sizeof(glm::vec3);
 	if (mask & (unsigned)VertexAttribute::Tangent) {
-		GLVAO::EnableAttributeArray(2);
-		GLVAO::SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(2);
+		_VAO->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 12;
 	}
 	if (mask & (unsigned)VertexAttribute::Bitangent) {
-		GLVAO::EnableAttributeArray(3);
-		GLVAO::SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(3);
+		_VAO->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 12;
 	}
 	if (mask & (unsigned)VertexAttribute::Color) {
-		GLVAO::EnableAttributeArray(4);
-		GLVAO::SetAttributePointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(4);
+		_VAO->SetAttributePointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 16;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord0) {
-		GLVAO::EnableAttributeArray(5);
-		GLVAO::SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(5);
+		_VAO->SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord1) {
-		GLVAO::EnableAttributeArray(6);
-		GLVAO::SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(6);
+		_VAO->SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord2) {
-		GLVAO::EnableAttributeArray(7);
-		GLVAO::SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(7);
+		_VAO->SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord3) {
-		GLVAO::EnableAttributeArray(8);
-		GLVAO::SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(8);
+		_VAO->SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord4) {
-		GLVAO::EnableAttributeArray(9);
-		GLVAO::SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(9);
+		_VAO->SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord5) {
-		GLVAO::EnableAttributeArray(10);
-		GLVAO::SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(10);
+		_VAO->SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord6) {
-		GLVAO::EnableAttributeArray(11);
-		GLVAO::SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(11);
+		_VAO->SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord7) {
-		GLVAO::EnableAttributeArray(12);
-		GLVAO::SetAttributePointer(12, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(12);
+		_VAO->SetAttributePointer(12, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 #pragma endregion
@@ -279,70 +279,71 @@ GLVAO* UniEngine::Mesh::VAO()
 void UniEngine::Mesh::Enable()
 {
 	_VAO->Bind();
-/*
+	
 #pragma region AttributePointer
-	GLVAO::EnableAttributeArray(0);
-	GLVAO::SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-	GLVAO::EnableAttributeArray(1);
-	GLVAO::SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * _VerticesSize));
+	/*
+	_VAO->EnableAttributeArray(0);
+	_VAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+	_VAO->EnableAttributeArray(1);
+	_VAO->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * _VerticesSize));
 	size_t attributeSize = 2 * sizeof(glm::vec3);
 	if (_Mask & (unsigned)VertexAttribute::Tangent) {
-		GLVAO::EnableAttributeArray(2);
-		GLVAO::SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(2);
+		_VAO->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 12;
 	}
 	if (_Mask & (unsigned)VertexAttribute::Bitangent) {
-		GLVAO::EnableAttributeArray(3);
-		GLVAO::SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(3);
+		_VAO->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 12;
 	}
 	if (_Mask & (unsigned)VertexAttribute::Color) {
-		GLVAO::EnableAttributeArray(4);
-		GLVAO::SetAttributePointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(4);
+		_VAO->SetAttributePointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 16;
 	}
 	if (_Mask & (unsigned)VertexAttribute::TexCoord0) {
-		GLVAO::EnableAttributeArray(5);
-		GLVAO::SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(5);
+		_VAO->SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (_Mask & (unsigned)VertexAttribute::TexCoord1) {
-		GLVAO::EnableAttributeArray(6);
-		GLVAO::SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(6);
+		_VAO->SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (_Mask & (unsigned)VertexAttribute::TexCoord2) {
-		GLVAO::EnableAttributeArray(7);
-		GLVAO::SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(7);
+		_VAO->SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (_Mask & (unsigned)VertexAttribute::TexCoord3) {
-		GLVAO::EnableAttributeArray(8);
-		GLVAO::SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(8);
+		_VAO->SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (_Mask & (unsigned)VertexAttribute::TexCoord4) {
-		GLVAO::EnableAttributeArray(9);
-		GLVAO::SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(9);
+		_VAO->SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (_Mask & (unsigned)VertexAttribute::TexCoord5) {
-		GLVAO::EnableAttributeArray(10);
-		GLVAO::SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(10);
+		_VAO->SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (_Mask & (unsigned)VertexAttribute::TexCoord6) {
-		GLVAO::EnableAttributeArray(11);
-		GLVAO::SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(11);
+		_VAO->SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
 	}
 	if (_Mask & (unsigned)VertexAttribute::TexCoord7) {
-		GLVAO::EnableAttributeArray(12);
-		GLVAO::SetAttributePointer(12, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		_VAO->EnableAttributeArray(12);
+		_VAO->SetAttributePointer(12, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += 8;
-	}
+	}*/
 #pragma endregion	
-*/
+
 }
 
 
