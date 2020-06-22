@@ -4,6 +4,22 @@
 #include "GLShader.h"
 using namespace UniEngine;
 
+GLuint UniEngine::GLProgram::_CurrentBinding = 0;
+
+void UniEngine::GLProgram::Bind() const
+{
+    if (_CurrentBinding == _ID) return;
+    glUseProgram(_ID);
+    _CurrentBinding = _ID;
+}
+
+void UniEngine::GLProgram::BindDefault()
+{
+    if (_CurrentBinding == 0) return;
+    glUseProgram(0);
+    _CurrentBinding = 0;
+}
+
 UniEngine::GLProgram::GLProgram()
 {
     _ID = glCreateProgram();
@@ -31,10 +47,6 @@ UniEngine::GLProgram::~GLProgram()
     glDeleteProgram(_ID);
 }
 
-void UniEngine::GLProgram::Use()
-{
-    glUseProgram(_ID);
-}
 
 void UniEngine::GLProgram::Link()
 {
@@ -94,61 +106,61 @@ void UniEngine::GLProgram::Detach(ShaderType type)
 
 void GLProgram::SetBool(const std::string& name, bool value) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform1i(glGetUniformLocation(_ID, name.c_str()), (int)value);
 }
 void GLProgram::SetInt(const std::string& name, int value) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform1i(glGetUniformLocation(_ID, name.c_str()), value);
 }
 void GLProgram::SetFloat(const std::string& name, float value) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform1f(glGetUniformLocation(_ID, name.c_str()), value);
 }
 void GLProgram::SetFloat2(const std::string& name, const glm::vec2& value) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform2fv(glGetUniformLocation(_ID, name.c_str()), 1, &value[0]);
 }
 void GLProgram::SetFloat2(const std::string& name, float x, float y) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform2f(glGetUniformLocation(_ID, name.c_str()), x, y);
 }
 void GLProgram::SetFloat3(const std::string& name, const glm::vec3& value) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform3fv(glGetUniformLocation(_ID, name.c_str()), 1, &value[0]);
 }
 void GLProgram::SetFloat3(const std::string& name, float x, float y, float z) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform3f(glGetUniformLocation(_ID, name.c_str()), x, y, z);
 }
 void GLProgram::SetFloat4(const std::string& name, const glm::vec4& value) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform4fv(glGetUniformLocation(_ID, name.c_str()), 1, &value[0]);
 }
 void GLProgram::SetFloat4(const std::string& name, float x, float y, float z, float w)
 {
-    glUseProgram(_ID);
+    Bind();
     glUniform4f(glGetUniformLocation(_ID, name.c_str()), x, y, z, w);
 }
 void GLProgram::SetFloat2x2(const std::string& name, const glm::mat2& mat) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniformMatrix2fv(glGetUniformLocation(_ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 void GLProgram::SetFloat3x3(const std::string& name, const glm::mat3& mat) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniformMatrix3fv(glGetUniformLocation(_ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 void GLProgram::SetFloat4x4(const std::string& name, const glm::mat4& mat) const
 {
-    glUseProgram(_ID);
+    Bind();
     glUniformMatrix4fv(glGetUniformLocation(_ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
