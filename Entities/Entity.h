@@ -7,38 +7,6 @@ namespace UniEngine {
 		struct ENTITIES_API ComponentBase {
 		};
 
-#pragma region Predefined Componenets
-		struct ENTITIES_API Position : ComponentBase {
-			glm::vec3 value;
-		};
-		struct ENTITIES_API Scale : ComponentBase {
-			glm::vec3 value;
-		};
-		struct ENTITIES_API Rotation : ComponentBase {
-			glm::quat value;
-		};
-		struct ENTITIES_API LocalPosition : ComponentBase
-		{
-			glm::vec3 value;
-		};
-		struct ENTITIES_API LocalScale : ComponentBase {
-			glm::vec3 value;
-		};
-		struct ENTITIES_API LocalRotation : ComponentBase {
-			glm::quat value;
-		};
-		struct ENTITIES_API LocalToWorld : ComponentBase {
-			glm::mat4 value;
-		};
-		struct ENTITIES_API LocalToParent : ComponentBase {
-			glm::mat4 value;
-		};
-		struct ENTITIES_API CameraMask : ComponentBase
-		{
-			unsigned value;
-			CameraMask() { value = 0; }
-		};
-#pragma endregion
 
 		class ENTITIES_API SharedComponentBase {
 		public:
@@ -60,6 +28,7 @@ namespace UniEngine {
 				return (size_t)Index;
 			}
 		};
+#pragma region Storage
 
 		struct ENTITIES_API ComponentType {
 			size_t TypeID;
@@ -96,6 +65,17 @@ namespace UniEngine {
 			template<typename T>
 			void SetData(unsigned offset, T data);
 		};
+
+		template<typename T>
+		inline T ComponentDataChunk::GetData(unsigned offset)
+		{
+			return T(*(T*)((char*)Data + offset));
+		}
+		template<typename T>
+		inline void ComponentDataChunk::SetData(unsigned offset, T data)
+		{
+			*(T*)((char*)Data + offset) = data;
+		}
 
 		struct ENTITIES_API ComponentDataChunkArray {
 			std::vector<Entity> Entities;
@@ -134,17 +114,40 @@ namespace UniEngine {
 			EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array);
 		};
 #pragma endregion
+#pragma endregion
+#pragma region Predefined Componenets
+		struct ENTITIES_API Position : ComponentBase {
+			glm::vec3 value;
+		};
+		struct ENTITIES_API Scale : ComponentBase {
+			glm::vec3 value;
+		};
+		struct ENTITIES_API Rotation : ComponentBase {
+			glm::quat value;
+		};
+		struct ENTITIES_API LocalPosition : ComponentBase
+		{
+			glm::vec3 value;
+		};
+		struct ENTITIES_API LocalScale : ComponentBase {
+			glm::vec3 value;
+		};
+		struct ENTITIES_API LocalRotation : ComponentBase {
+			glm::quat value;
+		};
+		struct ENTITIES_API LocalToWorld : ComponentBase {
+			glm::mat4 value;
+		};
+		struct ENTITIES_API LocalToParent : ComponentBase {
+			glm::mat4 value;
+		};
+		struct ENTITIES_API CameraMask : ComponentBase
+		{
+			unsigned value;
+			CameraMask() { value = 0; }
+		};
+#pragma endregion
 
-		template<typename T>
-		inline T ComponentDataChunk::GetData(unsigned offset)
-		{
-			return T(*(T*)((char*)Data + offset));
-		}
-		template<typename T>
-		inline void ComponentDataChunk::SetData(unsigned offset, T data)
-		{
-			*(T*)((char*)Data + offset) = data;
-		}
 #pragma endregion
 	}
 }
