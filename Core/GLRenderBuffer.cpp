@@ -24,6 +24,7 @@ UniEngine::GLRenderBuffer::GLRenderBuffer()
 
 UniEngine::GLRenderBuffer::~GLRenderBuffer()
 {
+	BindDefault();
 	glDeleteRenderbuffers(1, &_ID);
 }
 

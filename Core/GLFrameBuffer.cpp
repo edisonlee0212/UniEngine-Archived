@@ -27,6 +27,7 @@ UniEngine::GLFrameBuffer::GLFrameBuffer()
 
 UniEngine::GLFrameBuffer::~GLFrameBuffer()
 {
+	BindDefault();
 	glDeleteFramebuffers(1, &_ID);
 }
 

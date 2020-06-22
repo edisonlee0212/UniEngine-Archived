@@ -44,6 +44,7 @@ UniEngine::GLProgram::GLProgram(GLShader* vertexShader, GLShader* fragmentShader
 
 UniEngine::GLProgram::~GLProgram()
 {
+    BindDefault();
     glDeleteProgram(_ID);
 }
 

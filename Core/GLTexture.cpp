@@ -13,6 +13,7 @@ UniEngine::GLTexture::GLTexture()
 
 UniEngine::GLTexture::~GLTexture()
 {
+	BindDefault();
 	glDeleteTextures(1, &_ID);
 }
 

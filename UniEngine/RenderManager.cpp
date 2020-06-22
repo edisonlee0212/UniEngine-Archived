@@ -52,27 +52,21 @@ void UniEngine::RenderManager::DrawMesh(
 void UniEngine::RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count)
 {
-	unsigned buffer;
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
-
-	mesh->VAO()->Bind();
-
-	glEnableVertexAttribArray(12);
-	glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-	glEnableVertexAttribArray(13);
-	glVertexAttribPointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-	glEnableVertexAttribArray(14);
-	glVertexAttribPointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-	glEnableVertexAttribArray(15);
-	glVertexAttribPointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-	glVertexAttribDivisor(12, 1);
-	glVertexAttribDivisor(13, 1);
-	glVertexAttribDivisor(14, 1);
-	glVertexAttribDivisor(15, 1);
-
+	GLVBO* matricesBuffer = new GLVBO();
+	matricesBuffer->SetData(count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	mesh->Enable();
+	GLVAO::EnableAttributeArray(12);
+	GLVAO::SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	GLVAO::EnableAttributeArray(13);
+	GLVAO::SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	GLVAO::EnableAttributeArray(14);
+	GLVAO::SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	GLVAO::EnableAttributeArray(15);
+	GLVAO::SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	GLVAO::SetAttributeDivisor(12, 1);
+	GLVAO::SetAttributeDivisor(13, 1);
+	GLVAO::SetAttributeDivisor(14, 1);
+	GLVAO::SetAttributeDivisor(15, 1);
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
 		RenderManager::_DrawCall++;
@@ -153,13 +147,17 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		GLTexture::BindDefault();
 	}
 	GLVAO::BindDefault();
-	glDeleteBuffers(1, &buffer);
+	delete matricesBuffer;
 }
 
 void UniEngine::RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 matrix)
 {
-	mesh->VAO()->Bind();
+	mesh->Enable();
+	GLVAO::DisableAttributeArray(12);
+	GLVAO::DisableAttributeArray(13);
+	GLVAO::DisableAttributeArray(14);
+	GLVAO::DisableAttributeArray(15);
 	auto programs = material->Programs();
 	for (auto i = 0; i < programs->size(); i++) {
 		RenderManager::_DrawCall++;

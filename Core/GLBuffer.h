@@ -29,7 +29,9 @@ namespace UniEngine {
 			Bind();
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, length, data, usage);
 		}
-		
+		~GLEBO() {
+			BindDefault();
+		}
 	};
 
 	class CORE_API GLVBO : public GLBuffer {
@@ -53,11 +55,18 @@ namespace UniEngine {
 			Bind();
 			glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 		}
+		~GLVBO() {
+			BindDefault();
+		}
 	};
 
 	class CORE_API GLUBO : public GLBuffer {
 		static GLuint _CurrentBinding;
 	public:
+		~GLUBO() {
+			BindDefault();
+		}
+
 		void Bind() {
 			if (_ID == _CurrentBinding) return;
 			glBindBuffer(GL_UNIFORM_BUFFER, _ID);
@@ -85,6 +94,8 @@ namespace UniEngine {
 			GLsizeiptr size) {
 			glBindBufferRange(GL_UNIFORM_BUFFER, index, _ID, offset, size);
 		}
+
+
 	};
 
 	class CORE_API GLVAO : public GLObject {
@@ -93,6 +104,13 @@ namespace UniEngine {
 		GLEBO* _EBO;
 		static GLuint _CurrentBinding;
 	public:
+		~GLVAO() {
+			delete _VBO;
+			delete _EBO;
+			BindDefault();
+			glDeleteVertexArrays(1, &_ID);
+		}
+
 		void Bind() {
 			if (_ID == _CurrentBinding) return;
 			glBindVertexArray(_ID);
@@ -127,31 +145,30 @@ namespace UniEngine {
 			_VBO->SubData(offset, size, data);
 		}
 
-		void EnableAttributeArray(GLuint index)
+		static void EnableAttributeArray(GLuint index)
 		{
-			Bind();
 			glEnableVertexAttribArray(index);
 		}
 
-		void SetAttributePointer(GLuint index,
+		static void DisableAttributeArray(GLuint index)
+		{
+			glDisableVertexAttribArray(index);
+		}
+
+		static void SetAttributePointer(GLuint index,
 			GLint size,
 			GLenum type,
 			GLboolean normalized,
 			GLsizei stride,
 			const void* pointer) {
-			Bind();
 			glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 		}
 
-		void SetAttributeDivisor(GLuint index,
+		static void SetAttributeDivisor(GLuint index,
 			GLuint divisor) {
-			Bind();
 			glVertexAttribDivisor(index, divisor);
 		}
 
-		~GLVAO() {
-			glDeleteVertexArrays(1, &_ID);
-		}
 	};
 }
 
