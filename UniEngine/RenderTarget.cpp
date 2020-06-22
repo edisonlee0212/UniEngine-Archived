@@ -91,7 +91,7 @@ void UniEngine::RenderTarget::Bind()
 		Debug::Error("Error");
 		return;
 	}
-	_FrameBuffer->Bind();
+	glBindFramebuffer(GL_FRAMEBUFFER, _FrameBuffer->ID());
 	if (!_FrameBuffer->Color()) {
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
@@ -105,5 +105,5 @@ void UniEngine::RenderTarget::Bind()
 
 void UniEngine::RenderTarget::BindDefault()
 {
-	GLFrameBuffer::BindDefault();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

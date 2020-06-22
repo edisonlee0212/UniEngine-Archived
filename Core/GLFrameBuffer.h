@@ -9,10 +9,7 @@ namespace UniEngine {
 		bool _Color;
 		bool _Depth;
 		bool _Stencil;
-		static GLuint _CurrentBinding;
 	public:
-		void Bind();
-		static void BindDefault();
 		GLFrameBuffer();
 		~GLFrameBuffer();
 		bool Color();

@@ -1,22 +1,6 @@
 #include "pch.h"
 #include "GLFrameBuffer.h"
 
-GLuint UniEngine::GLFrameBuffer::_CurrentBinding = 0;
-
-void UniEngine::GLFrameBuffer::Bind()
-{
-	if (_CurrentBinding == _ID) return;
-	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
-	_CurrentBinding = _ID;
-}
-
-void UniEngine::GLFrameBuffer::BindDefault()
-{
-	if (_CurrentBinding == 0) return;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	_CurrentBinding = 0;
-}
-
 UniEngine::GLFrameBuffer::GLFrameBuffer()
 {
 	_Color = false;
@@ -63,7 +47,7 @@ void UniEngine::GLFrameBuffer::AttachRenderBuffer(GLRenderBuffer* buffer, GLenum
 		_Color = true;
 		break;
 	}
-	Bind();
+	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachPoint, GL_RENDERBUFFER, buffer->ID());
 }
 
@@ -85,7 +69,7 @@ void UniEngine::GLFrameBuffer::AttachTexture2D(GLTexture* texture, GLenum attach
 		_Color = true;
 		break;
 	}
-	Bind();
+	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, attachPoint, GL_TEXTURE_2D, texture->ID(), 0);
 }
 
@@ -107,7 +91,7 @@ void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLenum attachPo
 		_Color = true;
 		break;
 	}
-	Bind();
+	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
 	glFramebufferTexture(GL_FRAMEBUFFER, attachPoint, texture->ID(), 0);
 }
 
@@ -129,6 +113,6 @@ void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLenum att
 		_Color = true;
 		break;
 	}
-	Bind();
+	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
 	glFramebufferTextureLayer(GL_FRAMEBUFFER, attachPoint, texture->ID(), 0, layer);
 }
