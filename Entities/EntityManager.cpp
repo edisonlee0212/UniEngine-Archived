@@ -39,7 +39,7 @@ Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetyp
 		if (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 			//Allocate new chunk;
 			ComponentDataChunk chunk;
-			chunk.Data = (void*)malloc(ARCHETYPECHUNK_SIZE);
+			chunk.Data = (void*)calloc(1, ARCHETYPECHUNK_SIZE);
 			storage.ChunkArray->Chunks.push_back(chunk);
 		}
 		retVal.Index = _Entities->size();
