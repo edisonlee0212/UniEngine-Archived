@@ -103,11 +103,11 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 0);
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
 				glm::mat4 lightProjection, lightView;
-
-				float near_plane = 1.0f, far_plane = 50.0f;
-				lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
+				lightProjection = glm::ortho(-dlc->xradius, dlc->xradius, -dlc->yradius, dlc->yradius, dlc->nearPlane, dlc->farPlane);
 				lightView = glm::lookAt(position, lightTarget, glm::vec3(0.0, 1.0, 0.0));
 				_DirectionalLights[i].lightSpaceMatrix = lightProjection * lightView;
+				_DirectionalLights[i].ReservedParameters = glm::vec4(dlc->nearPlane, dlc->farPlane, dlc->depthBias, dlc->normalOffset);
+
 			}
 			_DirectionalLightBlock->SubData(0, 4, &size);
 			if (size != 0)_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
@@ -195,6 +195,7 @@ void UniEngine::LightingManager::Start()
 			_PointLightBlock->SubData(0, 4, &size);
 			if (size != 0)_PointLightBlock->SubData(16, size * sizeof(PointLight), &_PointLights[0]);
 			_PointLightShadowMap->Bind(0);
+			glCullFace(GL_FRONT);
 			glEnable(GL_DEPTH_TEST);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			for (int i = 0; i < size; i++) {
@@ -279,6 +280,7 @@ void UniEngine::LightingManager::Start()
 				}
 
 			}
+			glCullFace(GL_BACK);
 		}
 	}
 	/*

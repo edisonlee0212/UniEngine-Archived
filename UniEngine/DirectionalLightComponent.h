@@ -8,6 +8,7 @@ namespace UniEngine {
 		glm::vec4 diffuse;
 		glm::vec4 specular;
 		glm::mat4 lightSpaceMatrix;
+		glm::vec4 ReservedParameters;
 	};
 	class UNIENGINE_API DirectionalLightComponent :
 		public SharedComponentBase
@@ -15,6 +16,12 @@ namespace UniEngine {
 	public:
 		glm::vec3 diffuse;
 		glm::vec3 specular;
+		float depthBias = 0.01f;
+		float normalOffset = 0.01f;
+		float xradius = 20.0f; //20.0f
+		float yradius = 20.0f; //20.0f
+		float nearPlane = 1.0f; //1.0f
+		float farPlane = 50.0f; //50.0f
 		size_t GetHashCode();
 	};
 

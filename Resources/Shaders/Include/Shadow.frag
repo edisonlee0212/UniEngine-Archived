@@ -17,8 +17,12 @@ float DirectionalLightShadowCalculation(vec4[DIRECTIONAL_LIGHTS_AMOUNT] fragPosL
     float sum = 0.0;
     for(int i = 0; i < DirectionalLightCount; i++){
         vec3 lightDir = DirectionalLights[i].direction;
+
+        float bias = DirectionalLights[i].ReservedParameters.z;
+        float normalOffset = DirectionalLights[i].ReservedParameters.w;
+
         // perform perspective divide
-        vec3 projCoords = fragPosLightSpaces[i].xyz / fragPosLightSpaces[i].w;
+        vec3 projCoords = (fragPosLightSpaces[i].xyz + normal * normalOffset) / fragPosLightSpaces[i].w;
 
         if(projCoords.z > 1.0){
             continue;
@@ -28,10 +32,6 @@ float DirectionalLightShadowCalculation(vec4[DIRECTIONAL_LIGHTS_AMOUNT] fragPosL
         // get depth of current fragment from light's perspective
         float currentDepth = projCoords.z;
 
-        // calculate bias
-        //float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.005);
-        float bias = 0.005 * tan(acos(clamp(dot(normal, lightDir), 0.0, 1.0)));
-        bias = clamp(bias, 0.0, 0.02);
 
         // check whether current frag pos is in shadow
         // PCF
@@ -63,10 +63,8 @@ float PointLightShadowCalculation(vec3 fragPos, vec3 normal)
         float currentDepth = length(fragToLight);
         if(currentDepth > far_plane) continue;
         float shadow = 0.0;
-        //float bias = max(0.05 * (1.0 - dot(normal, fragToLight)), 0.5);
 
-        float bias = 0.005 * tan(acos(clamp(dot(normal, fragToLight), 0.0, 1.0)));
-        bias = clamp(bias, 0.0, 0.5);
+        float bias = 0.3;
 
 
         int samples = 20;
