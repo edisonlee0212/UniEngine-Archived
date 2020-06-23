@@ -73,13 +73,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		RenderManager::_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
 		program->Bind();
-		GLTexture::Activate(GL_TEXTURE0);
 		program->SetInt("directionalShadowMap", 0);
-		LightingManager::_DirectionalLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
-		GLTexture::Activate(GL_TEXTURE1);
-		program->SetInt("pointShadowMap", 1);
-		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
-		program->SetBool("receiveShadow", receiveShadow);
+		program->SetInt("pointShadowMap", 1);		program->SetBool("receiveShadow", receiveShadow);
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);
@@ -164,12 +159,8 @@ void UniEngine::RenderManager::DrawMesh(
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Bind();
-		GLTexture::Activate(GL_TEXTURE0);
 		program->SetInt("directionalShadowMap", 0);
-		LightingManager::_DirectionalLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
-		GLTexture::Activate(GL_TEXTURE1);
 		program->SetInt("pointShadowMap", 1);
-		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
 		program->SetBool("receiveShadow", receiveShadow);
 		
 		program->SetFloat4x4("model", matrix);

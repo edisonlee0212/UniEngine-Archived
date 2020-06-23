@@ -85,6 +85,12 @@ void UniEngine::LightingManager::Init()
 	_UpdateDirectionalLightBlock = true;
 	_UpdatePointLightBlock = true;
 	_UpdateSpotLightBlock = true;
+
+	GLTexture::Activate(GL_TEXTURE0);
+	LightingManager::_DirectionalLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
+	GLTexture::Activate(GL_TEXTURE1);
+	LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
+	GLTexture::BindDefault();
 }
 
 void UniEngine::LightingManager::Start()
@@ -196,6 +202,7 @@ void UniEngine::LightingManager::Start()
 				_PointLights[i].diffuse = glm::vec4(plc->diffuse, 0);
 				_PointLights[i].specular = glm::vec4(plc->specular, 0);
 				_PointLights[i].constantLinearQuadFarPlane.w = plc->farPlane;
+				_PointLights[i].ReservedParameters = glm::vec4(plc->bias, 0, 0, 0);
 			}
 			_PointLightBlock->SubData(0, 4, &size);
 			if (size != 0)_PointLightBlock->SubData(16, size * sizeof(PointLight), &_PointLights[0]);

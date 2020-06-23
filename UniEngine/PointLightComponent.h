@@ -7,6 +7,7 @@ namespace UniEngine {
 		glm::vec4 constantLinearQuadFarPlane;
 		glm::vec4 diffuse;
 		glm::vec4 specular;
+		glm::vec4 ReservedParameters;
 	};
 
 	class UNIENGINE_API PointLightComponent :
@@ -17,6 +18,7 @@ namespace UniEngine {
 		float linear;
 		float quadratic;
 		float farPlane;
+		float bias = 0.3f;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
 		size_t GetHashCode();

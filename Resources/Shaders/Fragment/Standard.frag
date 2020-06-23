@@ -1,3 +1,4 @@
+
 out vec4 FragColor;
 
 in VS_OUT {
@@ -17,14 +18,7 @@ void main()
     // ambient
     vec3 ambient = 0.3 * color;
 
+    vec3 result = CalculateLights(fs_in.FragPosLightSpaces, norm, viewDir, fs_in.FragPos);
 
-
-    float directionalLightshadow = DirectionalLightShadowCalculation(fs_in.FragPosLightSpaces, norm);
-    float pointLightShadow = PointLightShadowCalculation(fs_in.FragPos, norm);
-
-    vec3 result = CalculateLights(norm, viewDir, fs_in.FragPos);
-
-    float lightness = 1.0 - directionalLightshadow - pointLightShadow;
-    if(lightness < 0.0) lightness = 0.0;
-    FragColor = vec4((ambient + lightness * result) * color, 1.0);
+    FragColor = vec4((ambient + result) * color, 1.0);
 }

@@ -53,8 +53,8 @@ int main()
 	scale.value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
-	dlc->diffuse = glm::vec3(1.0f);
-	dlc->specular = glm::vec3(0.5f);
+	dlc->diffuse = glm::vec3(0.5f);
+	dlc->specular = glm::vec3(0.2f);
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
@@ -70,7 +70,7 @@ int main()
 	plc->linear = 0.09f;
 	plc->quadratic = 0.032f;
 	plc->farPlane = 70.0f;
-	plc->diffuse = glm::vec3(2.0f);
+	plc->diffuse = glm::vec3(3.0f);
 	plc->specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<PointLightComponent>(ple, plc);
@@ -82,7 +82,7 @@ int main()
 	plc->linear = 0.09f;
 	plc->quadratic = 0.032f;
 	plc->farPlane = 70.0f;
-	plc->diffuse = glm::vec3(2.0f);
+	plc->diffuse = glm::vec3(3.0f);
 	plc->specular = glm::vec3(5.0f);
 	Entity ple2 = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<PointLightComponent>(ple2, plc);

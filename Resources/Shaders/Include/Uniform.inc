@@ -21,6 +21,7 @@ struct PointLight {
     vec4 constantLinearQuadFarPlane;
     vec3 diffuse;
     vec3 specular;
+    vec4 ReservedParameters;
 };
 
 struct SpotLight {
@@ -73,3 +74,4 @@ uniform sampler2D TEXTURE_NORMAL[MAX_TEXTURES_AMOUNT];
 //Shadow
 uniform sampler2DArrayShadow directionalShadowMap;
 uniform samplerCubeArrayShadow pointShadowMap;
+uniform bool receiveShadow;
