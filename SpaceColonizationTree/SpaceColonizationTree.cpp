@@ -22,8 +22,6 @@ int main()
 	bool enableSCTreeSystem = false;
 	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
 	ts->Enable();
-	ts->BuildEnvelope();
-	ts->BuildTree();
 
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow());
 
@@ -42,9 +40,7 @@ int main()
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
 	ccs->SetTargetCamera(cameraEntity);
-
-	SCTreeSystem* scts = world->CreateSystem<SCTreeSystem>();
-
+	
 
 
 #pragma endregion
@@ -93,6 +89,26 @@ int main()
 	EntityManager::SetComponentData<Scale>(ple2, scale);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);
 #pragma endregion
+
+	Entity model1 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(0.0f, 3.0f, 0.0f);
+
+	scale.value = glm::vec3(2.0f, 2.0f, 2.0f);
+	EntityManager::SetComponentData<Position>(model1, pos);
+	EntityManager::SetComponentData<Scale>(model1, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model1, plmmc);
+
+	MeshMaterialComponent* mmmc = new MeshMaterialComponent();
+	mmmc->_Mesh = Default::Primitives::Monkey;
+	mmmc->_Material = Default::Materials::StandardMaterial;
+
+	Entity model2 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(6.0f, 3.0f, 0.0f);
+
+	scale.value = glm::vec3(2.0f, 2.0f, 2.0f);
+	EntityManager::SetComponentData<Position>(model2, pos);
+	EntityManager::SetComponentData<Scale>(model2, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model2, mmmc);
 
 	InitGround();
 

@@ -7,6 +7,8 @@ namespace UniEngine {
 		public SharedComponentBase
 	{
 	public:
+		bool _CastShadow = true;
+		bool _ReceiveShadow = true;
 		Mesh* _Mesh;
 		Material* _Material;
 		size_t GetHashCode();

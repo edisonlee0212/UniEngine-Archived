@@ -11,46 +11,46 @@ unsigned RenderManager::_Triangles;
 
 void UniEngine::RenderManager::DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera)
 {
-	DrawMeshInstanced(immc->_Mesh, immc->_Material, matrix, matrices, count, camera);
+	DrawMeshInstanced(immc->_Mesh, immc->_Material, matrix, matrices, count, camera, immc->_ReceiveShadow);
 }
 
 void UniEngine::RenderManager::DrawMesh(MeshMaterialComponent* mmc, glm::mat4 matrix, Camera* camera)
 {
-	DrawMesh(mmc->_Mesh, mmc->_Material, matrix, camera);
+	DrawMesh(mmc->_Mesh, mmc->_Material, matrix, camera, mmc->_ReceiveShadow);
 }
 
-void UniEngine::RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera)
+void UniEngine::RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera, bool receiveShadow)
 {
-	DrawMeshInstanced(mesh, material, matrix, matrices, count, camera->GetRenderTarget());
+	DrawMeshInstanced(mesh, material, matrix, matrices, count, camera->GetRenderTarget(), receiveShadow);
 }
 
-void UniEngine::RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, Camera* camera)
+void UniEngine::RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, Camera* camera, bool receiveShadow)
 {
-	DrawMesh(mesh, material, matrix, camera->GetRenderTarget());
+	DrawMesh(mesh, material, matrix, camera->GetRenderTarget(), receiveShadow);
 }
 
 void UniEngine::RenderManager::DrawMeshInstanced(
-	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target)
+	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow)
 {
 	if (_CurrentRenderTarget != target) {
 		target->Bind();
 		_CurrentRenderTarget = target;
 	}
-	DrawMeshInstanced(mesh, material, matrix, matrices, count);
+	DrawMeshInstanced(mesh, material, matrix, matrices, count, receiveShadow);
 }
 
 void UniEngine::RenderManager::DrawMesh(
-	Mesh* mesh, Material* material, glm::mat4 matrix, RenderTarget* target)
+	Mesh* mesh, Material* material, glm::mat4 matrix, RenderTarget* target, bool receiveShadow)
 {
 	if (_CurrentRenderTarget != target) {
 		target->Bind();
 		_CurrentRenderTarget = target;
 	}
-	DrawMesh(mesh, material, matrix);
+	DrawMesh(mesh, material, matrix, receiveShadow);
 }
 
 void UniEngine::RenderManager::DrawMeshInstanced(
-	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count)
+	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, bool receiveShadow)
 {
 	GLVBO* matricesBuffer = new GLVBO();
 	matricesBuffer->SetData(count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
@@ -79,7 +79,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		GLTexture::Activate(GL_TEXTURE1);
 		program->SetInt("pointShadowMap", 1);
 		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
-
+		program->SetBool("receiveShadow", receiveShadow);
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);
@@ -151,7 +151,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 }
 
 void UniEngine::RenderManager::DrawMesh(
-	Mesh* mesh, Material* material, glm::mat4 matrix)
+	Mesh* mesh, Material* material, glm::mat4 matrix, bool receiveShadow)
 {
 	mesh->Enable();
 	mesh->VAO()->DisableAttributeArray(12);
@@ -170,7 +170,7 @@ void UniEngine::RenderManager::DrawMesh(
 		GLTexture::Activate(GL_TEXTURE1);
 		program->SetInt("pointShadowMap", 1);
 		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
-		
+		program->SetBool("receiveShadow", receiveShadow);
 		
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {

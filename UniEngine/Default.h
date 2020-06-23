@@ -42,6 +42,7 @@ namespace UniEngine {
 			static Mesh* Quad;
 			static Mesh* Cylinder;
 			static Mesh* Cone;
+			static Mesh* Monkey;
 		};
 
 		static class UNIENGINE_API Materials {

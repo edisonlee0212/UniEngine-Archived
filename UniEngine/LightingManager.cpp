@@ -41,7 +41,8 @@ void UniEngine::LightingManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount);
+	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount * 4);
+
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
 	std::string fragShaderCode = std::string("#version 460 core\n") +
@@ -59,7 +60,7 @@ void UniEngine::LightingManager::Init()
 	);
 #pragma endregion
 #pragma region PointLight
-	_PointLightShadowMap = new PointLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount);
+	_PointLightShadowMap = new PointLightShadowMap(Default::ShaderIncludes::MaxPointLightAmount);
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMap.vert");
 	fragShaderCode = std::string("#version 460 core\n") +
@@ -124,16 +125,18 @@ void UniEngine::LightingManager::Start()
 				if (meshMaterials != nullptr) {
 					for (auto i : *meshMaterials) {
 						auto mmc = dynamic_cast<MeshMaterialComponent*>(i->first);
-						auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
-						for (auto j : *entities) {
-							auto mesh = mmc->_Mesh;
-							_DirectionalLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
-							mesh->Enable();
-							mesh->VAO()->DisableAttributeArray(12);
-							mesh->VAO()->DisableAttributeArray(13);
-							mesh->VAO()->DisableAttributeArray(14);
-							mesh->VAO()->DisableAttributeArray(15);
-							glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+						if (mmc->_CastShadow) {
+							auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
+							for (auto j : *entities) {
+								auto mesh = mmc->_Mesh;
+								_DirectionalLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
+								mesh->Enable();
+								mesh->VAO()->DisableAttributeArray(12);
+								mesh->VAO()->DisableAttributeArray(13);
+								mesh->VAO()->DisableAttributeArray(14);
+								mesh->VAO()->DisableAttributeArray(15);
+								glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+							}
 						}
 					}
 				}
@@ -145,30 +148,32 @@ void UniEngine::LightingManager::Start()
 				if (instancedMeshMaterials != nullptr) {
 					for (auto i : *instancedMeshMaterials) {
 						InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(i->first);
-						auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
-						size_t count = immc->_Matrices->size();
-						GLVBO* matricesBuffer = new GLVBO();
-						matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
-						for (auto j : *entities) {
-							auto mesh = immc->_Mesh;
-							_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
-							mesh->Enable();
-							mesh->VAO()->EnableAttributeArray(12);
-							mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-							mesh->VAO()->EnableAttributeArray(13);
-							mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-							mesh->VAO()->EnableAttributeArray(14);
-							mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-							mesh->VAO()->EnableAttributeArray(15);
-							mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-							mesh->VAO()->SetAttributeDivisor(12, 1);
-							mesh->VAO()->SetAttributeDivisor(13, 1);
-							mesh->VAO()->SetAttributeDivisor(14, 1);
-							mesh->VAO()->SetAttributeDivisor(15, 1);
-							glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
-							GLVAO::BindDefault();
+						if (immc->_CastShadow) {
+							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
+							size_t count = immc->_Matrices->size();
+							GLVBO* matricesBuffer = new GLVBO();
+							matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
+							for (auto j : *entities) {
+								auto mesh = immc->_Mesh;
+								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
+								mesh->Enable();
+								mesh->VAO()->EnableAttributeArray(12);
+								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+								mesh->VAO()->EnableAttributeArray(13);
+								mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+								mesh->VAO()->EnableAttributeArray(14);
+								mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+								mesh->VAO()->EnableAttributeArray(15);
+								mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+								mesh->VAO()->SetAttributeDivisor(12, 1);
+								mesh->VAO()->SetAttributeDivisor(13, 1);
+								mesh->VAO()->SetAttributeDivisor(14, 1);
+								mesh->VAO()->SetAttributeDivisor(15, 1);
+								glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
+								GLVAO::BindDefault();
+							}
+							delete matricesBuffer;
 						}
-						delete matricesBuffer;
 					}
 				}
 			}
@@ -223,16 +228,19 @@ void UniEngine::LightingManager::Start()
 
 				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
 				for (auto j : *meshMaterials) {
-					auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(dynamic_cast<MeshMaterialComponent*>(j->first));
-					for (auto k : *entities) {
-						auto mesh = dynamic_cast<MeshMaterialComponent*>(j->first)->_Mesh;
-						_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(k).value);
-						mesh->Enable();
-						mesh->VAO()->DisableAttributeArray(12);
-						mesh->VAO()->DisableAttributeArray(13);
-						mesh->VAO()->DisableAttributeArray(14);
-						mesh->VAO()->DisableAttributeArray(15);
-						glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+					auto mmc = dynamic_cast<MeshMaterialComponent*>(j->first);
+					if (mmc->_CastShadow) {
+						auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
+						for (auto k : *entities) {
+							auto mesh = mmc->_Mesh;
+							_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(k).value);
+							mesh->Enable();
+							mesh->VAO()->DisableAttributeArray(12);
+							mesh->VAO()->DisableAttributeArray(13);
+							mesh->VAO()->DisableAttributeArray(14);
+							mesh->VAO()->DisableAttributeArray(15);
+							glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+						}
 					}
 				}
 
@@ -252,30 +260,32 @@ void UniEngine::LightingManager::Start()
 				if (instancedMeshMaterials != nullptr) {
 					for (auto i : *instancedMeshMaterials) {
 						InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(i->first);
-						auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
-						size_t count = immc->_Matrices->size();
-						GLVBO* matricesBuffer = new GLVBO();
-						matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
-						for (auto j : *entities) {
-							auto mesh = immc->_Mesh;
-							_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
-							mesh->Enable();
-							mesh->VAO()->EnableAttributeArray(12);
-							mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-							mesh->VAO()->EnableAttributeArray(13);
-							mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-							mesh->VAO()->EnableAttributeArray(14);
-							mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-							mesh->VAO()->EnableAttributeArray(15);
-							mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-							mesh->VAO()->SetAttributeDivisor(12, 1);
-							mesh->VAO()->SetAttributeDivisor(13, 1);
-							mesh->VAO()->SetAttributeDivisor(14, 1);
-							mesh->VAO()->SetAttributeDivisor(15, 1);
-							glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
-							GLVAO::BindDefault();
+						if (immc->_CastShadow) {
+							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
+							size_t count = immc->_Matrices->size();
+							GLVBO* matricesBuffer = new GLVBO();
+							matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
+							for (auto j : *entities) {
+								auto mesh = immc->_Mesh;
+								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
+								mesh->Enable();
+								mesh->VAO()->EnableAttributeArray(12);
+								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+								mesh->VAO()->EnableAttributeArray(13);
+								mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+								mesh->VAO()->EnableAttributeArray(14);
+								mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+								mesh->VAO()->EnableAttributeArray(15);
+								mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+								mesh->VAO()->SetAttributeDivisor(12, 1);
+								mesh->VAO()->SetAttributeDivisor(13, 1);
+								mesh->VAO()->SetAttributeDivisor(14, 1);
+								mesh->VAO()->SetAttributeDivisor(15, 1);
+								glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
+								GLVAO::BindDefault();
+							}
+							delete matricesBuffer;
 						}
-						delete matricesBuffer;
 					}
 				}
 

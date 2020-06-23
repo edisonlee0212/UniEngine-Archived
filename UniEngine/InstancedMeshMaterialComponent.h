@@ -7,6 +7,8 @@ namespace UniEngine {
 		public SharedComponentBase
 	{
 	public:
+		bool _CastShadow = true;
+		bool _ReceiveShadow = true;
 		std::vector<glm::mat4>* _Matrices;
 		Mesh* _Mesh;
 		Material* _Material;

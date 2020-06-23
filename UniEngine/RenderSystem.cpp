@@ -36,7 +36,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 			auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
 			for (auto j : *entities) {
 				RenderManager::DrawMesh(
-					mmc->_Mesh, mmc->_Material,
+					mmc,
 					EntityManager::GetComponentData<LocalToWorld>(j).value,
 					camera);
 			}
@@ -49,7 +49,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 			auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
 			for (auto j : *entities) {
 				RenderManager::DrawMeshInstanced(
-					immc->_Mesh, immc->_Material,
+					immc,
 					EntityManager::GetComponentData<LocalToWorld>(j).value,
 					&immc->_Matrices->at(0), immc->_Matrices->size(),
 					camera);
