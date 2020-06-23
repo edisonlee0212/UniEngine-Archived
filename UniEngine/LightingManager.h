@@ -13,6 +13,8 @@ namespace UniEngine {
 	class UNIENGINE_API LightingManager :
 		public ManagerBase
 	{
+		static CameraComponent* _TargetMainCamera;
+		static Entity _TargetMainCameraEntity;
 		static GLUBO* _DirectionalLightBlock;
 		static GLUBO* _PointLightBlock;
 		static GLUBO* _SpotLightBlock;
@@ -37,5 +39,7 @@ namespace UniEngine {
 	public:
 		static void Init();
 		static void Start();
+
+		static void SetMainCamera(Entity entity);
 	};
 }

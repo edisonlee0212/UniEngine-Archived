@@ -7,6 +7,7 @@
 namespace UniEngine {
 	class UNIENGINE_API Engine {
 		World* _World;
+		Entity _MainCamera;
 		bool _Loopable;
 		double _RealWorldTime;
 		float _TimeStep;
@@ -20,6 +21,6 @@ namespace UniEngine {
 		bool LoopEnd();
 		void End();
 		World* GetWorld();
-		
+		void SetMainCamera(Entity entity);
 	};
 }

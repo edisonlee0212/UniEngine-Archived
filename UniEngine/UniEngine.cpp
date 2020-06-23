@@ -137,6 +137,12 @@ World* UniEngine::Engine::GetWorld()
 	return _World;
 }
 
+void UniEngine::Engine::SetMainCamera(Entity entity)
+{
+	_MainCamera = entity;
+	LightingManager::SetMainCamera(entity);
+}
+
 void UniEngine::Engine::DrawInfoWindow() {
 	ImGui::Begin("World Info");
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);

@@ -3,6 +3,9 @@
 #include "MeshMaterialComponent.h"
 using namespace UniEngine;
 
+CameraComponent* LightingManager::_TargetMainCamera;
+Entity LightingManager::_TargetMainCameraEntity;
+
 GLUBO* LightingManager::_DirectionalLightBlock;
 GLUBO* LightingManager::_PointLightBlock;
 GLUBO* LightingManager::_SpotLightBlock;
@@ -309,4 +312,10 @@ void UniEngine::LightingManager::Start()
 	}
 
 	*/
+}
+
+void UniEngine::LightingManager::SetMainCamera(Entity entity)
+{
+	_TargetMainCameraEntity = entity;
+	_TargetMainCamera = EntityManager::GetSharedComponent<CameraComponent>(entity);
 }
