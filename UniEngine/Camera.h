@@ -5,13 +5,24 @@
 namespace UniEngine {
 	const float YAW = -90.0f;
 	const float PITCH = 0.0f;
-	const float DEFAULTFOV = 45.0f;
+	const float DEFAULTFOV = 90.0f;
+
+	struct UNIENGINE_API Plane {
+		float a, b, c, d;
+		Plane() : a(0), b(0), c(0), d(0) {};
+		void Normalize();
+	};
+
 	class UNIENGINE_API Camera
 	{
 		//static unsigned _CameraInfoBufferID;
 		static GLUBO* _CameraData;
 		RenderTarget* _RenderTarget;
 	public:
+		void CalculatePlanes(Plane* planes);
+
+		void CalculateFrustumPoints(glm::vec3 cameraPos, glm::vec3* points);
+
 		void UpdateMatrices(glm::vec3 position);
 		static void GenerateMatrices();
 		RenderTarget* GetRenderTarget();
@@ -23,13 +34,13 @@ namespace UniEngine {
 		float _Near;
 		float _Far;
 		// Euler Angles
-		float Yaw;
-		float Pitch;
+		float _Yaw;
+		float _Pitch;
 		// camera options
-		float FOV;
-		glm::mat4 Projection;
-		glm::mat4 View;
-		Camera(RenderTarget* renderTarget, float yaw = YAW, float pitch = PITCH, float nearPlane = 0.1f, float farPlane = 1000.0f);
+		float _FOV;
+		glm::mat4 _Projection;
+		glm::mat4 _View;
+		Camera(RenderTarget* renderTarget, float yaw = YAW, float pitch = PITCH, float nearPlane = 0.1f, float farPlane = 100.0f);
 		void ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch = true);
 		void ProcessMouseScroll(float yoffset);
 	};

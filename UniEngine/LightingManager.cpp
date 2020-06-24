@@ -3,6 +3,8 @@
 #include "MeshMaterialComponent.h"
 using namespace UniEngine;
 
+unsigned LightingManager::_ShadowCascadeAmount = 2;
+
 CameraComponent* LightingManager::_TargetMainCamera;
 Entity LightingManager::_TargetMainCameraEntity;
 
@@ -44,7 +46,7 @@ void UniEngine::LightingManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount * 4);
+	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount * _ShadowCascadeAmount);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
@@ -108,13 +110,33 @@ void UniEngine::LightingManager::Start()
 				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
 				_DirectionalLights[i].position = glm::vec4(position, 0);
 				glm::vec3 lightTarget = glm::vec3(0.0f);
-				_DirectionalLights[i].direction = glm::normalize(glm::vec4(lightTarget.x - _DirectionalLights[i].position.x, lightTarget.y - _DirectionalLights[i].position.y, lightTarget.z - _DirectionalLights[i].position.z, 0.0f));
+				glm::vec3 lightDir = glm::normalize(glm::vec3(lightTarget.x - _DirectionalLights[i].position.x, lightTarget.y - _DirectionalLights[i].position.y, lightTarget.z - _DirectionalLights[i].position.z));
+				_DirectionalLights[i].direction = glm::normalize(glm::vec4(lightDir, 0.0f));
 				DirectionalLightComponent* dlc = dynamic_cast<DirectionalLightComponent*>(scoc->first);
 				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 0);
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
+
+				Camera* camera = _TargetMainCamera->Value;
+				
+				glm::vec3 cornerPoints[8];
+				glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
+				camera->CalculateFrustumPoints(cameraPos, cornerPoints);
+				glm::vec3 cameraFrustumCenter = camera->_Front * (camera->_Far - camera->_Near) / 2.0f + cameraPos;
 				glm::mat4 lightProjection, lightView;
-				lightProjection = glm::ortho(-dlc->xradius, dlc->xradius, -dlc->yradius, dlc->yradius, dlc->nearPlane, dlc->farPlane);
-				lightView = glm::lookAt(position, lightTarget, glm::vec3(0.0, 1.0, 0.0));
+				lightView = glm::lookAt(cameraFrustumCenter - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
+				
+				float max = 0;
+
+				max = glm::max(max, glm::length(cornerPoints[0]));
+				max = glm::max(max, glm::length(cornerPoints[1]));
+				max = glm::max(max, glm::length(cornerPoints[2]));
+				max = glm::max(max, glm::length(cornerPoints[3]));
+				max = glm::max(max, glm::length(cornerPoints[4]));
+				max = glm::max(max, glm::length(cornerPoints[5]));
+				max = glm::max(max, glm::length(cornerPoints[6]));
+				max = glm::max(max, glm::length(cornerPoints[7]));
+
+				lightProjection = glm::ortho(-max, max, -max, max, dlc->nearPlane, dlc->farPlane);
 				_DirectionalLights[i].lightSpaceMatrix = lightProjection * lightView;
 				_DirectionalLights[i].ReservedParameters = glm::vec4(dlc->nearPlane, dlc->farPlane, dlc->depthBias, dlc->normalOffset);
 

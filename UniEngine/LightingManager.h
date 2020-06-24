@@ -10,6 +10,7 @@
 #include "PointLightShadowMap.h"
 #include "Default.h"
 namespace UniEngine {
+
 	class UNIENGINE_API LightingManager :
 		public ManagerBase
 	{
@@ -18,7 +19,7 @@ namespace UniEngine {
 		static GLUBO* _DirectionalLightBlock;
 		static GLUBO* _PointLightBlock;
 		static GLUBO* _SpotLightBlock;
-
+		static unsigned _ShadowCascadeAmount;
 		static DirectionalLight _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 		static PointLight _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
 		static SpotLight _SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];

@@ -7,7 +7,7 @@ UniEngine::DirectionalLightShadowMap::DirectionalLightShadowMap(size_t amount, f
 	_ResolutionY = resolutionY;
 	//_DepthMap = SetTexture2D(GL_DEPTH_ATTACHMENT, 0, GL_DEPTH_COMPONENT, 0, GL_DEPTH_COMPONENT);
 	_DepthMapArray = new GLTexture();
-	_DepthMapArray->SetImage2DArray(0, GL_DEPTH_COMPONENT, _ResolutionX, _ResolutionY, amount, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	_DepthMapArray->SetImage2DArray(0, GL_DEPTH_COMPONENT32, _ResolutionX, _ResolutionY, amount, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
