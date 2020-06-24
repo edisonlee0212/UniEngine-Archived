@@ -19,7 +19,6 @@ namespace UniEngine {
 			static std::string* Uniform;
 
 			const static size_t MaxMaterialsAmount = 1;
-			static std::string* Shadow;
 
 
 			const static size_t MaxDirectionalLightAmount = 16;

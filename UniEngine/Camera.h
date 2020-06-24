@@ -21,7 +21,7 @@ namespace UniEngine {
 	public:
 		void CalculatePlanes(Plane* planes);
 
-		void CalculateFrustumPoints(glm::vec3 cameraPos, glm::vec3* points);
+		void CalculateFrustumPoints(glm::vec3 cameraPos, glm::vec3* points, float nearPlane, float farPlane);
 
 		void UpdateMatrices(glm::vec3 position);
 		static void GenerateMatrices();

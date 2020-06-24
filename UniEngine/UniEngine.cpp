@@ -207,6 +207,7 @@ void APIENTRY glDebugOutput(GLenum source,
 	const char* message,
 	const void* userParam)
 {
+	return;
 	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return; // ignore these non-significant error codes
 
 	std::cout << "---------------" << std::endl;

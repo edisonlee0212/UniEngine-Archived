@@ -123,109 +123,138 @@ void UniEngine::LightingManager::Start()
 				DirectionalLightComponent* dlc = dynamic_cast<DirectionalLightComponent*>(scoc->first);
 				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 0);
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
-
-				Camera* camera = _TargetMainCamera->Value;
-				
-				glm::vec3 cornerPoints[8];
-				glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
-				camera->CalculateFrustumPoints(cameraPos, cornerPoints);
-				glm::vec3 cameraFrustumCenter = camera->_Front * (camera->_Far - camera->_Near) / 2.0f + cameraPos;
-				glm::mat4 lightProjection, lightView;
-				lightView = glm::lookAt(cameraFrustumCenter - lightDir * (100.0f - 1.0f) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
-				
-				float max = 0;
-
-				max = glm::max(max, glm::length(cornerPoints[0]));
-				max = glm::max(max, glm::length(cornerPoints[1]));
-				max = glm::max(max, glm::length(cornerPoints[2]));
-				max = glm::max(max, glm::length(cornerPoints[3]));
-				max = glm::max(max, glm::length(cornerPoints[4]));
-				max = glm::max(max, glm::length(cornerPoints[5]));
-				max = glm::max(max, glm::length(cornerPoints[6]));
-				max = glm::max(max, glm::length(cornerPoints[7]));
-
-				lightProjection = glm::ortho(-max, max, -max, max, 1.0f, 100.0f);
-				_DirectionalLights[i].lightSpaceMatrix = lightProjection * lightView;
 				_DirectionalLights[i].ReservedParameters = glm::vec4(1.0f, 100.0f, dlc->depthBias, dlc->normalOffset);
 
 			}
+			glEnable(GL_DEPTH_TEST);
+			
+			for (int i = 0; i < size; i++) {
+				for (unsigned split = 0; split < _ShadowCascadeAmount; split++) {
+					float splitStart = 0.0f;
+					float splitEnd = 1.0f;
+					if (split != 0) splitStart = _ShadowCascadeSplit[split - 1];
+					if (split < _ShadowCascadeAmount - 1) splitEnd = _ShadowCascadeSplit[split];
+					Camera* camera = _TargetMainCamera->Value;
+					float nearPlane = camera->_Near + (camera->_Far - camera->_Near) * splitStart;
+					float farPlane = camera->_Near + (camera->_Far - camera->_Near) * splitEnd;
+					glm::vec3 cornerPoints[8];
+					glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
+					camera->CalculateFrustumPoints(cameraPos, cornerPoints, nearPlane, farPlane);
+					glm::vec3 cameraFrustumCenter = camera->_Front * (farPlane - nearPlane) / 2.0f + cameraPos;
+					glm::mat4 lightProjection, lightView;
+					glm::vec3 lightDir = _DirectionalLights[i].direction;
+					lightView = glm::lookAt(cameraFrustumCenter - lightDir * (100.0f - 1.0f) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
+
+					float max = 0;
+
+					max = glm::max(max, glm::length(cornerPoints[0]));
+					max = glm::max(max, glm::length(cornerPoints[1]));
+					max = glm::max(max, glm::length(cornerPoints[2]));
+					max = glm::max(max, glm::length(cornerPoints[3]));
+					max = glm::max(max, glm::length(cornerPoints[4]));
+					max = glm::max(max, glm::length(cornerPoints[5]));
+					max = glm::max(max, glm::length(cornerPoints[6]));
+					max = glm::max(max, glm::length(cornerPoints[7]));
+
+					lightProjection = glm::ortho(-max, max, -max, max, 1.0f, 100.0f);
+					glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+					
+					glClear(GL_DEPTH_BUFFER_BIT);
+
+					switch (split)
+					{
+					case 0:
+						_DirectionalLights[i].lightSpaceMatrix0 = lightSpaceMatrix;
+						break;
+					case 1:
+						_DirectionalLights[i].lightSpaceMatrix1 = lightSpaceMatrix;
+						break;
+					case 2:
+						_DirectionalLights[i].lightSpaceMatrix2 = lightSpaceMatrix;
+						break;
+					case 3:
+						_DirectionalLights[i].lightSpaceMatrix3 = lightSpaceMatrix;
+						break;
+					default:
+						break;
+					}
+					_DirectionalLightShadowMap->Bind(i * _ShadowCascadeAmount + split);
+#pragma region RenderShadowMap
+					_DirectionalLightProgram->Bind();
+					_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", lightSpaceMatrix);
+
+					auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
+					if (meshMaterials != nullptr) {
+						for (auto i : *meshMaterials) {
+							auto mmc = dynamic_cast<MeshMaterialComponent*>(i->first);
+							if (mmc->_CastShadow) {
+								auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
+								for (auto j : *entities) {
+									auto mesh = mmc->_Mesh;
+									_DirectionalLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
+									mesh->Enable();
+									mesh->VAO()->DisableAttributeArray(12);
+									mesh->VAO()->DisableAttributeArray(13);
+									mesh->VAO()->DisableAttributeArray(14);
+									mesh->VAO()->DisableAttributeArray(15);
+									glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+								}
+							}
+						}
+					}
+
+					_DirectionalLightInstancedProgram->Bind();
+					_DirectionalLightInstancedProgram->SetFloat4x4("lightSpaceMatrix", lightSpaceMatrix);
+
+					auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
+					if (instancedMeshMaterials != nullptr) {
+						for (auto i : *instancedMeshMaterials) {
+							InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(i->first);
+							if (immc->_CastShadow) {
+								auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
+								size_t count = immc->_Matrices->size();
+								GLVBO* matricesBuffer = new GLVBO();
+								matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
+								for (auto j : *entities) {
+									auto mesh = immc->_Mesh;
+									_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
+									mesh->Enable();
+									mesh->VAO()->EnableAttributeArray(12);
+									mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+									mesh->VAO()->EnableAttributeArray(13);
+									mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+									mesh->VAO()->EnableAttributeArray(14);
+									mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+									mesh->VAO()->EnableAttributeArray(15);
+									mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+									mesh->VAO()->SetAttributeDivisor(12, 1);
+									mesh->VAO()->SetAttributeDivisor(13, 1);
+									mesh->VAO()->SetAttributeDivisor(14, 1);
+									mesh->VAO()->SetAttributeDivisor(15, 1);
+									glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
+									GLVAO::BindDefault();
+								}
+								delete matricesBuffer;
+							}
+						}
+					}
+#pragma endregion
+				}
+			}
+
 			_DirectionalLightBlock->SubData(0, 4, &size);
 			if (size != 0)_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
 
-			for (int i = 0; i < size; i++) {
-				_DirectionalLightShadowMap->Bind(i);
-				glEnable(GL_DEPTH_TEST);
-				glClear(GL_DEPTH_BUFFER_BIT);
-
-				_DirectionalLightProgram->Bind();
-				_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix);
-
-				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
-				if (meshMaterials != nullptr) {
-					for (auto i : *meshMaterials) {
-						auto mmc = dynamic_cast<MeshMaterialComponent*>(i->first);
-						if (mmc->_CastShadow) {
-							auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
-							for (auto j : *entities) {
-								auto mesh = mmc->_Mesh;
-								_DirectionalLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
-								mesh->Enable();
-								mesh->VAO()->DisableAttributeArray(12);
-								mesh->VAO()->DisableAttributeArray(13);
-								mesh->VAO()->DisableAttributeArray(14);
-								mesh->VAO()->DisableAttributeArray(15);
-								glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
-							}
-						}
-					}
-				}
-				
-				_DirectionalLightInstancedProgram->Bind();
-				_DirectionalLightInstancedProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix);
-
-				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
-				if (instancedMeshMaterials != nullptr) {
-					for (auto i : *instancedMeshMaterials) {
-						InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(i->first);
-						if (immc->_CastShadow) {
-							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
-							size_t count = immc->_Matrices->size();
-							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
-							for (auto j : *entities) {
-								auto mesh = immc->_Mesh;
-								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
-								mesh->Enable();
-								mesh->VAO()->EnableAttributeArray(12);
-								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-								mesh->VAO()->EnableAttributeArray(13);
-								mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-								mesh->VAO()->EnableAttributeArray(14);
-								mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-								mesh->VAO()->EnableAttributeArray(15);
-								mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-								mesh->VAO()->SetAttributeDivisor(12, 1);
-								mesh->VAO()->SetAttributeDivisor(13, 1);
-								mesh->VAO()->SetAttributeDivisor(14, 1);
-								mesh->VAO()->SetAttributeDivisor(15, 1);
-								glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
-								GLVAO::BindDefault();
-							}
-							delete matricesBuffer;
-						}
-					}
-				}
-			}
 		}
 	}
-	
+
 	if (_UpdatePointLightBlock) {
 		auto pointLightsList = EntityManager::QuerySharedComponents<PointLightComponent>();
 		if (pointLightsList != nullptr) {
 			size_t size = pointLightsList->size();
 			for (int i = 0; i < size; i++) {
 				SCOC* scoc = pointLightsList->at(i);
-				Entity lightEntity = scoc->second->second->at(0);	
+				Entity lightEntity = scoc->second->second->at(0);
 				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
 				_PointLights[i].position = glm::vec4(position, 0);
 				PointLightComponent* plc = dynamic_cast<PointLightComponent*>(scoc->first);
