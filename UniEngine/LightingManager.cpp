@@ -3,9 +3,7 @@
 #include "MeshMaterialComponent.h"
 using namespace UniEngine;
 
-unsigned LightingManager::_ShadowCascadeAmount = 4;
-std::vector<float> LightingManager::_ShadowCascadeSplit;
-
+unsigned LightingManager::_ShadowCascadeAmount = 2;
 
 CameraComponent* LightingManager::_TargetMainCamera;
 Entity LightingManager::_TargetMainCameraEntity;
@@ -33,12 +31,6 @@ GLProgram* LightingManager::_PointLightInstancedProgram;
 
 void UniEngine::LightingManager::Init()
 {
-	_ShadowCascadeSplit.push_back(0.1f);
-	_ShadowCascadeSplit.push_back(0.3f);
-	_ShadowCascadeSplit.push_back(0.6f);
-	_ShadowCascadeSplit.push_back(1.0f);
-
-
 #pragma region LightInfoBlocks
 	_DirectionalLightBlock = new GLUBO();
 	_PointLightBlock = new GLUBO();
@@ -131,7 +123,7 @@ void UniEngine::LightingManager::Start()
 				camera->CalculateFrustumPoints(cameraPos, cornerPoints);
 				glm::vec3 cameraFrustumCenter = camera->_Front * (camera->_Far - camera->_Near) / 2.0f + cameraPos;
 				glm::mat4 lightProjection, lightView;
-				lightView = glm::lookAt(cameraFrustumCenter - lightDir * (100.0f - 1.0f) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
+				lightView = glm::lookAt(cameraFrustumCenter - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
 				
 				float max = 0;
 
@@ -144,9 +136,9 @@ void UniEngine::LightingManager::Start()
 				max = glm::max(max, glm::length(cornerPoints[6]));
 				max = glm::max(max, glm::length(cornerPoints[7]));
 
-				lightProjection = glm::ortho(-max, max, -max, max, 1.0f, 100.0f);
+				lightProjection = glm::ortho(-max, max, -max, max, dlc->nearPlane, dlc->farPlane);
 				_DirectionalLights[i].lightSpaceMatrix = lightProjection * lightView;
-				_DirectionalLights[i].ReservedParameters = glm::vec4(1.0f, 100.0f, dlc->depthBias, dlc->normalOffset);
+				_DirectionalLights[i].ReservedParameters = glm::vec4(dlc->nearPlane, dlc->farPlane, dlc->depthBias, dlc->normalOffset);
 
 			}
 			_DirectionalLightBlock->SubData(0, 4, &size);
