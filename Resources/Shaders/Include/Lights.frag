@@ -1,9 +1,4 @@
-vec3 CalculateLights(
-    vec4 fragPosLightSpaces0[DIRECTIONAL_LIGHTS_AMOUNT],
-    //vec4 fragPosLightSpaces1[DIRECTIONAL_LIGHTS_AMOUNT],
-    //vec4 fragPosLightSpaces2[DIRECTIONAL_LIGHTS_AMOUNT],
-    //vec4 fragPosLightSpaces3[DIRECTIONAL_LIGHTS_AMOUNT],
-    vec3 normal, vec3 viewDir, vec3 fragPos);
+vec3 CalculateLights(vec3 normal, vec3 viewDir, vec3 fragPos);
 
 
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir);
@@ -15,21 +10,12 @@ float DirectionalLightShadowCalculation(int i, DirectionalLight light, vec4 frag
 float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 normal);
 
 
-vec3 CalculateLights(
-    vec4 fragPosLightSpaces0[DIRECTIONAL_LIGHTS_AMOUNT],
-    //vec4 fragPosLightSpaces1[DIRECTIONAL_LIGHTS_AMOUNT],
-    //vec4 fragPosLightSpaces2[DIRECTIONAL_LIGHTS_AMOUNT],
-    //vec4 fragPosLightSpaces3[DIRECTIONAL_LIGHTS_AMOUNT],
-    vec3 normal, vec3 viewDir, vec3 fragPos){
+vec3 CalculateLights(vec4[DIRECTIONAL_LIGHTS_AMOUNT] fragPosLightSpaces, vec3 normal, vec3 viewDir, vec3 fragPos){
     vec3 norm = normalize(normal);
     vec3 result = vec3(0.0, 0.0, 0.0);
     // phase 1: directional lighting
     for(int i = 0; i < DirectionalLightCount; i++){
-        float shadow = 0.0;
-        shadow += DirectionalLightShadowCalculation(i * 4, DirectionalLights[i], fragPosLightSpaces0[i], norm);
-        //shadow += DirectionalLightShadowCalculation(i * 4 + 1, DirectionalLights[i], fragPosLightSpaces1[i], norm);
-        //shadow += DirectionalLightShadowCalculation(i * 4 + 2, DirectionalLights[i], fragPosLightSpaces2[i], norm);
-        //shadow += DirectionalLightShadowCalculation(i * 4 + 3, DirectionalLights[i], fragPosLightSpaces3[i], norm);
+        float shadow = DirectionalLightShadowCalculation(i, DirectionalLights[i], fragPosLightSpaces[i], norm);
         result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (1.0 - shadow);
     }
     // phase 2: point lights

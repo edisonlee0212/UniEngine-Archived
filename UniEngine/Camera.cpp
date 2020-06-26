@@ -49,15 +49,15 @@ void UniEngine::Camera::CalculatePlanes(Plane* planes)
 
 }
 
-void UniEngine::Camera::CalculateFrustumPoints(glm::vec3 cameraPos, glm::vec3* points, float nearPlane, float farPlane)
+void UniEngine::Camera::CalculateFrustumPoints(glm::vec3 cameraPos, glm::vec3* points)
 {
-	glm::vec3 nearCenter = _Front * nearPlane;
-	glm::vec3 farCenter = _Front * farPlane;
+	glm::vec3 nearCenter = _Front * _Near;
+	glm::vec3 farCenter = _Front * _Far;
 
 	float e = tanf(glm::radians(_FOV * 0.5f));
-	float near_ext_y = e * nearPlane;
+	float near_ext_y = e * _Near;
 	float near_ext_x = near_ext_y * _RenderTarget->GetResolutionRatio();
-	float far_ext_y = e * farPlane;
+	float far_ext_y = e * _Far;
 	float far_ext_x = far_ext_y * _RenderTarget->GetResolutionRatio();
 
 	points[0] = cameraPos + nearCenter - _Right * near_ext_x - _Up * near_ext_y;

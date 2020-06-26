@@ -12,10 +12,7 @@ struct DirectionalLight {
     vec3 direction;
     vec3 diffuse;
     vec3 specular;
-    mat4 lightSpaceMatrix0;
-    mat4 lightSpaceMatrix1;
-    mat4 lightSpaceMatrix2;
-    mat4 lightSpaceMatrix3;
+    mat4 lightSpaceMatrix;
     vec4 ReservedParameters;
 };
 

@@ -11,6 +11,7 @@ GLProgram* Default::GLPrograms::StandardInstancedProgram;
 GLVAO* Default::GLPrograms::ScreenVAO;
 std::string* Default::ShaderIncludes::Uniform;
 std::string* Default::ShaderIncludes::Lights;
+std::string* Default::ShaderIncludes::Shadow;
 
 Texture2D* Default::Textures::MissingTexture;
 Texture2D* Default::Textures::UV;
@@ -69,6 +70,7 @@ void UniEngine::Default::Load(World* world)
 		"\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
 
 	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString("Shaders/Include/Uniform.inc"));
+	ShaderIncludes::Shadow = new std::string(FileIO::LoadFileAsString("Shaders/Include/Shadow.frag"));
 	ShaderIncludes::Lights = new std::string(FileIO::LoadFileAsString("Shaders/Include/Lights.frag"));
 
 	Textures::MissingTexture = new Texture2D(TextureType::DIFFUSE);
@@ -87,6 +89,8 @@ void UniEngine::Default::Load(World* world)
 
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform
+		+ "\n"
+		+ *Default::ShaderIncludes::Shadow
 		+ "\n"
 		+ *Default::ShaderIncludes::Lights
 		+ "\n"
