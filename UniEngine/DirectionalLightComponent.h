@@ -21,7 +21,7 @@ namespace UniEngine {
 		float xradius = 100.0f; //20.0f
 		float yradius = 100.0f; //20.0f
 		float nearPlane = 1.0f; //1.0f
-		float farPlane = 50.0f; //50.0f
+		float farPlane = 100.0f; //50.0f
 		size_t GetHashCode();
 	};
 
