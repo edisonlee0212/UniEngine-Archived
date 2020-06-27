@@ -135,15 +135,19 @@ void UniEngine::LightingManager::Start()
 					if (split != 0) splitStart = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split - 1];
 					if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split];
 					_ShadowCascadeInfo.SplitDistance[split] = splitEnd;
-					glm::vec3 cornerPoints[8];
 					glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
+					glm::mat4 lightProjection, lightView;
+					float max = 0;
+					/*
+#pragma region AABB
+					glm::vec3 cornerPoints[8];
 					camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cornerPoints);
 					glm::vec3 cameraFrustumCenter = camera->_Front * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
-					glm::mat4 lightProjection, lightView;
+					
 					lightView = glm::lookAt(cameraFrustumCenter - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
 
-					float max = 0;
 					
+
 					max = glm::max(max, glm::distance(cornerPoints[0], glm::closestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 					max = glm::max(max, glm::distance(cornerPoints[1], glm::closestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 					max = glm::max(max, glm::distance(cornerPoints[2], glm::closestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
@@ -152,9 +156,18 @@ void UniEngine::LightingManager::Start()
 					max = glm::max(max, glm::distance(cornerPoints[5], glm::closestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 					max = glm::max(max, glm::distance(cornerPoints[6], glm::closestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 					max = glm::max(max, glm::distance(cornerPoints[7], glm::closestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+#pragma endregion
+*/
+#pragma region Sphere
+					lightView = glm::lookAt(cameraPos - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraPos, glm::vec3(0.0, 1.0, 0.0));
+					max = splitEnd;
+#pragma endregion
 
 					lightProjection = glm::ortho(-max, max, -max, max, dlc->nearPlane, dlc->farPlane);
+
 					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
+
+
 					_DirectionalLights[i].ReservedParameters = glm::vec4(dlc->nearPlane, dlc->farPlane, dlc->depthBias, dlc->normalOffset);
 				}
 			}
