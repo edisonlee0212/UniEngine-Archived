@@ -25,6 +25,7 @@ namespace UniEngine {
 		static GLUBO* _SpotLightBlock;
 		
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
+		static unsigned _DirectionalShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
 		static ShadowCascadeInfo _ShadowCascadeInfo;
 

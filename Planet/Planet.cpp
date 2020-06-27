@@ -30,6 +30,8 @@ int main()
 	cameraComponent->Value = mainCamera;
 	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
 	
+	engine->SetMainCamera(cameraEntity);
+
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(15.0f);

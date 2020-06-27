@@ -6,6 +6,7 @@ using namespace UniEngine;
 float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
 GLUBO* LightingManager::_ShadowCascadeInfoBlock;
 ShadowCascadeInfo LightingManager::_ShadowCascadeInfo;
+unsigned LightingManager::_DirectionalShadowMapResolution = 1024;
 
 CameraComponent* LightingManager::_TargetMainCamera;
 Entity LightingManager::_TargetMainCameraEntity;
@@ -56,7 +57,7 @@ void UniEngine::LightingManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount * Default::ShaderIncludes::ShadowCascadeAmount);
+	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount * Default::ShaderIncludes::ShadowCascadeAmount, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
@@ -110,13 +111,13 @@ void UniEngine::LightingManager::Init()
 
 void UniEngine::LightingManager::Start()
 {
-
-
+	Camera* camera = _TargetMainCamera->Value;
 	if (_UpdateDirectionalLightBlock) {
 		auto directionLightsList = EntityManager::QuerySharedComponents<DirectionalLightComponent>();
 		if (directionLightsList != nullptr) {
 			size_t size = directionLightsList->size();
 			for (int i = 0; i < size; i++) {
+#pragma region DirectionalLight data collection
 				SCOC* scoc = directionLightsList->at(i);
 				Entity lightEntity = scoc->second->second->at(0);
 				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
@@ -127,8 +128,7 @@ void UniEngine::LightingManager::Start()
 				DirectionalLightComponent* dlc = dynamic_cast<DirectionalLightComponent*>(scoc->first);
 				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 0);
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
-
-				Camera* camera = _TargetMainCamera->Value;
+#pragma endregion
 				for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
 					float splitStart = camera->_Near;
 					float splitEnd = camera->_Far;
@@ -138,15 +138,15 @@ void UniEngine::LightingManager::Start()
 					glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
 					glm::mat4 lightProjection, lightView;
 					float max = 0;
-					/*
 #pragma region AABB
+					/*
 					glm::vec3 cornerPoints[8];
 					camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cornerPoints);
 					glm::vec3 cameraFrustumCenter = camera->_Front * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
-					
+
 					lightView = glm::lookAt(cameraFrustumCenter - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
 
-					
+
 
 					max = glm::max(max, glm::distance(cornerPoints[0], glm::closestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 					max = glm::max(max, glm::distance(cornerPoints[1], glm::closestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
@@ -156,28 +156,31 @@ void UniEngine::LightingManager::Start()
 					max = glm::max(max, glm::distance(cornerPoints[5], glm::closestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 					max = glm::max(max, glm::distance(cornerPoints[6], glm::closestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 					max = glm::max(max, glm::distance(cornerPoints[7], glm::closestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					*/
 #pragma endregion
-*/
 #pragma region Sphere
 					lightView = glm::lookAt(cameraPos - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraPos, glm::vec3(0.0, 1.0, 0.0));
-					max = splitEnd;
+					max = splitEnd * 1.414f;
 #pragma endregion
-
 					lightProjection = glm::ortho(-max, max, -max, max, dlc->nearPlane, dlc->farPlane);
-
+#pragma region Fix Shimmering due to the movement of the camera
+					glm::mat4 shadowMatrix = lightProjection * lightView;
+					glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+					shadowOrigin = shadowMatrix * shadowOrigin;
+					GLfloat storedW = shadowOrigin.w;
+					shadowOrigin = shadowOrigin * (float)_DirectionalShadowMapResolution / 2.0f;
+					glm::vec4 roundedOrigin = glm::round(shadowOrigin);
+					glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
+					roundOffset = roundOffset * 2.0f / (float)_DirectionalShadowMapResolution;
+					roundOffset.z = 0.0f;
+					roundOffset.w = 0.0f;
+					glm::mat4 shadowProj = lightProjection;
+					shadowProj[3] += roundOffset;
+					lightProjection = shadowProj;
+#pragma endregion
 					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
-
-
 					_DirectionalLights[i].ReservedParameters = glm::vec4(dlc->nearPlane, dlc->farPlane, dlc->depthBias, dlc->normalOffset);
-				}
-			}
-			_DirectionalLightBlock->SubData(0, 4, &size);
-			if (size != 0) {
-				_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
-				_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowCascadeInfo), &_ShadowCascadeInfo);
-			}
-			for (int i = 0; i < size; i++) {
-				for (int split = 0; split < 4; split++) {
+#pragma region Shadowmap pass
 					_DirectionalLightShadowMap->Bind(i * 4 + split);
 					glEnable(GL_DEPTH_TEST);
 					glClear(GL_DEPTH_BUFFER_BIT);
@@ -240,18 +243,24 @@ void UniEngine::LightingManager::Start()
 							}
 						}
 					}
+#pragma endregion
 				}
+			}
+			_DirectionalLightBlock->SubData(0, 4, &size);
+			if (size != 0) {
+				_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
+				_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowCascadeInfo), &_ShadowCascadeInfo);
 			}
 		}
 	}
-	
+
 	if (_UpdatePointLightBlock) {
 		auto pointLightsList = EntityManager::QuerySharedComponents<PointLightComponent>();
 		if (pointLightsList != nullptr) {
 			size_t size = pointLightsList->size();
 			for (int i = 0; i < size; i++) {
 				SCOC* scoc = pointLightsList->at(i);
-				Entity lightEntity = scoc->second->second->at(0);	
+				Entity lightEntity = scoc->second->second->at(0);
 				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
 				_PointLights[i].position = glm::vec4(position, 0);
 				PointLightComponent* plc = dynamic_cast<PointLightComponent*>(scoc->first);
