@@ -9,7 +9,6 @@ in VS_OUT {
 
 in DirectionalLightSpaces {
     float Distance;
-    vec4 FragPosLightSpaces[DIRECTIONAL_LIGHTS_AMOUNT];
 } dls_in;
 
 
@@ -42,13 +41,13 @@ void main()
     vec3 result = CalculateLights(norm, viewDir, fs_in.FragPos);
 
     if(dls_in.Distance < SplitDistance0){
-        
+        ambient += vec3(0.0, 0.0, 0.2);
     }else if(dls_in.Distance < SplitDistance1){
         ambient += vec3(0.2, 0.0, 0.0);
     }else if(dls_in.Distance < SplitDistance2){
         ambient += vec3(0.0, 0.2, 0.0);
     }else if(dls_in.Distance < SplitDistance3){
-        ambient += vec3(0.0, 0.0, 0.2);
+        
     }
 
     FragColor = vec4((ambient + result) * color, 1.0);
@@ -61,18 +60,17 @@ vec3 CalculateLights(vec3 normal, vec3 viewDir, vec3 fragPos){
     vec3 result = vec3(0.0, 0.0, 0.0);
     // phase 1: directional lighting
     for(int i = 0; i < DirectionalLightCount; i++){
-        float shadow = 0.0;
-
+        int split = 0;
         if(dls_in.Distance < SplitDistance0){
-            shadow += DirectionalLightShadowCalculation(i, 0, DirectionalLights[i], dls_in.FragPosLightSpaces[i], norm);
+            split = 0;
         }else if(dls_in.Distance < SplitDistance1){
-            shadow += DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], dls_in.FragPosLightSpaces[i], norm);
+            split = 1;
         }else if(dls_in.Distance < SplitDistance2){
-            shadow += DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], dls_in.FragPosLightSpaces[i], norm);
+            split = 2;
         }else if(dls_in.Distance < SplitDistance3){
-            shadow += DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], dls_in.FragPosLightSpaces[i], norm);
+            split = 3;
         }
-
+        float shadow = DirectionalLightShadowCalculation(i, split, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[split] * vec4(fs_in.FragPos, 1.0), norm);
         result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (1.0 - shadow);
     }
     // phase 2: point lights
