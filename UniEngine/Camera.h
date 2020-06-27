@@ -40,7 +40,7 @@ namespace UniEngine {
 		float _FOV;
 		glm::mat4 _Projection;
 		glm::mat4 _View;
-		Camera(RenderTarget* renderTarget, float yaw = YAW, float pitch = PITCH, float nearPlane = 0.1f, float farPlane = 100.0f);
+		Camera(RenderTarget* renderTarget, float yaw = YAW, float pitch = PITCH, float nearPlane = 0.1f, float farPlane = 300.0f);
 		void ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch = true);
 		void ProcessMouseScroll(float yoffset);
 	};
