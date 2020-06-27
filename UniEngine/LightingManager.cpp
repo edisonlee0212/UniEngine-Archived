@@ -123,8 +123,8 @@ void UniEngine::LightingManager::Start()
 				for (int split = 0; split < 4; split++) {
 					float splitStart = camera->_Near;
 					float splitEnd = camera->_Far;
-					if (split != 0) splitStart = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[i - 1];
-					if (split != 4) splitEnd = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[i];
+					if (split != 0) splitStart = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split - 1];
+					if (split != 3) splitEnd = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split];
 					glm::vec3 cornerPoints[8];
 					glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
 					camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cornerPoints);
@@ -133,15 +133,15 @@ void UniEngine::LightingManager::Start()
 					lightView = glm::lookAt(cameraFrustumCenter - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
 
 					float max = 0;
-
-					max = glm::max(max, glm::length(cornerPoints[0]));
-					max = glm::max(max, glm::length(cornerPoints[1]));
-					max = glm::max(max, glm::length(cornerPoints[2]));
-					max = glm::max(max, glm::length(cornerPoints[3]));
-					max = glm::max(max, glm::length(cornerPoints[4]));
-					max = glm::max(max, glm::length(cornerPoints[5]));
-					max = glm::max(max, glm::length(cornerPoints[6]));
-					max = glm::max(max, glm::length(cornerPoints[7]));
+					
+					max = glm::max(max, glm::distance(cornerPoints[0], glm::closestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[1], glm::closestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[2], glm::closestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[3], glm::closestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[4], glm::closestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[5], glm::closestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[6], glm::closestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[7], glm::closestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 
 					lightProjection = glm::ortho(-max, max, -max, max, dlc->nearPlane, dlc->farPlane);
 					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;

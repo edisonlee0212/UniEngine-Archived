@@ -26,6 +26,7 @@
 #include <gtc/quaternion.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtx/transform.hpp>
+#include <gtx/closest_point.hpp>
 #include <gtc/type_ptr.hpp>
 
 #ifdef CORE_EXPORTS

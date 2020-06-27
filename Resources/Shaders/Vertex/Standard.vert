@@ -11,6 +11,8 @@ out VS_OUT {
     vec4 FragPosLightSpaces[DIRECTIONAL_LIGHTS_AMOUNT];
 } vs_out;
 
+
+
 uniform mat4 model;
 
 void main()

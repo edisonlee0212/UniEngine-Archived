@@ -128,7 +128,7 @@ float DirectionalLightShadowCalculation(int i, DirectionalLight light, vec4 frag
     {
         for(int y = -1; y <= 1; ++y)
         {
-            shadow += texture(directionalShadowMap, vec4(projCoords.xy + vec2(x, y) * texelSize, i, currentDepth - bias)); 
+            shadow += texture(directionalShadowMap, vec4(projCoords.xy + vec2(x, y) * texelSize, i * 4, currentDepth - bias)); 
         }    
     }
     shadow /= 9.0;
