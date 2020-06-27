@@ -33,9 +33,9 @@ GLProgram* LightingManager::_PointLightInstancedProgram;
 
 void UniEngine::LightingManager::Init()
 {
-	_ShadowCascadeSplit[0] = 0.1f;
-	_ShadowCascadeSplit[1] = 0.3f;
-	_ShadowCascadeSplit[2] = 0.6f;
+	_ShadowCascadeSplit[0] = 0.15f;
+	_ShadowCascadeSplit[1] = 0.4f;
+	_ShadowCascadeSplit[2] = 0.7f;
 	_ShadowCascadeSplit[3] = 1.0f;
 	_ShadowCascadeInfoBlock = new GLUBO();
 	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowCascadeInfo), NULL, GL_DYNAMIC_DRAW);
@@ -110,6 +110,8 @@ void UniEngine::LightingManager::Init()
 
 void UniEngine::LightingManager::Start()
 {
+
+
 	if (_UpdateDirectionalLightBlock) {
 		auto directionLightsList = EntityManager::QuerySharedComponents<DirectionalLightComponent>();
 		if (directionLightsList != nullptr) {

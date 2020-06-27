@@ -7,7 +7,7 @@ GLenum RenderManager::_TextureStartIndex = 2;
 RenderTarget* RenderManager::_CurrentRenderTarget;
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;
-
+bool RenderManager::_EnableSplitDisplay = false;
 
 void UniEngine::RenderManager::DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera)
 {
@@ -73,6 +73,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		RenderManager::_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
 		program->Bind();
+		program->SetBool("enableSplitDisplay", _EnableSplitDisplay);
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);		program->SetBool("receiveShadow", receiveShadow);
 		program->SetFloat4x4("model", matrix);
@@ -162,7 +163,7 @@ void UniEngine::RenderManager::DrawMesh(
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);
 		program->SetBool("receiveShadow", receiveShadow);
-		
+		program->SetBool("enableSplitDisplay", _EnableSplitDisplay);
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);
@@ -230,6 +231,11 @@ void UniEngine::RenderManager::DrawMesh(
 		GLTexture::BindDefault();
 	}
 	GLVAO::BindDefault();
+}
+
+void UniEngine::RenderManager::SetSplitDisplay(bool value)
+{
+	_EnableSplitDisplay = value;
 }
 
 void UniEngine::RenderManager::Start()

@@ -6,7 +6,7 @@ using namespace UniEngine;
 using namespace SpaceColonizationTree;
 void LightAngleSlider();
 void InitGround();
-
+void SplitDisplay();
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;
@@ -122,7 +122,7 @@ int main()
 		loopable = engine->LoopStart();
 
 		LightAngleSlider();
-
+		SplitDisplay();
 #pragma region LightsPosition
 		Position p;
 		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(glm::radians(lightAngle1))), -20.0f * glm::cos(glm::radians(lightAngle1))), 0.0f);
@@ -146,6 +146,15 @@ void LightAngleSlider() {
 	ImGui::SliderFloat("Directional Light", &lightAngle1, 0.0f, 90.0f);
 	ImGui::SliderFloat("Point Light", &lightAngle2, 0.0f, 180.0f);
 	ImGui::SliderFloat("Point Light 2", &lightAngle3, 0.0f, 180.0f);
+	ImGui::End();
+}
+
+void SplitDisplay() {
+	ImGui::Begin("Cascades Shadow Map");
+	std::string text = std::string(RenderManager::_EnableSplitDisplay ? "Disable" : "Enable");
+	if (ImGui::Button(text.c_str())) {
+		RenderManager::_EnableSplitDisplay = !RenderManager::_EnableSplitDisplay;
+	}
 	ImGui::End();
 }
 

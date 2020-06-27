@@ -40,14 +40,15 @@ void main()
 
     vec3 result = CalculateLights(norm, viewDir, fs_in.FragPos);
 
-    if(dls_in.Distance < SplitDistance0){
-        ambient += vec3(0.0, 0.0, 0.2);
-    }else if(dls_in.Distance < SplitDistance1){
-        ambient += vec3(0.2, 0.0, 0.0);
-    }else if(dls_in.Distance < SplitDistance2){
-        ambient += vec3(0.0, 0.2, 0.0);
-    }else if(dls_in.Distance < SplitDistance3){
-        
+    if(enableSplitDisplay){
+        if(dls_in.Distance < SplitDistance0){
+            ambient += vec3(0.0, 0.0, 0.2);
+        }else if(dls_in.Distance < SplitDistance1){
+            ambient += vec3(0.2, 0.0, 0.0);
+        }else if(dls_in.Distance < SplitDistance2){
+            ambient += vec3(0.0, 0.2, 0.0);
+        }else if(dls_in.Distance < SplitDistance3){
+        }
     }
 
     FragColor = vec4((ambient + result) * color, 1.0);
@@ -165,7 +166,6 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 
     // perform perspective divide
     vec3 projCoords = (fragPosLightSpace.xyz + normal * normalOffset) / fragPosLightSpace.w;
-
     if(projCoords.z > 1.0){
         return 0.0;
     }
