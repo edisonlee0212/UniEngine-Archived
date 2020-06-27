@@ -11,6 +11,10 @@
 #include "Default.h"
 namespace UniEngine {
 
+	struct UNIENGINE_API ShadowCascadeInfo {
+		float SplitDistance[4];
+	};
+
 	class UNIENGINE_API LightingManager :
 		public ManagerBase
 	{
@@ -19,8 +23,11 @@ namespace UniEngine {
 		static GLUBO* _DirectionalLightBlock;
 		static GLUBO* _PointLightBlock;
 		static GLUBO* _SpotLightBlock;
-		static unsigned _ShadowCascadeAmount;
-		static float _ShadowCascadeSplit[3];
+		
+		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
+		static GLUBO* _ShadowCascadeInfoBlock;
+		static ShadowCascadeInfo _ShadowCascadeInfo;
+
 		static DirectionalLight _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 		static PointLight _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
 		static SpotLight _SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];

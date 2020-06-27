@@ -5,6 +5,7 @@
 using namespace UniEngine;
 
 GLUBO* Camera::_CameraData;
+CameraInfoBlock Camera::_MainCameraInfoBlock;
 
 void UniEngine::Camera::CalculatePlanes(Plane* planes)
 {
@@ -87,16 +88,18 @@ void UniEngine::Camera::UpdateMatrices(glm::vec3 position)
 	if (ratio == 0) return;
 	_Projection = glm::perspective(glm::radians(_FOV * 0.5f), ratio, _Near, _Far);
 
-	_CameraData->SubData(0, sizeof(glm::mat4), glm::value_ptr(_Projection));
-	_CameraData->SubData(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_View));
-	_CameraData->SubData(2 * sizeof(glm::mat4), sizeof(glm::vec3), glm::value_ptr(position));
+	_MainCameraInfoBlock.position = glm::vec4(position, 0);
+	_MainCameraInfoBlock.projection = _Projection;
+	_MainCameraInfoBlock.view = _View;
+	_MainCameraInfoBlock.ReservedParameters = glm::vec4(_Near, _Far, _FOV, 0);
+	_CameraData->SubData(0, sizeof(CameraInfoBlock), &_MainCameraInfoBlock);
 }
 
 void UniEngine::Camera::GenerateMatrices()
 {
 	_CameraData = new GLUBO();
-	_CameraData->SetData(2 * sizeof(glm::mat4) + sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
-	_CameraData->SetRange(0, 0, 2 * sizeof(glm::mat4));
+	_CameraData->SetData(sizeof(CameraInfoBlock), NULL, GL_STATIC_DRAW);
+	_CameraData->SetBase(0);
 }
 
 RenderTarget* UniEngine::Camera::GetRenderTarget()

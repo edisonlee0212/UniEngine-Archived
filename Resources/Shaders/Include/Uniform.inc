@@ -3,6 +3,7 @@ layout (std140, binding = 0) uniform MainCameraBlock
 {
     mat4 CameraProjection;
     mat4 CameraView;
+    vec4 CameraReservedParameters;
     vec3 CameraPosition;
 };
 
@@ -54,6 +55,14 @@ layout (std140, binding = 3) uniform SpotLightBlock
 {
     int SpotLightCount;
     SpotLight SpotLights[SPOT_LIGHTS_AMOUNT];
+};
+
+layout (std140, binding = 4) uniform ShadowCascadeInfo
+{
+    float SplitDistance0;
+    float SplitDistance1;
+    float SplitDistance2;
+    float SplitDistance3;
 };
 
 //Material

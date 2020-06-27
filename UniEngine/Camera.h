@@ -13,9 +13,17 @@ namespace UniEngine {
 		void Normalize();
 	};
 
+	struct UNIENGINE_API CameraInfoBlock {
+		glm::mat4 projection;
+		glm::mat4 view;
+		glm::vec4 ReservedParameters;
+		glm::vec4 position;
+	};
+
 	class UNIENGINE_API Camera
 	{
 		//static unsigned _CameraInfoBufferID;
+		static CameraInfoBlock _MainCameraInfoBlock;
 		static GLUBO* _CameraData;
 		RenderTarget* _RenderTarget;
 	public:

@@ -3,8 +3,10 @@
 #include "MeshMaterialComponent.h"
 using namespace UniEngine;
 
-unsigned LightingManager::_ShadowCascadeAmount = 2;
-float LightingManager::_ShadowCascadeSplit[3];
+float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
+GLUBO* LightingManager::_ShadowCascadeInfoBlock;
+ShadowCascadeInfo LightingManager::_ShadowCascadeInfo;
+
 CameraComponent* LightingManager::_TargetMainCamera;
 Entity LightingManager::_TargetMainCameraEntity;
 
@@ -34,6 +36,11 @@ void UniEngine::LightingManager::Init()
 	_ShadowCascadeSplit[0] = 0.1f;
 	_ShadowCascadeSplit[1] = 0.3f;
 	_ShadowCascadeSplit[2] = 0.6f;
+	_ShadowCascadeSplit[3] = 1.0f;
+	_ShadowCascadeInfoBlock = new GLUBO();
+	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowCascadeInfo), NULL, GL_DYNAMIC_DRAW);
+	_ShadowCascadeInfoBlock->SetBase(4);
+
 #pragma region LightInfoBlocks
 	_DirectionalLightBlock = new GLUBO();
 	_PointLightBlock = new GLUBO();
@@ -49,7 +56,7 @@ void UniEngine::LightingManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount * _ShadowCascadeAmount);
+	_DirectionalLightShadowMap = new DirectionalLightShadowMap(Default::ShaderIncludes::MaxDirectionalLightAmount * Default::ShaderIncludes::ShadowCascadeAmount);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
@@ -120,11 +127,12 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
 
 				Camera* camera = _TargetMainCamera->Value;
-				for (int split = 0; split < 4; split++) {
+				for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
 					float splitStart = camera->_Near;
 					float splitEnd = camera->_Far;
 					if (split != 0) splitStart = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split - 1];
-					if (split != 3) splitEnd = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split];
+					if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split];
+					_ShadowCascadeInfo.SplitDistance[split] = splitEnd;
 					glm::vec3 cornerPoints[8];
 					glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
 					camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cornerPoints);
@@ -149,8 +157,10 @@ void UniEngine::LightingManager::Start()
 				}
 			}
 			_DirectionalLightBlock->SubData(0, 4, &size);
-			if (size != 0)_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
-
+			if (size != 0) {
+				_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
+				_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowCascadeInfo), &_ShadowCascadeInfo);
+			}
 			for (int i = 0; i < size; i++) {
 				for (int split = 0; split < 4; split++) {
 					_DirectionalLightShadowMap->Bind(i * 4 + split);
