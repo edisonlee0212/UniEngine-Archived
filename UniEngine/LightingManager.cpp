@@ -117,11 +117,12 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
 
 				Camera* camera = _TargetMainCamera->Value;
-				
+				float splitStart = 0.1f;
+				float splitEnd = 10.0f;
 				glm::vec3 cornerPoints[8];
 				glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
-				camera->CalculateFrustumPoints(cameraPos, cornerPoints);
-				glm::vec3 cameraFrustumCenter = camera->_Front * (camera->_Far - camera->_Near) / 2.0f + cameraPos;
+				camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cornerPoints);
+				glm::vec3 cameraFrustumCenter = camera->_Front * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
 				glm::mat4 lightProjection, lightView;
 				lightView = glm::lookAt(cameraFrustumCenter - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraFrustumCenter, glm::vec3(0.0, 1.0, 0.0));
 				
@@ -137,7 +138,7 @@ void UniEngine::LightingManager::Start()
 				max = glm::max(max, glm::length(cornerPoints[7]));
 
 				lightProjection = glm::ortho(-max, max, -max, max, dlc->nearPlane, dlc->farPlane);
-				_DirectionalLights[i].lightSpaceMatrix = lightProjection * lightView;
+				_DirectionalLights[i].lightSpaceMatrix[0] = lightProjection * lightView;
 				_DirectionalLights[i].ReservedParameters = glm::vec4(dlc->nearPlane, dlc->farPlane, dlc->depthBias, dlc->normalOffset);
 
 			}
@@ -150,7 +151,7 @@ void UniEngine::LightingManager::Start()
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 				_DirectionalLightProgram->Bind();
-				_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix);
+				_DirectionalLightProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix[0]);
 
 				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
 				if (meshMaterials != nullptr) {
@@ -173,7 +174,7 @@ void UniEngine::LightingManager::Start()
 				}
 				
 				_DirectionalLightInstancedProgram->Bind();
-				_DirectionalLightInstancedProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix);
+				_DirectionalLightInstancedProgram->SetFloat4x4("lightSpaceMatrix", _DirectionalLights[i].lightSpaceMatrix[0]);
 
 				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {

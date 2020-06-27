@@ -21,7 +21,7 @@ void main()
     vs_out.TexCoords = aTexCoords;    
 
     for(int i = 0; i < DirectionalLightCount; i++){
-        vs_out.FragPosLightSpaces[i] = DirectionalLights[i].lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+        vs_out.FragPosLightSpaces[i] = DirectionalLights[i].lightSpaceMatrix[0] * vec4(vs_out.FragPos, 1.0);
     }
 
     gl_Position =  CameraProjection * CameraView * vec4(vs_out.FragPos, 1.0);
