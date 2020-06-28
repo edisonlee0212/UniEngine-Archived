@@ -17,11 +17,7 @@ namespace UniEngine {
 		glm::vec3 diffuse;
 		glm::vec3 specular;
 		float depthBias = 0.01f;
-		float normalOffset = 0.0005f;
-		float xradius = 100.0f; //20.0f
-		float yradius = 100.0f; //20.0f
-		float nearPlane = 1.0f; //1.0f
-		float farPlane = 100.0f; //50.0f
+		float normalOffset = 0.001f;
 		size_t GetHashCode();
 	};
 

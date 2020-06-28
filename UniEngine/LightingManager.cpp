@@ -35,8 +35,8 @@ GLProgram* LightingManager::_PointLightInstancedProgram;
 void UniEngine::LightingManager::Init()
 {
 	_ShadowCascadeSplit[0] = 0.15f;
-	_ShadowCascadeSplit[1] = 0.4f;
-	_ShadowCascadeSplit[2] = 0.7f;
+	_ShadowCascadeSplit[1] = 0.3f;
+	_ShadowCascadeSplit[2] = 0.6f;
 	_ShadowCascadeSplit[3] = 1.0f;
 	_ShadowCascadeInfoBlock = new GLUBO();
 	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowCascadeInfo), NULL, GL_DYNAMIC_DRAW);
@@ -187,7 +187,7 @@ void UniEngine::LightingManager::Start()
 					*/
 #pragma endregion
 #pragma region Sphere
-					max = splitEnd * 1.414f;
+					max = splitEnd;
 #pragma endregion
 					float backPlane, forwardPlane;
 					backPlane = glm::max(glm::max(x1, y1), z1) - max;

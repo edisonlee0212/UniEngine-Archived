@@ -10,9 +10,6 @@ out VS_OUT {
     vec2 TexCoords;
 } vs_out;
 
-out DirectionalLightSpaces {
-    float Distance;
-} dls_out;
 
 uniform mat4 model;
 
@@ -24,5 +21,4 @@ void main()
 
     gl_Position = CameraProjection * CameraView * vec4(vs_out.FragPos, 1.0);
 
-    dls_out.Distance = gl_Position.z;
 }

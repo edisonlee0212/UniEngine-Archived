@@ -7,13 +7,7 @@ in VS_OUT {
     vec2 TexCoords;
 } fs_in;
 
-in DirectionalLightSpaces {
-    float Distance;
-} dls_in;
-
-
-
-vec3 CalculateLights(vec3 normal, vec3 viewDir, vec3 fragPos);
+vec3 CalculateLights(float distance, vec3 normal, vec3 viewDir, vec3 fragPos);
 
 
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir);
@@ -38,37 +32,39 @@ void main()
     // ambient
     vec3 ambient = 0.3 * color;
 
-    vec3 result = CalculateLights(norm, viewDir, fs_in.FragPos);
+    
+    float distance = distance(fs_in.FragPos, CameraPosition);
 
     if(enableSplitDisplay){
-        if(dls_in.Distance < SplitDistance0){
+        if(distance < SplitDistance0){
             ambient += vec3(0.0, 0.0, 0.2);
-        }else if(dls_in.Distance < SplitDistance1){
+        }else if(distance < SplitDistance1){
             ambient += vec3(0.2, 0.0, 0.0);
-        }else if(dls_in.Distance < SplitDistance2){
+        }else if(distance < SplitDistance2){
             ambient += vec3(0.0, 0.2, 0.0);
-        }else if(dls_in.Distance < SplitDistance3){
+        }else if(distance < SplitDistance3){
         }
     }
+    vec3 result = CalculateLights(distance, norm, viewDir, fs_in.FragPos);
 
     FragColor = vec4((ambient + result) * color, 1.0);
 }
 
 
 
-vec3 CalculateLights(vec3 normal, vec3 viewDir, vec3 fragPos){
+vec3 CalculateLights(float distance, vec3 normal, vec3 viewDir, vec3 fragPos){
     vec3 norm = normalize(normal);
     vec3 result = vec3(0.0, 0.0, 0.0);
     // phase 1: directional lighting
     for(int i = 0; i < DirectionalLightCount; i++){
         int split = 0;
-        if(dls_in.Distance < SplitDistance0){
+        if(distance < SplitDistance0){
             split = 0;
-        }else if(dls_in.Distance < SplitDistance1){
+        }else if(distance < SplitDistance1){
             split = 1;
-        }else if(dls_in.Distance < SplitDistance2){
+        }else if(distance < SplitDistance2){
             split = 2;
-        }else if(dls_in.Distance < SplitDistance3){
+        }else if(distance < SplitDistance3){
             split = 3;
         }
         float shadow = DirectionalLightShadowCalculation(i, split, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[split] * vec4(fs_in.FragPos, 1.0), norm);
