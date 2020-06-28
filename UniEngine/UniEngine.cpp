@@ -54,6 +54,7 @@ void UniEngine::Engine::Start()
 	
 	_World = new World(0);
 	EntityManager::SetWorld(_World);
+
 	_World->Init();
 	
 	//Initialization System Group

@@ -4,13 +4,22 @@
 #include "WorldTime.h"
 #include "Entity.h"
 namespace UniEngine {
+	struct ENTITIES_API Bound {
+		glm::vec3 Center;
+		glm::vec3 Size;
+		float Radius;
+		Bound();
+	};
 	namespace Entities {
 		class ENTITIES_API World
 		{
 			WorldTime* _Time;
 			std::vector<SystemBase*> _Systems;
 			size_t _Index;
+			UniEngine::Bound _WorldBound;
 		public:
+			Bound GetBound();
+			void SetBound(Bound value);
 			void SetWorldTime(double time);
 			void SetTimeStep(float timeStep);
 			size_t GetIndex();

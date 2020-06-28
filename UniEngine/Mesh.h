@@ -32,13 +32,18 @@ namespace UniEngine {
 		TexCoord6 = 1 << 11,
 		TexCoord7 = 1 << 12
 	};
+
 	class UNIENGINE_API Mesh
 	{
 		GLVAO* _VAO;
 		size_t _VerticesSize;
 		size_t _IndicesSize;
 		unsigned _Mask;
+		Bound _Bound;
 	public:
+		glm::vec3 GetCenter();
+		Bound GetBound();
+		float GetRadius();
 		Mesh();
 		~Mesh();
 		void SetVertices(unsigned mask, std::vector<Vertex>* vertices, std::vector<unsigned>* indices);

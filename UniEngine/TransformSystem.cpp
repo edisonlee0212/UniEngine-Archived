@@ -32,4 +32,6 @@ void UniEngine::TransformSystem::Update()
 		ltw.value = TRS(p, r, s);
 		EntityManager::SetComponentData<LocalToWorld>(i.Entity, ltw);
 	}
+
+	
 }

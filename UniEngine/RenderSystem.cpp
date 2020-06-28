@@ -28,16 +28,33 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
 
-
+	auto worldBound = _World->GetBound();
+	glm::vec3 minBound = glm::vec3(INT_MAX);
+	glm::vec3 maxBound = glm::vec3(INT_MIN);
 	auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
 	if (meshMaterials != nullptr) {
 		for (auto i : *meshMaterials) {
 			MeshMaterialComponent* mmc = dynamic_cast<MeshMaterialComponent*>(i->first);
 			auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
 			for (auto j : *entities) {
+				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
+				auto scale = EntityManager::GetComponentData<Scale>(j).value;
+				auto meshBound = mmc->_Mesh->GetBound();
+				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
+				float radius = glm::length(meshBound.Size * scale);
+				minBound = glm::vec3(
+					glm::min(minBound.x, center.x - radius),
+					glm::min(minBound.y, center.y - radius),
+					glm::min(minBound.z, center.z - radius));
+
+				maxBound = glm::vec3(
+					glm::max(maxBound.x, center.x + radius),
+					glm::max(maxBound.y, center.y + radius),
+					glm::max(maxBound.z, center.z + radius));
+
 				RenderManager::DrawMesh(
 					mmc,
-					EntityManager::GetComponentData<LocalToWorld>(j).value,
+					ltw,
 					camera);
 			}
 		}
@@ -56,6 +73,10 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 			}
 		}
 	}
+	worldBound.Size = (maxBound - minBound) / 2.0f;
+	worldBound.Center = (maxBound + minBound) / 2.0f;
+	worldBound.Radius = glm::length(worldBound.Size);
+	_World->SetBound(worldBound);
 }
 
 

@@ -1,10 +1,23 @@
 #include "pch.h"
 #include "Mesh.h"
 using namespace UniEngine;
+glm::vec3 UniEngine::Mesh::GetCenter()
+{
+	return _Bound.Center;
+}
+Bound UniEngine::Mesh::GetBound()
+{
+	return _Bound;
+}
+float UniEngine::Mesh::GetRadius()
+{
+	return _Bound.Radius;
+}
 UniEngine::Mesh::Mesh()
 {
 	_VAO = new GLVAO();
 	_IndicesSize = 0;
+	_Bound = Bound();
 }
 
 UniEngine::Mesh::~Mesh()
@@ -17,6 +30,10 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 	_Mask = mask;
 	_IndicesSize = indices->size();
 	_VerticesSize = vertices->size();
+	if (_VerticesSize == 0) {
+		Debug::Log("Mehs: SetVertices empty!");
+		return;
+	}
 	std::vector<glm::vec3> positions = std::vector<glm::vec3>();
 	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
 	std::vector<glm::vec3> tangents = std::vector<glm::vec3>();
@@ -68,7 +85,12 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 	_VAO->SetData(_VerticesSize * attributeSize, nullptr, GL_STATIC_DRAW);
 #pragma endregion
 #pragma region Copy
+	glm::vec3 minBound = vertices->at(0).Position;
+	glm::vec3 maxBound = vertices->at(0).Position;
 	for (size_t i = 0; i < _VerticesSize; i++) {
+		auto position = vertices->at(i).Position;
+		minBound = glm::vec3(glm::min(minBound.x, position.x), glm::min(minBound.y, position.y), glm::min(minBound.z, position.z));
+		maxBound = glm::vec3(glm::max(maxBound.x, position.x), glm::max(maxBound.y, position.y), glm::max(maxBound.z, position.z));
 		positions.push_back(vertices->at(i).Position);
 		if (mask & (unsigned)VertexAttribute::Normal) {
 			normals.push_back(vertices->at(i).Normal);
@@ -107,6 +129,9 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 			texcoords7s.push_back(vertices->at(i).TexCoords7);
 		}
 	}
+	_Bound.Size = (maxBound - minBound) / 2.0f;
+	_Bound.Center = (maxBound + minBound) / 2.0f;
+	_Bound.Radius = glm::length(_Bound.Size);
 #pragma endregion
 #pragma region ToGPU
 	_VAO->SubData(0, _VerticesSize * sizeof(glm::vec3), &positions[0]);
@@ -166,7 +191,7 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 	_VAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
 	_VAO->EnableAttributeArray(1);
 	_VAO->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * _VerticesSize));
-	
+
 	attributeSize = 2 * sizeof(glm::vec3);
 	if (mask & (unsigned)VertexAttribute::Tangent) {
 		_VAO->EnableAttributeArray(2);
@@ -229,7 +254,7 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 
 void UniEngine::Mesh::ClearVertices()
 {
-	
+
 }
 
 
@@ -279,7 +304,7 @@ GLVAO* UniEngine::Mesh::VAO()
 void UniEngine::Mesh::Enable()
 {
 	_VAO->Bind();
-	
+
 #pragma region AttributePointer
 	/*
 	_VAO->EnableAttributeArray(0);

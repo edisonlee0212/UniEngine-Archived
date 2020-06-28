@@ -1,7 +1,24 @@
 #include "pch.h"
 #include "World.h"
+#include "ManagerBase.h"
 using namespace UniEngine;
 using namespace UniEngine::Entities;
+
+
+Bound UniEngine::Entities::World::GetBound()
+{
+	return _WorldBound;
+}
+
+void UniEngine::Entities::World::SetBound(Bound value)
+{
+	_WorldBound = value;
+}
+
+UniEngine::Bound::Bound()
+{
+	Radius = 0;
+}
 
 
 void UniEngine::Entities::World::SetWorldTime(double time)
@@ -29,17 +46,7 @@ void UniEngine::Entities::World::Init()
 	_Time->_DeltaTime = 0;
 	_Time->_LastFrameTime = 0;
 	_Time->_FixedDeltaTime = 0;
-	/*
-	//Initialization System Group
-	CreateSystem<TimeSystem>();
-
-	//Simulation System Group
-	CreateSystem<PhysicsSystem>();
-	CreateSystem<TransformSystem>();
-
-	//Presentation System Group
-	CreateSystem<RenderSystem>();
-	*/
+	ManagerBase::_World = this;
 }
 
 

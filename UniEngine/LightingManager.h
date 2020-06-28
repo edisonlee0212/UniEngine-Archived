@@ -50,6 +50,8 @@ namespace UniEngine {
 		static void Init();
 		static void Start();
 
+		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
+
 		static void SetMainCamera(Entity entity);
 	};
 }

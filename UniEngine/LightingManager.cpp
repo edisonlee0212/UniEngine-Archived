@@ -112,7 +112,12 @@ void UniEngine::LightingManager::Init()
 void UniEngine::LightingManager::Start()
 {
 	Camera* camera = _TargetMainCamera->Value;
+	glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
 	if (_UpdateDirectionalLightBlock) {
+		auto worldBound = _World->GetBound();
+		glm::vec3 maxBound = worldBound.Center + worldBound.Size;
+		glm::vec3 minBound = worldBound.Center - worldBound.Size;
+
 		auto directionLightsList = EntityManager::QuerySharedComponents<DirectionalLightComponent>();
 		if (directionLightsList != nullptr) {
 			size_t size = directionLightsList->size();
@@ -124,18 +129,41 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLights[i].position = glm::vec4(position, 0);
 				glm::vec3 lightTarget = glm::vec3(0.0f);
 				glm::vec3 lightDir = glm::normalize(glm::vec3(lightTarget.x - _DirectionalLights[i].position.x, lightTarget.y - _DirectionalLights[i].position.y, lightTarget.z - _DirectionalLights[i].position.z));
+				
+				float x1 = (maxBound.x - cameraPos.x) / lightDir.x;
+				float x2 = (minBound.x - cameraPos.x) / lightDir.x;
+				if (x1 > x2) {
+					float temp = x1;
+					x1 = x2;
+					x2 = temp;
+				}
+				float y1 = (maxBound.y - cameraPos.y) / lightDir.y;
+				float y2 = (minBound.y - cameraPos.y) / lightDir.y;
+				if (y1 > y2) {
+					float temp = y1;
+					y1 = y2;
+					y2 = temp;
+				}
+				float z1 = (maxBound.z - cameraPos.z) / lightDir.z;
+				float z2 = (minBound.z - cameraPos.z) / lightDir.z;
+				if (z1 > z2) {
+					float temp = z1;
+					z1 = z2;
+					z2 = temp;
+				}
+
 				_DirectionalLights[i].direction = glm::normalize(glm::vec4(lightDir, 0.0f));
 				DirectionalLightComponent* dlc = dynamic_cast<DirectionalLightComponent*>(scoc->first);
 				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 0);
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
 #pragma endregion
 				for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
+					
 					float splitStart = camera->_Near;
 					float splitEnd = camera->_Far;
 					if (split != 0) splitStart = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split - 1];
 					if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split];
 					_ShadowCascadeInfo.SplitDistance[split] = splitEnd;
-					glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
 					glm::mat4 lightProjection, lightView;
 					float max = 0;
 #pragma region AABB
@@ -148,21 +176,26 @@ void UniEngine::LightingManager::Start()
 
 
 
-					max = glm::max(max, glm::distance(cornerPoints[0], glm::closestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-					max = glm::max(max, glm::distance(cornerPoints[1], glm::closestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-					max = glm::max(max, glm::distance(cornerPoints[2], glm::closestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-					max = glm::max(max, glm::distance(cornerPoints[3], glm::closestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-					max = glm::max(max, glm::distance(cornerPoints[4], glm::closestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-					max = glm::max(max, glm::distance(cornerPoints[5], glm::closestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-					max = glm::max(max, glm::distance(cornerPoints[6], glm::closestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-					max = glm::max(max, glm::distance(cornerPoints[7], glm::closestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[0], ClosestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[1], ClosestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[2], ClosestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[3], ClosestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[4], ClosestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[5], ClosestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[6], ClosestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[7], ClosestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
 					*/
 #pragma endregion
 #pragma region Sphere
-					lightView = glm::lookAt(cameraPos - lightDir * (dlc->farPlane - dlc->nearPlane) / 2.0f, cameraPos, glm::vec3(0.0, 1.0, 0.0));
 					max = splitEnd * 1.414f;
 #pragma endregion
-					lightProjection = glm::ortho(-max, max, -max, max, dlc->nearPlane, dlc->farPlane);
+					float backPlane, forwardPlane;
+					backPlane = glm::max(glm::max(x1, y1), z1) - max;
+					forwardPlane = glm::min(glm::min(x2, y2), z2) + max;
+
+					lightView = glm::lookAt(cameraPos + lightDir * backPlane, cameraPos, glm::vec3(0.0, 1.0, 0.0));
+					lightProjection = glm::ortho(-max, max, -max, max, 0.0f, forwardPlane - backPlane);
+
 #pragma region Fix Shimmering due to the movement of the camera
 					glm::mat4 shadowMatrix = lightProjection * lightView;
 					glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -179,7 +212,7 @@ void UniEngine::LightingManager::Start()
 					lightProjection = shadowProj;
 #pragma endregion
 					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
-					_DirectionalLights[i].ReservedParameters = glm::vec4(dlc->nearPlane, dlc->farPlane, dlc->depthBias, dlc->normalOffset);
+					_DirectionalLights[i].ReservedParameters = glm::vec4(forwardPlane - backPlane, 0.0f, dlc->depthBias, dlc->normalOffset);
 #pragma region Shadowmap pass
 					_DirectionalLightShadowMap->Bind(i * 4 + split);
 					glEnable(GL_DEPTH_TEST);
@@ -196,7 +229,18 @@ void UniEngine::LightingManager::Start()
 								auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
 								for (auto j : *entities) {
 									auto mesh = mmc->_Mesh;
-									_DirectionalLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(j).value);
+									auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
+									auto scale = EntityManager::GetComponentData<Scale>(j).value;
+#pragma region Sphere test 1. discard useless meshes. 2. Calculate scene boundary for lightFrustum;
+									auto bound = mesh->GetBound();
+									glm::vec3 center = ltw * glm::vec4(bound.Center, 1.0f);
+									float radius = glm::length(bound.Size * scale);
+
+									if (glm::distance(center, ClosestPointOnLine(center, cameraPos, cameraPos - lightDir)) - radius > max) {
+										continue;
+									}
+#pragma endregion
+									_DirectionalLightProgram->SetFloat4x4("model", ltw);
 									mesh->Enable();
 									mesh->VAO()->DisableAttributeArray(12);
 									mesh->VAO()->DisableAttributeArray(13);
@@ -377,6 +421,17 @@ void UniEngine::LightingManager::Start()
 	}
 
 	*/
+}
+
+glm::vec3 UniEngine::LightingManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)
+{
+	float LineLength = distance(a, b);
+	glm::vec3 Vector = point - a;
+	glm::vec3 LineDirection = (b - a) / LineLength;
+
+	// Project Vector to LineDirection to get the distance of point from a
+	float Distance = dot(Vector, LineDirection);
+	return a + LineDirection * Distance;
 }
 
 void UniEngine::LightingManager::SetMainCamera(Entity entity)
