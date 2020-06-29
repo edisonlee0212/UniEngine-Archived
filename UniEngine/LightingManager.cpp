@@ -6,7 +6,7 @@ using namespace UniEngine;
 float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
 GLUBO* LightingManager::_ShadowCascadeInfoBlock;
 ShadowCascadeInfo LightingManager::_ShadowCascadeInfo;
-unsigned LightingManager::_DirectionalShadowMapResolution = 1024;
+unsigned LightingManager::_DirectionalShadowMapResolution = 2048;
 
 CameraComponent* LightingManager::_TargetMainCamera;
 Entity LightingManager::_TargetMainCameraEntity;

@@ -60,7 +60,7 @@ int main()
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(dle, dlmmc);
+	//EntityManager::SetSharedComponent<MeshMaterialComponent>(dle, dlmmc);
 	
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;
@@ -92,8 +92,20 @@ int main()
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);
 #pragma endregion
 
+	MeshMaterialComponent* cmmc = new MeshMaterialComponent();
+	cmmc->_Mesh = Default::Primitives::Cube;
+	cmmc->_Material = Default::Materials::StandardMaterial;
+
+	Entity model0 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(4.0f, 3.0f, -9.0f);
+
+	scale.value = glm::vec3(6.0f, 6.0f, 1.0f);
+	EntityManager::SetComponentData<Position>(model0, pos);
+	EntityManager::SetComponentData<Scale>(model0, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model0, cmmc);
+
 	Entity model1 = EntityManager::CreateEntity(archetype);
-	pos.value = glm::vec3(0.0f, 3.0f, 0.0f);
+	pos.value = glm::vec3(0.0f, 2.0f, 0.0f);
 
 	scale.value = glm::vec3(2.0f, 2.0f, 2.0f);
 	EntityManager::SetComponentData<Position>(model1, pos);
@@ -105,12 +117,31 @@ int main()
 	mmmc->_Material = Default::Materials::StandardMaterial;
 
 	Entity model2 = EntityManager::CreateEntity(archetype);
-	pos.value = glm::vec3(6.0f, 3.0f, 0.0f);
+	pos.value = glm::vec3(6.0f, 2.0f, 0.0f);
 
-	scale.value = glm::vec3(2.0f, 2.0f, 2.0f);
+	scale.value = glm::vec3(3.0f, 3.0f, 3.0f);
 	EntityManager::SetComponentData<Position>(model2, pos);
 	EntityManager::SetComponentData<Scale>(model2, scale);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(model2, mmmc);
+
+	Entity model3 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(0.0f, 6.0f, 0.0f);
+
+	scale.value = glm::vec3(1.0f, 1.0f, 1.0f);
+	EntityManager::SetComponentData<Position>(model3, pos);
+	EntityManager::SetComponentData<Scale>(model3, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model3, mmmc);
+
+
+	Entity model4 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(6.0f, 6.0f, 0.0f);
+
+	scale.value = glm::vec3(1.0f, 1.0f, 1.0f);
+	EntityManager::SetComponentData<Position>(model4, pos);
+	EntityManager::SetComponentData<Scale>(model4, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model4, mmmc);
+
+
 
 	InitGround();
 
@@ -143,7 +174,7 @@ int main()
 
 void LightAngleSlider() {
 	ImGui::Begin("Light Angle Controller");
-	ImGui::SliderFloat("Directional Light", &lightAngle1, 0.0f, 90.0f);
+	ImGui::SliderFloat("Directional Light", &lightAngle1, 0.0f, 180.0f);
 	ImGui::SliderFloat("Point Light", &lightAngle2, 0.0f, 180.0f);
 	ImGui::SliderFloat("Point Light 2", &lightAngle3, 0.0f, 180.0f);
 	ImGui::End();

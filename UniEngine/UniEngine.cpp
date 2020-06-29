@@ -46,9 +46,9 @@ void UniEngine::Engine::Start()
 	_TimeStep = 0.1f;
 	WindowManager::Init();
 	InputManager::Init();
-	auto glfwwindow = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
+	auto glfwwindow = WindowManager::CreateGLFWwindow(1920, 1080, "Main", WindowManager::PrimaryMonitor());
 	GLInit();
-	WindowManager::NewWindow(glfwwindow, 1600, 900);
+	WindowManager::NewWindow(glfwwindow, 1920, 1080);
 	Camera::GenerateMatrices();
 
 	
