@@ -194,10 +194,10 @@ void UniEngine::LightingManager::Start()
 					max = splitEnd;
 #pragma endregion
 					glm::vec3 lightPos = center - lightDir * planeDistance / 2.0f;
-					
 					lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 1.0, 0.0));
-					if(glm::any(glm::isnan(lightView[3]))) glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 0.0, 1.0));
-
+					if (glm::any(glm::isnan(lightView[3]))) {
+						lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 0.0, 1.0));
+					}
 					lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance);
 
 #pragma region Fix Shimmering due to the movement of the camera
