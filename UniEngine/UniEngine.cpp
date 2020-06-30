@@ -19,6 +19,8 @@ using namespace UniEngine;
 UniEngine::Engine::Engine()
 {
 	_Loopable = false;
+	WindowManager::Init();
+	InputManager::Init();
 }
 
 void UniEngine::Engine::GLInit()
@@ -41,14 +43,11 @@ void UniEngine::Engine::GLInit()
 	}
 }
 
-void UniEngine::Engine::Start()
+void UniEngine::Engine::Start(GLFWwindow* targetWindow, unsigned width, unsigned height)
 {
 	_TimeStep = 0.1f;
-	WindowManager::Init();
-	InputManager::Init();
-	auto glfwwindow = WindowManager::CreateGLFWwindow(1920, 1080, "Main", WindowManager::PrimaryMonitor());
 	GLInit();
-	WindowManager::NewWindow(glfwwindow, 1920, 1080);
+	WindowManager::NewWindow(targetWindow, width, height);
 	Camera::GenerateMatrices();
 
 	
@@ -74,7 +73,7 @@ void UniEngine::Engine::Start()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 
-	ImGui_ImplGlfw_InitForOpenGL(WindowManager::CurrentWindow()->GetGLFWWinwow(), true);
+	ImGui_ImplGlfw_InitForOpenGL(targetWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 460 core");
 	ImGui::StyleColorsDark();
 }

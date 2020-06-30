@@ -113,11 +113,15 @@ void UniEngine::LightingManager::Start()
 {
 	Camera* camera = _TargetMainCamera->Value;
 	glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
-	if (_UpdateDirectionalLightBlock) {
-		auto worldBound = _World->GetBound();
-		glm::vec3 maxBound = worldBound.Center + worldBound.Size;
-		glm::vec3 minBound = worldBound.Center - worldBound.Size;
+	auto worldBound = _World->GetBound();
+	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
+	glm::vec3 minBound = worldBound.Center - worldBound.Size;
 
+	
+
+	if (_UpdateDirectionalLightBlock) {
+		
+		//1.	利用EntityManager找到场景内所有Light instance。
 		auto directionLightsList = EntityManager::QuerySharedComponents<DirectionalLightComponent>();
 		if (directionLightsList != nullptr) {
 			size_t size = directionLightsList->size();
@@ -125,40 +129,40 @@ void UniEngine::LightingManager::Start()
 #pragma region DirectionalLight data collection
 				SCOC* scoc = directionLightsList->at(i);
 				Entity lightEntity = scoc->second->second->at(0);
-				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
-				_DirectionalLights[i].position = glm::vec4(position, 0);
-				glm::vec3 lightTarget = glm::vec3(0.0f);
-				glm::vec3 lightDir = glm::normalize(glm::vec3(lightTarget.x - _DirectionalLights[i].position.x, lightTarget.y - _DirectionalLights[i].position.y, lightTarget.z - _DirectionalLights[i].position.z));
-				
-				float x1 = (maxBound.x - cameraPos.x) / lightDir.x;
-				float x2 = (minBound.x - cameraPos.x) / lightDir.x;
-				if (x1 > x2) {
-					float temp = x1;
-					x1 = x2;
-					x2 = temp;
-				}
-				float y1 = (maxBound.y - cameraPos.y) / lightDir.y;
-				float y2 = (minBound.y - cameraPos.y) / lightDir.y;
-				if (y1 > y2) {
-					float temp = y1;
-					y1 = y2;
-					y2 = temp;
-				}
-				float z1 = (maxBound.z - cameraPos.z) / lightDir.z;
-				float z2 = (minBound.z - cameraPos.z) / lightDir.z;
-				if (z1 > z2) {
-					float temp = z1;
-					z1 = z2;
-					z2 = temp;
-				}
 
-				_DirectionalLights[i].direction = glm::normalize(glm::vec4(lightDir, 0.0f));
+				glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).value;
+				glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
+#pragma region Light Frustum
+				glm::vec3 p0 = ClosestPointOnLine(glm::vec3(maxBound.x, maxBound.y, maxBound.z), cameraPos, cameraPos + lightDir);
+				glm::vec3 p7 = ClosestPointOnLine(glm::vec3(minBound.x, minBound.y, minBound.z), cameraPos, cameraPos + lightDir);
+
+				float d0 = glm::distance(p0, p7);
+
+				glm::vec3 p1 = ClosestPointOnLine(glm::vec3(maxBound.x, maxBound.y, minBound.z), cameraPos, cameraPos + lightDir);
+				glm::vec3 p6 = ClosestPointOnLine(glm::vec3(minBound.x, minBound.y, maxBound.z), cameraPos, cameraPos + lightDir);
+
+				float d1 = glm::distance(p1, p6);
+
+				glm::vec3 p2 = ClosestPointOnLine(glm::vec3(maxBound.x, minBound.y, maxBound.z), cameraPos, cameraPos + lightDir);
+				glm::vec3 p5 = ClosestPointOnLine(glm::vec3(minBound.x, maxBound.y, minBound.z), cameraPos, cameraPos + lightDir);
+
+				float d2 = glm::distance(p2, p5);
+
+				glm::vec3 p3 = ClosestPointOnLine(glm::vec3(maxBound.x, minBound.y, minBound.z), cameraPos, cameraPos + lightDir);
+				glm::vec3 p4 = ClosestPointOnLine(glm::vec3(minBound.x, maxBound.y, maxBound.z), cameraPos, cameraPos + lightDir);
+
+				float d3 = glm::distance(p3, p4);
+
+				glm::vec3 center = ClosestPointOnLine(worldBound.Center, cameraPos, cameraPos + lightDir);
+				float planeDistance = glm::max(glm::max(d0, d1), glm::max(d2, d3));
+#pragma endregion
+				_DirectionalLights[i].direction = glm::vec4(lightDir, 0.0f);
 				DirectionalLightComponent* dlc = dynamic_cast<DirectionalLightComponent*>(scoc->first);
 				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 0);
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
 #pragma endregion
 				for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
-					
+					//2.	计算Cascade Split所需信息
 					float splitStart = camera->_Near;
 					float splitEnd = camera->_Far;
 					if (split != 0) splitStart = camera->_Near + (camera->_Far - camera->_Near) * _ShadowCascadeSplit[split - 1];
@@ -189,14 +193,15 @@ void UniEngine::LightingManager::Start()
 #pragma region Sphere
 					max = splitEnd;
 #pragma endregion
-					float backPlane, forwardPlane;
-					backPlane = glm::max(glm::max(x1, y1), z1) - max;
-					forwardPlane = glm::min(glm::min(x2, y2), z2) + max;
+					glm::vec3 lightPos = center - lightDir * planeDistance / 2.0f;
+					
+					lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 1.0, 0.0));
+					if(glm::any(glm::isnan(lightView[3]))) glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 0.0, 1.0));
 
-					lightView = glm::lookAt(cameraPos + lightDir * backPlane, cameraPos, glm::vec3(0.0, 1.0, 0.0));
-					lightProjection = glm::ortho(-max, max, -max, max, 0.0f, forwardPlane - backPlane);
+					lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance);
 
 #pragma region Fix Shimmering due to the movement of the camera
+					
 					glm::mat4 shadowMatrix = lightProjection * lightView;
 					glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 					shadowOrigin = shadowMatrix * shadowOrigin;
@@ -212,7 +217,7 @@ void UniEngine::LightingManager::Start()
 					lightProjection = shadowProj;
 #pragma endregion
 					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
-					_DirectionalLights[i].ReservedParameters = glm::vec4(forwardPlane - backPlane, 0.0f, dlc->depthBias, dlc->normalOffset);
+					_DirectionalLights[i].ReservedParameters = glm::vec4(planeDistance, 0.0f, dlc->depthBias, dlc->normalOffset);
 #pragma region Shadowmap pass
 					_DirectionalLightShadowMap->Bind(i * 4 + split);
 					glEnable(GL_DEPTH_TEST);
@@ -421,6 +426,11 @@ void UniEngine::LightingManager::Start()
 	}
 
 	*/
+}
+
+void UniEngine::LightingManager::SetDirectionalLightResolution(float value)
+{
+	_DirectionalShadowMapResolution = value;
 }
 
 glm::vec3 UniEngine::LightingManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)

@@ -15,7 +15,7 @@ namespace UniEngine {
 	public:
 		Engine();
 		void GLInit();
-		void Start();
+		void Start(GLFWwindow* targetWindow, unsigned width, unsigned height);
 		bool LoopStart();
 		bool Loop();
 		bool LoopEnd();

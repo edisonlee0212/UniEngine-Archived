@@ -7,6 +7,7 @@ using namespace SpaceColonizationTree;
 void LightAngleSlider();
 void InitGround();
 void SplitDisplay();
+float lightAngle0 = 0;
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;
@@ -14,7 +15,9 @@ float lightAngle3 = 0;
 int main()
 {
 	Engine* engine = new Engine();
-	engine->Start();
+	LightingManager::SetDirectionalLightResolution(2048);
+	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
+	engine->Start(window, 1600, 900);
 	
 #pragma region Preparations
 	World* world = engine->GetWorld();
@@ -155,10 +158,16 @@ int main()
 		LightAngleSlider();
 		SplitDisplay();
 #pragma region LightsPosition
-		Position p;
-		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::abs(glm::sin(glm::radians(lightAngle1))), -20.0f * glm::cos(glm::radians(lightAngle1))), 0.0f);
-		EntityManager::SetComponentData<Position>(dle, p);
+		Rotation r;
+		r.value = glm::quatLookAt(
+			glm::normalize(glm::vec3(
+				glm::cos(glm::radians(lightAngle0)) * glm::sin(glm::radians(lightAngle1)), 
+				glm::sin(glm::radians(lightAngle0)), 
+				glm::cos(glm::radians(lightAngle0)) * glm::cos(glm::radians(lightAngle1))))
+			, glm::vec3(0, 1, 0));
+		EntityManager::SetComponentData<Rotation>(dle, r);
 		
+		Position p;
 		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(glm::radians(lightAngle2)), 20.0f * glm::sin(glm::radians(lightAngle2)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Position>(ple, p);
 		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(glm::radians(lightAngle3)), 15.0f, 20.0f * glm::sin(glm::radians(lightAngle3))), 0.0f);
@@ -174,7 +183,8 @@ int main()
 
 void LightAngleSlider() {
 	ImGui::Begin("Light Angle Controller");
-	ImGui::SliderFloat("Directional Light", &lightAngle1, 0.0f, 180.0f);
+	ImGui::SliderFloat("Directional Light 0", &lightAngle0, 0.0f, 180.0f);
+	ImGui::SliderFloat("Directional Light 1", &lightAngle1, 0.0f, 360.0f);
 	ImGui::SliderFloat("Point Light", &lightAngle2, 0.0f, 180.0f);
 	ImGui::SliderFloat("Point Light 2", &lightAngle3, 0.0f, 180.0f);
 	ImGui::End();

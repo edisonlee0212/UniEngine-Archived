@@ -239,9 +239,6 @@
     <ClCompile Include="DirectionalLightShadowMap.cpp">
       <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="LightingManager.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
@@ -324,6 +321,9 @@
       <Filter>Source Files\External</Filter>
     </ClCompile>
     <ClCompile Include="RenderManager.cpp">
+      <Filter>Source Files\Resource\Manager\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingManager.cpp">
       <Filter>Source Files\Resource\Manager\Render</Filter>
     </ClCompile>
   </ItemGroup>

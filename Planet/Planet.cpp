@@ -10,7 +10,9 @@ using namespace Planet;
 int main()
 {
 	Engine* engine = new Engine();
-	engine->Start();
+	LightingManager::SetDirectionalLightResolution(2048);
+	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
+	engine->Start(window, 1600, 900);
 
 #pragma region Preparations
 	World* world = engine->GetWorld();
