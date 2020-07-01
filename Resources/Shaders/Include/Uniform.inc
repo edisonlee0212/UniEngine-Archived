@@ -81,7 +81,7 @@ uniform sampler2D TEXTURE_HEIGHT[MAX_TEXTURES_AMOUNT];
 uniform sampler2D TEXTURE_NORMAL[MAX_TEXTURES_AMOUNT];
 
 //Shadow
-uniform sampler2DArrayShadow directionalShadowMap;
+uniform sampler2DArray directionalShadowMap;
 uniform samplerCubeArrayShadow pointShadowMap;
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;

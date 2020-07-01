@@ -67,5 +67,6 @@ namespace UniEngine {
 		void Bind(GLenum target);
 		void SetIntParameter(GLenum target, GLenum pname, GLint param);
 		void SetCubeMap(CubeMapIndex index, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data);
+		void GenerateMipMap(GLenum target);
 	};
 }

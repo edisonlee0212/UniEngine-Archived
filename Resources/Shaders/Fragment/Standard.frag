@@ -183,7 +183,8 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
     {
         for(int y = -1; y <= 1; ++y)
         {
-            shadow += texture(directionalShadowMap, vec4(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex, currentDepth - bias)); 
+            float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
+            shadow += currentDepth - bias > cloestDepth ? 1.0 : 0.0; 
         }    
     }
     shadow /= 9.0;

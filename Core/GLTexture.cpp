@@ -41,6 +41,12 @@ void UniEngine::GLTexture::SetCubeMap(CubeMapIndex index, GLint level, GLint int
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)index, level, internalformat, width, height, border, format, type, data);
 }
 
+void UniEngine::GLTexture::GenerateMipMap(GLenum target)
+{
+	Bind(target);
+	glGenerateMipmap(target);
+}
+
 void UniEngine::GLTexture::SetIntParameter(GLenum target, GLenum pname, GLint param)
 {
 	Bind(target);
