@@ -281,7 +281,7 @@ void UniEngine::LightingManager::Start()
 #pragma region Directional Light Shadowmap pass
 			_DirectionalLightShadowMap->Bind();
 			glEnable(GL_DEPTH_TEST);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT);
 			for (int i = 0; i < size; i++) {
 				_DirectionalLightProgram->Bind();
 				_DirectionalLightProgram->SetInt("index", i);
