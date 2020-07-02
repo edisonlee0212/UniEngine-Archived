@@ -7,6 +7,7 @@ namespace UniEngine {
 		glm::vec4 constantLinearQuadFarPlane;
 		glm::vec4 diffuse;
 		glm::vec4 specular;
+		glm::mat4 lightSpaceMatrix[6];
 		glm::vec4 ReservedParameters;
 	};
 

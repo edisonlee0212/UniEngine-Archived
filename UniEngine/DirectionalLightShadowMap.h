@@ -6,10 +6,10 @@ namespace UniEngine {
 		public RenderTarget
 	{
 		GLTexture* _DepthMapArray;
-		
+		GLTexture* _DepthMapDepthArray;
 	public:
 		DirectionalLightShadowMap(size_t amount, float resolutionX = 1024.0f, float resolutionY = 1024.0f);
-		GLTexture* DepthCubeMapArray();
-		void Bind(GLint layer);
+		GLTexture* DepthMapArray();
+		void Bind();
 	};
 }

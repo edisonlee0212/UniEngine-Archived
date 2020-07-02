@@ -11,7 +11,10 @@ float lightAngle0 = 0;
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;
-
+float lightAngle4 = 0;
+float lightAngle5 = 0;
+float lightAngle6 = 0;
+float lightAngle7 = 0;
 int main()
 {
 	Engine* engine = new Engine();
@@ -63,6 +66,22 @@ int main()
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
+
+	DirectionalLightComponent* dlc2 = new DirectionalLightComponent();
+	dlc2->diffuse = glm::vec3(0.25f);
+	dlc2->specular = glm::vec3(0.1f);
+	Entity dle2 = EntityManager::CreateEntity(archetype);
+	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, dlc2);
+	EntityManager::SetComponentData<Scale>(dle2, scale);
+
+	DirectionalLightComponent* dlc3 = new DirectionalLightComponent();
+	dlc3->diffuse = glm::vec3(0.25f);
+	dlc3->specular = glm::vec3(0.1f);
+	Entity dle3 = EntityManager::CreateEntity(archetype);
+	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle3, dlc3);
+	EntityManager::SetComponentData<Scale>(dle3, scale);
+
+
 	//EntityManager::SetSharedComponent<MeshMaterialComponent>(dle, dlmmc);
 	
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
@@ -82,15 +101,15 @@ int main()
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, plmmc);
 
-	plc = new PointLightComponent();
-	plc->constant = 1.0f;
-	plc->linear = 0.09f;
-	plc->quadratic = 0.032f;
-	plc->farPlane = 70.0f;
-	plc->diffuse = glm::vec3(3.0f);
-	plc->specular = glm::vec3(5.0f);
+	PointLightComponent* plc2 = new PointLightComponent();
+	plc2->constant = 1.0f;
+	plc2->linear = 0.09f;
+	plc2->quadratic = 0.032f;
+	plc2->farPlane = 70.0f;
+	plc2->diffuse = glm::vec3(3.0f);
+	plc2->specular = glm::vec3(5.0f);
 	Entity ple2 = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<PointLightComponent>(ple2, plc);
+	EntityManager::SetSharedComponent<PointLightComponent>(ple2, plc2);
 	EntityManager::SetComponentData<Scale>(ple2, scale);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);
 #pragma endregion
@@ -167,11 +186,30 @@ int main()
 			, glm::vec3(0, 1, 0));
 		EntityManager::SetComponentData<Rotation>(dle, r);
 		
+		r.value = glm::quatLookAt(
+			glm::normalize(glm::vec3(
+				glm::cos(glm::radians(lightAngle2)) * glm::sin(glm::radians(lightAngle3)),
+				glm::sin(glm::radians(lightAngle2)),
+				glm::cos(glm::radians(lightAngle2)) * glm::cos(glm::radians(lightAngle3))))
+			, glm::vec3(0, 1, 0));
+		EntityManager::SetComponentData<Rotation>(dle2, r);
+
+		r.value = glm::quatLookAt(
+			glm::normalize(glm::vec3(
+				glm::cos(glm::radians(lightAngle4)) * glm::sin(glm::radians(lightAngle5)),
+				glm::sin(glm::radians(lightAngle4)),
+				glm::cos(glm::radians(lightAngle4)) * glm::cos(glm::radians(lightAngle5))))
+			, glm::vec3(0, 1, 0));
+		EntityManager::SetComponentData<Rotation>(dle3, r);
+
+
+		
 		Position p;
-		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(glm::radians(lightAngle2)), 20.0f * glm::sin(glm::radians(lightAngle2)), 0.0f), 0.0f);
+		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(glm::radians(lightAngle6)), 20.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Position>(ple, p);
-		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(glm::radians(lightAngle3)), 15.0f, 20.0f * glm::sin(glm::radians(lightAngle3))), 0.0f);
+		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(glm::radians(lightAngle7)), 15.0f, 20.0f * glm::sin(glm::radians(lightAngle7))), 0.0f);
 		EntityManager::SetComponentData<Position>(ple2, p);
+
 #pragma endregion
 		loopable = engine->Loop();
 		loopable = engine->LoopEnd();
@@ -183,10 +221,14 @@ int main()
 
 void LightAngleSlider() {
 	ImGui::Begin("Light Angle Controller");
-	ImGui::SliderFloat("Directional Light 0", &lightAngle0, 0.0f, 180.0f);
-	ImGui::SliderFloat("Directional Light 1", &lightAngle1, 0.0f, 360.0f);
-	ImGui::SliderFloat("Point Light", &lightAngle2, 0.0f, 180.0f);
-	ImGui::SliderFloat("Point Light 2", &lightAngle3, 0.0f, 180.0f);
+	ImGui::SliderFloat("Directional Light 1 angle", &lightAngle0, 0.0f, 180.0f);
+	ImGui::SliderFloat("Directional Light 1 circle", &lightAngle1, 0.0f, 360.0f);
+	ImGui::SliderFloat("Directional Light 2 angle", &lightAngle2, 0.0f, 180.0f);
+	ImGui::SliderFloat("Directional Light 2 circle", &lightAngle3, 0.0f, 360.0f);
+	ImGui::SliderFloat("Directional Light 3 angle", &lightAngle4, 0.0f, 180.0f);
+	ImGui::SliderFloat("Directional Light 3 circle", &lightAngle5, 0.0f, 360.0f);
+	ImGui::SliderFloat("Point Light 1", &lightAngle6, 0.0f, 180.0f);
+	ImGui::SliderFloat("Point Light 2", &lightAngle7, 0.0f, 360.0f);
 	ImGui::End();
 }
 

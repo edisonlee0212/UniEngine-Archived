@@ -15,6 +15,7 @@ UniEngine::PointLightShadowMap::PointLightShadowMap(size_t amount, float resolut
 	_DepthCubeMapArray->SetIntParameter(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	_DepthCubeMapArray->SetIntParameter(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	_DepthCubeMapArray->SetIntParameter(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
+	AttachTexture(_DepthCubeMapArray, GL_DEPTH_ATTACHMENT);
 }
 
 GLTexture* UniEngine::PointLightShadowMap::DepthCubeMapArray()
@@ -22,8 +23,7 @@ GLTexture* UniEngine::PointLightShadowMap::DepthCubeMapArray()
 	return _DepthCubeMapArray;
 }
 
-void UniEngine::PointLightShadowMap::Bind(GLint layer)
+void UniEngine::PointLightShadowMap::Bind()
 {
-	AttachTexture(_DepthCubeMapArray, GL_DEPTH_ATTACHMENT);
 	RenderTarget::Bind();
 }

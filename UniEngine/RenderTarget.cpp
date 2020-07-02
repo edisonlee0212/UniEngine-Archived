@@ -9,6 +9,14 @@ UniEngine::RenderTarget::RenderTarget()
 	_FrameBuffer = new GLFrameBuffer();
 }
 
+UniEngine::RenderTarget::RenderTarget(float width, float height)
+{
+	_Bound = false;
+	_FrameBuffer = new GLFrameBuffer();
+	_ResolutionX = width;
+	_ResolutionY = height;
+}
+
 glm::vec2 UniEngine::RenderTarget::GetResolution()
 {
 	return glm::vec2(_ResolutionX, _ResolutionY);

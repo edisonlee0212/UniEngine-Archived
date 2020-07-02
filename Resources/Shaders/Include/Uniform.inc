@@ -22,6 +22,7 @@ struct PointLight {
     vec4 constantLinearQuadFarPlane;
     vec3 diffuse;
     vec3 specular;
+    mat4 lightSpaceMatrix[6];
     vec4 ReservedParameters;
 };
 

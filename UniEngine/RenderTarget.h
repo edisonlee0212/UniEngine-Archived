@@ -19,6 +19,7 @@ namespace UniEngine {
 		GLRenderBuffer* SetRenderBuffer(GLenum attachPoint, GLenum internalformat​);
 	public:
 		RenderTarget();
+		RenderTarget(float width, float height);
 		glm::vec2 GetResolution();
 		float GetResolutionRatio();
 		void Bind();
