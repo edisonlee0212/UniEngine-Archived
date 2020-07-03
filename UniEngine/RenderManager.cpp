@@ -75,7 +75,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		program->Bind();
 		program->SetBool("enableSplitDisplay", _EnableSplitDisplay);
 		program->SetInt("directionalShadowMap", 0);
-		program->SetInt("pointShadowMap", 1);		program->SetBool("receiveShadow", receiveShadow);
+		program->SetInt("pointShadowMap", 1);
+		program->SetBool("receiveShadow", receiveShadow);
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);

@@ -18,7 +18,7 @@ float lightAngle7 = 0;
 int main()
 {
 	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(2048);
+	LightingManager::SetDirectionalLightResolution(512);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 	
@@ -61,7 +61,7 @@ int main()
 	scale.value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
-	dlc->diffuse = glm::vec3(0.5f);
+	dlc->diffuse = glm::vec3(0.25f);
 	dlc->specular = glm::vec3(0.2f);
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
