@@ -9,23 +9,22 @@ in GS_OUT {
 uniform sampler2DArray textureMapArray;	//the input image to blur
 
 //constant kernel values for Gaussian smoothing
-const float kernel[] = float[21](0.000272337,  0.00089296, 0.002583865, 0.00659813,  0.014869116,
-								 0.029570767, 0.051898313, 0.080381679, 0.109868729, 0.132526984, 
-								 0.14107424,  0.132526984, 0.109868729, 0.080381679, 0.051898313, 
-								 0.029570767, 0.014869116, 0.00659813,  0.002583865, 0.00089296, 0.000272337);
+const float kernel[] = float[11](
+0.0093,	0.028002,	0.065984,	0.121703,	0.175713,	0.198596,	0.175713,	0.121703,	0.065984,	0.028002,	0.0093
+);
 uniform int lightIndex;
 void main()
 { 
 	//get the inverse of texture size
 	float delta = 1.0 / textureSize(textureMapArray, 0).x;
 	vec4 color = vec4(0);
-	int  index = 20;
+	int  index = 10;
 	 
 	//go through all neighbors and multiply the kernel value with the obtained 
 	//colour from the input image
-	for(int i = -10; i <= 10; i++) {
+	for(int i = -5; i <= 5; i++) {
 		vec4 sp = texture(textureMapArray, vec3(vs_in.TexCoords.x + i * delta, vs_in.TexCoords.y, lightIndex * 4 + vs_in.splitIndex));
-		sp = kernel[i + 10] * sp;
+		sp = kernel[i + 5] * sp;
 		color += sp;
 	}
 	//return the filtered colour as fragment output
