@@ -18,7 +18,7 @@ float lightAngle7 = 0;
 int main()
 {
 	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(512);
+	LightingManager::SetDirectionalLightResolution(1024);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 	
@@ -88,7 +88,7 @@ int main()
 	plmmc->_Mesh = Default::Primitives::Sphere;
 	plmmc->_Material = Default::Materials::StandardMaterial;
 	scale.value = glm::vec3(0.5f);
-	
+	/*
 	PointLightComponent* plc = new PointLightComponent();
 	plc->constant = 1.0f;
 	plc->linear = 0.09f;
@@ -111,7 +111,7 @@ int main()
 	Entity ple2 = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<PointLightComponent>(ple2, plc2);
 	EntityManager::SetComponentData<Scale>(ple2, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);*/
 #pragma endregion
 
 	MeshMaterialComponent* cmmc = new MeshMaterialComponent();
@@ -203,13 +203,13 @@ int main()
 		EntityManager::SetComponentData<Rotation>(dle3, r);
 
 
-		
+		/*
 		Position p;
 		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(glm::radians(lightAngle6)), 20.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Position>(ple, p);
 		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(glm::radians(lightAngle7)), 15.0f, 20.0f * glm::sin(glm::radians(lightAngle7))), 0.0f);
 		EntityManager::SetComponentData<Position>(ple2, p);
-
+		*/
 #pragma endregion
 		loopable = engine->Loop();
 		loopable = engine->LoopEnd();
@@ -247,7 +247,7 @@ void InitGround() {
 	Position translation = Position();
 	translation.value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();
-	scale.value = glm::vec3(20.0f);
+	scale.value = glm::vec3(40.0f);
 	EntityManager::SetComponentData<Position>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 

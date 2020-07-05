@@ -41,16 +41,16 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 				auto scale = EntityManager::GetComponentData<Scale>(j).value;
 				auto meshBound = mmc->_Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
-				float radius = glm::length(meshBound.Size * scale);
+				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
 				minBound = glm::vec3(
-					glm::min(minBound.x, center.x - radius),
-					glm::min(minBound.y, center.y - radius),
-					glm::min(minBound.z, center.z - radius));
+					glm::min(minBound.x, center.x - size.x),
+					glm::min(minBound.y, center.y - size.y),
+					glm::min(minBound.z, center.z - size.z));
 
 				maxBound = glm::vec3(
-					glm::max(maxBound.x, center.x + radius),
-					glm::max(maxBound.y, center.y + radius),
-					glm::max(maxBound.z, center.z + radius));
+					glm::max(maxBound.x, center.x + size.x),
+					glm::max(maxBound.y, center.y + size.y),
+					glm::max(maxBound.z, center.z + size.z));
 
 				RenderManager::DrawMesh(
 					mmc,

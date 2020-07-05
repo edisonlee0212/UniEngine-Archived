@@ -101,8 +101,8 @@ void UniEngine::RenderTarget::Bind()
 	}
 	_FrameBuffer->Bind();
 	if (!_FrameBuffer->Color()) {
-		//glDrawBuffer(GL_NONE);
-		//glReadBuffer(GL_NONE);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
 	}
 	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)

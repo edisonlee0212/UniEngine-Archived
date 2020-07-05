@@ -68,7 +68,7 @@ vec3 CalculateLights(float distance, vec3 normal, vec3 viewDir, vec3 fragPos){
             split = 3;
         }
         float shadow = DirectionalLightShadowCalculation(i, split, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[split] * vec4(fs_in.FragPos, 1.0), norm);
-        result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (shadow);
+        result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (1.0 - shadow);
     }
     // phase 2: point lights
     for(int i = 0; i < PointLightCount; i++){
@@ -166,6 +166,7 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 
     // perform perspective divide
     vec3 projCoords = (fragPosLightSpace.xyz + normal * normalOffset) / fragPosLightSpace.w;
+    //
     if(projCoords.z > 1.0){
         return 0.0;
     }
@@ -173,43 +174,47 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
     projCoords = projCoords * 0.5 + 0.5;
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z - bias;
-
-
-    // check whether current frag pos is in shadow
-    // PCF
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(directionalShadowMap, 0).xy;
-    //for(int x = -1; x <= 1; ++x)
-    //{
-    //    for(int y = -1; y <= 1; ++y)
-    //    {
-    //        float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
-    //        shadow += currentDepth - bias > cloestDepth ? 1.0 : 0.0; 
-    //    }    
-    //}
-    //shadow /= 9.0;
+    if(true){
+        // check whether current frag pos is in shadow
+        // PCF
+        if(false){
+            vec2 texelSize = 1.0 / textureSize(directionalShadowMap, 0).xy;
+            for(int x = -1; x <= 1; ++x)
+            {
+                for(int y = -1; y <= 1; ++y)
+                {
+                    float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
+                    shadow += currentDepth > cloestDepth ? 1.0 : 0.0; 
+                }    
+            }
+            shadow /= 9.0;
+        }else{
+            vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex));
+            //calculate variance from the moments
+	        float E_x2 = moments.y;
+	        float Ex_2 = moments.x * moments.x;
+	        float var = E_x2 - Ex_2;
 
-    vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex));
-    //calculate variance from the moments
-	float E_x2 = moments.y;
-	float Ex_2 = moments.x * moments.x;
-	float var = E_x2 - Ex_2;
+	        //bias the variance
+	        var = max(var, 0.00002);
 
-	//bias the variance
-	var = max(var, 0.00002);
+	        //subtract the fragment depth from the  first moment
+	        //divide variance by the squared difference value
+	        //to get the maximum probability of fragment to be in shadow
+	        float mD = currentDepth - moments.x;
+	        float mD_2 = mD * mD; 
+            float p_max = var / (var + mD_2); 
 
-	//subtract the fragment depth from the  first moment
-	//divide variance by the squared difference value
-	//to get the maximum probability of fragment to be in shadow
-	float mD = currentDepth - moments.x;
-	float mD_2 = mD * mD; 
-	float p_max = var / (var + mD_2); 
-
-	//darken the diffuse component if the current depth is less than or equal
-	//to the first moment and the retured value is less than the calculated
-	//maximum probability
-	shadow = max(p_max, (currentDepth <= moments.x) ? 1.0 : 0.2); 
-
+	        //darken the diffuse component if the current depth is less than or equal
+	        //to the first moment and the retured value is less than the calculated
+	        //maximum probability
+	        shadow = -max(p_max, (currentDepth <= moments.x) ? 1.0 : 0.2) + 1.0; 
+        }
+    }else{
+        float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;
+        shadow += currentDepth > cloestDepth ? 1.0 : 0.0; 
+    }
     return shadow;
 }
 

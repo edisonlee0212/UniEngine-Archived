@@ -131,7 +131,7 @@ void UniEngine::LightingManager::Init()
 	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	//_DLVSMVFilter->SetFloat4Parameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
+	_DLVSMVFilter->SetFloat4Parameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 	_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
 	_DLVSM = new GLTexture();
 	_DLVSM->SetImage2DArray(0, GL_RGBA32F, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, Default::ShaderIncludes::MaxDirectionalLightAmount * Default::ShaderIncludes::ShadowCascadeAmount, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -139,7 +139,7 @@ void UniEngine::LightingManager::Init()
 	_DLVSM->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_DLVSM->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_DLVSM->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	//_DLVSM->SetFloat4Parameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
+	_DLVSM->SetFloat4Parameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 	
 	_DirectionalLightShadowMapFilter->AttachTexture(_DLVSM, GL_COLOR_ATTACHMENT1);
 #pragma endregion
@@ -265,12 +265,12 @@ void UniEngine::LightingManager::Start()
 #pragma region Sphere
 					max = splitEnd;
 #pragma endregion
-					glm::vec3 lightPos = center - lightDir * planeDistance / 2.0f;
+					glm::vec3 lightPos = center - lightDir * planeDistance;
 					lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 1.0, 0.0));
 					if (glm::any(glm::isnan(lightView[3]))) {
 						lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 0.0, 1.0));
 					}
-					lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance);
+					lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance * 2.0f);
 
 #pragma region Fix Shimmering due to the movement of the camera
 
@@ -379,14 +379,12 @@ void UniEngine::LightingManager::Start()
 					}
 				}
 			}
-			_DirectionalLightShadowMap->DepthMapArray()->GenerateMipMap(GL_TEXTURE_2D_ARRAY);
+			//_DirectionalLightShadowMap->DepthMapArray()->GenerateMipMap(GL_TEXTURE_2D_ARRAY);
 #pragma endregion
 #pragma region VSM Filter Pass
+			
 			_DirectionalLightShadowMapFilter->Bind();
 			glDisable(GL_DEPTH_TEST);
-			glClearTexSubImage(_DLVSMVFilter->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RGBA, GL_FLOAT, NULL);
-			glClearTexSubImage(_DLVSM->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RGBA, GL_FLOAT, NULL);
-
 			Default::GLPrograms::ScreenVAO->Bind();
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			_DirectionalLightVFilterProgram->Bind();
@@ -408,6 +406,7 @@ void UniEngine::LightingManager::Start()
 
 			GLTexture::Activate(GL_TEXTURE0);
 			_DLVSM->Bind(GL_TEXTURE_2D_ARRAY);
+			
 #pragma endregion
 
 		}

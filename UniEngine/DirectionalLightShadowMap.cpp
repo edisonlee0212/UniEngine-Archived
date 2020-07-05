@@ -10,8 +10,8 @@ UniEngine::DirectionalLightShadowMap::DirectionalLightShadowMap(size_t amount, f
 	//_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BASE_LEVEL, 0);
 	//_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, 4);
 
-	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_DepthMapArray->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
