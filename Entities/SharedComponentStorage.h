@@ -5,7 +5,7 @@ namespace UniEngine {
 		ENTITIES_API bool ComponentTypeComparator(ComponentType a, ComponentType b);
 #pragma region SharedComponentStorage
 		typedef std::size_t Index;
-
+		
 		typedef std::unordered_map<Entity, Index, Entity> OsIMap;
 		typedef std::vector<Entity> OsList;
 		typedef std::pair<OsIMap*, OsList*> OC;
@@ -14,11 +14,31 @@ namespace UniEngine {
 		typedef std::unordered_map<std::size_t, Index> SCOCsIMap;
 		typedef std::vector<SCOC*> SCOCsList;
 
+
 		typedef std::pair<SCOCsIMap*, SCOCsList*> SCOCC;
 		typedef std::unordered_map<std::size_t, SCOCC*> SCOCsStorage;
+		
+		/*
+		typedef std::unordered_map<Entity, Index, Entity> OwnersMap;
+		typedef std::vector<Entity> OwnersList;
+		struct OwnersCollection {
+			OwnersMap* _OwnersIMap;
+			OwnersList* _OwnersList;
+		};
+
+		struct SCCollection {
+			std::unordered_map<std::size_t, Index> _SCMap;
+			std::vector<SharedComponentBase*> _SCList;
+			std::vector<OwnersCollection*> _OwnersCollectionsList;
+		};
+
+		struct SCStorage {
+			std::unordered_map<std::size_t, Index> _SCCollectionMap;
+			std::vector<SCCollection*> _SCList;
+		};
+		*/
 		class ENTITIES_API SharedComponentStorage
 		{
-			friend class EntityCollection;
 			SCOCsStorage _SCsStorage;
 		public:
 			SharedComponentStorage();
