@@ -199,8 +199,8 @@ void UniEngine::LightingManager::Start()
 			size_t size = directionLightsList->size();
 			for (int i = 0; i < size; i++) {
 #pragma region DirectionalLight data collection
-				SCOC* scoc = directionLightsList->at(i);
-				Entity lightEntity = scoc->second->second->at(0);
+				DirectionalLightComponent* dlc = directionLightsList->at(i);
+				Entity lightEntity = EntityManager::QueryEntities<DirectionalLightComponent>(dlc)->at(0);
 
 				glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).value;
 				glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
@@ -229,7 +229,7 @@ void UniEngine::LightingManager::Start()
 				float planeDistance = glm::max(glm::max(d0, d1), glm::max(d2, d3));
 #pragma endregion
 				_DirectionalLights[i].direction = glm::vec4(lightDir, 0.0f);
-				DirectionalLightComponent* dlc = dynamic_cast<DirectionalLightComponent*>(scoc->first);
+				
 				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 0);
 				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
 #pragma endregion
@@ -313,8 +313,7 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLightProgram->SetInt("index", i);
 				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
 				if (meshMaterials != nullptr) {
-					for (auto mm : *meshMaterials) {
-						auto mmc = dynamic_cast<MeshMaterialComponent*>(mm->first);
+					for (auto mmc : *meshMaterials) {
 						if (mmc->_CastShadow) {
 							auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
 							for (auto j : *entities) {
@@ -348,8 +347,7 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLightInstancedProgram->SetInt("index", i);
 				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
-					for (auto imm : *instancedMeshMaterials) {
-						InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(imm->first);
+					for (auto immc : *instancedMeshMaterials) {
 						if (immc->_CastShadow) {
 							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();
@@ -424,11 +422,11 @@ void UniEngine::LightingManager::Start()
 #pragma region Prepare PointLight data
 			size_t size = pointLightsList->size();
 			for (int i = 0; i < size; i++) {
-				SCOC* scoc = pointLightsList->at(i);
-				Entity lightEntity = scoc->second->second->at(0);
+				PointLightComponent* plc = pointLightsList->at(i);
+				Entity lightEntity = EntityManager::QueryEntities<PointLightComponent>(plc)->at(0);
 				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
 				_PointLights[i].position = glm::vec4(position, 0);
-				PointLightComponent* plc = dynamic_cast<PointLightComponent*>(scoc->first);
+				
 				_PointLights[i].constantLinearQuadFarPlane.x = plc->constant;
 				_PointLights[i].constantLinearQuadFarPlane.y = plc->linear;
 				_PointLights[i].constantLinearQuadFarPlane.z = plc->quadratic;
@@ -457,8 +455,7 @@ void UniEngine::LightingManager::Start()
 				_PointLightProgram->Bind();
 				_PointLightProgram->SetInt("index", i);
 				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
-				for (auto mm : *meshMaterials) {
-					auto mmc = dynamic_cast<MeshMaterialComponent*>(mm->first);
+				for (auto mmc : *meshMaterials) {
 					if (mmc->_CastShadow) {
 						auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
 						for (auto entity : *entities) {
@@ -477,8 +474,7 @@ void UniEngine::LightingManager::Start()
 				_PointLightInstancedProgram->SetInt("index", i);
 				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
-					for (auto imm : *instancedMeshMaterials) {
-						InstancedMeshMaterialComponent* immc = dynamic_cast<InstancedMeshMaterialComponent*>(imm->first);
+					for (auto immc : *instancedMeshMaterials) {
 						if (immc->_CastShadow) {
 							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();

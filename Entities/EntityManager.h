@@ -45,12 +45,12 @@ namespace UniEngine {
 			template <typename T>
 			static void SetSharedComponent(Entity entity, T* value);
 			template <typename T>
-			static void RemoveSharedComponent(Entity entity);
+			static bool RemoveSharedComponent(Entity entity);
 
 			template <typename T>
 			static std::vector<Entity>* QueryEntities(T* value);
 			template <typename T>
-			static std::vector<std::pair<SharedComponentBase*, OC*>*>* QuerySharedComponents();
+			static std::vector<T*>* QuerySharedComponents();
 
 			static EntityArchetype GetEntityArchetype(Entity entity);
 		};
@@ -178,27 +178,27 @@ namespace UniEngine {
 		template<typename T>
 		inline T* EntityManager::GetSharedComponent(Entity entity)
 		{
-			return _EntitySharedComponentStorage->GetSC<T>(entity);
+			return _EntitySharedComponentStorage->GetSharedComponent<T>(entity);
 		}
 		template<typename T>
 		inline void EntityManager::SetSharedComponent(Entity entity, T* value)
 		{
-			_EntitySharedComponentStorage->SetSC<T>(entity, value);
+			_EntitySharedComponentStorage->SetSharedComponent<T>(entity, value);
 		}
 		template<typename T>
-		inline void EntityManager::RemoveSharedComponent(Entity entity)
+		inline bool EntityManager::RemoveSharedComponent(Entity entity)
 		{
-			_EntitySharedComponentStorage->RemoveSC<T>(entity);
+			return _EntitySharedComponentStorage->RemoveSharedComponent<T>(entity);
 		}
 		template<typename T>
 		inline std::vector<Entity>* EntityManager::QueryEntities(T* value)
 		{
-			return _EntitySharedComponentStorage->GetOsList<T>(value);
+			return _EntitySharedComponentStorage->GetOwnersList<T>(value);
 		}
 		template<typename T>
-		inline std::vector<std::pair<SharedComponentBase*, OC*>*>* EntityManager::QuerySharedComponents()
+		inline std::vector<T*>* EntityManager::QuerySharedComponents()
 		{
-			return _EntitySharedComponentStorage->GetSCOCsList<T>();
+			return _EntitySharedComponentStorage->GetSCList<T>();
 		}
 
 #pragma endregion

@@ -5,254 +5,236 @@ namespace UniEngine {
 		ENTITIES_API bool ComponentTypeComparator(ComponentType a, ComponentType b);
 #pragma region SharedComponentStorage
 		typedef std::size_t Index;
-		
-		typedef std::unordered_map<Entity, Index, Entity> OsIMap;
-		typedef std::vector<Entity> OsList;
-		typedef std::pair<OsIMap*, OsList*> OC;
 
-		typedef std::pair<SharedComponentBase*, OC*> SCOC;
-		typedef std::unordered_map<std::size_t, Index> SCOCsIMap;
-		typedef std::vector<SCOC*> SCOCsList;
-
-
-		typedef std::pair<SCOCsIMap*, SCOCsList*> SCOCC;
-		typedef std::unordered_map<std::size_t, SCOCC*> SCOCsStorage;
-		
-		/*
 		typedef std::unordered_map<Entity, Index, Entity> OwnersMap;
 		typedef std::vector<Entity> OwnersList;
 		struct OwnersCollection {
-			OwnersMap* _OwnersIMap;
-			OwnersList* _OwnersList;
+			OwnersMap _OwnersMap;
+			OwnersList _OwnersList;
+			OwnersCollection() {
+				_OwnersList = OwnersList();
+				_OwnersMap = OwnersMap();
+			}
 		};
 
 		struct SCCollection {
-			std::unordered_map<std::size_t, Index> _SCMap;
+			std::unordered_map<std::size_t, Index> _OwnersCollectionsMap;
 			std::vector<SharedComponentBase*> _SCList;
 			std::vector<OwnersCollection*> _OwnersCollectionsList;
+			SCCollection() {
+				_OwnersCollectionsMap = std::unordered_map<std::size_t, Index>();
+				_SCList = std::vector<SharedComponentBase*>();
+				_OwnersCollectionsList = std::vector<OwnersCollection*>();
+			}
 		};
-
-		struct SCStorage {
-			std::unordered_map<std::size_t, Index> _SCCollectionMap;
-			std::vector<SCCollection*> _SCList;
-		};
-		*/
+		
 		class ENTITIES_API SharedComponentStorage
 		{
-			SCOCsStorage _SCsStorage;
+			std::unordered_map<std::size_t, Index> _SCCollectionsMap;
+			std::vector<SCCollection*> _SCCollectionsList;
+			
 		public:
 			SharedComponentStorage();
 
 			void DeleteEntity(Entity entity);
 
-			bool RemoveSC(SCOCC* scocc, Entity entity);
+			template <typename T>
+			SCCollection* GetSCCollection();
 
 			template <typename T>
-			SCOCC* GetSCOCC();
+			std::unordered_map<std::size_t, Index>* GetOwnersCollectionsMap();
 
 			template <typename T>
-			SCOCsIMap* GetSCOCsIMap();
+			std::vector<OwnersCollection*>* GetOwnersCollectionsList();
 
 			template <typename T>
-			SCOCsList* GetSCOCsList();
+			std::vector<T*>* GetSCList();
 
 			template <typename T>
-			SCOCsIMap* GetSCOCsIMap(SCOCC* scocc);
+			OwnersCollection* GetOwnersCollection(T* value);
 
 			template <typename T>
-			SCOCsList* GetSCOCsList(SCOCC* scocc);
+			OwnersMap* GetOwnersMap(T* value);
 
 			template <typename T>
-			SCOC* GetSCOC(T* value);
+			OwnersList* GetOwnersList(T* value);
+			
+			template <typename T>
+			void SetSharedComponent(Entity entity, T* value);
 
 			template <typename T>
-			SCOC* GetSCOC(T* value, SCOCC* scocc);
+			bool RemoveSharedComponent(Entity entity);
 
 			template <typename T>
-			OC* GetOC(T* value);
+			T* GetSharedComponent(Entity entity);
 
-			template <typename T>
-			OsIMap* GetOsIMap(T* value);
-
-			template <typename T>
-			OsList* GetOsList(T* value);
-
-			template <typename T>
-			bool SetSC(Entity entity, T* value);
-
-			template <typename T>
-			T* GetSC(Entity entity);
-
-			template <typename T>
-			bool RemoveSC(Entity entity);
 
 		};
 
 		template<typename T>
-		inline SCOCC* SharedComponentStorage::GetSCOCC()
+		inline SCCollection* SharedComponentStorage::GetSCCollection()
 		{
 			auto key = typeid(T).hash_code();
-			auto search = _SCsStorage.find(key);
-			if (search != _SCsStorage.end()) {
-				return search->second;
+			auto search = _SCCollectionsMap.find(key);
+			if (search != _SCCollectionsMap.end()) {
+				Index index = search->second;
+				return (SCCollection*) _SCCollectionsList[index];
 			}
 			return nullptr;
 		}
 
+
 		template<typename T>
-		inline SCOCsIMap* SharedComponentStorage::GetSCOCsIMap()
+		inline std::unordered_map<std::size_t, Index>* SharedComponentStorage::GetOwnersCollectionsMap()
 		{
-			SCOCC* scocc = GetSCOCC<T>();
-			if (scocc == nullptr) return nullptr;
-			return scocc->first;
+			SCCollection* scc = GetSCCollection<T>();
+			if (scc == nullptr) return nullptr;
+			return &scc->_OwnersCollectionsMap;
 		}
 
 		template<typename T>
-		inline SCOCsList* SharedComponentStorage::GetSCOCsList()
+		inline std::vector<OwnersCollection*>* SharedComponentStorage::GetOwnersCollectionsList()
 		{
-			SCOCC* scocc = GetSCOCC<T>();
-			if (scocc == nullptr) return nullptr;
-			return scocc->second;
+			SCCollection* scc = GetSCCollection<T>();
+			if (scc == nullptr) return nullptr;
+			return &scc->_OwnersCollectionsList;
 		}
 
 		template<typename T>
-		inline SCOCsIMap* SharedComponentStorage::GetSCOCsIMap(SCOCC* scocc)
+		inline std::vector<T*>* SharedComponentStorage::GetSCList()
 		{
-			return scocc->first;
+			SCCollection* scc = GetSCCollection<T>();
+			if (scc == nullptr) return nullptr;
+			return (std::vector<T*>*) (void*) &scc->_SCList;
 		}
 
 		template<typename T>
-		inline SCOCsList* SharedComponentStorage::GetSCOCsList(SCOCC* scocc)
+		inline OwnersCollection* SharedComponentStorage::GetOwnersCollection(T* value)
 		{
-			return scocc->second;
-		}
-
-		template<typename T>
-		inline SCOC* SharedComponentStorage::GetSCOC(T* value)
-		{
-			SCOCC* scocc = GetSCOCC<T>();
-			if (scocc == nullptr) return nullptr;
-			SCOCsIMap* map = scocc->first;
-			SCOCsList* list = scocc->second;
+			SCCollection* scc = GetSCCollection<T>();
+			if (scc == nullptr) return nullptr;
 			auto key = dynamic_cast<SharedComponentBase*>(value)->GetHashCode();
-			auto search = map->find(key);
-			if (search != map->end()) {
-				return list->at(search->second);
+			auto search = scc->_OwnersCollectionsMap.find(key);
+			if (search != scc->_OwnersCollectionsMap.end()) {
+				Index index = search->second;
+				return (OwnersCollection*) scc->_OwnersCollectionsList[index];
 			}
 			return nullptr;
 		}
 
 		template<typename T>
-		inline SCOC* SharedComponentStorage::GetSCOC(T* value, SCOCC* scocc)
+		inline OwnersMap* SharedComponentStorage::GetOwnersMap(T* value)
 		{
-			SCOCsIMap* map = scocc->first;
-			SCOCsList* list = scocc->second;
-			auto key = dynamic_cast<SharedComponentBase*>(value)->GetHashCode();
-			auto search = map->find(key);
-			if (search != map->end()) {
-				return list->at(search->second);
-			}
-			return nullptr;
-		}
-
-		template<typename T>
-		inline OC* SharedComponentStorage::GetOC(T* value)
-		{
-			SCOC* scoc = GetSCOC<T>(value);
-			if (scoc == nullptr) return nullptr;
-			return scoc->second;
-		}
-
-		template<typename T>
-		inline OsIMap* SharedComponentStorage::GetOsIMap(T* value)
-		{
-			OC* oc = GetOC<T>(value);
+			OwnersCollection* oc = GetOwnersCollection<T>(value);
 			if (oc == nullptr) return nullptr;
-			return oc->first;
+			return &oc->_OwnersMap;
 		}
 
 		template<typename T>
-		inline OsList* SharedComponentStorage::GetOsList(T* value)
+		inline OwnersList* SharedComponentStorage::GetOwnersList(T* value)
 		{
-			OC* oc = GetOC<T>(value);
+			OwnersCollection* oc = GetOwnersCollection<T>(value);
 			if (oc == nullptr) return nullptr;
-			return oc->second;
+			return &oc->_OwnersList;
 		}
 
 		template<typename T>
-		inline bool SharedComponentStorage::SetSC(Entity entity, T* value)
+		inline void SharedComponentStorage::SetSharedComponent(Entity entity, T* value)
 		{
-			//Firstly we make sure this entity doesn't contain same type of sc.
-			RemoveSC<T>(entity);
+			SCCollection* scc = GetSCCollection<T>();
+			SharedComponentBase* scp = dynamic_cast<SharedComponentBase*>(value);
+			if (scc == nullptr) {
+				scc = new SCCollection();
+				OwnersCollection* oc = new OwnersCollection();
+				oc->_OwnersMap.insert({ entity, 0 });
+				oc->_OwnersList.push_back(entity);
 
-			SCOCC* scocc = GetSCOCC<T>();
-			if (scocc == nullptr) {
-				//If we cant find the type of class
-				OsIMap* map = new OsIMap();
-				map->insert({ entity, 0 });
-				OsList* list = new OsList();
-				list->push_back(entity);
-				OC* oc = new OC(map, list);
-				SCOC* scoc = new SCOC(dynamic_cast<SharedComponentBase*>(value), oc);
-				SCOCsIMap* scmap = new SCOCsIMap();
-				scmap->insert({ dynamic_cast<SharedComponentBase*>(value)->GetHashCode(), 0 });
-				SCOCsList* sclist = new SCOCsList();
-				sclist->push_back(scoc);
-				_SCsStorage.insert({ typeid(T).hash_code(), new SCOCC(scmap, sclist) });
+				scc->_OwnersCollectionsMap.insert({ scp->GetHashCode(), 0 });
+				scc->_OwnersCollectionsList.push_back(oc);
+				scc->_SCList.push_back(scp);
+
+				_SCCollectionsMap.insert({ typeid(T).hash_code(), _SCCollectionsList.size() });
+				_SCCollectionsList.push_back(scc);
 			}
 			else {
-				SCOC* scoc = GetSCOC<T>(value, scocc);
-				if (scoc == nullptr) {
-					//If we can't find the sc
-					OsIMap* map = new OsIMap();
-					map->insert({ entity, 0 });
-					OsList* list = new OsList();
-					list->push_back(entity);
-					OC* oc = new OC(map, list);
-					SCOC* scoc = new SCOC(dynamic_cast<SharedComponentBase*>(value), oc);
-					scocc->first->insert({ dynamic_cast<SharedComponentBase*>(value)->GetHashCode(), scocc->second->size() });
-					scocc->second->push_back(scoc);
+				auto key = scp->GetHashCode();
+				auto search = scc->_OwnersCollectionsMap.find(key);
+				if (search == scc->_OwnersCollectionsMap.end()) {
+					OwnersCollection* oc = new OwnersCollection();
+					oc->_OwnersMap.insert({ entity, 0 });
+					oc->_OwnersList.push_back(entity);
+
+					scc->_OwnersCollectionsMap.insert({ scp->GetHashCode(), scc->_OwnersCollectionsList.size()});
+					scc->_OwnersCollectionsList.push_back(oc);
+					scc->_SCList.push_back(value);
 				}
 				else {
-					auto map = scoc->second->first;
-					auto list = scoc->second->second;
-					auto search = map->find(entity);
-					if (search == map->end()) {
-						//if we can't find the entity
-						map->insert({ entity, list->size() });
-						list->push_back(entity);
+					Index index = search->second;
+					OwnersCollection* oc = scc->_OwnersCollectionsList[index];
+					auto entitySearch = oc->_OwnersMap.find(entity);
+					if (entitySearch == oc->_OwnersMap.end()) {
+						oc->_OwnersMap.insert({ entity, oc->_OwnersList.size() });
+						oc->_OwnersList.push_back(entity);
 					}
 				}
 			}
-			return true;
 		}
 
 		template<typename T>
-		inline T* SharedComponentStorage::GetSC(Entity entity)
+		inline bool SharedComponentStorage::RemoveSharedComponent(Entity entity)
 		{
-			SCOCC* scocc = GetSCOCC<T>();
-			SCOCsList* list = scocc->second;
-			for (SCOC* i : *list) {
-				OsIMap* map = i->second->first;
-				auto search = map->find(entity);
-				if (search != map->end()) {
-					return dynamic_cast<T*>(i->first);
+			SCCollection* scc = GetSCCollection<T>();
+			if (scc == nullptr) return false;
+			size_t ocSize = scc->_OwnersCollectionsList.size();
+			for (size_t i = 0; i < ocSize; i++) {
+				OwnersCollection* oc = scc->_OwnersCollectionsList[i];
+				auto entitySearch = oc->_OwnersMap.find(entity);
+				if (entitySearch != oc->_OwnersMap.end()) {
+					if (entity != entitySearch->first) {
+						Debug::Error("Entity already deleted!");
+						return false;
+					}
+					if (oc->_OwnersList.size() == 1) {
+						auto eraseHash = dynamic_cast<SharedComponentBase*>(scc->_SCList[i])->GetHashCode();
+						Index index = scc->_OwnersCollectionsMap.at(eraseHash);
+						scc->_OwnersCollectionsMap.at(dynamic_cast<SharedComponentBase*>(scc->_SCList.back())->GetHashCode()) = index;
+						scc->_OwnersCollectionsMap.erase(eraseHash);
+						scc->_SCList[index] = scc->_SCList.back();
+						scc->_OwnersCollectionsList[index] = scc->_OwnersCollectionsList.back();
+						scc->_SCList.pop_back();
+						scc->_OwnersCollectionsList.pop_back();
+						delete oc;
+					}
+					else {
+						Index index = entitySearch->second;
+						oc->_OwnersMap.at(oc->_OwnersList.back()) = index;
+						oc->_OwnersMap.erase(entity);
+						oc->_OwnersList[index] = oc->_OwnersList.back();
+						oc->_OwnersList.pop_back();
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+
+		template<typename T>
+		inline T* SharedComponentStorage::GetSharedComponent(Entity entity)
+		{
+			SCCollection* scc = GetSCCollection<T>();
+			if (scc == nullptr) return nullptr;
+			size_t ocSize = scc->_OwnersCollectionsList.size();
+			for (size_t i = 0; i < ocSize; i++) {
+				OwnersCollection* oc = scc->_OwnersCollectionsList[i];
+				auto entitySearch = oc->_OwnersMap.find(entity);
+				if (entitySearch != oc->_OwnersMap.end()) {
+					return dynamic_cast<T*>(scc->_SCList[i]);
 				}
 			}
 			return nullptr;
 		}
 
-		template<typename T>
-		inline bool SharedComponentStorage::RemoveSC(Entity entity)
-		{
-			SCOCC* scocc = GetSCOCC<T>();
-			if (scocc != nullptr) {
-				return RemoveSC(scocc, entity);
-			}
-			else {
-				return false;
-			}
-		}
+
 #pragma endregion
 	}
 }

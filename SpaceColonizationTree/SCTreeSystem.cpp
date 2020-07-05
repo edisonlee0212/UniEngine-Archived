@@ -123,7 +123,7 @@ static const char* EnvelopeTypes[]{ "SurfaceOfRevo", "Cube", "Cylinder", "Coil" 
 void SpaceColonizationTree::SCTreeSystem::Update() {
 	EnvelopeGUIMenu();
 	TreeGUIMenu();
-	Camera* mainCamera = dynamic_cast<CameraComponent*>(EntityManager::QuerySharedComponents<CameraComponent>()->at(0)->first)->Value;
+	Camera* mainCamera = EntityManager::QuerySharedComponents<CameraComponent>()->at(0)->Value;
 	if (_Envelope != nullptr) _Envelope->Draw(mainCamera, _EnvelopePointMaterial, glm::vec3(_TreeSize));
 	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(mainCamera, _TreePointMaterial, glm::vec3(_TreeSize));
 	if (_TreeEntity.Version != 0) {
