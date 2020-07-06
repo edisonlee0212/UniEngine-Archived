@@ -27,7 +27,6 @@ namespace UniEngine {
 			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg, Ts... args);
 			template<typename T, typename... Ts>
 			static std::vector<ComponentType> CollectComponentTypes(T arg, Ts... args);
-
 			static void DeleteEntityInternal(Entity entity);
 
 		public:
@@ -41,7 +40,9 @@ namespace UniEngine {
 			static void DeleteEntity(Entity entity);
 			
 			static void SetParent(Entity entity, Entity parent);
-
+			static Entity GetParent(Entity entity);
+			static std::vector<Entity> GetChildren(Entity entity);
+			static void RemoveChild(Entity entity, Entity parent);
 
 			template<typename T>
 			static void SetComponentData(Entity entity, T value);
@@ -104,7 +105,7 @@ namespace UniEngine {
 			info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
 			info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
 			int duplicateIndex = -1;
-			for (auto i = 0; i < _EntityComponentStorage->size(); i++) {
+			for (auto i = 1; i < _EntityComponentStorage->size(); i++) {
 				EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
 				if (info->ChunkCapacity != compareInfo->ChunkCapacity) continue;
 				if (info->EntitySize != compareInfo->EntitySize) continue;
@@ -134,6 +135,7 @@ namespace UniEngine {
 		template<typename T>
 		inline void EntityManager::SetComponentData(Entity entity, T value)
 		{
+			if (entity.IsNull()) return;
 			EntityInfo info;
 			info = _EntityInfos->at(entity.Index);
 			
@@ -161,6 +163,7 @@ namespace UniEngine {
 		template<typename T>
 		inline T EntityManager::GetComponentData(Entity entity)
 		{
+			if (entity.IsNull()) return T();
 			EntityInfo info = _EntityInfos->at(entity.Index);
 			if (_Entities->at(entity.Index) == entity) {
 				EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
@@ -186,16 +189,19 @@ namespace UniEngine {
 		template<typename T>
 		inline T* EntityManager::GetSharedComponent(Entity entity)
 		{
+			if (entity.IsNull()) return nullptr;
 			return _EntitySharedComponentStorage->GetSharedComponent<T>(entity);
 		}
 		template<typename T>
 		inline void EntityManager::SetSharedComponent(Entity entity, T* value)
 		{
+			if (entity.IsNull()) return;
 			_EntitySharedComponentStorage->SetSharedComponent<T>(entity, value);
 		}
 		template<typename T>
 		inline bool EntityManager::RemoveSharedComponent(Entity entity)
 		{
+			if (entity.IsNull()) return false;
 			return _EntitySharedComponentStorage->RemoveSharedComponent<T>(entity);
 		}
 		template<typename T>

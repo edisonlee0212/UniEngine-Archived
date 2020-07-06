@@ -47,6 +47,8 @@ void UniEngine::Entities::EntityManager::SetWorld(World* world)
 		auto storage = new WorldEntityStorage();
 		storage->Entities.push_back(Entity());
 		storage->EntityInfos.push_back(EntityInfo());
+		storage->EntityComponentStorage.push_back(EntityComponentStorage(nullptr, nullptr));
+		storage->EntityPool.push_back(std::queue<Entity>());
 		_WorldEntityStorage.push_back(storage);
 	}
 	WorldEntityStorage* targetStorage = _WorldEntityStorage[index];
@@ -59,6 +61,7 @@ void UniEngine::Entities::EntityManager::SetWorld(World* world)
 
 Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetype)
 {
+	if (archetype.Index == 0) return Entity();
 	Entity retVal;
 	if (_EntityPool->at(archetype.Index).empty()) {
 		EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
@@ -96,16 +99,91 @@ Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetyp
 
 void UniEngine::Entities::EntityManager::DeleteEntity(Entity entity)
 {
+	if (entity.IsNull()) return;
+	size_t entityIndex = entity.Index;
+	if (entity != _Entities->at(entityIndex)) {
+		Debug::Error("Parent already deleted!");
+	}
+	for (auto child : _EntityInfos->at(entityIndex).Children) {
+		DeleteEntity(child);
+	}
+	_EntityInfos->at(entityIndex).Children.clear();
 	DeleteEntityInternal(entity);
-	//_RelationStorage->DeleteEntity(entity);
+	if(_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
 }
 
 void UniEngine::Entities::EntityManager::SetParent(Entity entity, Entity parent)
 {
+	if (entity.IsNull() || parent.IsNull()) return;
+	size_t childIndex = entity.Index;
+	size_t parentIndex = parent.Index;
+	if (entity != _Entities->at(childIndex)) {
+		Debug::Error("Child already deleted!");
+		return;
+	}
+	if (parent != _Entities->at(parentIndex)) {
+		Debug::Error("Parent already deleted!");
+		return;
+	}
+	if (_EntityInfos->at(childIndex).Parent.Index != 0) {
+		RemoveChild(entity, _Entities->at(_EntityInfos->at(childIndex).Parent.Index));
+	}
+	_EntityInfos->at(childIndex).Parent = parent;
+	_EntityInfos->at(parentIndex).Children.push_back(entity);
+}
+
+Entity UniEngine::Entities::EntityManager::GetParent(Entity entity)
+{
+	if (entity.IsNull()) return Entity();
+	size_t entityIndex = entity.Index;
+	if (entity != _Entities->at(entityIndex)) {
+		Debug::Error("Entity already deleted!");
+		return Entity();
+	}
+	return _EntityInfos->at(entityIndex).Parent;
+}
+
+std::vector<Entity> UniEngine::Entities::EntityManager::GetChildren(Entity entity)
+{
+	if (entity.IsNull()) return std::vector<Entity>();
+	size_t entityIndex = entity.Index;
+	if (entity != _Entities->at(entityIndex)) {
+		Debug::Error("Parent already deleted!");
+		return std::vector<Entity>();
+	}
+	return _EntityInfos->at(entityIndex).Children;
+}
+
+void UniEngine::Entities::EntityManager::RemoveChild(Entity entity, Entity parent)
+{
+	if (entity.IsNull() || parent.IsNull()) return;
+	size_t childIndex = entity.Index;
+	size_t parentIndex = parent.Index;
+
+	if (entity != _Entities->at(childIndex)) {
+		Debug::Error("Child already deleted!");
+		return;
+	}
+	if (parent != _Entities->at(parentIndex)) {
+		Debug::Error("Parent already deleted!");
+		return;
+	}
+	if (_EntityInfos->at(childIndex).Parent.Index == 0) {
+		Debug::Error("No child by the parent!");
+	}
+	_EntityInfos->at(childIndex).Parent = Entity();
+	size_t childrenCount = _EntityInfos->at(parentIndex).Children.size();
+	for (int i = 0; i < childrenCount; i++) {
+		if (_EntityInfos->at(parentIndex).Children[i].Index == childIndex) {
+			_EntityInfos->at(parentIndex).Children[i] = _EntityInfos->at(parentIndex).Children.back();
+			_EntityInfos->at(parentIndex).Children.pop_back();
+		}
+	}
 }
 
 EntityArchetype UniEngine::Entities::EntityManager::GetEntityArchetype(Entity entity)
 {
+	if (entity.IsNull()) return EntityArchetype();
 	EntityInfo info = _EntityInfos->at(entity.Index);
 	EntityArchetype retVal;
 	retVal.Index = info.ArchetypeInfoIndex;

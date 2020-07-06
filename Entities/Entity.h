@@ -29,7 +29,13 @@ namespace UniEngine {
 				return (size_t)Index;
 			}
 
-			
+			bool IsNull() {
+				return Index == 0;
+			}
+
+			bool IsDeleted() {
+				return Version == 0;
+			}
 		};
 #pragma region Storage
 
@@ -90,7 +96,7 @@ namespace UniEngine {
 		};
 
 		struct ENTITIES_API EntityInfo {
-			EntityInfo* Parent = nullptr;
+			Entity Parent;
 			std::vector<Entity> Children;
 			//Entity _Entity;
 			size_t ArchetypeInfoIndex;
