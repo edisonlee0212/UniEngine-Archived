@@ -3,7 +3,7 @@
 #include "LightingManager.h"
 using namespace UniEngine;
 
-GLenum RenderManager::_TextureStartIndex = 2;
+GLenum RenderManager::_TextureStartIndex = 4;
 RenderTarget* RenderManager::_CurrentRenderTarget;
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;

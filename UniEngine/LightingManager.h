@@ -50,7 +50,6 @@ namespace UniEngine {
 		static GLProgram* _DirectionalLightHFilterProgram;
 
 		static GLTexture* _DLVSMVFilter;
-		static GLTexture* _DLVSM;
 
 	public:
 		static void Init();

@@ -20,7 +20,6 @@ unsigned LightingManager::_DirectionalShadowMapResolution = 512;
 RenderTarget* LightingManager::_DirectionalLightShadowMapFilter;
 
 GLTexture* LightingManager::_DLVSMVFilter;
-GLTexture* LightingManager::_DLVSM;
 
 #pragma endregion
 
@@ -123,21 +122,13 @@ void UniEngine::LightingManager::Init()
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	_DLVSMVFilter = new GLTexture();
 	_DLVSMVFilter->SetImage2DArray(0, GL_RGBA32F, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, Default::ShaderIncludes::MaxDirectionalLightAmount * Default::ShaderIncludes::ShadowCascadeAmount, 0, GL_RGBA, GL_FLOAT, NULL);
-	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	_DLVSMVFilter->SetFloat4Parameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 	_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-	_DLVSM = new GLTexture();
-	_DLVSM->SetImage2DArray(0, GL_RGBA32F, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, Default::ShaderIncludes::MaxDirectionalLightAmount * Default::ShaderIncludes::ShadowCascadeAmount, 0, GL_RGBA, GL_FLOAT, NULL);
-	_DLVSM->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_DLVSM->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	_DLVSM->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	_DLVSM->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	_DLVSM->SetFloat4Parameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
-	
-	_DirectionalLightShadowMapFilter->AttachTexture(_DLVSM, GL_COLOR_ATTACHMENT1);
+	_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
 #pragma endregion
 #pragma region PointLight
 	_PointLightShadowMap = new PointLightShadowMap(Default::ShaderIncludes::MaxPointLightAmount);
@@ -172,9 +163,13 @@ void UniEngine::LightingManager::Init()
 
 	GLTexture::Activate(GL_TEXTURE0);
 	LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
+	
 	GLTexture::Activate(GL_TEXTURE1);
 	LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
 	GLTexture::BindDefault();
+
+	GLTexture::Activate(GL_TEXTURE3);
+	_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
 }
 
 void UniEngine::LightingManager::Start()
@@ -376,7 +371,6 @@ void UniEngine::LightingManager::Start()
 			//_DirectionalLightShadowMap->DepthMapArray()->GenerateMipMap(GL_TEXTURE_2D_ARRAY);
 #pragma endregion
 #pragma region VSM Filter Pass
-			
 			_DirectionalLightShadowMapFilter->Bind();
 			glDisable(GL_DEPTH_TEST);
 			Default::GLPrograms::ScreenVAO->Bind();
@@ -387,22 +381,16 @@ void UniEngine::LightingManager::Start()
 				_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
-
-			GLTexture::Activate(GL_TEXTURE0);
-			_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
 			glDrawBuffer(GL_COLOR_ATTACHMENT1);
 			_DirectionalLightHFilterProgram->Bind();
-			_DirectionalLightHFilterProgram->SetInt("textureMapArray", 0);
+			_DirectionalLightHFilterProgram->SetInt("textureMapArray", 3);
 			for (int i = 0; i < size; i++) {
 				_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 			}
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-			GLTexture::Activate(GL_TEXTURE0);
-			_DLVSM->Bind(GL_TEXTURE_2D_ARRAY);
-			
 #pragma endregion
-
 		}
 	}
 

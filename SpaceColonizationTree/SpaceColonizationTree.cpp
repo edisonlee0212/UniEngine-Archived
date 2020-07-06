@@ -18,8 +18,8 @@ float lightAngle7 = 0;
 int main()
 {
 	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetSplitRatio(0.1f, 0.2f, 0.4f, 1.0f);
+	LightingManager::SetDirectionalLightResolution(1024);
+	LightingManager::SetSplitRatio(0.1f, 0.15f, 0.3f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 	
