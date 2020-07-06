@@ -1,14 +1,11 @@
 #pragma once
 #include "UniEngineAPI.h"
 namespace UniEngine {
-	class UNIENGINE_API TransformSystem :
+	class UNIENGINE_API ParentSystem :
 		public SystemBase
 	{
+		void CalculateLTW(LocalToWorld pltw, Entity entity);
 	public:
-		TransformSystem();
-		void OnCreate();
-		void OnDestroy();
 		void Update();
 	};
-
 }

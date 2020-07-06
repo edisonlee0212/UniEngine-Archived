@@ -3,6 +3,7 @@
 #include "RenderSystem.h"
 #include "TransformSystem.h"
 #include "PhysicsSystem.h"
+#include "ParentSystem.h"
 GLenum glCheckError_(const char* file, int line);
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
@@ -57,7 +58,8 @@ void UniEngine::Engine::Start(GLFWwindow* targetWindow, unsigned width, unsigned
 	_World->Init();
 	
 	//Initialization System Group
-	
+	_World->CreateSystem<ParentSystem>();
+
 	//Simulation System Group
 	_World->CreateSystem<PhysicsSystem>();
 	_World->CreateSystem<TransformSystem>();

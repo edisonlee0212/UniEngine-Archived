@@ -199,6 +199,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshMaterialComponent.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ParentSystem.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="RenderSystem.h" />
@@ -240,6 +241,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshMaterialComponent.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ParentSystem.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="SharedComponentSystem.cpp" />
