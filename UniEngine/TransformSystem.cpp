@@ -24,14 +24,13 @@ void UniEngine::TransformSystem::OnDestroy()
 
 void UniEngine::TransformSystem::Update()
 {
-	for (auto i : *EntityManager::GetAllEntities()) {
+	auto entities = EntityManager::GetAllEntitiesUnsafe();
+	for (auto i : *entities) {
 		LocalToWorld ltw = LocalToWorld();
-		auto p = EntityManager::GetComponentData<Position>(i.Entity).value;
-		auto r = EntityManager::GetComponentData<Rotation>(i.Entity).value;
-		auto s = EntityManager::GetComponentData<Scale>(i.Entity).value;
+		auto p = EntityManager::GetComponentData<Position>(i).value;
+		auto r = EntityManager::GetComponentData<Rotation>(i).value;
+		auto s = EntityManager::GetComponentData<Scale>(i).value;
 		ltw.value = TRS(p, r, s);
-		EntityManager::SetComponentData<LocalToWorld>(i.Entity, ltw);
+		EntityManager::SetComponentData<LocalToWorld>(i, ltw);
 	}
-
-	
 }

@@ -107,11 +107,11 @@ RenderTarget* UniEngine::Camera::GetRenderTarget()
 	return _RenderTarget;
 }
 
-Camera::Camera(RenderTarget* renderTarget, float yaw, float pitch, float nearPlane, float farPlane) : _Front(glm::vec3(0.0f, 0.0f, -1.0f)), _FOV(DEFAULTFOV)
+Camera::Camera(RenderTarget* renderTarget, float nearPlane, float farPlane) : _Front(glm::vec3(0.0f, 0.0f, -1.0f)), _FOV(DEFAULTFOV)
 {
 	_RenderTarget = renderTarget;
-	_Yaw = yaw;
-	_Pitch = pitch;
+	_Yaw = YAW;
+	_Pitch = PITCH;
 	_Near = nearPlane;
 	_Far = farPlane;
 }

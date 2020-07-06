@@ -8,14 +8,16 @@ namespace UniEngine {
 #pragma region EntityManager
 		struct ENTITIES_API WorldEntityStorage {
 			size_t Index;
-			std::vector<EntityInfo> Entities;
+			std::vector<Entity> Entities;
+			std::vector<EntityInfo> EntityInfos;
 			std::vector<std::queue<Entity>> EntityPool;
 			std::vector<EntityComponentStorage> EntityComponentStorage;
 			SharedComponentStorage EntitySharedComponentStorage;
 		};
 		class ENTITIES_API EntityManager : public ManagerBase {
 			static std::vector<WorldEntityStorage*> _WorldEntityStorage;
-			static std::vector<EntityInfo>* _Entities;
+			static std::vector<Entity>* _Entities;
+			static std::vector<EntityInfo>* _EntityInfos;
 			static std::vector<EntityComponentStorage>* _EntityComponentStorage;
 			static std::vector<std::queue<Entity>>* _EntityPool;
 			static SharedComponentStorage* _EntitySharedComponentStorage;
@@ -25,15 +27,21 @@ namespace UniEngine {
 			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg, Ts... args);
 			template<typename T, typename... Ts>
 			static std::vector<ComponentType> CollectComponentTypes(T arg, Ts... args);
-		public:
-			static std::vector<EntityInfo>* GetAllEntities();
 
+			static void DeleteEntityInternal(Entity entity);
+
+		public:
+			static void GetAllEntities(std::vector<Entity>* target);
+			static std::vector<Entity>* GetAllEntitiesUnsafe();
 			static void SetWorld(World* world);
 			template<typename T, typename... Ts>
 			static EntityArchetype CreateEntityArchetype(T arg, Ts... args);
 
 			static Entity CreateEntity(EntityArchetype archetype);
 			static void DeleteEntity(Entity entity);
+			
+			static void SetParent(Entity entity, Entity parent);
+
 
 			template<typename T>
 			static void SetComponentData(Entity entity, T value);
@@ -127,9 +135,9 @@ namespace UniEngine {
 		inline void EntityManager::SetComponentData(Entity entity, T value)
 		{
 			EntityInfo info;
-			info = _Entities->at(entity.Index);
+			info = _EntityInfos->at(entity.Index);
 			
-			if (info.Entity == entity) {
+			if (_Entities->at(entity.Index) == entity) {
 				EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 				unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
 				unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
@@ -153,8 +161,8 @@ namespace UniEngine {
 		template<typename T>
 		inline T EntityManager::GetComponentData(Entity entity)
 		{
-			EntityInfo info = _Entities->at(entity.Index);
-			if (info.Entity == entity) {
+			EntityInfo info = _EntityInfos->at(entity.Index);
+			if (_Entities->at(entity.Index) == entity) {
 				EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 				unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
 				unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;

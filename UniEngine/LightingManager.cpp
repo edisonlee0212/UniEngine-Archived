@@ -13,7 +13,7 @@ GLProgram* LightingManager::_DirectionalLightInstancedProgram;
 GLProgram* LightingManager::_DirectionalLightVFilterProgram;
 GLProgram* LightingManager::_DirectionalLightHFilterProgram;
 
-float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
+float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = {0.1f, 0.3f, 0.6f, 1.0f};
 GLUBO* LightingManager::_ShadowCascadeInfoBlock;
 ShadowCascadeInfo LightingManager::_ShadowCascadeInfo;
 unsigned LightingManager::_DirectionalShadowMapResolution = 512;
@@ -54,10 +54,6 @@ GLProgram* LightingManager::_PointLightInstancedProgram;
 
 void UniEngine::LightingManager::Init()
 {
-	_ShadowCascadeSplit[0] = 0.15f;
-	_ShadowCascadeSplit[1] = 0.3f;
-	_ShadowCascadeSplit[2] = 0.6f;
-	_ShadowCascadeSplit[3] = 1.0f;
 	_ShadowCascadeInfoBlock = new GLUBO();
 	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowCascadeInfo), NULL, GL_DYNAMIC_DRAW);
 	_ShadowCascadeInfoBlock->SetBase(4);
@@ -519,6 +515,14 @@ void UniEngine::LightingManager::Start()
 	}
 
 	*/
+}
+
+void UniEngine::LightingManager::SetSplitRatio(float r1, float r2, float r3, float r4)
+{
+	_ShadowCascadeSplit[0] = r1;
+	_ShadowCascadeSplit[1] = r2;
+	_ShadowCascadeSplit[2] = r3;
+	_ShadowCascadeSplit[3] = r4;
 }
 
 void UniEngine::LightingManager::SetDirectionalLightResolution(float value)

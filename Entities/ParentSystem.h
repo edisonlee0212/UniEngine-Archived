@@ -2,7 +2,7 @@
 #include "SystemBase.h"
 namespace UniEngine {
 	namespace Entities {
-		class ParentSystem :
+		class ENTITIES_API ParentSystem :
 			public SystemBase
 		{
 			void Update();

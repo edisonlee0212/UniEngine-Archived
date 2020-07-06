@@ -14,9 +14,10 @@ namespace UniEngine {
 		};
 
 		struct ENTITIES_API Entity {
-			//Position in Entity Array
-			unsigned Index;
-			unsigned Version;
+			//Position in _Entity Array
+			unsigned Index = 0;
+			unsigned Version = 0;
+
 			bool operator ==(const Entity& other) const {
 				return (other.Index == Index) && (other.Version == Version);
 			}
@@ -27,6 +28,8 @@ namespace UniEngine {
 			{
 				return (size_t)Index;
 			}
+
+			
 		};
 #pragma region Storage
 
@@ -87,7 +90,9 @@ namespace UniEngine {
 		};
 
 		struct ENTITIES_API EntityInfo {
-			Entity Entity;
+			EntityInfo* Parent = nullptr;
+			std::vector<Entity> Children;
+			//Entity _Entity;
 			size_t ArchetypeInfoIndex;
 			size_t ChunkArrayIndex;
 		};
