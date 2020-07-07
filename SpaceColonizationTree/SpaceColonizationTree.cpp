@@ -19,7 +19,7 @@ float lightAngle7 = 0;
 int main()
 {
 	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(1024);
+	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetEnableVSM(true);
 	LightingManager::SetSplitRatio(0.1f, 0.15f, 0.3f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
@@ -70,20 +70,6 @@ int main()
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
 	
-	DirectionalLightComponent* dlc2 = new DirectionalLightComponent();
-	dlc2->diffuse = glm::vec3(0.25f);
-	dlc2->specular = glm::vec3(0.1f);
-	Entity dle2 = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, dlc2);
-	EntityManager::SetComponentData<Scale>(dle2, scale);
-	
-	DirectionalLightComponent* dlc3 = new DirectionalLightComponent();
-	dlc3->diffuse = glm::vec3(0.25f);
-	dlc3->specular = glm::vec3(0.1f);
-	Entity dle3 = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle3, dlc3);
-	EntityManager::SetComponentData<Scale>(dle3, scale);
-
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;
 	plmmc->_Material = Default::Materials::StandardMaterial;
@@ -135,22 +121,6 @@ int main()
 			, glm::vec3(0, 1, 0));
 		EntityManager::SetComponentData<Rotation>(dle, r);
 		
-		r.value = glm::quatLookAt(
-			glm::normalize(glm::vec3(
-				glm::cos(glm::radians(lightAngle2)) * glm::sin(glm::radians(lightAngle3)),
-				glm::sin(glm::radians(lightAngle2)),
-				glm::cos(glm::radians(lightAngle2)) * glm::cos(glm::radians(lightAngle3))))
-			, glm::vec3(0, 1, 0));
-		EntityManager::SetComponentData<Rotation>(dle2, r);
-		
-		r.value = glm::quatLookAt(
-			glm::normalize(glm::vec3(
-				glm::cos(glm::radians(lightAngle4)) * glm::sin(glm::radians(lightAngle5)),
-				glm::sin(glm::radians(lightAngle4)),
-				glm::cos(glm::radians(lightAngle4)) * glm::cos(glm::radians(lightAngle5))))
-			, glm::vec3(0, 1, 0));
-		EntityManager::SetComponentData<Rotation>(dle3, r);
-		
 		Position p;
 		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(glm::radians(lightAngle6)), 20.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Position>(ple, p);
@@ -167,12 +137,8 @@ int main()
 
 void LightAngleSlider() {
 	ImGui::Begin("Light Angle Controller");
-	ImGui::SliderFloat("Directional Light 1 angle", &lightAngle0, 0.0f, 180.0f);
-	ImGui::SliderFloat("Directional Light 1 circle", &lightAngle1, 0.0f, 360.0f);
-	ImGui::SliderFloat("Directional Light 2 angle", &lightAngle2, 0.0f, 180.0f);
-	ImGui::SliderFloat("Directional Light 2 circle", &lightAngle3, 0.0f, 360.0f);
-	ImGui::SliderFloat("Directional Light 3 angle", &lightAngle4, 0.0f, 180.0f);
-	ImGui::SliderFloat("Directional Light 3 circle", &lightAngle5, 0.0f, 360.0f);
+	ImGui::SliderFloat("Directional Light angle", &lightAngle0, 0.0f, 180.0f);
+	ImGui::SliderFloat("Directional Light circle", &lightAngle1, 0.0f, 360.0f);
 	ImGui::SliderFloat("Point Light 1", &lightAngle6, 0.0f, 180.0f);
 	ImGui::SliderFloat("Point Light 2", &lightAngle7, 0.0f, 360.0f);
 	ImGui::End();
