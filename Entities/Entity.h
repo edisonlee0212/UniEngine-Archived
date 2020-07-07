@@ -112,6 +112,9 @@ namespace UniEngine {
 			size_t ChunkCapacity;
 			//Current allocated entity count.
 			size_t EntityCount;
+
+			template<typename T>
+			bool HasType();
 		};
 
 		struct ENTITIES_API EntityQuery {
@@ -160,5 +163,13 @@ namespace UniEngine {
 #pragma endregion
 
 #pragma endregion
-	}
+		template<typename T>
+		inline bool EntityArchetypeInfo::HasType()
+		{
+			for (auto i : ComponentTypes) {
+				if (i.TypeID == typeid(T).hash_code()) return true;
+			}
+			return false;
+		}
+}
 }

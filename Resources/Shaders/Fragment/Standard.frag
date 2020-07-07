@@ -175,21 +175,10 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z - bias;
     float shadow = 0.0;
-    if(true){
+    if(light.ReservedParameters.y != 0){
         // check whether current frag pos is in shadow
         // PCF
-        if(false){
-            vec2 texelSize = 1.0 / textureSize(directionalShadowMap, 0).xy;
-            for(int x = -1; x <= 1; ++x)
-            {
-                for(int y = -1; y <= 1; ++y)
-                {
-                    float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
-                    shadow += currentDepth > cloestDepth ? 1.0 : 0.0; 
-                }    
-            }
-            shadow /= 9.0;
-        }else{
+        if(enableVSM){
             vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex));
             //calculate variance from the moments
 	        float E_x2 = moments.y;
@@ -210,6 +199,17 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	        //to the first moment and the retured value is less than the calculated
 	        //maximum probability
 	        shadow = -max(p_max, (currentDepth <= moments.x) ? 1.0 : 0.2) + 1.0; 
+        }else{
+            vec2 texelSize = 1.0 / textureSize(directionalShadowMap, 0).xy;
+            for(int x = -1; x <= 1; ++x)
+            {
+                for(int y = -1; y <= 1; ++y)
+                {
+                    float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
+                    shadow += currentDepth > cloestDepth ? 1.0 : 0.0; 
+                }    
+            }
+            shadow /= 9.0;
         }
     }else{
         float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;

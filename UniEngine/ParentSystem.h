@@ -6,6 +6,8 @@ namespace UniEngine {
 	{
 		void CalculateLTW(LocalToWorld pltw, Entity entity);
 	public:
+		void OnCreate();
+		void OnDestroy();
 		void Update();
 	};
 }

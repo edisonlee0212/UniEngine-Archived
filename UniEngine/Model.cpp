@@ -16,6 +16,6 @@ ModelNode* UniEngine::Model::RootNode()
 
 UniEngine::ModelNode::~ModelNode()
 {
-    EntityManager::DeleteEntity(Node);
+    for (auto i : _MeshMaterialComponents) delete i;
     for (auto i : Children) delete i;
 }

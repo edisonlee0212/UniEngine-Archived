@@ -73,6 +73,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		RenderManager::_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
 		program->Bind();
+		program->SetBool("enableVSM", LightingManager::_EnableVSM);
 		program->SetBool("enableSplitDisplay", _EnableSplitDisplay);
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);
@@ -161,6 +162,7 @@ void UniEngine::RenderManager::DrawMesh(
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Bind();
+		program->SetBool("enableVSM", LightingManager::_EnableVSM);
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);
 		program->SetBool("receiveShadow", receiveShadow);

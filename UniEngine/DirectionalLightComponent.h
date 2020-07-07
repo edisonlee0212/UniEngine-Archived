@@ -18,6 +18,7 @@ namespace UniEngine {
 		glm::vec3 specular;
 		float depthBias = 0.01f;
 		float normalOffset = 0.001f;
+		bool softShadow = false;
 		size_t GetHashCode();
 	};
 

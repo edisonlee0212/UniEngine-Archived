@@ -19,9 +19,6 @@
     <Filter Include="Header Files\Resource\Asset">
       <UniqueIdentifier>{4f8380f0-a61e-404d-bf0d-fbe6f52c6184}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resource\Asset\Scene">
-      <UniqueIdentifier>{0a83b809-7ca6-4e4b-90f2-2d2f5ba874c3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Resource\Manager">
       <UniqueIdentifier>{5f364dd2-ef88-4cb5-b742-359d46d2ccc7}</UniqueIdentifier>
     </Filter>
@@ -39,9 +36,6 @@
     </Filter>
     <Filter Include="Source Files\Resource\Asset">
       <UniqueIdentifier>{044ca4de-41cf-4918-9b9c-9db261496f37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\Asset\Scene">
-      <UniqueIdentifier>{75dfd9a0-6d65-4aed-9995-fb8b8cbe66f2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Resource\Manager">
       <UniqueIdentifier>{a5deae8c-3e4f-4595-822d-d86fd9a44f03}</UniqueIdentifier>
@@ -92,12 +86,6 @@
     </ClInclude>
     <ClInclude Include="UniEngine.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files\Resource\Asset\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneNode.h">
-      <Filter>Header Files\Resource\Asset\Scene</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>Header Files\Resource\Manager\Input</Filter>
@@ -223,12 +211,6 @@
     </ClCompile>
     <ClCompile Include="UniEngine.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files\Resource\Asset\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneNode.cpp">
-      <Filter>Source Files\Resource\Asset\Scene</Filter>
     </ClCompile>
     <ClCompile Include="InputManager.cpp">
       <Filter>Source Files\Resource\Manager\Input</Filter>

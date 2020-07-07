@@ -86,3 +86,4 @@ uniform sampler2DArray directionalShadowMap;
 uniform samplerCubeArrayShadow pointShadowMap;
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;
+uniform bool enableVSM;

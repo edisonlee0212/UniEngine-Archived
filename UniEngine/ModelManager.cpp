@@ -22,29 +22,40 @@ Model* UniEngine::ModelManager::LoadModel(std::string const& path, GLProgram* sh
     std::string directory = path.substr(0, path.find_last_of('/'));
     std::vector<Texture2D*>* Texture2DsLoaded = new std::vector<Texture2D*>();
     Model* retVal = new Model();
-    EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
-    Entity entity = EntityManager::CreateEntity(archetype);
-    retVal->RootNode()->Node = entity;
     ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
     return retVal;
+}
+
+Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, Model* model)
+{
+    Entity entity = EntityManager::CreateEntity(archetype);
+    LocalToWorld ltw;
+    ModelNode* modelNode = model->RootNode();
+    ltw.value = modelNode->_LocalToParent;
+    EntityManager::SetComponentData<LocalToWorld>(entity, ltw);
+    for (auto i : modelNode->_MeshMaterialComponents) {
+        EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, i);
+    }
+    for (auto i : modelNode->Children) {
+        AttachChildren(archetype, i, entity);
+    }
+    return entity;
 }
 
 void ModelManager::ProcessNode(std::string directory, GLProgram* program, ModelNode* modelNode, std::vector<Texture2D*>* Texture2DsLoaded, aiNode* node, const aiScene* scene)
 {
     for (unsigned i = 0; i < node->mNumMeshes; i++)
     {
-        // the node object only contains indices to index the actual objects in the scene. 
-        // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+        // the modelNode object only contains indices to index the actual objects in the scene. 
+        // the scene contains all the data, modelNode is just to keep stuff organized (like relations between nodes).
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        auto entity = ReadMesh(directory, program, Texture2DsLoaded, mesh, scene);
-        entities.push_back(entity);
-        modelNode->Node = entity;
-        LocalScale ls;
-        ls.value = glm::vec3(1.0f); 
-        EntityManager::SetComponentData<LocalPosition>(entity, LocalPosition());
-        EntityManager::SetComponentData<LocalRotation>(entity, LocalRotation());
-        EntityManager::SetComponentData<LocalScale>(entity, ls);
-        //EntityManager::SetParent(entity, parent);
+        ReadMesh(i, modelNode, directory, program, Texture2DsLoaded, mesh, scene);
+        modelNode->_LocalToParent = glm::mat4(
+            node->mTransformation.a1, node->mTransformation.a2, node->mTransformation.a3, node->mTransformation.a4,
+            node->mTransformation.b1, node->mTransformation.b2, node->mTransformation.b3, node->mTransformation.b4,
+            node->mTransformation.c1, node->mTransformation.c2, node->mTransformation.c3, node->mTransformation.c4,
+            node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3, node->mTransformation.d4
+        );
     }
     for (unsigned i = 0; i < node->mNumChildren; i++)
     {
@@ -55,9 +66,7 @@ void ModelManager::ProcessNode(std::string directory, GLProgram* program, ModelN
     }
 }
 
-Entity ModelManager::ReadMesh(std::string directory, GLProgram* program, std::vector<Texture2D*>* Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
-    EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
-    Entity entity = EntityManager::CreateEntity(archetype);
+void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string directory, GLProgram* program, std::vector<Texture2D*>* Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
     unsigned mask = 1;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
@@ -188,13 +197,10 @@ Entity ModelManager::ReadMesh(std::string directory, GLProgram* program, std::ve
     // 4. height maps
     std::vector<Texture2D*> heightMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_AMBIENT, TextureType::HEIGHT);
     Texture2Ds->insert(Texture2Ds->end(), heightMaps.begin(), heightMaps.end());
-    
-    
-    MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
-    meshMaterial->_Mesh = mesh;
-    meshMaterial->_Material = material;
-    EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
-    return entity;
+    MeshMaterialComponent* mmc = new MeshMaterialComponent();
+    mmc->_Mesh = mesh;
+    mmc->_Material = material;
+    modelNode->_MeshMaterialComponents.push_back(mmc);
 }
 std::vector<Texture2D*> ModelManager::LoadMaterialTextures(std::string directory, std::vector<Texture2D*>* Texture2DsLoaded, aiMaterial* mat, aiTextureType type, TextureType typeName)
 {
@@ -223,4 +229,19 @@ std::vector<Texture2D*> ModelManager::LoadMaterialTextures(std::string directory
         }
     }
     return Texture2Ds;
+}
+
+void UniEngine::ModelManager::AttachChildren(EntityArchetype archetype, ModelNode* modelNode, Entity parentEntity)
+{
+    Entity entity = EntityManager::CreateEntity(archetype);
+    EntityManager::SetParent(entity, parentEntity);
+    LocalToParent ltp;
+    ltp.value = modelNode->_LocalToParent;
+    EntityManager::SetComponentData<LocalToParent>(entity, ltp);
+    for (auto i : modelNode->_MeshMaterialComponents) {
+        EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, i);
+    }
+    for (auto i : modelNode->Children) {
+        AttachChildren(archetype, i, entity);
+    }
 }

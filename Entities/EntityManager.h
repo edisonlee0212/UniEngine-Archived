@@ -44,10 +44,14 @@ namespace UniEngine {
 			static std::vector<Entity> GetChildren(Entity entity);
 			static void RemoveChild(Entity entity, Entity parent);
 
+
+
 			template<typename T>
 			static void SetComponentData(Entity entity, T value);
 			template<typename T>
 			static T GetComponentData(Entity entity);
+			template<typename T>
+			static bool HasComponentData(Entity entity);
 
 			template <typename T>
 			static T* GetSharedComponent(Entity entity);
@@ -55,6 +59,9 @@ namespace UniEngine {
 			static void SetSharedComponent(Entity entity, T* value);
 			template <typename T>
 			static bool RemoveSharedComponent(Entity entity);
+			template <typename T>
+			static bool HasSharedComponent(Entity entity);
+
 
 			template <typename T>
 			static std::vector<Entity>* QueryEntities(T* value);
@@ -145,15 +152,23 @@ namespace UniEngine {
 				unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 				ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 				unsigned offset = 0;
+				bool found = false;
 				size_t id = typeid(T).hash_code();
 				for (int i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
 					if (id == chunkInfo->ComponentTypes[i].TypeID) {
 						offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
 						offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
+						found = true;
 						break;
 					}
 				}
-				chunk.SetData<T>(offset, value);
+				if (found) {
+					chunk.SetData<T>(offset, value);
+				}
+				else {
+					Debug::Log("ComponentData doesn't exist");
+					return;
+				}
 			}
 			else {
 				Debug::Error("Entity already deleted!");
@@ -171,19 +186,60 @@ namespace UniEngine {
 				unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 				ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 				unsigned offset = 0;
+				bool found = false;
 				size_t id = typeid(T).hash_code();
 				for (int i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
 					if (id == chunkInfo->ComponentTypes[i].TypeID) {
 						offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
 						offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
+						found = true;
 						break;
 					}
 				}
-				return chunk.GetData<T>(offset);
+				if (found) {
+					return chunk.GetData<T>(offset);
+				}
+				else {
+					Debug::Log("ComponentData doesn't exist");
+					return T();
+				}
 			}
 			else {
 				Debug::Error("Entity already deleted!");
 				return T();
+			}
+		}
+		template<typename T>
+		inline bool EntityManager::HasComponentData(Entity entity)
+		{
+			if (entity.IsNull()) return false;
+			EntityInfo info = _EntityInfos->at(entity.Index);
+			if (_Entities->at(entity.Index) == entity) {
+				EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+				unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+				unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+				ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+				unsigned offset = 0;
+				bool found = false;
+				size_t id = typeid(T).hash_code();
+				for (int i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
+					if (id == chunkInfo->ComponentTypes[i].TypeID) {
+						offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
+						offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
+						found = true;
+						break;
+					}
+				}
+				if (found) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			else {
+				Debug::Error("Entity already deleted!");
+				return false;
 			}
 		}
 		template<typename T>
@@ -203,6 +259,12 @@ namespace UniEngine {
 		{
 			if (entity.IsNull()) return false;
 			return _EntitySharedComponentStorage->RemoveSharedComponent<T>(entity);
+		}
+		template<typename T>
+		inline bool EntityManager::HasSharedComponent(Entity entity)
+		{
+			if (entity.IsNull()) return nullptr;
+			return _EntitySharedComponentStorage->GetSharedComponent<T>(entity) != nullptr;
 		}
 		template<typename T>
 		inline std::vector<Entity>* EntityManager::QueryEntities(T* value)

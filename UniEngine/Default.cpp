@@ -136,26 +136,26 @@ void UniEngine::Default::Load(World* world)
 
 
 	Model* model = ModelManager::LoadModel(FileIO::GetPath("Primitives/quad.obj"));
-	Primitives::Quad = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
-	delete model;
+	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/sphere.obj"));
-	Primitives::Sphere = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
-	delete model;
+	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cube.obj"));
-	Primitives::Cube = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
-	delete model;
+	Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cone.obj"));
-	Primitives::Cone = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
-	delete model;
+	Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cylinder.obj"));
-	Primitives::Cylinder = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
-	delete model;
+	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/monkey.obj"));
-	Primitives::Monkey = EntityManager::GetSharedComponent<MeshMaterialComponent>(model->RootNode()->Children[0]->Node)->_Mesh;
-	delete model;
+	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	//delete model;
 }
