@@ -304,6 +304,7 @@ void UniEngine::LightingManager::Start()
 			for (int i = 0; i < size; i++) {
 				_DirectionalLightProgram->Bind();
 				_DirectionalLightProgram->SetInt("index", i);
+				_DirectionalLightProgram->SetBool("enableVSM", _EnableVSM);
 				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
@@ -338,6 +339,7 @@ void UniEngine::LightingManager::Start()
 
 				_DirectionalLightInstancedProgram->Bind();
 				_DirectionalLightInstancedProgram->SetInt("index", i);
+				_DirectionalLightInstancedProgram->SetBool("enableVSM", _EnableVSM);
 				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {

@@ -32,7 +32,7 @@ int main()
 	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
 	ts->Enable();
 
-	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 500.0f);
+	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 200.0f);
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
 
@@ -65,6 +65,7 @@ int main()
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
 	dlc->diffuse = glm::vec3(0.25f);
 	dlc->specular = glm::vec3(0.2f);
+	dlc->softShadow = true;
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);

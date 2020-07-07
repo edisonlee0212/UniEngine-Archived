@@ -31,6 +31,13 @@ namespace UniEngine {
 			GLenum format,
 			GLenum type,
 			const void* data);
+
+		void SetStorage2D(GLint level,
+			GLint internalformat,
+			GLsizei width,
+			GLsizei height
+		);
+
 		void SetImage3D(GLint level,
 			GLint internalformat,
 			GLsizei width,
@@ -40,6 +47,12 @@ namespace UniEngine {
 			GLenum format,
 			GLenum type,
 			const void* data);
+
+		void SetStorage2DArray(GLint level,
+			GLint internalformat,
+			GLsizei width,
+			GLsizei height,
+			GLsizei layer);
 
 		void SetImage2DArray(GLint level,
 			GLint internalformat,

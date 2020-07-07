@@ -29,10 +29,22 @@ void UniEngine::GLTexture::SetImage2D(GLint level, GLint internalformat, GLsizei
 	glTexImage2D(GL_TEXTURE_2D, level, internalformat, width, height, border, format, type, data);
 }
 
+void UniEngine::GLTexture::SetStorage2D(GLint level, GLint internalformat, GLsizei width, GLsizei height)
+{
+	Bind(GL_TEXTURE_3D);
+	glTexStorage2D(GL_TEXTURE_2D, level, internalformat, width, height);
+}
+
 void UniEngine::GLTexture::SetImage3D(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void* data)
 {
 	Bind(GL_TEXTURE_3D);
 	glTexImage3D(GL_TEXTURE_3D, level, internalformat, width, height, depth, border, format, type, data);
+}
+
+void UniEngine::GLTexture::SetStorage2DArray(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei layer)
+{
+	Bind(GL_TEXTURE_2D_ARRAY);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, level, internalformat, width, height, layer);
 }
 
 void UniEngine::GLTexture::SetCubeMap(CubeMapIndex index, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data)
@@ -59,6 +71,8 @@ void UniEngine::GLTexture::SetImage2DArray(GLint level, GLint internalformat, GL
 	Bind(GL_TEXTURE_2D_ARRAY);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, level, internalformat, width, height, layer, border, format, type, data);
 }
+
+
 
 void UniEngine::GLTexture::SetCubeMapArray(GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei layer, GLint border, GLenum format, GLenum type, const void* data)
 {
