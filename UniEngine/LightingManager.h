@@ -51,12 +51,16 @@ namespace UniEngine {
 
 		static GLTexture* _DLVSMVFilter;
 		static bool _EnableVSM;
+		static bool _StableFit;
+		static float _MaxShadowDistance;
 	public:
 		static void Init();
 		static void Start();
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetDirectionalLightResolution(float value);
 		static void SetEnableVSM(bool value);
+		static void SetStableFit(bool value);
+		static void SetMaxShadowDistance(float value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 
 		static void SetMainCamera(Entity entity);

@@ -30,7 +30,7 @@ void main()
 
     vec3 color = texture(TEXTURE_DIFFUSE[0], fs_in.TexCoords).rgb;
     // ambient
-    vec3 ambient = 0.3 * color;
+    vec3 ambient = 0.1 * color;
 
     
     float distance = distance(fs_in.FragPos, CameraPosition);
