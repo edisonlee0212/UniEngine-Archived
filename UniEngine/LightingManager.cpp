@@ -7,23 +7,24 @@ using namespace UniEngine;
 GLUBO* LightingManager::_DirectionalLightBlock;
 DirectionalLight LightingManager::_DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 DirectionalLightShadowMap* LightingManager::_DirectionalLightShadowMap;
+RenderTarget* LightingManager::_DirectionalLightShadowMapFilter;
+GLTexture* LightingManager::_DLVSMVFilter;
+
 GLProgram* LightingManager::_DirectionalLightProgram;
 GLProgram* LightingManager::_DirectionalLightInstancedProgram;
-
 GLProgram* LightingManager::_DirectionalLightVFilterProgram;
 GLProgram* LightingManager::_DirectionalLightHFilterProgram;
 
-float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.1f, 0.3f, 0.6f, 1.0f };
-float LightingManager::_MaxShadowDistance = 300;
 GLUBO* LightingManager::_ShadowCascadeInfoBlock;
 ShadowCascadeInfo LightingManager::_ShadowCascadeInfo;
-unsigned LightingManager::_DirectionalShadowMapResolution = 512;
-RenderTarget* LightingManager::_DirectionalLightShadowMapFilter;
 
-GLTexture* LightingManager::_DLVSMVFilter;
-bool LightingManager::_EnableVSM;
-bool LightingManager::_StableFit;
-float LightingManager::_SeamFixRatio;
+//Settings
+float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.2f, 0.4f, 0.8f, 1.0f };
+float LightingManager::_MaxShadowDistance = 500;
+unsigned LightingManager::_DirectionalShadowMapResolution = 512;
+bool LightingManager::_EnableVSM = true;
+bool LightingManager::_StableFit = true;
+float LightingManager::_SeamFixRatio = 0.1f;
 #pragma endregion
 
 

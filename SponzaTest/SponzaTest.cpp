@@ -21,9 +21,9 @@ int main()
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetEnableVSM(true);
 	LightingManager::SetStableFit(true);
-	LightingManager::SetSeamFixRatio(0.05f);
-	LightingManager::SetMaxShadowDistance(500);
-	LightingManager::SetSplitRatio(0.2f, 0.4f, 0.8f, 1.0f);
+	LightingManager::SetSeamFixRatio(0.1f);
+	LightingManager::SetMaxShadowDistance(400);
+	LightingManager::SetSplitRatio(0.1f, 0.3f, 0.6f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 
