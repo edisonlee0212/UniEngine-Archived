@@ -53,6 +53,7 @@ namespace UniEngine {
 		static bool _EnableVSM;
 		static bool _StableFit;
 		static float _MaxShadowDistance;
+		static float _SeamFixRatio;
 	public:
 		static void Init();
 		static void Start();
@@ -60,6 +61,7 @@ namespace UniEngine {
 		static void SetDirectionalLightResolution(float value);
 		static void SetEnableVSM(bool value);
 		static void SetStableFit(bool value);
+		static void SetSeamFixRatio(float value);
 		static void SetMaxShadowDistance(float value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 

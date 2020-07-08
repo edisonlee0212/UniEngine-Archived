@@ -77,6 +77,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		program->SetBool("enableSplitDisplay", _EnableSplitDisplay);
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);
+		program->SetFloat("seamFixRatio", LightingManager::_SeamFixRatio);
 		program->SetBool("receiveShadow", receiveShadow);
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {
@@ -163,6 +164,7 @@ void UniEngine::RenderManager::DrawMesh(
 		auto program = programs->at(i);
 		program->Bind();
 		program->SetBool("enableVSM", LightingManager::_EnableVSM);
+		program->SetFloat("seamFixRatio", LightingManager::_SeamFixRatio);
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);
 		program->SetBool("receiveShadow", receiveShadow);

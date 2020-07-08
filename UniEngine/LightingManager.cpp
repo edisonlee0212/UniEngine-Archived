@@ -23,6 +23,7 @@ RenderTarget* LightingManager::_DirectionalLightShadowMapFilter;
 GLTexture* LightingManager::_DLVSMVFilter;
 bool LightingManager::_EnableVSM;
 bool LightingManager::_StableFit;
+float LightingManager::_SeamFixRatio;
 #pragma endregion
 
 
@@ -530,6 +531,11 @@ void UniEngine::LightingManager::SetEnableVSM(bool value)
 void UniEngine::LightingManager::SetStableFit(bool value)
 {
 	_StableFit = true;
+}
+
+void UniEngine::LightingManager::SetSeamFixRatio(float value)
+{
+	_SeamFixRatio = value;
 }
 
 void UniEngine::LightingManager::SetMaxShadowDistance(float value)

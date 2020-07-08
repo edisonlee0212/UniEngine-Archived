@@ -87,3 +87,4 @@ uniform samplerCubeArrayShadow pointShadowMap;
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;
 uniform bool enableVSM;
+uniform float seamFixRatio;
