@@ -21,7 +21,10 @@ int main()
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetEnableVSM(true);
-	LightingManager::SetSplitRatio(0.1f, 0.15f, 0.3f, 1.0f);
+	LightingManager::SetStableFit(true);
+	LightingManager::SetSeamFixRatio(0.1f);
+	LightingManager::SetMaxShadowDistance(400);
+	LightingManager::SetSplitRatio(0.1f, 0.3f, 0.6f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 	
@@ -32,7 +35,7 @@ int main()
 	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
 	ts->Enable();
 
-	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 200.0f);
+	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 500.0f);
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
 
@@ -48,7 +51,7 @@ int main()
 
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
 	ccs->SetSensitivity(0.1f);
-	ccs->SetVelocity(5.0f);
+	ccs->SetVelocity(15.0f);
 	ccs->Enable();
 	ccs->SetTargetCamera(cameraEntity);
 	
@@ -159,7 +162,7 @@ void InitGround() {
 	Position translation = Position();
 	translation.value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();
-	scale.value = glm::vec3(40.0f);
+	scale.value = glm::vec3(100.0f);
 	EntityManager::SetComponentData<Position>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 

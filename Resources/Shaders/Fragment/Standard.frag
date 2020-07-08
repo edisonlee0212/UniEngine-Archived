@@ -172,6 +172,25 @@ vec3 gridSamplingDisk[20] = vec3[]
    vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
 );
 
+
+float Chebyshev(vec2 moments, float mean, float minVariance)
+{
+    float shadow = 1.0f;
+    if(mean <= moments.x)
+    {
+        shadow = 1.0f;
+        return shadow;
+    }
+    else
+    {
+        float variance = moments.y - (moments.x * moments.x);
+        variance = max(variance, minVariance);
+        float d = mean - moments.x;
+        shadow = variance / (variance + (d * d));
+        return shadow;
+    }
+}
+
 float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec4 fragPosLightSpace, vec3 normal)
 {
     vec3 lightDir = light.direction;
@@ -198,26 +217,19 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
         // check whether current frag pos is in shadow
         // PCF
         if(enableVSM){
-            vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex));
+            vec2 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rg;
             //calculate variance from the moments
-	        float E_x2 = moments.y;
-	        float Ex_2 = moments.x * moments.x;
-	        float var = E_x2 - Ex_2;
+            float E_x2 = moments.y;
+            float Ex_2 = moments.x * moments.x;
+            float var = E_x2 - Ex_2;
 
-	        //bias the variance
-	        var = max(var, 0.00002);
+            //bias the variance
+            var = max(var, 0.00002);
 
-	        //subtract the fragment depth from the  first moment
-	        //divide variance by the squared difference value
-	        //to get the maximum probability of fragment to be in shadow
-	        float mD = currentDepth - moments.x;
-	        float mD_2 = mD * mD; 
-            float p_max = var / (var + mD_2); 
-
-	        //darken the diffuse component if the current depth is less than or equal
-	        //to the first moment and the retured value is less than the calculated
-	        //maximum probability
-	        shadow = 1.0 - max(p_max, (currentDepth <= moments.x) ? 1.0 : 0.2); 
+            //darken the diffuse component if the current depth is less than or equal
+            //to the first moment and the retured value is less than the calculated
+            //maximum probability
+            shadow = 1.0 - max(Chebyshev(moments, currentDepth, var), (currentDepth <= moments.x) ? 1.0 : 0.0); 
         }else{
             float texelSize = 1.0 / textureSize(directionalShadowMap, 0).x;
             for(int x = -1; x <= 1; ++x)

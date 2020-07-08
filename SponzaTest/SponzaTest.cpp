@@ -17,7 +17,7 @@ float lightAngle6 = 0;
 float lightAngle7 = 0;
 int main()
 {
-	Engine* engine = new Engine();
+ 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetEnableVSM(true);
 	LightingManager::SetStableFit(true);
