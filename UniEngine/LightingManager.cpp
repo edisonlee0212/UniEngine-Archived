@@ -223,7 +223,7 @@ void UniEngine::LightingManager::Start()
 					glm::vec3 cameraFrustumCenter = camera->_Front * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
 					if (_StableFit) {
 						//Less detail but no shimmering when rotating the camera.
-						max = glm::max(max, glm::distance(cornerPoints[4], cameraFrustumCenter));
+						max = (splitEnd - splitStart) / 1.41f;
 					}
 					else {
 						//More detail but cause shimmering when rotating camera. 

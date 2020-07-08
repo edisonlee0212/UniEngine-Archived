@@ -217,9 +217,9 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	        //darken the diffuse component if the current depth is less than or equal
 	        //to the first moment and the retured value is less than the calculated
 	        //maximum probability
-	        shadow = -max(p_max, (currentDepth <= moments.x) ? 1.0 : 0.2) + 1.0; 
+	        shadow = 1.0 - max(p_max, (currentDepth <= moments.x) ? 1.0 : 0.2); 
         }else{
-            vec2 texelSize = 1.0 / textureSize(directionalShadowMap, 0).xy;
+            float texelSize = 1.0 / textureSize(directionalShadowMap, 0).x;
             for(int x = -1; x <= 1; ++x)
             {
                 for(int y = -1; y <= 1; ++y)
