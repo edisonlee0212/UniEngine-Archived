@@ -75,7 +75,7 @@ vec3 CalculateLights(float distance, vec3 normal, vec3 viewDir, vec3 fragPos){
             shadow = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
         }
         
-        result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (1.0 - shadow);
+        result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * shadow;
     }
     // phase 2: point lights
     for(int i = 0; i < PointLightCount; i++){
@@ -169,7 +169,7 @@ float ReduceLightBleed(float p_max, float amount) {
 
 float Chebyshev(vec2 moments, float depth)
 {
-    if (depth > moments.x) {
+    if (depth <= moments.x) {
 		return 1.0;
 	}
 
@@ -179,7 +179,7 @@ float Chebyshev(vec2 moments, float depth)
 	float d = depth - moments.x; // attenuation
 	float p_max = variance / (variance + d * d);
 
-	return 1.0 - ReduceLightBleed(p_max, 0.1);
+	return ReduceLightBleed(p_max, 0.1);
 }
 
 float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec4 fragPosLightSpace, vec3 normal)
@@ -212,7 +212,7 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
                 vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rgba;
                 float depth = currentDepth * 2.0 - 1.0;
                 float pos = exp(40.0 * depth);
-                float neg = exp(-40.0 * depth);
+                float neg = -exp(-40.0 * depth);
                 float posShadow = Chebyshev(moments.xy, pos);
 		        float negShadow = Chebyshev(moments.zw, neg);
 		        shadow = min(posShadow, negShadow);
@@ -221,7 +221,7 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
                 //darken the diffuse component if the current depth is less than or equal
                 //to the first moment and the retured value is less than the calculated
                 //maximum probability
-                shadow = 1.0 - max(Chebyshev(moments, currentDepth), (currentDepth <= moments.x) ? 1.0 : 0.0);
+                shadow = Chebyshev(moments, currentDepth);
             }
         }else{
             float texelSize = 1.0 / textureSize(directionalShadowMap, 0).x;
@@ -230,14 +230,14 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
                 for(int y = -1; y <= 1; ++y)
                 {
                     float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
-                    shadow += currentDepth > cloestDepth ? 1.0 : 0.0; 
+                    shadow += currentDepth <= cloestDepth ? 1.0 : 0.0; 
                 }    
             }
             shadow /= 9.0;
         }
     }else{
         float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;
-        shadow += currentDepth > cloestDepth ? 1.0 : 0.0; 
+        shadow += currentDepth <= cloestDepth ? 1.0 : 0.0; 
     }
     return shadow;
 }
