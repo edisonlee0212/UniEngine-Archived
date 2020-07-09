@@ -39,5 +39,5 @@ void main()
 		color += sp;
 	}
 	//return the filtered colour as fragment output
-    vFragColor = vec4(color, 0, 1);
+    vFragColor = vec4(color, texture(textureMapArray, vec3(vs_in.TexCoords.x, vs_in.TexCoords.y, vs_in.splitIndex)).b, 1);
 }

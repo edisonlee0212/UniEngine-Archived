@@ -79,6 +79,8 @@ void UniEngine::LightingManager::Init()
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
 	std::string fragShaderCode = std::string("#version 460 core\n") +
+		"\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(Default::ShaderIncludes::MaxDirectionalLightAmount) +
+		"\n" +
 		FileIO::LoadFileAsString("Shaders/Fragment/DirectionalLightShadowMap.frag");
 	std::string geomShaderCode = std::string("#version 460 core\n") +
 		"\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(Default::ShaderIncludes::MaxDirectionalLightAmount) +
@@ -308,7 +310,7 @@ void UniEngine::LightingManager::Start()
 					glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RGBA, GL_FLOAT, NULL);
 				}
 				else {
-					glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RG, GL_FLOAT, NULL);
+					glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RGB, GL_FLOAT, NULL);
 				}
 			}
 			else {
@@ -568,6 +570,21 @@ void UniEngine::LightingManager::SetSeamFixRatio(float value)
 void UniEngine::LightingManager::SetMaxShadowDistance(float value)
 {
 	_MaxShadowDistance = value;
+}
+
+void UniEngine::LightingManager::SetVSMMaxVariance(float value)
+{
+	_ShadowSettings.VSMMaxVariance = value;
+}
+
+void UniEngine::LightingManager::SetLightBleedControlFactor(float value)
+{
+	_ShadowSettings.LightBleedFactor = value;
+}
+
+void UniEngine::LightingManager::SetEVSMExponent(float value)
+{
+	_ShadowSettings.EVSMExponent = value;
 }
 
 glm::vec3 UniEngine::LightingManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)

@@ -68,6 +68,10 @@ layout (std140, binding = 4) uniform ShadowSettings
 	float EnableEVSM;
 	float DisplaySplit;
 	float SeamFixRatio;
+    float VSMMaxVariance;
+    float LightBleedFactor;
+    float EVSMExponent;
+    float Paddings;
 };
 
 //Material

@@ -19,12 +19,17 @@ int main()
 {
  	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetEnableVSM(false);
+	LightingManager::SetEnableVSM(true);
 	LightingManager::SetStableFit(true);
-	LightingManager::SetEnableEVSM(true);
-	LightingManager::SetSeamFixRatio(0.1f);
+	LightingManager::SetEnableEVSM(false);
+	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(400);
-	LightingManager::SetSplitRatio(0.1f, 0.3f, 0.6f, 1.0f);
+
+	LightingManager::SetVSMMaxVariance(0.01f);
+	LightingManager::SetLightBleedControlFactor(0.7f);
+	LightingManager::SetEVSMExponent(40.0f);
+
+	LightingManager::SetSplitRatio(0.1f, 0.2f, 0.4f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 

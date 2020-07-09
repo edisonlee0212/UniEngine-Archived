@@ -17,6 +17,10 @@ namespace UniEngine {
 		float EnableEVSM = 0.0f;
 		float DisplaySplit = 0.0f;
 		float SeamFixRatio = 0.1f;
+		float VSMMaxVariance = 0.01f;
+		float LightBleedFactor = 0.5f;
+		float EVSMExponent = 40.0f;
+		float Paddings = 0.0f;
 	};
 
 	class UNIENGINE_API LightingManager :
@@ -67,6 +71,9 @@ namespace UniEngine {
 		static void SetStableFit(bool value);
 		static void SetSeamFixRatio(float value);
 		static void SetMaxShadowDistance(float value);
+		static void SetVSMMaxVariance(float value);
+		static void SetLightBleedControlFactor(float value);
+		static void SetEVSMExponent(float value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 
 		static void SetMainCamera(Entity entity);

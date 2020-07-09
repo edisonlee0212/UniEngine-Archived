@@ -184,12 +184,12 @@ float Chebyshev(vec2 moments, float depth)
 	}
 
 	float variance = moments.y - (moments.x * moments.x);
-	variance = max(variance, 0.01 / 1000.0);
+	variance = max(variance, VSMMaxVariance / 1000.0);
 
 	float d = depth - moments.x; // attenuation
 	float p_max = variance / (variance + d * d);
 
-	return ReduceLightBleed(p_max, 0.1);
+	return ReduceLightBleed(p_max, LightBleedFactor);
 }
 
 float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec4 fragPosLightSpace, vec3 normal)
@@ -221,17 +221,20 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
             if(EnableEVSM != 0){
                 vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex));
                 float depth = currentDepth * 2.0 - 1.0;
-                float pos = exp(20.0 * depth);
-                float neg = -exp(-20.0 * depth);
+                float pos = exp(EVSMExponent * depth);
+                float neg = -exp(-EVSMExponent * depth);
                 float posShadow = Chebyshev(moments.xy, pos);
 		        float negShadow = Chebyshev(moments.zw, neg);
 		        shadow = min(posShadow, negShadow);
             }else{
-                vec2 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rg;
+                vec3 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rgb;
                 //darken the diffuse component if the current depth is less than or equal
                 //to the first moment and the retured value is less than the calculated
                 //maximum probability
-                shadow = Chebyshev(moments, currentDepth);
+                if(currentDepth > moments.z) {
+                    return 0.0;
+                }
+                shadow = Chebyshev(moments.xy, currentDepth);
             }
         }else{
             float texelSize = 1.0 / textureSize(directionalShadowMap, 0).x;
