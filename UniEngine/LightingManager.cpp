@@ -180,6 +180,7 @@ void UniEngine::LightingManager::Start()
 {
 	Camera* camera = _TargetMainCamera->Value;
 	glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
+	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(_TargetMainCameraEntity).value;
 	auto worldBound = _World->GetBound();
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;
@@ -217,8 +218,8 @@ void UniEngine::LightingManager::Start()
 					glm::vec3 lightPos;
 #pragma region AABB
 					glm::vec3 cornerPoints[8];
-					camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cornerPoints);
-					glm::vec3 cameraFrustumCenter = camera->_Front * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
+					camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cameraRot, cornerPoints);
+					glm::vec3 cameraFrustumCenter = (cameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
 					if (_StableFit) {
 						//Less detail but no shimmering when rotating the camera.
 						//max = glm::distance(cornerPoints[4], cameraFrustumCenter);

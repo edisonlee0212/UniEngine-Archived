@@ -7,9 +7,9 @@ using namespace UniEngine;
 GLUBO* Camera::_CameraData;
 CameraInfoBlock Camera::_MainCameraInfoBlock;
 
-void UniEngine::Camera::CalculatePlanes(Plane* planes)
+void UniEngine::Camera::CalculatePlanes(Plane* planes, glm::mat4 projection, glm::mat4 view)
 {
-	glm::mat4 comboMatrix = _Projection * glm::transpose(_View);
+	glm::mat4 comboMatrix = projection * glm::transpose(view);
 
 	planes[0].a = comboMatrix[3][0] + comboMatrix[0][0];
 	planes[0].b = comboMatrix[3][1] + comboMatrix[0][1];
@@ -50,10 +50,13 @@ void UniEngine::Camera::CalculatePlanes(Plane* planes)
 
 }
 
-void UniEngine::Camera::CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::vec3* points)
+void UniEngine::Camera::CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3* points)
 {
-	glm::vec3 nearCenter = _Front * nearPlane;
-	glm::vec3 farCenter = _Front * farPlane;
+	glm::vec3 front = cameraRot * glm::vec3(0, 0, -1);
+	glm::vec3 right = cameraRot * glm::vec3(1, 0, 0);
+	glm::vec3 up = cameraRot * glm::vec3(0, 1, 0);
+	glm::vec3 nearCenter = front * nearPlane;
+	glm::vec3 farCenter = front * farPlane;
 
 	float e = tanf(glm::radians(_FOV * 0.5f));
 	float near_ext_y = e * nearPlane;
@@ -61,38 +64,14 @@ void UniEngine::Camera::CalculateFrustumPoints(float nearPlane, float farPlane, 
 	float far_ext_y = e * farPlane;
 	float far_ext_x = far_ext_y * _RenderTarget->GetResolutionRatio();
 
-	points[0] = cameraPos + nearCenter - _Right * near_ext_x - _Up * near_ext_y;
-	points[1] = cameraPos + nearCenter - _Right * near_ext_x + _Up * near_ext_y;
-	points[2] = cameraPos + nearCenter + _Right * near_ext_x + _Up * near_ext_y;
-	points[3] = cameraPos + nearCenter + _Right * near_ext_x - _Up * near_ext_y;
-	points[4] = cameraPos + farCenter - _Right * far_ext_x - _Up * far_ext_y;
-	points[5] = cameraPos + farCenter - _Right * far_ext_x + _Up * far_ext_y;
-	points[6] = cameraPos + farCenter + _Right * far_ext_x + _Up * far_ext_y;
-	points[7] = cameraPos + farCenter + _Right * far_ext_x - _Up * far_ext_y;
-}
-
-void UniEngine::Camera::UpdateMatrices(glm::vec3 position)
-{
-	// Calculate the new Front vector
-	glm::vec3 front;
-	front.x = cos(glm::radians(_Yaw)) * cos(glm::radians(_Pitch));
-	front.y = sin(glm::radians(_Pitch));
-	front.z = sin(glm::radians(_Yaw)) * cos(glm::radians(_Pitch));
-	_Front = glm::normalize(front);
-	// Also re-calculate the Right and Up vector
-	_Right = glm::normalize(glm::cross(_Front, glm::vec3(0.0f, 1.0f, 0.0f)));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-	_Up = glm::normalize(glm::cross(_Right, _Front));
-
-	_View = glm::lookAt(position, position + _Front, _Up);
-	auto ratio = _RenderTarget->GetResolutionRatio();
-	if (ratio == 0) return;
-	_Projection = glm::perspective(glm::radians(_FOV * 0.5f), ratio, _Near, _Far);
-
-	_MainCameraInfoBlock.position = glm::vec4(position, 0);
-	_MainCameraInfoBlock.projection = _Projection;
-	_MainCameraInfoBlock.view = _View;
-	_MainCameraInfoBlock.ReservedParameters = glm::vec4(_Near, _Far, _FOV, 0);
-	_CameraData->SubData(0, sizeof(CameraInfoBlock), &_MainCameraInfoBlock);
+	points[0] = cameraPos + nearCenter - right * near_ext_x - up * near_ext_y;
+	points[1] = cameraPos + nearCenter - right * near_ext_x + up * near_ext_y;
+	points[2] = cameraPos + nearCenter + right * near_ext_x + up * near_ext_y;
+	points[3] = cameraPos + nearCenter + right * near_ext_x - up * near_ext_y;
+	points[4] = cameraPos + farCenter - right * far_ext_x - up * far_ext_y;
+	points[5] = cameraPos + farCenter - right * far_ext_x + up * far_ext_y;
+	points[6] = cameraPos + farCenter + right * far_ext_x + up * far_ext_y;
+	points[7] = cameraPos + farCenter + right * far_ext_x - up * far_ext_y;
 }
 
 void UniEngine::Camera::GenerateMatrices()
@@ -107,7 +86,7 @@ RenderTarget* UniEngine::Camera::GetRenderTarget()
 	return _RenderTarget;
 }
 
-Camera::Camera(RenderTarget* renderTarget, float nearPlane, float farPlane) : _Front(glm::vec3(0.0f, 0.0f, -1.0f)), _FOV(DEFAULTFOV)
+Camera::Camera(RenderTarget* renderTarget, float nearPlane, float farPlane) : _FOV(DEFAULTFOV)
 {
 	_RenderTarget = renderTarget;
 	_Yaw = YAW;
@@ -116,7 +95,7 @@ Camera::Camera(RenderTarget* renderTarget, float nearPlane, float farPlane) : _F
 	_Far = farPlane;
 }
 
-void UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch)
+glm::quat UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch)
 {
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
@@ -132,6 +111,15 @@ void UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, float
 		if (_Pitch < -89.0f)
 			_Pitch = -89.0f;
 	}
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(_Yaw)) * cos(glm::radians(_Pitch));
+	front.y = sin(glm::radians(_Pitch));
+	front.z = sin(glm::radians(_Yaw)) * cos(glm::radians(_Pitch));
+	front = glm::normalize(front);
+	glm::vec3 right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+	glm::vec3 up = glm::normalize(glm::cross(right, front));
+	return glm::quatLookAt(front, up);
 }
 
 void UniEngine::Camera::ProcessMouseScroll(float yoffset)
@@ -151,4 +139,21 @@ void UniEngine::Plane::Normalize()
 	b /= mag;
 	c /= mag;
 	d /= mag;
+}
+
+void UniEngine::CameraInfoBlock::UpdateMatrices(Camera* camera, glm::vec3 position, glm::quat rotation)
+{
+	glm::vec3 front = rotation * glm::vec3(0, 0, -1);
+	glm::vec3 up = rotation * glm::vec3(0, 1, 0);
+	auto ratio = camera->GetRenderTarget()->GetResolutionRatio();
+	if (ratio == 0) return;
+	Projection = glm::perspective(glm::radians(camera->_FOV * 0.5f), ratio, camera->_Near, camera->_Far);
+	Position = glm::vec4(position, 0);
+	View = glm::lookAt(position, position + front, up);
+	ReservedParameters = glm::vec4(camera->_Near, camera->_Far, camera->_FOV, 0);
+}
+
+void UniEngine::CameraInfoBlock::UploadMatrices(GLUBO* target)
+{
+	target->SubData(0, sizeof(CameraInfoBlock), this);
 }

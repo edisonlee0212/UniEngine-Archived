@@ -41,6 +41,9 @@ int main()
 	Position pos;
 	pos.value = glm::vec3(0.0f, 5.0f, 10.0f);
 	EntityManager::SetComponentData<Position>(cameraEntity, pos);
+	Scale scale;
+	scale.value = glm::vec3(1.0f);
+	EntityManager::SetComponentData<Scale>(cameraEntity, scale);
 	CameraComponent* cameraComponent = new CameraComponent();
 	cameraComponent->Value = mainCamera;
 	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
@@ -86,7 +89,6 @@ int main()
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
 	dlmmc->_Mesh = Default::Primitives::Cylinder;
 	dlmmc->_Material = Default::Materials::StandardMaterial;
-	Scale scale;
 	scale.value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();

@@ -1,11 +1,12 @@
 #include "CameraControlSystem.h"
 
 void CameraControlSystem::Update()
-{
+{	
+	Rotation cameraRotation = EntityManager::GetComponentData<Rotation>(_TargetCameraEntity);
 	Position cameraPosition = EntityManager::GetComponentData<Position>(_TargetCameraEntity);
 	glm::vec3 position = cameraPosition.value;
-	glm::vec3 front = _TargetCamera->_Front;
-	glm::vec3 right = _TargetCamera->_Right;
+	glm::vec3 front = cameraRotation.value * glm::vec3(0, 0, -1);
+	glm::vec3 right = cameraRotation.value * glm::vec3(1, 0, 0);
 	if (InputManager::GetKey(GLFW_KEY_W)) {
 		position += glm::vec3(front.x, 0.0f, front.z) * (float)_Time->DeltaTime() * _Velocity;
 	}
@@ -38,7 +39,10 @@ void CameraControlSystem::Update()
 	_LastX = mousePosition.x;
 	_LastY = mousePosition.y;
 	if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
-		if (xoffset != 0 || yoffset != 0) _TargetCamera->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
+		if (xoffset != 0 || yoffset != 0) {
+			cameraRotation.value = _TargetCamera->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
+			EntityManager::SetComponentData<Rotation>(_TargetCameraEntity, cameraRotation); ;
+		}
 		mousePosition = InputManager::GetMouseScroll();
 		if (!startScroll) {
 			_LastScrollY = mousePosition.y;

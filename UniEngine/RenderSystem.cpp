@@ -11,8 +11,11 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 
 	Camera* camera = cameraComponent->Value;
 	camera->GetRenderTarget()->Bind();
-	camera->UpdateMatrices(EntityManager::GetComponentData<Position>(cameraEntity).value);
-
+	Camera::_MainCameraInfoBlock.UpdateMatrices(camera,
+		EntityManager::GetComponentData<Position>(cameraEntity).value,
+		EntityManager::GetComponentData<Rotation>(cameraEntity).value
+		);
+	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
 	if (_EnableWireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}

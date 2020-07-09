@@ -12,32 +12,29 @@ namespace UniEngine {
 		Plane() : a(0), b(0), c(0), d(0) {};
 		void Normalize();
 	};
-
+	class Camera;
 	struct UNIENGINE_API CameraInfoBlock {
-		glm::mat4 projection;
-		glm::mat4 view;
+		glm::mat4 Projection;
+		glm::mat4 View;
 		glm::vec4 ReservedParameters;
-		glm::vec4 position;
+		glm::vec4 Position;
+		void UpdateMatrices(Camera* mainCamera, glm::vec3 position, glm::quat rotation);
+		void UploadMatrices(GLUBO* target);
 	};
 
 	class UNIENGINE_API Camera
 	{
 		//static unsigned _CameraInfoBufferID;
-		static CameraInfoBlock _MainCameraInfoBlock;
-		static GLUBO* _CameraData;
+		
+		
 		RenderTarget* _RenderTarget;
 	public:
-		void CalculatePlanes(Plane* planes);
-
-		void CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::vec3* points);
-
-		void UpdateMatrices(glm::vec3 position);
+		static GLUBO* _CameraData;
+		static CameraInfoBlock _MainCameraInfoBlock;
+		void CalculatePlanes(Plane* planes, glm::mat4 projection, glm::mat4 view);
+		void CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3* points);
 		static void GenerateMatrices();
 		RenderTarget* GetRenderTarget();
-		// camera Attributes
-		glm::vec3 _Front;
-		glm::vec3 _Up;
-		glm::vec3 _Right;
 
 		float _Near;
 		float _Far;
@@ -46,10 +43,8 @@ namespace UniEngine {
 		float _Pitch;
 		// camera options
 		float _FOV;
-		glm::mat4 _Projection;
-		glm::mat4 _View;
 		Camera(RenderTarget* renderTarget, float nearPlane = 0.1f, float farPlane = 100.0f);
-		void ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch = true);
+		glm::quat ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch = true);
 		void ProcessMouseScroll(float yoffset);
 	};
 }

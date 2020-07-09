@@ -32,9 +32,19 @@ void main()
     // ambient
     vec3 ambient = 0.1 * color;
 
-    
     float distance = distance(fs_in.FragPos, CameraPosition);
 
+    if(DisplaySplit != 0){
+        if(distance < SplitDistance0){
+            ambient += vec3(0.0, 0.0, 0.2);
+        }else if(distance < SplitDistance1){
+            ambient += vec3(0.2, 0.0, 0.0);
+        }else if(distance < SplitDistance2){
+            ambient += vec3(0.0, 0.2, 0.0);
+        }else if(distance < SplitDistance3){
+        }
+    }
+    
     vec3 result = CalculateLights(distance, norm, viewDir, fs_in.FragPos);
 
     FragColor = vec4((ambient + result) * color, 1.0);
