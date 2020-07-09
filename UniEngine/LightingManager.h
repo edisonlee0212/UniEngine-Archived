@@ -51,6 +51,7 @@ namespace UniEngine {
 
 		static GLTexture* _DLVSMVFilter;
 		static bool _EnableVSM;
+		static bool _EnableEVSM;
 		static bool _StableFit;
 		static float _MaxShadowDistance;
 		static float _SeamFixRatio;
