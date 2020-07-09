@@ -58,12 +58,16 @@ layout (std140, binding = 3) uniform SpotLightBlock
     SpotLight SpotLights[SPOT_LIGHTS_AMOUNT];
 };
 
-layout (std140, binding = 4) uniform ShadowCascadeInfo
+layout (std140, binding = 4) uniform ShadowSettings
 {
     float SplitDistance0;
     float SplitDistance1;
     float SplitDistance2;
     float SplitDistance3;
+    float EnableVSM;
+	float EnableEVSM;
+	float DisplaySplit;
+	float SeamFixRatio;
 };
 
 //Material
@@ -86,5 +90,3 @@ uniform sampler2DArray directionalShadowMap;
 uniform samplerCubeArrayShadow pointShadowMap;
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;
-uniform bool enableVSM;
-uniform float seamFixRatio;

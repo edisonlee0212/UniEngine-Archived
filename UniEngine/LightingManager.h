@@ -11,8 +11,12 @@
 #include "Default.h"
 namespace UniEngine {
 
-	struct UNIENGINE_API ShadowCascadeInfo {
+	struct UNIENGINE_API ShadowSettings {
 		float SplitDistance[4];
+		float EnableVSM = 0.0f;
+		float EnableEVSM = 0.0f;
+		float DisplaySplit = 0.0f;
+		float SeamFixRatio = 0.1f;
 	};
 
 	class UNIENGINE_API LightingManager :
@@ -27,7 +31,7 @@ namespace UniEngine {
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
 		static unsigned _DirectionalShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
-		static ShadowCascadeInfo _ShadowCascadeInfo;
+		static ShadowSettings _ShadowSettings;
 
 		static DirectionalLight _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 		static PointLight _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
@@ -50,17 +54,16 @@ namespace UniEngine {
 		static GLProgram* _DirectionalLightHFilterProgram;
 
 		static GLTexture* _DLVSMVFilter;
-		static bool _EnableVSM;
-		static bool _EnableEVSM;
 		static bool _StableFit;
 		static float _MaxShadowDistance;
-		static float _SeamFixRatio;
 	public:
 		static void Init();
 		static void Start();
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetDirectionalLightResolution(float value);
 		static void SetEnableVSM(bool value);
+		static void SetEnableEVSM(bool value);
+		static void SetEnableSplitDisplay(bool value);
 		static void SetStableFit(bool value);
 		static void SetSeamFixRatio(float value);
 		static void SetMaxShadowDistance(float value);

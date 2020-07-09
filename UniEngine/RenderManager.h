@@ -26,8 +26,6 @@ namespace UniEngine {
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, bool receiveShadow);
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, bool receiveShadow);
 	public:
-		static bool _EnableSplitDisplay;
-		static void SetSplitDisplay(bool value);
 		static void Start();
 		static unsigned Triangles();
 		static unsigned DrawCall();

@@ -35,18 +35,6 @@ void main()
     
     float distance = distance(fs_in.FragPos, CameraPosition);
 
-    
-
-    if(enableSplitDisplay){
-        if(distance < SplitDistance0){
-            ambient += vec3(0.0, 0.0, 0.2);
-        }else if(distance < SplitDistance1){
-            ambient += vec3(0.2, 0.0, 0.0);
-        }else if(distance < SplitDistance2){
-            ambient += vec3(0.0, 0.2, 0.0);
-        }else if(distance < SplitDistance3){
-        }
-    }
     vec3 result = CalculateLights(distance, norm, viewDir, fs_in.FragPos);
 
     FragColor = vec4((ambient + result) * color, 1.0);
@@ -62,27 +50,27 @@ vec3 CalculateLights(float distance, vec3 normal, vec3 viewDir, vec3 fragPos){
     for(int i = 0; i < DirectionalLightCount; i++){
         int split = 0;
         float shadow = 0.0;
-        if(distance < SplitDistance0 - SplitDistance0 * seamFixRatio){
+        if(distance < SplitDistance0 - SplitDistance0 * SeamFixRatio){
             shadow = DirectionalLightShadowCalculation(i, 0, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[0] * vec4(fs_in.FragPos, 1.0), norm);
         }else if(distance < SplitDistance0){
             //Blend between split 1 & 2
             shadow = DirectionalLightShadowCalculation(i, 0, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[0] * vec4(fs_in.FragPos, 1.0), norm);
             float nextLevel = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
-            shadow = (nextLevel * (distance - (SplitDistance0 - SplitDistance0 * seamFixRatio)) + shadow * (SplitDistance0 - distance)) / (SplitDistance0 * seamFixRatio);
-        }else if(distance < SplitDistance1 - SplitDistance1 * seamFixRatio){
+            shadow = (nextLevel * (distance - (SplitDistance0 - SplitDistance0 * SeamFixRatio)) + shadow * (SplitDistance0 - distance)) / (SplitDistance0 * SeamFixRatio);
+        }else if(distance < SplitDistance1 - SplitDistance1 * SeamFixRatio){
             shadow = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
         }else if(distance < SplitDistance1){
             //Blend between split 2 & 3
             shadow = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
             float nextLevel = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
-            shadow = (nextLevel * (distance - (SplitDistance1 - SplitDistance1 * seamFixRatio)) + shadow * (SplitDistance1 - distance)) / (SplitDistance1 * seamFixRatio);
-        }else if(distance < SplitDistance2 - SplitDistance2 * seamFixRatio){
+            shadow = (nextLevel * (distance - (SplitDistance1 - SplitDistance1 * SeamFixRatio)) + shadow * (SplitDistance1 - distance)) / (SplitDistance1 * SeamFixRatio);
+        }else if(distance < SplitDistance2 - SplitDistance2 * SeamFixRatio){
             shadow = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
         }else if(distance < SplitDistance2){
             //Blend between split 3 & 4
             shadow = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
             float nextLevel = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
-            shadow = (nextLevel * (distance - (SplitDistance2 - SplitDistance2 * seamFixRatio)) + shadow * (SplitDistance2 - distance)) / (SplitDistance2 * seamFixRatio);
+            shadow = (nextLevel * (distance - (SplitDistance2 - SplitDistance2 * SeamFixRatio)) + shadow * (SplitDistance2 - distance)) / (SplitDistance2 * SeamFixRatio);
         }else if(distance < SplitDistance3){
             shadow = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
         }
@@ -172,23 +160,26 @@ vec3 gridSamplingDisk[20] = vec3[]
    vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
 );
 
+float Linstep(float minVal, float maxVal, float val) {
+	return clamp((val - minVal) / (maxVal - minVal), 0.0, 1.0);
+}
+float ReduceLightBleed(float p_max, float amount) {
+	return Linstep(amount, 1.0, p_max);
+}
 
-float Chebyshev(vec2 moments, float mean, float minVariance)
+float Chebyshev(vec2 moments, float depth)
 {
-    float shadow = 1.0f;
-    if(mean <= moments.x)
-    {
-        shadow = 1.0f;
-        return shadow;
-    }
-    else
-    {
-        float variance = moments.y - (moments.x * moments.x);
-        variance = max(variance, minVariance);
-        float d = mean - moments.x;
-        shadow = variance / (variance + (d * d));
-        return shadow;
-    }
+    if (depth > moments.x) {
+		return 1.0;
+	}
+
+	float variance = moments.y - (moments.x * moments.x);
+	variance = max(variance, 0.01 / 1000.0);
+
+	float d = depth - moments.x; // attenuation
+	float p_max = variance / (variance + d * d);
+
+	return 1.0 - ReduceLightBleed(p_max, 0.1);
 }
 
 float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec4 fragPosLightSpace, vec3 normal)
@@ -216,20 +207,22 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
     if(light.ReservedParameters.y != 0){
         // check whether current frag pos is in shadow
         // PCF
-        if(enableVSM){
-            vec2 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rg;
-            //calculate variance from the moments
-            float E_x2 = moments.y;
-            float Ex_2 = moments.x * moments.x;
-            float var = E_x2 - Ex_2;
-
-            //bias the variance
-            var = max(var, 0.00002);
-
-            //darken the diffuse component if the current depth is less than or equal
-            //to the first moment and the retured value is less than the calculated
-            //maximum probability
-            shadow = 1.0 - max(Chebyshev(moments, currentDepth, var), (currentDepth <= moments.x) ? 1.0 : 0.0); 
+        if(EnableVSM != 0){
+            if(EnableEVSM != 0){
+                vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rgba;
+                float depth = currentDepth * 2.0 - 1.0;
+                float pos = exp(40.0 * depth);
+                float neg = exp(-40.0 * depth);
+                float posShadow = Chebyshev(moments.xy, pos);
+		        float negShadow = Chebyshev(moments.zw, neg);
+		        shadow = min(posShadow, negShadow);
+            }else{
+                vec2 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rg;
+                //darken the diffuse component if the current depth is less than or equal
+                //to the first moment and the retured value is less than the calculated
+                //maximum probability
+                shadow = 1.0 - max(Chebyshev(moments, currentDepth), (currentDepth <= moments.x) ? 1.0 : 0.0);
+            }
         }else{
             float texelSize = 1.0 / textureSize(directionalShadowMap, 0).x;
             for(int x = -1; x <= 1; ++x)

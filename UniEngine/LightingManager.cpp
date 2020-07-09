@@ -16,16 +16,13 @@ GLProgram* LightingManager::_DirectionalLightVFilterProgram;
 GLProgram* LightingManager::_DirectionalLightHFilterProgram;
 
 GLUBO* LightingManager::_ShadowCascadeInfoBlock;
-ShadowCascadeInfo LightingManager::_ShadowCascadeInfo;
+ShadowSettings LightingManager::_ShadowSettings;
 
 //Settings
 float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.2f, 0.4f, 0.8f, 1.0f };
 float LightingManager::_MaxShadowDistance = 500;
 unsigned LightingManager::_DirectionalShadowMapResolution = 512;
-bool LightingManager::_EnableVSM = true;
-bool LightingManager::_EnableEVSM = false;
 bool LightingManager::_StableFit = true;
-float LightingManager::_SeamFixRatio = 0.1f;
 #pragma endregion
 
 
@@ -59,7 +56,7 @@ GLProgram* LightingManager::_PointLightInstancedProgram;
 void UniEngine::LightingManager::Init()
 {
 	_ShadowCascadeInfoBlock = new GLUBO();
-	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowCascadeInfo), NULL, GL_DYNAMIC_DRAW);
+	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowSettings), NULL, GL_DYNAMIC_DRAW);
 	_ShadowCascadeInfoBlock->SetBase(4);
 
 #pragma region LightInfoBlocks
@@ -77,7 +74,7 @@ void UniEngine::LightingManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(1, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, _EnableVSM, _EnableEVSM);
+	_DirectionalLightShadowMap = new DirectionalLightShadowMap(1, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, _ShadowSettings.EnableVSM != 0, _ShadowSettings.EnableEVSM != 0);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
@@ -214,7 +211,7 @@ void UniEngine::LightingManager::Start()
 					float splitEnd = _MaxShadowDistance;
 					if (split != 0) splitStart = _MaxShadowDistance * _ShadowCascadeSplit[split - 1];
 					if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = _MaxShadowDistance * _ShadowCascadeSplit[split];
-					_ShadowCascadeInfo.SplitDistance[split] = splitEnd;
+					_ShadowSettings.SplitDistance[split] = splitEnd;
 					glm::mat4 lightProjection, lightView;
 					float max = 0;
 					glm::vec3 lightPos;
@@ -296,17 +293,17 @@ void UniEngine::LightingManager::Start()
 			_DirectionalLightBlock->SubData(0, 4, &size);
 			if (size != 0) {
 				_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
-				_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowCascadeInfo), &_ShadowCascadeInfo);
+				_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowSettings), &_ShadowSettings);
 			}
 #pragma region Directional Light Shadowmap pass
 			_DirectionalLightShadowMap->SetLightAmount(size);
-			_DirectionalLightShadowMap->SetVSM(_EnableVSM);
-			_DirectionalLightShadowMap->SetEVSM(_EnableEVSM);
+			_DirectionalLightShadowMap->SetVSM(_ShadowSettings.EnableVSM != 0);
+			_DirectionalLightShadowMap->SetEVSM(_ShadowSettings.EnableEVSM != 0);
 			_DirectionalLightShadowMap->Bind();
 			glEnable(GL_DEPTH_TEST);
 			
-			if (_EnableVSM) {
-				if (_EnableEVSM) {
+			if (_ShadowSettings.EnableVSM != 0) {
+				if (_ShadowSettings.EnableEVSM != 0) {
 					glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RGBA, GL_FLOAT, NULL);
 				}
 				else {
@@ -320,7 +317,6 @@ void UniEngine::LightingManager::Start()
 				glClear(GL_DEPTH_BUFFER_BIT);
 				_DirectionalLightProgram->Bind();
 				_DirectionalLightProgram->SetInt("index", i);
-				_DirectionalLightProgram->SetBool("enableVSM", _EnableVSM);
 				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
@@ -355,7 +351,6 @@ void UniEngine::LightingManager::Start()
 
 				_DirectionalLightInstancedProgram->Bind();
 				_DirectionalLightInstancedProgram->SetInt("index", i);
-				_DirectionalLightInstancedProgram->SetBool("enableVSM", _EnableVSM);
 				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
@@ -390,29 +385,31 @@ void UniEngine::LightingManager::Start()
 			}
 #pragma endregion
 #pragma region VSM Filter Pass
-			if (_EnableVSM) {
-				_DirectionalLightShadowMapFilter->Bind();
-				_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-				_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
-				glDisable(GL_DEPTH_TEST);
-				Default::GLPrograms::ScreenVAO->Bind();
-				for (int i = 0; i < size; i++) {
-					if (_DirectionalLights[i].ReservedParameters.y != 0) {
-						glDrawBuffer(GL_COLOR_ATTACHMENT0);
-						_DirectionalLightVFilterProgram->Bind();
-						_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
-						_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-						GLTexture::Activate(GL_TEXTURE3);
-						_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
-						glDrawBuffer(GL_COLOR_ATTACHMENT1);
-						_DirectionalLightHFilterProgram->Bind();
-						_DirectionalLightHFilterProgram->SetInt("textureMapArray", 3);
-						_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
+			if (_ShadowSettings.EnableVSM != 0) {
+				if (_ShadowSettings.EnableEVSM == 0) {
+					_DirectionalLightShadowMapFilter->Bind();
+					_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
+					_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
+					glDisable(GL_DEPTH_TEST);
+					Default::GLPrograms::ScreenVAO->Bind();
+					for (int i = 0; i < size; i++) {
+						if (_DirectionalLights[i].ReservedParameters.y != 0) {
+							glDrawBuffer(GL_COLOR_ATTACHMENT0);
+							_DirectionalLightVFilterProgram->Bind();
+							_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
+							_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
+							glDrawArrays(GL_TRIANGLES, 0, 6);
+							GLTexture::Activate(GL_TEXTURE3);
+							_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
+							glDrawBuffer(GL_COLOR_ATTACHMENT1);
+							_DirectionalLightHFilterProgram->Bind();
+							_DirectionalLightHFilterProgram->SetInt("textureMapArray", 3);
+							_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
+							glDrawArrays(GL_TRIANGLES, 0, 6);
+						}
 					}
+					glDrawBuffer(GL_COLOR_ATTACHMENT0);
 				}
-				glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			}
 #pragma endregion
 		}
@@ -544,7 +541,17 @@ void UniEngine::LightingManager::SetDirectionalLightResolution(float value)
 
 void UniEngine::LightingManager::SetEnableVSM(bool value)
 {
-	_EnableVSM = value;
+	_ShadowSettings.EnableVSM = value ? 1.0f : 0.0f;
+}
+
+void UniEngine::LightingManager::SetEnableEVSM(bool value)
+{
+	_ShadowSettings.EnableEVSM = value ? 1.0f : 0.0f;
+}
+
+void UniEngine::LightingManager::SetEnableSplitDisplay(bool value)
+{
+	_ShadowSettings.DisplaySplit = value ? 1.0f : 0.0f;
 }
 
 void UniEngine::LightingManager::SetStableFit(bool value)
@@ -554,7 +561,7 @@ void UniEngine::LightingManager::SetStableFit(bool value)
 
 void UniEngine::LightingManager::SetSeamFixRatio(float value)
 {
-	_SeamFixRatio = value;
+	_ShadowSettings.SeamFixRatio = value;
 }
 
 void UniEngine::LightingManager::SetMaxShadowDistance(float value)
