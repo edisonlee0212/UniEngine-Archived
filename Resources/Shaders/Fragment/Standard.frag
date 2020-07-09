@@ -209,10 +209,10 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
         // PCF
         if(EnableVSM != 0){
             if(EnableEVSM != 0){
-                vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rgba;
+                vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex));
                 float depth = currentDepth * 2.0 - 1.0;
-                float pos = exp(40.0 * depth);
-                float neg = -exp(-40.0 * depth);
+                float pos = exp(20.0 * depth);
+                float neg = -exp(-20.0 * depth);
                 float posShadow = Chebyshev(moments.xy, pos);
 		        float negShadow = Chebyshev(moments.zw, neg);
 		        shadow = min(posShadow, negShadow);
@@ -225,15 +225,15 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
             }
         }else{
             float texelSize = 1.0 / textureSize(directionalShadowMap, 0).x;
-            for(int x = -1; x <= 1; ++x)
+            for(int x = -2; x <= 2; ++x)
             {
-                for(int y = -1; y <= 1; ++y)
+                for(int y = -2; y <= 2; ++y)
                 {
                     float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
                     shadow += currentDepth <= cloestDepth ? 1.0 : 0.0; 
                 }    
             }
-            shadow /= 9.0;
+            shadow /= 25.0;
         }
     }else{
         float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;

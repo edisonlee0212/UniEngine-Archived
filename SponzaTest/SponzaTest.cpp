@@ -19,7 +19,7 @@ int main()
 {
  	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetEnableVSM(true);
+	LightingManager::SetEnableVSM(false);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetEnableEVSM(true);
 	LightingManager::SetSeamFixRatio(0.1f);
