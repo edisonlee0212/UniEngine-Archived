@@ -50,6 +50,8 @@ void main()
                 float dy = dFdy(depth);
                 vFragColor = vec4(depth, depth * depth + 0.25 * (dx * dx + dy * dy), depth, 1);
             }
+        }else{
+        vFragColor = vec4(depth, 0, 0, 1);
         }
     }else{
         vFragColor = vec4(depth, 0, 0, 1);

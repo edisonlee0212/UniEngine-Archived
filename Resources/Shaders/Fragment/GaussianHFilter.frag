@@ -33,9 +33,9 @@ void main()
 	 
 	//go through all neighbors and multiply the kernel value with the obtained 
 	//colour from the input image
-	for(int i = -1; i <= 1; i++) {
+	for(int i = -3; i <= 3; i++) {
 		vec4 sp = texture(textureMapArray, vec3(vs_in.TexCoords.x + i * delta, vs_in.TexCoords.y, vs_in.splitIndex));
-		sp = kernel3[i + 1] * sp;
+		sp = kernel7[i + 3] * sp;
 		color += sp;
 	}
 	//return the filtered colour as fragment output

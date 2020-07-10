@@ -227,26 +227,28 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 		        float negShadow = Chebyshev(moments.zw, neg);
 		        shadow = min(posShadow, negShadow);
             }else{
-                vec3 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rgb;
-                //darken the diffuse component if the current depth is less than or equal
-                //to the first moment and the retured value is less than the calculated
-                //maximum probability
-                //if(currentDepth > moments.z) {
-                //    return 0.0;
-                //}
-                shadow = Chebyshev(moments.xy, currentDepth);
+                float texelSize = 0.1 / textureSize(directionalShadowMap, 0).x;
+                for(int x = -0; x <= 0; ++x)
+                {
+                    for(int y = -0; y <= 0; ++y)
+                    {
+                        vec3 moments = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).rgb;
+                        shadow += Chebyshev(moments.xy, currentDepth);
+                    }    
+                }
+                //shadow /= 9.0;
             }
         }else{
-            float texelSize = 1.0 / textureSize(directionalShadowMap, 0).x;
-            for(int x = -2; x <= 2; ++x)
+            float texelSize = 0.2 / textureSize(directionalShadowMap, 0).x;
+            for(int x = -3; x <= 3; ++x)
             {
-                for(int y = -2; y <= 2; ++y)
+                for(int y = -3; y <= 3; ++y)
                 {
                     float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
                     shadow += currentDepth <= cloestDepth ? 1.0 : 0.0; 
                 }    
             }
-            shadow /= 25.0;
+            shadow /= 49.0;
         }
     }else{
         float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;

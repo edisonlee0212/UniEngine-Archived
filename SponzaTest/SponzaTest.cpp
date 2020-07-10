@@ -26,7 +26,7 @@ int main()
 	LightingManager::SetMaxShadowDistance(400);
 
 	LightingManager::SetVSMMaxVariance(0.01f);
-	LightingManager::SetLightBleedControlFactor(0.8f);
+	LightingManager::SetLightBleedControlFactor(0.9f);
 	LightingManager::SetEVSMExponent(0.1f);
 
 	LightingManager::SetSplitRatio(0.1f, 0.2f, 0.4f, 1.0f);
