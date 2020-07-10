@@ -10,8 +10,10 @@ UniEngine::DirectionalLightShadowMap::DirectionalLightShadowMap(size_t amount, f
 	_EnableEVSM = enableEVSM;
 	_DepthMapArray = new GLTexture();
 	if (enableVSM) {
-		if (enableEVSM)_DepthMapArray->SetImage2DArray(0, GL_RGBA32F, _ResolutionX, _ResolutionY, amount * 4, 0, GL_RGBA, GL_FLOAT, NULL);
-		else _DepthMapArray->SetImage2DArray(0, GL_RGB32F, _ResolutionX, _ResolutionY, amount * 4, 0, GL_RGB, GL_FLOAT, NULL);
+		if (enableEVSM) {
+			_DepthMapArray->SetImage2DArray(0, GL_RGBA32F_ARB, _ResolutionX, _ResolutionY, amount * 4, 0, GL_RGBA, GL_FLOAT, NULL);
+		}
+		else _DepthMapArray->SetImage2DArray(0, GL_RG32F, _ResolutionX, _ResolutionY, amount * 4, 0, GL_RG, GL_FLOAT, NULL);
 	}
 	else
 	{
@@ -45,7 +47,7 @@ void UniEngine::DirectionalLightShadowMap::SetVSM(bool enabled)
 			_DepthMapArray->SetImage2DArray(0, GL_RGBA32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RGBA, GL_FLOAT, NULL);
 		}
 		else {
-			_DepthMapArray->SetImage2DArray(0, GL_RGB32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RGB, GL_FLOAT, NULL);
+			_DepthMapArray->SetImage2DArray(0, GL_RG32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RG, GL_FLOAT, NULL);
 		}
 	}
 	else {
@@ -63,7 +65,7 @@ void UniEngine::DirectionalLightShadowMap::SetEVSM(bool enabled)
 			_DepthMapArray->SetImage2DArray(0, GL_RGBA32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RGBA, GL_FLOAT, NULL);
 		}
 		else {
-			_DepthMapArray->SetImage2DArray(0, GL_RGB32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RGB, GL_FLOAT, NULL);
+			_DepthMapArray->SetImage2DArray(0, GL_RG32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RG, GL_FLOAT, NULL);
 		}
 	}
 	else {
@@ -81,7 +83,7 @@ void UniEngine::DirectionalLightShadowMap::SetLightAmount(size_t value)
 			_DepthMapArray->SetImage2DArray(0, GL_RGBA32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RGBA, GL_FLOAT, NULL);
 		}
 		else {
-			_DepthMapArray->SetImage2DArray(0, GL_RGB32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RGB, GL_FLOAT, NULL);
+			_DepthMapArray->SetImage2DArray(0, GL_RG32F, _ResolutionX, _ResolutionY, _LightAmount * 4, 0, GL_RG, GL_FLOAT, NULL);
 		}
 	}
 	else {

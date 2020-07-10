@@ -165,7 +165,6 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
   <ItemGroup>
     <ClCompile Include="BezierCurve.cpp" />
     <ClCompile Include="Branch.cpp" />
-    <ClCompile Include="CameraControlSystem.cpp" />
     <ClCompile Include="CoilEnvelope.cpp" />
     <ClCompile Include="CubeEnvelope.cpp" />
     <ClCompile Include="Curve.cpp" />
@@ -180,7 +179,6 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
   <ItemGroup>
     <ClInclude Include="BezierCurve.h" />
     <ClInclude Include="Branch.h" />
-    <ClInclude Include="CameraControlSystem.h" />
     <ClInclude Include="CoilEnvelope.h" />
     <ClInclude Include="CubeEnvelope.h" />
     <ClInclude Include="Curve.h" />

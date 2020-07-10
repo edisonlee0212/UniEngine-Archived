@@ -127,7 +127,9 @@ void UniEngine::LightingManager::Init()
 	_DirectionalLightShadowMapFilter = new RenderTarget(_DirectionalShadowMapResolution, _DirectionalShadowMapResolution);
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	_DLVSMVFilter = new GLTexture();
-	_DLVSMVFilter->SetImage2DArray(0, GL_RGBA32F, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, Default::ShaderIncludes::ShadowCascadeAmount, 0, GL_RGBA, GL_FLOAT, NULL);
+
+	_DLVSMVFilter->SetImage2DArray(0, GL_RGBA32F_ARB, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, Default::ShaderIncludes::ShadowCascadeAmount, 0, GL_RGBA, GL_FLOAT, NULL);
+	
 	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -304,13 +306,13 @@ void UniEngine::LightingManager::Start()
 			_DirectionalLightShadowMap->SetEVSM(_ShadowSettings.EnableEVSM != 0);
 			_DirectionalLightShadowMap->Bind();
 			glEnable(GL_DEPTH_TEST);
-			
+
 			if (_ShadowSettings.EnableVSM != 0) {
 				if (_ShadowSettings.EnableEVSM != 0) {
 					glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RGBA, GL_FLOAT, NULL);
 				}
 				else {
-					glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RGB, GL_FLOAT, NULL);
+					glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RG, GL_FLOAT, NULL);
 				}
 			}
 			else {
@@ -389,30 +391,28 @@ void UniEngine::LightingManager::Start()
 #pragma endregion
 #pragma region VSM Filter Pass
 			if (_ShadowSettings.EnableVSM != 0) {
-				if (_ShadowSettings.EnableEVSM == 0) {
-					_DirectionalLightShadowMapFilter->Bind();
-					_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-					_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
-					glDisable(GL_DEPTH_TEST);
-					Default::GLPrograms::ScreenVAO->Bind();
-					for (int i = 0; i < size; i++) {
-						if (_DirectionalLights[i].ReservedParameters.y != 0) {
-							glDrawBuffer(GL_COLOR_ATTACHMENT0);
-							_DirectionalLightVFilterProgram->Bind();
-							_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
-							_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
-							glDrawArrays(GL_TRIANGLES, 0, 6);
-							GLTexture::Activate(GL_TEXTURE3);
-							_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
-							glDrawBuffer(GL_COLOR_ATTACHMENT1);
-							_DirectionalLightHFilterProgram->Bind();
-							_DirectionalLightHFilterProgram->SetInt("textureMapArray", 3);
-							_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
-							glDrawArrays(GL_TRIANGLES, 0, 6);
-						}
+				_DirectionalLightShadowMapFilter->Bind();
+				_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
+				_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
+				glDisable(GL_DEPTH_TEST);
+				Default::GLPrograms::ScreenVAO->Bind();
+				for (int i = 0; i < size; i++) {
+					if (_DirectionalLights[i].ReservedParameters.y != 0) {
+						glDrawBuffer(GL_COLOR_ATTACHMENT0);
+						_DirectionalLightVFilterProgram->Bind();
+						_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
+						_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
+						glDrawArrays(GL_TRIANGLES, 0, 6);
+						GLTexture::Activate(GL_TEXTURE3);
+						_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
+						glDrawBuffer(GL_COLOR_ATTACHMENT1);
+						_DirectionalLightHFilterProgram->Bind();
+						_DirectionalLightHFilterProgram->SetInt("textureMapArray", 3);
+						_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
+						glDrawArrays(GL_TRIANGLES, 0, 6);
 					}
-					glDrawBuffer(GL_COLOR_ATTACHMENT0);
 				}
+				glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			}
 #pragma endregion
 		}

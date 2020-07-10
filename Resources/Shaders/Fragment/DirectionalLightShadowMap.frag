@@ -46,7 +46,9 @@ void main()
                 float neg = -exp(-EVSMExponent * depth);
                 vFragColor = vec4(pos, pos * pos, neg, neg * neg);
             }else{
-                vFragColor = vec4(depth, depth * depth, depth, 1);
+                float dx = dFdx(depth);
+                float dy = dFdy(depth);
+                vFragColor = vec4(depth, depth * depth + 0.25 * (dx * dx + dy * dy), depth, 1);
             }
         }
     }else{

@@ -198,6 +198,9 @@
     <ClInclude Include="ParentSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="CameraControlSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -312,6 +315,9 @@
       <Filter>Source Files\Resource\Manager\Render</Filter>
     </ClCompile>
     <ClCompile Include="ParentSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraControlSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>

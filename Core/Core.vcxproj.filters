@@ -99,9 +99,6 @@
     <ClInclude Include="GLObject.h">
       <Filter>Header Files\Graphics\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="khrplatform.h">
-      <Filter>Header Files\Graphics\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="Memory.h">
       <Filter>Header Files\Memory</Filter>
     </ClInclude>

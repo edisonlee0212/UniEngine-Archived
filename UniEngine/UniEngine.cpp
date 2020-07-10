@@ -33,6 +33,11 @@ void UniEngine::Engine::GLInit()
 		Debug::Error("Failed to initialize GLAD");
 		exit(-1);
 	}
+	glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+	glClampColor(GL_CLAMP_READ_COLOR_ARB, GL_FALSE);
+	glClampColor(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE);
+	glClampColor(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
+
 	// enable OpenGL debug context if context allows for debug context
 	/*
 	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);

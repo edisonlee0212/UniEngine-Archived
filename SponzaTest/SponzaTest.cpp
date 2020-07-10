@@ -7,7 +7,7 @@ using namespace UniEngine;
 void LightAngleSlider();
 void InitGround();
 void SplitDisplay();
-float lightAngle0 = 0;
+float lightAngle0 = 90;
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;
@@ -18,16 +18,16 @@ float lightAngle7 = 0;
 int main()
 {
  	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(2048);
+	LightingManager::SetDirectionalLightResolution(1024);
 	LightingManager::SetEnableVSM(true);
 	LightingManager::SetStableFit(true);
-	LightingManager::SetEnableEVSM(false);
+	LightingManager::SetEnableEVSM(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(400);
 
 	LightingManager::SetVSMMaxVariance(0.01f);
-	LightingManager::SetLightBleedControlFactor(0.7f);
-	LightingManager::SetEVSMExponent(40.0f);
+	LightingManager::SetLightBleedControlFactor(0.0f);
+	LightingManager::SetEVSMExponent(10.0f);
 
 	LightingManager::SetSplitRatio(0.1f, 0.2f, 0.4f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
@@ -43,12 +43,6 @@ int main()
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
 
 	auto cameraEntity = EntityManager::CreateEntity(archetype);
-	Position pos;
-	pos.value = glm::vec3(0.0f, 5.0f, 10.0f);
-	EntityManager::SetComponentData<Position>(cameraEntity, pos);
-	Scale scale;
-	scale.value = glm::vec3(1.0f);
-	EntityManager::SetComponentData<Scale>(cameraEntity, scale);
 	CameraComponent* cameraComponent = new CameraComponent();
 	cameraComponent->Value = mainCamera;
 	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
@@ -60,7 +54,8 @@ int main()
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
 	ccs->SetTargetCamera(cameraEntity);
-
+	ccs->EnableWindowControl(true);
+	ccs->SetPosition(glm::vec3(-40, 25, 3));
 	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype<
 		//LocalPosition, 
 		//LocalRotation,
@@ -94,6 +89,7 @@ int main()
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
 	dlmmc->_Mesh = Default::Primitives::Cylinder;
 	dlmmc->_Material = Default::Materials::StandardMaterial;
+	Scale scale;
 	scale.value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();

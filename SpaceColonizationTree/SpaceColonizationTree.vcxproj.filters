@@ -78,9 +78,6 @@
     <ClCompile Include="Tree.cpp">
       <Filter>Source Files\Tree</Filter>
     </ClCompile>
-    <ClCompile Include="CameraControlSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="SCTreeSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
@@ -115,9 +112,6 @@
     </ClInclude>
     <ClInclude Include="SurfaceOfRevolutionEnvelope.h">
       <Filter>Header Files\Envelope</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraControlSystem.h">
-      <Filter>Header Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="SCTreeSystem.h">
       <Filter>Header Files\Systems</Filter>

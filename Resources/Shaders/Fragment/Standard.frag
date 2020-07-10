@@ -225,15 +225,15 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
                 float neg = -exp(-EVSMExponent * depth);
                 float posShadow = Chebyshev(moments.xy, pos);
 		        float negShadow = Chebyshev(moments.zw, neg);
-		        shadow = min(posShadow, negShadow);
+		        shadow = posShadow;
             }else{
                 vec3 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rgb;
                 //darken the diffuse component if the current depth is less than or equal
                 //to the first moment and the retured value is less than the calculated
                 //maximum probability
-                if(currentDepth > moments.z) {
-                    return 0.0;
-                }
+                //if(currentDepth > moments.z) {
+                //    return 0.0;
+                //}
                 shadow = Chebyshev(moments.xy, currentDepth);
             }
         }else{
