@@ -391,28 +391,30 @@ void UniEngine::LightingManager::Start()
 #pragma endregion
 #pragma region VSM Filter Pass
 			if (_ShadowSettings.EnableVSM != 0) {
-				_DirectionalLightShadowMapFilter->Bind();
-				_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-				_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
-				glDisable(GL_DEPTH_TEST);
-				Default::GLPrograms::ScreenVAO->Bind();
-				for (int i = 0; i < size; i++) {
-					if (_DirectionalLights[i].ReservedParameters.y != 0) {
-						glDrawBuffer(GL_COLOR_ATTACHMENT0);
-						_DirectionalLightVFilterProgram->Bind();
-						_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
-						_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-						GLTexture::Activate(GL_TEXTURE3);
-						_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
-						glDrawBuffer(GL_COLOR_ATTACHMENT1);
-						_DirectionalLightHFilterProgram->Bind();
-						_DirectionalLightHFilterProgram->SetInt("textureMapArray", 3);
-						_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
+				if (_ShadowSettings.EnableEVSM == 0) {
+					_DirectionalLightShadowMapFilter->Bind();
+					_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
+					_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
+					glDisable(GL_DEPTH_TEST);
+					Default::GLPrograms::ScreenVAO->Bind();
+					for (int i = 0; i < size; i++) {
+						if (_DirectionalLights[i].ReservedParameters.y != 0) {
+							glDrawBuffer(GL_COLOR_ATTACHMENT0);
+							_DirectionalLightVFilterProgram->Bind();
+							_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
+							_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
+							glDrawArrays(GL_TRIANGLES, 0, 6);
+							GLTexture::Activate(GL_TEXTURE3);
+							_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
+							glDrawBuffer(GL_COLOR_ATTACHMENT1);
+							_DirectionalLightHFilterProgram->Bind();
+							_DirectionalLightHFilterProgram->SetInt("textureMapArray", 3);
+							_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
+							glDrawArrays(GL_TRIANGLES, 0, 6);
+						}
 					}
+					glDrawBuffer(GL_COLOR_ATTACHMENT0);
 				}
-				glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			}
 #pragma endregion
 		}

@@ -21,13 +21,13 @@ int main()
 	LightingManager::SetDirectionalLightResolution(1024);
 	LightingManager::SetEnableVSM(true);
 	LightingManager::SetStableFit(true);
-	LightingManager::SetEnableEVSM(true);
+	LightingManager::SetEnableEVSM(false);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(400);
 
 	LightingManager::SetVSMMaxVariance(0.01f);
-	LightingManager::SetLightBleedControlFactor(0.0f);
-	LightingManager::SetEVSMExponent(10.0f);
+	LightingManager::SetLightBleedControlFactor(0.8f);
+	LightingManager::SetEVSMExponent(0.1f);
 
 	LightingManager::SetSplitRatio(0.1f, 0.2f, 0.4f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
