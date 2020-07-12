@@ -11,15 +11,15 @@ float lightAngle0 = 90;
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;
-float lightAngle4 = 0.7f;
-float lightAngle5 = 0.2f;
+float lightAngle4 = 1.0f;
+float lightAngle5 = 0.0f;
 float lightAngle6 = 0;
 float lightAngle7 = 0;
 int main()
 {
  	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(1024);
-	LightingManager::SetEnableVSM(true);
+	LightingManager::SetDirectionalLightResolution(2048);
+	LightingManager::SetEnableVSM(false);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetEnableEVSM(false);
 	LightingManager::SetSeamFixRatio(0.05f);
@@ -73,7 +73,7 @@ int main()
 		Rotation(),
 		Scale(),
 		LocalToWorld());
-
+/*
 	Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
 	Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 	Position bpp;
@@ -82,14 +82,73 @@ int main()
 	bps.value = glm::vec3(0.05f);
 	EntityManager::SetComponentData<Position>(backpackEntity, bpp);
 	EntityManager::SetComponentData<Scale>(backpackEntity, bps);
+	*/
 #pragma endregion
+
+
+#pragma region PCSS test
+	Scale scale;
+	MeshMaterialComponent* cmmc = new MeshMaterialComponent();
+	cmmc->_Mesh = Default::Primitives::Cube;
+	cmmc->_Material = Default::Materials::StandardMaterial;
+	Position pos;
+	/*
+	Entity model0 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(4.0f, 3.0f, -9.0f);
+	scale.value = glm::vec3(6.0f, 6.0f, 1.0f);
+	EntityManager::SetComponentData<Position>(model0, pos);
+	EntityManager::SetComponentData<Scale>(model0, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model0, cmmc);
+	*/
+	Entity model1 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(0.0f, 2.0f, 0.0f);
+	MeshMaterialComponent* cylinder = new MeshMaterialComponent();
+	cylinder->_Mesh = Default::Primitives::Cylinder;
+	cylinder->_Material = Default::Materials::StandardMaterial;
+	scale.value = glm::vec3(0.5f);
+
+	scale.value = glm::vec3(2.0f, 2.0f, 2.0f);
+	EntityManager::SetComponentData<Position>(model1, pos);
+	EntityManager::SetComponentData<Scale>(model1, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model1, cylinder);
+
+	MeshMaterialComponent* mmmc = new MeshMaterialComponent();
+	mmmc->_Mesh = Default::Primitives::Monkey;
+	mmmc->_Material = Default::Materials::StandardMaterial;
+
+	Entity model2 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(6.0f, 2.0f, 0.0f);
+
+	scale.value = glm::vec3(3.0f, 3.0f, 3.0f);
+	EntityManager::SetComponentData<Position>(model2, pos);
+	EntityManager::SetComponentData<Scale>(model2, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model2, mmmc);
+
+	Entity model3 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(0.0f, 6.0f, 0.0f);
+
+	scale.value = glm::vec3(1.0f, 1.0f, 1.0f);
+	EntityManager::SetComponentData<Position>(model3, pos);
+	EntityManager::SetComponentData<Scale>(model3, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model3, mmmc);
+
+
+	Entity model4 = EntityManager::CreateEntity(archetype);
+	pos.value = glm::vec3(6.0f, 6.0f, 0.0f);
+
+	scale.value = glm::vec3(1.0f, 1.0f, 1.0f);
+	EntityManager::SetComponentData<Position>(model4, pos);
+	EntityManager::SetComponentData<Scale>(model4, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(model4, mmmc);
+
+#pragma endregion
+
 
 #pragma region Lights
 	
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
-	dlmmc->_Mesh = Default::Primitives::Cylinder;
-	dlmmc->_Material = Default::Materials::StandardMaterial;
-	Scale scale;
+	cylinder->_Mesh = Default::Primitives::Cylinder;
+	cylinder->_Material = Default::Materials::StandardMaterial;
 	scale.value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
@@ -135,6 +194,8 @@ int main()
 	EntityManager::SetComponentData<Scale>(ple2, scale);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);*/
 #pragma endregion
+
+	InitGround();
 
 #pragma region EngineLoop
 	bool loopable = true;
