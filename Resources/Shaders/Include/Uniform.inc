@@ -71,7 +71,7 @@ layout (std140, binding = 4) uniform ShadowSettings
     float VSMMaxVariance;
     float LightBleedFactor;
     float EVSMExponent;
-    float Paddings;
+    float EnablePCSS;
 };
 
 //Material

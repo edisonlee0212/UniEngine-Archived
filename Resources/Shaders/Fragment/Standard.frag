@@ -30,7 +30,7 @@ void main()
 
 	vec3 color = texture(TEXTURE_DIFFUSE[0], fs_in.TexCoords).rgb;
 	// ambient
-	vec3 ambient = 0.1 * color;
+	vec3 ambient = 0.2 * color;
 
 	float distance = distance(fs_in.FragPos, CameraPosition);
 
@@ -205,7 +205,7 @@ float kernel7[49] = {
 float DirectionalLightBlockerSearch(int index, vec3 shadowCoords, float searchWidth, int sampleAmount){
 	int blockers = 0;
 	float avgDistance = 0;
-	float step = searchWidth / float(sampleAmount) / textureSize(directionalShadowMap, 0).x;
+	float step = searchWidth / float(sampleAmount) / shadowCoords.z;
 	for(int x = -sampleAmount; x < sampleAmount; x++){
 		for(int y = -sampleAmount; y < sampleAmount; y++){
 			float closestDepth = texture(directionalShadowMap, vec3(shadowCoords.xy + vec2(x, y) * step, index)).r;
@@ -219,7 +219,6 @@ float DirectionalLightBlockerSearch(int index, vec3 shadowCoords, float searchWi
 	if(blockers == 0) return 0.0;
 	return (avgDistance / blockers);
 }
-
 
 
 float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec4 fragPosLightSpace, vec3 normal)
@@ -242,7 +241,7 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	// transform to [0,1] range
 	projCoords = projCoords * 0.5 + 0.5;
 	// get depth of current fragment from light's perspective
-	//float currentDepth = projCoords.z - bias;
+	//float currentDepth = projCoords.z;
 	projCoords = vec3(projCoords.xy, projCoords.z - bias);
 	float shadow = 0.0;
 	if(light.ReservedParameters.y != 0){
@@ -252,6 +251,7 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 			if(EnableEVSM != 0){
 				vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex));
 				float depth = projCoords.z * 2.0 - 1.0;
+				if(depth <= 0.000001) depth = 0.000001;
 				float pos = exp(EVSMExponent * depth);
 				float neg = -exp(-EVSMExponent * depth);
 				float posShadow = Chebyshev(moments.xy, pos);
@@ -270,24 +270,45 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 				//shadow /= 9.0;
 			}
 		}else{
-			float lightSize = 4;
-			float blockerDistance = DirectionalLightBlockerSearch(i * 4 + splitIndex, projCoords, lightSize, 3);
-			if(blockerDistance == 0.0) return 1.0;
-			float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance;
+			if(splitIndex <= 1 && EnablePCSS != 0){
+				float lightSize = light.ReservedParameters.x / 100;
+				float blockerDistance = DirectionalLightBlockerSearch(i * 4 + splitIndex, projCoords, lightSize, 4);
+				if(blockerDistance < 0.1) return 1.0;
+				float penumbraWidth = (projCoords.z - blockerDistance) * lightSize;
 
-			float uvRadius = penumbraWidth * lightSize;
+				float uvRadius = penumbraWidth;
 
-			float texelSize = uvRadius / textureSize(directionalShadowMap, 0).x;
-			for(int x = -5; x <= 5; ++x)
-			{
-				for(int y = -5; y <= 5; ++y)
+				float texelSize = uvRadius;
+				int sampleAmount = 0;
+				for(int x = -7; x <= 7; ++x)
 				{
-					float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
-					if(cloestDepth == 0.0) shadow += 1.0;
-					shadow += projCoords.z < cloestDepth ? 1.0 : 0.0; 
-				}	
+					for(int y = -7; y <= 7; ++y)
+					{
+						float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
+						if(cloestDepth == 0.0) continue;
+						shadow += projCoords.z < cloestDepth ? 1.0 : 0.0;
+						sampleAmount++;
+					}	
+				}
+				if(sampleAmount == 0) return 1.0;
+				shadow /= sampleAmount;
+				return shadow;
+			}else{
+				float texelSize = 0.4 / textureSize(directionalShadowMap, 0).x;
+				int sampleAmount = 0;
+				for(int x = -5; x <= 5; ++x)
+				{
+					for(int y = -5; y <= 5; ++y)
+					{
+						float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
+						shadow += projCoords.z <= cloestDepth ? 1.0 : 0.0;
+						sampleAmount++;
+					}	
+				}
+				if(sampleAmount == 0) return 1.0;
+				shadow /= sampleAmount;
+				return shadow;
 			}
-			shadow /= 121.0;
 		}
 	}else{
 		float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;

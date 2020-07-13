@@ -20,7 +20,7 @@ namespace UniEngine {
 		float VSMMaxVariance = 0.01f;
 		float LightBleedFactor = 0.5f;
 		float EVSMExponent = 40.0f;
-		float Paddings = 0.0f;
+		float EnablePCSS = 0.0f;
 	};
 
 	class UNIENGINE_API LightingManager :
@@ -56,6 +56,9 @@ namespace UniEngine {
 		static PointLightShadowMap* _PointLightShadowMap;
 		static GLProgram* _DirectionalLightVFilterProgram;
 		static GLProgram* _DirectionalLightHFilterProgram;
+		static GLProgram* _DirectionalLightVSAProgram;
+		static GLProgram* _DirectionalLightHSAProgram;
+
 
 		static GLTexture* _DLVSMVFilter;
 		static bool _StableFit;
@@ -74,6 +77,7 @@ namespace UniEngine {
 		static void SetVSMMaxVariance(float value);
 		static void SetLightBleedControlFactor(float value);
 		static void SetEVSMExponent(float value);
+		static void SetEnablePCSS(bool value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 
 		static void SetMainCamera(Entity entity);

@@ -28,15 +28,11 @@ void main()
 { 
 	//get the inverse of texture size
 	float delta = 1.0 / textureSize(textureMapArray, 0).x;
-	vec4 color = vec4(0);
-	int  index = 10;
-	 
+	vec4 color = vec4(0);	 
 	//go through all neighbors and multiply the kernel value with the obtained 
 	//colour from the input image
 	for(int i = -3; i <= 3; i++) {
-		vec4 sp = texture(textureMapArray, vec3(vs_in.TexCoords.x + i * delta, vs_in.TexCoords.y, vs_in.splitIndex));
-		sp = kernel7[i + 3] * sp;
-		color += sp;
+		color += texture(textureMapArray, vec3(vs_in.TexCoords.x + i * delta, vs_in.TexCoords.y, vs_in.splitIndex)).rgba * kernel7[i + 3];
 	}
 	//return the filtered colour as fragment output
 	vFragColor = color;

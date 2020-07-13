@@ -30,7 +30,7 @@ layout (std140, binding = 4) uniform ShadowSettings
     float VSMMaxVariance;
     float LightBleedFactor;
     float EVSMExponent;
-    float Paddings;
+    float EnablePCSS;
 };
 
 uniform int index;
@@ -42,6 +42,7 @@ void main()
         if(EnableVSM != 0){
             if(EnableEVSM != 0){
                 depth = depth * 2.0 - 1.0;
+                if(depth <= 0.000001) depth = 0.000001;
                 float pos = exp(EVSMExponent * depth);
                 float neg = -exp(-EVSMExponent * depth);
                 vFragColor = vec4(pos, pos * pos, neg, neg * neg);
