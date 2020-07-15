@@ -244,59 +244,45 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	//float currentDepth = projCoords.z;
 	projCoords = vec3(projCoords.xy, projCoords.z - bias);
 	float shadow = 0.0;
-	if(light.ReservedParameters.y != 0){
-		// check whether current frag pos is in shadow
-		// PCF
-		if(EnableVSM != 0){
-			if(EnableEVSM != 0){
-				float moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;
-				float L = moments * exp(-EVSMExponent * projCoords.z);
-				shadow = ReduceLightBleed(clamp(L, 0.0, 1.0), LightBleedFactor);
-			}else{
-				vec2 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rg;
-				shadow = Chebyshev(moments.xy, projCoords.z);
-			}
-		}else{
-			if(splitIndex <= 1 && EnablePCSS != 0){
-				float lightSize = light.ReservedParameters.x / 100;
-				float blockerDistance = DirectionalLightBlockerSearch(i * 4 + splitIndex, projCoords, lightSize, 4);
-				if(blockerDistance < 0.1) return 1.0;
-				float penumbraWidth = (projCoords.z - blockerDistance) * lightSize;
-
-				float uvRadius = penumbraWidth;
-
-				float texelSize = uvRadius;
-				int sampleAmount = 0;
-				for(int x = -7; x <= 7; ++x)
-				{
-					for(int y = -7; y <= 7; ++y)
-					{
-						float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
-						if(cloestDepth == 0.0) continue;
-						shadow += projCoords.z < cloestDepth ? 1.0 : 0.0;
-						sampleAmount++;
-					}	
-				}
-				if(sampleAmount == 0) return 1.0;
-				shadow /= sampleAmount;
-				return shadow;
-			}else{
-				float texelSize = 0.4 / textureSize(directionalShadowMap, 0).x;
-				int sampleAmount = 0;
-				for(int x = -5; x <= 5; ++x)
-				{
-					for(int y = -5; y <= 5; ++y)
-					{
-						float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
-						shadow += projCoords.z <= cloestDepth ? 1.0 : 0.0;
-						sampleAmount++;
-					}	
-				}
-				if(sampleAmount == 0) return 1.0;
-				shadow /= sampleAmount;
-				return shadow;
-			}
+	if(SoftShadowMode == 0){
+		float texelSize = 0.4 / textureSize(directionalShadowMap, 0).x;
+		int sampleAmount = 0;
+		for(int x = -5; x <= 5; ++x)
+		{
+			for(int y = -5; y <= 5; ++y)
+			{
+				float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
+				shadow += projCoords.z <= cloestDepth ? 1.0 : 0.0;
+				sampleAmount++;
+			}	
 		}
+		if(sampleAmount == 0) return 1.0;
+		shadow /= sampleAmount;
+	}else if(SoftShadowMode == 1){
+		vec2 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rg;
+		shadow = Chebyshev(moments.xy, projCoords.z);
+	}else if(SoftShadowMode == 2){
+		shadow = ReduceLightBleed(clamp(texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r * exp(-EVSMExponent * projCoords.z), 0.0, 1.0), LightBleedFactor);
+	}else if(SoftShadowMode == 3){
+		float lightSize = light.ReservedParameters.x / 100;
+		float blockerDistance = DirectionalLightBlockerSearch(i * 4 + splitIndex, projCoords, lightSize, 3);
+		if(blockerDistance < 0.1) return 1.0;
+		float penumbraWidth = (projCoords.z - blockerDistance) * lightSize;
+		float uvRadius = penumbraWidth;
+		float texelSize = uvRadius * PCSSScaleFactor;
+		int sampleAmount = 0;
+		for(int x = -2; x <= 2; ++x)
+		{
+			for(int y = -2; y <= 2; ++y)
+			{
+				float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
+				if(cloestDepth == 0.0) continue;
+				shadow += projCoords.z < cloestDepth ? 1.0 : 0.0;
+				sampleAmount++;
+			}	
+		}
+		if(sampleAmount == 0) return 1.0;
+		shadow /= sampleAmount;
 	}else{
 		float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;
 		if(cloestDepth == 0.0) return 1.0;

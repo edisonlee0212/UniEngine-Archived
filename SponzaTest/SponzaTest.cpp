@@ -15,8 +15,9 @@ float lightAngle4 = 0.8f;
 float lightAngle5 = 0.0f;
 float lightAngle6 = 0;
 float lightAngle7 = 0;
-float lightSize = 0.01;
+float lightSize = 0.5;
 float lightBleedControl = 0.0;
+float pcssScale = 1.0f;
 enum TestScene {
 	SPONZA_TEST,
 	PCSS,
@@ -25,17 +26,12 @@ int main()
 {
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetEnableVSM(true);
+	LightingManager::SetShadowMode(ShadowMode::PCSS);
 	LightingManager::SetStableFit(true);
-	LightingManager::SetEnableEVSM(true);
-	LightingManager::SetEnablePCSS(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(300);
-
 	LightingManager::SetVSMMaxVariance(0.001f);
-	
 	LightingManager::SetEVSMExponent(80.0f);
-
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
@@ -89,7 +85,7 @@ int main()
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.value = glm::vec3(0.5f);
-	TestScene testScene = SPONZA_TEST;
+	TestScene testScene = PCSS;
 #pragma region PCSS test
 	if (testScene == SPONZA_TEST) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
@@ -108,7 +104,7 @@ int main()
 		Position pos;
 
 		Entity model1 = EntityManager::CreateEntity(archetype);
-		pos.value = glm::vec3(-6.0f, 4.0f, 0.0f);
+		pos.value = glm::vec3(-6.0f, 8.0f, 0.0f);
 
 
 		scale.value = glm::vec3(4.0f, 8.0f, 4.0f);
@@ -141,7 +137,6 @@ int main()
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
 
-	dlc->softShadow = true;
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
@@ -215,6 +210,11 @@ int main()
 		ImGui::SliderFloat("Factor", &lightBleedControl, 0.0f, 1.0f);
 		ImGui::End();
 		LightingManager::SetLightBleedControlFactor(lightBleedControl);
+
+		ImGui::Begin("PCSS Scale factor");
+		ImGui::SliderFloat("Factor", &pcssScale, 0.0f, 2.0f);
+		ImGui::End();
+		LightingManager::SetPCSSScaleFactor(pcssScale);
 
 		ImGui::Begin("Directional Light Size");
 		ImGui::SliderFloat("Size", &lightSize, 0.0f, 1.0f);

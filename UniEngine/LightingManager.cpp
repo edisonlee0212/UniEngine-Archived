@@ -75,7 +75,7 @@ void UniEngine::LightingManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(1, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, _ShadowSettings.EnableVSM != 0, _ShadowSettings.EnableEVSM != 0);
+	_DirectionalLightShadowMap = new DirectionalLightShadowMap(1, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, _ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
@@ -306,7 +306,7 @@ void UniEngine::LightingManager::Start()
 					lightProjection = shadowProj;
 #pragma endregion
 					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
-					if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, (dlc->softShadow ? 1.0f : 0.0f), dlc->depthBias, dlc->normalOffset);
+					if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, max, dlc->depthBias, dlc->normalOffset);
 
 				}
 
@@ -320,12 +320,10 @@ void UniEngine::LightingManager::Start()
 			}
 #pragma region Directional Light Shadowmap pass
 			_DirectionalLightShadowMap->SetLightAmount(size);
-			_DirectionalLightShadowMap->SetVSM(_ShadowSettings.EnableVSM != 0);
-			_DirectionalLightShadowMap->SetEVSM(_ShadowSettings.EnableEVSM != 0);
+			_DirectionalLightShadowMap->SetVSM(_ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM);
 			_DirectionalLightShadowMap->Bind();
 			glEnable(GL_DEPTH_TEST);
-
-			if (_ShadowSettings.EnableVSM != 0) {
+			if (_ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM) {
 				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RG, GL_FLOAT, NULL);
 			}
 			else {
@@ -403,7 +401,7 @@ void UniEngine::LightingManager::Start()
 			}
 #pragma endregion
 #pragma region VSM Filter Pass
-			if (_ShadowSettings.EnableVSM != 0) {
+			if (_ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM || _ShadowSettings.SoftShadowMode == (int)ShadowMode::ESM) {
 				_DirectionalLightShadowMapFilter->Bind();
 				_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
 				_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
@@ -579,15 +577,11 @@ void UniEngine::LightingManager::SetDirectionalLightResolution(float value)
 	_DirectionalShadowMapResolution = value;
 }
 
-void UniEngine::LightingManager::SetEnableVSM(bool value)
+void UniEngine::LightingManager::SetShadowMode(ShadowMode value)
 {
-	_ShadowSettings.EnableVSM = value ? 1.0f : 0.0f;
+	_ShadowSettings.SoftShadowMode = (int)value;
 }
 
-void UniEngine::LightingManager::SetEnableEVSM(bool value)
-{
-	_ShadowSettings.EnableEVSM = value ? 1.0f : 0.0f;
-}
 
 void UniEngine::LightingManager::SetEnableSplitDisplay(bool value)
 {
@@ -619,14 +613,14 @@ void UniEngine::LightingManager::SetLightBleedControlFactor(float value)
 	_ShadowSettings.LightBleedFactor = value;
 }
 
+void UniEngine::LightingManager::SetPCSSScaleFactor(float value)
+{
+	_ShadowSettings.PCSSScaleFactor = value;
+}
+
 void UniEngine::LightingManager::SetEVSMExponent(float value)
 {
 	_ShadowSettings.EVSMExponent = value;
-}
-
-void UniEngine::LightingManager::SetEnablePCSS(bool value)
-{
-	_ShadowSettings.EnablePCSS = value ? 1.0f : 0.0f;
 }
 
 glm::vec3 UniEngine::LightingManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)

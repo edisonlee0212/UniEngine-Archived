@@ -12,20 +12,24 @@ float lightAngle0 = 0;
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;
-float lightAngle4 = 0;
-float lightAngle5 = 0;
+float lightAngle4 = 0.8f;
+float lightAngle5 = 0.0f;
 float lightAngle6 = 0;
 float lightAngle7 = 0;
+float lightSize = 0.01;
+float lightBleedControl = 0.0;
+float pcssScale = 1.0f;
 int main()
 {
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetEnableVSM(false);
+	LightingManager::SetShadowMode(ShadowMode::ESM);
 	LightingManager::SetStableFit(true);
-	LightingManager::SetEnableEVSM(true);
-	LightingManager::SetSeamFixRatio(0.1f);
-	LightingManager::SetMaxShadowDistance(400);
-	LightingManager::SetSplitRatio(0.1f, 0.3f, 0.6f, 1.0f);
+	LightingManager::SetSeamFixRatio(0.05f);
+	LightingManager::SetMaxShadowDistance(300);
+	LightingManager::SetVSMMaxVariance(0.001f);
+	LightingManager::SetEVSMExponent(80.0f);
+	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 	
@@ -60,30 +64,40 @@ int main()
 #pragma endregion
 	
 #pragma region Lights
-	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
-	dlmmc->_Mesh = Default::Primitives::Cylinder;
-	dlmmc->_Material = Default::Materials::StandardMaterial;
+	MeshMaterialComponent* cylinder = new MeshMaterialComponent();
+	cylinder->_Mesh = Default::Primitives::Cylinder;
+	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.value = glm::vec3(0.5f);
 
+	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
+	cylinder->_Mesh = Default::Primitives::Cylinder;
+	cylinder->_Material = Default::Materials::StandardMaterial;
+	scale.value = glm::vec3(0.5f);
+
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
-	dlc->diffuse = glm::vec3(0.25f);
-	dlc->specular = glm::vec3(0.2f);
-	dlc->softShadow = true;
+
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
-	
+
+
+	DirectionalLightComponent* dlc2 = new DirectionalLightComponent();
+	Entity dle2 = EntityManager::CreateEntity(archetype);
+	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, dlc2);
+	EntityManager::SetComponentData<Scale>(dle2, scale);
+
+
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;
 	plmmc->_Material = Default::Materials::StandardMaterial;
 	scale.value = glm::vec3(0.5f);
-	
+
 	PointLightComponent* plc = new PointLightComponent();
 	plc->constant = 1.0f;
 	plc->linear = 0.09f;
 	plc->quadratic = 0.032f;
-	plc->farPlane = 70.0f;
+	plc->farPlane = 200.0f;
 	plc->diffuse = glm::vec3(3.0f);
 	plc->specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(archetype);
@@ -91,17 +105,6 @@ int main()
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, plmmc);
 
-	PointLightComponent* plc2 = new PointLightComponent();
-	plc2->constant = 1.0f;
-	plc2->linear = 0.09f;
-	plc2->quadratic = 0.032f;
-	plc2->farPlane = 70.0f;
-	plc2->diffuse = glm::vec3(3.0f);
-	plc2->specular = glm::vec3(5.0f);
-	Entity ple2 = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<PointLightComponent>(ple2, plc2);
-	EntityManager::SetComponentData<Scale>(ple2, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);
 #pragma endregion
 
 	InitGround();
@@ -119,17 +122,44 @@ int main()
 		Rotation r;
 		r.value = glm::quatLookAt(
 			glm::normalize(glm::vec3(
-				glm::cos(glm::radians(lightAngle0)) * glm::sin(glm::radians(lightAngle1)), 
-				glm::sin(glm::radians(lightAngle0)), 
+				glm::cos(glm::radians(lightAngle0)) * glm::sin(glm::radians(lightAngle1)),
+				glm::sin(glm::radians(lightAngle0)),
 				glm::cos(glm::radians(lightAngle0)) * glm::cos(glm::radians(lightAngle1))))
 			, glm::vec3(0, 1, 0));
 		EntityManager::SetComponentData<Rotation>(dle, r);
-		
+
+		r.value = glm::quatLookAt(
+			glm::normalize(glm::vec3(
+				glm::cos(glm::radians(lightAngle2)) * glm::sin(glm::radians(lightAngle3)),
+				glm::sin(glm::radians(lightAngle2)),
+				glm::cos(glm::radians(lightAngle2)) * glm::cos(glm::radians(lightAngle3))))
+			, glm::vec3(0, 1, 0));
+		EntityManager::SetComponentData<Rotation>(dle2, r);
+
+		dlc->specular = glm::vec3(lightAngle4);
+		dlc->diffuse = glm::vec3(lightAngle4);
+		dlc2->specular = glm::vec3(lightAngle5);
+		dlc2->diffuse = glm::vec3(lightAngle5);
+
 		Position p;
-		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(glm::radians(lightAngle6)), 20.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
+		p.value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Position>(ple, p);
-		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(glm::radians(lightAngle7)), 15.0f, 20.0f * glm::sin(glm::radians(lightAngle7))), 0.0f);
-		EntityManager::SetComponentData<Position>(ple2, p);
+		plc->diffuse = glm::vec3(lightAngle7);
+
+		ImGui::Begin("Light Bleed Control");
+		ImGui::SliderFloat("Factor", &lightBleedControl, 0.0f, 1.0f);
+		ImGui::End();
+		LightingManager::SetLightBleedControlFactor(lightBleedControl);
+
+		ImGui::Begin("PCSS Scale factor");
+		ImGui::SliderFloat("Factor", &pcssScale, 0.0f, 2.0f);
+		ImGui::End();
+		LightingManager::SetPCSSScaleFactor(pcssScale);
+
+		ImGui::Begin("Directional Light Size");
+		ImGui::SliderFloat("Size", &lightSize, 0.0f, 1.0f);
+		ImGui::End();
+		dlc->lightSize = lightSize;
 #pragma endregion
 		loopable = engine->Loop();
 		loopable = engine->LoopEnd();
@@ -159,7 +189,6 @@ void SplitDisplay() {
 	}
 	ImGui::End();
 }
-
 void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
@@ -169,6 +198,44 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f);
 	EntityManager::SetComponentData<Position>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
+
+	auto entity1 = EntityManager::CreateEntity(archetype);
+	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
+	Rotation rotation;
+	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
+	EntityManager::SetComponentData<Position>(entity1, translation);
+	EntityManager::SetComponentData<Scale>(entity1, scale);
+	EntityManager::SetComponentData<Rotation>(entity1, rotation);
+
+	auto entity2 = EntityManager::CreateEntity(archetype);
+	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
+	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
+
+	EntityManager::SetComponentData<Position>(entity2, translation);
+	EntityManager::SetComponentData<Scale>(entity2, scale);
+	EntityManager::SetComponentData<Rotation>(entity2, rotation);
+
+
+	auto entity3 = EntityManager::CreateEntity(archetype);
+	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
+	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+
+	EntityManager::SetComponentData<Position>(entity3, translation);
+	EntityManager::SetComponentData<Scale>(entity3, scale);
+	EntityManager::SetComponentData<Rotation>(entity3, rotation);
+
+	auto entity4 = EntityManager::CreateEntity(archetype);
+	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
+	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
+
+	EntityManager::SetComponentData<Position>(entity4, translation);
+	EntityManager::SetComponentData<Scale>(entity4, scale);
+	EntityManager::SetComponentData<Rotation>(entity4, rotation);
+
 
 	auto mat = new Material();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
@@ -180,4 +247,8 @@ void InitGround() {
 	meshMaterial->_Mesh = Default::Primitives::Quad;
 	meshMaterial->_Material = mat;
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, meshMaterial);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, meshMaterial);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity3, meshMaterial);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, meshMaterial);
 }

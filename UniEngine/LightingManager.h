@@ -11,16 +11,24 @@
 #include "Default.h"
 namespace UniEngine {
 
+	enum class UNIENGINE_API ShadowMode {
+		PCF,
+		VSM,
+		ESM,
+		PCSS,
+		HARD
+	};
+
 	struct UNIENGINE_API ShadowSettings {
 		float SplitDistance[4];
-		float EnableVSM = 0.0f;
-		float EnableEVSM = 0.0f;
+		int SoftShadowMode = (int)ShadowMode::PCF;
+		float PCSSScaleFactor = 0.0f;
 		float DisplaySplit = 0.0f;
 		float SeamFixRatio = 0.1f;
 		float VSMMaxVariance = 0.01f;
 		float LightBleedFactor = 0.5f;
 		float EVSMExponent = 40.0f;
-		float EnablePCSS = 0.0f;
+		float Padding1 = 0.0f;
 	};
 
 	class UNIENGINE_API LightingManager :
@@ -68,16 +76,15 @@ namespace UniEngine {
 		static void Start();
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetDirectionalLightResolution(float value);
-		static void SetEnableVSM(bool value);
-		static void SetEnableEVSM(bool value);
+		static void SetShadowMode(ShadowMode value);
 		static void SetEnableSplitDisplay(bool value);
 		static void SetStableFit(bool value);
 		static void SetSeamFixRatio(float value);
 		static void SetMaxShadowDistance(float value);
+		static void SetPCSSScaleFactor(float value);
 		static void SetVSMMaxVariance(float value);
 		static void SetLightBleedControlFactor(float value);
 		static void SetEVSMExponent(float value);
-		static void SetEnablePCSS(bool value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 
 		static void SetMainCamera(Entity entity);

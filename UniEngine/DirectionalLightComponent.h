@@ -19,7 +19,6 @@ namespace UniEngine {
 		float depthBias = 0.01f;
 		float normalOffset = 0.001f;
 		float lightSize = 0.01;
-		bool softShadow = false;
 		size_t GetHashCode();
 	};
 

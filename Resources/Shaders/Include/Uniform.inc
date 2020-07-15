@@ -64,14 +64,14 @@ layout (std140, binding = 4) uniform ShadowSettings
     float SplitDistance1;
     float SplitDistance2;
     float SplitDistance3;
-    float EnableVSM;
-	float EnableEVSM;
+    int SoftShadowMode;
+	float PCSSScaleFactor;
 	float DisplaySplit;
 	float SeamFixRatio;
     float VSMMaxVariance;
     float LightBleedFactor;
     float EVSMExponent;
-    float EnablePCSS;
+    float Padding0;
 };
 
 //Material
