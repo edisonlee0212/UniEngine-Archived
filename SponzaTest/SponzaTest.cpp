@@ -16,6 +16,7 @@ float lightAngle5 = 0.0f;
 float lightAngle6 = 0;
 float lightAngle7 = 0;
 float lightSize = 0.01;
+float lightBleedControl = 0.0;
 enum TestScene {
 	SPONZA_TEST,
 	PCSS,
@@ -24,16 +25,16 @@ int main()
 {
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetEnableVSM(false);
+	LightingManager::SetEnableVSM(true);
 	LightingManager::SetStableFit(true);
-	LightingManager::SetEnableEVSM(false);
+	LightingManager::SetEnableEVSM(true);
 	LightingManager::SetEnablePCSS(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(300);
 
 	LightingManager::SetVSMMaxVariance(0.001f);
-	LightingManager::SetLightBleedControlFactor(0.9f);
-	LightingManager::SetEVSMExponent(0.4f);
+	
+	LightingManager::SetEVSMExponent(80.0f);
 
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
@@ -210,8 +211,13 @@ int main()
 		EntityManager::SetComponentData<Position>(ple, p);
 		plc->diffuse = glm::vec3(lightAngle7);
 
+		ImGui::Begin("Light Bleed Control");
+		ImGui::SliderFloat("Factor", &lightBleedControl, 0.0f, 1.0f);
+		ImGui::End();
+		LightingManager::SetLightBleedControlFactor(lightBleedControl);
+
 		ImGui::Begin("Directional Light Size");
-		ImGui::SliderFloat("Size", &lightSize, 0.0f, 1);
+		ImGui::SliderFloat("Size", &lightSize, 0.0f, 1.0f);
 		ImGui::End();
 		dlc->lightSize = lightSize;
 #pragma endregion

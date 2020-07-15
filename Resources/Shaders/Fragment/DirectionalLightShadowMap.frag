@@ -41,18 +41,14 @@ void main()
     if(DirectionalLights[index].ReservedParameters.y != 0){
         if(EnableVSM != 0){
             if(EnableEVSM != 0){
-                depth = depth * 2.0 - 1.0;
-                if(depth <= 0.000001) depth = 0.000001;
-                float pos = exp(EVSMExponent * depth);
-                float neg = -exp(-EVSMExponent * depth);
-                vFragColor = vec4(pos, pos * pos, neg, neg * neg);
+                vFragColor = vec4(exp(depth * EVSMExponent), 0, 0, 1);
             }else{
                 float dx = dFdx(depth);
                 float dy = dFdy(depth);
-                vFragColor = vec4(depth, depth * depth + 0.25 * (dx * dx + dy * dy), depth, 1);
+                vFragColor = vec4(depth, depth * depth + 0.25 * (dx * dx + dy * dy), 0, 1);
             }
         }else{
-        vFragColor = vec4(depth, 0, 0, 1);
+            vFragColor = vec4(depth, 0, 0, 1);
         }
     }else{
         vFragColor = vec4(depth, 0, 0, 1);

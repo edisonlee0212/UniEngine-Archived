@@ -249,25 +249,12 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 		// PCF
 		if(EnableVSM != 0){
 			if(EnableEVSM != 0){
-				vec4 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex));
-				float depth = projCoords.z * 2.0 - 1.0;
-				if(depth <= 0.000001) depth = 0.000001;
-				float pos = exp(EVSMExponent * depth);
-				float neg = -exp(-EVSMExponent * depth);
-				float posShadow = Chebyshev(moments.xy, pos);
-				float negShadow = Chebyshev(moments.zw, neg);
-				shadow = min(posShadow, negShadow);
+				float moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).r;
+				float L = moments * exp(-EVSMExponent * projCoords.z);
+				shadow = ReduceLightBleed(clamp(L, 0.0, 1.0), LightBleedFactor);
 			}else{
-				float texelSize = 0.1 / textureSize(directionalShadowMap, 0).x;
-				for(int x = -0; x <= 0; ++x)
-				{
-					for(int y = -0; y <= 0; ++y)
-					{
-						vec3 moments = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).rgb;
-						shadow += Chebyshev(moments.xy, projCoords.z);
-					}
-				}
-				//shadow /= 9.0;
+				vec2 moments = texture(directionalShadowMap, vec3(projCoords.xy, i * 4 + splitIndex)).rg;
+				shadow = Chebyshev(moments.xy, projCoords.z);
 			}
 		}else{
 			if(splitIndex <= 1 && EnablePCSS != 0){
