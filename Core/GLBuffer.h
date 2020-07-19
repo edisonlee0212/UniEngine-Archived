@@ -5,29 +5,30 @@ namespace UniEngine {
 	{
 	public:
 		GLBuffer() {
-			glGenBuffers(1, &_ID);
+			glCreateBuffers(1, &_ID);
 		}
 		~GLBuffer() {
 			glDeleteBuffers(1, &_ID);
 		}
+		void SetData(GLsizei length, GLvoid* data, GLbitfield flags) {
+			glNamedBufferStorage(_ID, length, data, flags);
+			//glNamedBufferData(_ID, length, data, usage);
+		}
+		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
+			glNamedBufferSubData(_ID, offset, size, data);
+		}
 	};
 
 	class CORE_API GLEBO : public GLBuffer {
-		static GLuint _CurrentBinding;
 	public:
+		GLEBO() : GLBuffer() {
+			Bind();
+		}
 		void Bind() {
-			if (_ID == _CurrentBinding) return;
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ID);
-			_CurrentBinding = _ID;
 		}
 		static void BindDefault() {
-			if (_CurrentBinding == 0) return;
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-			_CurrentBinding = 0;
-		}
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
-			Bind();
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, length, data, usage);
 		}
 		~GLEBO() {
 			BindDefault();
@@ -35,25 +36,20 @@ namespace UniEngine {
 	};
 
 	class CORE_API GLVBO : public GLBuffer {
-		static GLuint _CurrentBinding;
+		GLuint _BindingIndex;
 	public:
+		GLVBO(GLuint bindingIndex) : GLBuffer() {
+			Bind();
+			_BindingIndex = bindingIndex;
+		}
 		void Bind() {
-			if (_ID == _CurrentBinding) return;
 			glBindBuffer(GL_ARRAY_BUFFER, _ID);
-			_CurrentBinding = _ID;
 		}
 		static void BindDefault() {
-			if (_CurrentBinding == 0) return;
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			_CurrentBinding = 0;
 		}
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
-			Bind();
-			glBufferData(GL_ARRAY_BUFFER, length, data, usage);
-		}
-		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
-			Bind();
-			glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+		GLuint BindingIndex() {
+			return _BindingIndex;
 		}
 		~GLVBO() {
 			BindDefault();
@@ -61,30 +57,21 @@ namespace UniEngine {
 	};
 
 	class CORE_API GLUBO : public GLBuffer {
-		static GLuint _CurrentBinding;
 	public:
+		GLUBO() : GLBuffer() {
+			Bind();
+		}
 		~GLUBO() {
 			BindDefault();
 		}
 
 		void Bind() {
-			if (_ID == _CurrentBinding) return;
 			glBindBuffer(GL_UNIFORM_BUFFER, _ID);
-			_CurrentBinding = _ID;
 		}
 		static void BindDefault() {
-			if (_CurrentBinding == 0) return;
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			_CurrentBinding = 0;
 		}
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
-			Bind();
-			glBufferData(GL_UNIFORM_BUFFER, length, data, usage);
-		}
-		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
-			Bind();
-			glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-		}
+
 		void SetBase(GLuint index) {
 			glBindBufferBase(GL_UNIFORM_BUFFER, index, _ID);
 		}
@@ -94,77 +81,73 @@ namespace UniEngine {
 			GLsizeiptr size) {
 			glBindBufferRange(GL_UNIFORM_BUFFER, index, _ID, offset, size);
 		}
-
-
 	};
 
 	class CORE_API GLVAO : public GLObject {
+		friend class GLCore;
+		static GLint _MaxAllowedVBO;
 	protected:
-		GLVBO* _VBO;
-		GLEBO* _EBO;
-		static GLuint _CurrentBinding;
+		std::vector<GLVBO*> _VBOs;
+		GLEBO _EBO;
 	public:
 		~GLVAO() {
-			delete _VBO;
-			delete _EBO;
 			BindDefault();
+			for (auto vbo : _VBOs) delete vbo;
 			glDeleteVertexArrays(1, &_ID);
 		}
 
 		void Bind() {
-			if (_ID == _CurrentBinding) return;
 			glBindVertexArray(_ID);
-			_CurrentBinding = _ID;
 		}
 
 		static void BindDefault() {
-			if (_CurrentBinding == 0) return;
 			glBindVertexArray(0);
-			_CurrentBinding = 0;
 		}
+
 		GLVAO() {
-			glGenVertexArrays(1, &_ID);
-			_VBO = new GLVBO();
-			_EBO = new GLEBO();
+			_VBOs = std::vector<GLVBO*>();
+			glCreateVertexArrays(1, &_ID);
+			glVertexArrayElementBuffer(_ID, _EBO.ID());
 		}
-		GLVBO* VBO() {
-			return _VBO;
+
+		GLVBO* AddVBO(GLsizei stride) {
+			if (_VBOs.size() >= _MaxAllowedVBO) {
+				Debug::Error("Too many VBO!");
+			}
+			auto vbo = new GLVBO(_VBOs.size());
+			glVertexArrayVertexBuffer(_ID, _VBOs.size(), vbo->ID(), 0, stride);
+			_VBOs.push_back(vbo);
+			return vbo;
+		}
+
+		GLVBO* VBO(size_t index) {
+			return _VBOs[index];
 		}
 
 		GLEBO* EBO() {
-			return _EBO;
-		}
-
-
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
-			Bind();
-			_VBO->SetData(length, data, usage);
-		}
-		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
-			Bind();
-			_VBO->SubData(offset, size, data);
+			return &_EBO;
 		}
 
 		void EnableAttributeArray(GLuint index)
 		{
-			Bind();
-			glEnableVertexAttribArray(index);
+			glEnableVertexArrayAttrib(_ID, index);
 		}
 
 		void DisableAttributeArray(GLuint index)
 		{
-			Bind();
-			glDisableVertexAttribArray(index);
+			glDisableVertexArrayAttrib(_ID, index);
 		}
 
-		void SetAttributePointer(GLuint index,
+		void SetAttributePointer(GLuint attribindex,
 			GLint size,
 			GLenum type,
 			GLboolean normalized,
-			GLsizei stride,
-			const void* pointer) {
-			Bind();
-			glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+			GLuint relativeoffset,
+			GLuint bindingindex
+			) {
+			glEnableVertexArrayAttrib(_ID, attribindex);
+			glVertexArrayAttribFormat(_ID, attribindex, size, type, normalized, relativeoffset);
+			glVertexArrayAttribBinding(_ID, attribindex, bindingindex);
 		}
 
 		void SetAttributeDivisor(GLuint index,

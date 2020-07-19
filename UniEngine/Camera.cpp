@@ -77,7 +77,7 @@ void UniEngine::Camera::CalculateFrustumPoints(float nearPlane, float farPlane, 
 void UniEngine::Camera::GenerateMatrices()
 {
 	_CameraData = new GLUBO();
-	_CameraData->SetData(sizeof(CameraInfoBlock), NULL, GL_STATIC_DRAW);
+	_CameraData->SetData(sizeof(CameraInfoBlock), NULL, GL_DYNAMIC_STORAGE_BIT);
 	_CameraData->SetBase(0);
 }
 
