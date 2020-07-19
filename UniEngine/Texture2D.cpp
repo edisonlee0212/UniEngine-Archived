@@ -5,15 +5,15 @@
 using namespace UniEngine;
 UniEngine::Texture2D::Texture2D(TextureType type) : _Type(type)
 {
-    _Texture = new GLTexture();
+    _Texture = nullptr;
 }
 
 UniEngine::Texture2D::~Texture2D()
 {
-    delete _Texture;
+    if(_Texture != nullptr) delete _Texture;
 }
 
-GLTexture* UniEngine::Texture2D::Texture()
+GLTexture2D* UniEngine::Texture2D::Texture()
 {
 	return _Texture;
 }
@@ -42,13 +42,14 @@ void UniEngine::Texture2D::LoadTexture(std::string path, const std::string& dire
         else if (nrComponents == 4)
             format = GL_RGBA;
 
-        _Texture->SetImage2D(0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        _Texture = new GLTexture2D(1, GL_RGBA8, width, height);
+        _Texture->SetData(0, format, GL_UNSIGNED_BYTE, data);
+        _Texture->GenerateMipMap();
 
-        _Texture->SetIntParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        _Texture->SetIntParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        _Texture->SetIntParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        _Texture->SetIntParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        _Texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+        _Texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+        _Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        _Texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_image_free(data);
     }

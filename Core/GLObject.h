@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreAPI.h"
+#include "Debug.h"
 namespace UniEngine {
 	class CORE_API GLObject
 	{

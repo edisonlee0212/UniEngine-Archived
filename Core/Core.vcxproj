@@ -169,6 +169,7 @@
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GLBuffer.h" />
+    <ClInclude Include="GLCore.h" />
     <ClInclude Include="GLFrameBuffer.h" />
     <ClInclude Include="GLObject.h" />
     <ClInclude Include="GLProgram.h" />
@@ -187,6 +188,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="GLBuffer.cpp" />
+    <ClCompile Include="GLCore.cpp" />
     <ClCompile Include="GLFrameBuffer.cpp" />
     <ClCompile Include="GLProgram.cpp" />
     <ClCompile Include="GLRenderBuffer.cpp" />

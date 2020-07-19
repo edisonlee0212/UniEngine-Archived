@@ -27,12 +27,12 @@ namespace UniEngine {
 	class UNIENGINE_API Texture2D
 	{
         TextureType _Type;
-        GLTexture* _Texture;
+        GLTexture2D* _Texture;
         std::string _Path;
     public:
         Texture2D(TextureType type);
         ~Texture2D();
-        GLTexture* Texture();
+        GLTexture2D* Texture();
         TextureType Type();
         void LoadTexture(std::string path, const std::string& directory);
         std::string Path();

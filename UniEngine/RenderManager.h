@@ -14,12 +14,7 @@
 namespace UniEngine {
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
-		static GLenum _TextureStartIndex;
-
-		
-
 		friend class RenderTarget;
-		static RenderTarget* _CurrentRenderTarget;
 		static unsigned _Triangles;
 		static unsigned _DrawCall;
 

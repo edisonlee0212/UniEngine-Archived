@@ -34,8 +34,10 @@ void UniEngine::Engine::GLInit()
 		exit(-1);
 	}
 
+	GLCore::Init();
+
 	// enable OpenGL debug context if context allows for debug context
-	/*
+	
 	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
 	{
@@ -43,7 +45,7 @@ void UniEngine::Engine::GLInit()
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
 		glDebugMessageCallback(glDebugOutput, nullptr);
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	}*/
+	}
 }
 
 void UniEngine::Engine::Start(GLFWwindow* targetWindow, unsigned width, unsigned height)
@@ -211,7 +213,7 @@ void APIENTRY glDebugOutput(GLenum source,
 	const char* message,
 	const void* userParam)
 {
-	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return; // ignore these non-significant error codes
+	if (id == 131169 || id == 131185 || id == 131218 || id == 131204 || id == 131184) return; // ignore these non-significant error codes
 
 	std::cout << "---------------" << std::endl;
 	std::cout << "Debug message (" << id << "): " << message << std::endl;

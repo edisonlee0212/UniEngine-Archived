@@ -32,7 +32,7 @@ int main()
 	LightingManager::SetMaxShadowDistance(300);
 	LightingManager::SetVSMMaxVariance(0.001f);
 	LightingManager::SetEVSMExponent(80.0f);
-	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
+	LightingManager::SetSplitRatio(0.07f, 0.3f, 0.5f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 
@@ -85,7 +85,7 @@ int main()
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.value = glm::vec3(0.5f);
-	TestScene testScene = PCSS;
+	TestScene testScene = SPONZA_TEST;
 #pragma region PCSS test
 	if (testScene == SPONZA_TEST) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);

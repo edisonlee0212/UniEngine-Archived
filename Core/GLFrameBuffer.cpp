@@ -22,7 +22,7 @@ UniEngine::GLFrameBuffer::GLFrameBuffer()
 	_Color = false;
 	_Depth = false;
 	_Stencil = false;
-	glGenFramebuffers(1, &_ID);
+	glCreateFramebuffers(1, &_ID);
 }
 
 UniEngine::GLFrameBuffer::~GLFrameBuffer()
@@ -64,30 +64,7 @@ void UniEngine::GLFrameBuffer::AttachRenderBuffer(GLRenderBuffer* buffer, GLenum
 		_Color = true;
 		break;
 	}
-	Bind();
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachPoint, GL_RENDERBUFFER, buffer->ID());
-}
-
-void UniEngine::GLFrameBuffer::AttachTexture2D(GLTexture* texture, GLenum attachPoint)
-{
-	switch (attachPoint)
-	{
-	case GL_DEPTH_ATTACHMENT:
-		_Depth = true;
-		break;
-	case GL_STENCIL_ATTACHMENT:
-		_Stencil = true;
-		break;
-	case GL_DEPTH_STENCIL_ATTACHMENT:
-		_Depth = true;
-		_Stencil = true;
-		break;
-	default:
-		_Color = true;
-		break;
-	}
-	Bind();
-	glFramebufferTexture2D(GL_FRAMEBUFFER, attachPoint, GL_TEXTURE_2D, texture->ID(), 0);
+	glNamedFramebufferRenderbuffer(_ID, attachPoint, GL_RENDERBUFFER, buffer->ID());
 }
 
 void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLenum attachPoint)
@@ -108,8 +85,7 @@ void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLenum attachPo
 		_Color = true;
 		break;
 	}
-	Bind();
-	glFramebufferTexture(GL_FRAMEBUFFER, attachPoint, texture->ID(), 0);
+	glNamedFramebufferTexture(_ID, attachPoint, texture->ID(), 0);
 }
 
 void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer)
@@ -130,6 +106,5 @@ void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLenum att
 		_Color = true;
 		break;
 	}
-	Bind();
-	glFramebufferTextureLayer(GL_FRAMEBUFFER, attachPoint, texture->ID(), 0, layer);
+	glNamedFramebufferTextureLayer(_ID, attachPoint, texture->ID(), 0, layer);
 }

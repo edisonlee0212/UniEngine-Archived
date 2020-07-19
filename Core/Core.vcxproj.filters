@@ -105,6 +105,9 @@
     <ClInclude Include="Core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLCore.h">
+      <Filter>Header Files\Graphics\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -141,6 +144,9 @@
       <Filter>Source Files\Graphics\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="..\includes\glad\src\glad.c">
+      <Filter>Source Files\Graphics\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="GLCore.cpp">
       <Filter>Source Files\Graphics\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>

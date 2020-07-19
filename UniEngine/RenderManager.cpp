@@ -3,8 +3,6 @@
 #include "LightingManager.h"
 using namespace UniEngine;
 
-GLenum RenderManager::_TextureStartIndex = 4;
-RenderTarget* RenderManager::_CurrentRenderTarget;
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;
 
@@ -31,20 +29,15 @@ void UniEngine::RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat
 void UniEngine::RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow)
 {
-	if (_CurrentRenderTarget != target) {
 		target->Bind();
-		_CurrentRenderTarget = target;
-	}
+		
 	DrawMeshInstanced(mesh, material, matrix, matrices, count, receiveShadow);
 }
 
 void UniEngine::RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 matrix, RenderTarget* target, bool receiveShadow)
 {
-	if (_CurrentRenderTarget != target) {
-		target->Bind();
-		_CurrentRenderTarget = target;
-	}
+	target->Bind();
 	DrawMesh(mesh, material, matrix, receiveShadow);
 }
 
@@ -66,15 +59,39 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	mesh->VAO()->SetAttributeDivisor(13, 1);
 	mesh->VAO()->SetAttributeDivisor(14, 1);
 	mesh->VAO()->SetAttributeDivisor(15, 1);
+	
+
+	size_t textureStartIndex = 0;
+	if (receiveShadow) {
+		LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
+		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+		textureStartIndex += 2;
+	}
+	GLint max = GLTexture::GetMaxAllowedTexture();
+	if (material->Textures2Ds()->size() != 0) {
+		for (auto texture : *material->Textures2Ds()) {
+			if (textureStartIndex >= max) {
+				Debug::Error("Max allowed texture exceeded!");
+				break;
+			}
+			texture->Texture()->Bind(textureStartIndex);
+			textureStartIndex++;
+		}
+	}
+
 	auto programs = material->Programs();
+	textureStartIndex = 0;
 	for (auto i = 0; i < programs->size(); i++) {
 		RenderManager::_DrawCall++;
 		RenderManager::_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
 		program->Bind();
-		program->SetInt("directionalShadowMap", 0);
-		program->SetInt("pointShadowMap", 1);
-		program->SetBool("receiveShadow", receiveShadow);
+		if (receiveShadow) {
+			program->SetInt("directionalShadowMap", 0);
+			program->SetInt("pointShadowMap", 1);
+			program->SetBool("receiveShadow", receiveShadow);
+			textureStartIndex += 2;
+		}
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);
@@ -97,8 +114,6 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				std::string name = "";
 				int size = -1;
 				auto texture = textures->at(j);
-
-				GLTexture::Activate(GL_TEXTURE0 + _TextureStartIndex + j);
 				switch (texture->Type())
 				{
 				case TextureType::DIFFUSE:
@@ -134,12 +149,10 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				default:
 					break;
 				}
-				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", _TextureStartIndex + j);
-				texture->Texture()->Bind(GL_TEXTURE_2D);
+				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", j + textureStartIndex);
 			}
 		}
 		glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
-		GLTexture::BindDefault();
 	}
 	GLVAO::BindDefault();
 	delete matricesBuffer;
@@ -153,15 +166,38 @@ void UniEngine::RenderManager::DrawMesh(
 	mesh->VAO()->DisableAttributeArray(13);
 	mesh->VAO()->DisableAttributeArray(14);
 	mesh->VAO()->DisableAttributeArray(15);
+
+	size_t textureStartIndex = 0;
+	if (receiveShadow) {
+		LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
+		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+		textureStartIndex += 2;
+	}
+	GLint max = GLTexture::GetMaxAllowedTexture();
+	if (material->Textures2Ds()->size() != 0) {
+		for (auto texture : *material->Textures2Ds()) {
+			if (textureStartIndex >= max) {
+				Debug::Error("Max allowed texture exceeded!");
+				break;
+			}
+			texture->Texture()->Bind(textureStartIndex);
+			textureStartIndex++;
+		}
+	}
+
 	auto programs = material->Programs();
+	textureStartIndex = 0;
 	for (auto i = 0; i < programs->size(); i++) {
 		RenderManager::_DrawCall++;
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Bind();
-		program->SetInt("directionalShadowMap", 0);
-		program->SetInt("pointShadowMap", 1);
-		program->SetBool("receiveShadow", receiveShadow);
+		if (receiveShadow) {
+			program->SetInt("directionalShadowMap", 0);
+			program->SetInt("pointShadowMap", 1);
+			program->SetBool("receiveShadow", receiveShadow);
+			textureStartIndex += 2;
+		}
 		program->SetFloat4x4("model", matrix);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);
@@ -185,7 +221,6 @@ void UniEngine::RenderManager::DrawMesh(
 				int size = -1;
 				auto texture = textures->at(j);
 				
-				GLTexture::Activate(GL_TEXTURE0 + _TextureStartIndex + j);
 				switch (texture->Type())
 				{
 				case TextureType::DIFFUSE:
@@ -221,12 +256,10 @@ void UniEngine::RenderManager::DrawMesh(
 				default:
 					break;
 				}
-				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", _TextureStartIndex + j);
-				texture->Texture()->Bind(GL_TEXTURE_2D);
+				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", j + textureStartIndex);
 			}
 		}
 		glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
-		GLTexture::BindDefault();
 	}
 	GLVAO::BindDefault();
 }
@@ -234,7 +267,6 @@ void UniEngine::RenderManager::DrawMesh(
 
 void UniEngine::RenderManager::Start()
 {
-	RenderManager::_CurrentRenderTarget = nullptr;
 	_Triangles = 0;
 	_DrawCall = 0;
 }

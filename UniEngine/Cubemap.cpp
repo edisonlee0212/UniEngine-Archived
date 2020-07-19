@@ -4,7 +4,12 @@
 
 UniEngine::Cubemap::Cubemap()
 {
-	_Texture = new GLTexture();
+	_Texture = nullptr;
+}
+
+UniEngine::Cubemap::~Cubemap()
+{
+    if (_Texture != nullptr) delete _Texture;
 }
 
 void UniEngine::Cubemap::LoadCubeMap(std::vector<std::string> paths)
@@ -21,7 +26,16 @@ void UniEngine::Cubemap::LoadCubeMap(std::vector<std::string> paths)
         unsigned char* data = stbi_load(_Paths[i].c_str(), &width, &height, &nrComponents, 0);
         if (data)
         {
-            _Texture->SetCubeMap((CubeMapIndex)i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            GLenum format = GL_RED;
+            if (nrComponents == 1)
+                format = GL_RED;
+            else if (nrComponents == 3)
+                format = GL_RGB;
+            else if (nrComponents == 4)
+                format = GL_RGBA;
+
+            _Texture = new GLTextureCubeMap(1, GL_RGBA8, width, height);
+            _Texture->SetData((CubeMapIndex)i, 0, format, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
         else
@@ -30,11 +44,11 @@ void UniEngine::Cubemap::LoadCubeMap(std::vector<std::string> paths)
             stbi_image_free(data);
         }
     }
-    _Texture->SetIntParameter(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    _Texture->SetIntParameter(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    _Texture->SetIntParameter(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    _Texture->SetIntParameter(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    _Texture->SetIntParameter(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    _Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    _Texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    _Texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _Texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _Texture->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 std::vector<std::string> UniEngine::Cubemap::Paths()

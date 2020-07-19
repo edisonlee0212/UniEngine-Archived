@@ -144,15 +144,13 @@ void UniEngine::LightingManager::Init()
 
 	_DirectionalLightShadowMapFilter = new RenderTarget(_DirectionalShadowMapResolution, _DirectionalShadowMapResolution);
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	_DLVSMVFilter = new GLTexture();
+	_DLVSMVFilter = new GLTexture2DArray(1, GL_RG32F, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, Default::ShaderIncludes::ShadowCascadeAmount);
 
-	_DLVSMVFilter->SetImage2DArray(0, GL_RG32F, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, Default::ShaderIncludes::ShadowCascadeAmount, 0, GL_RG, GL_FLOAT, NULL);
-
-	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	_DLVSMVFilter->SetIntParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	_DLVSMVFilter->SetFloat4Parameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
+	_DLVSMVFilter->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_DLVSMVFilter->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_DLVSMVFilter->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	_DLVSMVFilter->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	_DLVSMVFilter->SetFloat4(GL_TEXTURE_BORDER_COLOR, borderColor);
 	_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
 	_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
 #pragma endregion
@@ -186,16 +184,6 @@ void UniEngine::LightingManager::Init()
 	_UpdateDirectionalLightBlock = true;
 	_UpdatePointLightBlock = true;
 	_UpdateSpotLightBlock = true;
-
-	GLTexture::Activate(GL_TEXTURE0);
-	LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(GL_TEXTURE_2D_ARRAY);
-
-	GLTexture::Activate(GL_TEXTURE1);
-	LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(GL_TEXTURE_CUBE_MAP_ARRAY);
-	GLTexture::BindDefault();
-
-	GLTexture::Activate(GL_TEXTURE2);
-	_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
 }
 
 void UniEngine::LightingManager::Start()
@@ -319,6 +307,7 @@ void UniEngine::LightingManager::Start()
 				_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowSettings), &_ShadowSettings);
 			}
 #pragma region Directional Light Shadowmap pass
+			LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 			_DirectionalLightShadowMap->SetLightAmount(size);
 			_DirectionalLightShadowMap->SetVSM(_ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM);
 			_DirectionalLightShadowMap->Bind();
@@ -414,11 +403,10 @@ void UniEngine::LightingManager::Start()
 						_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
 						_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
 						glDrawArrays(GL_TRIANGLES, 0, 6);
-						GLTexture::Activate(GL_TEXTURE2);
-						_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
+						_DLVSMVFilter->Bind(1);
 						glDrawBuffer(GL_COLOR_ATTACHMENT1);
 						_DirectionalLightHFilterProgram->Bind();
-						_DirectionalLightHFilterProgram->SetInt("textureMapArray", 2);
+						_DirectionalLightHFilterProgram->SetInt("textureMapArray", 1);
 						_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
 						glDrawArrays(GL_TRIANGLES, 0, 6);
 					}
@@ -442,11 +430,10 @@ void UniEngine::LightingManager::Start()
 						_DirectionalLightVSAProgram->SetInt("passIndex", p);
 						glDrawArrays(GL_TRIANGLES, 0, 6);
 					}
-					GLTexture::Activate(GL_TEXTURE2);
-					_DLVSMVFilter->Bind(GL_TEXTURE_2D_ARRAY);
+					_DLVSMVFilter->Bind(1);
 					glDrawBuffer(GL_COLOR_ATTACHMENT1);
 					_DirectionalLightHSAProgram->Bind();
-					_DirectionalLightHSAProgram->SetInt("textureMapArray", 2);
+					_DirectionalLightHSAProgram->SetInt("textureMapArray", 1);
 					_DirectionalLightHSAProgram->SetInt("lightIndex", i);
 					for (int p = 0; p < passAmount; p++) {
 						//Horizontal phase
@@ -490,6 +477,7 @@ void UniEngine::LightingManager::Start()
 			_PointLightBlock->SubData(0, 4, &size);
 			if (size != 0)_PointLightBlock->SubData(16, size * sizeof(PointLight), &_PointLights[0]);
 #pragma region PointLight Shadowmap Pass
+			LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(0);
 			_PointLightShadowMap->Bind();
 			glCullFace(GL_FRONT);
 			glEnable(GL_DEPTH_TEST);

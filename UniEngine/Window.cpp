@@ -18,9 +18,9 @@ UniEngine::Window::Window(GLFWwindow* window, unsigned width, unsigned height)
 	_Height = height;
 	_ResolutionY = height;
 	_ResolutionX = width;
-	_ColorTexture = SetTexture2D(GL_COLOR_ATTACHMENT0, 0, GL_RGB, 0, GL_RGB, GL_UNSIGNED_BYTE);
-	_ColorTexture->SetIntParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_ColorTexture->SetIntParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_ColorTexture = SetTexture2D(GL_COLOR_ATTACHMENT0, 1, GL_RGB32F);
+	_ColorTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_ColorTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_RenderBuffer = SetRenderBuffer(GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH24_STENCIL8);
 }
 
@@ -49,7 +49,8 @@ void UniEngine::Window::Update(Texture2D* texture)
 	program->Bind();
 	
 	Default::GLPrograms::ScreenVAO->Bind();
-	texture->Texture()->Bind(GL_TEXTURE_2D);
+	texture->Texture()->Bind(0);
+	program->SetInt("screenTexture", 0);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glfwSwapBuffers(_Window);
 }
@@ -70,7 +71,8 @@ void UniEngine::Window::Update()
 
 	Default::GLPrograms::ScreenVAO->Bind();
 	//Default::Textures::UV->Texture()->Bind(GL_TEXTURE_2D);
-	_ColorTexture->Bind(GL_TEXTURE_2D);
+	_ColorTexture->Bind(0);
+	program->SetInt("screenTexture", 0);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glfwSwapBuffers(_Window);
 }

@@ -23,7 +23,7 @@ int main()
 {
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetShadowMode(ShadowMode::ESM);
+	LightingManager::SetShadowMode(ShadowMode::HARD);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(300);
@@ -171,10 +171,14 @@ int main()
 
 void LightAngleSlider() {
 	ImGui::Begin("Light Angle Controller");
-	ImGui::SliderFloat("Directional Light angle", &lightAngle0, 0.0f, 180.0f);
-	ImGui::SliderFloat("Directional Light circle", &lightAngle1, 0.0f, 360.0f);
-	ImGui::SliderFloat("Point Light 1", &lightAngle6, 0.0f, 180.0f);
-	ImGui::SliderFloat("Point Light 2", &lightAngle7, 0.0f, 360.0f);
+	ImGui::SliderFloat("Soft light angle", &lightAngle0, 0.0f, 89.0f);
+	ImGui::SliderFloat("Soft light circle", &lightAngle1, 0.0f, 360.0f);
+	ImGui::SliderFloat("Hard light angle", &lightAngle2, 0.0f, 89.0f);
+	ImGui::SliderFloat("Hard light circle", &lightAngle3, 0.0f, 360.0f);
+	ImGui::SliderFloat("Soft Light brightness", &lightAngle4, 0.0f, 2.0f);
+	ImGui::SliderFloat("Hard light brightness", &lightAngle5, 0.0f, 2.0f);
+	ImGui::SliderFloat("Point Light", &lightAngle6, 0.0f, 180.0f);
+	ImGui::SliderFloat("Point Light brightness", &lightAngle7, 0.0f, 10.0f);
 	ImGui::End();
 }
 
