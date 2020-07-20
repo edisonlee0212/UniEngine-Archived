@@ -23,7 +23,7 @@ int main()
 {
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetShadowMode(ShadowMode::HARD);
+	LightingManager::SetShadowMode(ShadowMode::PCSS);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(300);

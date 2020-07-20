@@ -35,15 +35,21 @@ void UniEngine::Texture2D::LoadTexture(std::string path, const std::string& dire
     if (data)
     {
         GLenum format = GL_RED;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
+        GLenum iformat = GL_R8;
+        if (nrComponents == 2) {
+            format = GL_RG;
+            iformat = GL_RG8;
+        }
+        else if (nrComponents == 3) {
             format = GL_RGB;
-        else if (nrComponents == 4)
+            iformat = GL_RGB8;
+        }
+        else if (nrComponents == 4) {
             format = GL_RGBA;
-
-        _Texture = new GLTexture2D(1, GL_RGBA8, width, height);
-        _Texture->SetData(0, format, GL_UNSIGNED_BYTE, data);
+            iformat = GL_RGBA8;
+        }
+        _Texture = new GLTexture2D(1, iformat, width, height, false);
+        _Texture->SetData(0, iformat, format, GL_UNSIGNED_BYTE, data);
         _Texture->GenerateMipMap();
 
         _Texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
