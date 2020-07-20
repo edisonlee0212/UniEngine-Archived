@@ -47,7 +47,43 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 	std::vector<glm::vec2> texcoords5s = std::vector<glm::vec2>();
 	std::vector<glm::vec2> texcoords6s = std::vector<glm::vec2>();
 	std::vector<glm::vec2> texcoords7s = std::vector<glm::vec2>();
-
+#pragma region DataAllocation
+	size_t attributeSize = 2 * sizeof(glm::vec3);
+	if (mask & (unsigned)VertexAttribute::Tangent) {
+		attributeSize += sizeof(glm::vec3);
+	}
+	if (mask & (unsigned)VertexAttribute::Bitangent) {
+		attributeSize += sizeof(glm::vec3);
+	}
+	if (mask & (unsigned)VertexAttribute::Color) {
+		attributeSize += sizeof(glm::vec4);
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord0) {
+		attributeSize += sizeof(glm::vec2);
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord1) {
+		attributeSize += sizeof(glm::vec2);
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord2) {
+		attributeSize += sizeof(glm::vec2);
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord3) {
+		attributeSize += sizeof(glm::vec2);
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord4) {
+		attributeSize += sizeof(glm::vec2);
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord5) {
+		attributeSize += sizeof(glm::vec2);
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord6) {
+		attributeSize += sizeof(glm::vec2);
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord7) {
+		attributeSize += sizeof(glm::vec2);
+	}
+	_VAO->SetData(_VerticesSize * attributeSize, nullptr, GL_STATIC_DRAW);
+#pragma endregion
 #pragma region Copy
 	glm::vec3 minBound = vertices->at(0).Position;
 	glm::vec3 maxBound = vertices->at(0).Position;
@@ -98,75 +134,122 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 	_Bound.Radius = glm::length(_Bound.Size);
 #pragma endregion
 #pragma region ToGPU
-	auto vbo = _VAO->AddVBO(sizeof(glm::vec3));
-	vbo->SetData(_VerticesSize * sizeof(glm::vec3), &positions[0], GL_DYNAMIC_STORAGE_BIT);
-	_VAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
-	vbo = _VAO->AddVBO(sizeof(glm::vec3));
-	_VAO->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
-
-	if (mask & (unsigned)VertexAttribute::Normal) {
-		vbo->SetData(_VerticesSize * sizeof(glm::vec3), &normals[0], GL_DYNAMIC_STORAGE_BIT);
-	}else {
+	_VAO->SubData(0, _VerticesSize * sizeof(glm::vec3), &positions[0]);
+	if (mask & (unsigned)VertexAttribute::Normal)
+		_VAO->SubData(_VerticesSize * sizeof(glm::vec3), _VerticesSize * sizeof(glm::vec3), &normals[0]);
+	else {
 		RecalculateNormal(vertices, indices);
 	}
+	attributeSize = 24;
 	if (mask & (unsigned)VertexAttribute::Tangent) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec3));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec3), &tangents[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec3), &tangents[0]);
+		attributeSize += 12;
 	}
 	if (mask & (unsigned)VertexAttribute::Bitangent) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec3));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec3), &bitangents[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec3), &bitangents[0]);
+		attributeSize += 12;
 	}
 	if (mask & (unsigned)VertexAttribute::Color) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec4));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec4), &colors[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(4, 4, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec4), &colors[0]);
+		attributeSize += 16;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord0) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec2));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec2), &texcoords0s[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords0s[0]);
+		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord1) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec2));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec2), &texcoords1s[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords1s[0]);
+		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord2) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec2));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec2), &texcoords2s[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords2s[0]);
+		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord3) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec2));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec2), &texcoords3s[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords3s[0]);
+		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord4) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec2));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec2), &texcoords4s[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords4s[0]);
+		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord5) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec2));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec2), &texcoords5s[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords5s[0]);
+		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord6) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec2));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec2), &texcoords6s[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords6s[0]);
+		attributeSize += 8;
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord7) {
-		vbo = _VAO->AddVBO(sizeof(glm::vec2));
-		vbo->SetData(_VerticesSize * sizeof(glm::vec2), &texcoords7s[0], GL_DYNAMIC_STORAGE_BIT);
-		_VAO->SetAttributePointer(12, 2, GL_FLOAT, GL_FALSE, 0, vbo->BindingIndex());
+		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords7s[0]);
+		attributeSize += 8;
 	}
-	auto ebo = _VAO->EBO();
-	ebo->SetData(_IndicesSize * sizeof(unsigned), &indices->at(0), GL_DYNAMIC_STORAGE_BIT);
 #pragma endregion
+#pragma region AttributePointer
+	_VAO->EnableAttributeArray(0);
+	_VAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+	_VAO->EnableAttributeArray(1);
+	_VAO->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * _VerticesSize));
+
+	attributeSize = 2 * sizeof(glm::vec3);
+	if (mask & (unsigned)VertexAttribute::Tangent) {
+		_VAO->EnableAttributeArray(2);
+		_VAO->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 12;
+	}
+	if (mask & (unsigned)VertexAttribute::Bitangent) {
+		_VAO->EnableAttributeArray(3);
+		_VAO->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 12;
+	}
+	if (mask & (unsigned)VertexAttribute::Color) {
+		_VAO->EnableAttributeArray(4);
+		_VAO->SetAttributePointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 16;
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord0) {
+		_VAO->EnableAttributeArray(5);
+		_VAO->SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 8;
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord1) {
+		_VAO->EnableAttributeArray(6);
+		_VAO->SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 8;
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord2) {
+		_VAO->EnableAttributeArray(7);
+		_VAO->SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 8;
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord3) {
+		_VAO->EnableAttributeArray(8);
+		_VAO->SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 8;
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord4) {
+		_VAO->EnableAttributeArray(9);
+		_VAO->SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 8;
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord5) {
+		_VAO->EnableAttributeArray(10);
+		_VAO->SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 8;
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord6) {
+		_VAO->EnableAttributeArray(11);
+		_VAO->SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 8;
+	}
+	if (mask & (unsigned)VertexAttribute::TexCoord7) {
+		_VAO->EnableAttributeArray(12);
+		_VAO->SetAttributePointer(12, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		attributeSize += 8;
+	}
+#pragma endregion
+	_VAO->EBO()->SetData(_IndicesSize * sizeof(unsigned), &indices->at(0), GL_STATIC_DRAW);
 }
 
 void UniEngine::Mesh::ClearVertices()
@@ -209,8 +292,8 @@ void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>* vertices, std::vect
 		}
 		normals.push_back(glm::normalize(normal));
 	}
-	
-	_VAO->VBO(1)->SetData(_VerticesSize * sizeof(glm::vec3), &normals[0], GL_DYNAMIC_STORAGE_BIT);
+
+	_VAO->SubData(size * sizeof(glm::vec3), size * sizeof(glm::vec3), &normals[0]);
 }
 
 GLVAO* UniEngine::Mesh::VAO()

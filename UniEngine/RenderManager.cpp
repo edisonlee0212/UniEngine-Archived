@@ -44,7 +44,6 @@ void UniEngine::RenderManager::DrawMesh(
 void UniEngine::RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, bool receiveShadow)
 {
-	/*
 	GLVBO* matricesBuffer = new GLVBO();
 	matricesBuffer->SetData(count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
@@ -156,7 +155,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
 	}
 	GLVAO::BindDefault();
-	delete matricesBuffer;*/
+	delete matricesBuffer;
 }
 
 void UniEngine::RenderManager::DrawMesh(

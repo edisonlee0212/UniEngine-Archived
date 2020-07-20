@@ -57,7 +57,7 @@ GLProgram* LightingManager::_PointLightInstancedProgram;
 void UniEngine::LightingManager::Init()
 {
 	_ShadowCascadeInfoBlock = new GLUBO();
-	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowSettings), NULL, GL_DYNAMIC_STORAGE_BIT);
+	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowSettings), NULL, GL_DYNAMIC_DRAW);
 	_ShadowCascadeInfoBlock->SetBase(4);
 
 #pragma region LightInfoBlocks
@@ -65,13 +65,13 @@ void UniEngine::LightingManager::Init()
 	_PointLightBlock = new GLUBO();
 	_SpotLightBlock = new GLUBO();
 	size_t size = 16 + Default::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLight);
-	_DirectionalLightBlock->SetData(size, NULL, GL_DYNAMIC_STORAGE_BIT);
+	_DirectionalLightBlock->SetData(size, NULL, GL_DYNAMIC_DRAW);
 	_DirectionalLightBlock->SetBase(1);
 	size = 16 + Default::ShaderIncludes::MaxPointLightAmount * sizeof(PointLight);
-	_PointLightBlock->SetData(size, NULL, GL_DYNAMIC_STORAGE_BIT);
+	_PointLightBlock->SetData(size, NULL, GL_DYNAMIC_DRAW);
 	_PointLightBlock->SetBase(2);
 	size = 16 + Default::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLight);
-	_SpotLightBlock->SetData(size, NULL, GL_DYNAMIC_STORAGE_BIT);
+	_SpotLightBlock->SetData(size, NULL, GL_DYNAMIC_DRAW);
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
@@ -360,7 +360,6 @@ void UniEngine::LightingManager::Start()
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->_CastShadow) {
-							/*
 							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
@@ -385,7 +384,6 @@ void UniEngine::LightingManager::Start()
 								GLVAO::BindDefault();
 							}
 							delete matricesBuffer;
-							*/
 						}
 					}
 				}
@@ -509,13 +507,11 @@ void UniEngine::LightingManager::Start()
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->_CastShadow) {
-							/*
 							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
 							matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
 							for (auto entity : *entities) {
-								
 								auto mesh = immc->_Mesh;
 								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).value);
 								mesh->Enable();
@@ -534,7 +530,7 @@ void UniEngine::LightingManager::Start()
 								glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
 								GLVAO::BindDefault();
 							}
-							delete matricesBuffer;*/
+							delete matricesBuffer;
 						}
 					}
 				}

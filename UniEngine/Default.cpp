@@ -42,11 +42,12 @@ void UniEngine::Default::Load(World* world)
 	};
 
 	GLPrograms::ScreenVAO = new GLVAO();
-
-	auto quadVBO = GLPrograms::ScreenVAO->AddVBO(4 * sizeof(float));
-	quadVBO->SetData(sizeof(quadVertices), &quadVertices, GL_DYNAMIC_STORAGE_BIT);
-	GLPrograms::ScreenVAO->SetAttributePointer(0, 2, GL_FLOAT, GL_FALSE, 0, quadVBO->BindingIndex());
-	GLPrograms::ScreenVAO->SetAttributePointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), quadVBO->BindingIndex());
+	auto quadVBO = GLPrograms::ScreenVAO->VBO();
+	GLPrograms::ScreenVAO->SetData(sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	GLPrograms::ScreenVAO->EnableAttributeArray(0);
+	GLPrograms::ScreenVAO->SetAttributePointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	GLPrograms::ScreenVAO->EnableAttributeArray(1);
+	GLPrograms::ScreenVAO->SetAttributePointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	GLShader* screenvert = new GLShader(ShaderType::Vertex);
 	std::string vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert"));
