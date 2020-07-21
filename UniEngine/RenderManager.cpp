@@ -5,7 +5,7 @@ using namespace UniEngine;
 
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;
-
+bool RenderManager::_EnableNormalMapping = true;
 void UniEngine::RenderManager::DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera)
 {
 	DrawMeshInstanced(immc->_Mesh, immc->_Material, matrix, matrices, count, camera, immc->_ReceiveShadow);
@@ -86,10 +86,10 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		RenderManager::_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
 		program->Bind();
+		program->SetBool("receiveShadow", receiveShadow);
 		if (receiveShadow) {
 			program->SetInt("directionalShadowMap", 0);
 			program->SetInt("pointShadowMap", 1);
-			program->SetBool("receiveShadow", receiveShadow);
 			textureStartIndex += 2;
 		}
 		program->SetFloat4x4("model", matrix);
@@ -149,7 +149,17 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				default:
 					break;
 				}
-				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", j + textureStartIndex);
+				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
+					program->SetInt("TEXTURE_" + name + std::to_string(size), j + textureStartIndex);
+				}
+				if (normalNr == 0) {
+					program->SetInt("TEXTURE_NORMAL0", 3);
+					program->SetBool("enableNormalMapping", false);
+				}
+				else{
+					program->SetBool("enableNormalMapping", _EnableNormalMapping);
+				}
+				
 			}
 		}
 		glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
@@ -192,10 +202,11 @@ void UniEngine::RenderManager::DrawMesh(
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Bind();
+		program->SetBool("receiveShadow", receiveShadow);
 		if (receiveShadow) {
 			program->SetInt("directionalShadowMap", 0);
 			program->SetInt("pointShadowMap", 1);
-			program->SetBool("receiveShadow", receiveShadow);
+			
 			textureStartIndex += 2;
 		}
 		program->SetFloat4x4("model", matrix);
@@ -256,7 +267,16 @@ void UniEngine::RenderManager::DrawMesh(
 				default:
 					break;
 				}
-				if (size != -1) program->SetInt("TEXTURE_" + name + "[" + std::to_string(size) + "]", j + textureStartIndex);
+				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
+					program->SetInt("TEXTURE_" + name + std::to_string(size), j + textureStartIndex);
+				}
+				if (normalNr == 0) {
+					program->SetInt("TEXTURE_NORMAL0", 3);
+					program->SetBool("enableNormalMapping", false);
+				}
+				else{
+					program->SetBool("enableNormalMapping", _EnableNormalMapping);
+				}
 			}
 		}
 		glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
@@ -264,6 +284,11 @@ void UniEngine::RenderManager::DrawMesh(
 	GLVAO::BindDefault();
 }
 
+
+void UniEngine::RenderManager::SetEnableNormalMapping(bool value)
+{
+	_EnableNormalMapping = value;
+}
 
 void UniEngine::RenderManager::Start()
 {

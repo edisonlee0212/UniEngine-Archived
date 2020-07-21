@@ -81,13 +81,15 @@ struct Material{
 
 uniform Material material;
 
+uniform bool enableNormalMapping;
+
 //Textures
-uniform sampler2D TEXTURE_DIFFUSE[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_SPECULAR[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_AMBIENT[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_EMISSIVE[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_HEIGHT[MAX_TEXTURES_AMOUNT];
-uniform sampler2D TEXTURE_NORMAL[MAX_TEXTURES_AMOUNT];
+uniform sampler2D TEXTURE_DIFFUSE0;
+uniform sampler2D TEXTURE_SPECULAR0;
+uniform sampler2D TEXTURE_AMBIENT0;
+uniform sampler2D TEXTURE_EMISSIVE0;
+uniform sampler2D TEXTURE_HEIGHT0;
+uniform sampler2D TEXTURE_NORMAL0;
 
 //Shadow
 uniform sampler2DArray directionalShadowMap;

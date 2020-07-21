@@ -4,6 +4,7 @@ out vec4 FragColor;
 in VS_OUT {
 	vec3 FragPos;
 	vec3 Normal;
+	mat3 TBN;
 	vec2 TexCoords;
 } fs_in;
 
@@ -25,10 +26,18 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 void main()
 {	
 	// properties
-	vec3 norm = normalize(fs_in.Normal);
+	vec3 normal;
+	if(enableNormalMapping){
+		normal = texture(TEXTURE_NORMAL0, fs_in.TexCoords).rgb;
+		normal = normal * 2.0 - 1.0;   
+		normal = normalize(fs_in.TBN * normal); 
+	}else{
+		normal = fs_in.Normal;
+	}
+	
 	vec3 viewDir = normalize(CameraPosition - fs_in.FragPos);
 
-	vec3 color = texture(TEXTURE_DIFFUSE[0], fs_in.TexCoords).rgb;
+	vec3 color = texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgb;
 	// ambient
 	vec3 ambient = 0.2 * color;
 
@@ -45,7 +54,7 @@ void main()
 		}
 	}
 	
-	vec3 result = CalculateLights(distance, norm, viewDir, fs_in.FragPos);
+	vec3 result = CalculateLights(distance, normal, viewDir, fs_in.FragPos);
 
 	FragColor = vec4((ambient + result) * color, 1.0);
 }

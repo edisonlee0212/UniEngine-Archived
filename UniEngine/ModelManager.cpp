@@ -94,13 +94,6 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
             vertex.Tangent = v3;
             mask = mask | (1 << 2);
         }
-        if (aimesh->mBitangents) {
-            v3.x = aimesh->mBitangents[i].x;
-            v3.y = aimesh->mBitangents[i].y;
-            v3.z = aimesh->mBitangents[i].z;
-            vertex.Bitangent = v3;
-            mask = mask | (1 << 3);
-        }
         glm::vec4 v4;
         if (aimesh->mColors[0]) {
             v4.x = aimesh->mColors[0][i].r;
@@ -108,14 +101,14 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
             v4.z = aimesh->mColors[0][i].b;
             v4.w = aimesh->mColors[0][i].a;
             vertex.Color = v4;
-            mask = mask | (1 << 4);
+            mask = mask | (1 << 3);
         }
         glm::vec2 v2;
         if (aimesh->mTextureCoords[0]) {
             v2.x = aimesh->mTextureCoords[0][i].x;
             v2.y = aimesh->mTextureCoords[0][i].y;
             vertex.TexCoords0 = v2;
-            mask = mask | (1 << 5);
+            mask = mask | (1 << 4);
         }
         else {
             vertex.TexCoords0 = glm::vec2(0.0f, 0.0f);
@@ -195,8 +188,8 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     std::vector<Texture2D*> normalMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_HEIGHT, TextureType::NORMAL);
     Texture2Ds->insert(Texture2Ds->end(), normalMaps.begin(), normalMaps.end());
     // 4. height maps
-    std::vector<Texture2D*> heightMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_AMBIENT, TextureType::HEIGHT);
-    Texture2Ds->insert(Texture2Ds->end(), heightMaps.begin(), heightMaps.end());
+    //std::vector<Texture2D*> heightMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_HEIGHT, TextureType::HEIGHT);
+    //Texture2Ds->insert(Texture2Ds->end(), heightMaps.begin(), heightMaps.end());
     MeshMaterialComponent* mmc = new MeshMaterialComponent();
     mmc->_Mesh = mesh;
     mmc->_Material = material;

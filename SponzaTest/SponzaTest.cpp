@@ -18,7 +18,9 @@ float lightAngle7 = 0;
 float lightSize = 0.5;
 float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
+bool enableNormalMapping = true;
 enum TestScene {
+	BACKPACK,
 	SPONZA_TEST,
 	PCSS,
 };
@@ -54,7 +56,7 @@ int main()
 
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
 	ccs->SetSensitivity(0.1f);
-	ccs->SetVelocity(55.0f);
+	ccs->SetVelocity(20.0f);
 	ccs->Enable();
 	ccs->SetTargetCamera(cameraEntity);
 	ccs->EnableWindowControl(true);
@@ -85,9 +87,19 @@ int main()
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.value = glm::vec3(0.5f);
-	TestScene testScene = SPONZA_TEST;
+	TestScene testScene = BACKPACK;
 #pragma region PCSS test
-	if (testScene == SPONZA_TEST) {
+	if (testScene == BACKPACK) {
+		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
+		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		Position bpp;
+		bpp.value = glm::vec3(0, 10, 0);
+		Scale bps;
+		bps.value = glm::vec3(5.0f);
+		EntityManager::SetComponentData<Position>(backpackEntity, bpp);
+		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
+	}
+	else if (testScene == SPONZA_TEST) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		Position bpp;
@@ -146,7 +158,7 @@ int main()
 	Entity dle2 = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, dlc2);
 	EntityManager::SetComponentData<Scale>(dle2, scale);
-	
+
 
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;
@@ -220,6 +232,15 @@ int main()
 		ImGui::SliderFloat("Size", &lightSize, 0.0f, 1.0f);
 		ImGui::End();
 		dlc->lightSize = lightSize;
+
+		ImGui::Begin("Enable Normal Mapping");
+		std::string text = std::string(enableNormalMapping ? "Disable" : "Enable");
+		if (ImGui::Button(text.c_str())) {
+			enableNormalMapping = !enableNormalMapping;
+			RenderManager::SetEnableNormalMapping(enableNormalMapping);
+		}
+		ImGui::End();
+
 #pragma endregion
 		loopable = engine->Loop();
 		loopable = engine->LoopEnd();
