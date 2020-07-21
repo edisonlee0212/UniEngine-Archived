@@ -28,7 +28,7 @@ namespace UniEngine {
 		float VSMMaxVariance = 0.01f;
 		float LightBleedFactor = 0.5f;
 		float EVSMExponent = 40.0f;
-		float AmbientLight = 0.2f;
+		float AmbientLight = 0.1f;
 	};
 
 	class UNIENGINE_API LightingManager :

@@ -21,6 +21,7 @@ Mesh* Default::Primitives::Sphere;
 Mesh* Default::Primitives::Cube;
 Mesh* Default::Primitives::Quad;
 Mesh* Default::Primitives::Cone;
+Mesh* Default::Primitives::Ring;
 Mesh* Default::Primitives::Cylinder;
 Mesh* Default::Primitives::Monkey;
 
@@ -153,6 +154,10 @@ void UniEngine::Default::Load(World* world)
 
 	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cylinder.obj"));
 	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	//delete model;
+
+	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/ring.obj"));
+	Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/monkey.obj"));

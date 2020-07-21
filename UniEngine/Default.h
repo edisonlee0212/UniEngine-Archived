@@ -43,6 +43,7 @@ namespace UniEngine {
 			static Mesh* Quad;
 			static Mesh* Cylinder;
 			static Mesh* Cone;
+			static Mesh* Ring;
 			static Mesh* Monkey;
 		};
 
