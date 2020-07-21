@@ -16,7 +16,7 @@ float lightAngle4 = 0.8f;
 float lightAngle5 = 0.0f;
 float lightAngle6 = 0;
 float lightAngle7 = 0;
-float lightSize = 0.01;
+float lightSize = 0.5;
 float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
 int main()
@@ -188,6 +188,7 @@ void SplitDisplay() {
 	}
 	ImGui::End();
 }
+
 void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
@@ -199,7 +200,7 @@ void InitGround() {
 	EntityManager::SetComponentData<Scale>(entity, scale);
 
 	auto entity1 = EntityManager::CreateEntity(archetype);
-	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	translation.value = glm::vec3(-100.0f, 0.0f, 0.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	Rotation rotation;
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
@@ -208,7 +209,7 @@ void InitGround() {
 	EntityManager::SetComponentData<Rotation>(entity1, rotation);
 
 	auto entity2 = EntityManager::CreateEntity(archetype);
-	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	translation.value = glm::vec3(100.0f, 0.0f, 0.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
 
@@ -218,7 +219,7 @@ void InitGround() {
 
 
 	auto entity3 = EntityManager::CreateEntity(archetype);
-	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	translation.value = glm::vec3(0.0f, 0.0f, -100.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 
@@ -227,7 +228,7 @@ void InitGround() {
 	EntityManager::SetComponentData<Rotation>(entity3, rotation);
 
 	auto entity4 = EntityManager::CreateEntity(archetype);
-	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	translation.value = glm::vec3(0.0f, 0.0f, 100.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
 

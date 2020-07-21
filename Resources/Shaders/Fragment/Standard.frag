@@ -43,7 +43,7 @@ void main()
 		}else if(dist < SplitDistance3){
 		}
 	}
-	FragColor = vec4(result + AmbientLight * texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgb, 1.0);
+	FragColor = vec4(result + AmbientLight * texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgb, texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).a);
 }
 
 

@@ -28,7 +28,7 @@ void SpaceColonizationTree::SCTreeSystem::OnCreate()
 	_TreeLeafMaterial->SetMaterialProperty("material.shininess", 0.0f);
 	_TreeLeafMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
 	_TreeLeafTexture = new Texture2D(TextureType::DIFFUSE);
-	_TreeLeafTexture->LoadTexture(FileIO::GetPath("Textures/green.png"), "");
+	_TreeLeafTexture->LoadTexture(FileIO::GetPath("Textures/Leaf/PrunusAvium/A/level0.png"), "");
 	_TreeLeafMaterial->Textures2Ds()->push_back(_TreeLeafTexture);
 
 	_GrowDist = 0.3f;
