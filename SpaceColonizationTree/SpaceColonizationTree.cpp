@@ -21,6 +21,7 @@ float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
 int main()
 {
+
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetStableFit(true);

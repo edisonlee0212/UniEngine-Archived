@@ -43,7 +43,7 @@ void main()
 		}else if(dist < SplitDistance3){
 		}
 	}
-	FragColor = vec4(result, 1.0);
+	FragColor = vec4(result + AmbientLight * texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgb, 1.0);
 }
 
 
@@ -81,12 +81,12 @@ vec3 CalculateLights(float dist, vec3 normal, vec3 viewDir, vec3 fragPos){
 			shadow = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
 		}
 		
-		result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (shadow + AmbientLight);
+		result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (shadow);
 	}
 	// phase 2: point lights
 	for(int i = 0; i < PointLightCount; i++){
 		float shadow = PointLightShadowCalculation(i, PointLights[i], fragPos, norm);
-		result += CalcPointLight(PointLights[i], norm, fragPos, viewDir) * (1.0 - shadow + AmbientLight);
+		result += CalcPointLight(PointLights[i], norm, fragPos, viewDir) * (1.0 - shadow);
 	}
 	// phase 3: spot light
 	for(int i = 0; i < SpotLightCount; i++){

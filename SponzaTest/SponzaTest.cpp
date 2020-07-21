@@ -126,7 +126,7 @@ int main()
 		Position pos;
 
 		Entity model1 = EntityManager::CreateEntity(archetype);
-		pos.value = glm::vec3(-6.0f, 8.0f, 0.0f);
+		pos.value = glm::vec3(-6.0f, 7.0f, 0.0f);
 
 
 		scale.value = glm::vec3(4.0f, 8.0f, 4.0f);
@@ -288,7 +288,7 @@ void InitGround() {
 	EntityManager::SetComponentData<Scale>(entity, scale);
 
 	auto entity1 = EntityManager::CreateEntity(archetype);
-	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	translation.value = glm::vec3(-100.0f, 0.0f, 0.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	Rotation rotation;
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
@@ -297,7 +297,7 @@ void InitGround() {
 	EntityManager::SetComponentData<Rotation>(entity1, rotation);
 
 	auto entity2 = EntityManager::CreateEntity(archetype);
-	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	translation.value = glm::vec3(100.0f, 0.0f, 0.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
 
@@ -307,7 +307,7 @@ void InitGround() {
 
 
 	auto entity3 = EntityManager::CreateEntity(archetype);
-	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	translation.value = glm::vec3(0.0f, 0.0f, -100.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 
@@ -316,7 +316,7 @@ void InitGround() {
 	EntityManager::SetComponentData<Rotation>(entity3, rotation);
 
 	auto entity4 = EntityManager::CreateEntity(archetype);
-	translation.value = glm::vec3(0.0f, -100.0f, 0.0f);
+	translation.value = glm::vec3(0.0f, 0.0f, 100.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
 
