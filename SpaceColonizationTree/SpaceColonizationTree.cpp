@@ -23,7 +23,7 @@ int main()
 {
 
 	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(2048);
+	LightingManager::SetDirectionalLightResolution(1024);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(500);
@@ -198,7 +198,7 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f);
 	EntityManager::SetComponentData<Position>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
-
+	/*
 	auto entity1 = EntityManager::CreateEntity(archetype);
 	translation.value = glm::vec3(-100.0f, 0.0f, 0.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
@@ -235,7 +235,7 @@ void InitGround() {
 	EntityManager::SetComponentData<Position>(entity4, translation);
 	EntityManager::SetComponentData<Scale>(entity4, scale);
 	EntityManager::SetComponentData<Rotation>(entity4, rotation);
-
+	*/
 
 	auto mat = new Material();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
@@ -247,8 +247,9 @@ void InitGround() {
 	meshMaterial->_Mesh = Default::Primitives::Quad;
 	meshMaterial->_Material = mat;
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
+	/*
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, meshMaterial);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, meshMaterial);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity3, meshMaterial);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, meshMaterial);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, meshMaterial);*/
 }

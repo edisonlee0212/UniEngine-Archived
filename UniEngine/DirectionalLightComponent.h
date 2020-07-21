@@ -17,7 +17,7 @@ namespace UniEngine {
 	public:
 		glm::vec3 diffuse;
 		glm::vec3 specular;
-		float depthBias = 0.01f;
+		float depthBias = 0.001f;
 		float normalOffset = 0.001f;
 		float lightSize = 0.01;
 		size_t GetHashCode();

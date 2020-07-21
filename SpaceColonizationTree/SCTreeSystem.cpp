@@ -38,7 +38,7 @@ void SpaceColonizationTree::SCTreeSystem::OnCreate()
 	_EnvelopeRadius = 6.0f;
 	_MinHeight = 2.0f;
 	_MaxHeight = 8.0f;
-	_TreeSize = 1.0f;
+	_TreeSize = 3.0f;
 	_DrawOrgan = false;
 	_TreeEntity.Version = 0;
 	Enable();
@@ -75,7 +75,7 @@ void SpaceColonizationTree::SCTreeSystem::BuildTree() {
 	if (_Envelope == nullptr || !_Envelope->PointsGenerated()) BuildEnvelope();
 	RemoveTree();
 	_Iteration = 0;
-	_Tree = new Tree(glm::vec3(0.0f), Default::Materials::StandardMaterial, Default::Materials::StandardMaterial, Default::Materials::StandardMaterial);
+	_Tree = new Tree(glm::vec3(0.0f, -0.5f, 0.0f), Default::Materials::StandardMaterial, Default::Materials::StandardMaterial, Default::Materials::StandardMaterial);
 	_AttractDist = _GrowDist * _AttractDitsMult;
 	_RemoveDist = _GrowDist * _RemoveDistMult;
 	Debug::Log("Trunk growing...");
@@ -195,7 +195,7 @@ void SpaceColonizationTree::SCTreeSystem::TreeGUIMenu() {
 			}
 		}
 	}
-	ImGui::SliderFloat("Tree Size", &_TreeSize, 0.2f, 5.0f);
+	ImGui::SliderFloat("Tree Size", &_TreeSize, 1.0f, 10.0f);
 	ImGui::SliderFloat("Grow Distance", &_GrowDist, 0.2f, 0.5f);
 	ImGui::SliderFloat("Attract Distance Multiplier", &_AttractDitsMult, 1.0f, 5.0f);
 	ImGui::SliderFloat("Remove Distance Multiplier", &_RemoveDistMult, 0.1f, 0.9f);
