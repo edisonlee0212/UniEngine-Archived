@@ -216,7 +216,7 @@ float kernel7[49] = {
 float DirectionalLightBlockerSearch(int index, vec3 shadowCoords, float searchWidth, int sampleAmount){
 	int blockers = 0;
 	float avgDistance = 0;
-	float step = searchWidth / float(sampleAmount) / shadowCoords.z;
+	float step = searchWidth / sampleAmount / shadowCoords.z;
 	for(int x = -sampleAmount; x < sampleAmount; x++){
 		for(int y = -sampleAmount; y < sampleAmount; y++){
 			float closestDepth = texture(directionalShadowMap, vec3(shadowCoords.xy + vec2(x, y) * step, index)).r;
@@ -253,11 +253,12 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	if(blockerDistance < 0.1) return 1.0;
 	float penumbraWidth = (projCoords.z - blockerDistance) * lightSize;
 	float uvRadius = penumbraWidth;
-	float texelSize = uvRadius * PCSSScaleFactor;
+	int sampleWidth = 5;
+	float texelSize = uvRadius * PCSSScaleFactor / sampleWidth;
 	int sampleAmount = 0;
-	for(int x = -2; x <= 2; ++x)
+	for(int x = -sampleWidth; x <= sampleWidth; ++x)
 	{
-		for(int y = -2; y <= 2; ++y)
+		for(int y = -sampleWidth; y <= sampleWidth; ++y)
 		{
 			float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
 			if(cloestDepth == 0.0) continue;
