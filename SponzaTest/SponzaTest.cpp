@@ -20,6 +20,7 @@ float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
 bool enableNormalMapping = true;
 enum TestScene {
+	NANOSUIT,
 	BACKPACK,
 	SPONZA_TEST,
 	PCSS,
@@ -89,7 +90,17 @@ int main()
 	scale.value = glm::vec3(0.5f);
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
-	if (testScene == BACKPACK) {
+	if (testScene == NANOSUIT) {
+		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
+		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		Position bpp;
+		bpp.value = glm::vec3(0, 5, 0);
+		Scale bps;
+		bps.value = glm::vec3(2.0f);
+		EntityManager::SetComponentData<Position>(backpackEntity, bpp);
+		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
+	}
+	else if (testScene == BACKPACK) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		Position bpp;
