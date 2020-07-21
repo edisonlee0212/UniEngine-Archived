@@ -153,13 +153,19 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 					program->SetInt("TEXTURE_" + name + std::to_string(size), j + textureStartIndex);
 				}
 				if (normalNr == 0) {
-					program->SetInt("TEXTURE_NORMAL0", 3);
+					program->SetInt("TEXTURE_NORMAL0", textureStartIndex);
 					program->SetBool("enableNormalMapping", false);
 				}
 				else{
 					program->SetBool("enableNormalMapping", _EnableNormalMapping);
 				}
-				
+				if (specularNr == 0) {
+					program->SetInt("TEXTURE_SPECULAR0", textureStartIndex);
+					program->SetBool("enableSpecularMapping", false);
+				}
+				else {
+					program->SetBool("enableSpecularMapping", true);
+				}
 			}
 		}
 		glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
@@ -271,11 +277,18 @@ void UniEngine::RenderManager::DrawMesh(
 					program->SetInt("TEXTURE_" + name + std::to_string(size), j + textureStartIndex);
 				}
 				if (normalNr == 0) {
-					program->SetInt("TEXTURE_NORMAL0", 3);
+					program->SetInt("TEXTURE_NORMAL0", textureStartIndex);
 					program->SetBool("enableNormalMapping", false);
 				}
 				else{
 					program->SetBool("enableNormalMapping", _EnableNormalMapping);
+				}
+				if (specularNr == 0) {
+					program->SetInt("TEXTURE_SPECULAR0", textureStartIndex);
+					program->SetBool("enableSpecularMapping", false);
+				}
+				else {
+					program->SetBool("enableSpecularMapping", true);
 				}
 			}
 		}

@@ -71,7 +71,7 @@ layout (std140, binding = 4) uniform ShadowSettings
     float VSMMaxVariance;
     float LightBleedFactor;
     float EVSMExponent;
-    float Padding0;
+    float AmbientLight;
 };
 
 //Material
@@ -80,9 +80,8 @@ struct Material{
 };
 
 uniform Material material;
-
+uniform bool enableSpecularMapping;
 uniform bool enableNormalMapping;
-
 //Textures
 uniform sampler2D TEXTURE_DIFFUSE0;
 uniform sampler2D TEXTURE_SPECULAR0;
