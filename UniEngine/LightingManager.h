@@ -21,7 +21,7 @@ namespace UniEngine {
 
 	struct UNIENGINE_API ShadowSettings {
 		float SplitDistance[4];
-		int SoftShadowMode = (int)ShadowMode::PCF;
+		int SoftShadowMode = (int)ShadowMode::PCSS;
 		float PCSSScaleFactor = 0.0f;
 		float DisplaySplit = 0.0f;
 		float SeamFixRatio = 0.1f;
@@ -64,8 +64,6 @@ namespace UniEngine {
 		static PointLightShadowMap* _PointLightShadowMap;
 		static GLProgram* _DirectionalLightVFilterProgram;
 		static GLProgram* _DirectionalLightHFilterProgram;
-		static GLProgram* _DirectionalLightVSAProgram;
-		static GLProgram* _DirectionalLightHSAProgram;
 
 
 		static GLTexture* _DLVSMVFilter;

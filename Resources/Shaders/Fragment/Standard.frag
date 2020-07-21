@@ -212,15 +212,31 @@ float kernel7[49] = {
 0.000363, 0.003676, 0.014662, 0.023226, 0.014662, 0.003676, 0.000363,
 0.000036, 0.000363, 0.001446, 0.002291, 0.001446, 0.000363, 0.000036
 };
-
+vec2 poissonDisk[16] = {
+ vec2( -0.94201624, -0.39906216 ),
+ vec2( 0.94558609, -0.76890725 ),
+ vec2( -0.094184101, -0.92938870 ),
+ vec2( 0.34495938, 0.29387760 ),
+ vec2( -0.91588581, 0.45771432 ),
+ vec2( -0.81544232, -0.87912464 ),
+ vec2( -0.38277543, 0.27676845 ),
+ vec2( 0.97484398, 0.75648379 ),
+ vec2( 0.44323325, -0.97511554 ),
+ vec2( 0.53742981, -0.47373420 ),
+ vec2( -0.26496911, -0.41893023 ),
+ vec2( 0.79197514, 0.19090188 ),
+ vec2( -0.24188840, 0.99706507 ),
+ vec2( -0.81409955, 0.91437590 ),
+ vec2( 0.19984126, 0.78641367 ),
+ vec2( 0.14383161, -0.14100790 )
+};
 float DirectionalLightBlockerSearch(int index, vec3 shadowCoords, float searchWidth, int sampleAmount){
 	int blockers = 0;
 	float avgDistance = 0;
-	float step = searchWidth / sampleAmount / shadowCoords.z;
+	float step = searchWidth / sampleAmount / DirectionalLights[index / 4].lightFrustumWidth[index % 4];
 	for(int x = -sampleAmount; x < sampleAmount; x++){
 		for(int y = -sampleAmount; y < sampleAmount; y++){
 			float closestDepth = texture(directionalShadowMap, vec3(shadowCoords.xy + vec2(x, y) * step, index)).r;
-			//closer to the light than the receiving point
 			if(closestDepth != 0.0 && shadowCoords.z > closestDepth){
 				avgDistance += closestDepth ;
 				blockers++;
@@ -248,14 +264,14 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	// get depth of current fragment from light's perspective
 	projCoords = vec3(projCoords.xy, projCoords.z - bias);
 	float shadow = 0.0;
-	float lightSize = light.ReservedParameters.x / 100;
+	float lightSize = light.ReservedParameters.x;
 	float blockerDistance = DirectionalLightBlockerSearch(i * 4 + splitIndex, projCoords, lightSize, 3);
 	if(blockerDistance < 0.1) return 1.0;
-	float penumbraWidth = (projCoords.z - blockerDistance) * lightSize;
-	float uvRadius = penumbraWidth;
-	int sampleWidth = 5;
-	float texelSize = uvRadius * PCSSScaleFactor / sampleWidth;
+	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
+	int sampleWidth = 10;
+	float texelSize = penumbraWidth / sampleWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex];
 	int sampleAmount = 0;
+	
 	for(int x = -sampleWidth; x <= sampleWidth; ++x)
 	{
 		for(int y = -sampleWidth; y <= sampleWidth; ++y)
@@ -264,7 +280,7 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 			if(cloestDepth == 0.0) continue;
 			shadow += projCoords.z < cloestDepth ? 1.0 : 0.0;
 			sampleAmount++;
-		}	
+		}
 	}
 	if(sampleAmount == 0) return 1.0;
 	shadow /= sampleAmount;

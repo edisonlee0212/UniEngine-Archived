@@ -31,8 +31,8 @@ void main()
 	vec2 color = vec2(0);	 
 	//go through all neighbors and multiply the kernel value with the obtained 
 	//colour from the input image
-	for(int i = -5; i <= 5; i++) {
-		color += texture(textureMapArray, vec3(vs_in.TexCoords.x + i * delta, vs_in.TexCoords.y, vs_in.splitIndex)).rg * kernel11[i + 5];
+	for(int i = -1; i <= 1; i++) {
+		color += texture(textureMapArray, vec3(vs_in.TexCoords.x + i * delta, vs_in.TexCoords.y, vs_in.splitIndex)).rg * kernel3[i + 1];
 	}
 	//return the filtered colour as fragment output
 	vFragColor = vec4(color, 0, 1);

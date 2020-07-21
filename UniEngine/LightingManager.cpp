@@ -14,8 +14,6 @@ GLProgram* LightingManager::_DirectionalLightProgram;
 GLProgram* LightingManager::_DirectionalLightInstancedProgram;
 GLProgram* LightingManager::_DirectionalLightVFilterProgram;
 GLProgram* LightingManager::_DirectionalLightHFilterProgram;
-GLProgram* LightingManager::_DirectionalLightVSAProgram;
-GLProgram* LightingManager::_DirectionalLightHSAProgram;
 GLUBO* LightingManager::_ShadowCascadeInfoBlock;
 ShadowSettings LightingManager::_ShadowSettings;
 
@@ -126,20 +124,6 @@ void UniEngine::LightingManager::Init()
 		new GLShader(ShaderType::Geometry, &geomShaderCode)
 	);
 
-	fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Fragment/VSumFilter.frag");
-	_DirectionalLightVSAProgram = new GLProgram(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode),
-		new GLShader(ShaderType::Geometry, &geomShaderCode)
-	);
-	fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Fragment/HSumFilter.frag");
-	_DirectionalLightHSAProgram = new GLProgram(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode),
-		new GLShader(ShaderType::Geometry, &geomShaderCode)
-	);
 
 
 	_DirectionalLightShadowMapFilter = new RenderTarget(_DirectionalShadowMapResolution, _DirectionalShadowMapResolution);
@@ -294,6 +278,7 @@ void UniEngine::LightingManager::Start()
 					lightProjection = shadowProj;
 #pragma endregion
 					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
+					_DirectionalLights[i].lightFrustumWidth[split] = max;
 					if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, max, dlc->depthBias, dlc->normalOffset);
 
 				}
@@ -390,58 +375,28 @@ void UniEngine::LightingManager::Start()
 			}
 #pragma endregion
 #pragma region VSM Filter Pass
-			if (_ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM || _ShadowSettings.SoftShadowMode == (int)ShadowMode::ESM) {
-				_DirectionalLightShadowMapFilter->Bind();
-				_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-				_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
-				glDisable(GL_DEPTH_TEST);
-				Default::GLPrograms::ScreenVAO->Bind();
-				for (int i = 0; i < size; i++) {
-					if (_DirectionalLights[i].ReservedParameters.y != 0) {
-						glDrawBuffer(GL_COLOR_ATTACHMENT0);
-						_DirectionalLightVFilterProgram->Bind();
-						_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
-						_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-						_DLVSMVFilter->Bind(1);
-						glDrawBuffer(GL_COLOR_ATTACHMENT1);
-						_DirectionalLightHFilterProgram->Bind();
-						_DirectionalLightHFilterProgram->SetInt("textureMapArray", 1);
-						_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-					}
-				}
-				glDrawBuffer(GL_COLOR_ATTACHMENT0);
-			}
-			else if(false) {
-				_DirectionalLightShadowMapFilter->Bind();
-				_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-				_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
-				glDisable(GL_DEPTH_TEST);
-				Default::GLPrograms::ScreenVAO->Bind();
-				size_t passAmount = glm::log2(float(_DirectionalShadowMapResolution));
-				for (int i = 0; i < size; i++) {
+			_DirectionalLightShadowMapFilter->Bind();
+			_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
+			_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
+			glDisable(GL_DEPTH_TEST);
+			Default::GLPrograms::ScreenVAO->Bind();
+			for (int i = 0; i < size; i++) {
+				if (_DirectionalLights[i].ReservedParameters.y != 0) {
 					glDrawBuffer(GL_COLOR_ATTACHMENT0);
-					_DirectionalLightVSAProgram->Bind();
-					_DirectionalLightVSAProgram->SetInt("textureMapArray", 0);
-					_DirectionalLightVSAProgram->SetInt("lightIndex", i);
-					for (int p = 0; p < passAmount; p++) {
-						//Vertical phase
-						_DirectionalLightVSAProgram->SetInt("passIndex", p);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-					}
+					_DirectionalLightVFilterProgram->Bind();
+					_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
+					_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
+					glDrawArrays(GL_TRIANGLES, 0, 6);
 					_DLVSMVFilter->Bind(1);
 					glDrawBuffer(GL_COLOR_ATTACHMENT1);
-					_DirectionalLightHSAProgram->Bind();
-					_DirectionalLightHSAProgram->SetInt("textureMapArray", 1);
-					_DirectionalLightHSAProgram->SetInt("lightIndex", i);
-					for (int p = 0; p < passAmount; p++) {
-						//Horizontal phase
-						_DirectionalLightHSAProgram->SetInt("passIndex", p);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-					}
+					_DirectionalLightHFilterProgram->Bind();
+					_DirectionalLightHFilterProgram->SetInt("textureMapArray", 1);
+					_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
+					glDrawArrays(GL_TRIANGLES, 0, 6);
 				}
 			}
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
 #pragma endregion
 		}
 	}

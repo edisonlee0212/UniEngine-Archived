@@ -8,6 +8,7 @@ namespace UniEngine {
 		glm::vec4 diffuse;
 		glm::vec4 specular;
 		glm::mat4 lightSpaceMatrix[4];
+		glm::vec4 lightFrustumWidth;
 		glm::vec4 ReservedParameters;
 	};
 	class UNIENGINE_API DirectionalLightComponent :

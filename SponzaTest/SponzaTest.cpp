@@ -29,7 +29,6 @@ int main()
 {
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetShadowMode(ShadowMode::PCSS);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(300);
@@ -88,7 +87,7 @@ int main()
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.value = glm::vec3(0.5f);
-	TestScene testScene = SPONZA_TEST;
+	TestScene testScene = PCSS;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
@@ -243,14 +242,6 @@ int main()
 		ImGui::SliderFloat("Size", &lightSize, 0.0f, 1.0f);
 		ImGui::End();
 		dlc->lightSize = lightSize;
-
-		ImGui::Begin("Enable Normal Mapping");
-		std::string text = std::string(enableNormalMapping ? "Disable" : "Enable");
-		if (ImGui::Button(text.c_str())) {
-			enableNormalMapping = !enableNormalMapping;
-			RenderManager::SetEnableNormalMapping(enableNormalMapping);
-		}
-		ImGui::End();
 
 #pragma endregion
 		loopable = engine->Loop();

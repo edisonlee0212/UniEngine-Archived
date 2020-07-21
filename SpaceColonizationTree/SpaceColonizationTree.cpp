@@ -23,7 +23,6 @@ int main()
 {
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetShadowMode(ShadowMode::PCSS);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(300);
@@ -145,11 +144,6 @@ int main()
 		p.value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Position>(ple, p);
 		plc->diffuse = glm::vec3(lightAngle7);
-
-		ImGui::Begin("Light Bleed Control");
-		ImGui::SliderFloat("Factor", &lightBleedControl, 0.0f, 1.0f);
-		ImGui::End();
-		LightingManager::SetLightBleedControlFactor(lightBleedControl);
 
 		ImGui::Begin("PCSS Scale factor");
 		ImGui::SliderFloat("Factor", &pcssScale, 0.0f, 2.0f);
