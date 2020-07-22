@@ -279,7 +279,8 @@ void UniEngine::LightingManager::Start()
 #pragma endregion
 					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
 					_DirectionalLights[i].lightFrustumWidth[split] = max;
-					if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, max, dlc->depthBias, dlc->normalOffset);
+					_DirectionalLights[i].lightFrustumDistance[split] = planeDistance;
+					if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, 0, dlc->depthBias, dlc->normalOffset);
 
 				}
 

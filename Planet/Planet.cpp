@@ -10,7 +10,13 @@ using namespace Planet;
 int main()
 {
 	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(2048);
+	LightingManager::SetDirectionalLightResolution(1024);
+	LightingManager::SetStableFit(true);
+	LightingManager::SetSeamFixRatio(0.05f);
+	LightingManager::SetMaxShadowDistance(500);
+	LightingManager::SetVSMMaxVariance(0.001f);
+	LightingManager::SetEVSMExponent(80.0f);
+	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
 	engine->Start(window, 1600, 900);
 

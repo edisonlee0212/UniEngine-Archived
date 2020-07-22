@@ -269,7 +269,7 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	if(blockerDistance < 0.1) return 1.0;
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
 	int sampleWidth = 10;
-	float texelSize = penumbraWidth / sampleWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex];
+	float texelSize = penumbraWidth / sampleWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex] * DirectionalLights[i].lightFrustumDistance[splitIndex] / 100;
 	int sampleAmount = 0;
 	
 	for(int x = -sampleWidth; x <= sampleWidth; ++x)

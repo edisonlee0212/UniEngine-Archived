@@ -15,6 +15,7 @@ struct DirectionalLight {
     vec3 specular;
     mat4 lightSpaceMatrix[4];
     vec4 lightFrustumWidth;
+    vec4 lightFrustumDistance;
     vec4 ReservedParameters;
 };
 

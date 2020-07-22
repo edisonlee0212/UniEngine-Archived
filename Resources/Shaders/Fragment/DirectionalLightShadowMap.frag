@@ -2,12 +2,14 @@ layout (location = 0) out vec4 vFragColor;
 
 //Lights
 struct DirectionalLight {
-	vec3 position;
-	vec3 direction;
-	vec3 diffuse;
-	vec3 specular;
-	mat4 lightSpaceMatrix[4];
-	vec4 ReservedParameters;
+    vec3 position;
+    vec3 direction;
+    vec3 diffuse;
+    vec3 specular;
+    mat4 lightSpaceMatrix[4];
+    vec4 lightFrustumWidth;
+    vec4 lightFrustumDistance;
+    vec4 ReservedParameters;
 };
 
 layout (std140, binding = 1) uniform DirectionalLightBlock

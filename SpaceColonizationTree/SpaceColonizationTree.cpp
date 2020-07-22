@@ -23,7 +23,7 @@ int main()
 {
 
 	Engine* engine = new Engine();
-	LightingManager::SetDirectionalLightResolution(1024);
+	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(500);
