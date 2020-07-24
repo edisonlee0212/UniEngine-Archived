@@ -12,7 +12,6 @@ namespace UniEngine {
 		static Window* CurrentWindow();
 		static GLFWmonitor* PrimaryMonitor();
 		static void Update();
-		static void Update(Window* window, Texture2D* texture);
 		static void ResizeCallback(GLFWwindow*, int, int);
 		static void SetMonitorCallback(GLFWmonitor* monitor, int event);
 		static Window* NewWindow(GLFWwindow* window, unsigned resolutionX, unsigned resolutionY);

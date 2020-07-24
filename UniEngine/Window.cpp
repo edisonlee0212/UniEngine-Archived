@@ -47,11 +47,13 @@ void UniEngine::Window::Update()
 	glClear(GL_COLOR_BUFFER_BIT);
 	auto program = Default::GLPrograms::ScreenProgram;
 	program->Bind();
-
+	program->SetFloat("depth", 0);
 	Default::GLPrograms::ScreenVAO->Bind();
 	//Default::Textures::UV->Texture()->Bind(GL_TEXTURE_2D);
 	_ColorTexture->Bind(0);
 	program->SetInt("screenTexture", 0);
+	program->SetFloat2("center", glm::vec2(0));
+	program->SetFloat2("size", glm::vec2(1.0));
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glfwSwapBuffers(_Window);
 

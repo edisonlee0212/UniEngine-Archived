@@ -33,6 +33,7 @@ namespace SpaceColonizationTree {
 	public:
 		LightEstimator(size_t resolution);
 		void TakeSnapShot(Tree* tree, float shotWidth = 5.0f, bool calculateScore = false);
+		void DrawSnapShots(Camera* camera);
 		float CalculateScore();
 	};
 

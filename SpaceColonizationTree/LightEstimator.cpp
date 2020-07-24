@@ -105,6 +105,16 @@ void SpaceColonizationTree::LightEstimator::TakeSnapShot(Tree* tree, float shotW
 	}
 }
 
+void SpaceColonizationTree::LightEstimator::DrawSnapShots(Camera* camera)
+{
+	float startX = -0.9f;
+	for (auto ss : _SnapShots) {
+		if (ss->SnapShotTexture() == nullptr) break;
+		RenderManager::DrawTexture2D(ss->SnapShotTexture(), 0, glm::vec2(startX, 0.1f * 16.0 / 9.0f - 1.0f), glm::vec2(0.1f, 0.1f * 16.0 / 9.0f), camera->GetRenderTarget());
+		startX += 0.2f;
+	}
+}
+
 float SpaceColonizationTree::LightEstimator::CalculateScore()
 {
 	float currentScore, totalScore;

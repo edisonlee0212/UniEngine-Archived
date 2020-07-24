@@ -133,7 +133,7 @@ void SpaceColonizationTree::SCTreeSystem::Update() {
 		Scale scale;
 		scale.value = glm::vec3(_TreeSize);
 		EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
-		_LightEstimator->TakeSnapShot(_Tree, 5.0f, false);
+		_LightEstimator->DrawSnapShots(mainCamera);
 	}
 }
 

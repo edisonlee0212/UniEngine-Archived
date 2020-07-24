@@ -29,8 +29,7 @@ void UniEngine::RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat
 void UniEngine::RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow)
 {
-		target->Bind();
-		
+	target->Bind();
 	DrawMeshInstanced(mesh, material, matrix, matrices, count, receiveShadow);
 }
 
@@ -297,6 +296,19 @@ void UniEngine::RenderManager::DrawMesh(
 	GLVAO::BindDefault();
 }
 
+void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size)
+{
+	auto program = Default::GLPrograms::ScreenProgram;
+	program->Bind();
+	Default::GLPrograms::ScreenVAO->Bind();
+	texture->Bind(0);
+	program->SetInt("screenTexture", 0);
+	program->SetFloat("depth", depth);
+	program->SetFloat2("center", center);
+	program->SetFloat2("size", size);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
 
 void UniEngine::RenderManager::SetEnableNormalMapping(bool value)
 {
@@ -316,5 +328,27 @@ unsigned UniEngine::RenderManager::Triangles()
 unsigned UniEngine::RenderManager::DrawCall()
 {
 	return _DrawCall;
+}
+
+void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
+{
+	target->Bind();
+	DrawTexture2D(texture, depth, center, size);
+}
+
+void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, float centerX, float centerY, float sizeX, float sizeY, Camera* camera)
+{
+	DrawTexture2D(texture, depth, glm::vec2(centerX, centerY), glm::vec2(sizeX, sizeY), camera->GetRenderTarget());
+}
+
+void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
+{
+	target->Bind();
+	DrawTexture2D(texture->Texture(), depth, center, size);
+}
+
+void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, Camera* camera)
+{
+	DrawTexture2D(texture->Texture(), depth, center, size, camera->GetRenderTarget());
 }
 

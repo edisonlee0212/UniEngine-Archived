@@ -107,9 +107,4 @@ void UniEngine::WindowManager::Update()
 	}
 }
 
-void UniEngine::WindowManager::Update(Window* window, Texture2D* texture)
-{
-	window->Update(texture);
-}
-
 

@@ -51,7 +51,7 @@ void UniEngine::Default::Load(World* world)
 	GLPrograms::ScreenVAO->SetAttributePointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	GLShader* screenvert = new GLShader(ShaderType::Vertex);
-	std::string vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert"));
+	std::string vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Vertex/Screen.vert"));
 	screenvert->SetCode(&vertShaderCode);
 	GLShader* screenfrag = new GLShader(ShaderType::Fragment);
 	std::string fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Fragment/Screen.frag"));
@@ -60,7 +60,6 @@ void UniEngine::Default::Load(World* world)
 	GLPrograms::ScreenProgram->Attach(ShaderType::Vertex, screenvert);
 	GLPrograms::ScreenProgram->Attach(ShaderType::Fragment, screenfrag);
 	GLPrograms::ScreenProgram->Link();
-	GLPrograms::ScreenProgram->SetInt("screenTexture", 0);
 	delete screenvert;
 	delete screenfrag;
 
