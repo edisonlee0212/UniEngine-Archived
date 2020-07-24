@@ -40,13 +40,13 @@ int main()
 	
 	engine->SetMainCamera(cameraEntity);
 
-	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
+	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
 	ccs->SetTargetCamera(cameraEntity);
 
-	PlanetTerrainSystem* pts = world->CreateSystem<PlanetTerrainSystem>();
+	PlanetTerrainSystem* pts = world->CreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
 	pts->Enable();
 
 	pts->SetCameraEntity(cameraEntity);

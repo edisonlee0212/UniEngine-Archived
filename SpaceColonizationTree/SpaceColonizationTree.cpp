@@ -37,7 +37,7 @@ int main()
 	World* world = engine->GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
-	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>();
+	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>(SystemGroup::SimulationSystemGroup);
 	ts->Enable();
 
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 500.0f);
@@ -54,7 +54,7 @@ int main()
 
 	engine->SetMainCamera(cameraEntity);
 
-	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
+	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();

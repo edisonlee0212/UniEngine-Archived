@@ -54,7 +54,7 @@ int main()
 
 	engine->SetMainCamera(cameraEntity);
 
-	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>();
+	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();

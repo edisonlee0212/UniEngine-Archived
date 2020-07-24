@@ -3,31 +3,55 @@
 namespace UniEngine {
 	class CORE_API GLBuffer : public GLObject
 	{
+		GLenum _Target;
 	public:
-		GLBuffer() {
+		GLBuffer(GLenum target) {
 			glGenBuffers(1, &_ID);
+			_Target = target;
+		}
+		void Bind() {
+			glBindBuffer(_Target, _ID);
+		}
+		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
+			Bind();
+			glBufferData(_Target, length, data, usage);
+		}
+		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
+			Bind();
+			glBufferSubData(_Target, offset, size, data);
 		}
 		~GLBuffer() {
 			glDeleteBuffers(1, &_ID);
 		}
 	};
 
-	class CORE_API GLEBO : public GLBuffer {
-		static GLuint _CurrentBinding;
+	class CORE_API GLPPBO : public GLBuffer {
 	public:
-		void Bind() {
-			if (_ID == _CurrentBinding) return;
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ID);
-			_CurrentBinding = _ID;
-		}
+		GLPPBO() : GLBuffer(GL_PIXEL_PACK_BUFFER) {}
 		static void BindDefault() {
-			if (_CurrentBinding == 0) return;
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-			_CurrentBinding = 0;
+			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		}
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
-			Bind();
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, length, data, usage);
+		~GLPPBO() {
+			BindDefault();
+		}
+	};
+
+	class CORE_API GLPUBO : public GLBuffer {
+	public:
+		GLPUBO() : GLBuffer(GL_PIXEL_UNPACK_BUFFER) {}
+		static void BindDefault() {
+			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+		}
+		~GLPUBO() {
+			BindDefault();
+		}
+	};
+
+	class CORE_API GLEBO : public GLBuffer {
+	public:
+		GLEBO() : GLBuffer(GL_ELEMENT_ARRAY_BUFFER) {}
+		static void BindDefault() {
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 		~GLEBO() {
 			BindDefault();
@@ -35,25 +59,10 @@ namespace UniEngine {
 	};
 
 	class CORE_API GLVBO : public GLBuffer {
-		static GLuint _CurrentBinding;
 	public:
-		void Bind() {
-			if (_ID == _CurrentBinding) return;
-			glBindBuffer(GL_ARRAY_BUFFER, _ID);
-			_CurrentBinding = _ID;
-		}
+		GLVBO() : GLBuffer(GL_ARRAY_BUFFER) {}
 		static void BindDefault() {
-			if (_CurrentBinding == 0) return;
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			_CurrentBinding = 0;
-		}
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
-			Bind();
-			glBufferData(GL_ARRAY_BUFFER, length, data, usage);
-		}
-		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
-			Bind();
-			glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 		}
 		~GLVBO() {
 			BindDefault();
@@ -61,48 +70,28 @@ namespace UniEngine {
 	};
 
 	class CORE_API GLUBO : public GLBuffer {
-		static GLuint _CurrentBinding;
 	public:
-		~GLUBO() {
-			BindDefault();
-		}
-
-		void Bind() {
-			if (_ID == _CurrentBinding) return;
-			glBindBuffer(GL_UNIFORM_BUFFER, _ID);
-			_CurrentBinding = _ID;
-		}
+		GLUBO() : GLBuffer(GL_UNIFORM_BUFFER){}
 		static void BindDefault() {
-			if (_CurrentBinding == 0) return;
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			_CurrentBinding = 0;
-		}
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
-			Bind();
-			glBufferData(GL_UNIFORM_BUFFER, length, data, usage);
-		}
-		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
-			Bind();
-			glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 		}
 		void SetBase(GLuint index) {
 			glBindBufferBase(GL_UNIFORM_BUFFER, index, _ID);
 		}
-
 		void SetRange(GLuint index,
 			GLintptr offset,
 			GLsizeiptr size) {
 			glBindBufferRange(GL_UNIFORM_BUFFER, index, _ID, offset, size);
 		}
-
-
+		~GLUBO() {
+			BindDefault();
+		}
 	};
 
 	class CORE_API GLVAO : public GLObject {
 	protected:
 		GLVBO* _VBO;
 		GLEBO* _EBO;
-		static GLuint _CurrentBinding;
 	public:
 		~GLVAO() {
 			delete _VBO;
@@ -112,15 +101,11 @@ namespace UniEngine {
 		}
 
 		void Bind() {
-			if (_ID == _CurrentBinding) return;
 			glBindVertexArray(_ID);
-			_CurrentBinding = _ID;
 		}
 
 		static void BindDefault() {
-			if (_CurrentBinding == 0) return;
 			glBindVertexArray(0);
-			_CurrentBinding = 0;
 		}
 		GLVAO() {
 			glGenVertexArrays(1, &_ID);
@@ -134,7 +119,6 @@ namespace UniEngine {
 		GLEBO* EBO() {
 			return _EBO;
 		}
-
 
 		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
 			Bind();

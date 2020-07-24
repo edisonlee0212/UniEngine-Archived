@@ -52,7 +52,15 @@ void UniEngine::Entities::World::Init()
 
 
 UniEngine::Entities::World::~World() {
-	for (auto i : _Systems) {
+	for (auto i : _PreparationSystems) {
+		i->OnDestroy();
+		delete i;
+	}
+	for (auto i : _SimulationSystems) {
+		i->OnDestroy();
+		delete i;
+	}
+	for (auto i : _PresentationSystems) {
 		i->OnDestroy();
 		delete i;
 	}
@@ -65,12 +73,26 @@ void UniEngine::Entities::World::Update() {
 	
 	if (_Time->_FixedDeltaTime >= _Time->_TimeStep) {
 		_Time->_FixedDeltaTime = 0;
-		for (auto i : _Systems) {
+		for (auto i : _PreparationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
+
+		}
+		for (auto i : _SimulationSystems) {
+			if (i->Enabled()) i->FixedUpdate();
+
+		}
+		for (auto i : _PresentationSystems) {
+			if (i->Enabled()) i->FixedUpdate();
+
 		}
 	}
-
-	for (auto i : _Systems) {
+	for (auto i : _PreparationSystems) {
+		if (i->Enabled()) i->Update();
+	}
+	for (auto i : _SimulationSystems) {
+		if (i->Enabled()) i->Update();
+	}
+	for (auto i : _PresentationSystems) {
 		if (i->Enabled()) i->Update();
 	}
 }

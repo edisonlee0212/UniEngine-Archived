@@ -1,10 +1,9 @@
 #include "Tree.h"
 
-SpaceColonizationTree::Tree::Tree(glm::vec3 position, Material* pointMaterial, Material* meshMaterial, Material* organMaterial)
-	: _Position(position),
-	_GrowingBranches(std::vector<Branch*>()),
+SpaceColonizationTree::Tree::Tree(Material* pointMaterial, Material* meshMaterial, Material* organMaterial)
+:	_GrowingBranches(std::vector<Branch*>()),
 	_NeedsToGrow(false),
-	_Root(new Branch(position, nullptr, true, 1)),
+	_Root(new Branch(glm::vec3(0.0f), nullptr, true, 1)),
 	_MaxGrowIteration(_Root->growIteration),
 	_MeshGenerated(false),
 	_OrganGenerated(false)
@@ -170,7 +169,7 @@ void SpaceColonizationTree::Tree::CalculateMesh(int resolution, int triangleLimi
 
 	std::vector<Vertex> vertices = std::vector<Vertex>();
 	std::vector<unsigned int> indices = std::vector<unsigned int>();
-	_Root->CalculateMesh(_Position, &vertices, resolution);
+	_Root->CalculateMesh(glm::vec3(0.0f), &vertices, resolution);
 	size_t size = vertices.size();
 	for (int i = 0; i < size; i++) {
 		indices.push_back(i);
@@ -183,6 +182,21 @@ void SpaceColonizationTree::Tree::CalculateMesh(int resolution, int triangleLimi
 	_Mesh->SetVertices(33, &vertices, &indices);
 
 	_MeshGenerated = true;
+}
+
+Mesh* SpaceColonizationTree::Tree::GetMesh()
+{
+	return _Mesh;
+}
+
+std::vector<glm::mat4>* SpaceColonizationTree::Tree::GetLeafList()
+{
+	return &_LeafList;
+}
+
+bool SpaceColonizationTree::Tree::NeedsToGrow()
+{
+	return _NeedsToGrow;
 }
 
 inline void SpaceColonizationTree::Tree::CalculateRadius() {
@@ -201,7 +215,7 @@ inline void SpaceColonizationTree::Tree::NodeRelocation() {
 
 inline void SpaceColonizationTree::Tree::NodeSubdivision() {
 	Debug::Log("Node Subdivision...");
-	_Root->Subdivision(_Position, glm::vec3(0.0f, 1.0f, 0.0f), 1);
+	_Root->Subdivision(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 1);
 }
 
 inline void SpaceColonizationTree::Tree::GenerateOrgan() {

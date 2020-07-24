@@ -42,6 +42,9 @@ void SpaceColonizationTree::SCTreeSystem::OnCreate()
 	_DrawOrgan = false;
 	_TreeEntity.Version = 0;
 	Enable();
+
+
+	_LightEstimator = new LightEstimator(2048);
 }
 
 void SpaceColonizationTree::SCTreeSystem::BuildEnvelope() {
@@ -75,7 +78,7 @@ void SpaceColonizationTree::SCTreeSystem::BuildTree() {
 	if (_Envelope == nullptr || !_Envelope->PointsGenerated()) BuildEnvelope();
 	RemoveTree();
 	_Iteration = 0;
-	_Tree = new Tree(glm::vec3(0.0f, -0.5f, 0.0f), Default::Materials::StandardMaterial, Default::Materials::StandardMaterial, Default::Materials::StandardMaterial);
+	_Tree = new Tree(Default::Materials::StandardMaterial, Default::Materials::StandardMaterial, Default::Materials::StandardMaterial);
 	_AttractDist = _GrowDist * _AttractDitsMult;
 	_RemoveDist = _GrowDist * _RemoveDistMult;
 	Debug::Log("Trunk growing...");
@@ -125,17 +128,18 @@ void SpaceColonizationTree::SCTreeSystem::Update() {
 	TreeGUIMenu();
 	Camera* mainCamera = EntityManager::QuerySharedComponents<CameraComponent>()->at(0)->Value;
 	if (_Envelope != nullptr) _Envelope->Draw(mainCamera, _EnvelopePointMaterial, glm::vec3(_TreeSize));
-	if (_Tree != nullptr && _Tree->_NeedsToGrow) _Tree->Draw(mainCamera, _TreePointMaterial, glm::vec3(_TreeSize));
+	if (_Tree != nullptr && _Tree->NeedsToGrow()) _Tree->Draw(mainCamera, _TreePointMaterial, glm::vec3(_TreeSize));
 	if (_TreeEntity.Version != 0) {
 		Scale scale;
 		scale.value = glm::vec3(_TreeSize);
 		EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
+		_LightEstimator->TakeSnapShot(_Tree, 5.0f, false);
 	}
 }
 
 void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 	if (_Envelope != nullptr && _Tree != nullptr) {
-		if (_Tree->_NeedsToGrow) {
+		if (_Tree->NeedsToGrow()) {
 			_Iteration++;
 			_Tree->Grow(_GrowDist, _AttractDist, _RemoveDist, _Envelope, glm::vec3(0.0f), 0.015f, 0.05f, 0.02f, 0.02f);
 		}
@@ -145,20 +149,21 @@ void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 			_TreeLeaves = new InstancedMeshMaterialComponent();
 			_TreeLeaves->_Material = _TreeLeafMaterial;
 			_TreeLeaves->_Mesh = Default::Primitives::Quad;
-			_TreeLeaves->_Matrices = &_Tree->_LeafList;
+			_TreeLeaves->_Matrices = _Tree->GetLeafList();
 			EntityManager::SetSharedComponent<InstancedMeshMaterialComponent>(_TreeEntity, _TreeLeaves);
 
 			_TreeMesh = new MeshMaterialComponent();
 			_TreeMesh->_Material = _TreeMeshMaterial;
-			_TreeMesh->_Mesh = _Tree->_Mesh;
+			_TreeMesh->_Mesh = _Tree->GetMesh();
 			EntityManager::SetSharedComponent<MeshMaterialComponent>(_TreeEntity, _TreeMesh);
 			Position pos;
-			pos.value = _Tree->_Position;
+			pos.value = glm::vec3(0.0f);
 			Scale scale;
 			scale.value = glm::vec3(1.5f);
 			EntityManager::SetComponentData<Position>(_TreeEntity, pos);
 			EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
 			RemoveEnvelope();
+			_LightEstimator->TakeSnapShot(_Tree, 5.0f, true);
 		}
 	}
 }

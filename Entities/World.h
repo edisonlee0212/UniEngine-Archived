@@ -10,11 +10,19 @@ namespace UniEngine {
 		float Radius;
 		Bound();
 	};
+
+	enum class ENTITIES_API SystemGroup {
+		PreparationSystemGroup,
+		SimulationSystemGroup,
+		PresentationSystemGroup
+	};
 	namespace Entities {
 		class ENTITIES_API World
 		{
 			WorldTime* _Time;
-			std::vector<SystemBase*> _Systems;
+			std::vector<SystemBase*> _PreparationSystems;
+			std::vector<SystemBase*> _SimulationSystems;
+			std::vector<SystemBase*> _PresentationSystems;
 			size_t _Index;
 			UniEngine::Bound _WorldBound;
 		public:
@@ -27,7 +35,7 @@ namespace UniEngine {
 			void Init();
 			WorldTime* Time();
 			template <class T>
-			T* CreateSystem();
+			T* CreateSystem(SystemGroup group);
 			template <class T>
 			void DestroySystem();
 			template <class T>
@@ -37,7 +45,7 @@ namespace UniEngine {
 		};
 
 		template <class T>
-		T* World::CreateSystem() {
+		T* World::CreateSystem(SystemGroup group) {
 			T* system = GetSystem<T>();
 			if (system != nullptr) {
 				return system;
@@ -46,7 +54,21 @@ namespace UniEngine {
 			system->_World = this;
 			system->_Time = _Time;
 			system->OnCreate();
-			_Systems.push_back((SystemBase*)system);
+			switch (group)
+			{
+			case UniEngine::SystemGroup::PreparationSystemGroup:
+				_PreparationSystems.push_back((SystemBase*)system);
+				break;
+			case UniEngine::SystemGroup::SimulationSystemGroup:
+				_SimulationSystems.push_back((SystemBase*)system);
+				break;
+			case UniEngine::SystemGroup::PresentationSystemGroup:
+				_PresentationSystems.push_back((SystemBase*)system);
+				break;
+			default:
+				break;
+			}
+			
 			return system;
 		}
 		template <class T>
@@ -59,7 +81,17 @@ namespace UniEngine {
 		}
 		template <class T>
 		T* World::GetSystem() {
-			for (auto i : _Systems) {
+			for (auto i : _PreparationSystems) {
+				if (dynamic_cast<T*>(i) != nullptr) {
+					return dynamic_cast<T*>(i);
+				}
+			}
+			for (auto i : _SimulationSystems) {
+				if (dynamic_cast<T*>(i) != nullptr) {
+					return dynamic_cast<T*>(i);
+				}
+			}
+			for (auto i : _PresentationSystems) {
 				if (dynamic_cast<T*>(i) != nullptr) {
 					return dynamic_cast<T*>(i);
 				}

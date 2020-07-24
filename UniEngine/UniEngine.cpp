@@ -62,14 +62,14 @@ void UniEngine::Engine::Start(GLFWwindow* targetWindow, unsigned width, unsigned
 	_World->Init();
 	
 	//Initialization System Group
-	_World->CreateSystem<ParentSystem>();
+	_World->CreateSystem<ParentSystem>(SystemGroup::PreparationSystemGroup);
 
 	//Simulation System Group
-	_World->CreateSystem<PhysicsSystem>();
-	_World->CreateSystem<TransformSystem>();
+	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
+	_World->CreateSystem<TransformSystem>(SystemGroup::SimulationSystemGroup);
 
 	//Presentation System Group
-	_World->CreateSystem<RenderSystem>();
+	_World->CreateSystem<RenderSystem>(SystemGroup::PresentationSystemGroup);
 	
 	Default::Load(_World);
 	LightingManager::Init();

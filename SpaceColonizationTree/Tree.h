@@ -6,15 +6,8 @@ namespace SpaceColonizationTree {
 	class Tree
 	{
 	public:
-		Branch* _Root;
-		std::vector<Branch*> _GrowingBranches;
-		bool _NeedsToGrow, _MeshGenerated, _OrganGenerated;
-		int _MaxGrowIteration;
-		glm::vec3 _Position;
-		Mesh* _Mesh;
-		std::vector<glm::mat4> _PointMatrices;
-		std::vector<glm::mat4> _LeafList;
-		Tree(glm::vec3 position, Material* pointMaterial, Material* meshMaterial, Material* organMaterial);
+		
+		Tree(Material* pointMaterial, Material* meshMaterial, Material* organMaterial);
 		
 		void Draw(Camera* camera, Material* pointMaterial, glm::vec3 scale, bool drawOrgan = true);
 
@@ -26,7 +19,19 @@ namespace SpaceColonizationTree {
 			float distDec = 0.015f, float minDist = 0.01f, float decimationDistChild = 0.02f, float decimationDistParent = 0.02f);
 
 		void CalculateMesh(int resolution = 4, int triangleLimit = 8192);
+		Mesh* GetMesh();
+		std::vector<glm::mat4>* GetLeafList();
+		bool NeedsToGrow();
 	private:
+		Mesh* _Mesh;
+		std::vector<glm::mat4> _LeafList;
+		Branch* _Root;
+		std::vector<Branch*> _GrowingBranches;
+		bool _NeedsToGrow, _MeshGenerated, _OrganGenerated;
+		int _MaxGrowIteration;
+		std::vector<glm::mat4> _PointMatrices;
+
+
 		inline void CalculateRadius();
 
 		inline void CollectPoints();

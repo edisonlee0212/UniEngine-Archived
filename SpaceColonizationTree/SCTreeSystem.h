@@ -2,6 +2,8 @@
 #include "UniEngine.h"
 #include "Envelope.h"
 #include "Tree.h"
+#include "LightEstimator.h"
+
 using namespace UniEngine;
 namespace SpaceColonizationTree {
 	class SCTreeSystem :
@@ -24,6 +26,7 @@ namespace SpaceColonizationTree {
 
 		void FixedUpdate();
 	private:
+#pragma region Tree Generation
 		Material* _EnvelopePointMaterial;
 		Texture2D* _EnvelopeTexture;
 		Material* _TreePointMaterial;
@@ -32,7 +35,7 @@ namespace SpaceColonizationTree {
 		Texture2D* _TreeMeshTexture;
 		Material* _TreeLeafMaterial;
 		Texture2D* _TreeLeafTexture;
-		
+
 		int _PointsCount;
 		Entity _TreeEntity;
 		InstancedMeshMaterialComponent* _TreeLeaves;
@@ -47,5 +50,13 @@ namespace SpaceColonizationTree {
 		float _TreeSize;
 		void EnvelopeGUIMenu();
 		void TreeGUIMenu();
+#pragma endregion
+
+#pragma region Light Estimation
+		LightEstimator* _LightEstimator;
+#pragma endregion
+
+
+		
 	};
 }

@@ -43,6 +43,12 @@
     <Filter Include="Header Files\Systems">
       <UniqueIdentifier>{252376e1-3c8e-41f5-bd01-17b11b59ee94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Estimations">
+      <UniqueIdentifier>{ae243112-d173-4711-9f93-b86033a3e95a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Estimations">
+      <UniqueIdentifier>{2ef27fb8-8691-4511-a7a1-c46c86a00c76}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SpaceColonizationTree.cpp">
@@ -81,6 +87,9 @@
     <ClCompile Include="SCTreeSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="LightEstimator.cpp">
+      <Filter>Source Files\Estimations</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tree.h">
@@ -115,6 +124,9 @@
     </ClInclude>
     <ClInclude Include="SCTreeSystem.h">
       <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="LightEstimator.h">
+      <Filter>Header Files\Estimations</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
