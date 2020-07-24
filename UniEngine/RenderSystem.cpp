@@ -16,20 +16,8 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 		EntityManager::GetComponentData<Rotation>(cameraEntity).value
 		);
 	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
-	if (_EnableWireFrame) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
-	else
-	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
-	glEnable(GL_DEPTH_TEST);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_CULL_FACE);
+	
+	
 
 	auto worldBound = _World->GetBound();
 	glm::vec3 minBound = glm::vec3(INT_MAX);

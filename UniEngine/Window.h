@@ -5,7 +5,7 @@ namespace UniEngine {
 	class UNIENGINE_API Window : public RenderTarget
 	{
 		GLFWwindow* _Window;
-		GLTexture* _ColorTexture;
+		GLTexture2D* _ColorTexture;
 		GLRenderBuffer* _RenderBuffer;
 		unsigned _Width;
 		unsigned _Height;
@@ -15,7 +15,6 @@ namespace UniEngine {
 		Window(GLFWwindow* window, unsigned width, unsigned height);
 		glm::vec2 GetWindowSize();
 		GLFWwindow* GetGLFWWinwow();
-		void Update(Texture2D* texture);
 		void Update();
 	};
 }

@@ -49,6 +49,11 @@ namespace UniEngine {
 			return _MaxAllowedTexture;
 		}
 
+		void Clear(GLint level) {
+			Bind(0);
+			glClearTexImage(_ID, level, _Format, _Type, nullptr);
+		}
+
 		void SetInt(GLenum pname, GLint param) {
 			Bind(0);
 			glTexParameteri(_Type, pname, param);

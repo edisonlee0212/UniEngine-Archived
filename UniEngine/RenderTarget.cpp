@@ -55,14 +55,14 @@ void UniEngine::RenderTarget::AttachRenderBuffer(GLRenderBuffer* renderBuffer, G
 	_FrameBuffer->AttachRenderBuffer(renderBuffer, attachPoint);
 }
 
-GLTexture* UniEngine::RenderTarget::SetTexture2D(GLenum attachPoint, GLint level, GLint internalformat)
+GLTexture2D* UniEngine::RenderTarget::SetTexture2D(GLenum attachPoint, GLint level, GLint internalformat)
 {
 	auto retVal = new GLTexture2D(level, internalformat, _ResolutionX, _ResolutionY);
 	AttachTexture(retVal, attachPoint);
 	return retVal;
 }
 
-GLTexture* UniEngine::RenderTarget::SetCubeMap(GLenum attachPoint, GLint level, GLint internalformat)
+GLTextureCubeMap* UniEngine::RenderTarget::SetCubeMap(GLenum attachPoint, GLint level, GLint internalformat)
 {
 	auto retVal = new GLTextureCubeMap(level, internalformat, _ResolutionX, _ResolutionY);
 	AttachTexture(retVal, attachPoint);
