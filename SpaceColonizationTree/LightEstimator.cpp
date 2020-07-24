@@ -75,7 +75,7 @@ void SpaceColonizationTree::LightEstimator::TakeSnapShot(Tree* tree, float shotW
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glm::mat4 view;
 		glm::mat4 projection;
-		view = glm::lookAt(glm::vec3(0.0f) - shotWidth * glm::vec3(glm::cos(glm::radians(ss->GetAngle())), glm::sin(glm::radians(ss->GetAngle())), 0.0f), glm::vec3(0.0f), glm::vec3(0, 0, 1));
+		view = glm::lookAt(glm::vec3(0.0f) + shotWidth * glm::vec3(glm::cos(glm::radians(ss->GetAngle())), glm::sin(glm::radians(ss->GetAngle())), 0.0f), glm::vec3(0.0f), glm::vec3(0, 0, 1));
 		projection = glm::ortho(-shotWidth, shotWidth, -shotWidth, shotWidth, 0.0f, shotWidth * 2.0f);
 		glm::mat4 lsm = projection * view;
 		_SnapShotProgram->SetFloat4x4("lightSpaceMatrix", lsm);
