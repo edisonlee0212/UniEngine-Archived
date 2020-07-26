@@ -109,6 +109,18 @@ int main()
 
 	InitGround();
 	
+
+
+	EntityArchetype archetype1 = EntityManager::CreateEntityArchetype<Position, Scale, LocalToWorld>(Position(), Scale(), LocalToWorld());
+	EntityArchetype archetype2 = EntityManager::CreateEntityArchetype<Position, LocalToWorld>(Position(), LocalToWorld());
+	EntityQuery eq = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAllFilters<Position>(eq, Position());
+	EntityManager::SetEntityQueryNoneFilters<Scale>(eq, Scale());
+	std::vector<EntityComponentStorage> storages = EntityManager::UnsafeQueryStorages(eq);
+
+
+
+
 #pragma region EngineLoop
 	bool loopable = true;
 

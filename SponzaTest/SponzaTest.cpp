@@ -53,7 +53,7 @@ int main()
 	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
 
 	engine->SetMainCamera(cameraEntity);
-
+	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
@@ -194,6 +194,8 @@ int main()
 #pragma region EngineLoop
 	bool loopable = true;
 
+	EntityQuery eq = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAllFilters<LocalToWorld>(eq, LocalToWorld());
 
 	while (loopable) {
 		loopable = engine->LoopStart();

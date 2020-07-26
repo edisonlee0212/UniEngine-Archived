@@ -9,6 +9,11 @@ std::vector<Entity>* UniEngine::Entities::EntityManager::_Entities;
 std::vector<EntityComponentStorage>* UniEngine::Entities::EntityManager::_EntityComponentStorage;
 std::vector<std::queue<Entity>>* UniEngine::Entities::EntityManager::_EntityPool;
 SharedComponentStorage* UniEngine::Entities::EntityManager::_EntitySharedComponentStorage;
+std::vector<EntityQuery>* UniEngine::Entities::EntityManager::_EntityQueries;
+std::vector<EntityQueryInfo>* UniEngine::Entities::EntityManager::_EntityQueryInfos;
+std::queue<EntityQuery>* UniEngine::Entities::EntityManager::_EntityQueryPools;
+
+
 #pragma region EntityManager
 
 void UniEngine::Entities::EntityManager::DeleteEntityInternal(Entity entity)
@@ -31,6 +36,70 @@ void UniEngine::Entities::EntityManager::DeleteEntityInternal(Entity entity)
 	_Entities->at(entity.Index) = actualEntity;
 }
 
+void UniEngine::Entities::EntityManager::RefreshEntityQueryInfos(size_t index)
+{
+	_EntityQueryInfos->at(index).QueriedStorages.clear();
+	//Select storage with every contained.
+	if (!_EntityQueryInfos->at(index).AllComponentTypes.empty()) {
+		for (auto i : *_EntityComponentStorage) {
+			if (i.ArchetypeInfo == nullptr) continue;
+			bool check = true;
+			for (auto type : _EntityQueryInfos->at(index).AllComponentTypes) {
+				bool contain = false;
+				for (auto confirm : i.ArchetypeInfo->ComponentTypes) {
+					if (type.TypeID == confirm.TypeID) contain = true;
+				}
+				if (!contain) check = false;
+			}
+			if (check) _EntityQueryInfos->at(index).QueriedStorages.push_back(i);
+		}
+	}
+	else {
+		for (auto i : *_EntityComponentStorage) {
+			if (i.ArchetypeInfo == nullptr) continue;
+			_EntityQueryInfos->at(index).QueriedStorages.push_back(i);
+		}
+	}
+	//Erase with any
+	if (!_EntityQueryInfos->at(index).AnyComponentTypes.empty()) {
+		for (int i = 0; i < _EntityQueryInfos->at(index).QueriedStorages.size(); i++) {
+			bool contain = false;
+			for (auto type : _EntityQueryInfos->at(index).AnyComponentTypes) {
+				for (auto confirm : _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes) {
+					if (confirm.TypeID == type.TypeID) {
+						contain = true;
+						break;
+					}
+				}
+				if (contain) break;
+			}
+			if (!contain) {
+				_EntityQueryInfos->at(index).QueriedStorages.erase(_EntityQueryInfos->at(index).QueriedStorages.begin() + i);
+				i--;
+			}
+		}
+	}
+	//Erase with none
+	if (!_EntityQueryInfos->at(index).NoneComponentTypes.empty()) {
+		for (int i = 0; i < _EntityQueryInfos->at(index).QueriedStorages.size(); i++) {
+			bool contain = false;
+			for (auto type : _EntityQueryInfos->at(index).NoneComponentTypes) {
+				for (auto confirm : _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes) {
+					if (confirm.TypeID == type.TypeID) {
+						contain = true;
+						break;
+					}
+				}
+				if (contain) break;
+			}
+			if (contain) {
+				_EntityQueryInfos->at(index).QueriedStorages.erase(_EntityQueryInfos->at(index).QueriedStorages.begin() + i);
+				i--;
+			}
+		}
+	}
+}
+
 void UniEngine::Entities::EntityManager::GetAllEntities(std::vector<Entity>* target) {
 	target->insert(target->end() ,_Entities->begin() + 1, _Entities->end());
 }
@@ -49,6 +118,8 @@ void UniEngine::Entities::EntityManager::SetWorld(World* world)
 		storage->EntityInfos.push_back(EntityInfo());
 		storage->EntityComponentStorage.push_back(EntityComponentStorage(nullptr, nullptr));
 		storage->EntityPool.push_back(std::queue<Entity>());
+		storage->EntityQueries.push_back(EntityQuery());
+		storage->EntityQueryInfos.push_back(EntityQueryInfo());
 		_WorldEntityStorage.push_back(storage);
 	}
 	WorldEntityStorage* targetStorage = _WorldEntityStorage[index];
@@ -57,6 +128,9 @@ void UniEngine::Entities::EntityManager::SetWorld(World* world)
 	_EntityComponentStorage = &targetStorage->EntityComponentStorage;
 	_EntityPool = &targetStorage->EntityPool;
 	_EntitySharedComponentStorage = &targetStorage->EntitySharedComponentStorage;
+	_EntityQueries = &targetStorage->EntityQueries;
+	_EntityQueryInfos = &targetStorage->EntityQueryInfos;
+	_EntityQueryPools = &targetStorage->EntityQueryPools;
 }
 
 Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetype)
@@ -102,7 +176,7 @@ void UniEngine::Entities::EntityManager::DeleteEntity(Entity entity)
 	if (entity.IsNull()) return;
 	size_t entityIndex = entity.Index;
 	if (entity != _Entities->at(entityIndex)) {
-		Debug::Error("Parent already deleted!");
+		Debug::Error("Entity out of date!");
 	}
 	for (auto child : _EntityInfos->at(entityIndex).Children) {
 		DeleteEntity(child);
@@ -188,6 +262,70 @@ EntityArchetype UniEngine::Entities::EntityManager::GetEntityArchetype(Entity en
 	EntityArchetype retVal;
 	retVal.Index = info.ArchetypeInfoIndex;
 	return retVal;
+}
+
+EntityQuery UniEngine::Entities::EntityManager::CreateEntityQuery()
+{
+	EntityQuery retVal;
+	if (_EntityQueryPools->empty()) {
+		retVal.Index = _EntityQueries->size();
+		retVal.Version = 1;
+		_EntityQueries->push_back(retVal);
+		
+		EntityQueryInfo info;
+		_EntityQueryInfos->push_back(info);
+		RefreshEntityQueryInfos(retVal.Index);
+		return retVal;
+	}
+	else {
+		retVal = _EntityQueryPools->front();
+		_EntityQueryPools->pop();
+		_EntityQueries->at(retVal.Index).Version = retVal.Version;
+		RefreshEntityQueryInfos(retVal.Index);
+	}
+}
+
+void UniEngine::Entities::EntityManager::DeleteEntityQuery(EntityQuery entityQuery)
+{
+	if (entityQuery.IsNull()) return;
+	unsigned index = entityQuery.Index;
+	if (_EntityQueries->at(index).IsDeleted()) {
+		Debug::Error("EntityQuery already deleted!");
+		return;
+	}
+	if (_EntityQueries->at(index) != entityQuery) {
+		Debug::Error("EntityQuery out of date!");
+		return;
+	}
+	EntityQuery toPool = _EntityQueries->at(index);
+	_EntityQueryInfos->at(index).AllComponentTypes.clear();
+	_EntityQueryInfos->at(index).AnyComponentTypes.clear();
+	_EntityQueryInfos->at(index).NoneComponentTypes.clear();
+	_EntityQueryInfos->at(index).QueriedStorages.clear();
+	_EntityQueries->at(index).Version = 0;
+	toPool.Version++;
+	_EntityQueryPools->push(toPool);
+}
+
+std::vector<EntityComponentStorage> UniEngine::Entities::EntityManager::UnsafeQueryStorages(EntityQuery entityQuery)
+{
+	if (entityQuery.IsNull()) return std::vector<EntityComponentStorage>();
+	unsigned index = entityQuery.Index;
+	if (_EntityQueries->at(index).IsDeleted()) {
+		Debug::Error("EntityQuery already deleted!");
+		return std::vector<EntityComponentStorage>();
+	}
+	if (_EntityQueries->at(index) != entityQuery) {
+		Debug::Error("EntityQuery out of date!");
+		return std::vector<EntityComponentStorage>();
+	}
+	return _EntityQueryInfos->at(index).QueriedStorages;
+}
+
+ComponentDataChunkArray* UniEngine::Entities::EntityManager::UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype)
+{
+	if (entityArchetype.IsNull()) return nullptr;
+	return _EntityComponentStorage->at(entityArchetype.Index).ChunkArray;
 }
 
 UniEngine::Entities::EntityComponentStorage::EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array)

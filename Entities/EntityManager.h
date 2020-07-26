@@ -13,6 +13,10 @@ namespace UniEngine {
 			std::vector<std::queue<Entity>> EntityPool;
 			std::vector<EntityComponentStorage> EntityComponentStorage;
 			SharedComponentStorage EntitySharedComponentStorage;
+
+			std::vector<EntityQuery> EntityQueries;
+			std::vector<EntityQueryInfo> EntityQueryInfos;
+			std::queue<EntityQuery> EntityQueryPools;
 		};
 		class ENTITIES_API EntityManager : public ManagerBase {
 			static std::vector<WorldEntityStorage*> _WorldEntityStorage;
@@ -21,6 +25,10 @@ namespace UniEngine {
 			static std::vector<EntityComponentStorage>* _EntityComponentStorage;
 			static std::vector<std::queue<Entity>>* _EntityPool;
 			static SharedComponentStorage* _EntitySharedComponentStorage;
+			static std::vector<EntityQuery>* _EntityQueries;
+			static std::vector<EntityQueryInfo>* _EntityQueryInfos;
+			static std::queue<EntityQuery>* _EntityQueryPools;
+
 			template<typename T>
 			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
 			template<typename T, typename... Ts>
@@ -28,6 +36,8 @@ namespace UniEngine {
 			template<typename T, typename... Ts>
 			static std::vector<ComponentType> CollectComponentTypes(T arg, Ts... args);
 			static void DeleteEntityInternal(Entity entity);
+
+			static void RefreshEntityQueryInfos(size_t index);
 
 		public:
 			static void GetAllEntities(std::vector<Entity>* target);
@@ -69,6 +79,18 @@ namespace UniEngine {
 			static std::vector<T*>* QuerySharedComponents();
 
 			static EntityArchetype GetEntityArchetype(Entity entity);
+
+			static EntityQuery CreateEntityQuery();
+			static void DeleteEntityQuery(EntityQuery entityQuery);
+			template<typename T, typename... Ts>
+			static void SetEntityQueryAllFilters(EntityQuery entityQuery, T arg, Ts... args);
+			template<typename T, typename... Ts>
+			static void SetEntityQueryAnyFilters(EntityQuery entityQuery, T arg, Ts... args);
+			template<typename T, typename... Ts>
+			static void SetEntityQueryNoneFilters(EntityQuery entityQuery, T arg, Ts... args);
+			//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
+			static std::vector<EntityComponentStorage> UnsafeQueryStorages(EntityQuery entityQuery);
+			static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
 		};
 #pragma endregion
 #pragma region Functions
@@ -96,6 +118,17 @@ namespace UniEngine {
 			CollectComponentTypes(&retVal, arg, args...);
 			std::sort(retVal.begin(), retVal.end(), ComponentTypeComparator);
 			size_t offset = 0;
+			ComponentType prev = retVal[0];
+			//Erase duplicates
+			for (int i = 1; i < retVal.size(); i++) {
+				if (retVal[i] == prev) {
+					retVal.erase(retVal.begin() + i);
+					i--;
+				}
+				else {
+					prev = retVal[i];
+				}
+			}
 			for (int i = 0; i < retVal.size(); i++) {
 				retVal[i].Offset = offset;
 				offset += retVal[i].Size;
@@ -134,6 +167,9 @@ namespace UniEngine {
 			}
 			else {
 				retVal.Index = duplicateIndex;
+			}
+			for (int i = 0; i < _EntityQueryInfos->size(); i++) {
+				RefreshEntityQueryInfos(i);
 			}
 			return retVal;
 		}
@@ -275,6 +311,57 @@ namespace UniEngine {
 		inline std::vector<T*>* EntityManager::QuerySharedComponents()
 		{
 			return _EntitySharedComponentStorage->GetSCList<T>();
+		}
+
+		template<typename T, typename ...Ts>
+		inline void EntityManager::SetEntityQueryAllFilters(EntityQuery entityQuery, T arg, Ts ...args)
+		{
+			if (entityQuery.IsNull()) return;
+			unsigned index = entityQuery.Index;
+			if (_EntityQueries->at(index).IsDeleted()) {
+				Debug::Error("EntityQuery already deleted!");
+				return;
+			}
+			if (_EntityQueries->at(index) != entityQuery) {
+				Debug::Error("EntityQuery out of date!");
+				return;
+			}
+			_EntityQueryInfos->at(index).AllComponentTypes = CollectComponentTypes(arg, args...);
+			RefreshEntityQueryInfos(index);
+		}
+
+		template<typename T, typename ...Ts>
+		inline void EntityManager::SetEntityQueryAnyFilters(EntityQuery entityQuery, T arg, Ts ...args)
+		{
+			if (entityQuery.IsNull()) return;
+			unsigned index = entityQuery.Index;
+			if (_EntityQueries->at(index).IsDeleted()) {
+				Debug::Error("EntityQuery already deleted!");
+				return;
+			}
+			if (_EntityQueries->at(index) != entityQuery) {
+				Debug::Error("EntityQuery out of date!");
+				return;
+			}
+			_EntityQueryInfos->at(index).AnyComponentTypes = CollectComponentTypes(arg, args...);
+			RefreshEntityQueryInfos(index);
+		}
+
+		template<typename T, typename ...Ts>
+		inline void EntityManager::SetEntityQueryNoneFilters(EntityQuery entityQuery, T arg, Ts ...args)
+		{
+			if (entityQuery.IsNull()) return;
+			unsigned index = entityQuery.Index;
+			if (_EntityQueries->at(index).IsDeleted()) {
+				Debug::Error("EntityQuery already deleted!");
+				return;
+			}
+			if (_EntityQueries->at(index) != entityQuery) {
+				Debug::Error("EntityQuery out of date!");
+				return;
+			}
+			_EntityQueryInfos->at(index).NoneComponentTypes = CollectComponentTypes(arg, args...);
+			RefreshEntityQueryInfos(index);
 		}
 
 #pragma endregion

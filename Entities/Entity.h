@@ -62,8 +62,6 @@ namespace UniEngine {
 			return type;
 		}
 
-
-
 		const size_t ARCHETYPECHUNK_SIZE = 16384;
 
 		struct ENTITIES_API ComponentDataChunk {
@@ -93,6 +91,9 @@ namespace UniEngine {
 
 		struct ENTITIES_API EntityArchetype {
 			size_t Index;
+			bool IsNull() {
+				return Index == 0;
+			}
 		};
 
 		struct ENTITIES_API EntityInfo {
@@ -118,14 +119,42 @@ namespace UniEngine {
 		};
 
 		struct ENTITIES_API EntityQuery {
-			std::vector<ComponentType> AllComponentTypes;
-			std::vector<ComponentType> AnyComponentTypes;
-			std::vector<ComponentType> NoneComponentTypes;
+			unsigned Index = 0;
+			unsigned Version = 0;
+
+			bool operator ==(const EntityQuery& other) const {
+				return (other.Index == Index) && (other.Version == Version);
+			}
+			bool operator !=(const EntityQuery& other) const {
+				return (other.Index != Index) || (other.Version != Version);
+			}
+			size_t operator() (EntityQuery const& key) const
+			{
+				return (size_t)Index;
+			}
+
+			bool IsNull() {
+				return Index == 0;
+			}
+
+			bool IsDeleted() {
+				return Version == 0;
+			}
 		};
+
+		
+
 		struct ENTITIES_API EntityComponentStorage {
 			EntityArchetypeInfo* ArchetypeInfo;
 			ComponentDataChunkArray* ChunkArray;
 			EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array);
+		};
+
+		struct ENTITIES_API EntityQueryInfo {
+			std::vector<ComponentType> AllComponentTypes;
+			std::vector<ComponentType> AnyComponentTypes;
+			std::vector<ComponentType> NoneComponentTypes;
+			std::vector<EntityComponentStorage> QueriedStorages;
 		};
 #pragma endregion
 #pragma endregion
