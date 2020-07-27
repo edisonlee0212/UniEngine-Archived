@@ -28,7 +28,6 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 			auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
 			for (auto j : *entities) {
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
-				//auto ltp = EntityManager::GetComponentData<LocalToParent>(j).value;
 				auto scale = EntityManager::GetComponentData<Scale>(j).value;
 				auto meshBound = mmc->_Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);

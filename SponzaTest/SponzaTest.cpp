@@ -67,7 +67,7 @@ int main()
 		//LocalScale,
 		LocalToParent,
 		Position,
-		Rotation,
+		//Rotation,
 		Scale,
 		LocalToWorld
 	>(//LocalPosition(),
@@ -75,7 +75,7 @@ int main()
 	//LocalScale(),
 		LocalToParent(),
 		Position(),
-		Rotation(),
+		//Rotation(),
 		Scale(),
 		LocalToWorld());
 
@@ -87,7 +87,7 @@ int main()
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.value = glm::vec3(0.5f);
-	TestScene testScene = BACKPACK;
+	TestScene testScene = SPONZA_TEST;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);

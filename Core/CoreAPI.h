@@ -15,6 +15,8 @@
 #include <cstddef>
 #include <omp.h>
 #include <cstdarg>
+#include <algorithm>
+#include <functional>
 
 #define OMP_THREAD_AMOUNT 8
 

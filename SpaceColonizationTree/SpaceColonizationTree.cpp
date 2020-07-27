@@ -70,6 +70,8 @@ int main()
 	Scale scale;
 	scale.value = glm::vec3(0.5f);
 
+	
+
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
 	cylinder->_Mesh = Default::Primitives::Cylinder;
 	cylinder->_Material = Default::Materials::StandardMaterial;
@@ -80,7 +82,6 @@ int main()
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
-
 
 	DirectionalLightComponent* dlc2 = new DirectionalLightComponent();
 	Entity dle2 = EntityManager::CreateEntity(archetype);
@@ -115,11 +116,14 @@ int main()
 	EntityArchetype archetype2 = EntityManager::CreateEntityArchetype<Position, LocalToWorld>(Position(), LocalToWorld());
 	EntityQuery eq = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters<Position>(eq, Position());
-	EntityManager::SetEntityQueryNoneFilters<Scale>(eq, Scale());
 	std::vector<EntityComponentStorage> storages = EntityManager::UnsafeQueryStorages(eq);
 
 
-
+	EntityManager::ForEach<Position>(eq, [](int i, Position* position) {
+		glm::vec3 pos = position->value;
+		std::string print = std::to_string(pos.x) + ", " + std::to_string(pos.y) + ", " + std::to_string(pos.z);
+		Debug::Log(print);
+		});
 
 #pragma region EngineLoop
 	bool loopable = true;

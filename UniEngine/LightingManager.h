@@ -83,6 +83,7 @@ namespace UniEngine {
 		static void SetVSMMaxVariance(float value);
 		static void SetLightBleedControlFactor(float value);
 		static void SetEVSMExponent(float value);
+		static void SetAmbientLight(float value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 
 		static void SetMainCamera(Entity entity);

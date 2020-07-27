@@ -62,11 +62,12 @@ void UniEngine::Engine::Start(GLFWwindow* targetWindow, unsigned width, unsigned
 	_World->Init();
 	
 	//Initialization System Group
+	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
 	_World->CreateSystem<ParentSystem>(SystemGroup::PreparationSystemGroup);
 
 	//Simulation System Group
 	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
-	_World->CreateSystem<TransformSystem>(SystemGroup::SimulationSystemGroup);
+	
 
 	//Presentation System Group
 	_World->CreateSystem<RenderSystem>(SystemGroup::PresentationSystemGroup);
@@ -173,7 +174,7 @@ void UniEngine::Engine::DrawInfoWindow() {
 	ImGui::Begin("Logs");
 	int size = Debug::mLogMessages.size();
 	std::string logs = "";
-	for (int i = size - 1; i > 0; i--) {
+	for (int i = size - 1; i >= 0; i--) {
 		if (i < size - 50) break;
 		logs += *Debug::mLogMessages[i];
 	}

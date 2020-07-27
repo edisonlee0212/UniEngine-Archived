@@ -567,6 +567,11 @@ void UniEngine::LightingManager::SetEVSMExponent(float value)
 	_ShadowSettings.EVSMExponent = value;
 }
 
+void UniEngine::LightingManager::SetAmbientLight(float value)
+{
+	_ShadowSettings.AmbientLight = value;
+}
+
 glm::vec3 UniEngine::LightingManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)
 {
 	float LineLength = distance(a, b);
