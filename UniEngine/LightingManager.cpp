@@ -179,7 +179,7 @@ void UniEngine::LightingManager::Start()
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;
 
-
+	_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowSettings), &_ShadowSettings);
 
 	if (_UpdateDirectionalLightBlock) {
 		//1.	利用EntityManager找到场景内所有Light instance。
@@ -290,7 +290,6 @@ void UniEngine::LightingManager::Start()
 			_DirectionalLightBlock->SubData(0, 4, &size);
 			if (size != 0) {
 				_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
-				_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowSettings), &_ShadowSettings);
 			}
 #pragma region Directional Light Shadowmap pass
 			LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
@@ -401,7 +400,7 @@ void UniEngine::LightingManager::Start()
 #pragma endregion
 		}
 	}
-
+	
 	if (_UpdatePointLightBlock) {
 		auto pointLightsList = EntityManager::QuerySharedComponents<PointLightComponent>();
 		if (pointLightsList != nullptr) {

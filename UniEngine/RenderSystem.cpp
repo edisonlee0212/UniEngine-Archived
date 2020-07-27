@@ -57,7 +57,6 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 				RenderManager::DrawMeshInstanced(
 					immc,
 					EntityManager::GetComponentData<LocalToWorld>(j).value,
-					&immc->_Matrices->at(0), immc->_Matrices->size(),
 					camera);
 			}
 		}

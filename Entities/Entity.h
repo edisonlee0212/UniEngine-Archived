@@ -112,8 +112,9 @@ namespace UniEngine {
 			//How many entites can fit into one chunk
 			size_t ChunkCapacity;
 			//Current allocated entity count.
-			size_t EntityCount;
-
+			size_t EntityCount = 0;
+			//Current live entity count.
+			size_t EntityAliveCount = 0;
 			template<typename T>
 			bool HasType();
 		};

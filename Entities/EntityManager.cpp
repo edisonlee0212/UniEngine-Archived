@@ -28,6 +28,13 @@ void UniEngine::Entities::EntityManager::DeleteEntityInternal(Entity entity)
 		actualEntity.Version = 0;
 		EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
 		storage.ChunkArray->Entities[info.ChunkArrayIndex] = actualEntity;
+		//TODO: Swap entity data in storage, reset entityinfo for both entity
+		if (info.ChunkArrayIndex != storage.ArchetypeInfo->EntityAliveCount - 1) {
+			auto swappedIndex = SwapEntity(storage, info.ChunkArrayIndex, storage.ArchetypeInfo->EntityAliveCount - 1);
+			_EntityInfos->at(entity.Index).ChunkArrayIndex = storage.ArchetypeInfo->EntityAliveCount - 1;
+			_EntityInfos->at(swappedIndex).ChunkArrayIndex = info.ChunkArrayIndex;
+		}
+		storage.ArchetypeInfo->EntityAliveCount--;
 	}
 	else {
 		Debug::Error("Entity already deleted!");
@@ -100,6 +107,38 @@ void UniEngine::Entities::EntityManager::RefreshEntityQueryInfos(size_t index)
 	}
 }
 
+size_t UniEngine::Entities::EntityManager::SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2)
+{
+	if (index1 == index2) return -1;
+	auto info = storage.ArchetypeInfo;
+	size_t retVal = storage.ChunkArray->Entities[index2].Index;
+	Entity temp = storage.ChunkArray->Entities[index2];
+	storage.ChunkArray->Entities[index2] = storage.ChunkArray->Entities[index1];
+	storage.ChunkArray->Entities[index1] = temp;
+	size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+	size_t chunkIndex1 = index1 / capacity;
+	size_t chunkIndex2 = index2 / capacity;
+	size_t chunkPointer1 = index1 % capacity;
+	size_t chunkPointer2 = index2 % capacity;
+
+	for (auto i : storage.ArchetypeInfo->ComponentTypes) {
+		void* temp = (void*)malloc(i.Size);
+		void* d1 = (void*)((char*)storage.ChunkArray->Chunks[chunkIndex1].Data
+			+ i.Offset * capacity
+			+ i.Size * chunkPointer1);
+
+		void* d2 = (void*)((char*)storage.ChunkArray->Chunks[chunkIndex2].Data
+			+ i.Offset * capacity
+			+ i.Size * chunkPointer2);
+
+		memcpy(temp, d1, i.Size);
+		memcpy(d1, d2, i.Size);
+		memcpy(d2, temp, i.Size);
+		free(temp);
+	}
+	return retVal;
+}
+
 void UniEngine::Entities::EntityManager::GetAllEntities(std::vector<Entity>* target) {
 	target->insert(target->end() ,_Entities->begin() + 1, _Entities->end());
 }
@@ -158,6 +197,7 @@ Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetyp
 		_EntityInfos->push_back(entityInfo);
 		_Entities->push_back(retVal);
 		info->EntityCount++;
+		info->EntityAliveCount++;
 	}
 	else {
 		//TODO: Update version when we delete entity.
@@ -167,6 +207,7 @@ Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetyp
 		EntityComponentStorage storage = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex);
 		storage.ChunkArray->Entities[entityInfo.ChunkArrayIndex] = retVal;
 		_Entities->at(retVal.Index) = retVal;
+		storage.ArchetypeInfo->EntityAliveCount++;
 	}
 	return retVal;
 }

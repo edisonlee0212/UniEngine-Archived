@@ -47,6 +47,11 @@ namespace UniEngine {
 			static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*, T2*, T3*)>& func);
 			template<typename T1, typename T2, typename T3, typename T4>
 			static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*, T2*, T3*, T4*)>& func);
+		
+			template<typename T>
+			static void GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container);
+		
+			static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
 		public:
 			static void GetAllEntities(std::vector<Entity>* target);
 			static std::vector<Entity>* GetAllEntitiesUnsafe();
@@ -108,6 +113,9 @@ namespace UniEngine {
 			static void ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*)>& func);
 			template<typename T1, typename T2, typename T3, typename T4>
 			static void ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*, T4*)>& func);
+			template<typename T>
+			static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container);
+
 		};
 #pragma endregion
 #pragma region Functions
@@ -301,6 +309,32 @@ namespace UniEngine {
 						);
 					}
 				}
+			}
+		}
+
+		template<typename T>
+		inline void EntityManager::GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container)
+		{
+			ComponentType targetType = typeof<T>();
+			size_t entityCount = storage.ArchetypeInfo->EntityCount;
+			bool found = false;
+			for (auto type : storage.ArchetypeInfo->ComponentTypes) {
+				if (targetType == type) {
+					targetType = type;
+					found = true;
+					break;
+				}
+			}
+			if (found) {
+				size_t amount = storage.ArchetypeInfo->EntityAliveCount;
+				container->resize(container->size() + amount);
+				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+				size_t chunkAmount = amount / capacity;
+				size_t remainAmount = amount % capacity;
+				for (int i = 0; i < chunkAmount; i++) {
+					memcpy(&container->at(container->size() - remainAmount - capacity * (chunkAmount - i)), (void*)((char*)storage.ChunkArray->Chunks[i].Data + capacity * targetType.Offset), capacity * targetType.Size);
+				}
+				if (remainAmount > 0) memcpy(&container->at(container->size() - remainAmount), (void*)((char*)storage.ChunkArray->Chunks[chunkAmount].Data + capacity * targetType.Offset), remainAmount * targetType.Size);
 			}
 		}
 
@@ -595,6 +629,23 @@ namespace UniEngine {
 			}
 			for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
 				ForEachStorage(i, func);
+			}
+		}
+		template<typename T>
+		inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container)
+		{
+			if (entityQuery.IsNull()) return;
+			unsigned index = entityQuery.Index;
+			if (_EntityQueries->at(index).IsDeleted()) {
+				Debug::Error("EntityQuery already deleted!");
+				return;
+			}
+			if (_EntityQueries->at(index) != entityQuery) {
+				Debug::Error("EntityQuery out of date!");
+				return;
+			}
+			for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+				GetComponentDataArrayStorage(i, container);
 			}
 		}
 #pragma endregion

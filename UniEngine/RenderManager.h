@@ -36,7 +36,7 @@ namespace UniEngine {
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, Camera* camera, bool receiveShadow = true);
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, RenderTarget* target, bool receiveShadow = true);
 
-		static void DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera);
+		static void DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, Camera* camera);
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera, bool receiveShadow = true);
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow = true);
 	};

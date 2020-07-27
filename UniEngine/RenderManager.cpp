@@ -6,9 +6,9 @@ using namespace UniEngine;
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;
 bool RenderManager::_EnableNormalMapping = true;
-void UniEngine::RenderManager::DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera)
+void UniEngine::RenderManager::DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, Camera* camera)
 {
-	DrawMeshInstanced(immc->_Mesh, immc->_Material, matrix, matrices, count, camera, immc->_ReceiveShadow);
+	DrawMeshInstanced(immc->_Mesh, immc->_Material, matrix, immc->_Matrices->data(), immc->_Matrices->size(), camera, immc->_ReceiveShadow);
 }
 
 void UniEngine::RenderManager::DrawMesh(MeshMaterialComponent* mmc, glm::mat4 matrix, Camera* camera)
