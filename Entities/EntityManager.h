@@ -47,10 +47,10 @@ namespace UniEngine {
 			static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*, T2*, T3*)>& func);
 			template<typename T1, typename T2, typename T3, typename T4>
 			static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*, T2*, T3*, T4*)>& func);
-		
+
 			template<typename T>
 			static void GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container);
-		
+
 			static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
 		public:
 			static void GetAllEntities(std::vector<Entity>* target);
@@ -119,6 +119,7 @@ namespace UniEngine {
 		};
 #pragma endregion
 #pragma region Functions
+#pragma region Collectors
 		template<typename T>
 		inline size_t EntityManager::CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg)
 		{
@@ -160,31 +161,48 @@ namespace UniEngine {
 			}
 			return retVal;
 		}
-
+#pragma endregion
+#pragma region ForEachStorage
 		template<typename T1>
 		inline void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*)>& func)
 		{
-			ComponentType targetType = typeof<T1>();
-			size_t entityCount = storage.ArchetypeInfo->EntityCount;
+			ComponentType targetType1 = typeof<T1>();
+			size_t entityCount = storage.ArchetypeInfo->EntityAliveCount;
 			bool found = false;
 			for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-				if (targetType == type) {
-					targetType = type;
+				if (targetType1 == type) {
+					targetType1 = type;
 					found = true;
 					break;
 				}
 			}
+			omp_set_num_threads(OMP_THREAD_AMOUNT);
 			if (found) {
-				size_t chunkIndex = 0;
-				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-				omp_set_num_threads(OMP_THREAD_AMOUNT);
-#pragma omp parallel for
-				for (int i = 0; i < entityCount; i++) {
-					chunkIndex = i / capacity;
-					if (storage.ChunkArray->Entities[i].Version != 0) {
-						func(i, 
-							(T1*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType.Offset * capacity + (i % capacity) * targetType.Size));
+#pragma omp parallel
+				{
+					size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+					int chunkAmount = entityCount / capacity;
+					int remainder = entityCount % capacity;
+					ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+					size_t offset1 = targetType1.Offset;
+					size_t size1 = targetType1.Size;
+#pragma omp for
+					for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+						for (int i = 0; i < capacity; i++) {
+							func(i + chunkIndex * capacity,
+								(T1*)((char*)chunkArray->Chunks[chunkIndex].Data + offset1 * capacity + (i % capacity) * size1)
+							);
+						}
 					}
+				}
+				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+				int chunkAmount = entityCount / capacity;
+				int remainder = entityCount % capacity;
+				ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+				for (int i = 0; i < remainder; i++) {
+					func(i + chunkAmount * capacity,
+						(T1*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
+					);
 				}
 			}
 		}
@@ -194,7 +212,7 @@ namespace UniEngine {
 		{
 			ComponentType targetType1 = typeof<T1>();
 			ComponentType targetType2 = typeof<T2>();
-			size_t entityCount = storage.ArchetypeInfo->EntityCount;
+			size_t entityCount = storage.ArchetypeInfo->EntityAliveCount;
 			bool found1 = false;
 			bool found2 = false;
 			for (auto type : storage.ArchetypeInfo->ComponentTypes) {
@@ -209,17 +227,35 @@ namespace UniEngine {
 			}
 			omp_set_num_threads(OMP_THREAD_AMOUNT);
 			if (found1 && found2) {
-				size_t chunkIndex = 0;
-				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-//#pragma omp parallel for
-				for (int i = 0; i < entityCount; i++) {
-					chunkIndex = i / capacity;
-					if (storage.ChunkArray->Entities[i].Version != 0) {
-						func(i,
-							(T1*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size), 
-							(T2*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
-						);
+#pragma omp parallel
+				{
+					size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+					int chunkAmount = entityCount / capacity;
+					int remainder = entityCount % capacity;
+					ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+					size_t offset1 = targetType1.Offset;
+					size_t offset2 = targetType2.Offset;
+					size_t size1 = targetType1.Size;
+					size_t size2 = targetType2.Size;
+#pragma omp for
+					for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+						for (int i = 0; i < capacity; i++) {
+							func(i + chunkIndex * capacity,
+								(T1*)((char*)chunkArray->Chunks[chunkIndex].Data + offset1 * capacity + (i % capacity) * size1),
+								(T2*)((char*)chunkArray->Chunks[chunkIndex].Data + offset2 * capacity + (i % capacity) * size2)
+							);
+						}
 					}
+				}
+				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+				int chunkAmount = entityCount / capacity;
+				int remainder = entityCount % capacity;
+				ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+				for (int i = 0; i < remainder; i++) {
+					func(i + chunkAmount * capacity,
+						(T1*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+						(T2*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
+					);
 				}
 			}
 		}
@@ -229,7 +265,7 @@ namespace UniEngine {
 			ComponentType targetType1 = typeof<T1>();
 			ComponentType targetType2 = typeof<T2>();
 			ComponentType targetType3 = typeof<T3>();
-			size_t entityCount = storage.ArchetypeInfo->EntityCount;
+			size_t entityCount = storage.ArchetypeInfo->EntityAliveCount;
 			bool found1 = false;
 			bool found2 = false;
 			bool found3 = false;
@@ -249,18 +285,39 @@ namespace UniEngine {
 			}
 			omp_set_num_threads(OMP_THREAD_AMOUNT);
 			if (found1 && found2 && found3) {
-				size_t chunkIndex = 0;
-				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-#pragma omp parallel for
-				for (int i = 0; i < entityCount; i++) {
-					chunkIndex = i / capacity;
-					if (storage.ChunkArray->Entities[i].Version != 0) {
-						func(i,
-							(T1*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size), 
-							(T2*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size), 
-							(T3*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
-						);
+#pragma omp parallel
+				{
+					size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+					int chunkAmount = entityCount / capacity;
+					int remainder = entityCount % capacity;
+					ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+					size_t offset1 = targetType1.Offset;
+					size_t offset2 = targetType2.Offset;
+					size_t offset3 = targetType3.Offset;
+					size_t size1 = targetType1.Size;
+					size_t size2 = targetType2.Size;
+					size_t size3 = targetType3.Size;
+#pragma omp for
+					for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+						for (int i = 0; i < capacity; i++) {
+							func(i + chunkIndex * capacity,
+								(T1*)((char*)chunkArray->Chunks[chunkIndex].Data + offset1 * capacity + (i % capacity) * size1),
+								(T2*)((char*)chunkArray->Chunks[chunkIndex].Data + offset2 * capacity + (i % capacity) * size2),
+								(T3*)((char*)chunkArray->Chunks[chunkIndex].Data + offset3 * capacity + (i % capacity) * size3)
+							);
+						}
 					}
+				}
+				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+				int chunkAmount = entityCount / capacity;
+				int remainder = entityCount % capacity;
+				ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+				for (int i = 0; i < remainder; i++) {
+					func(i + chunkAmount * capacity,
+						(T1*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+						(T2*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+						(T3*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
+					);
 				}
 			}
 		}
@@ -270,7 +327,7 @@ namespace UniEngine {
 			ComponentType targetType2 = typeof<T2>();
 			ComponentType targetType3 = typeof<T3>();
 			ComponentType targetType4 = typeof<T4>();
-			size_t entityCount = storage.ArchetypeInfo->EntityCount;
+			size_t entityCount = storage.ArchetypeInfo->EntityAliveCount;
 			bool found1 = false;
 			bool found2 = false;
 			bool found3 = false;
@@ -295,23 +352,48 @@ namespace UniEngine {
 			}
 			omp_set_num_threads(OMP_THREAD_AMOUNT);
 			if (found1 && found2 && found3 && found4) {
-				size_t chunkIndex = 0;
-				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-#pragma omp parallel for
-				for (int i = 0; i < entityCount; i++) {
-					chunkIndex = i / capacity;
-					if (storage.ChunkArray->Entities[i].Version != 0) {
-						func(i,
-							(T1*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size), 
-							(T2*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size), 
-							(T3*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size), 
-							(T4*)((char*)storage.ChunkArray->Chunks[chunkIndex].Data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
-						);
+#pragma omp parallel
+				{
+					size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+					int chunkAmount = entityCount / capacity;
+					int remainder = entityCount % capacity;
+					ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+					size_t offset1 = targetType1.Offset;
+					size_t offset2 = targetType2.Offset;
+					size_t offset3 = targetType3.Offset;
+					size_t offset4 = targetType4.Offset;
+					size_t size1 = targetType1.Size;
+					size_t size2 = targetType2.Size;
+					size_t size3 = targetType3.Size;
+					size_t size4 = targetType4.Size;
+#pragma omp for
+					for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+						for (int i = 0; i < capacity; i++) {
+							func(i + chunkIndex * capacity,
+								(T1*)((char*)chunkArray->Chunks[chunkIndex].Data + offset1 * capacity + (i % capacity) * size1),
+								(T2*)((char*)chunkArray->Chunks[chunkIndex].Data + offset2 * capacity + (i % capacity) * size2),
+								(T3*)((char*)chunkArray->Chunks[chunkIndex].Data + offset3 * capacity + (i % capacity) * size3),
+								(T4*)((char*)chunkArray->Chunks[chunkIndex].Data + offset4 * capacity + (i % capacity) * size4)
+							);
+						}
 					}
+				}
+				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+				int chunkAmount = entityCount / capacity;
+				int remainder = entityCount % capacity;
+				ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+				for (int i = 0; i < remainder; i++) {
+					func(i + chunkAmount * capacity,
+						(T1*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+						(T2*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+						(T3*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+						(T4*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
+					);
 				}
 			}
 		}
-
+#pragma endregion
+#pragma region Others
 		template<typename T>
 		inline void EntityManager::GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container)
 		{
@@ -375,8 +457,8 @@ namespace UniEngine {
 			}
 			return retVal;
 		}
-
-
+#pragma endregion
+#pragma region GetSetHas
 		template<typename T>
 		inline void EntityManager::SetComponentData(Entity entity, T value)
 		{
@@ -509,6 +591,8 @@ namespace UniEngine {
 		{
 			return _EntitySharedComponentStorage->GetOwnersList<T>(value);
 		}
+#pragma endregion
+#pragma region SharedQuery
 		template<typename T>
 		inline std::vector<T*>* EntityManager::QuerySharedComponents()
 		{
@@ -565,7 +649,8 @@ namespace UniEngine {
 			_EntityQueryInfos->at(index).NoneComponentTypes = CollectComponentTypes(arg, args...);
 			RefreshEntityQueryInfos(index);
 		}
-
+#pragma endregion
+#pragma region For Each
 		template<typename T1>
 		inline void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*)>& func)
 		{
@@ -648,6 +733,7 @@ namespace UniEngine {
 				GetComponentDataArrayStorage(i, container);
 			}
 		}
+#pragma endregion
 #pragma endregion
 	}
 }

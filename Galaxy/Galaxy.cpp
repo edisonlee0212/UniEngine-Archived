@@ -3,7 +3,7 @@
 
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
-
+#include "ParentSystem.h"
 
 
 using namespace UniEngine;
@@ -98,7 +98,7 @@ int main()
 
 #pragma endregion
 */
-
+	engine->GetWorld()->GetSystem<ParentSystem>()->Disable();
 #pragma region Stars
 	auto starMat = new Material();
 	starMat->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
@@ -109,7 +109,7 @@ int main()
 	EntityArchetype starArchetype =
 		EntityManager::CreateEntityArchetype<StarTag, Position, Rotation, Scale, LocalToWorld>(StarTag(), Position(), Rotation(), Scale(), LocalToWorld());
 	//Create 200 * 200 = 40000 Cubes
-	int width = 200;
+	int width = 300;
 	for (int i = 0; i < width * width; i++) {
 		auto entity = EntityManager::CreateEntity(starArchetype);
 	}
@@ -139,7 +139,7 @@ int main()
 		matrices.clear();
 		EntityManager::GetComponentDataArray(eq, &matrices);
 		//Draw cubes.
-		RenderManager::DrawMeshInstanced(Default::Primitives::Cube, starMat, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), mainCamera);
+		RenderManager::DrawMeshInstanced(Default::Primitives::Quad, starMat, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), mainCamera);
 		//Render speed control window
 		ImGui::Begin("Speed Control");
 		ImGui::SliderFloat("Factor", &speed, 0.0f, 8.0f);

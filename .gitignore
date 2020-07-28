@@ -7,6 +7,9 @@
 !includes/**
 !Resources/**
 
+#Discard VTune results
+VTune Profiler Results/
+
 # User-specific files
 *.rsuser
 *.suo
