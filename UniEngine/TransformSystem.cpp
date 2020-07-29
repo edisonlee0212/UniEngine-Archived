@@ -31,25 +31,25 @@ void UniEngine::TransformSystem::OnCreate()
 	EntityManager::SetEntityQueryNoneFilters<LocalPosition, LocalRotation>(_LS, LocalPosition(), LocalRotation());
 
 	_P = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Position>(_P, LocalToWorld(), Position());
+	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Translation>(_P, LocalToWorld(), Translation());
 	EntityManager::SetEntityQueryNoneFilters<Rotation, Scale>(_P, Rotation(), Scale());
 	_PR = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Position, Rotation>(_PR, LocalToWorld(), Position(), Rotation());
+	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Translation, Rotation>(_PR, LocalToWorld(), Translation(), Rotation());
 	EntityManager::SetEntityQueryNoneFilters<Scale>(_PR, Scale());
 	_PS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Position, Scale>(_PS, LocalToWorld(), Position(), Scale());
+	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Translation, Scale>(_PS, LocalToWorld(), Translation(), Scale());
 	EntityManager::SetEntityQueryNoneFilters<Rotation>(_PS, Rotation());
 	_PRS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Position, Rotation, Scale>(_PRS, LocalToWorld(), Position(), Rotation(), Scale());
+	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Translation, Rotation, Scale>(_PRS, LocalToWorld(), Translation(), Rotation(), Scale());
 	_R = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Rotation>(_R, LocalToWorld(), Rotation());
-	EntityManager::SetEntityQueryNoneFilters<Position, Scale>(_R, Position(), Scale());
+	EntityManager::SetEntityQueryNoneFilters<Translation, Scale>(_R, Translation(), Scale());
 	_RS = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Rotation, Scale>(_RS, LocalToWorld(), Rotation(), Scale());
-	EntityManager::SetEntityQueryNoneFilters<Position>(_RS, Position());
+	EntityManager::SetEntityQueryNoneFilters<Translation>(_RS, Translation());
 	_S = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters<LocalToWorld, Scale>(_S, LocalToWorld(), Scale());
-	EntityManager::SetEntityQueryNoneFilters<Position, Rotation>(_S, Position(), Rotation());
+	EntityManager::SetEntityQueryNoneFilters<Translation, Rotation>(_S, Translation(), Rotation());
 
 	Enable();
 }
@@ -85,16 +85,16 @@ void UniEngine::TransformSystem::Update()
 		ltp->value = glm::identity<glm::mat4>() * glm::scale(ls->value);
 		});
 
-	EntityManager::ForEach<LocalToWorld, Position>(_P, [](int i, LocalToWorld* ltw, Position* lp) {
+	EntityManager::ForEach<LocalToWorld, Translation>(_P, [](int i, LocalToWorld* ltw, Translation* lp) {
 		ltw->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::identity<glm::mat4>();
 		});
-	EntityManager::ForEach<LocalToWorld, Position, Rotation>(_PR, [](int i, LocalToWorld* ltw, Position* lp, Rotation* lr) {
+	EntityManager::ForEach<LocalToWorld, Translation, Rotation>(_PR, [](int i, LocalToWorld* ltw, Translation* lp, Rotation* lr) {
 		ltw->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::mat4_cast(lr->value) * glm::identity<glm::mat4>();
 		});
-	EntityManager::ForEach<LocalToWorld, Position, Scale>(_PS, [](int i, LocalToWorld* ltw, Position* lp, Scale* ls) {
+	EntityManager::ForEach<LocalToWorld, Translation, Scale>(_PS, [](int i, LocalToWorld* ltw, Translation* lp, Scale* ls) {
 		ltw->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::identity<glm::mat4>() * glm::scale(ls->value);
 		});
-	EntityManager::ForEach<LocalToWorld, Position, Rotation, Scale>(_PRS, [](int i, LocalToWorld* ltw, Position* lp, Rotation* lr, Scale* ls) {
+	EntityManager::ForEach<LocalToWorld, Translation, Rotation, Scale>(_PRS, [](int i, LocalToWorld* ltw, Translation* lp, Rotation* lr, Scale* ls) {
 		ltw->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::mat4_cast(lr->value) * glm::scale(ls->value);
 		});
 	EntityManager::ForEach<LocalToWorld, Rotation>(_R, [](int i, LocalToWorld* ltw, Rotation* lr) {

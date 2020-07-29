@@ -5,7 +5,7 @@ namespace Galaxy {
 	/// <summary>
 	/// The calculated precise position of the star.
 	/// </summary>
-	struct Position : ComponentBase
+	struct StarPosition : ComponentBase
 	{
 		glm::dvec3 Value;
 	};
@@ -24,7 +24,7 @@ namespace Galaxy {
 	/// <summary>
 	/// This keep track of the position of the star in the list.
 	/// </summary>
-	struct Index : ComponentBase
+	struct StarIndex : ComponentBase
 	{
 		int Value;
 	};
@@ -66,7 +66,6 @@ namespace Galaxy {
 
 	struct StarOrbit : ComponentBase
 	{
-		StarOrbitOffset OrbitOffset;
 		float A;
 		float B;
 		double TiltY;
@@ -76,18 +75,18 @@ namespace Galaxy {
 		glm::dvec3 Center;
 
 
-		glm::dvec3 GetPoint(double time, bool isStar = true)
+		glm::dvec3 GetPoint(glm::dvec3 orbitOffset, double time, bool isStar = true)
 		{
 			double angle = isStar ? time / glm::sqrt(A + B) * SpeedMultiplier : time;
 
 			glm::dvec3 point;
-			point.x = glm::sin(angle) * A + OrbitOffset.Value.x;
-			point.y = OrbitOffset.Value.y;
-			point.z = glm::cos(angle) * B + OrbitOffset.Value.z;
+			point.x = glm::sin(glm::radians(angle)) * A + orbitOffset.x;
+			point.y = orbitOffset.y;
+			point.z = glm::cos(glm::radians(angle)) * B + orbitOffset.z;
 
-			point = Rotate(glm::angleAxis(TiltX, glm::dvec3(1, 0, 0)), point);
-			point = Rotate(glm::angleAxis(TiltY, glm::dvec3(0, 1, 0)), point);
-			point = Rotate(glm::angleAxis(TiltZ, glm::dvec3(0, 0, 1)), point);
+			point = Rotate(glm::angleAxis(glm::radians(TiltX), glm::dvec3(1, 0, 0)), point);
+			point = Rotate(glm::angleAxis(glm::radians(TiltY), glm::dvec3(0, 1, 0)), point);
+			point = Rotate(glm::angleAxis(glm::radians(TiltZ), glm::dvec3(0, 0, 1)), point);
 
 			point.x += Center.x;
 			point.y += Center.y;
@@ -198,7 +197,7 @@ namespace Galaxy {
 		/// <param name="orbit">
 		/// The ellipse will be reset by the proportion and the density wave properties.
 		/// </param>
-		StarOrbit GetOrbit(double starOrbitProportion, StarOrbitOffset orbitOffset)
+		StarOrbit GetOrbit(double starOrbitProportion)
 		{
 			StarOrbit orbit;
 			if (starOrbitProportion > CoreProportion)
@@ -222,7 +221,6 @@ namespace Galaxy {
 			}
 			orbit.TiltY = -Rotation * starOrbitProportion;
 			orbit.Center = CenterPosition * (1 - starOrbitProportion);
-			orbit.OrbitOffset = orbitOffset;
 			return orbit;
 		}
 
@@ -232,9 +230,9 @@ namespace Galaxy {
 			offset = glm::sqrt(1 - proportion);
 			StarOrbitOffset orbitOffset;
 			glm::dvec3 d3;
-			d3.y = (offset) * (DiskA + DiskB) * YSpread;
-			d3.x = (offset) * (DiskA + DiskB) * XZSpread;
-			d3.z = (offset) * (DiskA + DiskB) * XZSpread;
+			d3.y = glm::gaussRand(0.0, 1.0) * (DiskA + DiskB) * YSpread;
+			d3.x = glm::gaussRand(0.0, 1.0) * (DiskA + DiskB) * XZSpread;
+			d3.z = glm::gaussRand(0.0, 1.0) * (DiskA + DiskB) * XZSpread;
 			orbitOffset.Value = d3;
 			return orbitOffset;
 		}
@@ -266,7 +264,18 @@ namespace Galaxy {
 	class StarClusterSystem :
 		public SystemBase
 	{
-
+		Camera* _TargetCamera;
+		Material* _StarMaterial;
+		std::vector<StarClusterPattern*> _Patterns;
+		EntityQuery _StarQuery;
+		EntityArchetype _StarArchetype;
+		float _Speed;
+		float _GalaxyTime;
+	public:
+		void SetCamera(Camera* camera);
+		void OnCreate();
+		void Update();
+		void FixedUpdate();
 	};
 }
 

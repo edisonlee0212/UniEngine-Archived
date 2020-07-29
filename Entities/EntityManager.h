@@ -29,26 +29,26 @@ namespace UniEngine {
 			static std::vector<EntityQueryInfo>* _EntityQueryInfos;
 			static std::queue<EntityQuery>* _EntityQueryPools;
 
-			template<typename T>
+			template<typename T = ComponentBase>
 			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
-			template<typename T, typename... Ts>
+			template<typename T = ComponentBase, typename... Ts>
 			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg, Ts... args);
-			template<typename T, typename... Ts>
+			template<typename T = ComponentBase, typename... Ts>
 			static std::vector<ComponentType> CollectComponentTypes(T arg, Ts... args);
 			static void DeleteEntityInternal(Entity entity);
 
 			static void RefreshEntityQueryInfos(size_t index);
 
-			template<typename T1>
+			template<typename T1 = ComponentBase>
 			static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*)>& func);
-			template<typename T1, typename T2>
+			template<typename T1 = ComponentBase, typename T2 = ComponentBase>
 			static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*, T2*)>& func);
-			template<typename T1, typename T2, typename T3>
+			template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
 			static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*, T2*, T3*)>& func);
-			template<typename T1, typename T2, typename T3, typename T4>
+			template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase>
 			static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, T1*, T2*, T3*, T4*)>& func);
 
-			template<typename T>
+			template<typename T = ComponentBase>
 			static void GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container);
 
 			static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
@@ -56,7 +56,7 @@ namespace UniEngine {
 			static void GetAllEntities(std::vector<Entity>* target);
 			static std::vector<Entity>* GetAllEntitiesUnsafe();
 			static void SetWorld(World* world);
-			template<typename T, typename... Ts>
+			template<typename T = ComponentBase, typename... Ts>
 			static EntityArchetype CreateEntityArchetype(T arg, Ts... args);
 
 			static Entity CreateEntity(EntityArchetype archetype);
@@ -69,51 +69,51 @@ namespace UniEngine {
 
 
 
-			template<typename T>
+			template<typename T = ComponentBase>
 			static void SetComponentData(Entity entity, T value);
-			template<typename T>
+			template<typename T = ComponentBase>
 			static T GetComponentData(Entity entity);
-			template<typename T>
+			template<typename T = ComponentBase>
 			static bool HasComponentData(Entity entity);
 
-			template <typename T>
+			template <typename T = SharedComponentBase>
 			static T* GetSharedComponent(Entity entity);
-			template <typename T>
+			template <typename T = SharedComponentBase>
 			static void SetSharedComponent(Entity entity, T* value);
-			template <typename T>
+			template <typename T = SharedComponentBase>
 			static bool RemoveSharedComponent(Entity entity);
-			template <typename T>
+			template <typename T = SharedComponentBase>
 			static bool HasSharedComponent(Entity entity);
 
 
-			template <typename T>
+			template <typename T = SharedComponentBase>
 			static std::vector<Entity>* QueryEntities(T* value);
-			template <typename T>
+			template <typename T = SharedComponentBase>
 			static std::vector<T*>* QuerySharedComponents();
 
 			static EntityArchetype GetEntityArchetype(Entity entity);
 
 			static EntityQuery CreateEntityQuery();
 			static void DeleteEntityQuery(EntityQuery entityQuery);
-			template<typename T, typename... Ts>
+			template<typename T = ComponentBase, typename... Ts>
 			static void SetEntityQueryAllFilters(EntityQuery entityQuery, T arg, Ts... args);
-			template<typename T, typename... Ts>
+			template<typename T = ComponentBase, typename... Ts>
 			static void SetEntityQueryAnyFilters(EntityQuery entityQuery, T arg, Ts... args);
-			template<typename T, typename... Ts>
+			template<typename T = ComponentBase, typename... Ts>
 			static void SetEntityQueryNoneFilters(EntityQuery entityQuery, T arg, Ts... args);
 			//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
 			static std::vector<EntityComponentStorage> UnsafeQueryStorages(EntityQuery entityQuery);
 			static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
 
-			template<typename T1>
+			template<typename T1 = ComponentBase>
 			static void ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*)>& func);
-			template<typename T1, typename T2>
+			template<typename T1 = ComponentBase, typename T2 = ComponentBase>
 			static void ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*)>& func);
-			template<typename T1, typename T2, typename T3>
+			template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
 			static void ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*)>& func);
-			template<typename T1, typename T2, typename T3, typename T4>
+			template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase>
 			static void ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*, T4*)>& func);
-			template<typename T>
+			template<typename T = ComponentBase>
 			static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container);
 
 		};

@@ -30,6 +30,7 @@
 #include <gtx/transform.hpp>
 #include <gtx/closest_point.hpp>
 #include <gtc/type_ptr.hpp>
+#include <gtc/random.hpp>
 
 #ifdef CORE_EXPORTS
 #define CORE_API __declspec(dllexport)

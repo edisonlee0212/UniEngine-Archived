@@ -12,7 +12,7 @@ namespace UniEngine {
 		float _Velocity;
 		float _Sensitivity;
 		bool _EnableWindowControl;
-		Position _CameraPosition;
+		Translation _CameraPosition;
 		Rotation _CameraRotation;
 		float _LastX = 0, _LastY = 0, _LastScrollY = 0;
 		bool startMouse = false;

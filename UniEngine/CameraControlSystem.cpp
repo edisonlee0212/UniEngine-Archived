@@ -5,7 +5,7 @@ using namespace UniEngine;
 void CameraControlSystem::Update()
 {
 	_CameraRotation = EntityManager::GetComponentData<Rotation>(_TargetCameraEntity);
-	_CameraPosition = EntityManager::GetComponentData<Position>(_TargetCameraEntity);
+	_CameraPosition = EntityManager::GetComponentData<Translation>(_TargetCameraEntity);
 	glm::vec3 position = _CameraPosition.value;
 	glm::vec3 front = _CameraRotation.value * glm::vec3(0, 0, -1);
 	glm::vec3 right = _CameraRotation.value * glm::vec3(1, 0, 0);
@@ -36,7 +36,7 @@ void CameraControlSystem::Update()
 	}
 	if (moved) {
 		_CameraPosition.value = position;
-		if(!_EnableWindowControl) EntityManager::SetComponentData<Position>(_TargetCameraEntity, _CameraPosition);
+		if(!_EnableWindowControl) EntityManager::SetComponentData<Translation>(_TargetCameraEntity, _CameraPosition);
 		_P[0] = position.x;
 		_P[1] = position.y;
 		_P[2] = position.z;
@@ -71,7 +71,7 @@ void CameraControlSystem::Update()
 		//ImGui::InputFloat4("Rotation", &_R[0], 1);
 		ImGui::End();
 		_CameraPosition.value = glm::vec3(_P[0], _P[1], _P[2]);
-		EntityManager::SetComponentData<Position>(_TargetCameraEntity, _CameraPosition);
+		EntityManager::SetComponentData<Translation>(_TargetCameraEntity, _CameraPosition);
 	}
 }
 
@@ -94,7 +94,7 @@ void UniEngine::CameraControlSystem::SetPosition(glm::vec3 position)
 	_P[1] = position.y;
 	_P[2] = position.z;
 	_CameraPosition.value = position;
-	EntityManager::SetComponentData<Position>(_TargetCameraEntity, _CameraPosition);
+	EntityManager::SetComponentData<Translation>(_TargetCameraEntity, _CameraPosition);
 }
 
 void CameraControlSystem::SetVelocity(float velocity)

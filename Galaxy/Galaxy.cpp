@@ -4,10 +4,10 @@
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
 #include "ParentSystem.h"
-
+#include "StarClusterSystem.h"
 
 using namespace UniEngine;
-
+using namespace Galaxy;
 struct StarTag : ComponentBase
 {
 };
@@ -32,7 +32,7 @@ int main()
 
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 500.0f);
 
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 
 	auto cameraEntity = EntityManager::CreateEntity(archetype);
 	CameraComponent* cameraComponent = new CameraComponent();
@@ -52,6 +52,9 @@ int main()
 	
 #pragma endregion
 
+	auto starClusterSystem = world->CreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
+	starClusterSystem->SetCamera(mainCamera);
+	starClusterSystem->Enable();
 /*
 #pragma region Lights
 	MeshMaterialComponent* cylinder = new MeshMaterialComponent();
@@ -107,7 +110,7 @@ int main()
 	starMat->Textures2Ds()->push_back(starTex);
 	//Generate an entity archetype for cube
 	EntityArchetype starArchetype =
-		EntityManager::CreateEntityArchetype<StarTag, Position, Rotation, Scale, LocalToWorld>(StarTag(), Position(), Rotation(), Scale(), LocalToWorld());
+		EntityManager::CreateEntityArchetype<StarTag, Translation, Rotation, Scale, LocalToWorld>(StarTag(), Translation(), Rotation(), Scale(), LocalToWorld());
 	//Create 200 * 200 = 40000 Cubes
 	int width = 300;
 	for (int i = 0; i < width * width; i++) {
@@ -127,23 +130,6 @@ int main()
 	float speed = 1.0f;
 	while (loopable) {
 		loopable = engine->LoopStart();
-		timer += engine->GetWorld()->Time()->DeltaTime() * speed;
-		if (timer > 2.0f) timer = 0.0f;
-		//Cube operation, we set their positions and scales according to time and index
-		//I used lamda function here.
-		EntityManager::ForEach<Position, Scale>(eq, [width, timer](int i, Position* p, Scale* s) {
-			p->value = glm::vec3((i % width) * 1.0f - width * 0.5, glm::sin(3.1415926f * timer + 0.5f * (i % width) + 0.5f * (i / width)), (i / width) * 1.0f - width * 0.5);
-			s->value = glm::vec3(0.2f);
-			});
-		//Get the matrices data.
-		matrices.clear();
-		EntityManager::GetComponentDataArray(eq, &matrices);
-		//Draw cubes.
-		RenderManager::DrawMeshInstanced(Default::Primitives::Quad, starMat, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), mainCamera);
-		//Render speed control window
-		ImGui::Begin("Speed Control");
-		ImGui::SliderFloat("Factor", &speed, 0.0f, 8.0f);
-		ImGui::End();
 		//Finish engine loop.
 		loopable = engine->Loop();
 		loopable = engine->LoopEnd();

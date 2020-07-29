@@ -45,7 +45,7 @@ int main()
 
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 500.0f);
 
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 
 	auto cameraEntity = EntityManager::CreateEntity(archetype);
 	CameraComponent* cameraComponent = new CameraComponent();
@@ -66,7 +66,7 @@ int main()
 		//LocalRotation,
 		//LocalScale,
 		LocalToParent,
-		Position,
+		Translation,
 		//Rotation,
 		Scale,
 		LocalToWorld
@@ -74,7 +74,7 @@ int main()
 	//LocalRotation(),
 	//LocalScale(),
 		LocalToParent(),
-		Position(),
+		Translation(),
 		//Rotation(),
 		Scale(),
 		LocalToWorld());
@@ -92,45 +92,45 @@ int main()
 	if (testScene == NANOSUIT) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
-		Position bpp;
+		Translation bpp;
 		bpp.value = glm::vec3(0, 5, 0);
 		Scale bps;
 		bps.value = glm::vec3(2.0f);
-		EntityManager::SetComponentData<Position>(backpackEntity, bpp);
+		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == BACKPACK) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
-		Position bpp;
+		Translation bpp;
 		bpp.value = glm::vec3(0, 10, 0);
 		Scale bps;
 		bps.value = glm::vec3(5.0f);
-		EntityManager::SetComponentData<Position>(backpackEntity, bpp);
+		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == SPONZA_TEST) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
-		Position bpp;
+		Translation bpp;
 		bpp.value = glm::vec3(5, 5, 5);
 		Scale bps;
 		bps.value = glm::vec3(0.05f);
-		EntityManager::SetComponentData<Position>(backpackEntity, bpp);
+		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == PCSS) {
 		MeshMaterialComponent* cmmc = new MeshMaterialComponent();
 		cmmc->_Mesh = Default::Primitives::Cube;
 		cmmc->_Material = Default::Materials::StandardMaterial;
-		Position pos;
+		Translation pos;
 
 		Entity model1 = EntityManager::CreateEntity(archetype);
 		pos.value = glm::vec3(-6.0f, 7.0f, 0.0f);
 
 
 		scale.value = glm::vec3(4.0f, 8.0f, 4.0f);
-		EntityManager::SetComponentData<Position>(model1, pos);
+		EntityManager::SetComponentData<Translation>(model1, pos);
 		EntityManager::SetComponentData<Scale>(model1, scale);
 		EntityManager::SetSharedComponent<MeshMaterialComponent>(model1, cylinder);
 
@@ -142,7 +142,7 @@ int main()
 		pos.value = glm::vec3(6.0f, 7.0f, 0.0f);
 
 		scale.value = glm::vec3(5.0f, 5.0f, 5.0f);
-		EntityManager::SetComponentData<Position>(model2, pos);
+		EntityManager::SetComponentData<Translation>(model2, pos);
 		EntityManager::SetComponentData<Scale>(model2, scale);
 		EntityManager::SetSharedComponent<MeshMaterialComponent>(model2, mmmc);
 	}
@@ -225,9 +225,9 @@ int main()
 		dlc2->specular = glm::vec3(lightAngle5);
 		dlc2->diffuse = glm::vec3(lightAngle5);
 
-		Position p;
+		Translation p;
 		p.value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
-		EntityManager::SetComponentData<Position>(ple, p);
+		EntityManager::SetComponentData<Translation>(ple, p);
 		plc->diffuse = glm::vec3(lightAngle7);
 
 		ImGui::Begin("Light Bleed Control");
@@ -280,13 +280,13 @@ void SplitDisplay() {
 }
 
 void InitGround() {
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
-	Position translation = Position();
+	Translation translation = Translation();
 	translation.value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();
 	scale.value = glm::vec3(100.0f);
-	EntityManager::SetComponentData<Position>(entity, translation);
+	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 
 	auto entity1 = EntityManager::CreateEntity(archetype);
@@ -294,7 +294,7 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	Rotation rotation;
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
-	EntityManager::SetComponentData<Position>(entity1, translation);
+	EntityManager::SetComponentData<Translation>(entity1, translation);
 	EntityManager::SetComponentData<Scale>(entity1, scale);
 	EntityManager::SetComponentData<Rotation>(entity1, rotation);
 
@@ -303,7 +303,7 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
 
-	EntityManager::SetComponentData<Position>(entity2, translation);
+	EntityManager::SetComponentData<Translation>(entity2, translation);
 	EntityManager::SetComponentData<Scale>(entity2, scale);
 	EntityManager::SetComponentData<Rotation>(entity2, rotation);
 
@@ -313,7 +313,7 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 
-	EntityManager::SetComponentData<Position>(entity3, translation);
+	EntityManager::SetComponentData<Translation>(entity3, translation);
 	EntityManager::SetComponentData<Scale>(entity3, scale);
 	EntityManager::SetComponentData<Rotation>(entity3, rotation);
 
@@ -322,7 +322,7 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
 
-	EntityManager::SetComponentData<Position>(entity4, translation);
+	EntityManager::SetComponentData<Translation>(entity4, translation);
 	EntityManager::SetComponentData<Scale>(entity4, scale);
 	EntityManager::SetComponentData<Rotation>(entity4, rotation);
 

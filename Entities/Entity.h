@@ -160,7 +160,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma endregion
 #pragma region Predefined Componenets
-		struct ENTITIES_API Position : ComponentBase {
+		struct ENTITIES_API Translation : ComponentBase {
 			glm::vec3 value;
 		};
 		struct ENTITIES_API Scale : ComponentBase {

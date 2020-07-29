@@ -77,7 +77,7 @@ void Planet::PlanetTerrainSystem::Update()
 	}
 
 
-	Position cameraPos = EntityManager::GetComponentData<Position>(_TargetCameraEntity);
+	Translation cameraPos = EntityManager::GetComponentData<Translation>(_TargetCameraEntity);
 
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetTerrain = _PlanetTerrainList[i];

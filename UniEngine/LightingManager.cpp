@@ -173,7 +173,7 @@ void UniEngine::LightingManager::Init()
 void UniEngine::LightingManager::Start()
 {
 	Camera* camera = _TargetMainCamera->Value;
-	glm::vec3 cameraPos = EntityManager::GetComponentData<Position>(_TargetMainCameraEntity).value;
+	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(_TargetMainCameraEntity).value;
 	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(_TargetMainCameraEntity).value;
 	auto worldBound = _World->GetBound();
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
@@ -409,7 +409,7 @@ void UniEngine::LightingManager::Start()
 			for (int i = 0; i < size; i++) {
 				PointLightComponent* plc = pointLightsList->at(i);
 				Entity lightEntity = EntityManager::QueryEntities<PointLightComponent>(plc)->at(0);
-				glm::vec3 position = EntityManager::GetComponentData<Position>(lightEntity).value;
+				glm::vec3 position = EntityManager::GetComponentData<Translation>(lightEntity).value;
 				_PointLights[i].position = glm::vec4(position, 0);
 
 				_PointLights[i].constantLinearQuadFarPlane.x = plc->constant;

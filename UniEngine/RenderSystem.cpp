@@ -12,7 +12,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 	Camera* camera = cameraComponent->Value;
 	camera->GetRenderTarget()->Bind();
 	Camera::_MainCameraInfoBlock.UpdateMatrices(camera,
-		EntityManager::GetComponentData<Position>(cameraEntity).value,
+		EntityManager::GetComponentData<Translation>(cameraEntity).value,
 		EntityManager::GetComponentData<Rotation>(cameraEntity).value
 		);
 	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);

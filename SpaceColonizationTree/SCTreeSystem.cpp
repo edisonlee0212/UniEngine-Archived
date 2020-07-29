@@ -144,7 +144,7 @@ void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 			_Tree->Grow(_GrowDist, _AttractDist, _RemoveDist, _Envelope, glm::vec3(0.0f), 0.015f, 0.05f, 0.02f, 0.02f);
 		}
 		else {
-			EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+			EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 			_TreeEntity = EntityManager::CreateEntity(archetype);
 			_TreeLeaves = new InstancedMeshMaterialComponent();
 			_TreeLeaves->_Material = _TreeLeafMaterial;
@@ -156,11 +156,11 @@ void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 			_TreeMesh->_Material = _TreeMeshMaterial;
 			_TreeMesh->_Mesh = _Tree->GetMesh();
 			EntityManager::SetSharedComponent<MeshMaterialComponent>(_TreeEntity, _TreeMesh);
-			Position pos;
+			Translation pos;
 			pos.value = glm::vec3(0.0f);
 			Scale scale;
 			scale.value = glm::vec3(1.5f);
-			EntityManager::SetComponentData<Position>(_TreeEntity, pos);
+			EntityManager::SetComponentData<Translation>(_TreeEntity, pos);
 			EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
 			RemoveEnvelope();
 			_LightEstimator->TakeSnapShot(_Tree, 5.0f, true);

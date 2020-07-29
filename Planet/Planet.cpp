@@ -28,12 +28,12 @@ int main()
 
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow());
 
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 
 	auto cameraEntity = EntityManager::CreateEntity(archetype);
-	Position pos;
+	Translation pos;
 	pos.value = glm::vec3(0.0f, 5.0f, 25.0f);
-	EntityManager::SetComponentData<Position>(cameraEntity, pos);
+	EntityManager::SetComponentData<Translation>(cameraEntity, pos);
 	CameraComponent* cameraComponent = new CameraComponent();
 	cameraComponent->Value = mainCamera;
 	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
@@ -128,13 +128,13 @@ int main()
 	while (loopable) {
 		loopable = engine->LoopStart();
 #pragma region LightsPosition
-		Position p;
+		Translation p;
 		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(time->Time() / 2.0f), -20.0f * glm::cos(time->Time() / 2.0f)), 0.0f);
-		EntityManager::SetComponentData<Position>(dle, p);
+		EntityManager::SetComponentData<Translation>(dle, p);
 		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->Time() / 2.0f), 20.0f * glm::sin(time->Time() / 2.0f), 0.0f), 0.0f);
-		EntityManager::SetComponentData<Position>(ple, p);
+		EntityManager::SetComponentData<Translation>(ple, p);
 		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(time->Time() / 2.0f), 15.0f, 20.0f * glm::sin(time->Time() / 2.0f)), 0.0f);
-		EntityManager::SetComponentData<Position>(ple2, p);
+		EntityManager::SetComponentData<Translation>(ple2, p);
 #pragma endregion
 
 		ImGui::Begin("Wire Frame");

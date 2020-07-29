@@ -43,12 +43,12 @@ int main()
 
 	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 500.0f);
 
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 
 	auto cameraEntity = EntityManager::CreateEntity(archetype);
-	Position pos;
+	Translation pos;
 	pos.value = glm::vec3(0.0f, 5.0f, 10.0f);
-	EntityManager::SetComponentData<Position>(cameraEntity, pos);
+	EntityManager::SetComponentData<Translation>(cameraEntity, pos);
 	CameraComponent* cameraComponent = new CameraComponent();
 	cameraComponent->Value = mainCamera;
 	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
@@ -113,14 +113,14 @@ int main()
 	
 
 
-	EntityArchetype archetype1 = EntityManager::CreateEntityArchetype<Position, Scale, LocalToWorld>(Position(), Scale(), LocalToWorld());
-	EntityArchetype archetype2 = EntityManager::CreateEntityArchetype<Position, LocalToWorld>(Position(), LocalToWorld());
+	EntityArchetype archetype1 = EntityManager::CreateEntityArchetype<Translation, Scale, LocalToWorld>(Translation(), Scale(), LocalToWorld());
+	EntityArchetype archetype2 = EntityManager::CreateEntityArchetype<Translation, LocalToWorld>(Translation(), LocalToWorld());
 	EntityQuery eq = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters<Position>(eq, Position());
+	EntityManager::SetEntityQueryAllFilters<Translation>(eq, Translation());
 	std::vector<EntityComponentStorage> storages = EntityManager::UnsafeQueryStorages(eq);
 
 
-	EntityManager::ForEach<Position>(eq, [](int i, Position* position) {
+	EntityManager::ForEach<Translation>(eq, [](int i, Translation* position) {
 		glm::vec3 pos = position->value;
 		std::string print = std::to_string(pos.x) + ", " + std::to_string(pos.y) + ", " + std::to_string(pos.z);
 		Debug::Log(print);
@@ -158,9 +158,9 @@ int main()
 		dlc2->specular = glm::vec3(lightAngle5);
 		dlc2->diffuse = glm::vec3(lightAngle5);
 
-		Position p;
+		Translation p;
 		p.value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
-		EntityManager::SetComponentData<Position>(ple, p);
+		EntityManager::SetComponentData<Translation>(ple, p);
 		plc->diffuse = glm::vec3(lightAngle7);
 
 		ImGui::Begin("PCSS Scale factor");
@@ -207,13 +207,13 @@ void SplitDisplay() {
 }
 
 void InitGround() {
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Position, Rotation, Scale, LocalToWorld>(Position(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
-	Position translation = Position();
+	Translation translation = Translation();
 	translation.value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();
 	scale.value = glm::vec3(100.0f);
-	EntityManager::SetComponentData<Position>(entity, translation);
+	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 	/*
 	auto entity1 = EntityManager::CreateEntity(archetype);
