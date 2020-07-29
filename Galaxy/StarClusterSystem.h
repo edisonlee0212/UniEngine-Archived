@@ -269,8 +269,9 @@ namespace Galaxy {
 		std::vector<StarClusterPattern*> _Patterns;
 		EntityQuery _StarQuery;
 		EntityArchetype _StarArchetype;
-		float _Speed;
-		float _GalaxyTime;
+		float _Speed = 0.0f;
+		float _Size = 0.1f;
+		float _GalaxyTime = 0.0f;
 	public:
 		void SetCamera(Camera* camera);
 		void OnCreate();

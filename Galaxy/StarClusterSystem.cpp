@@ -10,7 +10,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	_StarMaterial = new Material();
 	_StarMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
 	auto starTex = new Texture2D(TextureType::DIFFUSE);
-	starTex->LoadTexture(FileIO::GetPath("Textures/green.png"), "");
+	starTex->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
 	_StarMaterial->Textures2Ds()->push_back(starTex);
 
 
@@ -84,18 +84,21 @@ void Galaxy::StarClusterSystem::OnCreate()
 
 void Galaxy::StarClusterSystem::Update()
 {
-	ImGui::Begin("Speed Control");
-	ImGui::SliderFloat("Factor", &_Speed, 1.0f, 3000.0f);
+	ImGui::Begin("Galaxy Control Panel");
+	ImGui::SliderFloat("Speed", &_Speed, 1.0f, 3000.0f);
+	ImGui::SliderFloat("Star Size", &_Size, 0.1f, 2.0f);
 	ImGui::End();
+
+
 	_GalaxyTime += _World->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
 	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery, [time](int i, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset) {
 		position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0 + time, true);
 		});
-
-	EntityManager::ForEach<Translation, Scale, StarPosition>(_StarQuery, [](int i, Translation* translation, Scale* scale, StarPosition* position) {
+	float size = _Size;
+	EntityManager::ForEach<Translation, Scale, StarPosition>(_StarQuery, [size](int i, Translation* translation, Scale* scale, StarPosition* position) {
 		translation->value = position->Value / 20.0;
-		scale->value = glm::vec3(0.1f);
+		scale->value = size * glm::vec3(1.0f);
 		});
 	//Render from last update.
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();

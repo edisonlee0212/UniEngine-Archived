@@ -43,7 +43,7 @@ void UniEngine::Window::Update()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	/* Render here */
 	glDisable(GL_DEPTH_TEST);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	auto program = Default::GLPrograms::ScreenProgram;
 	program->Bind();

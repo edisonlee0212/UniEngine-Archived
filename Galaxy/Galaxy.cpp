@@ -23,9 +23,9 @@ int main()
 	LightingManager::SetVSMMaxVariance(0.001f);
 	LightingManager::SetEVSMExponent(80.0f);
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
-	LightingManager::SetAmbientLight(0.5f);
-	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
-	engine->Start(window, 1600, 900);
+	LightingManager::SetAmbientLight(1.0f);
+	auto window = WindowManager::CreateGLFWwindow(1920, 1080, "Main", WindowManager::PrimaryMonitor());
+	engine->Start(window, 1920, 1080);
 	World* world = engine->GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
