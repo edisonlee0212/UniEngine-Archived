@@ -9,6 +9,7 @@ namespace UniEngine {
 		struct ENTITIES_API WorldEntityStorage {
 			size_t Index;
 			std::vector<Entity> Entities;
+			std::vector<Entity> ParentRoots;
 			std::vector<EntityInfo> EntityInfos;
 			std::vector<std::queue<Entity>> EntityPool;
 			std::vector<EntityComponentStorage> EntityComponentStorage;
@@ -21,6 +22,7 @@ namespace UniEngine {
 		class ENTITIES_API EntityManager : public ManagerBase {
 			static std::vector<WorldEntityStorage*> _WorldEntityStorage;
 			static std::vector<Entity>* _Entities;
+			static std::vector<Entity>* _ParentRoots;
 			static std::vector<EntityInfo>* _EntityInfos;
 			static std::vector<EntityComponentStorage>* _EntityComponentStorage;
 			static std::vector<std::queue<Entity>>* _EntityPool;
@@ -60,6 +62,7 @@ namespace UniEngine {
 			static void GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container);
 			static void GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>* container);
 			static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
+			
 		public:
 			static void Init();
 
@@ -76,8 +79,8 @@ namespace UniEngine {
 			static Entity GetParent(Entity entity);
 			static std::vector<Entity> GetChildren(Entity entity);
 			static void RemoveChild(Entity entity, Entity parent);
-
-
+			static void GetParentRoots(std::vector<Entity>* container);
+			static std::vector<Entity>* GetParentRootsUnsafe();
 
 			template<typename T = ComponentBase>
 			static void SetComponentData(Entity entity, T value);
@@ -213,17 +216,19 @@ namespace UniEngine {
 							}
 					).share());
 				}
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, remainder](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
-								);
+				if (remainder != 0) {
+					void* data = chunkArray->Chunks[chunkAmount].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, remainder](int id)
+							{
+								for (int i = 0; i < remainder; i++) {
+									func(i + chunkAmount * capacity,
+										(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
+									);
+								}
 							}
-						}
-				).share());
+					).share());
+				}
 				for (int i = 0; i < results.size(); i++) {
 					results[i].wait();
 				}
@@ -267,18 +272,20 @@ namespace UniEngine {
 							}
 					).share());
 				}
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, remainder](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
-								);
+				if (remainder != 0) {
+					void* data = chunkArray->Chunks[chunkAmount].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, remainder](int id)
+							{
+								for (int i = 0; i < remainder; i++) {
+									func(i + chunkAmount * capacity,
+										(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+										(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
+									);
+								}
 							}
-						}
-				).share());
+					).share());
+				}
 				for (int i = 0; i < results.size(); i++) {
 					results[i].wait();
 				}
@@ -328,19 +335,21 @@ namespace UniEngine {
 							}
 					).share());
 				}
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, remainder](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
-								);
+				if (remainder != 0) {
+					void* data = chunkArray->Chunks[chunkAmount].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, remainder](int id)
+							{
+								for (int i = 0; i < remainder; i++) {
+									func(i + chunkAmount * capacity,
+										(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+										(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+										(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
+									);
+								}
 							}
-						}
-				).share());
+					).share());
+				}
 				for (int i = 0; i < results.size(); i++) {
 					results[i].wait();
 				}
@@ -397,20 +406,22 @@ namespace UniEngine {
 							}
 					).share());
 				}
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
-								);
+				if (remainder != 0) {
+					void* data = chunkArray->Chunks[chunkAmount].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder](int id)
+							{
+								for (int i = 0; i < remainder; i++) {
+									func(i + chunkAmount * capacity,
+										(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+										(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+										(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+										(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
+									);
+								}
 							}
-						}
-				).share());
+					).share());
+				}
 				for (int i = 0; i < results.size(); i++) {
 					results[i].wait();
 				}
@@ -474,21 +485,23 @@ namespace UniEngine {
 							}
 					).share());
 				}
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size)
-								);
+				if (remainder != 0) {
+					void* data = chunkArray->Chunks[chunkAmount].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder](int id)
+							{
+								for (int i = 0; i < remainder; i++) {
+									func(i + chunkAmount * capacity,
+										(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+										(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+										(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+										(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+										(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size)
+									);
+								}
 							}
-						}
-				).share());
+					).share());
+				}
 				for (int i = 0; i < results.size(); i++) {
 					results[i].wait();
 				}
@@ -559,22 +572,24 @@ namespace UniEngine {
 							}
 					).share());
 				}
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size)
-								);
+				if (remainder != 0) {
+					void* data = chunkArray->Chunks[chunkAmount].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder](int id)
+							{
+								for (int i = 0; i < remainder; i++) {
+									func(i + chunkAmount * capacity,
+										(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+										(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+										(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+										(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+										(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+										(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size)
+									);
+								}
 							}
-						}
-				).share());
+					).share());
+				}
 				for (int i = 0; i < results.size(); i++) {
 					results[i].wait();
 				}
@@ -652,23 +667,25 @@ namespace UniEngine {
 							}
 					).share());
 				}
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
-									(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size)
-								);
+				if (remainder != 0) {
+					void* data = chunkArray->Chunks[chunkAmount].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder](int id)
+							{
+								for (int i = 0; i < remainder; i++) {
+									func(i + chunkAmount * capacity,
+										(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+										(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+										(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+										(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+										(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+										(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
+										(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size)
+									);
+								}
 							}
-						}
-				).share());
+					).share());
+				}
 				for (int i = 0; i < results.size(); i++) {
 					results[i].wait();
 				}
@@ -753,24 +770,26 @@ namespace UniEngine {
 							}
 					).share());
 				}
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
-									(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size),
-									(T8*)((char*)data + targetType8.Offset * capacity + (i % capacity) * targetType8.Size)
-								);
+				if (remainder != 0) {
+					void* data = chunkArray->Chunks[chunkAmount].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder](int id)
+							{
+								for (int i = 0; i < remainder; i++) {
+									func(i + chunkAmount * capacity,
+										(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+										(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+										(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+										(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+										(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+										(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
+										(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size),
+										(T8*)((char*)data + targetType8.Offset * capacity + (i % capacity) * targetType8.Size)
+									);
+								}
 							}
-						}
-				).share());
+					).share());
+				}
 				for (int i = 0; i < results.size(); i++) {
 					results[i].wait();
 				}

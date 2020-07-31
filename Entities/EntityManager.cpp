@@ -6,6 +6,7 @@ using namespace UniEngine::Entities;
 std::vector<WorldEntityStorage*> UniEngine::Entities::EntityManager::_WorldEntityStorage;
 std::vector<EntityInfo>* UniEngine::Entities::EntityManager::_EntityInfos;
 std::vector<Entity>* UniEngine::Entities::EntityManager::_Entities;
+std::vector<Entity>* UniEngine::Entities::EntityManager::_ParentRoots;
 std::vector<EntityComponentStorage>* UniEngine::Entities::EntityManager::_EntityComponentStorage;
 std::vector<std::queue<Entity>>* UniEngine::Entities::EntityManager::_EntityPool;
 SharedComponentStorage* UniEngine::Entities::EntityManager::_EntitySharedComponentStorage;
@@ -149,6 +150,11 @@ size_t UniEngine::Entities::EntityManager::SwapEntity(EntityComponentStorage sto
 	return retVal;
 }
 
+std::vector<Entity>* UniEngine::Entities::EntityManager::GetParentRootsUnsafe()
+{
+	return _ParentRoots;
+}
+
 void UniEngine::Entities::EntityManager::Init()
 {
 	_ThreadPool.Resize(std::thread::hardware_concurrency());
@@ -178,6 +184,7 @@ void UniEngine::Entities::EntityManager::SetWorld(World* world)
 	}
 	WorldEntityStorage* targetStorage = _WorldEntityStorage[index];
 	_Entities = &targetStorage->Entities;
+	_ParentRoots = &targetStorage->ParentRoots;
 	_EntityInfos = &targetStorage->EntityInfos;
 	_EntityComponentStorage = &targetStorage->EntityComponentStorage;
 	_EntityPool = &targetStorage->EntityPool;
@@ -262,6 +269,20 @@ void UniEngine::Entities::EntityManager::SetParent(Entity entity, Entity parent)
 	}
 	_EntityInfos->at(childIndex).Parent = parent;
 	_EntityInfos->at(parentIndex).Children.push_back(entity);
+
+	for (int i = 0; i < _ParentRoots->size(); i++) {
+		if (_Entities->at(childIndex) == _ParentRoots->at(i)) {
+			_ParentRoots->erase(_ParentRoots->begin() + i);
+		}
+	}
+	if (!_EntityInfos->at(parentIndex).Parent.IsNull()) return;
+	bool addParent = true;
+	for (int i = 0; i < _ParentRoots->size(); i++) {
+		if (_Entities->at(parentIndex) == _ParentRoots->at(i)) {
+			addParent = false;
+		}
+	}
+	if (addParent) _ParentRoots->push_back(_Entities->at(parentIndex));
 }
 
 Entity UniEngine::Entities::EntityManager::GetParent(Entity entity)
@@ -311,6 +332,18 @@ void UniEngine::Entities::EntityManager::RemoveChild(Entity entity, Entity paren
 			_EntityInfos->at(parentIndex).Children.pop_back();
 		}
 	}
+	if (_EntityInfos->at(parentIndex).Children.empty()) {
+		for (int i = 0; i < _ParentRoots->size(); i++) {
+			if (_ParentRoots->at(i) == _Entities->at(parentIndex)) _ParentRoots->erase(_ParentRoots->begin() + i);
+		}
+	}
+}
+
+void UniEngine::Entities::EntityManager::GetParentRoots(std::vector<Entity>* container)
+{
+	size_t amount = _ParentRoots->size();
+	container->resize(container->size() + amount);
+	memcpy(&container->at(container->size() - amount), _ParentRoots->data(), amount * sizeof(Entity));
 }
 
 EntityArchetype UniEngine::Entities::EntityManager::GetEntityArchetype(Entity entity)

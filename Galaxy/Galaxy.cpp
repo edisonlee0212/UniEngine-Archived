@@ -111,7 +111,6 @@ int main()
 
 #pragma endregion
 */
-	engine->GetWorld()->GetSystem<ParentSystem>()->Disable();
 #pragma region Stars
 	auto starMat = new Material();
 	starMat->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);

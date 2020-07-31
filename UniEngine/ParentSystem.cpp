@@ -27,8 +27,7 @@ void UniEngine::ParentSystem::CalculateLTW(LocalToWorld pltw, Entity entity)
 
 void UniEngine::ParentSystem::Update()
 {
-	auto entities = EntityManager::GetAllEntitiesUnsafe();
-	for (auto i : *entities) {
+	for (auto i : *EntityManager::GetParentRootsUnsafe()) {
 		if (!i.IsDeleted() && EntityManager::GetParent(i).IsNull() 
 			&& EntityManager::HasComponentData<LocalToWorld>(i)) {
 			LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(i);
