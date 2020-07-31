@@ -31,9 +31,6 @@
     <Filter Include="Header Files\Profiler">
       <UniqueIdentifier>{731f87ef-5baf-4eb2-9fc4-20574a0df8bf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Thread">
-      <UniqueIdentifier>{55beff1f-4c1a-410b-af25-235aa894b138}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Debug">
       <UniqueIdentifier>{0e794828-173a-447d-afa4-ca263b44a4b5}</UniqueIdentifier>
     </Filter>
@@ -49,9 +46,6 @@
     <Filter Include="Source Files\Profiler">
       <UniqueIdentifier>{0e54ccde-fd0f-4eeb-9cab-ab3fca935e88}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Thread">
-      <UniqueIdentifier>{f508e37d-3b03-4a9d-a40f-514f2593fcef}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\External">
       <UniqueIdentifier>{66015bf1-f8c9-41ce-b883-d8e13522c975}</UniqueIdentifier>
     </Filter>
@@ -60,6 +54,12 @@
     </Filter>
     <Filter Include="Source Files\Graphics\OpenGL">
       <UniqueIdentifier>{416999b5-82ec-49ae-a74f-3a78eb9e2adb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\JobSystem">
+      <UniqueIdentifier>{cb17f13a-8e87-4b88-b595-230aba70de64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\JobSystem">
+      <UniqueIdentifier>{d0595309-8ea5-4532-b9bb-115fe843fa8e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +107,9 @@
     </ClInclude>
     <ClInclude Include="GLCore.h">
       <Filter>Header Files\Graphics\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Header Files\JobSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

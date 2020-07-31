@@ -28,7 +28,7 @@ namespace UniEngine {
 			static std::vector<EntityQuery>* _EntityQueries;
 			static std::vector<EntityQueryInfo>* _EntityQueryInfos;
 			static std::queue<EntityQuery>* _EntityQueryPools;
-
+			static ThreadPool _ThreadPool;
 			template<typename T = ComponentBase>
 			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
 			template<typename T = ComponentBase, typename... Ts>
@@ -53,6 +53,8 @@ namespace UniEngine {
 
 			static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
 		public:
+			static void Init();
+
 			static void GetAllEntities(std::vector<Entity>* target);
 			static std::vector<Entity>* GetAllEntitiesUnsafe();
 			static void SetWorld(World* world);
@@ -176,33 +178,40 @@ namespace UniEngine {
 					break;
 				}
 			}
-			omp_set_num_threads(OMP_THREAD_AMOUNT);
 			if (found) {
-#pragma omp parallel
-				{
-					size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-					int chunkAmount = entityCount / capacity;
-					int remainder = entityCount % capacity;
-					ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-					size_t offset1 = targetType1.Offset;
-					size_t size1 = targetType1.Size;
-#pragma omp for
-					for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-						for (int i = 0; i < capacity; i++) {
-							func(i + chunkIndex * capacity,
-								(T1*)((char*)chunkArray->Chunks[chunkIndex].Data + offset1 * capacity + (i % capacity) * size1)
-							);
-						}
-					}
-				}
 				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 				int chunkAmount = entityCount / capacity;
 				int remainder = entityCount % capacity;
 				ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-				for (int i = 0; i < remainder; i++) {
-					func(i + chunkAmount * capacity,
-						(T1*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
-					);
+				std::vector<std::shared_future<void>> results;
+				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+					void* data = chunkArray->Chunks[chunkIndex].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1](int id)
+							{
+								size_t offset1 = targetType1.Offset;
+								size_t size1 = targetType1.Size;
+								for (int i = 0; i < capacity; i++) {
+									func(i + chunkIndex * capacity,
+										(T1*)((char*)data + offset1 * capacity + (i % capacity) * size1)
+									);
+								}
+							}
+					).share());
+				}
+				void* data = chunkArray->Chunks[chunkAmount].Data;
+				results.push_back(
+					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, remainder](int id)
+						{
+							for (int i = 0; i < remainder; i++) {
+								func(i + chunkAmount * capacity,
+									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
+								);
+							}
+						}
+				).share());
+				for (int i = 0; i < results.size(); i++) {
+					results[i].wait();
 				}
 			}
 		}
@@ -225,37 +234,44 @@ namespace UniEngine {
 					found2 = true;
 				}
 			}
-			omp_set_num_threads(OMP_THREAD_AMOUNT);
 			if (found1 && found2) {
-#pragma omp parallel
-				{
-					size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-					int chunkAmount = entityCount / capacity;
-					int remainder = entityCount % capacity;
-					ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-					size_t offset1 = targetType1.Offset;
-					size_t offset2 = targetType2.Offset;
-					size_t size1 = targetType1.Size;
-					size_t size2 = targetType2.Size;
-#pragma omp for
-					for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-						for (int i = 0; i < capacity; i++) {
-							func(i + chunkIndex * capacity,
-								(T1*)((char*)chunkArray->Chunks[chunkIndex].Data + offset1 * capacity + (i % capacity) * size1),
-								(T2*)((char*)chunkArray->Chunks[chunkIndex].Data + offset2 * capacity + (i % capacity) * size2)
-							);
-						}
-					}
-				}
 				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 				int chunkAmount = entityCount / capacity;
 				int remainder = entityCount % capacity;
 				ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-				for (int i = 0; i < remainder; i++) {
-					func(i + chunkAmount * capacity,
-						(T1*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-						(T2*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
-					);
+				std::vector<std::shared_future<void>> results;
+				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+					void* data = chunkArray->Chunks[chunkIndex].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2](int id)
+							{
+								size_t offset1 = targetType1.Offset;
+								size_t offset2 = targetType2.Offset;
+								size_t size1 = targetType1.Size;
+								size_t size2 = targetType2.Size;
+								for (int i = 0; i < capacity; i++) {
+									func(i + chunkIndex * capacity,
+										(T1*)((char*)data + offset1 * capacity + (i % capacity) * size1),
+										(T2*)((char*)data + offset2 * capacity + (i % capacity) * size2)
+									);
+								}
+							}
+					).share());
+				}
+				void* data = chunkArray->Chunks[chunkAmount].Data;
+				results.push_back(
+					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, remainder](int id)
+						{
+							for (int i = 0; i < remainder; i++) {
+								func(i + chunkAmount * capacity,
+									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
+								);
+							}
+						}
+				).share());
+				for (int i = 0; i < results.size(); i++) {
+					results[i].wait();
 				}
 			}
 		}
@@ -283,41 +299,48 @@ namespace UniEngine {
 					found3 = true;
 				}
 			}
-			omp_set_num_threads(OMP_THREAD_AMOUNT);
 			if (found1 && found2 && found3) {
-#pragma omp parallel
-				{
-					size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-					int chunkAmount = entityCount / capacity;
-					int remainder = entityCount % capacity;
-					ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-					size_t offset1 = targetType1.Offset;
-					size_t offset2 = targetType2.Offset;
-					size_t offset3 = targetType3.Offset;
-					size_t size1 = targetType1.Size;
-					size_t size2 = targetType2.Size;
-					size_t size3 = targetType3.Size;
-#pragma omp for
-					for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-						for (int i = 0; i < capacity; i++) {
-							func(i + chunkIndex * capacity,
-								(T1*)((char*)chunkArray->Chunks[chunkIndex].Data + offset1 * capacity + (i % capacity) * size1),
-								(T2*)((char*)chunkArray->Chunks[chunkIndex].Data + offset2 * capacity + (i % capacity) * size2),
-								(T3*)((char*)chunkArray->Chunks[chunkIndex].Data + offset3 * capacity + (i % capacity) * size3)
-							);
-						}
-					}
-				}
 				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 				int chunkAmount = entityCount / capacity;
 				int remainder = entityCount % capacity;
 				ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-				for (int i = 0; i < remainder; i++) {
-					func(i + chunkAmount * capacity,
-						(T1*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-						(T2*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-						(T3*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
-					);
+				std::vector<std::shared_future<void>> results;
+				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+					void* data = chunkArray->Chunks[chunkIndex].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3](int id)
+							{
+								size_t offset1 = targetType1.Offset;
+								size_t offset2 = targetType2.Offset;
+								size_t offset3 = targetType3.Offset;
+								size_t size1 = targetType1.Size;
+								size_t size2 = targetType2.Size;
+								size_t size3 = targetType3.Size;
+								for (int i = 0; i < capacity; i++) {
+									func(i + chunkIndex * capacity,
+										(T1*)((char*)data + offset1 * capacity + (i % capacity) * size1),
+										(T2*)((char*)data + offset2 * capacity + (i % capacity) * size2),
+										(T3*)((char*)data + offset3 * capacity + (i % capacity) * size3)
+									);
+								}
+							}
+					).share());
+				}
+				void* data = chunkArray->Chunks[chunkAmount].Data;
+				results.push_back(
+					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, remainder](int id)
+						{
+							for (int i = 0; i < remainder; i++) {
+								func(i + chunkAmount * capacity,
+									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
+								);
+							}
+						}
+				).share());
+				for (int i = 0; i < results.size(); i++) {
+					results[i].wait();
 				}
 			}
 		}
@@ -350,45 +373,52 @@ namespace UniEngine {
 					found4 = true;
 				}
 			}
-			omp_set_num_threads(OMP_THREAD_AMOUNT);
 			if (found1 && found2 && found3 && found4) {
-#pragma omp parallel
-				{
-					size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-					int chunkAmount = entityCount / capacity;
-					int remainder = entityCount % capacity;
-					ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-					size_t offset1 = targetType1.Offset;
-					size_t offset2 = targetType2.Offset;
-					size_t offset3 = targetType3.Offset;
-					size_t offset4 = targetType4.Offset;
-					size_t size1 = targetType1.Size;
-					size_t size2 = targetType2.Size;
-					size_t size3 = targetType3.Size;
-					size_t size4 = targetType4.Size;
-#pragma omp for
-					for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-						for (int i = 0; i < capacity; i++) {
-							func(i + chunkIndex * capacity,
-								(T1*)((char*)chunkArray->Chunks[chunkIndex].Data + offset1 * capacity + (i % capacity) * size1),
-								(T2*)((char*)chunkArray->Chunks[chunkIndex].Data + offset2 * capacity + (i % capacity) * size2),
-								(T3*)((char*)chunkArray->Chunks[chunkIndex].Data + offset3 * capacity + (i % capacity) * size3),
-								(T4*)((char*)chunkArray->Chunks[chunkIndex].Data + offset4 * capacity + (i % capacity) * size4)
-							);
-						}
-					}
-				}
 				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 				int chunkAmount = entityCount / capacity;
 				int remainder = entityCount % capacity;
 				ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-				for (int i = 0; i < remainder; i++) {
-					func(i + chunkAmount * capacity,
-						(T1*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-						(T2*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-						(T3*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-						(T4*)((char*)chunkArray->Chunks[chunkAmount].Data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
-					);
+				std::vector<std::shared_future<void>> results;
+				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+					void* data = chunkArray->Chunks[chunkIndex].Data;
+					results.push_back(
+						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4](int id)
+							{
+								size_t offset1 = targetType1.Offset;
+								size_t offset2 = targetType2.Offset;
+								size_t offset3 = targetType3.Offset;
+								size_t offset4 = targetType4.Offset;
+								size_t size1 = targetType1.Size;
+								size_t size2 = targetType2.Size;
+								size_t size3 = targetType3.Size;
+								size_t size4 = targetType4.Size;
+								for (int i = 0; i < capacity; i++) {
+									func(i + chunkIndex * capacity,
+										(T1*)((char*)data + offset1 * capacity + (i % capacity) * size1),
+										(T2*)((char*)data + offset2 * capacity + (i % capacity) * size2),
+										(T3*)((char*)data + offset3 * capacity + (i % capacity) * size3),
+										(T4*)((char*)data + offset4 * capacity + (i % capacity) * size4)
+									);
+								}
+							}
+					).share());
+				}
+				void* data = chunkArray->Chunks[chunkAmount].Data;
+				results.push_back(
+					_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder](int id)
+						{
+							for (int i = 0; i < remainder; i++) {
+								func(i + chunkAmount * capacity,
+									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
+								);
+							}
+						}
+				).share());
+				for (int i = 0; i < results.size(); i++) {
+					results[i].wait();
 				}
 			}
 		}

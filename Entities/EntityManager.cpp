@@ -13,7 +13,7 @@ std::vector<EntityQuery>* UniEngine::Entities::EntityManager::_EntityQueries;
 std::vector<EntityQueryInfo>* UniEngine::Entities::EntityManager::_EntityQueryInfos;
 std::queue<EntityQuery>* UniEngine::Entities::EntityManager::_EntityQueryPools;
 
-
+UniEngine::ThreadPool UniEngine::Entities::EntityManager::_ThreadPool;
 #pragma region EntityManager
 
 void UniEngine::Entities::EntityManager::DeleteEntityInternal(Entity entity)
@@ -139,6 +139,11 @@ size_t UniEngine::Entities::EntityManager::SwapEntity(EntityComponentStorage sto
 	return retVal;
 }
 
+void UniEngine::Entities::EntityManager::Init()
+{
+	_ThreadPool.Resize(std::thread::hardware_concurrency());
+}
+
 void UniEngine::Entities::EntityManager::GetAllEntities(std::vector<Entity>* target) {
 	target->insert(target->end() ,_Entities->begin() + 1, _Entities->end());
 }
@@ -170,6 +175,8 @@ void UniEngine::Entities::EntityManager::SetWorld(World* world)
 	_EntityQueries = &targetStorage->EntityQueries;
 	_EntityQueryInfos = &targetStorage->EntityQueryInfos;
 	_EntityQueryPools = &targetStorage->EntityQueryPools;
+
+	
 }
 
 Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetype)

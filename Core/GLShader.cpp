@@ -3,14 +3,14 @@
 #include "Debug.h"
 using namespace UniEngine;
 
-void UniEngine::GLShader::SetCode(std::string* code)
+inline void UniEngine::GLShader::SetCode(std::string* code)
 {
 	_Code = code;
 	_Compileable = true;
 	Compile();
 }
 
-UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
+inline UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
 {
 	_Code = nullptr;
 	_ID = 0;
@@ -32,7 +32,7 @@ UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
 	}
 }
 
-UniEngine::GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
+inline UniEngine::GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
 {
 	_Code = code;
 	_ID = 0;
@@ -55,27 +55,27 @@ UniEngine::GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
 	SetCode(_Code);
 }
 
-UniEngine::GLShader::~GLShader()
+inline UniEngine::GLShader::~GLShader()
 {
 	glDeleteShader(_ID);
 }
 
-ShaderType UniEngine::GLShader::Type()
+inline ShaderType UniEngine::GLShader::Type()
 {
 	return _Type;
 }
 
-bool UniEngine::GLShader::Attachable()
+inline bool UniEngine::GLShader::Attachable()
 {
 	return _Attachable;
 }
 
-bool UniEngine::GLShader::Compileable()
+inline bool UniEngine::GLShader::Compileable()
 {
 	return _Compileable;
 }
 
-void UniEngine::GLShader::Compile()
+inline void UniEngine::GLShader::Compile()
 {
 	const char* code = _Code->c_str();
 	glShaderSource(_ID, 1, &code, nullptr);
@@ -106,7 +106,7 @@ void UniEngine::GLShader::Compile()
 	_Attachable = true;
 }
 
-void UniEngine::GLShader::Attach(GLuint programID)
+inline void UniEngine::GLShader::Attach(GLuint programID)
 {
 	if (!_Compileable) {
 		Debug::Error("Error");
@@ -116,7 +116,7 @@ void UniEngine::GLShader::Attach(GLuint programID)
 	glAttachShader(programID, _ID);
 }
 
-void UniEngine::GLShader::Detach(GLuint programID)
+inline void UniEngine::GLShader::Detach(GLuint programID)
 {
 	glDetachShader(programID, _ID);
 }

@@ -17,6 +17,12 @@
 #include <cstdarg>
 #include <algorithm>
 #include <functional>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
+#include <exception>
+#include <future>
 
 #define OMP_THREAD_AMOUNT 8
 

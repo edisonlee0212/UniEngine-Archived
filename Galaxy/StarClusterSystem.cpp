@@ -66,7 +66,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
-	for (auto i = 0; i < 30000; i++) {
+	for (auto i = 0; i < 60000; i++) {
 		auto starEntity = EntityManager::CreateEntity(_StarArchetype);
 		index.Value = i;
 		seed.Value = glm::linearRand(0.0, 1.0);

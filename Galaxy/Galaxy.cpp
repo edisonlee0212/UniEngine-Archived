@@ -12,8 +12,18 @@ struct StarTag : ComponentBase
 {
 };
 
+void Worker(int i) {
+	//std::cout << i << std::endl;
+}
+
+void example_function()
+{
+	std::cout << "bla" << std::endl;
+}
+
 int main()
 {
+	
 #pragma region Engine Preparations
 	Engine* engine = new Engine();
 	LightingManager::SetDirectionalLightResolution(2048);
@@ -24,8 +34,8 @@ int main()
 	LightingManager::SetEVSMExponent(80.0f);
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 	LightingManager::SetAmbientLight(1.0f);
-	auto window = WindowManager::CreateGLFWwindow(1920, 1080, "Main", WindowManager::PrimaryMonitor());
-	engine->Start(window, 1920, 1080);
+	auto window = WindowManager::CreateGLFWwindow(1918, 1060, "Main", nullptr);
+	engine->Start(window, 1918, 1060);
 	World* world = engine->GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;

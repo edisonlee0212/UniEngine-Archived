@@ -178,6 +178,7 @@
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\glad\src\glad.c">

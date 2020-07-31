@@ -22,6 +22,7 @@ UniEngine::Engine::Engine()
 	_Loopable = false;
 	WindowManager::Init();
 	InputManager::Init();
+	EntityManager::Init();
 }
 
 void UniEngine::Engine::GLInit()

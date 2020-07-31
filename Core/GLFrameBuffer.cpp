@@ -3,21 +3,21 @@
 
 GLuint UniEngine::GLFrameBuffer::_CurrentBinding = 0;
 
-void UniEngine::GLFrameBuffer::Bind()
+inline void UniEngine::GLFrameBuffer::Bind()
 {
 	if (_CurrentBinding == _ID) return;
 	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
 	_CurrentBinding = _ID;
 }
 
-void UniEngine::GLFrameBuffer::BindDefault()
+inline void UniEngine::GLFrameBuffer::BindDefault()
 {
 	if (_CurrentBinding == 0) return;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	_CurrentBinding = 0;
 }
 
-UniEngine::GLFrameBuffer::GLFrameBuffer()
+inline UniEngine::GLFrameBuffer::GLFrameBuffer()
 {
 	_Color = false;
 	_Depth = false;
@@ -25,28 +25,28 @@ UniEngine::GLFrameBuffer::GLFrameBuffer()
 	glCreateFramebuffers(1, &_ID);
 }
 
-UniEngine::GLFrameBuffer::~GLFrameBuffer()
+inline UniEngine::GLFrameBuffer::~GLFrameBuffer()
 {
 	BindDefault();
 	glDeleteFramebuffers(1, &_ID);
 }
 
-bool UniEngine::GLFrameBuffer::Color()
+inline bool UniEngine::GLFrameBuffer::Color()
 {
 	return _Color;
 }
 
-bool UniEngine::GLFrameBuffer::Depth()
+inline bool UniEngine::GLFrameBuffer::Depth()
 {
 	return _Depth;
 }
 
-bool UniEngine::GLFrameBuffer::Stencil()
+inline bool UniEngine::GLFrameBuffer::Stencil()
 {
 	return _Stencil;
 }
 
-void UniEngine::GLFrameBuffer::AttachRenderBuffer(GLRenderBuffer* buffer, GLenum attachPoint)
+inline void UniEngine::GLFrameBuffer::AttachRenderBuffer(GLRenderBuffer* buffer, GLenum attachPoint)
 {
 	switch (attachPoint)
 	{
@@ -67,7 +67,7 @@ void UniEngine::GLFrameBuffer::AttachRenderBuffer(GLRenderBuffer* buffer, GLenum
 	glNamedFramebufferRenderbuffer(_ID, attachPoint, GL_RENDERBUFFER, buffer->ID());
 }
 
-void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLenum attachPoint)
+inline void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLenum attachPoint)
 {
 	switch (attachPoint)
 	{
@@ -88,7 +88,7 @@ void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLenum attachPo
 	glNamedFramebufferTexture(_ID, attachPoint, texture->ID(), 0);
 }
 
-void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer)
+inline void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer)
 {
 	switch (attachPoint)
 	{
