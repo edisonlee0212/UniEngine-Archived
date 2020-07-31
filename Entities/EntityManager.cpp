@@ -107,6 +107,16 @@ void UniEngine::Entities::EntityManager::RefreshEntityQueryInfos(size_t index)
 	}
 }
 
+void UniEngine::Entities::EntityManager::GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>* container)
+{
+	size_t amount = storage.ArchetypeInfo->EntityAliveCount;
+	container->resize(container->size() + amount);
+	size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+	size_t chunkAmount = amount / capacity;
+	size_t remainAmount = amount % capacity;
+	memcpy(&container->at(container->size() - amount), storage.ChunkArray->Entities.data(), amount * sizeof(Entity));
+}
+
 size_t UniEngine::Entities::EntityManager::SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2)
 {
 	if (index1 == index2) return -1;
@@ -374,6 +384,23 @@ ComponentDataChunkArray* UniEngine::Entities::EntityManager::UnsafeGetEntityComp
 {
 	if (entityArchetype.IsNull()) return nullptr;
 	return _EntityComponentStorage->at(entityArchetype.Index).ChunkArray;
+}
+
+void UniEngine::Entities::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container)
+{
+	if (entityQuery.IsNull()) return;
+	unsigned index = entityQuery.Index;
+	if (_EntityQueries->at(index).IsDeleted()) {
+		Debug::Error("EntityQuery already deleted!");
+		return;
+	}
+	if (_EntityQueries->at(index) != entityQuery) {
+		Debug::Error("EntityQuery out of date!");
+		return;
+	}
+	for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		GetEntityStorage(i, container);
+	}
 }
 
 UniEngine::Entities::EntityComponentStorage::EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array)

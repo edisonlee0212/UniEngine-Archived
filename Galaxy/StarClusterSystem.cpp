@@ -66,7 +66,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
-	for (auto i = 0; i < 60000; i++) {
+	for (auto i = 0; i < 10000; i++) {
 		auto starEntity = EntityManager::CreateEntity(_StarArchetype);
 		index.Value = i;
 		seed.Value = glm::linearRand(0.0, 1.0);
@@ -100,6 +100,8 @@ void Galaxy::StarClusterSystem::Update()
 		translation->value = position->Value / 20.0;
 		scale->value = size * glm::vec3(1.0f);
 		});
+	std::vector<Entity> entities = std::vector<Entity>();
+	EntityManager::GetEntityArray(_StarQuery, &entities);
 	//Render from last update.
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	EntityManager::GetComponentDataArray(_StarQuery, &matrices);
