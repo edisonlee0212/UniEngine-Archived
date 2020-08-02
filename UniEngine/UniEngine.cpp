@@ -80,15 +80,23 @@ void UniEngine::Engine::Start(GLFWwindow* targetWindow, unsigned width, unsigned
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
-
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	
+	ImGui::StyleColorsDark();
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
 	ImGui_ImplGlfw_InitForOpenGL(targetWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 460 core");
-	ImGui::StyleColorsDark();
 }
 
 bool UniEngine::Engine::LoopStart()
 {
-	if (!_Loopable) {
+	if (!_Loopable ) {
 		return false;
 	}
 	glfwPollEvents();
@@ -97,13 +105,6 @@ bool UniEngine::Engine::LoopStart()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-	ImGui::Begin("Time Info");
-	float previousTimeStep = _TimeStep;
-	ImGui::SliderFloat("sec/step", &_TimeStep, 0.05f, 1.0f);
-	ImGui::End();
-
-	if (previousTimeStep != _TimeStep)_World->SetTimeStep(_TimeStep);
-
 	RenderManager::Start();
 	LightingManager::Start();
 	return true;
@@ -128,9 +129,25 @@ bool UniEngine::Engine::LoopEnd()
 	
 	InputManager::Update();
 	DrawInfoWindow();
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	WindowManager::Update();
+	RenderTarget::BindDefault();
+	ImGui::Render();
+	int display_w, display_h;
+	glfwGetFramebufferSize(WindowManager::CurrentWindow()->GetGLFWWinwow(), &display_w, &display_h);
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	// Update and Render additional Platform Windows
+	// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+	//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		glfwMakeContextCurrent(backup_current_context);
+	}
+
+	
 	return true;
 }
 

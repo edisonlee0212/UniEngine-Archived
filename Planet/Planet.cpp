@@ -123,10 +123,14 @@ int main()
 
 #pragma region EngineLoop
 	bool loopable = true;
+	
 	//RenderSystem::SetWireFrameMode(true);
 	bool wireFrame = false;
 	while (loopable) {
 		loopable = engine->LoopStart();
+		static bool show = true;
+		
+		ImGui::ShowDemoWindow(&show);
 #pragma region LightsPosition
 		Translation p;
 		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(time->Time() / 2.0f), -20.0f * glm::cos(time->Time() / 2.0f)), 0.0f);
@@ -146,6 +150,7 @@ int main()
 		ImGui::End();
 		loopable = engine->Loop();
 		loopable = engine->LoopEnd();
+		
 	}
 	engine->End();
 #pragma endregion

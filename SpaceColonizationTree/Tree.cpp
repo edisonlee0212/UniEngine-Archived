@@ -1,5 +1,6 @@
 #include "Tree.h"
-
+#include <omp.h>
+#define OMP_THREAD_AMOUNT 8
 SpaceColonizationTree::Tree::Tree(Material* pointMaterial, Material* meshMaterial, Material* organMaterial)
 :	_GrowingBranches(std::vector<Branch*>()),
 	_NeedsToGrow(false),

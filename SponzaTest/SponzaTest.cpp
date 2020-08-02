@@ -27,7 +27,9 @@ enum TestScene {
 };
 int main()
 {
+	
 	Engine* engine = new Engine();
+
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
@@ -199,7 +201,6 @@ int main()
 
 	while (loopable) {
 		loopable = engine->LoopStart();
-
 		LightAngleSlider();
 		SplitDisplay();
 #pragma region LightsPosition
