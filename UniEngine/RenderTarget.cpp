@@ -95,6 +95,11 @@ void UniEngine::RenderTarget::Bind()
 	glViewport(0, 0, _ResolutionX, _ResolutionY);
 }
 
+void UniEngine::RenderTarget::Clear()
+{
+	_FrameBuffer->Clear();
+}
+
 void UniEngine::RenderTarget::BindDefault()
 {
 	GLFrameBuffer::BindDefault();

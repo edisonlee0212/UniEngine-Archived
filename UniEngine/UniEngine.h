@@ -12,10 +12,11 @@ namespace UniEngine {
 		double _RealWorldTime;
 		float _TimeStep;
 		void DrawInfoWindow();
+		void PrepareDock();
 	public:
-		Engine();
+		Engine(unsigned width, unsigned height, bool fullScreen = false);
 		void GLInit();
-		void Start(GLFWwindow* targetWindow, unsigned width, unsigned height);
+		void Start();
 		bool LoopStart();
 		bool Loop();
 		bool LoopEnd();

@@ -6,25 +6,6 @@ using namespace UniEngine;
 unsigned RenderManager::_DrawCall;
 unsigned RenderManager::_Triangles;
 bool RenderManager::_EnableNormalMapping = true;
-void UniEngine::RenderManager::DrawMeshInstanced(InstancedMeshMaterialComponent* immc, glm::mat4 matrix, Camera* camera)
-{
-	DrawMeshInstanced(immc->_Mesh, immc->_Material, matrix, immc->_Matrices->data(), immc->_Matrices->size(), camera, immc->_ReceiveShadow);
-}
-
-void UniEngine::RenderManager::DrawMesh(MeshMaterialComponent* mmc, glm::mat4 matrix, Camera* camera)
-{
-	DrawMesh(mmc->_Mesh, mmc->_Material, matrix, camera, mmc->_ReceiveShadow);
-}
-
-void UniEngine::RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, Camera* camera, bool receiveShadow)
-{
-	DrawMeshInstanced(mesh, material, matrix, matrices, count, camera->GetRenderTarget(), receiveShadow);
-}
-
-void UniEngine::RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, Camera* camera, bool receiveShadow)
-{
-	DrawMesh(mesh, material, matrix, camera->GetRenderTarget(), receiveShadow);
-}
 
 void UniEngine::RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow)
@@ -319,6 +300,10 @@ void UniEngine::RenderManager::Start()
 {
 	_Triangles = 0;
 	_DrawCall = 0;
+	auto cameras = EntityManager::QuerySharedComponents<CameraComponent>();
+	for (auto cc : *cameras) {
+		cc->Value->Clear();
+	}
 }
 unsigned UniEngine::RenderManager::Triangles()
 {
@@ -336,9 +321,9 @@ void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, 
 	DrawTexture2D(texture, depth, center, size);
 }
 
-void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, float centerX, float centerY, float sizeX, float sizeY, Camera* camera)
+void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, float centerX, float centerY, float sizeX, float sizeY, RenderTarget* target)
 {
-	DrawTexture2D(texture, depth, glm::vec2(centerX, centerY), glm::vec2(sizeX, sizeY), camera->GetRenderTarget());
+	DrawTexture2D(texture, depth, glm::vec2(centerX, centerY), glm::vec2(sizeX, sizeY), target);
 }
 
 void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
@@ -347,8 +332,4 @@ void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, gl
 	DrawTexture2D(texture->Texture(), depth, center, size);
 }
 
-void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, Camera* camera)
-{
-	DrawTexture2D(texture->Texture(), depth, center, size, camera->GetRenderTarget());
-}
 

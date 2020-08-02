@@ -108,3 +108,9 @@ inline void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLe
 	}
 	glNamedFramebufferTextureLayer(_ID, attachPoint, texture->ID(), 0, layer);
 }
+
+void UniEngine::GLFrameBuffer::Clear()
+{
+	Bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}

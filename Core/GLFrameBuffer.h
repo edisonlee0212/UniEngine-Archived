@@ -21,5 +21,6 @@ namespace UniEngine {
 		void AttachRenderBuffer(GLRenderBuffer* buffer, GLenum attachPoint);
 		void AttachTexture(GLTexture* texture, GLenum attachPoint);
 		void AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer);
+		void Clear();
 	};
 }

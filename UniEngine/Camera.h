@@ -22,19 +22,16 @@ namespace UniEngine {
 		void UploadMatrices(GLUBO* target);
 	};
 
-	class UNIENGINE_API Camera
+	class UNIENGINE_API Camera : public RenderTarget
 	{
-		//static unsigned _CameraInfoBufferID;
-		
-		
-		RenderTarget* _RenderTarget;
+		GLTexture2D* _ColorTexture;
+		GLRenderBuffer* _RenderBuffer;
 	public:
 		static GLUBO* _CameraData;
 		static CameraInfoBlock _MainCameraInfoBlock;
 		void CalculatePlanes(Plane* planes, glm::mat4 projection, glm::mat4 view);
 		void CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3* points);
 		static void GenerateMatrices();
-		RenderTarget* GetRenderTarget();
 
 		float _Near;
 		float _Far;
@@ -43,8 +40,10 @@ namespace UniEngine {
 		float _Pitch;
 		// camera options
 		float _FOV;
-		Camera(RenderTarget* renderTarget, float nearPlane = 0.1f, float farPlane = 100.0f);
+		Camera(int resolutionX, int resolutionY, float nearPlane = 0.1f, float farPlane = 100.0f);
 		glm::quat ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch = true);
 		void ProcessMouseScroll(float yoffset);
+		void SetResolution(int x, int y);
+		GLTexture2D* GetTexture();
 	};
 }

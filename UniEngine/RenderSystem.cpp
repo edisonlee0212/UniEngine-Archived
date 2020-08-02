@@ -10,7 +10,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 {
 
 	Camera* camera = cameraComponent->Value;
-	camera->GetRenderTarget()->Bind();
+	camera->Bind();
 	Camera::_MainCameraInfoBlock.UpdateMatrices(camera,
 		EntityManager::GetComponentData<Translation>(cameraEntity).value,
 		EntityManager::GetComponentData<Rotation>(cameraEntity).value
@@ -43,7 +43,8 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 					glm::max(maxBound.z, center.z + size.z));
 
 				RenderManager::DrawMesh(
-					mmc,
+					mmc->_Mesh,
+					mmc->_Material,
 					ltw,
 					camera);
 			}
@@ -55,8 +56,11 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 			auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
 			for (auto j : *entities) {
 				RenderManager::DrawMeshInstanced(
-					immc,
+					immc->_Mesh,
+					immc->_Material,
 					EntityManager::GetComponentData<LocalToWorld>(j).value,
+					immc->_Matrices->data(),
+					immc->_Matrices->size(),
 					camera);
 			}
 		}

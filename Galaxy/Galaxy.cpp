@@ -25,7 +25,7 @@ int main()
 {
 	
 #pragma region Engine Preparations
-	Engine* engine = new Engine();
+	Engine* engine = new Engine(1600, 900);
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
@@ -34,13 +34,12 @@ int main()
 	LightingManager::SetEVSMExponent(80.0f);
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 	LightingManager::SetAmbientLight(1.0f);
-	auto window = WindowManager::CreateGLFWwindow(1918, 1060, "Main", nullptr);
-	engine->Start(window, 1918, 1060);
+	engine->Start();
 	World* world = engine->GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 
-	Camera* mainCamera = new Camera(WindowManager::CurrentWindow(), 0.1f, 500.0f);
+	Camera* mainCamera = new Camera(1600, 900, 0.1f, 500.0f);
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 

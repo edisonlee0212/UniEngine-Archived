@@ -1,18 +1,20 @@
 #include "pch.h"
 #include "WindowManager.h"
 #include "InputManager.h"
+#include "RenderTarget.h"
+#include "Default.h"
 using namespace UniEngine;
 
-GLFWmonitor* WindowManager::_PrimaryMonitor;
 std::vector<GLFWmonitor*> WindowManager::_Monitors;
-std::vector<Window*> WindowManager::_Windows;
-Window* WindowManager::_CurrentWindow;
+GLFWmonitor* WindowManager::_PrimaryMonitor;
+GLFWwindow* WindowManager::_Window;
+unsigned WindowManager::_Width;
+unsigned WindowManager::_Height;
 
 
 void WindowManager::ResizeCallback(GLFWwindow* window, int width, int height) {
-	for (auto i : _Windows) {
-		if (i->GetGLFWWinwow() == window) i->SetSizeCallback(width, height);
-	}
+	_Width = width;
+	_Height = height;
 }
 
 void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int event)
@@ -35,15 +37,7 @@ void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int even
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 }
 
-Window* UniEngine::WindowManager::NewWindow(GLFWwindow* window, unsigned resolutionX, unsigned resolutionY)
-{
-	auto w = new Window(window, resolutionX, resolutionY);
-	_CurrentWindow = w;
-	_Windows.push_back(w);
-	return w;
-}
-
-void UniEngine::WindowManager::Init()
+void UniEngine::WindowManager::Init(unsigned width, unsigned height, std::string name, bool fullScreen)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -61,38 +55,27 @@ void UniEngine::WindowManager::Init()
 	}
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 	glfwSetMonitorCallback(SetMonitorCallback);
-	
-}
 
-GLFWwindow* WindowManager::CreateGLFWwindow(unsigned width, unsigned height, std::string name, GLFWmonitor* monitor) {
+	_Width = width;
+	_Height = height;
 	// glfw window creation
 	// --------------------
-	auto window = glfwCreateWindow(width, height, name.c_str(), monitor, NULL);
-	glfwSetFramebufferSizeCallback(window, WindowManager::ResizeCallback);
-	glfwSetCursorPosCallback(window, InputManager::CursorPositionCallback);
-	glfwSetScrollCallback(window, InputManager::MouseScrollCallback);
-	glfwSetKeyCallback(window, InputManager::KeyCallback);
-	glfwSetMouseButtonCallback(window, InputManager::MouseButtonCallback);
-	if (window == NULL)
+	_Window = glfwCreateWindow(width, height, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr, NULL);
+	glfwSetFramebufferSizeCallback(_Window, WindowManager::ResizeCallback);
+	glfwSetCursorPosCallback(_Window, InputManager::CursorPositionCallback);
+	glfwSetScrollCallback(_Window, InputManager::MouseScrollCallback);
+	glfwSetKeyCallback(_Window, InputManager::KeyCallback);
+	glfwSetMouseButtonCallback(_Window, InputManager::MouseButtonCallback);
+	if (_Window == NULL)
 	{
 		Debug::Error("Failed to create GLFW window");
-		return nullptr;
 	}
-	glfwMakeContextCurrent(window);
-	
-	return window;
+	glfwMakeContextCurrent(_Window);
 }
 
-
-
-std::vector<Window*>* UniEngine::WindowManager::Windows()
+GLFWwindow* UniEngine::WindowManager::GetWindow()
 {
-	return &_Windows;
-}
-
-Window* UniEngine::WindowManager::CurrentWindow()
-{
-	return _CurrentWindow;
+	return _Window;
 }
 
 GLFWmonitor* UniEngine::WindowManager::PrimaryMonitor()
@@ -100,11 +83,36 @@ GLFWmonitor* UniEngine::WindowManager::PrimaryMonitor()
 	return _PrimaryMonitor;
 }
 
+void UniEngine::WindowManager::Start()
+{
+	RenderTarget::BindDefault();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
 void UniEngine::WindowManager::Update()
 {
-	for (auto i : _Windows) {
-		i->Update();
-	}
+	glfwSwapBuffers(_Window);
+}
+
+void UniEngine::WindowManager::DrawTexture(GLTexture2D* texture)
+{
+	RenderTarget::BindDefault();
+	/* Make the window's context current */
+	glViewport(0, 0, _Width, _Height);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	/* Render here */
+	glDisable(GL_DEPTH_TEST);
+	glDrawBuffer(GL_BACK);
+	auto program = Default::GLPrograms::ScreenProgram;
+	program->Bind();
+	program->SetFloat("depth", 0);
+	Default::GLPrograms::ScreenVAO->Bind();
+	//Default::Textures::UV->Texture()->Bind(GL_TEXTURE_2D);
+	texture->Bind(0);
+	program->SetInt("screenTexture", 0);
+	program->SetFloat2("center", glm::vec2(0));
+	program->SetFloat2("size", glm::vec2(1.0));
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 

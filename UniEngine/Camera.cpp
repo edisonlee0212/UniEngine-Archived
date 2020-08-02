@@ -60,9 +60,9 @@ void UniEngine::Camera::CalculateFrustumPoints(float nearPlane, float farPlane, 
 
 	float e = tanf(glm::radians(_FOV * 0.5f));
 	float near_ext_y = e * nearPlane;
-	float near_ext_x = near_ext_y * _RenderTarget->GetResolutionRatio();
+	float near_ext_x = near_ext_y * GetResolutionRatio();
 	float far_ext_y = e * farPlane;
-	float far_ext_x = far_ext_y * _RenderTarget->GetResolutionRatio();
+	float far_ext_x = far_ext_y * GetResolutionRatio();
 
 	points[0] = cameraPos + nearCenter - right * near_ext_x - up * near_ext_y;
 	points[1] = cameraPos + nearCenter - right * near_ext_x + up * near_ext_y;
@@ -81,18 +81,18 @@ void UniEngine::Camera::GenerateMatrices()
 	_CameraData->SetBase(0);
 }
 
-RenderTarget* UniEngine::Camera::GetRenderTarget()
-{
-	return _RenderTarget;
-}
 
-Camera::Camera(RenderTarget* renderTarget, float nearPlane, float farPlane) : _FOV(DEFAULTFOV)
+Camera::Camera(int resolutionX, int resolutionY, float nearPlane, float farPlane) 
+	: RenderTarget(),
+	_FOV(DEFAULTFOV)
 {
-	_RenderTarget = renderTarget;
 	_Yaw = YAW;
 	_Pitch = PITCH;
 	_Near = nearPlane;
 	_Far = farPlane;
+	_ColorTexture = nullptr;
+	_RenderBuffer = nullptr;
+	SetResolution(resolutionX, resolutionY);
 }
 
 glm::quat UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch)
@@ -132,6 +132,23 @@ void UniEngine::Camera::ProcessMouseScroll(float yoffset)
 		_FOV = 180.0f;
 }
 
+void UniEngine::Camera::SetResolution(int x, int y)
+{
+	_ResolutionX = x;
+	_ResolutionY = y;
+	if (_ColorTexture != nullptr) delete _ColorTexture;
+	_ColorTexture = SetTexture2D(GL_COLOR_ATTACHMENT0, 1, GL_RGB32F);
+	_ColorTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_ColorTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	if (_RenderBuffer != nullptr) delete _RenderBuffer;
+	_RenderBuffer = SetRenderBuffer(GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH24_STENCIL8);
+}
+
+GLTexture2D* UniEngine::Camera::GetTexture()
+{
+	return _ColorTexture;
+}
+
 void UniEngine::Plane::Normalize()
 {
 	float mag = glm::sqrt(a * a + b * b + c * c);
@@ -145,7 +162,7 @@ void UniEngine::CameraInfoBlock::UpdateMatrices(Camera* camera, glm::vec3 positi
 {
 	glm::vec3 front = rotation * glm::vec3(0, 0, -1);
 	glm::vec3 up = rotation * glm::vec3(0, 1, 0);
-	auto ratio = camera->GetRenderTarget()->GetResolutionRatio();
+	auto ratio = camera->GetResolutionRatio();
 	if (ratio == 0) return;
 	Projection = glm::perspective(glm::radians(camera->_FOV * 0.5f), ratio, camera->_Near, camera->_Far);
 	Position = glm::vec4(position, 0);

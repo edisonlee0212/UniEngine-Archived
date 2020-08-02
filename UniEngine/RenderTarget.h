@@ -21,6 +21,7 @@ namespace UniEngine {
 		glm::vec2 GetResolution();
 		float GetResolutionRatio();
 		void Bind();
+		void Clear();
 		static void BindDefault();
 	};
 

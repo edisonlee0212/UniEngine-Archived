@@ -9,7 +9,7 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
-	Engine* engine = new Engine();
+	Engine* engine = new Engine(1600, 900);
 	LightingManager::SetDirectionalLightResolution(1024);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
@@ -17,8 +17,7 @@ int main()
 	LightingManager::SetVSMMaxVariance(0.001f);
 	LightingManager::SetEVSMExponent(80.0f);
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
-	auto window = WindowManager::CreateGLFWwindow(1600, 900, "Main", NULL);
-	engine->Start(window, 1600, 900);
+	engine->Start();
 
 #pragma region Preparations
 	World* world = engine->GetWorld();
@@ -26,7 +25,7 @@ int main()
 	bool enableSCTreeSystem = false;
 	
 
-	Camera* mainCamera = new Camera(WindowManager::CurrentWindow());
+	Camera* mainCamera = new Camera(1600, 900);
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 
@@ -129,8 +128,6 @@ int main()
 	while (loopable) {
 		loopable = engine->LoopStart();
 		static bool show = true;
-		
-		ImGui::ShowDemoWindow(&show);
 #pragma region LightsPosition
 		Translation p;
 		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(time->Time() / 2.0f), -20.0f * glm::cos(time->Time() / 2.0f)), 0.0f);
