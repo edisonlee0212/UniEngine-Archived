@@ -30,7 +30,7 @@ namespace UniEngine {
 			static std::vector<EntityQuery>* _EntityQueries;
 			static std::vector<EntityQueryInfo>* _EntityQueryInfos;
 			static std::queue<EntityQuery>* _EntityQueryPools;
-			static ThreadPool _ThreadPool;
+			static ThreadPool* _ThreadPool;
 			template<typename T = ComponentBase>
 			static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
 			template<typename T = ComponentBase, typename... Ts>
@@ -64,10 +64,11 @@ namespace UniEngine {
 			static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
 			
 		public:
-			static void Init();
+			static void Init(ThreadPool* threadPool);
 
 			static void GetAllEntities(std::vector<Entity>* target);
 			static std::vector<Entity>* GetAllEntitiesUnsafe();
+			static void SetThreadPool(ThreadPool* pool);
 			static void SetWorld(World* world);
 			template<typename T = ComponentBase, typename... Ts>
 			static EntityArchetype CreateEntityArchetype(T arg, Ts... args);
@@ -206,7 +207,7 @@ namespace UniEngine {
 				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 					void* data = chunkArray->Chunks[chunkIndex].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1](int id)
+						_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1](int id)
 							{
 								for (int i = 0; i < capacity; i++) {
 									func(i + chunkIndex * capacity,
@@ -219,7 +220,7 @@ namespace UniEngine {
 				if (remainder != 0) {
 					void* data = chunkArray->Chunks[chunkAmount].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, remainder](int id)
+						_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, remainder](int id)
 							{
 								for (int i = 0; i < remainder; i++) {
 									func(i + chunkAmount * capacity,
@@ -261,7 +262,7 @@ namespace UniEngine {
 				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 					void* data = chunkArray->Chunks[chunkIndex].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2](int id)
+						_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2](int id)
 							{
 								for (int i = 0; i < capacity; i++) {
 									func(i + chunkIndex * capacity,
@@ -275,7 +276,7 @@ namespace UniEngine {
 				if (remainder != 0) {
 					void* data = chunkArray->Chunks[chunkAmount].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, remainder](int id)
+						_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, remainder](int id)
 							{
 								for (int i = 0; i < remainder; i++) {
 									func(i + chunkAmount * capacity,
@@ -323,7 +324,7 @@ namespace UniEngine {
 				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 					void* data = chunkArray->Chunks[chunkIndex].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3](int id)
+						_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3](int id)
 							{
 								for (int i = 0; i < capacity; i++) {
 									func(i + chunkIndex * capacity,
@@ -338,7 +339,7 @@ namespace UniEngine {
 				if (remainder != 0) {
 					void* data = chunkArray->Chunks[chunkAmount].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, remainder](int id)
+						_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, remainder](int id)
 							{
 								for (int i = 0; i < remainder; i++) {
 									func(i + chunkAmount * capacity,
@@ -393,7 +394,7 @@ namespace UniEngine {
 				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 					void* data = chunkArray->Chunks[chunkIndex].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4](int id)
+						_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4](int id)
 							{
 								for (int i = 0; i < capacity; i++) {
 									func(i + chunkIndex * capacity,
@@ -409,7 +410,7 @@ namespace UniEngine {
 				if (remainder != 0) {
 					void* data = chunkArray->Chunks[chunkAmount].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder](int id)
+						_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder](int id)
 							{
 								for (int i = 0; i < remainder; i++) {
 									func(i + chunkAmount * capacity,
@@ -471,7 +472,7 @@ namespace UniEngine {
 				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 					void* data = chunkArray->Chunks[chunkIndex].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5](int id)
+						_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5](int id)
 							{
 								for (int i = 0; i < capacity; i++) {
 									func(i + chunkIndex * capacity,
@@ -488,7 +489,7 @@ namespace UniEngine {
 				if (remainder != 0) {
 					void* data = chunkArray->Chunks[chunkAmount].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder](int id)
+						_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder](int id)
 							{
 								for (int i = 0; i < remainder; i++) {
 									func(i + chunkAmount * capacity,
@@ -557,7 +558,7 @@ namespace UniEngine {
 				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 					void* data = chunkArray->Chunks[chunkIndex].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6](int id)
+						_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6](int id)
 							{
 								for (int i = 0; i < capacity; i++) {
 									func(i + chunkIndex * capacity,
@@ -575,7 +576,7 @@ namespace UniEngine {
 				if (remainder != 0) {
 					void* data = chunkArray->Chunks[chunkAmount].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder](int id)
+						_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder](int id)
 							{
 								for (int i = 0; i < remainder; i++) {
 									func(i + chunkAmount * capacity,
@@ -651,7 +652,7 @@ namespace UniEngine {
 				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 					void* data = chunkArray->Chunks[chunkIndex].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7](int id)
+						_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7](int id)
 							{
 								for (int i = 0; i < capacity; i++) {
 									func(i + chunkIndex * capacity,
@@ -670,7 +671,7 @@ namespace UniEngine {
 				if (remainder != 0) {
 					void* data = chunkArray->Chunks[chunkAmount].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder](int id)
+						_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder](int id)
 							{
 								for (int i = 0; i < remainder; i++) {
 									func(i + chunkAmount * capacity,
@@ -753,7 +754,7 @@ namespace UniEngine {
 				for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 					void* data = chunkArray->Chunks[chunkIndex].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8](int id)
+						_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8](int id)
 							{
 								for (int i = 0; i < capacity; i++) {
 									func(i + chunkIndex * capacity,
@@ -773,7 +774,7 @@ namespace UniEngine {
 				if (remainder != 0) {
 					void* data = chunkArray->Chunks[chunkAmount].Data;
 					results.push_back(
-						_ThreadPool.Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder](int id)
+						_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder](int id)
 							{
 								for (int i = 0; i < remainder; i++) {
 									func(i + chunkAmount * capacity,

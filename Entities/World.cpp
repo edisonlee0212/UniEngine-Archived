@@ -35,8 +35,9 @@ size_t UniEngine::Entities::World::GetIndex() {
 	return _Index;
 }
 
-UniEngine::Entities::World::World(size_t index) {
+UniEngine::Entities::World::World(size_t index, ThreadPool* threadPool) {
 	_Index = index;
+	_ThreadPool = threadPool;
 	_Time = new WorldTime();
 }
 

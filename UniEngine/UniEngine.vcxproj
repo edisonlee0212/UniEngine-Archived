@@ -313,6 +313,11 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Entities\Entities.vcxproj">
+      <Project>{6eefcfb9-6499-4a25-8b47-497ad00822bd}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

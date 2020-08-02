@@ -9,9 +9,9 @@ namespace UniEngine {
 		Entity _TargetCameraEntity;
 		CameraComponent* _TargetCameraComponent;
 		Camera* _TargetCamera;
-		float _Velocity;
-		float _Sensitivity;
-		bool _EnableWindowControl;
+		float _Velocity = 20.0f;
+		float _Sensitivity = 0.1f;
+		bool _EnableWindowControl = false;
 		Translation _CameraPosition;
 		Rotation _CameraRotation;
 		float _LastX = 0, _LastY = 0, _LastScrollY = 0;

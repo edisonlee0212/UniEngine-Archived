@@ -24,8 +24,8 @@ namespace UniEngine {
 		int SoftShadowMode = (int)ShadowMode::PCSS;
 		float PCSSScaleFactor = 0.0f;
 		float DisplaySplit = 0.0f;
-		float SeamFixRatio = 0.1f;
-		float VSMMaxVariance = 0.01f;
+		float SeamFixRatio = 0.05f;
+		float VSMMaxVariance = 0.001f;
 		float LightBleedFactor = 0.5f;
 		float EVSMExponent = 40.0f;
 		float AmbientLight = 0.1f;

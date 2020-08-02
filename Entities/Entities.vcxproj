@@ -202,6 +202,11 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="World.cpp" />
     <ClCompile Include="WorldTime.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.vcxproj">
+      <Project>{105d0cec-d794-48fc-aed7-b4c911a6ff4e}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

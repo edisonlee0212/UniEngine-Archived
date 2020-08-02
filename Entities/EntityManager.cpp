@@ -14,7 +14,7 @@ std::vector<EntityQuery>* UniEngine::Entities::EntityManager::_EntityQueries;
 std::vector<EntityQueryInfo>* UniEngine::Entities::EntityManager::_EntityQueryInfos;
 std::queue<EntityQuery>* UniEngine::Entities::EntityManager::_EntityQueryPools;
 
-UniEngine::ThreadPool UniEngine::Entities::EntityManager::_ThreadPool;
+UniEngine::ThreadPool* UniEngine::Entities::EntityManager::_ThreadPool;
 #pragma region EntityManager
 
 void UniEngine::Entities::EntityManager::DeleteEntityInternal(Entity entity)
@@ -155,9 +155,9 @@ std::vector<Entity>* UniEngine::Entities::EntityManager::GetParentRootsUnsafe()
 	return _ParentRoots;
 }
 
-void UniEngine::Entities::EntityManager::Init()
+void UniEngine::Entities::EntityManager::Init(ThreadPool* threadPool)
 {
-	_ThreadPool.Resize(std::thread::hardware_concurrency());
+	SetThreadPool(threadPool);
 }
 
 void UniEngine::Entities::EntityManager::GetAllEntities(std::vector<Entity>* target) {
@@ -167,6 +167,11 @@ void UniEngine::Entities::EntityManager::GetAllEntities(std::vector<Entity>* tar
 std::vector<Entity>* UniEngine::Entities::EntityManager::GetAllEntitiesUnsafe()
 {
 	return _Entities;
+}
+
+void UniEngine::Entities::EntityManager::SetThreadPool(ThreadPool* pool)
+{
+	_ThreadPool = pool;
 }
 
 void UniEngine::Entities::EntityManager::SetWorld(World* world)

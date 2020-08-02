@@ -37,7 +37,7 @@ void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int even
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 }
 
-void UniEngine::WindowManager::Init(unsigned width, unsigned height, std::string name, bool fullScreen)
+void UniEngine::WindowManager::Init(std::string name, bool fullScreen)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -56,11 +56,15 @@ void UniEngine::WindowManager::Init(unsigned width, unsigned height, std::string
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 	glfwSetMonitorCallback(SetMonitorCallback);
 
-	_Width = width;
-	_Height = height;
+	
 	// glfw window creation
 	// --------------------
-	_Window = glfwCreateWindow(width, height, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr, NULL);
+	const GLFWvidmode* mode = glfwGetVideoMode(_PrimaryMonitor);
+	_Width = fullScreen ? mode->width : mode->width - 200;
+	_Height = fullScreen ? mode->height : mode->height - 200;
+
+	_Window = glfwCreateWindow(_Width, _Height, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr, NULL);
+	if(!fullScreen) glfwMaximizeWindow(_Window);
 	glfwSetFramebufferSizeCallback(_Window, WindowManager::ResizeCallback);
 	glfwSetCursorPosCallback(_Window, InputManager::CursorPositionCallback);
 	glfwSetScrollCallback(_Window, InputManager::MouseScrollCallback);

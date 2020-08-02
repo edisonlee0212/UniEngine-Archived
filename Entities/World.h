@@ -25,13 +25,14 @@ namespace UniEngine {
 			std::vector<SystemBase*> _PresentationSystems;
 			size_t _Index;
 			UniEngine::Bound _WorldBound;
+			ThreadPool* _ThreadPool;
 		public:
 			Bound GetBound();
 			void SetBound(Bound value);
 			void SetWorldTime(double time);
 			void SetTimeStep(float timeStep);
 			size_t GetIndex();
-			World(size_t index);
+			World(size_t index, ThreadPool* threadPool);
 			void Init();
 			WorldTime* Time();
 			template <class T>
@@ -53,6 +54,7 @@ namespace UniEngine {
 			system = new T();
 			system->_World = this;
 			system->_Time = _Time;
+			system->_ThreadPool = _ThreadPool;
 			system->OnCreate();
 			switch (group)
 			{

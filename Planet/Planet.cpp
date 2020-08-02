@@ -9,46 +9,27 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
-	Engine* engine = new Engine(1600, 900);
-	LightingManager::SetDirectionalLightResolution(1024);
-	LightingManager::SetStableFit(true);
-	LightingManager::SetSeamFixRatio(0.05f);
-	LightingManager::SetMaxShadowDistance(500);
-	LightingManager::SetVSMMaxVariance(0.001f);
-	LightingManager::SetEVSMExponent(80.0f);
-	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
+	Engine* engine = new Engine();
 	engine->Start();
 
 #pragma region Preparations
 	World* world = engine->GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
-	
-
-	Camera* mainCamera = new Camera(1600, 900);
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 
-	auto cameraEntity = EntityManager::CreateEntity(archetype);
-	Translation pos;
-	pos.value = glm::vec3(0.0f, 5.0f, 25.0f);
-	EntityManager::SetComponentData<Translation>(cameraEntity, pos);
-	CameraComponent* cameraComponent = new CameraComponent();
-	cameraComponent->Value = mainCamera;
-	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
 	
-	engine->SetMainCamera(cameraEntity);
-
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
-	ccs->SetTargetCamera(cameraEntity);
+	ccs->SetTargetCamera(engine->GetMainCameraEntity());
 
 	PlanetTerrainSystem* pts = world->CreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
 	pts->Enable();
 
-	pts->SetCameraEntity(cameraEntity);
+	pts->SetCameraEntity(engine->GetMainCameraEntity());
 	PlanetInfo pi;
 	pi.Position = glm::dvec3(0.0f, 0.0f, 0.0f);
 	pi.Rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
@@ -126,7 +107,7 @@ int main()
 	//RenderSystem::SetWireFrameMode(true);
 	bool wireFrame = false;
 	while (loopable) {
-		loopable = engine->LoopStart();
+		engine->LoopStart();
 		static bool show = true;
 #pragma region LightsPosition
 		Translation p;
@@ -145,9 +126,8 @@ int main()
 			RenderSystem::SetWireFrameMode(wireFrame);
 		}
 		ImGui::End();
-		loopable = engine->Loop();
+		engine->Loop();
 		loopable = engine->LoopEnd();
-		
 	}
 	engine->End();
 #pragma endregion

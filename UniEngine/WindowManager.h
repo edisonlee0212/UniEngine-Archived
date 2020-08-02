@@ -5,7 +5,7 @@ namespace UniEngine {
 	class UNIENGINE_API WindowManager : public ManagerBase
 	{
 	public:
-		static void Init(unsigned width, unsigned height, std::string name, bool fullScreen = false);
+		static void Init(std::string name, bool fullScreen = false);
 		static GLFWwindow* GetWindow();
 		static GLFWmonitor* PrimaryMonitor();
 		static void Start();

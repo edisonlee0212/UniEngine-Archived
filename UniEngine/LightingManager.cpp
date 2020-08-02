@@ -18,9 +18,9 @@ GLUBO* LightingManager::_ShadowCascadeInfoBlock;
 ShadowSettings LightingManager::_ShadowSettings;
 
 //Settings
-float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.2f, 0.4f, 0.8f, 1.0f };
+float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
 float LightingManager::_MaxShadowDistance = 500;
-unsigned LightingManager::_DirectionalShadowMapResolution = 512;
+unsigned LightingManager::_DirectionalShadowMapResolution = 1024;
 bool LightingManager::_StableFit = true;
 #pragma endregion
 

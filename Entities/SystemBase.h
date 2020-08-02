@@ -12,6 +12,7 @@ namespace UniEngine {
 			bool _Enabled;
 			WorldTime* _Time;
 			World* _World;
+			ThreadPool* _ThreadPool;
 			virtual void OnStartRunning() {}
 			virtual void OnStopRuning() {}
 			SystemBase();

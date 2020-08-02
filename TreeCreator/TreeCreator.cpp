@@ -7,38 +7,18 @@ using namespace UniEngine;
 void InitGround();
 int main()
 {
-	Engine* engine = new Engine(1600, 900);
-	LightingManager::SetDirectionalLightResolution(2048);
-	LightingManager::SetStableFit(true);
-	LightingManager::SetSeamFixRatio(0.05f);
-	LightingManager::SetMaxShadowDistance(500);
-	LightingManager::SetVSMMaxVariance(0.001f);
-	LightingManager::SetEVSMExponent(80.0f);
-	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
+	Engine* engine = new Engine();
 	engine->Start();
 
 #pragma region Preparations
 	World* world = engine->GetWorld();
 	WorldTime* time = world->Time();
-	bool enableSCTreeSystem = false;
-
-	Camera* mainCamera = new Camera(1600, 900, 0.1f, 500.0f);
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 
-	auto cameraEntity = EntityManager::CreateEntity(archetype);
-	CameraComponent* cameraComponent = new CameraComponent();
-	cameraComponent->Value = mainCamera;
-	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
-
-	engine->SetMainCamera(cameraEntity);
-
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
-	ccs->SetSensitivity(0.1f);
-	ccs->SetVelocity(20.0f);
 	ccs->Enable();
-	ccs->SetTargetCamera(cameraEntity);
-	ccs->EnableWindowControl(true);
+	ccs->SetTargetCamera(engine->GetMainCameraEntity());
 	ccs->SetPosition(glm::vec3(-40, 25, 3));
 
 	InitGround();
@@ -47,9 +27,8 @@ int main()
 	bool loopable = true;
 
 	while (loopable) {
-		loopable = engine->LoopStart();
-		
-		loopable = engine->Loop();
+		engine->LoopStart();
+		engine->Loop();
 		loopable = engine->LoopEnd();
 	}
 	engine->End();

@@ -1,8 +1,9 @@
 #include "StarClusterSystem.h"
 
-void Galaxy::StarClusterSystem::SetCamera(Camera* camera)
+void Galaxy::StarClusterSystem::SetCameraEntity(Entity cameraEntity)
 {
-	_TargetCamera = camera;
+	_TargetCameraEntity = cameraEntity;
+	_TargetCamera = EntityManager::GetSharedComponent<CameraComponent>(cameraEntity)->Value;
 }
 
 void Galaxy::StarClusterSystem::OnCreate()

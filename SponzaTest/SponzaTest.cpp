@@ -28,7 +28,7 @@ enum TestScene {
 int main()
 {
 	
-	Engine* engine = new Engine(1600, 900);
+	Engine* engine = new Engine();
 
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetStableFit(true);
@@ -44,22 +44,14 @@ int main()
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 
-	Camera* mainCamera = new Camera(1600, 900, 0.1f, 500.0f);
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
-
-	auto cameraEntity = EntityManager::CreateEntity(archetype);
-	CameraComponent* cameraComponent = new CameraComponent();
-	cameraComponent->Value = mainCamera;
-	EntityManager::SetSharedComponent<CameraComponent>(cameraEntity, cameraComponent);
-
-	engine->SetMainCamera(cameraEntity);
 	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();
-	ccs->SetTargetCamera(cameraEntity);
+	ccs->SetTargetCamera(engine->GetMainCameraEntity());
 	ccs->EnableWindowControl(true);
 	ccs->SetPosition(glm::vec3(-40, 25, 3));
 	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype<
@@ -199,7 +191,7 @@ int main()
 	EntityManager::SetEntityQueryAllFilters<LocalToWorld>(eq, LocalToWorld());
 
 	while (loopable) {
-		loopable = engine->LoopStart();
+		engine->LoopStart();
 		LightAngleSlider();
 		SplitDisplay();
 #pragma region LightsPosition
@@ -246,7 +238,7 @@ int main()
 		dlc->lightSize = lightSize;
 
 #pragma endregion
-		loopable = engine->Loop();
+		engine->Loop();
 		loopable = engine->LoopEnd();
 	}
 	engine->End();

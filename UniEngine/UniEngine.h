@@ -7,21 +7,23 @@
 namespace UniEngine {
 	class UNIENGINE_API Engine {
 		World* _World;
-		Entity _MainCamera;
+		Entity _MainCameraEntity;
+		CameraComponent* _MainCameraComponent;
 		bool _Loopable;
 		double _RealWorldTime;
 		float _TimeStep;
-		void DrawInfoWindow();
-		void PrepareDock();
+		ThreadPool _ThreadPool;
 	public:
-		Engine(unsigned width, unsigned height, bool fullScreen = false);
+		Engine(bool fullScreen = false);
 		void GLInit();
 		void Start();
-		bool LoopStart();
-		bool Loop();
+		void LoopStart();
+		void Loop();
 		bool LoopEnd();
 		void End();
 		World* GetWorld();
-		void SetMainCamera(Entity entity);
+		Entity GetMainCameraEntity();
+		CameraComponent* GetMainCameraComponent();
+		void SetMainCamera(Entity entity, CameraComponent* cc);
 	};
 }

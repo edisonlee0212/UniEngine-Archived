@@ -264,6 +264,7 @@ namespace Galaxy {
 	class StarClusterSystem :
 		public SystemBase
 	{
+		Entity _TargetCameraEntity;
 		Camera* _TargetCamera;
 		Material* _StarMaterial;
 		std::vector<StarClusterPattern*> _Patterns;
@@ -273,7 +274,7 @@ namespace Galaxy {
 		float _Size = 0.1f;
 		float _GalaxyTime = 0.0f;
 	public:
-		void SetCamera(Camera* camera);
+		void SetCameraEntity(Entity cameraEntity);
 		void OnCreate();
 		void Update();
 		void FixedUpdate();

@@ -17,12 +17,13 @@ void APIENTRY glDebugOutput(GLenum source,
 
 using namespace UniEngine;
 
-UniEngine::Engine::Engine(unsigned width, unsigned height, bool fullScreen)
+UniEngine::Engine::Engine(bool fullScreen)
 {
 	_Loopable = false;
-	WindowManager::Init(width, height, "UniEngine", fullScreen);
+	WindowManager::Init("UniEngine", fullScreen);
 	InputManager::Init();
-	EntityManager::Init();
+	_ThreadPool.Resize(std::thread::hardware_concurrency());
+	EntityManager::Init(&_ThreadPool);
 }
 
 void UniEngine::Engine::GLInit()
@@ -38,7 +39,7 @@ void UniEngine::Engine::GLInit()
 	GLCore::Init();
 
 	// enable OpenGL debug context if context allows for debug context
-	
+
 	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
 	{
@@ -48,43 +49,48 @@ void UniEngine::Engine::GLInit()
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	}
 
-	
+
 }
 
 void UniEngine::Engine::Start()
 {
 	_TimeStep = 0.1f;
 	GLInit();
-	
-	Camera::GenerateMatrices();
-
-	
-	_World = new World(0);
+	_World = new World(0, &_ThreadPool);
 	EntityManager::SetWorld(_World);
-
 	_World->Init();
-	
+#pragma region Main Camera
+	Camera::GenerateMatrices();
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
+	_MainCameraEntity = EntityManager::CreateEntity(archetype);
+	Translation pos;
+	pos.value = glm::vec3(0.0f, 5.0f, 10.0f);
+	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
+	_MainCameraComponent = new CameraComponent();
+	_MainCameraComponent->Value = new Camera(1600, 900, 0.1f, 500.0f);;
+	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
+	SetMainCamera(_MainCameraEntity, _MainCameraComponent);
+#pragma endregion
+#pragma region Internal Systems
 	//Initialization System Group
 	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
 	_World->CreateSystem<ParentSystem>(SystemGroup::PreparationSystemGroup);
 
 	//Simulation System Group
 	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
-	
+
 
 	//Presentation System Group
 	_World->CreateSystem<RenderSystem>(SystemGroup::PresentationSystemGroup);
-	
-	Default::Load(_World);
-	LightingManager::Init();
-	_Loopable = true;
 
+#pragma endregion
+#pragma region ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-	
+
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -94,140 +100,28 @@ void UniEngine::Engine::Start()
 	}
 	ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460 core");
+#pragma endregion
+	Default::Load(_World);
+	LightingManager::Init();
+	_Loopable = true;
+
+
 }
 
-bool UniEngine::Engine::LoopStart()
+void UniEngine::Engine::LoopStart()
 {
-	if (!_Loopable ) {
-		return false;
+	if (!_Loopable) {
+		return;
 	}
 	glfwPollEvents();
 	_RealWorldTime = glfwGetTime();
 	_World->SetWorldTime(_RealWorldTime);
+#pragma region ImGui
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-	PrepareDock();
-	WindowManager::Start();
-	RenderManager::Start();
-	LightingManager::Start();
-	return true;
-}
-
-bool UniEngine::Engine::Loop()
-{
-	if (!_Loopable) {
-		return false;
-	}
-
-	_World->Update();
-	
-	return true;
-}
-
-bool UniEngine::Engine::LoopEnd()
-{
-	if (!_Loopable) {
-		return false;
-	}
-	
-
-
-
-
-
-	auto cameras = EntityManager::QuerySharedComponents<CameraComponent>();
-	for (auto cc : *cameras) {
-
-		ImGui::Begin("GameWindow");
-		{
-			// Using a Child allow to fill all the space of the window.
-			// It also alows customization
-			ImGui::BeginChild("GameRender");
-			// Get the size of the child (i.e. the whole draw size of the windows).
-			ImVec2 wsize = ImGui::GetWindowSize();
-			// Because I use the texture from OpenGL, I need to invert the V from the UV.
-			ImGui::Image((ImTextureID)cc->Value->GetTexture()->ID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::EndChild();
-		}
-		ImGui::End();
-	}
-
-	InputManager::Update();
-	DrawInfoWindow();
-	
-	RenderTarget::BindDefault();
-	ImGui::Render();
-	int display_w, display_h;
-	glfwGetFramebufferSize(WindowManager::GetWindow(), &display_w, &display_h);
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-	// Update and Render additional Platform Windows
-	// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-	//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		GLFWwindow* backup_current_context = glfwGetCurrentContext();
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-		glfwMakeContextCurrent(backup_current_context);
-	}
-
-	WindowManager::Update();
-	return true;
-}
-
-void UniEngine::Engine::End()
-{
-	delete _World;
-	glfwTerminate();
-}
-
-World* UniEngine::Engine::GetWorld()
-{
-	return _World;
-}
-
-void UniEngine::Engine::SetMainCamera(Entity entity)
-{
-	_MainCamera = entity;
-	LightingManager::SetMainCamera(entity);
-}
-
-void UniEngine::Engine::DrawInfoWindow() {
-	ImGui::Begin("World Info");
-	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-	int tris = RenderManager::Triangles();
-	std::string trisstr = "";
-	if (tris < 999) {
-		trisstr += std::to_string(tris);
-	}
-	else if (tris < 999999) {
-		trisstr += std::to_string((int)(tris / 1000)) + "K";
-	}
-	else {
-		trisstr += std::to_string((int)(tris / 1000000)) + "M";
-	}
-	trisstr += " tris";
-	ImGui::Text(trisstr.c_str());
-
-	ImGui::Text("%d drawcall", RenderManager::DrawCall());
-
-	ImGui::End();
-
-	ImGui::Begin("Logs");
-	int size = Debug::mLogMessages.size();
-	std::string logs = "";
-	for (int i = size - 1; i >= 0; i--) {
-		if (i < size - 50) break;
-		logs += *Debug::mLogMessages[i];
-	}
-	ImGui::Text(logs.c_str());
-	ImGui::End();
-}
-
-void UniEngine::Engine::PrepareDock()
-{
+#pragma endregion	
+#pragma region Dock & Main Menu
 	static bool opt_fullscreen_persistant = true;
 	bool opt_fullscreen = opt_fullscreen_persistant;
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
@@ -296,8 +190,126 @@ void UniEngine::Engine::PrepareDock()
 	}
 
 	ImGui::End();
+#pragma endregion
+	WindowManager::Start();
+	RenderManager::Start();
+	LightingManager::Start();
+	return;
 }
 
+void UniEngine::Engine::Loop()
+{
+	if (!_Loopable) {
+		return;
+	}
+
+	_World->Update();
+
+	return;
+}
+
+bool UniEngine::Engine::LoopEnd()
+{
+	_Loopable = !glfwWindowShouldClose(WindowManager::GetWindow());
+	if (!_Loopable) {
+		return false;
+	}
+	InputManager::Update();
+#pragma region Main Camera Window
+	ImGui::Begin("MainCamera");
+	{
+		// Using a Child allow to fill all the space of the window.
+		// It also alows customization
+		ImGui::BeginChild("CameraRender");
+		// Get the size of the child (i.e. the whole draw size of the windows).
+		ImVec2 wsize = ImGui::GetWindowSize();
+		// Because I use the texture from OpenGL, I need to invert the V from the UV.
+		ImGui::Image((ImTextureID)_MainCameraComponent->Value->GetTexture()->ID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::EndChild();
+	}
+	ImGui::End();
+#pragma endregion
+#pragma region DrawInfos
+	ImGui::Begin("World Info");
+	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+	int tris = RenderManager::Triangles();
+	std::string trisstr = "";
+	if (tris < 999) {
+		trisstr += std::to_string(tris);
+	}
+	else if (tris < 999999) {
+		trisstr += std::to_string((int)(tris / 1000)) + "K";
+	}
+	else {
+		trisstr += std::to_string((int)(tris / 1000000)) + "M";
+	}
+	trisstr += " tris";
+	ImGui::Text(trisstr.c_str());
+
+	ImGui::Text("%d drawcall", RenderManager::DrawCall());
+
+	ImGui::End();
+
+	ImGui::Begin("Logs");
+	int size = Debug::mLogMessages.size();
+	std::string logs = "";
+	for (int i = size - 1; i >= 0; i--) {
+		if (i < size - 50) break;
+		logs += *Debug::mLogMessages[i];
+	}
+	ImGui::Text(logs.c_str());
+	ImGui::End();
+#pragma endregion
+#pragma region ImGui
+	RenderTarget::BindDefault();
+	ImGui::Render();
+	int display_w, display_h;
+	glfwGetFramebufferSize(WindowManager::GetWindow(), &display_w, &display_h);
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	// Update and Render additional Platform Windows
+	// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+	//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		glfwMakeContextCurrent(backup_current_context);
+	}
+#pragma endregion
+	//Swap Window's framebuffer
+	WindowManager::Update();
+	return _Loopable;
+}
+
+void UniEngine::Engine::End()
+{
+	delete _World;
+	glfwTerminate();
+}
+
+World* UniEngine::Engine::GetWorld()
+{
+	return _World;
+}
+
+Entity UniEngine::Engine::GetMainCameraEntity()
+{
+	return _MainCameraEntity;
+}
+
+CameraComponent* UniEngine::Engine::GetMainCameraComponent()
+{
+	return _MainCameraComponent;
+}
+
+void UniEngine::Engine::SetMainCamera(Entity entity, CameraComponent* cc)
+{
+	_MainCameraEntity = entity;
+	_MainCameraComponent = cc;
+	LightingManager::SetMainCamera(entity);
+}
 
 #pragma region OpenGL Debugging
 GLenum glCheckError_(const char* file, int line)
