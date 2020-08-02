@@ -7,7 +7,6 @@ namespace UniEngine {
         GLShader* _VertexShader;
         GLShader* _FragmentShader;
         GLShader* _GeometryShader;
-        static GLuint _CurrentBinding;
     public:
         void Bind() const;
         static void BindDefault();

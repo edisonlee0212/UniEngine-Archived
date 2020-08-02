@@ -3,7 +3,6 @@
 namespace UniEngine {
 	class CORE_API GLRenderBuffer : public GLObject
 	{
-		static GLuint _CurrentBinding;
 	public:
 		void Bind();
 		static void BindDefault();

@@ -1,20 +1,15 @@
 #include "pch.h"
 #include "GLFrameBuffer.h"
 
-GLuint UniEngine::GLFrameBuffer::_CurrentBinding = 0;
 
 inline void UniEngine::GLFrameBuffer::Bind()
 {
-	if (_CurrentBinding == _ID) return;
 	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
-	_CurrentBinding = _ID;
 }
 
 inline void UniEngine::GLFrameBuffer::BindDefault()
 {
-	if (_CurrentBinding == 0) return;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	_CurrentBinding = 0;
 }
 
 inline UniEngine::GLFrameBuffer::GLFrameBuffer()

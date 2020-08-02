@@ -163,7 +163,7 @@ void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 			EntityManager::SetComponentData<Translation>(_TreeEntity, pos);
 			EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
 			RemoveEnvelope();
-			//_LightEstimator->TakeSnapShot(_Tree, 5.0f, true);
+			_LightEstimator->TakeSnapShot(_Tree, 5.0f, true);
 		}
 	}
 }

@@ -1,20 +1,15 @@
 ﻿#include "pch.h"
 #include "GLRenderBuffer.h"
 
-GLuint UniEngine::GLRenderBuffer::_CurrentBinding = 0;
 
 inline void UniEngine::GLRenderBuffer::Bind()
 {
-	if (_CurrentBinding == _ID) return;
 	glBindRenderbuffer(GL_RENDERBUFFER, _ID);
-	_CurrentBinding = _ID;
 }
 
 inline void UniEngine::GLRenderBuffer::BindDefault()
 {
-	if (_CurrentBinding == 0) return;
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	_CurrentBinding = 0;
 }
 
 inline UniEngine::GLRenderBuffer::GLRenderBuffer()

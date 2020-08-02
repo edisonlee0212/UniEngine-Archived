@@ -70,6 +70,7 @@ void SpaceColonizationTree::LightEstimator::TakeSnapShot(Tree* tree, float shotW
     for (auto ss : _SnapShots) {
 		auto texture = ss->SnapShotTexture();
 		_RenderTarget->AttachTexture(texture, GL_COLOR_ATTACHMENT0);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		_RenderTarget->Bind();
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -99,6 +100,7 @@ void SpaceColonizationTree::LightEstimator::TakeSnapShot(Tree* tree, float shotW
 			glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 		}
     }
+	RenderTarget::BindDefault();
 	if (calculateScore) {
 		_LightEstimationScore = CalculateScore();
 		Debug::Log("Light Estimation Result:" + std::to_string(_LightEstimationScore));
