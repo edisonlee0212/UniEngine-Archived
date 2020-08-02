@@ -3,12 +3,6 @@
 #include "Core.h"
 #include "Entities.h"
 
-#ifdef UNIENGINE_EXPORTS
-#define IMGUI_API __declspec(dllexport)
-#else
-#define IMGUI_API __declspec(dllimport)
-#endif
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
