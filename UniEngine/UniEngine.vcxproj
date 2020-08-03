@@ -79,17 +79,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\ImGUI\examples;..\ImGUI;..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\glad\src;$(VC_SourcePath)</SourcePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;..\Entities;..\Core;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
-    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\ImGUI\examples;..\ImGUI;..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\glad\src;$(VC_SourcePath)</SourcePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;..\Entities;..\Core;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
-    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -129,17 +125,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>IMGUI_API=__declspec(dllexport);GLAD_GLAPI_EXPORT;_DEBUG;UNIENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IMGUI_API=__declspec( dllexport );GLAD_GLAPI_EXPORT;_DEBUG;UNIENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../Core;../Entities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;Core.lib;Entities.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Core\$(IntDir);..\Entities\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -154,11 +149,10 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>IMGUI_API=__declspec(dllexport);GLAD_GLAPI_EXPORT;NDEBUG;UNIENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IMGUI_API=__declspec( dllexport );GLAD_GLAPI_EXPORT;NDEBUG;UNIENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../Core;../Entities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -166,7 +160,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;Core.lib;Entities.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Core\$(IntDir);..\Entities\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -176,15 +170,15 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\ImGUI\examples\imgui_impl_glfw.h" />
-    <ClInclude Include="..\ImGUI\examples\imgui_impl_opengl3.h" />
-    <ClInclude Include="..\ImGUI\examples\imgui_impl_win32.h" />
-    <ClInclude Include="..\ImGUI\imconfig.h" />
-    <ClInclude Include="..\ImGUI\imgui.h" />
-    <ClInclude Include="..\ImGUI\imgui_internal.h" />
-    <ClInclude Include="..\ImGUI\imstb_rectpack.h" />
-    <ClInclude Include="..\ImGUI\imstb_textedit.h" />
-    <ClInclude Include="..\ImGUI\imstb_truetype.h" />
+    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_glfw.h" />
+    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_win32.h" />
+    <ClInclude Include="..\Submodules\ImGui\imconfig.h" />
+    <ClInclude Include="..\Submodules\ImGui\imgui.h" />
+    <ClInclude Include="..\Submodules\ImGui\imgui_internal.h" />
+    <ClInclude Include="..\Submodules\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="..\Submodules\ImGui\imstb_textedit.h" />
+    <ClInclude Include="..\Submodules\ImGui\imstb_truetype.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CameraControlSystem.h" />
@@ -219,60 +213,60 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ImGUI\examples\imgui_impl_glfw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeaderFile>
+    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_glfw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\examples\imgui_impl_opengl3.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeaderFile>
+    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_opengl3.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\examples\imgui_impl_win32.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeaderFile>
+    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_win32.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\imgui.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeaderFile>
+    <ClCompile Include="..\Submodules\ImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\imgui_demo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeaderFile>
+    <ClCompile Include="..\Submodules\ImGui\imgui_demo.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\imgui_draw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeaderFile>
+    <ClCompile Include="..\Submodules\ImGui\imgui_draw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\imgui_widgets.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeaderFile>
+    <ClCompile Include="..\Submodules\ImGui\imgui_widgets.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="Camera.cpp" />
@@ -314,8 +308,14 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core\Core.vcxproj">
+      <Project>{105d0cec-d794-48fc-aed7-b4c911a6ff4e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Entities\Entities.vcxproj">
       <Project>{6eefcfb9-6499-4a25-8b47-497ad00822bd}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GLFW\src\glfw.vcxproj">
+      <Project>{e4e5c984-8217-3d31-9dfe-84e10ba3d812}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

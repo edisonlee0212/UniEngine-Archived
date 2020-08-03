@@ -79,16 +79,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>$(VC_SourcePath);..\includes\glad\src</SourcePath>
-    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>..\includes\glad\include;..\includes\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>$(VC_SourcePath);..\includes\glad\src</SourcePath>
-    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>..\includes\glad\include;..\includes\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -137,7 +133,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -158,7 +154,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

@@ -1,6 +1,7 @@
 #pragma once
 #include "UniEngineAPI.h"
 #include "Texture2D.h"
+
 namespace UniEngine {
 	class UNIENGINE_API WindowManager : public ManagerBase
 	{

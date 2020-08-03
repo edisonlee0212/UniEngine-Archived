@@ -33,7 +33,6 @@
 #include <exception>
 #include <future>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm.hpp>
 #include <gtc/quaternion.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -41,5 +40,4 @@
 #include <gtx/closest_point.hpp>
 #include <gtc/type_ptr.hpp>
 #include <gtc/random.hpp>
-
 #endif //PCH_H

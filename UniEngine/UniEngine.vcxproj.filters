@@ -174,31 +174,31 @@
     <ClInclude Include="CameraControlSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\imgui.h">
+    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_opengl3.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\imgui_internal.h">
+    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_win32.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\imstb_rectpack.h">
+    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_glfw.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\imstb_textedit.h">
+    <ClInclude Include="..\Submodules\ImGui\imgui.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\imstb_truetype.h">
+    <ClInclude Include="..\Submodules\ImGui\imgui_internal.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\imconfig.h">
+    <ClInclude Include="..\Submodules\ImGui\imstb_rectpack.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\examples\imgui_impl_opengl3.h">
+    <ClInclude Include="..\Submodules\ImGui\imstb_textedit.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\examples\imgui_impl_win32.h">
+    <ClInclude Include="..\Submodules\ImGui\imstb_truetype.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\ImGUI\examples\imgui_impl_glfw.h">
+    <ClInclude Include="..\Submodules\ImGui\imconfig.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
   </ItemGroup>
@@ -299,25 +299,25 @@
     <ClCompile Include="CameraControlSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\examples\imgui_impl_glfw.cpp">
+    <ClCompile Include="..\Submodules\ImGui\imgui_widgets.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\examples\imgui_impl_opengl3.cpp">
+    <ClCompile Include="..\Submodules\ImGui\imgui.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\examples\imgui_impl_win32.cpp">
+    <ClCompile Include="..\Submodules\ImGui\imgui_demo.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\imgui_draw.cpp">
+    <ClCompile Include="..\Submodules\ImGui\imgui_draw.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\imgui_widgets.cpp">
+    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_glfw.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\imgui.cpp">
+    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_opengl3.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="..\ImGUI\imgui_demo.cpp">
+    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_win32.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
   </ItemGroup>

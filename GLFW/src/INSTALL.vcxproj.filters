@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\lllll\Documents\GitHub\UniEngine\GLFW\CMakeFiles\cbfc362c48b7d785fc0c9d50b8781c2b\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{7ACC7AE8-897A-3665-B0E2-1E32E50E72B1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -78,15 +78,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\ImGUI\examples;..\ImGUI;..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\glad\src;$(VC_SourcePath)</SourcePath>
-    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\includes\glm;..\includes\stb;..\Core;..\UniEngine;..\Entities;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\ImGUI\examples;..\ImGUI;..\includes\glad\include;..\includes\Assimp\include;..\includes\GLFW\include;..\includes\glm;..\includes\stb;$(IncludePath)</IncludePath>
-    <SourcePath>..\includes\glad\src;$(VC_SourcePath)</SourcePath>
-    <LibraryPath>$(SolutionDir)includes\GLFW\x64\Release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\includes\glm;..\includes\stb;..\Core;..\UniEngine;..\Entities;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,13 +118,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLAD_GLAPI_EXPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Core;../UniEngine;../Entities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;UniEngine.lib;Entities.lib;Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Core\$(IntDir);..\UniEngine\$(IntDir);..\Entities\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -146,7 +141,6 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLAD_GLAPI_EXPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Core;../UniEngine;../Entities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -154,7 +148,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;UniEngine.lib;Entities.lib;Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Core\$(IntDir);..\UniEngine\$(IntDir);..\Entities\$(IntDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -194,6 +188,12 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="Tree.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core\Core.vcxproj">
+      <Project>{105d0cec-d794-48fc-aed7-b4c911a6ff4e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Entities\Entities.vcxproj">
+      <Project>{6eefcfb9-6499-4a25-8b47-497ad00822bd}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\UniEngine\UniEngine.vcxproj">
       <Project>{324d4482-9924-4f0b-aba0-e6e9ba51b02f}</Project>
     </ProjectReference>

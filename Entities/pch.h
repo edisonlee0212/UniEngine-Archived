@@ -33,7 +33,6 @@
 #include <exception>
 #include <future>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm.hpp>
 #include <gtc/quaternion.hpp>
 #include <gtc/matrix_transform.hpp>
