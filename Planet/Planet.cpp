@@ -9,11 +9,10 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
-	Engine* engine = new Engine();
-	engine->Start();
+	Engine::Init();
 
 #pragma region Preparations
-	World* world = engine->GetWorld();
+	World* world = Engine::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 
@@ -24,12 +23,10 @@ int main()
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
-	ccs->SetTargetCamera(engine->GetMainCameraEntity());
 
 	PlanetTerrainSystem* pts = world->CreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
 	pts->Enable();
 
-	pts->SetCameraEntity(engine->GetMainCameraEntity());
 	PlanetInfo pi;
 	pi.Position = glm::dvec3(0.0f, 0.0f, 0.0f);
 	pi.Rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
@@ -107,7 +104,7 @@ int main()
 	//RenderSystem::SetWireFrameMode(true);
 	bool wireFrame = false;
 	while (loopable) {
-		engine->LoopStart();
+		Engine::PreUpdate();
 		static bool show = true;
 #pragma region LightsPosition
 		Translation p;
@@ -126,10 +123,10 @@ int main()
 			RenderSystem::SetWireFrameMode(wireFrame);
 		}
 		ImGui::End();
-		engine->Loop();
-		loopable = engine->LoopEnd();
+		Engine::Update();
+		loopable = Engine::LateUpdate();
 	}
-	engine->End();
+	Engine::End();
 #pragma endregion
 	return 0;
 }

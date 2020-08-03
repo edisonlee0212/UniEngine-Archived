@@ -30,11 +30,6 @@ void Planet::PlanetTerrainSystem::GenerateTerrain(PlanetTerrain* planetTerrain, 
 	targetChunk->_Mesh = mesh;
 }
 
-void Planet::PlanetTerrainSystem::SetCameraEntity(Entity targetEntity)
-{
-	_TargetCameraEntity = targetEntity;
-}
-
 void Planet::PlanetTerrainSystem::SetMaxMeshAmount(unsigned amount)
 {
 	_MaxRecycledMeshAmount = amount;
@@ -66,7 +61,7 @@ void Planet::PlanetTerrainSystem::OnCreate()
 
 void Planet::PlanetTerrainSystem::Update()
 {
-	auto camera = EntityManager::GetSharedComponent<CameraComponent>(_TargetCameraEntity)->Value;
+	auto camera = EntityManager::GetSharedComponent<CameraComponent>(Engine::GetMainCameraEntity())->Value;
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetChunks = _PlanetTerrainList[i]->_ChunkList;
 		auto planetInfo = _PlanetTerrainList[i]->_Info;
@@ -77,7 +72,7 @@ void Planet::PlanetTerrainSystem::Update()
 	}
 
 
-	Translation cameraPos = EntityManager::GetComponentData<Translation>(_TargetCameraEntity);
+	Translation cameraPos = EntityManager::GetComponentData<Translation>(Engine::GetMainCameraEntity());
 
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetTerrain = _PlanetTerrainList[i];

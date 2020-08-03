@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "LightingManager.h"
 #include "MeshMaterialComponent.h"
+#include "UniEngine.h"
 using namespace UniEngine;
 
 #pragma region DirectionalMap
@@ -23,13 +24,6 @@ float LightingManager::_MaxShadowDistance = 500;
 unsigned LightingManager::_DirectionalShadowMapResolution = 1024;
 bool LightingManager::_StableFit = true;
 #pragma endregion
-
-
-
-
-
-CameraComponent* LightingManager::_TargetMainCamera;
-Entity LightingManager::_TargetMainCameraEntity;
 
 
 GLUBO* LightingManager::_PointLightBlock;
@@ -172,9 +166,9 @@ void UniEngine::LightingManager::Init()
 
 void UniEngine::LightingManager::Start()
 {
-	Camera* camera = _TargetMainCamera->Value;
-	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(_TargetMainCameraEntity).value;
-	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(_TargetMainCameraEntity).value;
+	Camera* camera = Engine::GetMainCameraComponent()->Value;
+	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Engine::GetMainCameraEntity()).value;
+	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(Engine::GetMainCameraEntity()).value;
 	auto worldBound = _World->GetBound();
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;
@@ -580,10 +574,4 @@ glm::vec3 UniEngine::LightingManager::ClosestPointOnLine(glm::vec3 point, glm::v
 	// Project Vector to LineDirection to get the distance of point from a
 	float Distance = dot(Vector, LineDirection);
 	return a + LineDirection * Distance;
-}
-
-void UniEngine::LightingManager::SetMainCamera(Entity entity)
-{
-	_TargetMainCameraEntity = entity;
-	_TargetMainCamera = EntityManager::GetSharedComponent<CameraComponent>(entity);
 }

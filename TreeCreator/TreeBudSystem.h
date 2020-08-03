@@ -9,19 +9,16 @@ namespace TreeCreator {
     struct Position : ComponentBase {
         glm::vec3 Value;
     };
-
     struct Direction : ComponentBase
     {
         glm::vec3 Value;
     };
 #pragma endregion
-
 #pragma region Leaf
     struct LeafIndex : ComponentBase {
         unsigned Value;
     };
 #pragma endregion
-
 #pragma region Bud
     struct Radius : ComponentBase
     {
@@ -49,20 +46,17 @@ namespace TreeCreator {
         float Value;
     };
 #pragma endregion
-
 #pragma region Tree
     struct TreeIndex : ComponentBase {
         unsigned Value;
     };
 #pragma endregion
-
     struct TreeBud {
         Entity entity;
         Entity parent;
         std::vector<Entity> children;
         std::vector<Entity> leaves;
     };
-
     struct Tree {
         Entity _TreeEntity;
         Entity _BudRoot;
@@ -71,12 +65,23 @@ namespace TreeCreator {
     class TreeBudSystem :
         public SystemBase
     {
-        Tree _Tree;
         bool _DrawLeaves;
+        EntityArchetype _BudArchetype;
+        EntityArchetype _LeafArchetype;
+        EntityArchetype _TreeArchetype;
+        EntityQuery _BudQuery;
+        EntityQuery _LeafQuery;
+        EntityQuery _TreeQuery;
     public:
         void OnCreate();
         void OnDestroy();
         void Update();
         void FixedUpdate();
+        EntityArchetype GetBudArchetype();
+        EntityArchetype GetLeafArchetype();
+        EntityArchetype GetTreeArchetype();
+        EntityQuery GetBudQuery();
+        EntityQuery GetTreeQuery();
+        EntityQuery GetLeafQuery();
     };
 }

@@ -17,44 +17,24 @@ void APIENTRY glDebugOutput(GLenum source,
 
 using namespace UniEngine;
 
-UniEngine::Engine::Engine(bool fullScreen)
+World* Engine::_World = nullptr;
+Entity Engine::_MainCameraEntity;
+CameraComponent* Engine::_MainCameraComponent = nullptr;
+bool Engine::_Loopable = false;
+bool Engine::_Running = false;
+double Engine::_RealWorldTime;
+float Engine::_TimeStep = 0.016f;
+ThreadPool Engine::_ThreadPool;
+
+void UniEngine::Engine::Init(bool fullScreen)
 {
 	_Loopable = false;
 	WindowManager::Init("UniEngine", fullScreen);
 	InputManager::Init();
 	_ThreadPool.Resize(std::thread::hardware_concurrency());
 	EntityManager::Init(&_ThreadPool);
-}
-
-void UniEngine::Engine::GLInit()
-{
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		Debug::Error("Failed to initialize GLAD");
-		exit(-1);
-	}
-
-	GLCore::Init();
-
-	// enable OpenGL debug context if context allows for debug context
-
-	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-	{
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
-		glDebugMessageCallback(glDebugOutput, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	}
 
 
-}
-
-void UniEngine::Engine::Start()
-{
-	_TimeStep = 0.1f;
 	GLInit();
 	_World = new World(0, &_ThreadPool);
 	EntityManager::SetWorld(_World);
@@ -69,7 +49,6 @@ void UniEngine::Engine::Start()
 	_MainCameraComponent = new CameraComponent();
 	_MainCameraComponent->Value = new Camera(1600, 900, 0.1f, 500.0f);;
 	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
-	SetMainCamera(_MainCameraEntity, _MainCameraComponent);
 #pragma endregion
 #pragma region Internal Systems
 	//Initialization System Group
@@ -105,10 +84,62 @@ void UniEngine::Engine::Start()
 	LightingManager::Init();
 	_Loopable = true;
 
+}
+
+void UniEngine::Engine::PreUpdate()
+{
+	if (_Running) {
+		Debug::Error("Engine already running!");
+		return;
+	}
+	LoopStart_Internal();
+}
+
+void UniEngine::Engine::Update()
+{
+	if (_Running) {
+		Debug::Error("Engine already running!");
+		return;
+	}
+	LoopMain_Internal();
+}
+
+bool UniEngine::Engine::LateUpdate()
+{
+	if (_Running) {
+		Debug::Error("Engine already running!");
+		return false;
+	}
+	return LoopEnd_Internal();
+}
+
+void UniEngine::Engine::GLInit()
+{
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		Debug::Error("Failed to initialize GLAD");
+		exit(-1);
+	}
+
+	GLCore::Init();
+
+	// enable OpenGL debug context if context allows for debug context
+
+	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+	{
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
+		glDebugMessageCallback(glDebugOutput, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	}
+
 
 }
 
-void UniEngine::Engine::LoopStart()
+void UniEngine::Engine::LoopStart_Internal()
 {
 	if (!_Loopable) {
 		return;
@@ -197,18 +228,17 @@ void UniEngine::Engine::LoopStart()
 	return;
 }
 
-void UniEngine::Engine::Loop()
+void UniEngine::Engine::LoopMain_Internal()
 {
 	if (!_Loopable) {
 		return;
 	}
-
 	_World->Update();
 
 	return;
 }
 
-bool UniEngine::Engine::LoopEnd()
+bool UniEngine::Engine::LoopEnd_Internal()
 {
 	_Loopable = !glfwWindowShouldClose(WindowManager::GetWindow());
 	if (!_Loopable) {
@@ -289,6 +319,17 @@ void UniEngine::Engine::End()
 	glfwTerminate();
 }
 
+void UniEngine::Engine::Run()
+{
+	_Running = true;
+	while (_Loopable) {
+		LoopStart_Internal();
+		LoopMain_Internal();
+		_Loopable = LoopEnd_Internal();
+	}
+	_Running = false;
+}
+
 World* UniEngine::Engine::GetWorld()
 {
 	return _World;
@@ -302,13 +343,6 @@ Entity UniEngine::Engine::GetMainCameraEntity()
 CameraComponent* UniEngine::Engine::GetMainCameraComponent()
 {
 	return _MainCameraComponent;
-}
-
-void UniEngine::Engine::SetMainCamera(Entity entity, CameraComponent* cc)
-{
-	_MainCameraEntity = entity;
-	_MainCameraComponent = cc;
-	LightingManager::SetMainCamera(entity);
 }
 
 #pragma region OpenGL Debugging

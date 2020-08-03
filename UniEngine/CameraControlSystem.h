@@ -6,9 +6,6 @@ namespace UniEngine {
     class UNIENGINE_API CameraControlSystem :
         public SystemBase
     {
-		Entity _TargetCameraEntity;
-		CameraComponent* _TargetCameraComponent;
-		Camera* _TargetCamera;
 		float _Velocity = 20.0f;
 		float _Sensitivity = 0.1f;
 		bool _EnableWindowControl = false;
@@ -22,7 +19,6 @@ namespace UniEngine {
 	public:
 		void Update();
 		void EnableWindowControl(bool value);
-		void SetTargetCamera(Entity targetCameraEntity);
 		void SetPosition(glm::vec3 position);
 		void SetVelocity(float velocity);
 		void SetSensitivity(float sensitivity);

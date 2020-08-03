@@ -21,26 +21,19 @@ float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
 int main()
 {
-
-	Engine* engine = new Engine();
-	engine->Start();
+	Engine::Init();
 	
 #pragma region Preparations
-	World* world = engine->GetWorld();
+	World* world = Engine::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>(SystemGroup::SimulationSystemGroup);
 	ts->Enable();
 
-	
-
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
-	ccs->SetTargetCamera(engine->GetMainCameraEntity());
-	
-	
 #pragma endregion
 	
 #pragma region Lights
@@ -49,8 +42,6 @@ int main()
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.value = glm::vec3(0.5f);
-
-	
 
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
 	cylinder->_Mesh = Default::Primitives::Cylinder;
@@ -87,10 +78,7 @@ int main()
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, plmmc);
 
 #pragma endregion
-
 	InitGround();
-	
-
 
 	EntityArchetype archetype1 = EntityManager::CreateEntityArchetype<Translation, Scale, LocalToWorld>(Translation(), Scale(), LocalToWorld());
 	EntityArchetype archetype2 = EntityManager::CreateEntityArchetype<Translation, LocalToWorld>(Translation(), LocalToWorld());
@@ -110,7 +98,7 @@ int main()
 
 
 	while (loopable) {
-		engine->LoopStart();
+		Engine::PreUpdate();
 
 		LightAngleSlider();
 		SplitDisplay();
@@ -152,10 +140,10 @@ int main()
 		ImGui::End();
 		dlc->lightSize = lightSize;
 #pragma endregion
-		engine->Loop();
-		loopable = engine->LoopEnd();
+		Engine::Update();
+		loopable = Engine::LateUpdate();
 	}
-	engine->End();
+	Engine::End();
 #pragma endregion
 	return 0;
 }

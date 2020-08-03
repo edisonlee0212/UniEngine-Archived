@@ -7,31 +7,22 @@ using namespace UniEngine;
 void InitGround();
 int main()
 {
-	Engine* engine = new Engine();
-	engine->Start();
-
+	Engine::Init();
 #pragma region Preparations
-	World* world = engine->GetWorld();
+	World* world = Engine::GetWorld();
 	WorldTime* time = world->Time();
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
-
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
-	ccs->SetTargetCamera(engine->GetMainCameraEntity());
 	ccs->SetPosition(glm::vec3(-40, 25, 3));
-
 	InitGround();
-
+#pragma endregion
 #pragma region EngineLoop
 	bool loopable = true;
 
-	while (loopable) {
-		engine->LoopStart();
-		engine->Loop();
-		loopable = engine->LoopEnd();
-	}
-	engine->End();
+	Engine::Run();
+	Engine::End();
 #pragma endregion
 	return 0;
 }

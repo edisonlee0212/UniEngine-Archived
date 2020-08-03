@@ -34,8 +34,6 @@ namespace UniEngine {
 	class UNIENGINE_API LightingManager :
 		public ManagerBase
 	{
-		static CameraComponent* _TargetMainCamera;
-		static Entity _TargetMainCameraEntity;
 		static GLUBO* _DirectionalLightBlock;
 		static GLUBO* _PointLightBlock;
 		static GLUBO* _SpotLightBlock;
@@ -85,7 +83,5 @@ namespace UniEngine {
 		static void SetEVSMExponent(float value);
 		static void SetAmbientLight(float value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
-
-		static void SetMainCamera(Entity entity);
 	};
 }

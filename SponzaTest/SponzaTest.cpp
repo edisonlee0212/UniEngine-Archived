@@ -27,9 +27,6 @@ enum TestScene {
 };
 int main()
 {
-	
-	Engine* engine = new Engine();
-
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
@@ -37,10 +34,10 @@ int main()
 	LightingManager::SetVSMMaxVariance(0.001f);
 	LightingManager::SetEVSMExponent(80.0f);
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
-	engine->Start();
+	Engine::Init();
 
 #pragma region Preparations
-	World* world = engine->GetWorld();
+	World* world = Engine::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 
@@ -51,7 +48,6 @@ int main()
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();
-	ccs->SetTargetCamera(engine->GetMainCameraEntity());
 	ccs->EnableWindowControl(true);
 	ccs->SetPosition(glm::vec3(-40, 25, 3));
 	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype<
@@ -191,7 +187,7 @@ int main()
 	EntityManager::SetEntityQueryAllFilters<LocalToWorld>(eq, LocalToWorld());
 
 	while (loopable) {
-		engine->LoopStart();
+		Engine::Update();
 		LightAngleSlider();
 		SplitDisplay();
 #pragma region LightsPosition
@@ -238,10 +234,10 @@ int main()
 		dlc->lightSize = lightSize;
 
 #pragma endregion
-		engine->Loop();
-		loopable = engine->LoopEnd();
+		Engine::Update();
+		loopable = Engine::LateUpdate();
 	}
-	engine->End();
+	Engine::End();
 #pragma endregion
 	return 0;
 }

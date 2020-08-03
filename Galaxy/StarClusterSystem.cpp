@@ -1,11 +1,5 @@
 #include "StarClusterSystem.h"
 
-void Galaxy::StarClusterSystem::SetCameraEntity(Entity cameraEntity)
-{
-	_TargetCameraEntity = cameraEntity;
-	_TargetCamera = EntityManager::GetSharedComponent<CameraComponent>(cameraEntity)->Value;
-}
-
 void Galaxy::StarClusterSystem::OnCreate()
 {
 	_StarMaterial = new Material();
@@ -17,21 +11,15 @@ void Galaxy::StarClusterSystem::OnCreate()
 
 	auto pattern = new StarClusterPattern();
 	_StarQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters<StarSeed>(_StarQuery, StarSeed());
+	EntityManager::SetEntityQueryAllFilters(_StarQuery, StarSeed());
 	_Patterns.push_back(pattern);
-	_StarArchetype = EntityManager::CreateEntityArchetype<
-		Translation, Rotation, Scale, LocalToWorld,
-		StarClusterIndex,
-		StarIndex,
-		StarSeed, StarOrbit, StarOrbitOffset, StarOrbitProportion, StarPosition,
-		SelectionStatus, OriginalColor, SurfaceColor, DisplayColor>
-		(
-			Translation(), Rotation(), Scale(), LocalToWorld(),
-			StarClusterIndex(),
-			StarIndex(),
-			StarSeed(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),
-			SelectionStatus(), OriginalColor(), SurfaceColor(), DisplayColor()
-			);
+	_StarArchetype = EntityManager::CreateEntityArchetype(
+		Translation(), Rotation(), Scale(), LocalToWorld(),
+		StarClusterIndex(),
+		StarIndex(),
+		StarSeed(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),
+		SelectionStatus(), OriginalColor(), SurfaceColor(), DisplayColor()
+	);
 
 	//TODO: Set star pattern.
 	pattern->YSpread = 0.05;
@@ -106,7 +94,7 @@ void Galaxy::StarClusterSystem::Update()
 	//Render from last update.
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	EntityManager::GetComponentDataArray(_StarQuery, &matrices);
-	RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, _StarMaterial, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), _TargetCamera);
+	RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, _StarMaterial, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), Engine::GetMainCameraComponent()->Value);
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

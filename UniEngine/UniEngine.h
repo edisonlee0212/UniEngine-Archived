@@ -6,24 +6,27 @@
 #include "LightingManager.h"
 namespace UniEngine {
 	class UNIENGINE_API Engine {
-		World* _World;
-		Entity _MainCameraEntity;
-		CameraComponent* _MainCameraComponent;
-		bool _Loopable;
-		double _RealWorldTime;
-		float _TimeStep;
-		ThreadPool _ThreadPool;
+		static World* _World;
+		static Entity _MainCameraEntity;
+		static CameraComponent* _MainCameraComponent;
+		static bool _Loopable;
+		static double _RealWorldTime;
+		static float _TimeStep;
+		static bool _Running;
+		static ThreadPool _ThreadPool;
+		static void GLInit();
+		static void LoopStart_Internal();
+		static void LoopMain_Internal();
+		static bool LoopEnd_Internal();
 	public:
-		Engine(bool fullScreen = false);
-		void GLInit();
-		void Start();
-		void LoopStart();
-		void Loop();
-		bool LoopEnd();
-		void End();
-		World* GetWorld();
-		Entity GetMainCameraEntity();
-		CameraComponent* GetMainCameraComponent();
-		void SetMainCamera(Entity entity, CameraComponent* cc);
+		static void Init(bool fullScreen = false);
+		static void PreUpdate();
+		static void Update();
+		static bool LateUpdate();
+		static void End();
+		static void Run();
+		static World* GetWorld();
+		static Entity GetMainCameraEntity();
+		static CameraComponent* GetMainCameraComponent();
 	};
 }
