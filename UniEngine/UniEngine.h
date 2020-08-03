@@ -19,6 +19,7 @@ namespace UniEngine {
 		static void LoopMain_Internal();
 		static bool LoopEnd_Internal();
 	public:
+		static void SetTimeStep(float value);
 		static void Init(bool fullScreen = false);
 		static void PreUpdate();
 		static void Update();

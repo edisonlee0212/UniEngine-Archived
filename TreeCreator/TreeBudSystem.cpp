@@ -11,7 +11,7 @@ void TreeCreator::TreeBudSystem::OnCreate()
 	_BudArchetype = EntityManager::CreateEntityArchetype(
 		LocalTranslation(), LocalRotation(), LocalScale(), LocalToParent(), LocalToWorld(),
 		Mass(), Position(), Direction(),
-		Radius(), BudIndex(), Iteration(), Level(),
+		Radius(), BudIndex(), Iteration(), Level(), BudType(),
 		Phototropism(), Gravitropism()
 	);
 	_TreeArchetype = EntityManager::CreateEntityArchetype(
@@ -32,6 +32,8 @@ void TreeCreator::TreeBudSystem::OnCreate()
 	_BudMaterial->Textures2Ds()->push_back(pointTex);
 
 	_DrawBuds = true;
+
+	Enable();
 }
 
 void TreeCreator::TreeBudSystem::OnDestroy()
@@ -43,7 +45,7 @@ void TreeCreator::TreeBudSystem::Update()
 	if (_DrawBuds) {
 		auto pointLTWList = std::vector<LocalToWorld>();
 		EntityManager::GetComponentDataArray(_BudQuery, &pointLTWList);
-		if (pointLTWList.size() != 0)RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, _BudMaterial, glm::scale(glm::mat4(1.0f), glm::vec3(0.1f)), (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value);
+		if (pointLTWList.size() != 0)RenderManager::DrawGizmoPointInstanced(glm::vec4(0, 1, 0, 1), glm::scale(glm::mat4(1.0f), glm::vec3(0.1f)), (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value);
 	}
 }
 

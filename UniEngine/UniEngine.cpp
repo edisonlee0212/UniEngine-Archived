@@ -25,7 +25,10 @@ bool Engine::_Running = false;
 double Engine::_RealWorldTime;
 float Engine::_TimeStep = 0.016f;
 ThreadPool Engine::_ThreadPool;
-
+void UniEngine::Engine::SetTimeStep(float value) {
+	_TimeStep = value;
+	_World->SetTimeStep(value);
+}
 void UniEngine::Engine::Init(bool fullScreen)
 {
 	_Loopable = false;

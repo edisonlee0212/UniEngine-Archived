@@ -10,22 +10,24 @@ int main()
 {
 	LightingManager::SetAmbientLight(1.0f);
 	Engine::Init();
+	Engine::SetTimeStep(0.016f);
 #pragma region Preparations
 	World* world = Engine::GetWorld();
 	WorldTime* time = world->Time();
-
+	
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
 	ccs->SetPosition(glm::vec3(0, 30, 60));
-	//InitGround();
+	InitGround();
 #pragma endregion
 
 	auto treeBudSys = Engine::GetWorld()->CreateSystem<TreeBudSystem>(SystemGroup::SimulationSystemGroup);
 	auto sctSys = Engine::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
 
-	treeBudSys->Enable();
-	sctSys->Enable();
+	sctSys->ResetEnvelope(60, 20, 80);
+	sctSys->PushAttractionPoints(2000);
+	sctSys->PushGrowIterations(40);
 
 	Engine::Run();
 	Engine::End();

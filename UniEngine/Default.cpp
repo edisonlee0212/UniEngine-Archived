@@ -8,6 +8,9 @@ using namespace UniEngine;
 GLProgram* Default::GLPrograms::ScreenProgram;
 GLProgram* Default::GLPrograms::StandardProgram;
 GLProgram* Default::GLPrograms::StandardInstancedProgram;
+GLProgram* Default::GLPrograms::GizmoProgram;
+GLProgram* Default::GLPrograms::GizmoInstancedProgram;
+
 GLVAO* Default::GLPrograms::ScreenVAO;
 std::string* Default::ShaderIncludes::Uniform;
 std::string* Default::ShaderIncludes::Lights;
@@ -31,6 +34,7 @@ Material* Default::Materials::StandardInstancedMaterial;
 
 void UniEngine::Default::Load(World* world)
 {
+#pragma region Screen Shader
 	float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 		// positions   // texCoords
 		-1.0f,  1.0f,  0.0f, 1.0f,
@@ -62,7 +66,8 @@ void UniEngine::Default::Load(World* world)
 	GLPrograms::ScreenProgram->Link();
 	delete screenvert;
 	delete screenfrag;
-
+#pragma endregion
+#pragma region Shader Includes
 	std::string add =
 		"#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
 		"\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxDirectionalLightAmount) +
@@ -73,15 +78,16 @@ void UniEngine::Default::Load(World* world)
 	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString("Shaders/Include/Uniform.inc"));
 	ShaderIncludes::Shadow = new std::string(FileIO::LoadFileAsString("Shaders/Include/Shadow.frag"));
 	ShaderIncludes::Lights = new std::string(FileIO::LoadFileAsString("Shaders/Include/Lights.frag"));
-
+#pragma endregion
+#pragma region Textures
 	Textures::MissingTexture = new Texture2D(TextureType::DIFFUSE);
 	Textures::MissingTexture->LoadTexture(FileIO::GetPath("Textures/texture-missing.png"), "");
 	Textures::UV = new Texture2D(TextureType::DIFFUSE);
 	Textures::UV->LoadTexture(FileIO::GetPath("Textures/uv-test.png"), "");
 	Textures::StandardTexture = new Texture2D(TextureType::DIFFUSE);
 	Textures::StandardTexture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
-
-
+#pragma endregion
+#pragma region Standard Shader
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		+"\n"
@@ -124,6 +130,47 @@ void UniEngine::Default::Load(World* world)
 	delete standardvert;
 	delete standardfrag;
 
+#pragma endregion
+#pragma region Gizmo Shader
+	fragShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform
+		+ "\n"
+		+ FileIO::LoadFileAsString("Shaders/Fragment/Gizmo.frag");
+
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString("Shaders/Vertex/Gizmo.vert");
+
+	standardvert = new GLShader(ShaderType::Vertex);
+	standardvert->SetCode(&vertShaderCode);
+	standardfrag = new GLShader(ShaderType::Fragment);
+	standardfrag->SetCode(&fragShaderCode);
+	GLPrograms::GizmoProgram = new GLProgram();
+	GLPrograms::GizmoProgram->Attach(ShaderType::Vertex, standardvert);
+	GLPrograms::GizmoProgram->Attach(ShaderType::Fragment, standardfrag);
+	GLPrograms::GizmoProgram->Link();
+	delete standardvert;
+	delete standardfrag;
+
+
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString("Shaders/Vertex/GizmoInstanced.vert");
+
+	standardvert = new GLShader(ShaderType::Vertex);
+	standardvert->SetCode(&vertShaderCode);
+	standardfrag = new GLShader(ShaderType::Fragment);
+	standardfrag->SetCode(&fragShaderCode);
+	GLPrograms::GizmoInstancedProgram = new GLProgram();
+	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Vertex, standardvert);
+	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Fragment, standardfrag);
+	GLPrograms::GizmoInstancedProgram->Link();
+	delete standardvert;
+	delete standardfrag;
+#pragma endregion
+#pragma region Standard Material
 	Materials::StandardMaterial = new Material();
 	Materials::StandardMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	Materials::StandardMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
@@ -133,8 +180,8 @@ void UniEngine::Default::Load(World* world)
 	Materials::StandardInstancedMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
 	Materials::StandardInstancedMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
 	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
-
-
+#pragma endregion
+#pragma region Models & Primitives
 	Model* model = ModelManager::LoadModel(FileIO::GetPath("Primitives/quad.obj"));
 	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
@@ -162,4 +209,5 @@ void UniEngine::Default::Load(World* world)
 	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/monkey.obj"));
 	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
+#pragma endregion
 }

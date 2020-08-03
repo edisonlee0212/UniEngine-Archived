@@ -1,6 +1,7 @@
 #pragma once
 #include "UniEngine.h"
 #include "TreeBudSystem.h"
+#include "Envelope.h"
 using namespace UniEngine;
 using namespace TreeCreator;
 struct AttractionPointIndex {
@@ -35,11 +36,8 @@ class SpaceColonizationTreeSystem :
     Material* _AttractionPointMaterial;
 
     std::vector<Entity> _Trees;
-
-    bool _GrowTrees;
-    float _EnvelopeRadius;
-    float _MinHeight;
-    float _MaxHeight;
+    Envelope _Envelope;
+    unsigned _ToGrowIteration;
     unsigned _AttractionPointMaxIndex;
     void AddAttractionPoint(Translation translation);
     void Grow();
@@ -48,5 +46,9 @@ public:
     void OnDestroy();
     void Update();
     void FixedUpdate();
+    void ResetEnvelope(float radius, float minHeight, float maxHeight);
+    void ResetEnvelope(glm::vec3 spaceOffset, glm::vec3 spaceSize);
+    void PushAttractionPoints(unsigned value);
+    void PushGrowIterations(unsigned iteration);
 };
 

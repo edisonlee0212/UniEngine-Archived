@@ -14,6 +14,42 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	DrawMeshInstanced(mesh, material, matrix, matrices, count, receiveShadow);
 }
 
+void UniEngine::RenderManager::DrawGizmoPoint(glm::vec4 color, glm::mat4 matrix, RenderTarget* target)
+{
+	target->Bind();
+	DrawGizmo(Default::Primitives::Sphere, color, matrix);
+}
+
+void UniEngine::RenderManager::DrawGizmoPointInstanced(glm::vec4 color, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target)
+{
+	target->Bind();
+	DrawGizmoInstanced(Default::Primitives::Sphere, color, matrix, matrices, count);
+}
+
+void UniEngine::RenderManager::DrawGizmoCube(glm::vec4 color, glm::mat4 matrix, RenderTarget* target)
+{
+	target->Bind();
+	DrawGizmo(Default::Primitives::Cube, color, matrix);
+}
+
+void UniEngine::RenderManager::DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target)
+{
+	target->Bind();
+	DrawGizmoInstanced(Default::Primitives::Cube, color, matrix, matrices, count);
+}
+
+void UniEngine::RenderManager::DrawGizmoMesh(Mesh* mesh, glm::vec4 color, glm::mat4 matrix, RenderTarget* target)
+{
+	target->Bind();
+	DrawGizmo(mesh, color, matrix);
+}
+
+void UniEngine::RenderManager::DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target)
+{
+	target->Bind();
+	DrawGizmoInstanced(mesh, color, matrix, matrices, count);
+}
+
 void UniEngine::RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 matrix, RenderTarget* target, bool receiveShadow)
 {
@@ -24,6 +60,7 @@ void UniEngine::RenderManager::DrawMesh(
 void UniEngine::RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, bool receiveShadow)
 {
+	glEnable(GL_DEPTH_TEST);
 	GLVBO* matricesBuffer = new GLVBO();
 	matricesBuffer->SetData(count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
@@ -39,6 +76,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	mesh->VAO()->SetAttributeDivisor(13, 1);
 	mesh->VAO()->SetAttributeDivisor(14, 1);
 	mesh->VAO()->SetAttributeDivisor(15, 1);
+	
 	
 
 	size_t textureStartIndex = 0;
@@ -157,6 +195,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 void UniEngine::RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 matrix, bool receiveShadow)
 {
+	glEnable(GL_DEPTH_TEST);
 	mesh->Enable();
 	mesh->VAO()->DisableAttributeArray(12);
 	mesh->VAO()->DisableAttributeArray(13);
@@ -277,6 +316,49 @@ void UniEngine::RenderManager::DrawMesh(
 	GLVAO::BindDefault();
 }
 
+void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 matrix, glm::mat4* matrices, size_t count)
+{
+	glEnable(GL_DEPTH_TEST);
+	GLVBO* matricesBuffer = new GLVBO();
+	matricesBuffer->SetData(count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	mesh->Enable();
+	mesh->VAO()->EnableAttributeArray(12);
+	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	mesh->VAO()->EnableAttributeArray(13);
+	mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	mesh->VAO()->EnableAttributeArray(14);
+	mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	mesh->VAO()->EnableAttributeArray(15);
+	mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	mesh->VAO()->SetAttributeDivisor(12, 1);
+	mesh->VAO()->SetAttributeDivisor(13, 1);
+	mesh->VAO()->SetAttributeDivisor(14, 1);
+	mesh->VAO()->SetAttributeDivisor(15, 1);
+
+	Default::GLPrograms::GizmoInstancedProgram->Bind();
+	Default::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
+	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", matrix);
+	glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
+	GLVAO::BindDefault();
+	delete matricesBuffer;
+}
+
+void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 matrix)
+{
+	glEnable(GL_DEPTH_TEST);
+	mesh->Enable();
+	mesh->VAO()->DisableAttributeArray(12);
+	mesh->VAO()->DisableAttributeArray(13);
+	mesh->VAO()->DisableAttributeArray(14);
+	mesh->VAO()->DisableAttributeArray(15);
+
+	Default::GLPrograms::GizmoProgram->Bind();
+	Default::GLPrograms::GizmoProgram->SetFloat4("surfaceColor", color);
+	Default::GLPrograms::GizmoProgram->SetFloat4x4("model", matrix);
+	glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+	GLVAO::BindDefault();
+}
+
 void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size)
 {
 	auto program = Default::GLPrograms::ScreenProgram;
@@ -289,7 +371,6 @@ void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, 
 	program->SetFloat2("size", size);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
-
 
 void UniEngine::RenderManager::SetEnableNormalMapping(bool value)
 {
@@ -305,6 +386,7 @@ void UniEngine::RenderManager::Start()
 		cc->Value->Clear();
 	}
 }
+
 unsigned UniEngine::RenderManager::Triangles()
 {
 	return _Triangles;

@@ -5,6 +5,10 @@ class Envelope {
 	glm::vec3 _SpaceOffset;
 	glm::vec3 _SpaceSize;
 public:
+	Envelope() {
+		_SpaceOffset = glm::vec3(0);
+		_SpaceSize = glm::vec3(0);
+	}
 	Envelope(glm::vec3 spaceOffset, glm::vec3 spaceSize) {
 		_SpaceOffset = spaceOffset;
 		_SpaceSize = spaceSize;
@@ -31,5 +35,9 @@ public:
 			succeed = !IsInEnvelope(point);
 		}
 		return point;
+	}
+	void Reset(glm::vec3 spaceOffset, glm::vec3 spaceSize) {
+		_SpaceOffset = spaceOffset;
+		_SpaceSize = spaceSize;
 	}
 };

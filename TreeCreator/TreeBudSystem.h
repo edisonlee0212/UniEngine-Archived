@@ -45,6 +45,15 @@ namespace TreeCreator {
     struct Gravitropism : ComponentBase {
         float Value;
     };
+
+    //Different bud type will affect their way of growth. 
+    enum BudTypes {
+        LATERAL_BUD,
+        APICAL_BUD
+    };
+    struct BudType : ComponentBase {
+        BudTypes Value;
+    };
 #pragma endregion
 #pragma region Tree
     struct TreeIndex : ComponentBase {

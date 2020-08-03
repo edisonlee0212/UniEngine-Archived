@@ -12,6 +12,9 @@ namespace UniEngine {
 
 			static GLProgram* StandardProgram;
 			static GLProgram* StandardInstancedProgram;
+
+			static GLProgram* GizmoProgram;
+			static GLProgram* GizmoInstancedProgram;
 		};
 
 		static class UNIENGINE_API ShaderIncludes {
