@@ -10,25 +10,25 @@ UniEngine::TransformSystem::TransformSystem()
 void UniEngine::TransformSystem::OnCreate()
 {
 	_LP = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LP, LocalToParent(), LocalPosition());
+	EntityManager::SetEntityQueryAllFilters(_LP, LocalToParent(), LocalTranslation());
 	EntityManager::SetEntityQueryNoneFilters(_LP, LocalRotation(), LocalScale());
 	_LPR = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LPR, LocalToParent(), LocalPosition(), LocalRotation());
+	EntityManager::SetEntityQueryAllFilters(_LPR, LocalToParent(), LocalTranslation(), LocalRotation());
 	EntityManager::SetEntityQueryNoneFilters(_LPR, LocalScale());
 	_LPS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LPS, LocalToParent(), LocalPosition(), LocalScale());
+	EntityManager::SetEntityQueryAllFilters(_LPS, LocalToParent(), LocalTranslation(), LocalScale());
 	EntityManager::SetEntityQueryNoneFilters(_LPS, LocalRotation());
 	_LPRS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LPRS, LocalToParent(), LocalPosition(), LocalRotation(), LocalScale());
+	EntityManager::SetEntityQueryAllFilters(_LPRS, LocalToParent(), LocalTranslation(), LocalRotation(), LocalScale());
 	_LR = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_LR, LocalToParent(), LocalRotation());
-	EntityManager::SetEntityQueryNoneFilters(_LR, LocalPosition(), LocalScale());
+	EntityManager::SetEntityQueryNoneFilters(_LR, LocalTranslation(), LocalScale());
 	_LRS = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_LRS, LocalToParent(), LocalRotation(), LocalScale());
-	EntityManager::SetEntityQueryNoneFilters(_LRS, LocalPosition());
+	EntityManager::SetEntityQueryNoneFilters(_LRS, LocalTranslation());
 	_LS = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_LS, LocalToParent(), LocalScale());
-	EntityManager::SetEntityQueryNoneFilters(_LS, LocalPosition(), LocalRotation());
+	EntityManager::SetEntityQueryNoneFilters(_LS, LocalTranslation(), LocalRotation());
 
 	_P = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_P, LocalToWorld(), Translation());
@@ -63,16 +63,16 @@ void UniEngine::TransformSystem::OnDestroy()
 
 void UniEngine::TransformSystem::Update()
 {
-	EntityManager::ForEach<LocalToParent, LocalPosition>(_LP, [](int i, LocalToParent* ltp, LocalPosition* lp) {
+	EntityManager::ForEach<LocalToParent, LocalTranslation>(_LP, [](int i, LocalToParent* ltp, LocalTranslation* lp) {
 		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::identity<glm::mat4>();
 		});
-	EntityManager::ForEach<LocalToParent, LocalPosition, LocalRotation>(_LPR, [](int i, LocalToParent* ltp, LocalPosition* lp, LocalRotation* lr) {
+	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation>(_LPR, [](int i, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr) {
 		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::mat4_cast(lr->value) * glm::identity<glm::mat4>();
 		});
-	EntityManager::ForEach<LocalToParent, LocalPosition, LocalScale>(_LPS, [](int i, LocalToParent* ltp, LocalPosition* lp, LocalScale* ls) {
+	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalScale>(_LPS, [](int i, LocalToParent* ltp, LocalTranslation* lp, LocalScale* ls) {
 		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::identity<glm::mat4>() * glm::scale(ls->value);
 		});
-	EntityManager::ForEach<LocalToParent, LocalPosition, LocalRotation, LocalScale>(_LPRS, [](int i, LocalToParent* ltp, LocalPosition* lp, LocalRotation* lr, LocalScale* ls) {
+	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation, LocalScale>(_LPRS, [](int i, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr, LocalScale* ls) {
 		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::mat4_cast(lr->value) * glm::scale(ls->value);
 		});
 	EntityManager::ForEach<LocalToParent, LocalRotation>(_LR, [](int i, LocalToParent* ltp, LocalRotation* lr) {

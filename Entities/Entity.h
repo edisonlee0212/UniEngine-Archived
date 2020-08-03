@@ -169,7 +169,7 @@ namespace UniEngine {
 		struct ENTITIES_API Rotation : ComponentBase {
 			glm::quat value;
 		};
-		struct ENTITIES_API LocalPosition : ComponentBase
+		struct ENTITIES_API LocalTranslation : ComponentBase
 		{
 			glm::vec3 value;
 		};

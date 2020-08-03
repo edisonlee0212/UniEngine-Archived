@@ -39,6 +39,7 @@ void UniEngine::Engine::Init(bool fullScreen)
 	_World = new World(0, &_ThreadPool);
 	EntityManager::SetWorld(_World);
 	_World->Init();
+	_World->SetTimeStep(_TimeStep);
 #pragma region Main Camera
 	Camera::GenerateMatrices();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());

@@ -66,12 +66,15 @@ namespace TreeCreator {
         public SystemBase
     {
         bool _DrawLeaves;
+        bool _DrawBuds;
         EntityArchetype _BudArchetype;
         EntityArchetype _LeafArchetype;
         EntityArchetype _TreeArchetype;
         EntityQuery _BudQuery;
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
+
+        Material* _BudMaterial;
     public:
         void OnCreate();
         void OnDestroy();

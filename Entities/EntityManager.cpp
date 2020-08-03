@@ -111,6 +111,7 @@ void UniEngine::Entities::EntityManager::RefreshEntityQueryInfos(size_t index)
 void UniEngine::Entities::EntityManager::GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>* container)
 {
 	size_t amount = storage.ArchetypeInfo->EntityAliveCount;
+	if (amount == 0) return;
 	container->resize(container->size() + amount);
 	size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 	size_t chunkAmount = amount / capacity;

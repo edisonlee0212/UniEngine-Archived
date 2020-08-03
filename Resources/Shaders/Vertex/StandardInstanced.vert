@@ -21,7 +21,7 @@ uniform mat4 model;
 
 void main()
 {
-	mat4 matrix = model * aInstanceMatrix;
+	mat4 matrix = aInstanceMatrix * model;
 	vs_out.FragPos = vec3(matrix * vec4(aPos, 1.0));
 	vs_out.Normal = normalize(transpose(inverse(mat3(matrix))) * aNormal);
 	vec3 T = normalize(vec3(matrix * vec4(aTangent,   0.0)));

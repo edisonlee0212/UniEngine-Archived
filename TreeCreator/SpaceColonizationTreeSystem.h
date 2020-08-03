@@ -11,6 +11,13 @@ struct AttractionPointIndex {
     }
 };
 
+struct AttractionPointCurrentStatus {
+    bool remove;
+    unsigned budEntityIndex;
+    float distance;
+    glm::vec3 growDirDelta;
+};
+
 class SpaceColonizationTreeSystem :
     public SystemBase
 {
@@ -25,6 +32,14 @@ class SpaceColonizationTreeSystem :
     EntityArchetype _AttractionPointArchetype;
     EntityQuery _AttractionPointQuery;
 
+    Material* _AttractionPointMaterial;
+
+    std::vector<Entity> _Trees;
+
+    bool _GrowTrees;
+    float _EnvelopeRadius;
+    float _MinHeight;
+    float _MaxHeight;
     unsigned _AttractionPointMaxIndex;
     void AddAttractionPoint(Translation translation);
     void Grow();

@@ -2,11 +2,13 @@
 //
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
-
+#include "TreeBudSystem.h"
+#include "SpaceColonizationTreeSystem.h"
 using namespace UniEngine;
 void InitGround();
 int main()
 {
+	LightingManager::SetAmbientLight(1.0f);
 	Engine::Init();
 #pragma region Preparations
 	World* world = Engine::GetWorld();
@@ -15,15 +17,18 @@ int main()
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
-	ccs->SetPosition(glm::vec3(-40, 25, 3));
-	InitGround();
+	ccs->SetPosition(glm::vec3(0, 30, 60));
+	//InitGround();
 #pragma endregion
-#pragma region EngineLoop
-	bool loopable = true;
+
+	auto treeBudSys = Engine::GetWorld()->CreateSystem<TreeBudSystem>(SystemGroup::SimulationSystemGroup);
+	auto sctSys = Engine::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
+
+	treeBudSys->Enable();
+	sctSys->Enable();
 
 	Engine::Run();
 	Engine::End();
-#pragma endregion
 	return 0;
 }
 
@@ -36,13 +41,13 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f);
 	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
-
+	/*
 	auto entity1 = EntityManager::CreateEntity(archetype);
 	translation.value = glm::vec3(-100.0f, 0.0f, 0.0f);
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	Rotation rotation;
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
-	EntityManager::SetComponentData<Translation>(entity1, translation);
+	EntityManager::SetComponentData<Position>(entity1, translation);
 	EntityManager::SetComponentData<Scale>(entity1, scale);
 	EntityManager::SetComponentData<Rotation>(entity1, rotation);
 
@@ -51,7 +56,7 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
 
-	EntityManager::SetComponentData<Translation>(entity2, translation);
+	EntityManager::SetComponentData<Position>(entity2, translation);
 	EntityManager::SetComponentData<Scale>(entity2, scale);
 	EntityManager::SetComponentData<Rotation>(entity2, rotation);
 
@@ -61,7 +66,7 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 
-	EntityManager::SetComponentData<Translation>(entity3, translation);
+	EntityManager::SetComponentData<Position>(entity3, translation);
 	EntityManager::SetComponentData<Scale>(entity3, scale);
 	EntityManager::SetComponentData<Rotation>(entity3, rotation);
 
@@ -70,23 +75,24 @@ void InitGround() {
 	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
 
-	EntityManager::SetComponentData<Translation>(entity4, translation);
+	EntityManager::SetComponentData<Position>(entity4, translation);
 	EntityManager::SetComponentData<Scale>(entity4, scale);
 	EntityManager::SetComponentData<Rotation>(entity4, rotation);
-
+	*/
 
 	auto mat = new Material();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto texture = new Texture2D(TextureType::DIFFUSE);
-	texture->LoadTexture(FileIO::GetPath("Textures/floor.png"), "");
+	texture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
 	mat->Textures2Ds()->push_back(texture);
 	mat->SetMaterialProperty("material.shininess", 32.0f);
 	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
 	meshMaterial->_Mesh = Default::Primitives::Quad;
 	meshMaterial->_Material = mat;
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
+	/*
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, meshMaterial);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, meshMaterial);
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity3, meshMaterial);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, meshMaterial);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, meshMaterial);*/
 }

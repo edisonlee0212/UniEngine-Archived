@@ -167,6 +167,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="TreeCreator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Envelope.h" />
     <ClInclude Include="SpaceColonizationTreeSystem.h" />
     <ClInclude Include="TreeBudSystem.h" />
   </ItemGroup>

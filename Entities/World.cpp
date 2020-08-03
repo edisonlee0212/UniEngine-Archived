@@ -71,30 +71,34 @@ void UniEngine::Entities::World::Update() {
 	_Time->_DeltaTime = _Time->_WorldTime - _Time->_LastFrameTime;
 	_Time->_LastFrameTime = _Time->_WorldTime;
 	_Time->AddFixedDeltaTime(_Time->_DeltaTime);
-	
+	bool fixedUpdate = false;
 	if (_Time->_FixedDeltaTime >= _Time->_TimeStep) {
 		_Time->_FixedDeltaTime = 0;
-		for (auto i : _PreparationSystems) {
-			if (i->Enabled()) i->FixedUpdate();
-
-		}
-		for (auto i : _SimulationSystems) {
-			if (i->Enabled()) i->FixedUpdate();
-
-		}
-		for (auto i : _PresentationSystems) {
-			if (i->Enabled()) i->FixedUpdate();
-
-		}
+		fixedUpdate = true;
 	}
 	for (auto i : _PreparationSystems) {
 		if (i->Enabled()) i->Update();
 	}
+	if (fixedUpdate) {
+		for (auto i : _PreparationSystems) {
+			if (i->Enabled()) i->FixedUpdate();
+		}
+	}
 	for (auto i : _SimulationSystems) {
 		if (i->Enabled()) i->Update();
 	}
+	if (fixedUpdate) {
+		for (auto i : _SimulationSystems) {
+			if (i->Enabled()) i->FixedUpdate();
+		}
+	}
 	for (auto i : _PresentationSystems) {
 		if (i->Enabled()) i->Update();
+	}
+	if (fixedUpdate) {
+		for (auto i : _PresentationSystems) {
+			if (i->Enabled()) i->FixedUpdate();
+		}
 	}
 }
 

@@ -51,7 +51,7 @@ int main()
 	ccs->EnableWindowControl(true);
 	ccs->SetPosition(glm::vec3(-40, 25, 3));
 	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype<
-		//LocalPosition, 
+		//LocalTranslation, 
 		//LocalRotation,
 		//LocalScale,
 		LocalToParent,
@@ -59,7 +59,7 @@ int main()
 		//Rotation,
 		Scale,
 		LocalToWorld
-	>(//LocalPosition(),
+	>(//LocalTranslation(),
 	//LocalRotation(),
 	//LocalScale(),
 		LocalToParent(),
