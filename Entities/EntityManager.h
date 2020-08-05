@@ -83,6 +83,8 @@ namespace UniEngine {
 			friend struct EntityQuery;
 			template<typename T = ComponentBase>
 			static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container);
+			template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+			static void GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>* container);
 			static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container);
 			static size_t GetEntityAmount(EntityQuery entityQuery);
 			
@@ -2008,10 +2010,45 @@ namespace UniEngine {
 				GetComponentDataArrayStorage(i, container);
 			}
 		}
+		template<typename T1, typename T2>
+		inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>* container)
+		{
+			std::vector<Entity> allEntities;
+			std::vector<T1> componentDataList;
+			std::vector<T2> targetDataList;
+			GetEntityArray(entityQuery, &allEntities);
+			GetComponentDataArray(entityQuery, &componentDataList);
+			GetComponentDataArray(entityQuery, &targetDataList);
+			std::vector<std::shared_future<void>> futures;
+			std::mutex ml;
+			unsigned size = allEntities.size();
+			for (int i = 0; i < _ThreadPool->Size(); i++) {
+				futures.push_back(_ThreadPool->Push([&targetDataList, &allEntities, &componentDataList, size, filter, &ml, i, container](int id) {
+					for (int j = 0; j < size / 8; j++) {
+						if (filter == componentDataList[j * 8 + i]) {
+							std::lock_guard<std::mutex> lock(ml);
+							container->push_back(targetDataList[j * 8 + i]);
+						}
+					}
+					}).share());
+			}
+			for (auto i : futures) i.wait();
+			unsigned remainder = size % 8;
+			for (int i = 0; i < remainder; i++) {
+				if (filter == componentDataList[size - remainder + i]) {
+					container->push_back(targetDataList[size - remainder + i]);
+				}
+			}
+		}
 		template<typename T>
 		inline void EntityQuery::ToComponentDataArray(std::vector<T>* container)
 		{
 			EntityManager::GetComponentDataArray(*this, container);
+		}
+		template<typename T1, typename T2>
+		inline void EntityQuery::ToComponentDataArray(T1 filter, std::vector<T2>* container)
+		{
+			EntityManager::GetComponentDataArray(*this, filter, container);
 		}
 #pragma endregion
 	}

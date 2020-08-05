@@ -143,6 +143,8 @@ namespace UniEngine {
 			}
 			template<typename T = ComponentBase>
 			void ToComponentDataArray(std::vector<T>* container);
+			template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+			void ToComponentDataArray(T1 filter, std::vector<T2>* container);
 			void ToEntityArray(std::vector<Entity>* container);
 			unsigned GetEntityAmount();
 		};
@@ -165,33 +167,60 @@ namespace UniEngine {
 #pragma endregion
 #pragma region Predefined Componenets
 		struct ENTITIES_API Translation : ComponentBase {
-			glm::vec3 value;
+			glm::vec3 Value;
+			bool operator ==(const Translation& other) const {
+				return other.Value == Value;
+			}
 		};
 		struct ENTITIES_API Scale : ComponentBase {
-			glm::vec3 value;
+			glm::vec3 Value;
+			bool operator ==(const Scale& other) const {
+				return other.Value == Value;
+			}
 		};
 		struct ENTITIES_API Rotation : ComponentBase {
-			glm::quat value;
+			glm::quat Value;
+			bool operator ==(const Rotation& other) const {
+				return other.Value == Value;
+			}
 		};
 		struct ENTITIES_API LocalTranslation : ComponentBase
 		{
 			glm::vec3 value;
+			bool operator ==(const LocalTranslation& other) const {
+				return other.value == value;
+			}
 		};
 		struct ENTITIES_API LocalScale : ComponentBase {
 			glm::vec3 value;
+			bool operator ==(const LocalScale& other) const {
+				return other.value == value;
+			}
 		};
 		struct ENTITIES_API LocalRotation : ComponentBase {
 			glm::quat value;
+			bool operator ==(const LocalRotation& other) const {
+				return other.value == value;
+			}
 		};
 		struct ENTITIES_API LocalToWorld : ComponentBase {
 			glm::mat4 value;
+			bool operator ==(const LocalToWorld& other) const {
+				return other.value == value;
+			}
 		};
 		struct ENTITIES_API LocalToParent : ComponentBase {
 			glm::mat4 value;
+			bool operator ==(const LocalToParent& other) const {
+				return other.value == value;
+			}
 		};
 		struct ENTITIES_API CameraMask : ComponentBase
 		{
 			unsigned value;
+			bool operator ==(const CameraMask& other) const {
+				return other.value == value;
+			}
 			CameraMask() { value = 0; }
 		};
 #pragma endregion

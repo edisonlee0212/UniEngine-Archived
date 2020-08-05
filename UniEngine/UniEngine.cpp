@@ -48,7 +48,7 @@ void UniEngine::Engine::Init(bool fullScreen)
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	_MainCameraEntity = EntityManager::CreateEntity(archetype);
 	Translation pos;
-	pos.value = glm::vec3(0.0f, 5.0f, 10.0f);
+	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
 	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
 	_MainCameraComponent = new CameraComponent();
 	_MainCameraComponent->Value = new Camera(1600, 900, 0.1f, 500.0f);;

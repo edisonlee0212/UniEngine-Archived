@@ -11,7 +11,7 @@ inline void SpaceColonizationTreeSystem::AddAttractionPoint(Translation translat
 		AttractionPointIndex(_AttractionPointMaxIndex)
 	);
 	Scale s;
-	s.value = glm::vec3(0.1f);
+	s.Value = glm::vec3(0.1f);
 	EntityManager::SetComponentData(
 		pointEntity,
 		s
@@ -53,12 +53,12 @@ void SpaceColonizationTreeSystem::Grow()
 		glm::vec3 budPos = ltwList[i].value[3];
 		EntityManager::ForEach<Translation, AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, budPos, attractionDistance, removeDistance](int i, Translation* translation, AttractionPointCurrentStatus* status)
 			{
-				float distance = glm::distance(translation->value, budPos);
+				float distance = glm::distance(translation->Value, budPos);
 				if (distance < attractionDistance && distance < status->distance) {
 					status->remove = distance < removeDistance;
 					status->budEntityIndex = budEntityIndex;
 					status->distance = distance;
-					status->growDirDelta = translation->value - budPos;
+					status->growDirDelta = translation->Value - budPos;
 				}
 			});
 	}
@@ -88,11 +88,11 @@ void SpaceColonizationTreeSystem::Grow()
 				float minDistance = 999999;
 				EntityManager::ForEach<Translation>(_AttractionPointQuery, [&amount, &ml, &growDir, budPos, &minDistance](int i, Translation* translation)
 					{
-						float distance = glm::distance(translation->value, budPos);
+						float distance = glm::distance(translation->Value, budPos);
 						if (distance < minDistance) {
 							std::lock_guard<std::mutex> lock(ml);
 							minDistance = distance;
-							growDir += translation->value - budPos;
+							growDir += translation->Value - budPos;
 							amount++;
 						}
 					});
@@ -150,6 +150,7 @@ void SpaceColonizationTreeSystem::Grow()
 					budType.Searching = true;
 					EntityManager::SetComponentData(newBud, budType);
 				}
+				EntityManager::SetComponentData(newBud, EntityManager::GetComponentData<TreeIndex>(currentBud));
 			}
 #pragma endregion
 		}
@@ -221,7 +222,7 @@ void SpaceColonizationTreeSystem::FixedUpdate()
 {
 	if (_IterationFinishMark) {
 		_TreeBudSystem->RefreshParentTranslations();
-		_TreeBudSystem->RefreshConnections(0.01f);
+		_TreeBudSystem->RefreshConnections(0.05f);
 		_IterationFinishMark = false;
 	}
 	if (_ToGrowIteration > 0) {
@@ -250,7 +251,7 @@ void SpaceColonizationTreeSystem::PushAttractionPoints(unsigned value)
 {
 	Translation translation;
 	for (int i = 0; i < value; i++) {
-		translation.value = _Envelope.GetPoint();
+		translation.Value = _Envelope.GetPoint();
 		AddAttractionPoint(translation);
 	}
 }
@@ -264,27 +265,33 @@ void SpaceColonizationTreeSystem::PushGrowIterations(unsigned iteration)
 	_IterationFinishMark = false;
 }
 
-void SpaceColonizationTreeSystem::CreateTree(glm::vec3 position)
+void SpaceColonizationTreeSystem::CreateTree(unsigned index, TreeColor color, glm::vec3 position)
 {
+	TreeIndex treeIndex;
+	treeIndex.Value = index;
+
 	BudType type;
 	type.Value = BudTypes::APICAL_BUD;
 	type.Searching = true;
 	auto treeEntity = EntityManager::CreateEntity(_TreeArchetype);
 	Translation t;
-	t.value = position;
+	t.Value = position;
 	LocalTranslation lt;
 	lt.value = glm::vec3(0.0f);
 	Scale s;
-	s.value = glm::vec3(1.0f);
+	s.Value = glm::vec3(1.0f);
 	LocalScale ls;
 	ls.value = glm::vec3(1.0f);
 	EntityManager::SetComponentData(treeEntity, t);
 	EntityManager::SetComponentData(treeEntity, s);
+	EntityManager::SetComponentData(treeEntity, treeIndex);
+	EntityManager::SetComponentData(treeEntity, color);
 	auto rootBud = EntityManager::CreateEntity(_BudArchetype);
 	EntityManager::SetParent(rootBud, treeEntity);
 	EntityManager::SetComponentData(rootBud, lt);
 	EntityManager::SetComponentData(rootBud, ls);
 	EntityManager::SetComponentData(rootBud, type);
+	EntityManager::SetComponentData(rootBud, treeIndex);
 }
 
 void SpaceColonizationTreeSystem::ClearAttractionPoints()

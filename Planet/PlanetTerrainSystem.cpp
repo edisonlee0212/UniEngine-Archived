@@ -80,7 +80,7 @@ void Planet::PlanetTerrainSystem::Update()
 		//1. Scan and expand.
 		for (auto j = 0; j < planetTerrain->_ChunkList.size(); j++) {
 			auto chunk = planetTerrain->_ChunkList[j];
-			if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraPos.value)
+			if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraPos.Value)
 				< (planetInfo.LodDistance * planetInfo.Radius / glm::pow(2, chunk->DetailLevel + 1))) {
 				if (chunk->DetailLevel < planetInfo.MaxLodLevel) {
 					if (chunk->C0 != nullptr) {
@@ -124,7 +124,7 @@ void Planet::PlanetTerrainSystem::Update()
 					chunk->ToRecycle = true;
 				}
 			}
-			else if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraPos.value)
+			else if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraPos.Value)
 				> (planetInfo.LodDistance * planetInfo.Radius / glm::pow(2, chunk->DetailLevel)))
 			{
 				if (chunk->Parent != nullptr) {

@@ -12,8 +12,8 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 	Camera* camera = cameraComponent->Value;
 	camera->Bind();
 	Camera::_MainCameraInfoBlock.UpdateMatrices(camera,
-		EntityManager::GetComponentData<Translation>(cameraEntity).value,
-		EntityManager::GetComponentData<Rotation>(cameraEntity).value
+		EntityManager::GetComponentData<Translation>(cameraEntity).Value,
+		EntityManager::GetComponentData<Rotation>(cameraEntity).Value
 		);
 	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
 	
@@ -28,7 +28,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 			for (auto j : *entities) {
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
-				auto scale = EntityManager::GetComponentData<Scale>(j).value;
+				auto scale = EntityManager::GetComponentData<Scale>(j).Value;
 				auto meshBound = mmc->_Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
 				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;

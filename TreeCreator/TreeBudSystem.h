@@ -3,53 +3,99 @@
 using namespace UniEngine;
 namespace TreeCreator {
 #pragma region Common
+    struct TreeIndex : ComponentBase {
+        unsigned Value;
+        bool operator ==(const TreeIndex& other) const {
+            return other.Value == Value;
+        }
+    };
+
     struct ParentTranslation {
         glm::vec3 Value;
+        bool operator ==(const ParentTranslation& other) const {
+            return other.Value == Value;
+        }
     };
     struct Mass : ComponentBase {
         float Value;
+        bool operator ==(const Mass& other) const {
+            return other.Value == Value;
+        }
     };
     struct Position : ComponentBase {
         glm::vec3 Value;
+        bool operator ==(const Position& other) const {
+            return other.Value == Value;
+        }
     };
     struct Direction : ComponentBase
     {
         glm::vec3 Value;
+        bool operator ==(const Direction& other) const {
+            return other.Value == Value;
+        }
     };
     struct Connection : ComponentBase {
         glm::mat4 Value;
+        bool operator ==(const Connection& other) const {
+            return other.Value == Value;
+        }
     };
 #pragma endregion
 #pragma region Leaf
     struct LeafIndex : ComponentBase {
         unsigned Value;
+        bool operator ==(const LeafIndex& other) const {
+            return other.Value == Value;
+        }
+    };
+    struct LeafType : ComponentBase {
+
     };
 #pragma endregion
 #pragma region Bud
     struct Radius : ComponentBase
     {
         float Value;
+        bool operator ==(const Radius& other) const {
+            return other.Value == Value;
+        }
     };
 
     struct BudIndex : ComponentBase {
         unsigned Value;
+        bool operator ==(const BudIndex& other) const {
+            return other.Value == Value;
+        }
     };
 
     struct Iteration : ComponentBase {
         unsigned Value;
+        bool operator ==(const Iteration& other) const {
+            return other.Value == Value;
+        }
     };
     //Gravelius Order
     struct Level : ComponentBase {
         unsigned Value;
+        bool operator ==(const Level& other) const {
+            return other.Value == Value;
+        }
     };
 
     struct Phototropism : ComponentBase {
         float Value;
+        bool operator ==(const Phototropism& other) const {
+            return other.Value == Value;
+        }
     };
 
     //Branches tend to grow against gravity
     struct Gravitropism : ComponentBase {
         float Value;
+        bool operator ==(const Gravitropism& other) const {
+            return other.Value == Value;
+        }
     };
 
     //Different bud type will affect their way of growth. 
@@ -60,23 +106,20 @@ namespace TreeCreator {
     struct BudType : ComponentBase {
         bool Searching;
         BudTypes Value;
+        bool operator ==(const BudType& other) const {
+            return (other.Value == Value) && (other.Searching == Searching);
+        }
     };
 #pragma endregion
 #pragma region Tree
-    struct TreeIndex : ComponentBase {
-        unsigned Value;
+    struct TreeColor : ComponentBase {
+        glm::vec4 BudColor;
+        glm::vec4 ConnectionColor;
+    };
+    struct TreeType : ComponentBase {
+
     };
 #pragma endregion
-    struct TreeBud {
-        Entity entity;
-        Entity parent;
-        std::vector<Entity> children;
-        std::vector<Entity> leaves;
-    };
-    struct Tree {
-        Entity _TreeEntity;
-        Entity _BudRoot;
-    };
 
     class TreeBudSystem :
         public SystemBase

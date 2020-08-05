@@ -86,8 +86,8 @@ void Galaxy::StarClusterSystem::Update()
 		});
 	float size = _Size;
 	EntityManager::ForEach<Translation, Scale, StarPosition>(_StarQuery, [size](int i, Translation* translation, Scale* scale, StarPosition* position) {
-		translation->value = position->Value / 20.0;
-		scale->value = size * glm::vec3(1.0f);
+		translation->Value = position->Value / 20.0;
+		scale->Value = size * glm::vec3(1.0f);
 		});
 	std::vector<Entity> entities = std::vector<Entity>();
 	_StarQuery.ToEntityArray(&entities);

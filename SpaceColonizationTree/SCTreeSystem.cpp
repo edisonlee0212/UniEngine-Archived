@@ -130,7 +130,7 @@ void SpaceColonizationTree::SCTreeSystem::Update() {
 	if (_Tree != nullptr && _Tree->NeedsToGrow()) _Tree->Draw(Engine::GetMainCameraComponent()->Value, _TreePointMaterial, glm::vec3(_TreeSize));
 	if (_TreeEntity.Version != 0) {
 		Scale scale;
-		scale.value = glm::vec3(_TreeSize);
+		scale.Value = glm::vec3(_TreeSize);
 		EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
 		_LightEstimator->DrawSnapShots(Engine::GetMainCameraComponent()->Value);
 	}
@@ -156,9 +156,9 @@ void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 			_TreeMesh->_Mesh = _Tree->GetMesh();
 			EntityManager::SetSharedComponent<MeshMaterialComponent>(_TreeEntity, _TreeMesh);
 			Translation pos;
-			pos.value = glm::vec3(0.0f);
+			pos.Value = glm::vec3(0.0f);
 			Scale scale;
-			scale.value = glm::vec3(1.5f);
+			scale.Value = glm::vec3(1.5f);
 			EntityManager::SetComponentData<Translation>(_TreeEntity, pos);
 			EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
 			RemoveEnvelope();

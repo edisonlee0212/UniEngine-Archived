@@ -27,14 +27,26 @@ int main()
 
 	sctSys->ResetEnvelopeType(EnvelopeType::Box);
 	sctSys->ResetEnvelope(120, 20, 80);
-	sctSys->PushAttractionPoints(4000);
+	sctSys->PushAttractionPoints(10000);
 
-	sctSys->CreateTree(glm::vec3(30, 0, -30));
-	sctSys->CreateTree(glm::vec3(30, 0, 30));
-	sctSys->CreateTree(glm::vec3(-30, 0, -30));
-	sctSys->CreateTree(glm::vec3(-30, 0, 30));
+	TreeColor treeColor;
+	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	sctSys->CreateTree(0, treeColor, glm::vec3(30, 0, -30));
 
-	sctSys->PushGrowIterations(70);
+	treeColor.BudColor = glm::vec4(0, 1, 0, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	sctSys->CreateTree(1, treeColor, glm::vec3(30, 0, 30));
+
+	treeColor.BudColor = glm::vec4(0, 0, 1, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	sctSys->CreateTree(2, treeColor, glm::vec3(-30, 0, -30));
+
+	treeColor.BudColor = glm::vec4(0, 1, 1, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	sctSys->CreateTree(3, treeColor, glm::vec3(-30, 0, 30));
+
+	sctSys->PushGrowIterations(100);
 
 	Engine::Run();
 	Engine::End();
@@ -45,9 +57,9 @@ void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
 	Translation translation = Translation();
-	translation.value = glm::vec3(0.0f, 0.0f, 0.0f);
+	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();
-	scale.value = glm::vec3(100.0f);
+	scale.Value = glm::vec3(100.0f);
 	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 	/*

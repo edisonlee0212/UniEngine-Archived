@@ -58,7 +58,7 @@ int main()
 	dlmmc->_Mesh = Default::Primitives::Cylinder;
 	dlmmc->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
-	scale.value = glm::vec3(0.5f);
+	scale.Value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
 	dlc->diffuse = glm::vec3(1.0f);
@@ -71,7 +71,7 @@ int main()
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;
 	plmmc->_Material = Default::Materials::StandardMaterial;
-	scale.value = glm::vec3(0.5f);
+	scale.Value = glm::vec3(0.5f);
 
 	PointLightComponent* plc = new PointLightComponent();
 	plc->constant = 1.0f;
@@ -108,11 +108,11 @@ int main()
 		static bool show = true;
 #pragma region LightsPosition
 		Translation p;
-		p.value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(time->Time() / 2.0f), -20.0f * glm::cos(time->Time() / 2.0f)), 0.0f);
+		p.Value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(time->Time() / 2.0f), -20.0f * glm::cos(time->Time() / 2.0f)), 0.0f);
 		EntityManager::SetComponentData<Translation>(dle, p);
-		p.value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->Time() / 2.0f), 20.0f * glm::sin(time->Time() / 2.0f), 0.0f), 0.0f);
+		p.Value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->Time() / 2.0f), 20.0f * glm::sin(time->Time() / 2.0f), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple, p);
-		p.value = glm::vec4(glm::vec3(20.0f * glm::cos(time->Time() / 2.0f), 15.0f, 20.0f * glm::sin(time->Time() / 2.0f)), 0.0f);
+		p.Value = glm::vec4(glm::vec3(20.0f * glm::cos(time->Time() / 2.0f), 15.0f, 20.0f * glm::sin(time->Time() / 2.0f)), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple2, p);
 #pragma endregion
 

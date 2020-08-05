@@ -51,7 +51,7 @@ public:
     void ResetEnvelopeType(EnvelopeType type);
     void PushAttractionPoints(unsigned value);
     void PushGrowIterations(unsigned iteration);
-    void CreateTree(glm::vec3 position);
+    void CreateTree(unsigned index, TreeColor color, glm::vec3 position);
     void ClearAttractionPoints();
 };
 

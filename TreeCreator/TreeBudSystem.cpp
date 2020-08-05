@@ -4,29 +4,29 @@ void TreeCreator::TreeBudSystem::OnCreate()
 {
 	_LeafArchetype = _BudArchetype = EntityManager::CreateEntityArchetype(
 		LocalTranslation(), LocalRotation(), LocalScale(), LocalToParent(), LocalToWorld(),
-		Mass(), Position(), Direction(), ParentTranslation(), Connection(),
-		LeafIndex(),
+		Mass(), Position(), Direction(), ParentTranslation(), Connection(), TreeIndex(),
+		LeafIndex(), LeafType(),
 		Phototropism(), Gravitropism()
 	);
 	_BudArchetype = EntityManager::CreateEntityArchetype(
 		LocalTranslation(), LocalRotation(), LocalScale(), LocalToParent(), LocalToWorld(),
 		Mass(), Position(), Direction(), ParentTranslation(), Connection(),
-		Radius(), BudIndex(), Iteration(), Level(), BudType(),
+		Radius(), BudIndex(), Iteration(), Level(), BudType(), TreeIndex(),
 		Phototropism(), Gravitropism()
 	);
 	_TreeArchetype = EntityManager::CreateEntityArchetype(
 		Translation(), Rotation(), Scale(), LocalToWorld(),
-		TreeIndex()
+		TreeIndex(), TreeType(), TreeColor()
 	);
 
 	
 
 	_LeafQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LeafQuery, LeafIndex());
+	EntityManager::SetEntityQueryAllFilters(_LeafQuery, LeafType());
 	_BudQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_BudQuery, BudIndex());
+	EntityManager::SetEntityQueryAllFilters(_BudQuery, BudType());
 	_TreeQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_TreeQuery, TreeIndex());
+	EntityManager::SetEntityQueryAllFilters(_TreeQuery, TreeType());
 	_ParentTranslationQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_ParentTranslationQuery, ParentTranslation());
 	_ConnectionQuery = EntityManager::CreateEntityQuery();
@@ -51,15 +51,23 @@ void TreeCreator::TreeBudSystem::OnDestroy()
 
 void TreeCreator::TreeBudSystem::Update()
 {
+	std::vector<TreeIndex> treeIndices;
+	_TreeQuery.ToComponentDataArray(&treeIndices);
+	std::vector<TreeColor> treeColors;
+	_TreeQuery.ToComponentDataArray(&treeColors);
 	if (_DrawBuds) {
-		auto pointLTWList = std::vector<LocalToWorld>();
-		_BudQuery.ToComponentDataArray(&pointLTWList);
-		if (pointLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(0, 1, 0, 1), (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
+		for (int i = 0; i < treeIndices.size(); i++) {
+			auto pointLTWList = std::vector<LocalToWorld>();
+			_BudQuery.ToComponentDataArray(treeIndices[i], &pointLTWList);
+			if (pointLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].BudColor, (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
+		}
 	}
 	if (_DrawConnections) {
-		auto connectionLTWList = std::vector<Connection>();
-		_BudQuery.ToComponentDataArray(&connectionLTWList);
-		if (connectionLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(165.0f / 256, 42.0f / 256, 42.0f / 256, 1), (glm::mat4*)connectionLTWList.data(), connectionLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
+		for (int i = 0; i < treeIndices.size(); i++) {
+			auto connectionLTWList = std::vector<Connection>();
+			_BudQuery.ToComponentDataArray(treeIndices[i], &connectionLTWList);
+			if (connectionLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].ConnectionColor, (glm::mat4*)connectionLTWList.data(), connectionLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
+		}
 	}
 }
 

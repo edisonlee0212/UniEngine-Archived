@@ -167,8 +167,8 @@ void UniEngine::LightingManager::Init()
 void UniEngine::LightingManager::Start()
 {
 	Camera* camera = Engine::GetMainCameraComponent()->Value;
-	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Engine::GetMainCameraEntity()).value;
-	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(Engine::GetMainCameraEntity()).value;
+	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Engine::GetMainCameraEntity()).Value;
+	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(Engine::GetMainCameraEntity()).Value;
 	auto worldBound = _World->GetBound();
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;
@@ -186,7 +186,7 @@ void UniEngine::LightingManager::Start()
 				DirectionalLightComponent* dlc = directionLightsList->at(i);
 				Entity lightEntity = EntityManager::GetSharedComponentEntities<DirectionalLightComponent>(dlc)->at(0);
 
-				glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).value;
+				glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).Value;
 				glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 				float planeDistance = 0;
 				glm::vec3 center;
@@ -309,7 +309,7 @@ void UniEngine::LightingManager::Start()
 							for (auto j : *entities) {
 								auto mesh = mmc->_Mesh;
 								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
-								auto scale = EntityManager::GetComponentData<Scale>(j).value;
+								auto scale = EntityManager::GetComponentData<Scale>(j).Value;
 								/*
 								#pragma region Sphere test 1. discard useless meshes. 2. Calculate scene boundary for lightFrustum;
 													auto bound = mesh->GetBound();
@@ -403,7 +403,7 @@ void UniEngine::LightingManager::Start()
 			for (int i = 0; i < size; i++) {
 				PointLightComponent* plc = pointLightsList->at(i);
 				Entity lightEntity = EntityManager::GetSharedComponentEntities<PointLightComponent>(plc)->at(0);
-				glm::vec3 position = EntityManager::GetComponentData<Translation>(lightEntity).value;
+				glm::vec3 position = EntityManager::GetComponentData<Translation>(lightEntity).Value;
 				_PointLights[i].position = glm::vec4(position, 0);
 
 				_PointLights[i].constantLinearQuadFarPlane.x = plc->constant;

@@ -41,12 +41,12 @@ int main()
 	cylinder->_Mesh = Default::Primitives::Cylinder;
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
-	scale.value = glm::vec3(0.5f);
+	scale.Value = glm::vec3(0.5f);
 
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
 	cylinder->_Mesh = Default::Primitives::Cylinder;
 	cylinder->_Material = Default::Materials::StandardMaterial;
-	scale.value = glm::vec3(0.5f);
+	scale.Value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
@@ -63,7 +63,7 @@ int main()
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;
 	plmmc->_Material = Default::Materials::StandardMaterial;
-	scale.value = glm::vec3(0.5f);
+	scale.Value = glm::vec3(0.5f);
 
 	PointLightComponent* plc = new PointLightComponent();
 	plc->constant = 1.0f;
@@ -88,7 +88,7 @@ int main()
 
 
 	EntityManager::ForEach<Translation>(eq, [](int i, Translation* position) {
-		glm::vec3 pos = position->value;
+		glm::vec3 pos = position->Value;
 		std::string print = std::to_string(pos.x) + ", " + std::to_string(pos.y) + ", " + std::to_string(pos.z);
 		Debug::Log(print);
 		});
@@ -104,7 +104,7 @@ int main()
 		SplitDisplay();
 #pragma region LightsPosition
 		Rotation r;
-		r.value = glm::quatLookAt(
+		r.Value = glm::quatLookAt(
 			glm::normalize(glm::vec3(
 				glm::cos(glm::radians(lightAngle0)) * glm::sin(glm::radians(lightAngle1)),
 				glm::sin(glm::radians(lightAngle0)),
@@ -112,7 +112,7 @@ int main()
 			, glm::vec3(0, 1, 0));
 		EntityManager::SetComponentData<Rotation>(dle, r);
 
-		r.value = glm::quatLookAt(
+		r.Value = glm::quatLookAt(
 			glm::normalize(glm::vec3(
 				glm::cos(glm::radians(lightAngle2)) * glm::sin(glm::radians(lightAngle3)),
 				glm::sin(glm::radians(lightAngle2)),
@@ -126,7 +126,7 @@ int main()
 		dlc2->diffuse = glm::vec3(lightAngle5);
 
 		Translation p;
-		p.value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
+		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple, p);
 		plc->diffuse = glm::vec3(lightAngle7);
 
@@ -177,9 +177,9 @@ void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
 	Translation translation = Translation();
-	translation.value = glm::vec3(0.0f, 0.0f, 0.0f);
+	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();
-	scale.value = glm::vec3(100.0f);
+	scale.Value = glm::vec3(100.0f);
 	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 	/*

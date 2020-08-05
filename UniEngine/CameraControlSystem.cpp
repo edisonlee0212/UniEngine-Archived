@@ -7,9 +7,9 @@ void CameraControlSystem::Update()
 {
 	_CameraRotation = EntityManager::GetComponentData<Rotation>(Engine::GetMainCameraEntity());
 	_CameraPosition = EntityManager::GetComponentData<Translation>(Engine::GetMainCameraEntity());
-	glm::vec3 position = _CameraPosition.value;
-	glm::vec3 front = _CameraRotation.value * glm::vec3(0, 0, -1);
-	glm::vec3 right = _CameraRotation.value * glm::vec3(1, 0, 0);
+	glm::vec3 position = _CameraPosition.Value;
+	glm::vec3 front = _CameraRotation.Value * glm::vec3(0, 0, -1);
+	glm::vec3 right = _CameraRotation.Value * glm::vec3(1, 0, 0);
 	bool moved = false;
 	if (InputManager::GetKey(GLFW_KEY_W)) {
 		position += glm::vec3(front.x, 0.0f, front.z) * (float)_Time->DeltaTime() * _Velocity;
@@ -36,7 +36,7 @@ void CameraControlSystem::Update()
 		moved = true;
 	}
 	if (moved) {
-		_CameraPosition.value = position;
+		_CameraPosition.Value = position;
 		if(!_EnableWindowControl) EntityManager::SetComponentData<Translation>(Engine::GetMainCameraEntity(), _CameraPosition);
 		_P[0] = position.x;
 		_P[1] = position.y;
@@ -54,7 +54,7 @@ void CameraControlSystem::Update()
 	_LastY = mousePosition.y;
 	if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
 		if (xoffset != 0 || yoffset != 0) {
-			_CameraRotation.value = Engine::GetMainCameraComponent()->Value->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
+			_CameraRotation.Value = Engine::GetMainCameraComponent()->Value->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
 			EntityManager::SetComponentData<Rotation>(Engine::GetMainCameraEntity(), _CameraRotation);
 		}
 		mousePosition = InputManager::GetMouseScroll();
@@ -71,7 +71,7 @@ void CameraControlSystem::Update()
 		ImGui::InputFloat3("Position", &_P[0], 1);
 		//ImGui::InputFloat4("Rotation", &_R[0], 1);
 		ImGui::End();
-		_CameraPosition.value = glm::vec3(_P[0], _P[1], _P[2]);
+		_CameraPosition.Value = glm::vec3(_P[0], _P[1], _P[2]);
 		EntityManager::SetComponentData<Translation>(Engine::GetMainCameraEntity(), _CameraPosition);
 	}
 }
@@ -87,7 +87,7 @@ void UniEngine::CameraControlSystem::SetPosition(glm::vec3 position)
 	_P[0] = position.x;
 	_P[1] = position.y;
 	_P[2] = position.z;
-	_CameraPosition.value = position;
+	_CameraPosition.Value = position;
 	EntityManager::SetComponentData<Translation>(Engine::GetMainCameraEntity(), _CameraPosition);
 }
 
