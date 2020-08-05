@@ -302,6 +302,8 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", model);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+	RenderManager::_DrawCall++;
+	RenderManager::_Triangles += mesh->Size() * count / 3;
 	glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
 	GLVAO::BindDefault();
 	delete matricesBuffer;
@@ -319,6 +321,8 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 	Default::GLPrograms::GizmoProgram->Bind();
 	Default::GLPrograms::GizmoProgram->SetFloat4("surfaceColor", color);
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("model", model);
+	RenderManager::_DrawCall++;
+	RenderManager::_Triangles += mesh->Size() / 3;
 	glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }

@@ -26,7 +26,7 @@ int main()
 	auto sctSys = Engine::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
 
 	sctSys->ResetEnvelopeType(EnvelopeType::Box);
-	sctSys->ResetEnvelope(120, 20, 80);
+	sctSys->ResetEnvelope(160, 20, 60);
 	sctSys->PushAttractionPoints(10000);
 
 	TreeColor treeColor;
