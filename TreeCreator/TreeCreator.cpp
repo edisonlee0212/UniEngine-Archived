@@ -34,7 +34,7 @@ int main()
 	sctSys->CreateTree(glm::vec3(-30, 0, -30));
 	sctSys->CreateTree(glm::vec3(-30, 0, 30));
 
-	sctSys->PushGrowIterations(400);
+	sctSys->PushGrowIterations(70);
 
 	Engine::Run();
 	Engine::End();

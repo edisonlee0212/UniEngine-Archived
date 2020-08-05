@@ -22,10 +22,10 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 	auto worldBound = _World->GetBound();
 	glm::vec3 minBound = glm::vec3(INT_MAX);
 	glm::vec3 maxBound = glm::vec3(INT_MIN);
-	auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
+	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 	if (meshMaterials != nullptr) {
 		for (auto mmc : *meshMaterials) {
-			auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
+			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 			for (auto j : *entities) {
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
 				auto scale = EntityManager::GetComponentData<Scale>(j).value;
@@ -50,10 +50,10 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 			}
 		}
 	}
-	auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
+	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 	if (instancedMeshMaterials != nullptr) {
 		for (auto immc : *instancedMeshMaterials) {
-			auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
+			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 			for (auto j : *entities) {
 				RenderManager::DrawMeshInstanced(
 					immc->_Mesh,
@@ -94,9 +94,9 @@ void UniEngine::RenderSystem::OnDestroy()
 
 void UniEngine::RenderSystem::Update()
 {
-	auto cameras = EntityManager::QuerySharedComponents<CameraComponent>();
+	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
 	for (auto cc : *cameras) {
-		std::vector<Entity>* entities = EntityManager::QueryEntities<CameraComponent>(cc);
+		std::vector<Entity>* entities = EntityManager::GetSharedComponentEntities<CameraComponent>(cc);
 		RenderToCamera(cc, entities->at(0));
 	}
 

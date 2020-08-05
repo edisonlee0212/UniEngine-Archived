@@ -442,6 +442,11 @@ void UniEngine::Entities::EntityManager::GetEntityArray(EntityQuery entityQuery,
 	}
 }
 
+void UniEngine::Entities::EntityQuery::ToEntityArray(std::vector<Entity>* container)
+{
+	EntityManager::GetEntityArray(*this, container);
+}
+
 UniEngine::Entities::EntityComponentStorage::EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array)
 {
 	ArchetypeInfo = info;
@@ -466,4 +471,8 @@ size_t UniEngine::Entities::EntityManager::GetEntityAmount(EntityQuery entityQue
 	return retVal;
 }
 
+unsigned UniEngine::Entities::EntityQuery::GetEntityAmount()
+{
+	return EntityManager::GetEntityAmount(*this);
+}
 #pragma endregion

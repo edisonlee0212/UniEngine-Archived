@@ -141,6 +141,10 @@ namespace UniEngine {
 			bool IsDeleted() {
 				return Version == 0;
 			}
+			template<typename T = ComponentBase>
+			void ToComponentDataArray(std::vector<T>* container);
+			void ToEntityArray(std::vector<Entity>* container);
+			unsigned GetEntityAmount();
 		};
 
 		
@@ -201,5 +205,6 @@ namespace UniEngine {
 			}
 			return false;
 		}
+		
 }
 }

@@ -177,14 +177,14 @@ void UniEngine::LightingManager::Start()
 
 	if (_UpdateDirectionalLightBlock) {
 		//1.	利用EntityManager找到场景内所有Light instance。
-		auto directionLightsList = EntityManager::QuerySharedComponents<DirectionalLightComponent>();
+		auto directionLightsList = EntityManager::GetSharedComponentDataArray<DirectionalLightComponent>();
 		if (directionLightsList != nullptr) {
 #pragma region Prepare DirectionalLight data
 			size_t size = directionLightsList->size();
 			for (int i = 0; i < size; i++) {
 #pragma region DirectionalLight data collection
 				DirectionalLightComponent* dlc = directionLightsList->at(i);
-				Entity lightEntity = EntityManager::QueryEntities<DirectionalLightComponent>(dlc)->at(0);
+				Entity lightEntity = EntityManager::GetSharedComponentEntities<DirectionalLightComponent>(dlc)->at(0);
 
 				glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).value;
 				glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
@@ -301,11 +301,11 @@ void UniEngine::LightingManager::Start()
 				glClear(GL_DEPTH_BUFFER_BIT);
 				_DirectionalLightProgram->Bind();
 				_DirectionalLightProgram->SetInt("index", i);
-				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
+				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
 						if (mmc->_CastShadow) {
-							auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
+							auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 							for (auto j : *entities) {
 								auto mesh = mmc->_Mesh;
 								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
@@ -335,11 +335,11 @@ void UniEngine::LightingManager::Start()
 
 				_DirectionalLightInstancedProgram->Bind();
 				_DirectionalLightInstancedProgram->SetInt("index", i);
-				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
+				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->_CastShadow) {
-							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
+							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
 							matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
@@ -396,13 +396,13 @@ void UniEngine::LightingManager::Start()
 	}
 	
 	if (_UpdatePointLightBlock) {
-		auto pointLightsList = EntityManager::QuerySharedComponents<PointLightComponent>();
+		auto pointLightsList = EntityManager::GetSharedComponentDataArray<PointLightComponent>();
 		if (pointLightsList != nullptr) {
 #pragma region Prepare PointLight data
 			size_t size = pointLightsList->size();
 			for (int i = 0; i < size; i++) {
 				PointLightComponent* plc = pointLightsList->at(i);
-				Entity lightEntity = EntityManager::QueryEntities<PointLightComponent>(plc)->at(0);
+				Entity lightEntity = EntityManager::GetSharedComponentEntities<PointLightComponent>(plc)->at(0);
 				glm::vec3 position = EntityManager::GetComponentData<Translation>(lightEntity).value;
 				_PointLights[i].position = glm::vec4(position, 0);
 
@@ -434,10 +434,10 @@ void UniEngine::LightingManager::Start()
 				glClear(GL_DEPTH_BUFFER_BIT);
 				_PointLightProgram->Bind();
 				_PointLightProgram->SetInt("index", i);
-				auto meshMaterials = EntityManager::QuerySharedComponents<MeshMaterialComponent>();
+				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 				for (auto mmc : *meshMaterials) {
 					if (mmc->_CastShadow) {
-						auto entities = EntityManager::QueryEntities<MeshMaterialComponent>(mmc);
+						auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 						for (auto entity : *entities) {
 							auto mesh = mmc->_Mesh;
 							_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).value);
@@ -452,11 +452,11 @@ void UniEngine::LightingManager::Start()
 				}
 				_PointLightInstancedProgram->Bind();
 				_PointLightInstancedProgram->SetInt("index", i);
-				auto instancedMeshMaterials = EntityManager::QuerySharedComponents<InstancedMeshMaterialComponent>();
+				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->_CastShadow) {
-							auto entities = EntityManager::QueryEntities<InstancedMeshMaterialComponent>(immc);
+							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
 							matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);

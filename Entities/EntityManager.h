@@ -79,6 +79,12 @@ namespace UniEngine {
 			static void GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container);
 			static void GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>* container);
 			static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
+
+			friend struct EntityQuery;
+			template<typename T = ComponentBase>
+			static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container);
+			static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container);
+			static size_t GetEntityAmount(EntityQuery entityQuery);
 			
 		public:
 			static void Init(ThreadPool* threadPool);
@@ -118,9 +124,9 @@ namespace UniEngine {
 
 
 			template <typename T = SharedComponentBase>
-			static std::vector<Entity>* QueryEntities(T* value);
+			static std::vector<Entity>* GetSharedComponentEntities(T* value);
 			template <typename T = SharedComponentBase>
-			static std::vector<T*>* QuerySharedComponents();
+			static std::vector<T*>* GetSharedComponentDataArray();
 
 			static EntityArchetype GetEntityArchetype(Entity entity);
 
@@ -170,10 +176,7 @@ namespace UniEngine {
 			template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
 			static void ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func);
 
-			template<typename T = ComponentBase>
-			static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container);
-			static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container);
-			static size_t GetEntityAmount(EntityQuery entityQuery);
+			
 		};
 #pragma endregion
 #pragma region Functions
@@ -1664,14 +1667,14 @@ namespace UniEngine {
 			return _EntitySharedComponentStorage->GetSharedComponent<T>(entity) != nullptr;
 		}
 		template<typename T>
-		inline std::vector<Entity>* EntityManager::QueryEntities(T* value)
+		inline std::vector<Entity>* EntityManager::GetSharedComponentEntities(T* value)
 		{
 			return _EntitySharedComponentStorage->GetOwnersList<T>(value);
 		}
 #pragma endregion
 #pragma region SharedQuery
 		template<typename T>
-		inline std::vector<T*>* EntityManager::QuerySharedComponents()
+		inline std::vector<T*>* EntityManager::GetSharedComponentDataArray()
 		{
 			return _EntitySharedComponentStorage->GetSCList<T>();
 		}
@@ -2005,7 +2008,11 @@ namespace UniEngine {
 				GetComponentDataArrayStorage(i, container);
 			}
 		}
-
+		template<typename T>
+		inline void EntityQuery::ToComponentDataArray(std::vector<T>* container)
+		{
+			EntityManager::GetComponentDataArray(*this, container);
+		}
 #pragma endregion
 	}
 }

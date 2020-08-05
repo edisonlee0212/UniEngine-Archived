@@ -17,7 +17,7 @@ void TreeCreator::TreeManager::GetAllTrees(std::vector<Entity>* container)
         Debug::Error("TreeManager: Not initialized!");
         return;
     }
-    return EntityManager::GetEntityArray(_TreeQuery, container);
+    return _TreeQuery.ToEntityArray(container);
 }
 
 void TreeCreator::TreeManager::GenerateMeshForAllTrees()

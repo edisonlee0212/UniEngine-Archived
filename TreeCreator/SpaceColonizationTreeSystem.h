@@ -52,5 +52,6 @@ public:
     void PushAttractionPoints(unsigned value);
     void PushGrowIterations(unsigned iteration);
     void CreateTree(glm::vec3 position);
+    void ClearAttractionPoints();
 };
 

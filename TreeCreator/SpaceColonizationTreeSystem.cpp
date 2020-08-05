@@ -21,7 +21,7 @@ inline void SpaceColonizationTreeSystem::AddAttractionPoint(Translation translat
 
 void SpaceColonizationTreeSystem::Grow()
 {
-	if (EntityManager::GetEntityAmount(_AttractionPointQuery) == 0) {
+	if (_AttractionPointQuery.GetEntityAmount() == 0) {
 		//No more attraction points, return.
 		Debug::Log("SpaceColonizationTreeSystem: Run out of attraction points!");
 		_ToGrowIteration = 0;
@@ -31,8 +31,8 @@ void SpaceColonizationTreeSystem::Grow()
 	//Retreve all buds;
 	auto budEntityList = std::vector<Entity>();
 	auto ltwList = std::vector<LocalToWorld>();
-	EntityManager::GetEntityArray(_BudQuery, &budEntityList);
-	EntityManager::GetComponentDataArray(_BudQuery, &ltwList);
+	_BudQuery.ToEntityArray(&budEntityList);
+	_BudQuery.ToComponentDataArray(&ltwList);
 	float attractionDistance = 25.0f;
 	float removeDistance = 5.0f;
 	float growDistance = 1.0f;
@@ -96,8 +96,9 @@ void SpaceColonizationTreeSystem::Grow()
 							amount++;
 						}
 					});
+
 			}
-			else if(budType.Value == BudTypes::LATERAL_BUD){
+			else if (budType.Value == BudTypes::LATERAL_BUD) {
 				budType.Searching = false;
 				EntityManager::SetComponentData(budEntityList[i], budType);
 			}
@@ -107,37 +108,48 @@ void SpaceColonizationTreeSystem::Grow()
 				//Stop overall search for apical bud if it already found the target.
 				budType.Searching = false;
 			}
-			else{
+			else {
 				//Continue searching if we still have points around.
 				budType.Searching = true;
 			}
 		}
 		if (amount != 0) {
 #pragma region Create New bud
-			newBudAmount++;
 			Entity currentBud = budEntityList[i];
 			growDir = glm::normalize(growDir);
-			auto newBud = EntityManager::CreateEntity(_BudArchetype);
-			LocalTranslation translation;
+
+			LocalTranslation lt;
 			LocalRotation rotation;
 			rotation.value = glm::quat(0, 0, 0, 0);
 			LocalScale ls;
-			translation.value = growDir * growDistance;
+			lt.value = growDir * growDistance;
 			ls.value = glm::vec3(1.0f);
-			EntityManager::SetComponentData(newBud, translation);
-			EntityManager::SetComponentData(newBud, rotation);
-			EntityManager::SetComponentData(newBud, ls);
-			EntityManager::SetParent(newBud, currentBud);
-			if (budType.Value == BudTypes::APICAL_BUD) {
-				EntityManager::SetComponentData(newBud, budType);
-				budType.Value = BudTypes::LATERAL_BUD;
-				budType.Searching = true;
-				EntityManager::SetComponentData(currentBud, budType);
+			//TODO: Check newbud is valid.
+			auto childList = EntityManager::GetChildren(currentBud);
+			bool tooClose = false;
+			for (auto i : childList) {
+				if (glm::distance(lt.value, EntityManager::GetComponentData<LocalTranslation>(i).value) < 0.05f) {
+					tooClose = true;
+				}
 			}
-			else {
-				EntityManager::SetComponentData(currentBud, budType);
-				budType.Searching = true;
-				EntityManager::SetComponentData(newBud, budType);
+			if (!tooClose) {
+				newBudAmount++;
+				auto newBud = EntityManager::CreateEntity(_BudArchetype);
+				EntityManager::SetComponentData(newBud, lt);
+				EntityManager::SetComponentData(newBud, rotation);
+				EntityManager::SetComponentData(newBud, ls);
+				EntityManager::SetParent(newBud, currentBud);
+				if (budType.Value == BudTypes::APICAL_BUD) {
+					EntityManager::SetComponentData(newBud, budType);
+					budType.Value = BudTypes::LATERAL_BUD;
+					budType.Searching = true;
+					EntityManager::SetComponentData(currentBud, budType);
+				}
+				else {
+					EntityManager::SetComponentData(currentBud, budType);
+					budType.Searching = true;
+					EntityManager::SetComponentData(newBud, budType);
+				}
 			}
 #pragma endregion
 		}
@@ -161,6 +173,7 @@ void SpaceColonizationTreeSystem::Grow()
 		Debug::Log("SpaceColonizationTreeSystem: No new buds generated in this iteration, finish growing.");
 		_ToGrowIteration = 0;
 	}
+
 }
 
 void SpaceColonizationTreeSystem::OnCreate()
@@ -200,7 +213,7 @@ void SpaceColonizationTreeSystem::OnDestroy()
 void SpaceColonizationTreeSystem::Update()
 {
 	auto pointLTWList = std::vector<LocalToWorld>();
-	EntityManager::GetComponentDataArray(_AttractionPointQuery, &pointLTWList);
+	_AttractionPointQuery.ToComponentDataArray(&pointLTWList);
 	if (pointLTWList.size() != 0)RenderManager::DrawGizmoPointInstanced(glm::vec4(1, 0, 0, 1), (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value);
 }
 
@@ -272,4 +285,17 @@ void SpaceColonizationTreeSystem::CreateTree(glm::vec3 position)
 	EntityManager::SetComponentData(rootBud, lt);
 	EntityManager::SetComponentData(rootBud, ls);
 	EntityManager::SetComponentData(rootBud, type);
+}
+
+void SpaceColonizationTreeSystem::ClearAttractionPoints()
+{
+	std::vector<Entity> points;
+	std::mutex ml;
+	EntityManager::ForEachWithEntity<AttractionPointCurrentStatus>(_AttractionPointQuery, [&points, &ml](int i, Entity entity, AttractionPointCurrentStatus* status) {
+		std::lock_guard<std::mutex> lock(ml);
+		points.push_back(entity);
+		});
+	for (auto i : points) {
+		EntityManager::DeleteEntity(i);
+	}
 }

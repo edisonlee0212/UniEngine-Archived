@@ -53,12 +53,12 @@ void TreeCreator::TreeBudSystem::Update()
 {
 	if (_DrawBuds) {
 		auto pointLTWList = std::vector<LocalToWorld>();
-		EntityManager::GetComponentDataArray(_BudQuery, &pointLTWList);
-		if (pointLTWList.size() != 0)RenderManager::DrawGizmoPointInstanced(glm::vec4(0, 1, 0, 1), (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
+		_BudQuery.ToComponentDataArray(&pointLTWList);
+		if (pointLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(0, 1, 0, 1), (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
 	}
 	if (_DrawConnections) {
 		auto connectionLTWList = std::vector<Connection>();
-		EntityManager::GetComponentDataArray(_BudQuery, &connectionLTWList);
+		_BudQuery.ToComponentDataArray(&connectionLTWList);
 		if (connectionLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(165.0f / 256, 42.0f / 256, 42.0f / 256, 1), (glm::mat4*)connectionLTWList.data(), connectionLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
 	}
 }

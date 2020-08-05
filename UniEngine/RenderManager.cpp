@@ -400,7 +400,7 @@ void UniEngine::RenderManager::Start()
 {
 	_Triangles = 0;
 	_DrawCall = 0;
-	auto cameras = EntityManager::QuerySharedComponents<CameraComponent>();
+	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
 	for (auto cc : *cameras) {
 		cc->Value->Clear();
 	}
