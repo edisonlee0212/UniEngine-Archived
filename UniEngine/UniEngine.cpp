@@ -285,11 +285,11 @@ bool UniEngine::Engine::LoopEnd_Internal()
 	ImGui::End();
 
 	ImGui::Begin("Logs");
-	int size = Debug::mLogMessages.size();
+	int size = Debug::GetLogs()->size();
 	std::string logs = "";
 	for (int i = size - 1; i >= 0; i--) {
 		if (i < size - 50) break;
-		logs += *Debug::mLogMessages[i];
+		logs += Debug::GetLogs()->at(i)->c_str();
 	}
 	ImGui::Text(logs.c_str());
 	ImGui::End();

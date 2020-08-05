@@ -8,6 +8,10 @@ namespace UniEngine {
 		protected:
 			friend class World;
 			static World* _World;
+		public:
+			ManagerBase(ManagerBase& other) = delete;
+			void operator=(const ManagerBase&) = delete;
+			ManagerBase() = delete;
 		};
 	}
 }

@@ -39,7 +39,7 @@ namespace UniEngine {
 		};
 #pragma region Storage
 
-		struct ENTITIES_API ComponentType {
+		struct ComponentType {
 			size_t TypeID;
 			//Size of component
 			size_t Size;
@@ -64,7 +64,7 @@ namespace UniEngine {
 
 		const size_t ARCHETYPECHUNK_SIZE = 16384;
 
-		struct ENTITIES_API ComponentDataChunk {
+		struct ComponentDataChunk {
 			//16k raw data
 			void* Data;
 			template<typename T>
@@ -84,7 +84,7 @@ namespace UniEngine {
 			*(T*)((char*)Data + offset) = data;
 		}
 
-		struct ENTITIES_API ComponentDataChunkArray {
+		struct ComponentDataChunkArray {
 			std::vector<Entity> Entities;
 			std::vector<ComponentDataChunk> Chunks;
 		};
@@ -96,7 +96,7 @@ namespace UniEngine {
 			}
 		};
 
-		struct ENTITIES_API EntityInfo {
+		struct EntityInfo {
 			Entity Parent;
 			std::vector<Entity> Children;
 			//Entity _Entity;
@@ -104,7 +104,7 @@ namespace UniEngine {
 			size_t ChunkArrayIndex;
 		};
 
-		struct ENTITIES_API EntityArchetypeInfo {
+		struct EntityArchetypeInfo {
 			size_t Index;
 			std::vector<ComponentType> ComponentTypes;
 			//The size of a single entity
@@ -151,7 +151,7 @@ namespace UniEngine {
 			EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array);
 		};
 
-		struct ENTITIES_API EntityQueryInfo {
+		struct EntityQueryInfo {
 			std::vector<ComponentType> AllComponentTypes;
 			std::vector<ComponentType> AnyComponentTypes;
 			std::vector<ComponentType> NoneComponentTypes;

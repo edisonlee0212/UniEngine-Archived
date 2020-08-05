@@ -25,9 +25,16 @@ int main()
 	auto treeBudSys = Engine::GetWorld()->CreateSystem<TreeBudSystem>(SystemGroup::SimulationSystemGroup);
 	auto sctSys = Engine::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
 
-	sctSys->ResetEnvelope(60, 20, 80);
-	sctSys->PushAttractionPoints(2000);
-	sctSys->PushGrowIterations(40);
+	sctSys->ResetEnvelopeType(EnvelopeType::Box);
+	sctSys->ResetEnvelope(120, 20, 80);
+	sctSys->PushAttractionPoints(4000);
+
+	sctSys->CreateTree(glm::vec3(30, 0, -30));
+	sctSys->CreateTree(glm::vec3(30, 0, 30));
+	sctSys->CreateTree(glm::vec3(-30, 0, -30));
+	sctSys->CreateTree(glm::vec3(-30, 0, 30));
+
+	sctSys->PushGrowIterations(400);
 
 	Engine::Run();
 	Engine::End();

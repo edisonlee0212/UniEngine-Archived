@@ -6,7 +6,7 @@
 namespace UniEngine {
 	namespace Entities {
 #pragma region EntityManager
-		struct ENTITIES_API WorldEntityStorage {
+		struct WorldEntityStorage {
 			size_t Index;
 			std::vector<Entity> Entities;
 			std::vector<Entity> ParentRoots;
@@ -173,6 +173,7 @@ namespace UniEngine {
 			template<typename T = ComponentBase>
 			static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container);
 			static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container);
+			static size_t GetEntityAmount(EntityQuery entityQuery);
 		};
 #pragma endregion
 #pragma region Functions

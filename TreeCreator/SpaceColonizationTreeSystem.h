@@ -34,11 +34,11 @@ class SpaceColonizationTreeSystem :
     EntityQuery _AttractionPointQuery;
 
     Material* _AttractionPointMaterial;
-
-    std::vector<Entity> _Trees;
     Envelope _Envelope;
     unsigned _ToGrowIteration;
     unsigned _AttractionPointMaxIndex;
+
+    bool _IterationFinishMark;
     void AddAttractionPoint(Translation translation);
     void Grow();
 public:
@@ -48,7 +48,9 @@ public:
     void FixedUpdate();
     void ResetEnvelope(float radius, float minHeight, float maxHeight);
     void ResetEnvelope(glm::vec3 spaceOffset, glm::vec3 spaceSize);
+    void ResetEnvelopeType(EnvelopeType type);
     void PushAttractionPoints(unsigned value);
     void PushGrowIterations(unsigned iteration);
+    void CreateTree(glm::vec3 position);
 };
 

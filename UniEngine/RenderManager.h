@@ -17,16 +17,14 @@ namespace UniEngine {
 		friend class RenderTarget;
 		static unsigned _Triangles;
 		static unsigned _DrawCall;
-		static bool _EnableNormalMapping;
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, bool receiveShadow);
-		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, bool receiveShadow);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow);
+		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow);
 		
-		static void DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 matrix, glm::mat4* matrices, size_t count);
+		static void DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix);
 		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 matrix);
 
 		static void DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size);
 	public:
-		static void SetEnableNormalMapping(bool value);
 		static void Start();
 		static unsigned Triangles();
 		static unsigned DrawCall();
@@ -35,14 +33,14 @@ namespace UniEngine {
 		static void DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target);
 		static void DrawTexture2D(Texture2D* texture, float depth, float centerX, float centerY, float sizeX, float sizeY, RenderTarget* target);
 
-		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 matrix, RenderTarget* target, bool receiveShadow = true);
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow = true);
+		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow = true);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow = true);
 
-		static void DrawGizmoPoint(glm::vec4 color, glm::mat4 matrix, RenderTarget* target);
-		static void DrawGizmoPointInstanced(glm::vec4 color, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target);
-		static void DrawGizmoCube(glm::vec4 color, glm::mat4 matrix, RenderTarget* target);
-		static void DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target);
-		static void DrawGizmoMesh(Mesh* mesh, glm::vec4 color, glm::mat4 matrix, RenderTarget* target);
-		static void DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 matrix, glm::mat4* matrices, size_t count, RenderTarget* target);
+		static void DrawGizmoPoint(glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoCube(glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoMesh(Mesh* mesh, glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
 	};
 }

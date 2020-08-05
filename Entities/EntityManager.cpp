@@ -448,4 +448,22 @@ UniEngine::Entities::EntityComponentStorage::EntityComponentStorage(EntityArchet
 	ChunkArray = array;
 }
 
+size_t UniEngine::Entities::EntityManager::GetEntityAmount(EntityQuery entityQuery) {
+	if (entityQuery.IsNull()) return 0;
+	unsigned index = entityQuery.Index;
+	if (_EntityQueries->at(index).IsDeleted()) {
+		Debug::Error("EntityQuery already deleted!");
+		return 0;
+	}
+	if (_EntityQueries->at(index) != entityQuery) {
+		Debug::Error("EntityQuery out of date!");
+		return 0;
+	}
+	size_t retVal = 0;
+	for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		 retVal += i.ArchetypeInfo->EntityAliveCount;
+	}
+	return retVal;
+}
+
 #pragma endregion

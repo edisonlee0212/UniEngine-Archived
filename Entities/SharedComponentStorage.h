@@ -28,7 +28,7 @@ namespace UniEngine {
 			}
 		};
 		
-		class ENTITIES_API SharedComponentStorage
+		class SharedComponentStorage
 		{
 			std::unordered_map<std::size_t, Index> _SCCollectionsMap;
 			std::vector<SCCollection*> _SCCollectionsList;

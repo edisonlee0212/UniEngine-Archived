@@ -3,6 +3,9 @@
 using namespace UniEngine;
 namespace TreeCreator {
 #pragma region Common
+    struct ParentTranslation {
+        glm::vec3 Value;
+    };
     struct Mass : ComponentBase {
         float Value;
     };
@@ -12,6 +15,9 @@ namespace TreeCreator {
     struct Direction : ComponentBase
     {
         glm::vec3 Value;
+    };
+    struct Connection : ComponentBase {
+        glm::mat4 Value;
     };
 #pragma endregion
 #pragma region Leaf
@@ -52,6 +58,7 @@ namespace TreeCreator {
         APICAL_BUD
     };
     struct BudType : ComponentBase {
+        bool Searching;
         BudTypes Value;
     };
 #pragma endregion
@@ -76,6 +83,7 @@ namespace TreeCreator {
     {
         bool _DrawLeaves;
         bool _DrawBuds;
+        bool _DrawConnections;
         EntityArchetype _BudArchetype;
         EntityArchetype _LeafArchetype;
         EntityArchetype _TreeArchetype;
@@ -83,12 +91,16 @@ namespace TreeCreator {
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
 
+        EntityQuery _ParentTranslationQuery;
+        EntityQuery _ConnectionQuery;
         Material* _BudMaterial;
     public:
         void OnCreate();
         void OnDestroy();
         void Update();
         void FixedUpdate();
+        void RefreshParentTranslations();
+        void RefreshConnections(float lineWidth);
         EntityArchetype GetBudArchetype();
         EntityArchetype GetLeafArchetype();
         EntityArchetype GetTreeArchetype();
