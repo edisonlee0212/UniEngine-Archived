@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ManagerBase.h"
 #include "World.h"
-using namespace UniEngine::Entities;
+using namespace UniEngine;
 
 World* ManagerBase::_World;

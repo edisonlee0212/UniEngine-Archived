@@ -2,15 +2,14 @@
 #include "World.h"
 #include "ManagerBase.h"
 using namespace UniEngine;
-using namespace UniEngine::Entities;
 
 
-Bound UniEngine::Entities::World::GetBound()
+Bound UniEngine::World::GetBound()
 {
 	return _WorldBound;
 }
 
-void UniEngine::Entities::World::SetBound(Bound value)
+void UniEngine::World::SetBound(Bound value)
 {
 	_WorldBound = value;
 }
@@ -21,27 +20,27 @@ UniEngine::Bound::Bound()
 }
 
 
-void UniEngine::Entities::World::SetWorldTime(double time)
+void UniEngine::World::SetWorldTime(double time)
 {
 	_Time->_WorldTime = time;
 }
 
-void UniEngine::Entities::World::SetTimeStep(float timeStep)
+void UniEngine::World::SetTimeStep(float timeStep)
 {
 	_Time->_TimeStep = timeStep;
 }
 
-size_t UniEngine::Entities::World::GetIndex() {
+size_t UniEngine::World::GetIndex() {
 	return _Index;
 }
 
-UniEngine::Entities::World::World(size_t index, ThreadPool* threadPool) {
+UniEngine::World::World(size_t index, ThreadPool* threadPool) {
 	_Index = index;
 	_ThreadPool = threadPool;
 	_Time = new WorldTime();
 }
 
-void UniEngine::Entities::World::Init()
+void UniEngine::World::Init()
 {
 	_Time->_WorldTime = 0;
 	_Time->_DeltaTime = 0;
@@ -52,7 +51,7 @@ void UniEngine::Entities::World::Init()
 
 
 
-UniEngine::Entities::World::~World() {
+UniEngine::World::~World() {
 	for (auto i : _PreparationSystems) {
 		i->OnDestroy();
 		delete i;
@@ -67,7 +66,7 @@ UniEngine::Entities::World::~World() {
 	}
 	delete _Time;
 }
-void UniEngine::Entities::World::Update() {
+void UniEngine::World::Update() {
 	_Time->_DeltaTime = _Time->_WorldTime - _Time->_LastFrameTime;
 	_Time->_LastFrameTime = _Time->_WorldTime;
 	_Time->AddFixedDeltaTime(_Time->_DeltaTime);
@@ -102,7 +101,7 @@ void UniEngine::Entities::World::Update() {
 	}
 }
 
-WorldTime* UniEngine::Entities::World::Time()
+WorldTime* UniEngine::World::Time()
 {
 	return _Time;
 }

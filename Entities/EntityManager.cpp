@@ -1,23 +1,21 @@
 #include "pch.h"
 #include "EntityManager.h"
-using namespace UniEngine::Entities;
+using namespace UniEngine;
+std::vector<WorldEntityStorage*> UniEngine::EntityManager::_WorldEntityStorage;
+std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos;
+std::vector<Entity>* UniEngine::EntityManager::_Entities;
+std::vector<Entity>* UniEngine::EntityManager::_ParentRoots;
+std::vector<EntityComponentStorage>* UniEngine::EntityManager::_EntityComponentStorage;
+std::vector<std::queue<Entity>>* UniEngine::EntityManager::_EntityPool;
+SharedComponentStorage* UniEngine::EntityManager::_EntitySharedComponentStorage;
+std::vector<EntityQuery>* UniEngine::EntityManager::_EntityQueries;
+std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos;
+std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
 
-
-std::vector<WorldEntityStorage*> UniEngine::Entities::EntityManager::_WorldEntityStorage;
-std::vector<EntityInfo>* UniEngine::Entities::EntityManager::_EntityInfos;
-std::vector<Entity>* UniEngine::Entities::EntityManager::_Entities;
-std::vector<Entity>* UniEngine::Entities::EntityManager::_ParentRoots;
-std::vector<EntityComponentStorage>* UniEngine::Entities::EntityManager::_EntityComponentStorage;
-std::vector<std::queue<Entity>>* UniEngine::Entities::EntityManager::_EntityPool;
-SharedComponentStorage* UniEngine::Entities::EntityManager::_EntitySharedComponentStorage;
-std::vector<EntityQuery>* UniEngine::Entities::EntityManager::_EntityQueries;
-std::vector<EntityQueryInfo>* UniEngine::Entities::EntityManager::_EntityQueryInfos;
-std::queue<EntityQuery>* UniEngine::Entities::EntityManager::_EntityQueryPools;
-
-UniEngine::ThreadPool* UniEngine::Entities::EntityManager::_ThreadPool;
+UniEngine::ThreadPool* UniEngine::EntityManager::_ThreadPool;
 #pragma region EntityManager
 
-void UniEngine::Entities::EntityManager::DeleteEntityInternal(Entity entity)
+void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 {
 	EntityInfo info = _EntityInfos->at(entity.Index);
 	Entity actualEntity = _Entities->at(entity.Index);
@@ -44,7 +42,7 @@ void UniEngine::Entities::EntityManager::DeleteEntityInternal(Entity entity)
 	_Entities->at(entity.Index) = actualEntity;
 }
 
-void UniEngine::Entities::EntityManager::RefreshEntityQueryInfos(size_t index)
+void UniEngine::EntityManager::RefreshEntityQueryInfos(size_t index)
 {
 	_EntityQueryInfos->at(index).QueriedStorages.clear();
 	//Select storage with every contained.
@@ -108,7 +106,7 @@ void UniEngine::Entities::EntityManager::RefreshEntityQueryInfos(size_t index)
 	}
 }
 
-void UniEngine::Entities::EntityManager::GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>* container)
+void UniEngine::EntityManager::GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>* container)
 {
 	size_t amount = storage.ArchetypeInfo->EntityAliveCount;
 	if (amount == 0) return;
@@ -119,7 +117,7 @@ void UniEngine::Entities::EntityManager::GetEntityStorage(EntityComponentStorage
 	memcpy(&container->at(container->size() - amount), storage.ChunkArray->Entities.data(), amount * sizeof(Entity));
 }
 
-size_t UniEngine::Entities::EntityManager::SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2)
+size_t UniEngine::EntityManager::SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2)
 {
 	if (index1 == index2) return -1;
 	auto info = storage.ArchetypeInfo;
@@ -151,31 +149,31 @@ size_t UniEngine::Entities::EntityManager::SwapEntity(EntityComponentStorage sto
 	return retVal;
 }
 
-std::vector<Entity>* UniEngine::Entities::EntityManager::GetParentRootsUnsafe()
+std::vector<Entity>* UniEngine::EntityManager::GetParentRootsUnsafe()
 {
 	return _ParentRoots;
 }
 
-void UniEngine::Entities::EntityManager::Init(ThreadPool* threadPool)
+void UniEngine::EntityManager::Init(ThreadPool* threadPool)
 {
 	SetThreadPool(threadPool);
 }
 
-void UniEngine::Entities::EntityManager::GetAllEntities(std::vector<Entity>* target) {
+void UniEngine::EntityManager::GetAllEntities(std::vector<Entity>* target) {
 	target->insert(target->end() ,_Entities->begin() + 1, _Entities->end());
 }
 
-std::vector<Entity>* UniEngine::Entities::EntityManager::GetAllEntitiesUnsafe()
+std::vector<Entity>* UniEngine::EntityManager::GetAllEntitiesUnsafe()
 {
 	return _Entities;
 }
 
-void UniEngine::Entities::EntityManager::SetThreadPool(ThreadPool* pool)
+void UniEngine::EntityManager::SetThreadPool(ThreadPool* pool)
 {
 	_ThreadPool = pool;
 }
 
-void UniEngine::Entities::EntityManager::SetWorld(World* world)
+void UniEngine::EntityManager::SetWorld(World* world)
 {
 	size_t index = world->GetIndex();
 	while (index >= _WorldEntityStorage.size()) {
@@ -202,7 +200,7 @@ void UniEngine::Entities::EntityManager::SetWorld(World* world)
 	
 }
 
-Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetype)
+Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 {
 	if (archetype.Index == 0) return Entity();
 	Entity retVal;
@@ -242,7 +240,7 @@ Entity UniEngine::Entities::EntityManager::CreateEntity(EntityArchetype archetyp
 	return retVal;
 }
 
-void UniEngine::Entities::EntityManager::DeleteEntity(Entity entity)
+void UniEngine::EntityManager::DeleteEntity(Entity entity)
 {
 	if (entity.IsNull()) return;
 	size_t entityIndex = entity.Index;
@@ -257,7 +255,7 @@ void UniEngine::Entities::EntityManager::DeleteEntity(Entity entity)
 	if(_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
 }
 
-void UniEngine::Entities::EntityManager::SetParent(Entity entity, Entity parent)
+void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
 {
 	if (entity.IsNull() || parent.IsNull()) return;
 	size_t childIndex = entity.Index;
@@ -291,7 +289,7 @@ void UniEngine::Entities::EntityManager::SetParent(Entity entity, Entity parent)
 	if (addParent) _ParentRoots->push_back(_Entities->at(parentIndex));
 }
 
-Entity UniEngine::Entities::EntityManager::GetParent(Entity entity)
+Entity UniEngine::EntityManager::GetParent(Entity entity)
 {
 	if (entity.IsNull()) return Entity();
 	size_t entityIndex = entity.Index;
@@ -302,7 +300,7 @@ Entity UniEngine::Entities::EntityManager::GetParent(Entity entity)
 	return _EntityInfos->at(entityIndex).Parent;
 }
 
-std::vector<Entity> UniEngine::Entities::EntityManager::GetChildren(Entity entity)
+std::vector<Entity> UniEngine::EntityManager::GetChildren(Entity entity)
 {
 	if (entity.IsNull()) return std::vector<Entity>();
 	size_t entityIndex = entity.Index;
@@ -313,7 +311,7 @@ std::vector<Entity> UniEngine::Entities::EntityManager::GetChildren(Entity entit
 	return _EntityInfos->at(entityIndex).Children;
 }
 
-void UniEngine::Entities::EntityManager::RemoveChild(Entity entity, Entity parent)
+void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
 {
 	if (entity.IsNull() || parent.IsNull()) return;
 	size_t childIndex = entity.Index;
@@ -345,14 +343,14 @@ void UniEngine::Entities::EntityManager::RemoveChild(Entity entity, Entity paren
 	}
 }
 
-void UniEngine::Entities::EntityManager::GetParentRoots(std::vector<Entity>* container)
+void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>* container)
 {
 	size_t amount = _ParentRoots->size();
 	container->resize(container->size() + amount);
 	memcpy(&container->at(container->size() - amount), _ParentRoots->data(), amount * sizeof(Entity));
 }
 
-EntityArchetype UniEngine::Entities::EntityManager::GetEntityArchetype(Entity entity)
+EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)
 {
 	if (entity.IsNull()) return EntityArchetype();
 	EntityInfo info = _EntityInfos->at(entity.Index);
@@ -361,7 +359,7 @@ EntityArchetype UniEngine::Entities::EntityManager::GetEntityArchetype(Entity en
 	return retVal;
 }
 
-EntityQuery UniEngine::Entities::EntityManager::CreateEntityQuery()
+EntityQuery UniEngine::EntityManager::CreateEntityQuery()
 {
 	EntityQuery retVal;
 	if (_EntityQueryPools->empty()) {
@@ -382,7 +380,7 @@ EntityQuery UniEngine::Entities::EntityManager::CreateEntityQuery()
 	}
 }
 
-void UniEngine::Entities::EntityManager::DeleteEntityQuery(EntityQuery entityQuery)
+void UniEngine::EntityManager::DeleteEntityQuery(EntityQuery entityQuery)
 {
 	if (entityQuery.IsNull()) return;
 	unsigned index = entityQuery.Index;
@@ -404,7 +402,7 @@ void UniEngine::Entities::EntityManager::DeleteEntityQuery(EntityQuery entityQue
 	_EntityQueryPools->push(toPool);
 }
 
-std::vector<EntityComponentStorage> UniEngine::Entities::EntityManager::UnsafeQueryStorages(EntityQuery entityQuery)
+std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorages(EntityQuery entityQuery)
 {
 	if (entityQuery.IsNull()) return std::vector<EntityComponentStorage>();
 	unsigned index = entityQuery.Index;
@@ -419,13 +417,13 @@ std::vector<EntityComponentStorage> UniEngine::Entities::EntityManager::UnsafeQu
 	return _EntityQueryInfos->at(index).QueriedStorages;
 }
 
-ComponentDataChunkArray* UniEngine::Entities::EntityManager::UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype)
+ComponentDataChunkArray* UniEngine::EntityManager::UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype)
 {
 	if (entityArchetype.IsNull()) return nullptr;
 	return _EntityComponentStorage->at(entityArchetype.Index).ChunkArray;
 }
 
-void UniEngine::Entities::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container)
+void UniEngine::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container)
 {
 	if (entityQuery.IsNull()) return;
 	unsigned index = entityQuery.Index;
@@ -442,18 +440,18 @@ void UniEngine::Entities::EntityManager::GetEntityArray(EntityQuery entityQuery,
 	}
 }
 
-void UniEngine::Entities::EntityQuery::ToEntityArray(std::vector<Entity>* container)
+void UniEngine::EntityQuery::ToEntityArray(std::vector<Entity>* container)
 {
 	EntityManager::GetEntityArray(*this, container);
 }
 
-UniEngine::Entities::EntityComponentStorage::EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array)
+UniEngine::EntityComponentStorage::EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array)
 {
 	ArchetypeInfo = info;
 	ChunkArray = array;
 }
 
-size_t UniEngine::Entities::EntityManager::GetEntityAmount(EntityQuery entityQuery) {
+size_t UniEngine::EntityManager::GetEntityAmount(EntityQuery entityQuery) {
 	if (entityQuery.IsNull()) return 0;
 	unsigned index = entityQuery.Index;
 	if (_EntityQueries->at(index).IsDeleted()) {
@@ -471,7 +469,7 @@ size_t UniEngine::Entities::EntityManager::GetEntityAmount(EntityQuery entityQue
 	return retVal;
 }
 
-unsigned UniEngine::Entities::EntityQuery::GetEntityAmount()
+unsigned UniEngine::EntityQuery::GetEntityAmount()
 {
 	return EntityManager::GetEntityAmount(*this);
 }

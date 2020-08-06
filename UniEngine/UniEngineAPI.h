@@ -9,8 +9,6 @@
 #include "imgui_impl_win32.h"
 #include <GLFW/glfw3.h>
 
-using namespace UniEngine::Entities;
-
 #ifdef UNIENGINE_EXPORTS
 #define UNIENGINE_API __declspec(dllexport)
 #else

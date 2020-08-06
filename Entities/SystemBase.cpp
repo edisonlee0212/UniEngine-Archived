@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "SystemBase.h"
-using namespace UniEngine::Entities;
-UniEngine::Entities::SystemBase::SystemBase()
+using namespace UniEngine;
+UniEngine::SystemBase::SystemBase()
 {
 	_Enabled = false;
 }
 
-void UniEngine::Entities::SystemBase::Enable()
+void UniEngine::SystemBase::Enable()
 {
 	if (!_Enabled) {
 		_Enabled = true;
@@ -14,7 +14,7 @@ void UniEngine::Entities::SystemBase::Enable()
 	}
 }
 
-void UniEngine::Entities::SystemBase::Disable()
+void UniEngine::SystemBase::Disable()
 {
 	if (_Enabled) {
 		_Enabled = false;
@@ -22,7 +22,7 @@ void UniEngine::Entities::SystemBase::Disable()
 	}
 }
 
-bool UniEngine::Entities::SystemBase::Enabled()
+bool UniEngine::SystemBase::Enabled()
 {
 	return _Enabled;
 }

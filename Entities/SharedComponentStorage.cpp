@@ -1,21 +1,21 @@
 #include "pch.h"
 #include "SharedComponentStorage.h"
 
-bool UniEngine::Entities::ComponentTypeComparator(ComponentType a, ComponentType b)
+bool UniEngine::ComponentTypeComparator(ComponentType a, ComponentType b)
 {
 	return a.TypeID < b.TypeID;
 }
 
 #pragma region SharedComponentStorage
 
-UniEngine::Entities::SharedComponentStorage::SharedComponentStorage()
+UniEngine::SharedComponentStorage::SharedComponentStorage()
 {
 	_SCCollectionsMap = std::unordered_map<std::size_t, Index>();
 	_SCCollectionsList = std::vector<SCCollection*>();
 }
 
 
-void UniEngine::Entities::SharedComponentStorage::DeleteEntity(Entity entity)
+void UniEngine::SharedComponentStorage::DeleteEntity(Entity entity)
 {
 	for (auto scc : _SCCollectionsList) {
 		size_t ocSize = scc->_OwnersCollectionsList.size();
