@@ -20,8 +20,8 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 	
 
 	auto worldBound = _World->GetBound();
-	glm::vec3 minBound = glm::vec3(INT_MAX);
-	glm::vec3 maxBound = glm::vec3(INT_MIN);
+	glm::vec3 minBound = glm::vec3((int)INT_MAX);
+	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
 	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 	if (meshMaterials != nullptr) {
 		for (auto mmc : *meshMaterials) {

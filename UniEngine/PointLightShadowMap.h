@@ -9,7 +9,7 @@ namespace UniEngine {
 	{
 		GLTextureCubeMapArray* _DepthCubeMapArray;
 	public:
-		PointLightShadowMap(size_t amount, float resolutionX = 2048.0f, float resolutionY = 2048.0f);
+		PointLightShadowMap(size_t amount, size_t resolutionX = 2048, size_t resolutionY = 2048);
 		GLTextureCubeMapArray* DepthCubeMapArray();
 		void Bind();
 	};

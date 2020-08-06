@@ -20,7 +20,7 @@ namespace UniEngine {
 		glm::vec3 specular;
 		float depthBias = 0.007f;
 		float normalOffset = 0.001f;
-		float lightSize = 0.01;
+		float lightSize = 0.01f;
 		size_t GetHashCode();
 	};
 

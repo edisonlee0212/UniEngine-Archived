@@ -21,7 +21,7 @@ ShadowSettings LightingManager::_ShadowSettings;
 //Settings
 float LightingManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
 float LightingManager::_MaxShadowDistance = 500;
-unsigned LightingManager::_DirectionalShadowMapResolution = 1024;
+size_t LightingManager::_DirectionalShadowMapResolution = 1024;
 bool LightingManager::_StableFit = true;
 #pragma endregion
 
@@ -57,13 +57,13 @@ void UniEngine::LightingManager::Init()
 	_PointLightBlock = new GLUBO();
 	_SpotLightBlock = new GLUBO();
 	size_t size = 16 + Default::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLight);
-	_DirectionalLightBlock->SetData(size, NULL, GL_DYNAMIC_DRAW);
+	_DirectionalLightBlock->SetData((GLsizei)size, NULL, (GLsizei)GL_DYNAMIC_DRAW);
 	_DirectionalLightBlock->SetBase(1);
 	size = 16 + Default::ShaderIncludes::MaxPointLightAmount * sizeof(PointLight);
-	_PointLightBlock->SetData(size, NULL, GL_DYNAMIC_DRAW);
+	_PointLightBlock->SetData((GLsizei)size, NULL, (GLsizei)GL_DYNAMIC_DRAW);
 	_PointLightBlock->SetBase(2);
 	size = 16 + Default::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLight);
-	_SpotLightBlock->SetData(size, NULL, GL_DYNAMIC_DRAW);
+	_SpotLightBlock->SetData((GLsizei)size, NULL, (GLsizei)GL_DYNAMIC_DRAW);
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
@@ -122,7 +122,7 @@ void UniEngine::LightingManager::Init()
 
 	_DirectionalLightShadowMapFilter = new RenderTarget(_DirectionalShadowMapResolution, _DirectionalShadowMapResolution);
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	_DLVSMVFilter = new GLTexture2DArray(1, GL_RG32F, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, Default::ShaderIncludes::ShadowCascadeAmount);
+	_DLVSMVFilter = new GLTexture2DArray(1, GL_RG32F, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)Default::ShaderIncludes::ShadowCascadeAmount);
 
 	_DLVSMVFilter->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_DLVSMVFilter->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -292,10 +292,10 @@ void UniEngine::LightingManager::Start()
 			_DirectionalLightShadowMap->Bind();
 			glEnable(GL_DEPTH_TEST);
 			if (_ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM) {
-				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RG, GL_FLOAT, NULL);
+				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)size * 4, GL_RG, GL_FLOAT, NULL);
 			}
 			else {
-				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, size * 4, GL_RED, GL_FLOAT, NULL);
+				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)size * 4, GL_RED, GL_FLOAT, NULL);
 			}
 			for (int i = 0; i < size; i++) {
 				glClear(GL_DEPTH_BUFFER_BIT);
@@ -327,7 +327,7 @@ void UniEngine::LightingManager::Start()
 								mesh->VAO()->DisableAttributeArray(13);
 								mesh->VAO()->DisableAttributeArray(14);
 								mesh->VAO()->DisableAttributeArray(15);
-								glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+								glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 							}
 						}
 					}
@@ -342,7 +342,7 @@ void UniEngine::LightingManager::Start()
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
+							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
 							for (auto entity : *entities) {
 								auto mesh = immc->_Mesh;
 								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).value);
@@ -359,7 +359,7 @@ void UniEngine::LightingManager::Start()
 								mesh->VAO()->SetAttributeDivisor(13, 1);
 								mesh->VAO()->SetAttributeDivisor(14, 1);
 								mesh->VAO()->SetAttributeDivisor(15, 1);
-								glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
+								glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 								GLVAO::BindDefault();
 							}
 							delete matricesBuffer;
@@ -446,7 +446,7 @@ void UniEngine::LightingManager::Start()
 							mesh->VAO()->DisableAttributeArray(13);
 							mesh->VAO()->DisableAttributeArray(14);
 							mesh->VAO()->DisableAttributeArray(15);
-							glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+							glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 						}
 					}
 				}
@@ -459,7 +459,7 @@ void UniEngine::LightingManager::Start()
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData(count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
+							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
 							for (auto entity : *entities) {
 								auto mesh = immc->_Mesh;
 								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).value);
@@ -476,7 +476,7 @@ void UniEngine::LightingManager::Start()
 								mesh->VAO()->SetAttributeDivisor(13, 1);
 								mesh->VAO()->SetAttributeDivisor(14, 1);
 								mesh->VAO()->SetAttributeDivisor(15, 1);
-								glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
+								glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 								GLVAO::BindDefault();
 							}
 							delete matricesBuffer;
@@ -509,7 +509,7 @@ void UniEngine::LightingManager::SetSplitRatio(float r1, float r2, float r3, flo
 	_ShadowCascadeSplit[3] = r4;
 }
 
-void UniEngine::LightingManager::SetDirectionalLightResolution(float value)
+void UniEngine::LightingManager::SetDirectionalLightResolution(size_t value)
 {
 	_DirectionalShadowMapResolution = value;
 }

@@ -249,7 +249,7 @@ void SpaceColonizationTreeSystem::ResetEnvelopeType(EnvelopeType type)
 	_Envelope.ResetType(type);
 }
 
-void SpaceColonizationTreeSystem::PushAttractionPoints(unsigned value)
+void SpaceColonizationTreeSystem::PushAttractionPoints(size_t value)
 {
 	Translation translation;
 	for (int i = 0; i < value; i++) {
@@ -258,7 +258,7 @@ void SpaceColonizationTreeSystem::PushAttractionPoints(unsigned value)
 	}
 }
 
-void SpaceColonizationTreeSystem::PushGrowIterations(unsigned iteration)
+void SpaceColonizationTreeSystem::PushGrowIterations(size_t iteration)
 {
 	EntityManager::ForEach<BudType>(_BudQuery, [](int i, BudType* type) {
 		type->Searching = true;
@@ -267,7 +267,7 @@ void SpaceColonizationTreeSystem::PushGrowIterations(unsigned iteration)
 	_IterationFinishMark = false;
 }
 
-void SpaceColonizationTreeSystem::CreateTree(unsigned index, TreeColor color, glm::vec3 position)
+void SpaceColonizationTreeSystem::CreateTree(size_t index, TreeColor color, glm::vec3 position)
 {
 	TreeIndex treeIndex;
 	treeIndex.Value = index;

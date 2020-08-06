@@ -14,8 +14,8 @@ namespace UniEngine {
 
 	struct ENTITIES_API Entity {
 		//Position in _Entity Array
-		unsigned Index = 0;
-		unsigned Version = 0;
+		size_t Index = 0;
+		size_t Version = 0;
 
 		bool operator ==(const Entity& other) const {
 			return (other.Index == Index) && (other.Version == Version);
@@ -67,18 +67,18 @@ namespace UniEngine {
 		//16k raw data
 		void* Data;
 		template<typename T>
-		T GetData(unsigned offset);
+		T GetData(size_t offset);
 		template<typename T>
-		void SetData(unsigned offset, T data);
+		void SetData(size_t offset, T data);
 	};
 
 	template<typename T>
-	inline T ComponentDataChunk::GetData(unsigned offset)
+	inline T ComponentDataChunk::GetData(size_t offset)
 	{
 		return T(*(T*)((char*)Data + offset));
 	}
 	template<typename T>
-	inline void ComponentDataChunk::SetData(unsigned offset, T data)
+	inline void ComponentDataChunk::SetData(size_t offset, T data)
 	{
 		*(T*)((char*)Data + offset) = data;
 	}
@@ -119,8 +119,8 @@ namespace UniEngine {
 	};
 
 	struct ENTITIES_API EntityQuery {
-		unsigned Index = 0;
-		unsigned Version = 0;
+		size_t Index = 0;
+		size_t Version = 0;
 
 		bool operator ==(const EntityQuery& other) const {
 			return (other.Index == Index) && (other.Version == Version);
@@ -145,7 +145,7 @@ namespace UniEngine {
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
 		void ToComponentDataArray(T1 filter, std::vector<T2>* container);
 		void ToEntityArray(std::vector<Entity>* container);
-		unsigned GetEntityAmount();
+		size_t GetEntityAmount();
 	};
 
 
@@ -216,7 +216,7 @@ namespace UniEngine {
 	};
 	struct ENTITIES_API CameraMask : ComponentBase
 	{
-		unsigned value;
+		size_t value;
 		bool operator ==(const CameraMask& other) const {
 			return other.value == value;
 		}

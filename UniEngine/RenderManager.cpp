@@ -3,8 +3,8 @@
 #include "LightingManager.h"
 using namespace UniEngine;
 
-unsigned RenderManager::_DrawCall;
-unsigned RenderManager::_Triangles;
+size_t RenderManager::_DrawCall;
+size_t RenderManager::_Triangles;
 
 #pragma region Internal
 void UniEngine::RenderManager::DrawMeshInstanced(
@@ -12,7 +12,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 {
 	glEnable(GL_DEPTH_TEST);
 	GLVBO* matricesBuffer = new GLVBO();
-	matricesBuffer->SetData(count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
 	mesh->VAO()->EnableAttributeArray(12);
 	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -42,7 +42,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				Debug::Error("Max allowed texture exceeded!");
 				break;
 			}
-			texture->Texture()->Bind(textureStartIndex);
+			texture->Texture()->Bind((GLenum)textureStartIndex);
 			textureStartIndex++;
 		}
 	}
@@ -118,17 +118,17 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 					break;
 				}
 				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
-					program->SetInt("TEXTURE_" + name + std::to_string(size), j + textureStartIndex);
+					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)(j + textureStartIndex));
 				}
 				if (normalNr == 0) {
-					program->SetInt("TEXTURE_NORMAL0", textureStartIndex);
+					program->SetInt("TEXTURE_NORMAL0", (int)textureStartIndex);
 					program->SetBool("enableNormalMapping", false);
 				}
 				else {
 					program->SetBool("enableNormalMapping", true);
 				}
 				if (specularNr == 0) {
-					program->SetInt("TEXTURE_SPECULAR0", textureStartIndex);
+					program->SetInt("TEXTURE_SPECULAR0", (int)textureStartIndex);
 					program->SetBool("enableSpecularMapping", false);
 				}
 				else {
@@ -136,7 +136,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				}
 			}
 		}
-		glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
+		glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	}
 	GLVAO::BindDefault();
 	delete matricesBuffer;
@@ -165,7 +165,7 @@ void UniEngine::RenderManager::DrawMesh(
 				Debug::Error("Max allowed texture exceeded!");
 				break;
 			}
-			texture->Texture()->Bind(textureStartIndex);
+			texture->Texture()->Bind((GLenum)textureStartIndex);
 			textureStartIndex++;
 		}
 	}
@@ -243,17 +243,17 @@ void UniEngine::RenderManager::DrawMesh(
 					break;
 				}
 				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
-					program->SetInt("TEXTURE_" + name + std::to_string(size), j + textureStartIndex);
+					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)(j + textureStartIndex));
 				}
 				if (normalNr == 0) {
-					program->SetInt("TEXTURE_NORMAL0", textureStartIndex);
+					program->SetInt("TEXTURE_NORMAL0", (int)textureStartIndex);
 					program->SetBool("enableNormalMapping", false);
 				}
 				else {
 					program->SetBool("enableNormalMapping", true);
 				}
 				if (specularNr == 0) {
-					program->SetInt("TEXTURE_SPECULAR0", textureStartIndex);
+					program->SetInt("TEXTURE_SPECULAR0", (int)textureStartIndex);
 					program->SetBool("enableSpecularMapping", false);
 				}
 				else {
@@ -261,7 +261,7 @@ void UniEngine::RenderManager::DrawMesh(
 				}
 			}
 		}
-		glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	}
 	GLVAO::BindDefault();
 }
@@ -283,7 +283,7 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 {
 	glEnable(GL_DEPTH_TEST);
 	GLVBO* matricesBuffer = new GLVBO();
-	matricesBuffer->SetData(count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
 	mesh->VAO()->EnableAttributeArray(12);
 	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -304,7 +304,7 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
 	RenderManager::_DrawCall++;
 	RenderManager::_Triangles += mesh->Size() * count / 3;
-	glDrawElementsInstanced(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0, count);
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 	delete matricesBuffer;
 }
@@ -323,7 +323,7 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("model", model);
 	RenderManager::_DrawCall++;
 	RenderManager::_Triangles += mesh->Size() / 3;
-	glDrawElements(GL_TRIANGLES, mesh->Size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
 #pragma endregion
@@ -410,12 +410,12 @@ void UniEngine::RenderManager::Start()
 	}
 }
 
-unsigned UniEngine::RenderManager::Triangles()
+size_t UniEngine::RenderManager::Triangles()
 {
 	return _Triangles;
 }
 
-unsigned UniEngine::RenderManager::DrawCall()
+size_t UniEngine::RenderManager::DrawCall()
 {
 	return _DrawCall;
 }

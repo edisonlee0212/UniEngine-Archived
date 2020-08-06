@@ -207,8 +207,8 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 	if (_EntityPool->at(archetype.Index).empty()) {
 		EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
 		EntityArchetypeInfo* info = storage.ArchetypeInfo;
-		unsigned chunkIndex = info->EntityCount / info->ChunkCapacity;
-		unsigned chunkPointer = info->EntityCount % info->ChunkCapacity;
+		size_t chunkIndex = info->EntityCount / info->ChunkCapacity;
+		size_t chunkPointer = info->EntityCount % info->ChunkCapacity;
 		if (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 			//Allocate new chunk;
 			ComponentDataChunk chunk;
@@ -370,7 +370,6 @@ EntityQuery UniEngine::EntityManager::CreateEntityQuery()
 		EntityQueryInfo info;
 		_EntityQueryInfos->push_back(info);
 		RefreshEntityQueryInfos(retVal.Index);
-		return retVal;
 	}
 	else {
 		retVal = _EntityQueryPools->front();
@@ -378,12 +377,13 @@ EntityQuery UniEngine::EntityManager::CreateEntityQuery()
 		_EntityQueries->at(retVal.Index).Version = retVal.Version;
 		RefreshEntityQueryInfos(retVal.Index);
 	}
+	return retVal;
 }
 
 void UniEngine::EntityManager::DeleteEntityQuery(EntityQuery entityQuery)
 {
 	if (entityQuery.IsNull()) return;
-	unsigned index = entityQuery.Index;
+	size_t index = entityQuery.Index;
 	if (_EntityQueries->at(index).IsDeleted()) {
 		Debug::Error("EntityQuery already deleted!");
 		return;
@@ -405,7 +405,7 @@ void UniEngine::EntityManager::DeleteEntityQuery(EntityQuery entityQuery)
 std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorages(EntityQuery entityQuery)
 {
 	if (entityQuery.IsNull()) return std::vector<EntityComponentStorage>();
-	unsigned index = entityQuery.Index;
+	size_t index = entityQuery.Index;
 	if (_EntityQueries->at(index).IsDeleted()) {
 		Debug::Error("EntityQuery already deleted!");
 		return std::vector<EntityComponentStorage>();
@@ -426,7 +426,7 @@ ComponentDataChunkArray* UniEngine::EntityManager::UnsafeGetEntityComponentDataC
 void UniEngine::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container)
 {
 	if (entityQuery.IsNull()) return;
-	unsigned index = entityQuery.Index;
+	size_t index = entityQuery.Index;
 	if (_EntityQueries->at(index).IsDeleted()) {
 		Debug::Error("EntityQuery already deleted!");
 		return;
@@ -453,7 +453,7 @@ UniEngine::EntityComponentStorage::EntityComponentStorage(EntityArchetypeInfo* i
 
 size_t UniEngine::EntityManager::GetEntityAmount(EntityQuery entityQuery) {
 	if (entityQuery.IsNull()) return 0;
-	unsigned index = entityQuery.Index;
+	size_t index = entityQuery.Index;
 	if (_EntityQueries->at(index).IsDeleted()) {
 		Debug::Error("EntityQuery already deleted!");
 		return 0;
@@ -469,7 +469,7 @@ size_t UniEngine::EntityManager::GetEntityAmount(EntityQuery entityQuery) {
 	return retVal;
 }
 
-unsigned UniEngine::EntityQuery::GetEntityAmount()
+size_t UniEngine::EntityQuery::GetEntityAmount()
 {
 	return EntityManager::GetEntityAmount(*this);
 }

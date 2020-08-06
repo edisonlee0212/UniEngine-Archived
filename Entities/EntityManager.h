@@ -208,7 +208,7 @@ namespace UniEngine {
 		size_t offset = 0;
 		ComponentType prev = retVal[0];
 		//Erase duplicates
-		for (int i = 1; i < retVal.size(); i++) {
+		for (size_t i = 1; i < retVal.size(); i++) {
 			if (retVal[i] == prev) {
 				retVal.erase(retVal.begin() + i);
 				i--;
@@ -217,7 +217,7 @@ namespace UniEngine {
 				prev = retVal[i];
 			}
 		}
-		for (int i = 0; i < retVal.size(); i++) {
+		for (size_t i = 0; i < retVal.size(); i++) {
 			retVal[i].Offset = offset;
 			offset += retVal[i].Size;
 		}
@@ -240,8 +240,8 @@ namespace UniEngine {
 		}
 		if (found) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<std::shared_future<void>> results;
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
@@ -249,8 +249,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								func(i + chunkIndex * capacity,
+							for (size_t i = 0; i < capacity; i++) {
+								func((int)(i + chunkIndex * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
 								);
 							}
@@ -262,15 +262,15 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
+							for (size_t i = 0; i < remainder; i++) {
+								func((int)(i + chunkAmount * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
 								);
 							}
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -295,8 +295,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<std::shared_future<void>> results;
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
@@ -304,8 +304,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								func(i + chunkIndex * capacity,
+							for (size_t i = 0; i < capacity; i++) {
+								func((int)(i + chunkIndex * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
 								);
@@ -318,8 +318,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
+							for (size_t i = 0; i < remainder; i++) {
+								func((int)(i + chunkAmount * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
 								);
@@ -327,7 +327,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -357,8 +357,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<std::shared_future<void>> results;
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
@@ -366,8 +366,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								func(i + chunkIndex * capacity,
+							for (size_t i = 0; i < capacity; i++) {
+								func((int)(i + chunkIndex * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
@@ -381,8 +381,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
+							for (size_t i = 0; i < remainder; i++) {
+								func((int)(i + chunkAmount * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
@@ -391,7 +391,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -427,8 +427,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3 && found4) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<std::shared_future<void>> results;
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
@@ -436,8 +436,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								func(i + chunkIndex * capacity,
+							for (size_t i = 0; i < capacity; i++) {
+								func((int)(i + chunkIndex * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -452,8 +452,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
+							for (size_t i = 0; i < remainder; i++) {
+								func((int)(i + chunkAmount * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -463,7 +463,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -505,8 +505,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3 && found4 && found5) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<std::shared_future<void>> results;
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
@@ -514,8 +514,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								func(i + chunkIndex * capacity,
+							for (size_t i = 0; i < capacity; i++) {
+								func((int)(i + chunkIndex * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -531,8 +531,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
+							for (size_t i = 0; i < remainder; i++) {
+								func((int)(i + chunkAmount * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -543,7 +543,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -591,8 +591,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<std::shared_future<void>> results;
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
@@ -600,8 +600,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								func(i + chunkIndex * capacity,
+							for (size_t i = 0; i < capacity; i++) {
+								func((int)(i + chunkIndex * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -618,8 +618,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
+							for (size_t i = 0; i < remainder; i++) {
+								func((int)(i + chunkAmount * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -631,7 +631,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -685,8 +685,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6 && found7) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<std::shared_future<void>> results;
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
@@ -694,8 +694,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								func(i + chunkIndex * capacity,
+							for (size_t i = 0; i < capacity; i++) {
+								func((int)(i + chunkIndex * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -713,8 +713,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
+							for (size_t i = 0; i < remainder; i++) {
+								func((int)(i + chunkAmount * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -727,7 +727,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -787,8 +787,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6 && found7 && found8) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<std::shared_future<void>> results;
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
@@ -796,8 +796,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								func(i + chunkIndex * capacity,
+							for (size_t i = 0; i < capacity; i++) {
+								func((int)(i + chunkIndex * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -816,8 +816,8 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								func(i + chunkAmount * capacity,
+							for (size_t i = 0; i < remainder; i++) {
+								func((int)(i + chunkAmount * capacity),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -831,7 +831,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -852,8 +852,8 @@ namespace UniEngine {
 		}
 		if (found) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<Entity>* entities = &chunkArray->Entities;
 			std::vector<std::shared_future<void>> results;
@@ -862,9 +862,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								int index = i + chunkIndex * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < capacity; i++) {
+								size_t index = i + chunkIndex * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
 								);
 							}
@@ -876,16 +876,16 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								int index = i + chunkAmount * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < remainder; i++) {
+								size_t index = i + chunkAmount * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
 								);
 							}
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -910,8 +910,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<Entity>* entities = &chunkArray->Entities;
 			std::vector<std::shared_future<void>> results;
@@ -920,9 +920,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								int index = i + chunkIndex * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < capacity; i++) {
+								size_t index = i + chunkIndex * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
 								);
@@ -935,9 +935,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								int index = i + chunkAmount * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < remainder; i++) {
+								size_t index = i + chunkAmount * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
 								);
@@ -945,7 +945,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -975,8 +975,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<Entity>* entities = &chunkArray->Entities;
 			std::vector<std::shared_future<void>> results;
@@ -985,9 +985,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								int index = i + chunkIndex * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < capacity; i++) {
+								size_t index = i + chunkIndex * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
@@ -1001,9 +1001,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								int index = i + chunkAmount * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < remainder; i++) {
+								size_t index = i + chunkAmount * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
@@ -1012,7 +1012,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -1048,8 +1048,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3 && found4) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<Entity>* entities = &chunkArray->Entities;
 			std::vector<std::shared_future<void>> results;
@@ -1058,9 +1058,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								int index = i + chunkIndex * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < capacity; i++) {
+								size_t index = i + chunkIndex * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1075,9 +1075,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								int index = i + chunkAmount * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < remainder; i++) {
+								size_t index = i + chunkAmount * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1087,7 +1087,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -1129,8 +1129,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3 && found4 && found5) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<Entity>* entities = &chunkArray->Entities;
 			std::vector<std::shared_future<void>> results;
@@ -1139,9 +1139,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								int index = i + chunkIndex * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < capacity; i++) {
+								size_t index = i + chunkIndex * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1159,7 +1159,7 @@ namespace UniEngine {
 						{
 							for (int i = 0; i < remainder; i++) {
 								int index = i + chunkAmount * capacity;
-								func(index, entities->at(index),
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1170,7 +1170,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -1218,8 +1218,8 @@ namespace UniEngine {
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
+			size_t chunkAmount = entityCount / capacity;
+			size_t remainder = entityCount % capacity;
 			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
 			std::vector<Entity>* entities = &chunkArray->Entities;
 			std::vector<std::shared_future<void>> results;
@@ -1228,9 +1228,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								int index = i + chunkIndex * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < capacity; i++) {
+								size_t index = i + chunkIndex * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1247,9 +1247,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								int index = i + chunkAmount * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < remainder; i++) {
+								size_t index = i + chunkAmount * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1261,7 +1261,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -1325,9 +1325,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								int index = i + chunkIndex * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < capacity; i++) {
+								size_t index = i + chunkIndex * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1345,9 +1345,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								int index = i + chunkAmount * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < remainder; i++) {
+								size_t index = i + chunkAmount * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1360,7 +1360,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -1430,9 +1430,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8](int id)
 						{
-							for (int i = 0; i < capacity; i++) {
-								int index = i + chunkIndex * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < capacity; i++) {
+								size_t index = i + chunkIndex * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1451,9 +1451,9 @@ namespace UniEngine {
 				results.push_back(
 					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder](int id)
 						{
-							for (int i = 0; i < remainder; i++) {
-								int index = i + chunkAmount * capacity;
-								func(index, entities->at(index),
+							for (size_t i = 0; i < remainder; i++) {
+								size_t index = i + chunkAmount * capacity;
+								func((int)index, entities->at(index),
 									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
 									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
@@ -1467,7 +1467,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (int i = 0; i < results.size(); i++) {
+			for (size_t i = 0; i < results.size(); i++) {
 				results[i].wait();
 			}
 		}
@@ -1494,7 +1494,7 @@ namespace UniEngine {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 			size_t chunkAmount = amount / capacity;
 			size_t remainAmount = amount % capacity;
-			for (int i = 0; i < chunkAmount; i++) {
+			for (size_t i = 0; i < chunkAmount; i++) {
 				memcpy(&container->at(container->size() - remainAmount - capacity * (chunkAmount - i)), (void*)((char*)storage.ChunkArray->Chunks[i].Data + capacity * targetType.Offset), capacity * targetType.Size);
 			}
 			if (remainAmount > 0) memcpy(&container->at(container->size() - remainAmount), (void*)((char*)storage.ChunkArray->Chunks[chunkAmount].Data + capacity * targetType.Offset), remainAmount * targetType.Size);
@@ -1510,12 +1510,12 @@ namespace UniEngine {
 		info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
 		info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
 		int duplicateIndex = -1;
-		for (auto i = 1; i < _EntityComponentStorage->size(); i++) {
+		for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
 			EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
 			if (info->ChunkCapacity != compareInfo->ChunkCapacity) continue;
 			if (info->EntitySize != compareInfo->EntitySize) continue;
 			bool typeCheck = true;
-			for (auto j = 0; j < compareInfo->ComponentTypes.size(); j++) {
+			for (size_t j = 0; j < compareInfo->ComponentTypes.size(); j++) {
 				if (info->ComponentTypes[j] != compareInfo->ComponentTypes[j]) typeCheck = false;
 			}
 			if (typeCheck) {
@@ -1533,7 +1533,7 @@ namespace UniEngine {
 		else {
 			retVal.Index = duplicateIndex;
 		}
-		for (int i = 0; i < _EntityQueryInfos->size(); i++) {
+		for (size_t i = 0; i < _EntityQueryInfos->size(); i++) {
 			RefreshEntityQueryInfos(i);
 		}
 		return retVal;
@@ -1549,13 +1549,13 @@ namespace UniEngine {
 
 		if (_Entities->at(entity.Index) == entity) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
-			unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
-			unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-			unsigned offset = 0;
+			size_t offset = 0;
 			bool found = false;
 			size_t id = typeid(T).hash_code();
-			for (int i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
+			for (size_t i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
 				if (id == chunkInfo->ComponentTypes[i].TypeID) {
 					offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
 					offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
@@ -1583,13 +1583,13 @@ namespace UniEngine {
 		EntityInfo info = _EntityInfos->at(entity.Index);
 		if (_Entities->at(entity.Index) == entity) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
-			unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
-			unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-			unsigned offset = 0;
+			size_t offset = 0;
 			bool found = false;
 			size_t id = typeid(T).hash_code();
-			for (int i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
+			for (size_t i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
 				if (id == chunkInfo->ComponentTypes[i].TypeID) {
 					offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
 					offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
@@ -1617,13 +1617,13 @@ namespace UniEngine {
 		EntityInfo info = _EntityInfos->at(entity.Index);
 		if (_Entities->at(entity.Index) == entity) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
-			unsigned chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
-			unsigned chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-			unsigned offset = 0;
+			size_t offset = 0;
 			bool found = false;
 			size_t id = typeid(T).hash_code();
-			for (int i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
+			for (size_t i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
 				if (id == chunkInfo->ComponentTypes[i].TypeID) {
 					offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
 					offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
@@ -1684,7 +1684,7 @@ namespace UniEngine {
 	inline void EntityManager::SetEntityQueryAllFilters(EntityQuery entityQuery, T arg, Ts ...args)
 	{
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1701,7 +1701,7 @@ namespace UniEngine {
 	inline void EntityManager::SetEntityQueryAnyFilters(EntityQuery entityQuery, T arg, Ts ...args)
 	{
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1718,7 +1718,7 @@ namespace UniEngine {
 	inline void EntityManager::SetEntityQueryNoneFilters(EntityQuery entityQuery, T arg, Ts ...args)
 	{
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1736,7 +1736,7 @@ namespace UniEngine {
 	inline void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*)>& func)
 	{
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1752,7 +1752,7 @@ namespace UniEngine {
 	template<typename T1, typename T2>
 	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1768,7 +1768,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3>
 	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1784,7 +1784,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4>
 	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*, T4*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1800,7 +1800,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
 	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*, T4*, T5*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1816,7 +1816,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*, T4*, T5*, T6*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1832,7 +1832,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1848,7 +1848,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1866,7 +1866,7 @@ namespace UniEngine {
 	inline void EntityManager::ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*)>& func)
 	{
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1882,7 +1882,7 @@ namespace UniEngine {
 	template<typename T1, typename T2>
 	static void EntityManager::ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1898,7 +1898,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3>
 	static void EntityManager::ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1914,7 +1914,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4>
 	static void EntityManager::ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1930,7 +1930,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
 	static void EntityManager::ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1946,7 +1946,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 	static void EntityManager::ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1962,7 +1962,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 	static void EntityManager::ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1978,7 +1978,7 @@ namespace UniEngine {
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 	static void EntityManager::ForEachWithEntity(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func) {
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -1996,7 +1996,7 @@ namespace UniEngine {
 	inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container)
 	{
 		if (entityQuery.IsNull()) return;
-		unsigned index = entityQuery.Index;
+		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
 			Debug::Error("EntityQuery already deleted!");
 			return;
@@ -2020,7 +2020,7 @@ namespace UniEngine {
 		GetComponentDataArray(entityQuery, &targetDataList);
 		std::vector<std::shared_future<void>> futures;
 		std::mutex ml;
-		unsigned size = allEntities.size();
+		size_t size = allEntities.size();
 		for (int i = 0; i < _ThreadPool->Size(); i++) {
 			futures.push_back(_ThreadPool->Push([&targetDataList, &allEntities, &componentDataList, size, filter, &ml, i, container](int id) {
 				for (int j = 0; j < size / 8; j++) {
@@ -2032,7 +2032,7 @@ namespace UniEngine {
 				}).share());
 		}
 		for (auto i : futures) i.wait();
-		unsigned remainder = size % 8;
+		size_t remainder = size % 8;
 		for (int i = 0; i < remainder; i++) {
 			if (filter == componentDataList[size - remainder + i]) {
 				container->push_back(targetDataList[size - remainder + i]);

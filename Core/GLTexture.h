@@ -75,7 +75,7 @@ namespace UniEngine {
 		}
 
 		void Bind(GLenum activate) {
-			if (activate >= _MaxAllowedTexture) {
+			if ((GLint)activate >= _MaxAllowedTexture) {
 				Debug::Error("Max allowed texture exceeded!");
 			}
 			glActiveTexture(GL_TEXTURE0 + activate);

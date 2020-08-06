@@ -5,11 +5,11 @@ void UniEngine::DirectionalLightShadowMap::Allocate()
 {
 	if (_DepthMapArray != nullptr) delete _DepthMapArray;
 	if (_EnableVSM) {
-		_DepthMapArray = new GLTexture2DArray(1, GL_RG32F, _ResolutionX, _ResolutionY, _LightAmount * 4);
+		_DepthMapArray = new GLTexture2DArray(1, GL_RG32F, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY, (GLsizei)_LightAmount * 4);
 	}
 	else
 	{
-		_DepthMapArray = new GLTexture2DArray(1, GL_R32F, _ResolutionX, _ResolutionY, _LightAmount * 4);
+		_DepthMapArray = new GLTexture2DArray(1, GL_R32F, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY, (GLsizei)_LightAmount * 4);
 	}
 	_DepthMapArray->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_DepthMapArray->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -19,7 +19,7 @@ void UniEngine::DirectionalLightShadowMap::Allocate()
 	_DepthMapArray->SetFloat4(GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	if (_DepthMapDepthArray != nullptr) delete _DepthMapDepthArray;
-	_DepthMapDepthArray = new GLTexture2DArray(1, GL_DEPTH_COMPONENT32, _ResolutionX, _ResolutionY, _LightAmount * 4);
+	_DepthMapDepthArray = new GLTexture2DArray(1, GL_DEPTH_COMPONENT32, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY, (GLsizei)_LightAmount * 4);
 	_DepthMapDepthArray->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_DepthMapDepthArray->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_DepthMapDepthArray->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -29,7 +29,7 @@ void UniEngine::DirectionalLightShadowMap::Allocate()
 	AttachTexture(_DepthMapArray, GL_COLOR_ATTACHMENT0);
 	AttachTexture(_DepthMapDepthArray, GL_DEPTH_ATTACHMENT);
 }
-UniEngine::DirectionalLightShadowMap::DirectionalLightShadowMap(size_t amount, float resolutionX, float resolutionY, bool enableVSM)
+UniEngine::DirectionalLightShadowMap::DirectionalLightShadowMap(size_t amount, size_t resolutionX, size_t resolutionY, bool enableVSM)
 {
 	_ResolutionX = resolutionX;
 	_ResolutionY = resolutionY;

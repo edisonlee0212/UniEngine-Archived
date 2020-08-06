@@ -49,9 +49,9 @@ public:
     void ResetEnvelope(float radius, float minHeight, float maxHeight);
     void ResetEnvelope(glm::vec3 spaceOffset, glm::vec3 spaceSize);
     void ResetEnvelopeType(EnvelopeType type);
-    void PushAttractionPoints(unsigned value);
-    void PushGrowIterations(unsigned iteration);
-    void CreateTree(unsigned index, TreeColor color, glm::vec3 position);
+    void PushAttractionPoints(size_t value);
+    void PushGrowIterations(size_t iteration);
+    void CreateTree(size_t index, TreeColor color, glm::vec3 position);
     void ClearAttractionPoints();
 };
 

@@ -7,8 +7,8 @@ namespace UniEngine {
 		bool _Bound;
 	protected:
 		GLFrameBuffer* _FrameBuffer;
-		unsigned _ResolutionX;
-		unsigned _ResolutionY;
+		size_t _ResolutionX;
+		size_t _ResolutionY;
 	public:
 		void AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer);
 		void AttachTexture(GLTexture* texture, GLenum attachPoint);
@@ -17,7 +17,7 @@ namespace UniEngine {
 		GLTextureCubeMap* SetCubeMap(GLenum attachPoint, GLint level, GLint internalformat);
 		GLRenderBuffer* SetRenderBuffer(GLenum attachPoint, GLenum internalformat​);
 		RenderTarget();
-		RenderTarget(float width, float height);
+		RenderTarget(size_t width, size_t height);
 		glm::vec2 GetResolution();
 		float GetResolutionRatio();
 		void Bind();

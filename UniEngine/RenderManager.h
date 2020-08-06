@@ -15,8 +15,8 @@ namespace UniEngine {
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
 		friend class RenderTarget;
-		static unsigned _Triangles;
-		static unsigned _DrawCall;
+		static size_t _Triangles;
+		static size_t _DrawCall;
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow);
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow);
 		
@@ -26,8 +26,8 @@ namespace UniEngine {
 		static void DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size);
 	public:
 		static void Start();
-		static unsigned Triangles();
-		static unsigned DrawCall();
+		static size_t Triangles();
+		static size_t DrawCall();
 
 		static void DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target);
 		static void DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target);

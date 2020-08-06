@@ -34,13 +34,13 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 		Debug::Log("Mesh: SetVertices empty!");
 		return;
 	}
-	if (!mask & (unsigned)VertexAttribute::Position) {
+	if (!(mask & (unsigned)VertexAttribute::Position)) {
 		Debug::Error("No Position Data!");
 		return;
 	}
-	if (!mask & (unsigned)VertexAttribute::TexCoord0) {
+	if (!(mask & (unsigned)VertexAttribute::TexCoord0)) {
 		Debug::Error("No TexCoord0!");
-		return;
+		//return;
 	}
 	std::vector<glm::vec3> positions = std::vector<glm::vec3>();
 	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
@@ -83,7 +83,7 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 	if (mask & (unsigned)VertexAttribute::TexCoord7) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	_VAO->SetData(_VerticesSize * attributeSize, nullptr, GL_STATIC_DRAW);
+	_VAO->SetData((GLsizei)(_VerticesSize * attributeSize), nullptr, GL_STATIC_DRAW);
 #pragma endregion
 #pragma region Copy
 	glm::vec3 minBound = vertices->at(0).Position;
@@ -238,7 +238,7 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>* vertices, 
 		attributeSize += sizeof(glm::vec2);
 	}
 #pragma endregion
-	_VAO->EBO()->SetData(_IndicesSize * sizeof(unsigned), &indices->at(0), GL_STATIC_DRAW);
+	_VAO->EBO()->SetData((GLsizei)_IndicesSize * sizeof(unsigned), &indices->at(0), GL_STATIC_DRAW);
 }
 
 

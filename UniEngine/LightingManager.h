@@ -39,7 +39,7 @@ namespace UniEngine {
 		static GLUBO* _SpotLightBlock;
 		
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
-		static unsigned _DirectionalShadowMapResolution;
+		static size_t _DirectionalShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
 		static ShadowSettings _ShadowSettings;
 
@@ -71,7 +71,7 @@ namespace UniEngine {
 		static void Init();
 		static void Start();
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
-		static void SetDirectionalLightResolution(float value);
+		static void SetDirectionalLightResolution(size_t value);
 		static void SetShadowMode(ShadowMode value);
 		static void SetEnableSplitDisplay(bool value);
 		static void SetStableFit(bool value);

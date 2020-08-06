@@ -266,7 +266,7 @@ bool UniEngine::Engine::LoopEnd_Internal()
 #pragma region DrawInfos
 	ImGui::Begin("World Info");
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-	int tris = RenderManager::Triangles();
+	size_t tris = RenderManager::Triangles();
 	std::string trisstr = "";
 	if (tris < 999) {
 		trisstr += std::to_string(tris);
@@ -285,9 +285,9 @@ bool UniEngine::Engine::LoopEnd_Internal()
 	ImGui::End();
 
 	ImGui::Begin("Logs");
-	int size = Debug::GetLogs()->size();
+	size_t size = Debug::GetLogs()->size();
 	std::string logs = "";
-	for (int i = size - 1; i >= 0; i--) {
+	for (int i = (int)size - 1; i >= 0; i--) {
 		if (i < size - 50) break;
 		logs += Debug::GetLogs()->at(i)->c_str();
 	}
