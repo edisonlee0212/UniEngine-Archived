@@ -1,0 +1,17 @@
+﻿  adler32.c
+  compress.c
+  crc32.c
+  deflate.c
+  gzclose.c
+  gzlib.c
+  gzread.c
+  gzwrite.c
+  inflate.c
+  infback.c
+  inftrees.c
+  inffast.c
+  trees.c
+  uncompr.c
+  zutil.c
+     Creating library C:/Users/lllll/Documents/GitHub/UniEngine/UniEngine/includes/Assimp/contrib/zlib/Release/zlib.lib and object C:/Users/lllll/Documents/GitHub/UniEngine/UniEngine/includes/Assimp/contrib/zlib/Release/zlib.exp
+  zlib.vcxproj -> C:\Users\lllll\Documents\GitHub\UniEngine\UniEngine\includes\Assimp\contrib\zlib\Release\zlib.dll
