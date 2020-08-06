@@ -2,9 +2,11 @@
 //
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
-#include "TreeBudSystem.h"
 #include "SpaceColonizationTreeSystem.h"
+
+#include "TreeManager.h"
 using namespace UniEngine;
+using namespace TreeUtilities;
 void InitGround();
 int main()
 {
@@ -22,7 +24,8 @@ int main()
 	InitGround();
 #pragma endregion
 
-	auto treeBudSys = Engine::GetWorld()->CreateSystem<TreeBudSystem>(SystemGroup::SimulationSystemGroup);
+	TreeManager::Init();
+
 	auto sctSys = Engine::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
 
 	sctSys->ResetEnvelopeType(EnvelopeType::Box);

@@ -1,8 +1,8 @@
+#include "pch.h"
 #include "TreeBudSystem.h"
-#include "TreeManager.h"
-void TreeCreator::TreeBudSystem::OnCreate()
+void TreeUtilities::TreeBudSystem::OnCreate()
 {
-	_LeafArchetype = _BudArchetype = EntityManager::CreateEntityArchetype(
+	_LeafArchetype = EntityManager::CreateEntityArchetype(
 		LocalTranslation(), LocalRotation(), LocalScale(), LocalToParent(), LocalToWorld(),
 		Mass(), Position(), Direction(), ParentTranslation(), Connection(), TreeIndex(),
 		LeafIndex(), LeafType(),
@@ -19,8 +19,6 @@ void TreeCreator::TreeBudSystem::OnCreate()
 		TreeIndex(), TreeType(), TreeColor()
 	);
 
-	
-
 	_LeafQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_LeafQuery, LeafType());
 	_BudQuery = EntityManager::CreateEntityQuery();
@@ -31,8 +29,6 @@ void TreeCreator::TreeBudSystem::OnCreate()
 	EntityManager::SetEntityQueryAllFilters(_ParentTranslationQuery, ParentTranslation());
 	_ConnectionQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_ConnectionQuery, Connection());
-
-	TreeManager::Init(_TreeQuery);
 
 	_BudMaterial = new Material();
 	_BudMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
@@ -45,11 +41,11 @@ void TreeCreator::TreeBudSystem::OnCreate()
 	Enable();
 }
 
-void TreeCreator::TreeBudSystem::OnDestroy()
+void TreeUtilities::TreeBudSystem::OnDestroy()
 {
 }
 
-void TreeCreator::TreeBudSystem::Update()
+void TreeUtilities::TreeBudSystem::Update()
 {
 	std::vector<TreeIndex> treeIndices;
 	_TreeQuery.ToComponentDataArray(&treeIndices);
@@ -71,11 +67,11 @@ void TreeCreator::TreeBudSystem::Update()
 	}
 }
 
-void TreeCreator::TreeBudSystem::FixedUpdate()
+void TreeUtilities::TreeBudSystem::FixedUpdate()
 {
 }
 
-void TreeCreator::TreeBudSystem::RefreshParentTranslations()
+void TreeUtilities::TreeBudSystem::RefreshParentTranslations()
 {
 	EntityManager::ForEachWithEntity<ParentTranslation>(_ParentTranslationQuery, [](int i, Entity entity, ParentTranslation* pt) {
 		Entity pe = EntityManager::GetParent(entity);
@@ -83,7 +79,7 @@ void TreeCreator::TreeBudSystem::RefreshParentTranslations()
 		});
 }
 
-void TreeCreator::TreeBudSystem::RefreshConnections(float lineWidth)
+void TreeUtilities::TreeBudSystem::RefreshConnections(float lineWidth)
 {
 	EntityManager::ForEach<ParentTranslation, LocalToWorld, Connection>(_ConnectionQuery, [lineWidth](int i, ParentTranslation* pt, LocalToWorld* ltw, Connection* c) {
 		glm::vec3 pos = ltw->value[3];
@@ -93,32 +89,32 @@ void TreeCreator::TreeBudSystem::RefreshConnections(float lineWidth)
 		});
 }
 
-EntityArchetype TreeCreator::TreeBudSystem::GetBudArchetype()
+EntityArchetype TreeUtilities::TreeBudSystem::GetBudArchetype()
 {
 	return _BudArchetype;
 }
 
-EntityArchetype TreeCreator::TreeBudSystem::GetLeafArchetype()
+EntityArchetype TreeUtilities::TreeBudSystem::GetLeafArchetype()
 {
 	return _LeafArchetype;
 }
 
-EntityArchetype TreeCreator::TreeBudSystem::GetTreeArchetype()
+EntityArchetype TreeUtilities::TreeBudSystem::GetTreeArchetype()
 {
 	return _TreeArchetype;
 }
 
-EntityQuery TreeCreator::TreeBudSystem::GetBudQuery()
+EntityQuery TreeUtilities::TreeBudSystem::GetBudQuery()
 {
 	return _BudQuery;
 }
 
-EntityQuery TreeCreator::TreeBudSystem::GetTreeQuery()
+EntityQuery TreeUtilities::TreeBudSystem::GetTreeQuery()
 {
 	return _TreeQuery;
 }
 
-EntityQuery TreeCreator::TreeBudSystem::GetLeafQuery()
+EntityQuery TreeUtilities::TreeBudSystem::GetLeafQuery()
 {
 	return _LeafQuery;
 }

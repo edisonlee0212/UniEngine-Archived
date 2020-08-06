@@ -1,17 +1,18 @@
+#include "pch.h"
 #include "TreeManager.h"
 
-using namespace UniEngine;
-
-EntityQuery TreeCreator::TreeManager::_TreeQuery;
-bool TreeCreator::TreeManager::_Ready;
+TreeUtilities::TreeBudSystem* TreeUtilities::TreeManager::_TreeBudSystem;
+EntityQuery TreeUtilities::TreeManager::_TreeQuery;
+bool TreeUtilities::TreeManager::_Ready;
 #pragma region Helpers
-void TreeCreator::TreeManager::Init(EntityQuery treeQuery)
+void TreeUtilities::TreeManager::Init()
 {
-    _TreeQuery = treeQuery;
+    _TreeBudSystem = Engine::GetWorld()->CreateSystem<TreeBudSystem>(SystemGroup::SimulationSystemGroup);
+    _TreeQuery = _TreeBudSystem->GetTreeQuery();
     _Ready = true;
 }
 
-void TreeCreator::TreeManager::GetAllTrees(std::vector<Entity>* container)
+void TreeUtilities::TreeManager::GetAllTrees(std::vector<Entity>* container)
 {
     if (!_Ready) {
         Debug::Error("TreeManager: Not initialized!");
@@ -20,7 +21,7 @@ void TreeCreator::TreeManager::GetAllTrees(std::vector<Entity>* container)
     return _TreeQuery.ToEntityArray(container);
 }
 
-void TreeCreator::TreeManager::GenerateMeshForAllTrees()
+void TreeUtilities::TreeManager::GenerateMeshForAllTrees()
 {
     if (!_Ready) {
         Debug::Error("TreeManager: Not initialized!");
@@ -33,7 +34,7 @@ void TreeCreator::TreeManager::GenerateMeshForAllTrees()
     }
 }
 
-Mesh* TreeCreator::TreeManager::GetMeshFromTree(Entity treeEntity)
+Mesh* TreeUtilities::TreeManager::GetMeshFromTree(Entity treeEntity)
 {
     if (!_Ready) {
         Debug::Error("TreeManager: Not initialized!");
@@ -44,7 +45,7 @@ Mesh* TreeCreator::TreeManager::GetMeshFromTree(Entity treeEntity)
 #pragma endregion
 
 
-void TreeCreator::TreeManager::GenerateMeshForTree(Entity treeEntity)
+void TreeUtilities::TreeManager::GenerateMeshForTree(Entity treeEntity)
 {
     if (!_Ready) {
         Debug::Error("TreeManager: Not initialized!");
@@ -53,4 +54,3 @@ void TreeCreator::TreeManager::GenerateMeshForTree(Entity treeEntity)
     auto rootBud = EntityManager::GetChildren(treeEntity).at(0);
     //TODO: Finish mesh generation here.
 }
-

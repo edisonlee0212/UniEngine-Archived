@@ -1,41 +1,41 @@
 #pragma once
-#include "UniEngine.h"
+#include "TreeUtilitiesAPI.h"
 using namespace UniEngine;
-namespace TreeCreator {
+namespace TreeUtilities {
 #pragma region Common
-    struct TreeIndex : ComponentBase {
+    struct TREEUTILITIES_API TreeIndex : ComponentBase {
         unsigned Value;
         bool operator ==(const TreeIndex& other) const {
             return other.Value == Value;
         }
     };
 
-    struct ParentTranslation {
+    struct TREEUTILITIES_API ParentTranslation {
         glm::vec3 Value;
         bool operator ==(const ParentTranslation& other) const {
             return other.Value == Value;
         }
     };
-    struct Mass : ComponentBase {
+    struct TREEUTILITIES_API Mass : ComponentBase {
         float Value;
         bool operator ==(const Mass& other) const {
             return other.Value == Value;
         }
     };
-    struct Position : ComponentBase {
+    struct TREEUTILITIES_API TREEUTILITIES_API Position : ComponentBase {
         glm::vec3 Value;
         bool operator ==(const Position& other) const {
             return other.Value == Value;
         }
     };
-    struct Direction : ComponentBase
+    struct TREEUTILITIES_API Direction : ComponentBase
     {
         glm::vec3 Value;
         bool operator ==(const Direction& other) const {
             return other.Value == Value;
         }
     };
-    struct Connection : ComponentBase {
+    struct TREEUTILITIES_API Connection : ComponentBase {
         glm::mat4 Value;
         bool operator ==(const Connection& other) const {
             return other.Value == Value;
@@ -43,18 +43,18 @@ namespace TreeCreator {
     };
 #pragma endregion
 #pragma region Leaf
-    struct LeafIndex : ComponentBase {
+    struct TREEUTILITIES_API LeafIndex : ComponentBase {
         unsigned Value;
         bool operator ==(const LeafIndex& other) const {
             return other.Value == Value;
         }
     };
-    struct LeafType : ComponentBase {
+    struct TREEUTILITIES_API LeafType : ComponentBase {
 
     };
 #pragma endregion
 #pragma region Bud
-    struct Radius : ComponentBase
+    struct TREEUTILITIES_API Radius : ComponentBase
     {
         float Value;
         bool operator ==(const Radius& other) const {
@@ -62,28 +62,28 @@ namespace TreeCreator {
         }
     };
 
-    struct BudIndex : ComponentBase {
+    struct TREEUTILITIES_API BudIndex : ComponentBase {
         unsigned Value;
         bool operator ==(const BudIndex& other) const {
             return other.Value == Value;
         }
     };
 
-    struct Iteration : ComponentBase {
+    struct TREEUTILITIES_API Iteration : ComponentBase {
         unsigned Value;
         bool operator ==(const Iteration& other) const {
             return other.Value == Value;
         }
     };
     //Gravelius Order
-    struct Level : ComponentBase {
+    struct TREEUTILITIES_API Level : ComponentBase {
         unsigned Value;
         bool operator ==(const Level& other) const {
             return other.Value == Value;
         }
     };
 
-    struct Phototropism : ComponentBase {
+    struct TREEUTILITIES_API Phototropism : ComponentBase {
         float Value;
         bool operator ==(const Phototropism& other) const {
             return other.Value == Value;
@@ -91,7 +91,7 @@ namespace TreeCreator {
     };
 
     //Branches tend to grow against gravity
-    struct Gravitropism : ComponentBase {
+    struct TREEUTILITIES_API Gravitropism : ComponentBase {
         float Value;
         bool operator ==(const Gravitropism& other) const {
             return other.Value == Value;
@@ -99,11 +99,11 @@ namespace TreeCreator {
     };
 
     //Different bud type will affect their way of growth. 
-    enum BudTypes {
+    enum TREEUTILITIES_API BudTypes {
         LATERAL_BUD,
         APICAL_BUD
     };
-    struct BudType : ComponentBase {
+    struct TREEUTILITIES_API BudType : ComponentBase {
         bool Searching;
         BudTypes Value;
         bool operator ==(const BudType& other) const {
@@ -112,16 +112,16 @@ namespace TreeCreator {
     };
 #pragma endregion
 #pragma region Tree
-    struct TreeColor : ComponentBase {
+    struct TREEUTILITIES_API TreeColor : ComponentBase {
         glm::vec4 BudColor;
         glm::vec4 ConnectionColor;
     };
-    struct TreeType : ComponentBase {
+    struct TREEUTILITIES_API TreeType : ComponentBase {
 
     };
 #pragma endregion
 
-    class TreeBudSystem :
+    class TREEUTILITIES_API TreeBudSystem :
         public SystemBase
     {
         bool _DrawLeaves;

@@ -47,6 +47,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeCreator", "TreeCreator\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "GLFW\src\glfw.vcxproj", "{E4E5C984-8217-3D31-9DFE-84E10BA3D812}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreeUtilities", "TreeUtilities\TreeUtilities.vcxproj", "{E0C6F70B-F996-43A3-AD08-11725C1D01D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -109,6 +111,14 @@ Global
 		{E4E5C984-8217-3D31-9DFE-84E10BA3D812}.Release|x64.ActiveCfg = Release|x64
 		{E4E5C984-8217-3D31-9DFE-84E10BA3D812}.Release|x64.Build.0 = Release|x64
 		{E4E5C984-8217-3D31-9DFE-84E10BA3D812}.Release|x86.ActiveCfg = Release|x64
+		{E0C6F70B-F996-43A3-AD08-11725C1D01D8}.Debug|x64.ActiveCfg = Debug|x64
+		{E0C6F70B-F996-43A3-AD08-11725C1D01D8}.Debug|x64.Build.0 = Debug|x64
+		{E0C6F70B-F996-43A3-AD08-11725C1D01D8}.Debug|x86.ActiveCfg = Debug|Win32
+		{E0C6F70B-F996-43A3-AD08-11725C1D01D8}.Debug|x86.Build.0 = Debug|Win32
+		{E0C6F70B-F996-43A3-AD08-11725C1D01D8}.Release|x64.ActiveCfg = Release|x64
+		{E0C6F70B-F996-43A3-AD08-11725C1D01D8}.Release|x64.Build.0 = Release|x64
+		{E0C6F70B-F996-43A3-AD08-11725C1D01D8}.Release|x86.ActiveCfg = Release|Win32
+		{E0C6F70B-F996-43A3-AD08-11725C1D01D8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

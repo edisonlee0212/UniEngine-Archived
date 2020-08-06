@@ -45,12 +45,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\includes\glm;..\includes\stb;..\Core;..\UniEngine;..\Entities;..\TreeManager;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\includes\glm;..\includes\stb;..\Core;..\UniEngine;..\Entities;..\TreeUtilities;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\includes\glm;..\includes\stb;..\Core;..\UniEngine;..\Entities;..\TreeManager;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\includes\glm;..\includes\stb;..\Core;..\UniEngine;..\Entities;..\TreeUtilities;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -71,6 +71,7 @@
       <Command>xcopy /y /d "..\Core\$(IntDir)Core.dll" "$(OutDir)"
 xcopy /y /d "..\Entities\$(IntDir)Entities.dll" "$(OutDir)"
 xcopy /y /d "..\UniEngine\$(IntDir)UniEngine.dll" "$(OutDir)"
+xcopy /y /d "..\TreeUtilities\$(IntDir)TreeUtilities.dll" "$(OutDir)"
 xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -96,20 +97,17 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
       <Command>xcopy /y /d "..\Core\$(IntDir)Core.dll" "$(OutDir)"
 xcopy /y /d "..\Entities\$(IntDir)Entities.dll" "$(OutDir)"
 xcopy /y /d "..\UniEngine\$(IntDir)UniEngine.dll" "$(OutDir)"
+xcopy /y /d "..\TreeUtilities\$(IntDir)TreeUtilities.dll" "$(OutDir)"
 xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SpaceColonizationTreeSystem.cpp" />
-    <ClCompile Include="TreeBudSystem.cpp" />
     <ClCompile Include="TreeCreator.cpp" />
-    <ClCompile Include="TreeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Envelope.h" />
     <ClInclude Include="SpaceColonizationTreeSystem.h" />
-    <ClInclude Include="TreeBudSystem.h" />
-    <ClInclude Include="TreeManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
@@ -117,6 +115,9 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     </ProjectReference>
     <ProjectReference Include="..\Entities\Entities.vcxproj">
       <Project>{6eefcfb9-6499-4a25-8b47-497ad00822bd}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\TreeUtilities\TreeUtilities.vcxproj">
+      <Project>{e0c6f70b-f996-43a3-ad08-11725c1d01d8}</Project>
     </ProjectReference>
     <ProjectReference Include="..\UniEngine\UniEngine.vcxproj">
       <Project>{324d4482-9924-4f0b-aba0-e6e9ba51b02f}</Project>

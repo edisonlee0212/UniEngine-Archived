@@ -1,9 +1,9 @@
 #pragma once
 #include "UniEngine.h"
-#include "TreeBudSystem.h"
+#include "TreeManager.h"
 #include "Envelope.h"
 using namespace UniEngine;
-using namespace TreeCreator;
+using namespace TreeUtilities;
 struct AttractionPointIndex {
     unsigned Value;
     AttractionPointIndex() { Value = 0; }

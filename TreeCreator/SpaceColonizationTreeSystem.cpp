@@ -180,7 +180,9 @@ void SpaceColonizationTreeSystem::Grow()
 void SpaceColonizationTreeSystem::OnCreate()
 {
 	_TreeBudSystem = _World->GetSystem<TreeBudSystem>();
-
+	if (_TreeBudSystem == nullptr) {
+		Debug::Error("SpaceColonizationTreeSystem: TreeManager not initialized!");
+	}
 	_BudArchetype = _TreeBudSystem->GetBudArchetype();
 	_LeafArchetype = _TreeBudSystem->GetLeafArchetype();
 	_TreeArchetype = _TreeBudSystem->GetTreeArchetype();
