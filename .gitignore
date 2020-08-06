@@ -7,7 +7,9 @@
 !includes/**
 !Resources/**
 
+#Exclude glfw and Assimp Library
 GLFW/**
+Assimp/**
 
 #Discard VTune results
 VTune Profiler Results/
