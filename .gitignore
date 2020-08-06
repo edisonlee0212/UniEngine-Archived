@@ -5,7 +5,6 @@
 
 #Includes and Resources
 !includes/**
-!Resources/**
 
 #Exclude glfw and Assimp Library
 GLFW/**
