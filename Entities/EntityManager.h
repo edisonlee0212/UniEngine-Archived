@@ -2019,19 +2019,30 @@ namespace UniEngine {
 		GetComponentDataArray(entityQuery, &componentDataList);
 		GetComponentDataArray(entityQuery, &targetDataList);
 		std::vector<std::shared_future<void>> futures;
-		std::mutex ml;
 		size_t size = allEntities.size();
+		std::vector<std::vector<T2>> collectedDataLists;
 		for (int i = 0; i < _ThreadPool->Size(); i++) {
-			futures.push_back(_ThreadPool->Push([&targetDataList, &allEntities, &componentDataList, size, filter, &ml, i, container](int id) {
+			collectedDataLists.push_back(std::vector<T2>());
+		}
+		for (int i = 0; i < _ThreadPool->Size(); i++) {
+			std::vector<T2>* collectedDataList = &collectedDataLists[i];
+			futures.push_back(_ThreadPool->Push([&targetDataList, &allEntities, &componentDataList, size, filter, collectedDataList, i](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filter == componentDataList[j * 8 + i]) {
-						std::lock_guard<std::mutex> lock(ml);
-						container->push_back(targetDataList[j * 8 + i]);
+						collectedDataList->push_back(targetDataList[j * 8 + i]);
 					}
 				}
 				}).share());
 		}
 		for (auto i : futures) i.wait();
+		for (int i = 0; i < _ThreadPool->Size(); i++) {
+			auto listSize = collectedDataLists[i].size();
+			if (listSize == 0) continue;
+			container->resize(container->size() + listSize);
+			memcpy(&container->at(container->size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T2));
+		}
+		
+
 		size_t remainder = size % 8;
 		for (int i = 0; i < remainder; i++) {
 			if (filter == componentDataList[size - remainder + i]) {
