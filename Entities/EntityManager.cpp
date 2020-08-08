@@ -258,6 +258,19 @@ void UniEngine::EntityManager::DeleteEntity(Entity entity)
 void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
 {
 	if (entity.IsNull() || parent.IsNull()) return;
+	//Make sure that child has LocalToWorld and LocalToParent and parent has LocalToWorld
+	if (!HasComponentData<LocalToParent>(entity)) {
+		Debug::Error("Child must have LocalToParent Componennt!");
+		return;
+	}
+	if (!HasComponentData<LocalToWorld>(entity)) {
+		Debug::Error("Child must have LocalToWorld Componennt!");
+		return;
+	}
+	if (!HasComponentData<LocalToWorld>(parent)) {
+		Debug::Error("Parent must have LocalToWorld Componennt!");
+		return;
+	}
 	size_t childIndex = entity.Index;
 	size_t parentIndex = parent.Index;
 	if (entity != _Entities->at(childIndex)) {

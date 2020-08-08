@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ParentSystem.h"
-
+#include "UniEngine.h"
 void UniEngine::ParentSystem::OnCreate()
 {
 	Enable();
@@ -14,24 +14,25 @@ void UniEngine::ParentSystem::OnDestroy()
 void UniEngine::ParentSystem::CalculateLTW(LocalToWorld pltw, Entity entity)
 {
 	for (auto i : EntityManager::GetChildren(entity)) {
-		if (EntityManager::HasComponentData<LocalToParent>(i)
-			&& EntityManager::HasComponentData<LocalToWorld>(i)) {
-			auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
-			LocalToWorld ltw;
-			ltw.value = pltw.value * ltp.value;
-			EntityManager::SetComponentData<LocalToWorld>(i, ltw);
-			CalculateLTW(ltw, i);
-		}
+		auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
+		LocalToWorld ltw;
+		ltw.value = pltw.value * ltp.value;
+		EntityManager::SetComponentData<LocalToWorld>(i, ltw);
+		CalculateLTW(ltw, i);
 	}
 }
 
 void UniEngine::ParentSystem::Update()
 {
+	std::vector<std::shared_future<void>> futures;
 	for (auto i : *EntityManager::GetParentRootsUnsafe()) {
-		if (!i.IsDeleted() && EntityManager::GetParent(i).IsNull() 
-			&& EntityManager::HasComponentData<LocalToWorld>(i)) {
+		if (!i.IsDeleted() && EntityManager::GetParent(i).IsNull()) {
 			LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(i);
-			CalculateLTW(ltw, i);
+			futures.push_back(_ThreadPool->Push([ltw, i, this](int id) {
+				CalculateLTW(ltw, i);
+				}).share());
+
 		}
 	}
+	for (auto i : futures) i.wait();
 }

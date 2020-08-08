@@ -18,8 +18,8 @@ namespace UniEngine {
 		static std::vector<GLFWmonitor*> _Monitors;
 		static GLFWmonitor* _PrimaryMonitor;
 		static GLFWwindow* _Window;
-		static unsigned _Width;
-		static unsigned _Height;
+		static unsigned _WindowWidth;
+		static unsigned _WindowHeight;
 	};
 
 }

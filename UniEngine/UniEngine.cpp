@@ -267,7 +267,7 @@ bool UniEngine::Engine::LoopEnd_Internal()
 	ImGui::End();
 #pragma endregion
 #pragma region DrawInfos
-	/*
+	
 	ImGui::Begin("World Info");
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 	size_t tris = RenderManager::Triangles();
@@ -297,7 +297,6 @@ bool UniEngine::Engine::LoopEnd_Internal()
 	}
 	ImGui::Text(logs.c_str());
 	ImGui::End();
-	*/
 #pragma endregion
 #pragma region ImGui
 	RenderTarget::BindDefault();

@@ -8,13 +8,13 @@ using namespace UniEngine;
 std::vector<GLFWmonitor*> WindowManager::_Monitors;
 GLFWmonitor* WindowManager::_PrimaryMonitor;
 GLFWwindow* WindowManager::_Window;
-unsigned WindowManager::_Width;
-unsigned WindowManager::_Height;
+unsigned WindowManager::_WindowWidth;
+unsigned WindowManager::_WindowHeight;
 
 
 void WindowManager::ResizeCallback(GLFWwindow* window, int width, int height) {
-	_Width = width;
-	_Height = height;
+	_WindowWidth = width;
+	_WindowHeight = height;
 }
 
 void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int event)
@@ -60,10 +60,10 @@ void UniEngine::WindowManager::Init(std::string name, bool fullScreen)
 	// glfw window creation
 	// --------------------
 	const GLFWvidmode* mode = glfwGetVideoMode(_PrimaryMonitor);
-	_Width = fullScreen ? mode->width : mode->width - 200;
-	_Height = fullScreen ? mode->height : mode->height - 200;
+	_WindowWidth = fullScreen ? mode->width : mode->width - 200;
+	_WindowHeight = fullScreen ? mode->height : mode->height - 200;
 
-	_Window = glfwCreateWindow(_Width, _Height, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr, NULL);
+	_Window = glfwCreateWindow(_WindowWidth, _WindowHeight, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr, NULL);
 	if(!fullScreen) glfwMaximizeWindow(_Window);
 	glfwSetFramebufferSizeCallback(_Window, WindowManager::ResizeCallback);
 	glfwSetCursorPosCallback(_Window, InputManager::CursorPositionCallback);
@@ -100,7 +100,7 @@ void UniEngine::WindowManager::DrawTexture(GLTexture2D* texture)
 {
 	RenderTarget::BindDefault();
 	/* Make the window's context current */
-	glViewport(0, 0, _Width, _Height);
+	glViewport(0, 0, _WindowWidth, _WindowHeight);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	/* Render here */
 	glDisable(GL_DEPTH_TEST);
