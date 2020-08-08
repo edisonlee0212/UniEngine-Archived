@@ -90,9 +90,16 @@ Camera::Camera(int resolutionX, int resolutionY, float nearPlane, float farPlane
 	_Pitch = PITCH;
 	_Near = nearPlane;
 	_Far = farPlane;
-	_ColorTexture = nullptr;
-	_RenderBuffer = nullptr;
-	SetResolution(resolutionX, resolutionY);
+	_ResolutionX = resolutionX;
+	_ResolutionY = resolutionY;
+	_ColorTexture = new GLTexture2D(1, GL_RGB32F, resolutionX, resolutionY, false);
+	_ColorTexture->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+	_ColorTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_ColorTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	AttachTexture(_ColorTexture, GL_COLOR_ATTACHMENT0);
+	_RenderBuffer = new GLRenderBuffer();
+	_RenderBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, resolutionX, resolutionY);
+	AttachRenderBuffer(_RenderBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
 }
 
 glm::quat UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch)
@@ -134,14 +141,13 @@ void UniEngine::Camera::ProcessMouseScroll(float yoffset)
 
 void UniEngine::Camera::SetResolution(int x, int y)
 {
+	if (_ResolutionX == x && _ResolutionY == y) return;
 	_ResolutionX = x;
 	_ResolutionY = y;
-	if (_ColorTexture != nullptr) delete _ColorTexture;
-	_ColorTexture = SetTexture2D(GL_COLOR_ATTACHMENT0, 1, GL_RGB32F);
-	_ColorTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_ColorTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	if (_RenderBuffer != nullptr) delete _RenderBuffer;
-	_RenderBuffer = SetRenderBuffer(GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH24_STENCIL8);
+	_ColorTexture->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
+	_RenderBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, x, y);
+	AttachTexture(_ColorTexture, GL_COLOR_ATTACHMENT0);
+	AttachRenderBuffer(_RenderBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
 }
 
 GLTexture2D* UniEngine::Camera::GetTexture()

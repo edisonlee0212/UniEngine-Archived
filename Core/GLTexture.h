@@ -125,6 +125,7 @@ namespace UniEngine {
 	class CORE_API GLTexture2D : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
+		bool _Immutable;
 	public:
 		GLTexture2D(GLsizei levels,
 			GLenum internalFormat,
@@ -132,23 +133,51 @@ namespace UniEngine {
 			GLsizei height, bool immutable = true) : GLTexture(GL_TEXTURE_2D, internalFormat) {
 			_Width = width;
 			_Height = height;
+			_Immutable = immutable;
 			Bind(0);
 			if(immutable) glTexStorage2D(_Type, levels, internalFormat, width, height);
+			else glTexImage2D(_Type, levels, internalFormat, width, height, 0, GL_RED, GL_FLOAT, 0);
 		};
 
 		void SetData(GLint level,
 			GLenum format,
 			GLenum type,
 			const void* pixels) {
+			if (!_Immutable) {
+				Debug::Error("GLTexture2D: Not Immutable!");
+				return;
+			}
 			Bind(0);
 			glTexSubImage2D(_Type, level, 0, 0, _Width, _Height, format, type, pixels);
 		}
 
+		void ReSize(GLint level,
+			GLenum internalFormat,
+			GLenum format,
+			GLenum type,
+			const void* pixels,
+			GLsizei width,
+			GLsizei height) {
+			if (_Immutable) {
+				Debug::Error("GLTexture2D: Immutable!");
+				return;
+			}
+			_Width = width;
+			_Height = height;
+			SetData(level, internalFormat,
+				format,
+				type,
+				pixels);
+		}
 		void SetData(GLint level,
 			GLenum internalFormat,
 			GLenum format,
 			GLenum type,
 			const void* pixels) {
+			if (_Immutable) {
+				Debug::Error("GLTexture2D: Immutable!");
+				return;
+			}
 			Bind(0);
 			glTexImage2D(_Type, level, internalFormat, _Width, _Height, 0, format, type, pixels);
 		}

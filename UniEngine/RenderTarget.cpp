@@ -7,6 +7,8 @@ UniEngine::RenderTarget::RenderTarget()
 {
 	_Bound = false;
 	_FrameBuffer = new GLFrameBuffer();
+	_ResolutionX = 0;
+	_ResolutionY = 0;
 }
 
 UniEngine::RenderTarget::RenderTarget(size_t width, size_t height)
@@ -53,28 +55,6 @@ void UniEngine::RenderTarget::AttachRenderBuffer(GLRenderBuffer* renderBuffer, G
 		return;
 	}
 	_FrameBuffer->AttachRenderBuffer(renderBuffer, attachPoint);
-}
-
-GLTexture2D* UniEngine::RenderTarget::SetTexture2D(GLenum attachPoint, GLint level, GLint internalformat)
-{
-	auto retVal = new GLTexture2D(level, internalformat, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY);
-	AttachTexture(retVal, attachPoint);
-	return retVal;
-}
-
-GLTextureCubeMap* UniEngine::RenderTarget::SetCubeMap(GLenum attachPoint, GLint level, GLint internalformat)
-{
-	auto retVal = new GLTextureCubeMap(level, internalformat, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY);
-	AttachTexture(retVal, attachPoint);
-	return retVal;
-}
-
-GLRenderBuffer* UniEngine::RenderTarget::SetRenderBuffer(GLenum attachPoint, GLenum internalformat​)
-{
-	GLRenderBuffer* retVal = new GLRenderBuffer();
-	retVal->AllocateStorage(internalformat​, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY);
-	AttachRenderBuffer(retVal, attachPoint);
-	return retVal;
 }
 
 void UniEngine::RenderTarget::Bind()

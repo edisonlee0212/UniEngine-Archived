@@ -250,11 +250,11 @@ bool UniEngine::Engine::LoopEnd_Internal()
 	}
 	InputManager::Update();
 #pragma region Main Camera Window
+	ImVec2 viewPortSize;
 	ImGui::Begin("MainCamera");
 	{
 		InputManager::SetFocused(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows));
-		//ImVec2 viewPortSize = ImGui::GetContentRegionAvail();
-		//_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
+		viewPortSize = ImGui::GetContentRegionAvail();
 		// Using a Child allow to fill all the space of the window.
 		// It also alows customization
 		ImGui::BeginChild("CameraRender");
@@ -319,6 +319,7 @@ bool UniEngine::Engine::LoopEnd_Internal()
 #pragma endregion
 	//Swap Window's framebuffer
 	WindowManager::Update();
+	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
 	return _Loopable;
 }
 

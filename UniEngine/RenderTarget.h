@@ -3,7 +3,6 @@
 namespace UniEngine {
 	class UNIENGINE_API RenderTarget
 	{
-		
 		bool _Bound;
 	protected:
 		GLFrameBuffer* _FrameBuffer;
@@ -13,9 +12,6 @@ namespace UniEngine {
 		void AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer);
 		void AttachTexture(GLTexture* texture, GLenum attachPoint);
 		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLenum attachPoint);
-		GLTexture2D* SetTexture2D(GLenum attachPoint, GLint level, GLint internalformat);
-		GLTextureCubeMap* SetCubeMap(GLenum attachPoint, GLint level, GLint internalformat);
-		GLRenderBuffer* SetRenderBuffer(GLenum attachPoint, GLenum internalformat​);
 		RenderTarget();
 		RenderTarget(size_t width, size_t height);
 		glm::vec2 GetResolution();
