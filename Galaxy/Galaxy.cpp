@@ -23,10 +23,10 @@ void example_function()
 
 int main()
 {
-#pragma region Engine Preparations
-	Engine::Init();
+#pragma region Application Preparations
+	Application::Init();
 	LightingManager::SetAmbientLight(1.0f);
-	World* world = Engine::GetWorld();
+	World* world = Application::GetWorld();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype(Translation(), Rotation(), Scale(), LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
@@ -38,8 +38,8 @@ int main()
 #pragma endregion
 #pragma region EngineLoop
 	bool loopable = true;
-	Engine::Run();
-	Engine::End();
+	Application::Run();
+	Application::End();
 #pragma endregion
 	return 0;
 }

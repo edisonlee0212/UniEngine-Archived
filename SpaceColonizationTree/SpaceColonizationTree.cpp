@@ -21,10 +21,10 @@ float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
 int main()
 {
-	Engine::Init();
+	Application::Init();
 	
 #pragma region Preparations
-	World* world = Engine::GetWorld();
+	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 	SCTreeSystem* ts = world->CreateSystem<SCTreeSystem>(SystemGroup::SimulationSystemGroup);
@@ -84,7 +84,7 @@ int main()
 
 
 	while (loopable) {
-		Engine::PreUpdate();
+		Application::PreUpdate();
 
 		LightAngleSlider();
 		SplitDisplay();
@@ -126,10 +126,10 @@ int main()
 		ImGui::End();
 		dlc->lightSize = lightSize;
 #pragma endregion
-		Engine::Update();
-		loopable = Engine::LateUpdate();
+		Application::Update();
+		loopable = Application::LateUpdate();
 	}
-	Engine::End();
+	Application::End();
 #pragma endregion
 	return 0;
 }

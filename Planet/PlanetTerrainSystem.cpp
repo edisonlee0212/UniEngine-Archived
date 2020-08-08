@@ -61,7 +61,7 @@ void Planet::PlanetTerrainSystem::OnCreate()
 
 void Planet::PlanetTerrainSystem::Update()
 {
-	auto camera = EntityManager::GetSharedComponent<CameraComponent>(Engine::GetMainCameraEntity())->Value;
+	auto camera = EntityManager::GetSharedComponent<CameraComponent>(Application::GetMainCameraEntity())->Value;
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetChunks = _PlanetTerrainList[i]->_ChunkList;
 		auto planetInfo = _PlanetTerrainList[i]->_Info;
@@ -72,7 +72,7 @@ void Planet::PlanetTerrainSystem::Update()
 	}
 
 
-	Translation cameraPos = EntityManager::GetComponentData<Translation>(Engine::GetMainCameraEntity());
+	Translation cameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity());
 
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetTerrain = _PlanetTerrainList[i];

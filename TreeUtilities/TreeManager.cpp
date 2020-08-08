@@ -7,7 +7,7 @@ bool TreeUtilities::TreeManager::_Ready;
 #pragma region Helpers
 void TreeUtilities::TreeManager::Init()
 {
-    _TreeBudSystem = Engine::GetWorld()->CreateSystem<TreeBudSystem>(SystemGroup::SimulationSystemGroup);
+    _TreeBudSystem = Application::GetWorld()->CreateSystem<TreeBudSystem>(SystemGroup::SimulationSystemGroup);
     _TreeQuery = _TreeBudSystem->GetTreeQuery();
     _Ready = true;
 }

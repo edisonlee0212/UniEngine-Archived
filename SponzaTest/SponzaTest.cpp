@@ -34,10 +34,10 @@ int main()
 	LightingManager::SetVSMMaxVariance(0.001f);
 	LightingManager::SetEVSMExponent(80.0f);
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
-	Engine::Init();
+	Application::Init();
 
 #pragma region Preparations
-	World* world = Engine::GetWorld();
+	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 
@@ -187,7 +187,7 @@ int main()
 	EntityManager::SetEntityQueryAllFilters<LocalToWorld>(eq, LocalToWorld());
 
 	while (loopable) {
-		Engine::Update();
+		Application::Update();
 		LightAngleSlider();
 		SplitDisplay();
 #pragma region LightsPosition
@@ -234,10 +234,10 @@ int main()
 		dlc->lightSize = lightSize;
 
 #pragma endregion
-		Engine::Update();
-		loopable = Engine::LateUpdate();
+		Application::Update();
+		loopable = Application::LateUpdate();
 	}
-	Engine::End();
+	Application::End();
 #pragma endregion
 	return 0;
 }

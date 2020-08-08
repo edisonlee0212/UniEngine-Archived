@@ -11,10 +11,10 @@ void InitGround();
 int main()
 {
 	LightingManager::SetAmbientLight(1.0f);
-	Engine::Init();
-	Engine::SetTimeStep(0.016f);
+	Application::Init();
+	Application::SetTimeStep(0.016f);
 #pragma region Preparations
-	World* world = Engine::GetWorld();
+	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
@@ -26,7 +26,7 @@ int main()
 
 	TreeManager::Init();
 
-	auto sctSys = Engine::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
+	auto sctSys = Application::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
 
 	sctSys->ResetEnvelopeType(EnvelopeType::Box);
 	sctSys->ResetEnvelope(160, 20, 60);
@@ -50,8 +50,8 @@ int main()
 	Entity tree4 = sctSys->CreateTree(3, treeColor, glm::vec3(-30, 0, 30));
 
 	sctSys->PushGrowIterations(100);
-	Engine::Run();
-	Engine::End();
+	Application::Run();
+	Application::End();
 	return 0;
 }
 

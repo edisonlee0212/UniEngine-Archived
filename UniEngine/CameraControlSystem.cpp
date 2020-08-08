@@ -5,8 +5,8 @@
 using namespace UniEngine;
 void CameraControlSystem::Update()
 {
-	_CameraRotation = EntityManager::GetComponentData<Rotation>(Engine::GetMainCameraEntity());
-	_CameraPosition = EntityManager::GetComponentData<Translation>(Engine::GetMainCameraEntity());
+	_CameraRotation = EntityManager::GetComponentData<Rotation>(Application::GetMainCameraEntity());
+	_CameraPosition = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity());
 	glm::vec3 position = _CameraPosition.Value;
 	glm::vec3 front = _CameraRotation.Value * glm::vec3(0, 0, -1);
 	glm::vec3 right = _CameraRotation.Value * glm::vec3(1, 0, 0);
@@ -37,7 +37,7 @@ void CameraControlSystem::Update()
 	}
 	if (moved) {
 		_CameraPosition.Value = position;
-		if(!_EnableWindowControl) EntityManager::SetComponentData<Translation>(Engine::GetMainCameraEntity(), _CameraPosition);
+		if(!_EnableWindowControl) EntityManager::SetComponentData<Translation>(Application::GetMainCameraEntity(), _CameraPosition);
 		_P[0] = position.x;
 		_P[1] = position.y;
 		_P[2] = position.z;
@@ -54,8 +54,8 @@ void CameraControlSystem::Update()
 	_LastY = mousePosition.y;
 	if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
 		if (xoffset != 0 || yoffset != 0) {
-			_CameraRotation.Value = Engine::GetMainCameraComponent()->Value->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
-			EntityManager::SetComponentData<Rotation>(Engine::GetMainCameraEntity(), _CameraRotation);
+			_CameraRotation.Value = Application::GetMainCameraComponent()->Value->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
+			EntityManager::SetComponentData<Rotation>(Application::GetMainCameraEntity(), _CameraRotation);
 		}
 		mousePosition = InputManager::GetMouseScroll();
 		if (!startScroll) {
@@ -64,7 +64,7 @@ void CameraControlSystem::Update()
 		}
 		float yscrolloffset = -mousePosition.y + _LastScrollY;
 		_LastScrollY = mousePosition.y;
-		if (yscrolloffset != 0) Engine::GetMainCameraComponent()->Value->ProcessMouseScroll(yscrolloffset);
+		if (yscrolloffset != 0) Application::GetMainCameraComponent()->Value->ProcessMouseScroll(yscrolloffset);
 	}
 	if (_EnableWindowControl) {
 		ImGui::Begin("Camera Controller");
@@ -72,7 +72,7 @@ void CameraControlSystem::Update()
 		//ImGui::InputFloat4("Rotation", &_R[0], 1);
 		ImGui::End();
 		_CameraPosition.Value = glm::vec3(_P[0], _P[1], _P[2]);
-		EntityManager::SetComponentData<Translation>(Engine::GetMainCameraEntity(), _CameraPosition);
+		EntityManager::SetComponentData<Translation>(Application::GetMainCameraEntity(), _CameraPosition);
 	}
 }
 
@@ -88,7 +88,7 @@ void UniEngine::CameraControlSystem::SetPosition(glm::vec3 position)
 	_P[1] = position.y;
 	_P[2] = position.z;
 	_CameraPosition.Value = position;
-	EntityManager::SetComponentData<Translation>(Engine::GetMainCameraEntity(), _CameraPosition);
+	EntityManager::SetComponentData<Translation>(Application::GetMainCameraEntity(), _CameraPosition);
 }
 
 void CameraControlSystem::SetVelocity(float velocity)

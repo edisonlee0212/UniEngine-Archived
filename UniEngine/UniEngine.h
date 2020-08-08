@@ -6,7 +6,7 @@
 #include "InputManager.h"
 #include "LightingManager.h"
 namespace UniEngine {
-	class UNIENGINE_API Engine {
+	class UNIENGINE_API Application {
 		static World* _World;
 		static Entity _MainCameraEntity;
 		static CameraComponent* _MainCameraComponent;

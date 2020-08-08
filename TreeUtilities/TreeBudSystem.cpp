@@ -55,14 +55,14 @@ void TreeUtilities::TreeBudSystem::Update()
 		for (int i = 0; i < treeIndices.size(); i++) {
 			auto pointLTWList = std::vector<LocalToWorld>();
 			_BudQuery.ToComponentDataArray(treeIndices[i], &pointLTWList);
-			if (pointLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].BudColor, (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
+			if (pointLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].BudColor, (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
 		}
 	}
 	if (_DrawConnections) {
 		for (int i = 0; i < treeIndices.size(); i++) {
 			auto connectionLTWList = std::vector<Connection>();
 			_BudQuery.ToComponentDataArray(treeIndices[i], &connectionLTWList);
-			if (connectionLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].ConnectionColor, (glm::mat4*)connectionLTWList.data(), connectionLTWList.size(), Engine::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
+			if (connectionLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].ConnectionColor, (glm::mat4*)connectionLTWList.data(), connectionLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
 		}
 	}
 }

@@ -166,9 +166,9 @@ void UniEngine::LightingManager::Init()
 
 void UniEngine::LightingManager::Start()
 {
-	Camera* camera = Engine::GetMainCameraComponent()->Value;
-	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Engine::GetMainCameraEntity()).Value;
-	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(Engine::GetMainCameraEntity()).Value;
+	Camera* camera = Application::GetMainCameraComponent()->Value;
+	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity()).Value;
+	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(Application::GetMainCameraEntity()).Value;
 	auto worldBound = _World->GetBound();
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;

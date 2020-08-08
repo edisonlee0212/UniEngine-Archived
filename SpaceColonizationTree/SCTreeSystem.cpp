@@ -126,13 +126,13 @@ static const char* EnvelopeTypes[]{ "SurfaceOfRevo", "Cube", "Cylinder", "Coil" 
 void SpaceColonizationTree::SCTreeSystem::Update() {
 	EnvelopeGUIMenu();
 	TreeGUIMenu();
-	if (_Envelope != nullptr) _Envelope->Draw(Engine::GetMainCameraComponent()->Value, _EnvelopePointMaterial, glm::vec3(_TreeSize));
-	if (_Tree != nullptr && _Tree->NeedsToGrow()) _Tree->Draw(Engine::GetMainCameraComponent()->Value, _TreePointMaterial, glm::vec3(_TreeSize));
+	if (_Envelope != nullptr) _Envelope->Draw(Application::GetMainCameraComponent()->Value, _EnvelopePointMaterial, glm::vec3(_TreeSize));
+	if (_Tree != nullptr && _Tree->NeedsToGrow()) _Tree->Draw(Application::GetMainCameraComponent()->Value, _TreePointMaterial, glm::vec3(_TreeSize));
 	if (_TreeEntity.Version != 0) {
 		Scale scale;
 		scale.Value = glm::vec3(_TreeSize);
 		EntityManager::SetComponentData<Scale>(_TreeEntity, scale);
-		_LightEstimator->DrawSnapShots(Engine::GetMainCameraComponent()->Value);
+		_LightEstimator->DrawSnapShots(Application::GetMainCameraComponent()->Value);
 	}
 }
 

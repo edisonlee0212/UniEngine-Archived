@@ -17,49 +17,49 @@ void APIENTRY glDebugOutput(GLenum source,
 
 using namespace UniEngine;
 
-World* Engine::_World = nullptr;
-Entity Engine::_MainCameraEntity;
-CameraComponent* Engine::_MainCameraComponent = nullptr;
-bool Engine::_Loopable = false;
-bool Engine::_Running = false;
-double Engine::_RealWorldTime;
-float Engine::_TimeStep = 0.016f;
-ThreadPool Engine::_ThreadPool;
+World* Application::_World = nullptr;
+Entity Application::_MainCameraEntity;
+CameraComponent* Application::_MainCameraComponent = nullptr;
+bool Application::_Loopable = false;
+bool Application::_Running = false;
+double Application::_RealWorldTime;
+float Application::_TimeStep = 0.016f;
+ThreadPool Application::_ThreadPool;
 
 #pragma region Utilities
 
-void UniEngine::Engine::SetTimeStep(float value) {
+void UniEngine::Application::SetTimeStep(float value) {
 	_TimeStep = value;
 	_World->SetTimeStep(value);
 }
-void UniEngine::Engine::PreUpdate()
+void UniEngine::Application::PreUpdate()
 {
 	if (_Running) {
-		Debug::Error("Engine already running!");
+		Debug::Error("Application already running!");
 		return;
 	}
 	LoopStart_Internal();
 }
 
-void UniEngine::Engine::Update()
+void UniEngine::Application::Update()
 {
 	if (_Running) {
-		Debug::Error("Engine already running!");
+		Debug::Error("Application already running!");
 		return;
 	}
 	LoopMain_Internal();
 }
 
-bool UniEngine::Engine::LateUpdate()
+bool UniEngine::Application::LateUpdate()
 {
 	if (_Running) {
-		Debug::Error("Engine already running!");
+		Debug::Error("Application already running!");
 		return false;
 	}
 	return LoopEnd_Internal();
 }
 
-void UniEngine::Engine::GLInit()
+void UniEngine::Application::GLInit()
 {
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -87,7 +87,7 @@ void UniEngine::Engine::GLInit()
 
 #pragma endregion
 
-void UniEngine::Engine::Init(bool fullScreen)
+void UniEngine::Application::Init(bool fullScreen)
 {
 	_Loopable = false;
 	WindowManager::Init("UniEngine", fullScreen);
@@ -148,7 +148,7 @@ void UniEngine::Engine::Init(bool fullScreen)
 
 }
 
-void UniEngine::Engine::LoopStart_Internal()
+void UniEngine::Application::LoopStart_Internal()
 {
 	if (!_Loopable) {
 		return;
@@ -252,7 +252,7 @@ void UniEngine::Engine::LoopStart_Internal()
 	return;
 }
 
-void UniEngine::Engine::LoopMain_Internal()
+void UniEngine::Application::LoopMain_Internal()
 {
 	if (!_Loopable) {
 		return;
@@ -262,7 +262,7 @@ void UniEngine::Engine::LoopMain_Internal()
 	return;
 }
 
-bool UniEngine::Engine::LoopEnd_Internal()
+bool UniEngine::Application::LoopEnd_Internal()
 {
 	_Loopable = !glfwWindowShouldClose(WindowManager::GetWindow());
 	if (!_Loopable) {
@@ -341,13 +341,13 @@ bool UniEngine::Engine::LoopEnd_Internal()
 	return _Loopable;
 }
 
-void UniEngine::Engine::End()
+void UniEngine::Application::End()
 {
 	delete _World;
 	glfwTerminate();
 }
 
-void UniEngine::Engine::Run()
+void UniEngine::Application::Run()
 {
 	_Running = true;
 	while (_Loopable) {
@@ -358,17 +358,17 @@ void UniEngine::Engine::Run()
 	_Running = false;
 }
 
-World* UniEngine::Engine::GetWorld()
+World* UniEngine::Application::GetWorld()
 {
 	return _World;
 }
 
-Entity UniEngine::Engine::GetMainCameraEntity()
+Entity UniEngine::Application::GetMainCameraEntity()
 {
 	return _MainCameraEntity;
 }
 
-CameraComponent* UniEngine::Engine::GetMainCameraComponent()
+CameraComponent* UniEngine::Application::GetMainCameraComponent()
 {
 	return _MainCameraComponent;
 }

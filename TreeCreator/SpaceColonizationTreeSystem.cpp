@@ -221,7 +221,7 @@ void SpaceColonizationTreeSystem::Update()
 {
 	auto pointLTWList = std::vector<LocalToWorld>();
 	_AttractionPointQuery.ToComponentDataArray(&pointLTWList);
-	if (pointLTWList.size() != 0)RenderManager::DrawGizmoPointInstanced(glm::vec4(1, 0, 0, 1), (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Engine::GetMainCameraComponent()->Value);
+	if (pointLTWList.size() != 0)RenderManager::DrawGizmoPointInstanced(glm::vec4(1, 0, 0, 1), (glm::mat4*)pointLTWList.data(), pointLTWList.size(), Application::GetMainCameraComponent()->Value);
 }
 
 void SpaceColonizationTreeSystem::FixedUpdate()

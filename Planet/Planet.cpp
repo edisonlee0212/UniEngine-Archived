@@ -9,10 +9,10 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
-	Engine::Init();
+	Application::Init();
 
 #pragma region Preparations
-	World* world = Engine::GetWorld();
+	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 
@@ -104,7 +104,7 @@ int main()
 	//RenderSystem::SetWireFrameMode(true);
 	bool wireFrame = false;
 	while (loopable) {
-		Engine::PreUpdate();
+		Application::PreUpdate();
 		static bool show = true;
 #pragma region LightsPosition
 		Translation p;
@@ -123,10 +123,10 @@ int main()
 			RenderSystem::SetWireFrameMode(wireFrame);
 		}
 		ImGui::End();
-		Engine::Update();
-		loopable = Engine::LateUpdate();
+		Application::Update();
+		loopable = Application::LateUpdate();
 	}
-	Engine::End();
+	Application::End();
 #pragma endregion
 	return 0;
 }
