@@ -16,7 +16,10 @@ namespace UniEngine {
         static void Update();
         
     private:
+        static GLFWwindow* _Window;
         friend class Engine;
+        friend class WindowManager;
+        static void SetWindow(GLFWwindow* window);
         static void SetFocused(bool value);
         static bool _Focused;
         static double _CursorX; 

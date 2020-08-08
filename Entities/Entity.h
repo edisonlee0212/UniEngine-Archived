@@ -30,7 +30,7 @@ namespace UniEngine {
 
 		bool Enabled();
 
-		bool SetEnabled(bool value);
+		void SetEnabled(bool value);
 
 		bool IsNull() {
 			return Index == 0;

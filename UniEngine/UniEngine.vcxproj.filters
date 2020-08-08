@@ -120,9 +120,6 @@
     <ClInclude Include="Texture2D.h">
       <Filter>Header Files\Resource\Manager\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Window.h">
-      <Filter>Header Files\Resource\Manager\Window</Filter>
-    </ClInclude>
     <ClInclude Include="WindowManager.h">
       <Filter>Header Files\Resource\Manager\Window</Filter>
     </ClInclude>
@@ -241,9 +238,6 @@
     </ClCompile>
     <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>Source Files\Resource\Manager\Window</Filter>
     </ClCompile>
     <ClCompile Include="WindowManager.cpp">
       <Filter>Source Files\Resource\Manager\Window</Filter>

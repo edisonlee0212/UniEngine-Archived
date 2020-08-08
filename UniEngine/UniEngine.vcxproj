@@ -140,7 +140,6 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="UniEngine.h" />
-    <ClInclude Include="Window.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
@@ -233,7 +232,6 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
     <ClCompile Include="UniEngine.cpp" />
-    <ClCompile Include="Window.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>

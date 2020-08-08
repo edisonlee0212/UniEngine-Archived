@@ -25,10 +25,68 @@ bool Engine::_Running = false;
 double Engine::_RealWorldTime;
 float Engine::_TimeStep = 0.016f;
 ThreadPool Engine::_ThreadPool;
+
+#pragma region Utilities
+
 void UniEngine::Engine::SetTimeStep(float value) {
 	_TimeStep = value;
 	_World->SetTimeStep(value);
 }
+void UniEngine::Engine::PreUpdate()
+{
+	if (_Running) {
+		Debug::Error("Engine already running!");
+		return;
+	}
+	LoopStart_Internal();
+}
+
+void UniEngine::Engine::Update()
+{
+	if (_Running) {
+		Debug::Error("Engine already running!");
+		return;
+	}
+	LoopMain_Internal();
+}
+
+bool UniEngine::Engine::LateUpdate()
+{
+	if (_Running) {
+		Debug::Error("Engine already running!");
+		return false;
+	}
+	return LoopEnd_Internal();
+}
+
+void UniEngine::Engine::GLInit()
+{
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		Debug::Error("Failed to initialize GLAD");
+		exit(-1);
+	}
+
+	GLCore::Init();
+
+	// enable OpenGL debug context if context allows for debug context
+
+	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+	{
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
+		glDebugMessageCallback(glDebugOutput, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	}
+
+
+}
+
+#pragma endregion
+
 void UniEngine::Engine::Init(bool fullScreen)
 {
 	_Loopable = false;
@@ -87,59 +145,6 @@ void UniEngine::Engine::Init(bool fullScreen)
 	Default::Load(_World);
 	LightingManager::Init();
 	_Loopable = true;
-
-}
-
-void UniEngine::Engine::PreUpdate()
-{
-	if (_Running) {
-		Debug::Error("Engine already running!");
-		return;
-	}
-	LoopStart_Internal();
-}
-
-void UniEngine::Engine::Update()
-{
-	if (_Running) {
-		Debug::Error("Engine already running!");
-		return;
-	}
-	LoopMain_Internal();
-}
-
-bool UniEngine::Engine::LateUpdate()
-{
-	if (_Running) {
-		Debug::Error("Engine already running!");
-		return false;
-	}
-	return LoopEnd_Internal();
-}
-
-void UniEngine::Engine::GLInit()
-{
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		Debug::Error("Failed to initialize GLAD");
-		exit(-1);
-	}
-
-	GLCore::Init();
-
-	// enable OpenGL debug context if context allows for debug context
-
-	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-	{
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
-		glDebugMessageCallback(glDebugOutput, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	}
-
 
 }
 
@@ -226,15 +231,19 @@ void UniEngine::Engine::LoopStart_Internal()
 
 	ImGui::End();
 	ImVec2 viewPortSize;
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 	ImGui::Begin("Scene");
 	{
 		//viewPortSize = ImGui::GetContentRegionAvail();
 		ImGui::BeginChild("CameraRenderer");
 		// Get the size of the child (i.e. the whole draw size of the windows).
 		viewPortSize = ImGui::GetWindowSize();
+		ImGuiViewport* viewPort = ImGui::GetWindowViewport();
+		InputManager::SetWindow((GLFWwindow*)viewPort->PlatformHandle);
 		ImGui::EndChild();
 	}
 	ImGui::End();
+	ImGui::PopStyleVar();
 	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
 #pragma endregion
 	WindowManager::Start();
