@@ -225,6 +225,17 @@ void UniEngine::Engine::LoopStart_Internal()
 	}
 
 	ImGui::End();
+	ImVec2 viewPortSize;
+	ImGui::Begin("Scene");
+	{
+		//viewPortSize = ImGui::GetContentRegionAvail();
+		ImGui::BeginChild("CameraRenderer");
+		// Get the size of the child (i.e. the whole draw size of the windows).
+		viewPortSize = ImGui::GetWindowSize();
+		ImGui::EndChild();
+	}
+	ImGui::End();
+	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
 #pragma endregion
 	WindowManager::Start();
 	RenderManager::Start();
@@ -250,14 +261,13 @@ bool UniEngine::Engine::LoopEnd_Internal()
 	}
 	InputManager::Update();
 #pragma region Main Camera Window
-	ImVec2 viewPortSize;
-	ImGui::Begin("MainCamera");
+
+	ImGui::Begin("Scene");
 	{
 		InputManager::SetFocused(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows));
-		viewPortSize = ImGui::GetContentRegionAvail();
 		// Using a Child allow to fill all the space of the window.
 		// It also alows customization
-		ImGui::BeginChild("CameraRender");
+		ImGui::BeginChild("CameraRenderer");
 		// Get the size of the child (i.e. the whole draw size of the windows).
 		ImVec2 wsize = ImGui::GetWindowSize();
 		// Because I use the texture from OpenGL, I need to invert the V from the UV.
@@ -267,7 +277,7 @@ bool UniEngine::Engine::LoopEnd_Internal()
 	ImGui::End();
 #pragma endregion
 #pragma region DrawInfos
-	
+
 	ImGui::Begin("World Info");
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 	size_t tris = RenderManager::Triangles();
@@ -318,7 +328,7 @@ bool UniEngine::Engine::LoopEnd_Internal()
 #pragma endregion
 	//Swap Window's framebuffer
 	WindowManager::Update();
-	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
+
 	return _Loopable;
 }
 
