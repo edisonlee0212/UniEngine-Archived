@@ -68,8 +68,6 @@ void UniEngine::WindowManager::Init(std::string name, bool fullScreen)
 	glfwSetFramebufferSizeCallback(_Window, WindowManager::ResizeCallback);
 	glfwSetCursorPosCallback(_Window, InputManager::CursorPositionCallback);
 	glfwSetScrollCallback(_Window, InputManager::MouseScrollCallback);
-	glfwSetKeyCallback(_Window, InputManager::KeyCallback);
-	glfwSetMouseButtonCallback(_Window, InputManager::MouseButtonCallback);
 	if (_Window == NULL)
 	{
 		Debug::Error("Failed to create GLFW window");
