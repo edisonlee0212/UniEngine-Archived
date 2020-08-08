@@ -45,11 +45,13 @@ void SpaceColonizationTreeSystem::Grow()
 		});
 	//Assign points to buds;
 	for (int i = 0; i < budEntityList.size(); i++) {
-		BudType budType = EntityManager::GetComponentData<BudType>(budEntityList[i]);
+		auto budEntity = budEntityList[i];
+		if (!budEntity.Enabled()) continue;
+		BudType budType = EntityManager::GetComponentData<BudType>(budEntity);
 		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
 			continue;
 		}
-		unsigned budEntityIndex = budEntityList[i].Index;
+		unsigned budEntityIndex = budEntity.Index;
 		glm::vec3 budPos = ltwList[i].value[3];
 		EntityManager::ForEach<Translation, AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, budPos, attractionDistance, removeDistance](int i, Entity entity, Translation* translation, AttractionPointCurrentStatus* status)
 			{
@@ -64,11 +66,13 @@ void SpaceColonizationTreeSystem::Grow()
 	}
 	//Create new buds and remove points.
 	for (int i = 0; i < budEntityList.size(); i++) {
-		BudType budType = EntityManager::GetComponentData<BudType>(budEntityList[i]);
+		auto budEntity = budEntityList[i];
+		if (!budEntity.Enabled()) continue;
+		BudType budType = EntityManager::GetComponentData<BudType>(budEntity);
 		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
 			continue;
 		}
-		unsigned budEntityIndex = budEntityList[i].Index;
+		unsigned budEntityIndex = budEntity.Index;
 		std::mutex ml;
 		unsigned amount = 0;
 		glm::vec3 growDir = glm::vec3(0.0f);
@@ -267,7 +271,7 @@ void SpaceColonizationTreeSystem::PushGrowIterations(size_t iteration)
 	_IterationFinishMark = false;
 }
 
-void SpaceColonizationTreeSystem::CreateTree(size_t index, TreeColor color, glm::vec3 position)
+Entity SpaceColonizationTreeSystem::CreateTree(size_t index, TreeColor color, glm::vec3 position, bool enabled)
 {
 	TreeIndex treeIndex;
 	treeIndex.Value = index;
@@ -288,12 +292,14 @@ void SpaceColonizationTreeSystem::CreateTree(size_t index, TreeColor color, glm:
 	EntityManager::SetComponentData(treeEntity, s);
 	EntityManager::SetComponentData(treeEntity, treeIndex);
 	EntityManager::SetComponentData(treeEntity, color);
+	treeEntity.SetEnabled(enabled);
 	auto rootBud = EntityManager::CreateEntity(_BudArchetype);
 	EntityManager::SetParent(rootBud, treeEntity);
 	EntityManager::SetComponentData(rootBud, lt);
 	EntityManager::SetComponentData(rootBud, ls);
 	EntityManager::SetComponentData(rootBud, type);
 	EntityManager::SetComponentData(rootBud, treeIndex);
+	return treeEntity;
 }
 
 void SpaceColonizationTreeSystem::ClearAttractionPoints()

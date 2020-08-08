@@ -286,7 +286,7 @@ void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
 	}
 	_EntityInfos->at(childIndex).Parent = parent;
 	_EntityInfos->at(parentIndex).Children.push_back(entity);
-
+	_EntityInfos->at(childIndex).Enabled = _EntityInfos->at(parentIndex).Enabled;
 	for (int i = 0; i < _ParentRoots->size(); i++) {
 		if (_Entities->at(childIndex) == _ParentRoots->at(i)) {
 			_ParentRoots->erase(_ParentRoots->begin() + i);

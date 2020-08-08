@@ -35,22 +35,21 @@ int main()
 	TreeColor treeColor;
 	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	sctSys->CreateTree(0, treeColor, glm::vec3(30, 0, -30));
+	Entity tree1 = sctSys->CreateTree(0, treeColor, glm::vec3(30, 0, -30), false);
 
 	treeColor.BudColor = glm::vec4(0, 1, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	sctSys->CreateTree(1, treeColor, glm::vec3(30, 0, 30));
+	Entity tree2 = sctSys->CreateTree(1, treeColor, glm::vec3(30, 0, 30));
 
 	treeColor.BudColor = glm::vec4(0, 0, 1, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	sctSys->CreateTree(2, treeColor, glm::vec3(-30, 0, -30));
+	Entity tree3 = sctSys->CreateTree(2, treeColor, glm::vec3(-30, 0, -30));
 
 	treeColor.BudColor = glm::vec4(0, 1, 1, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	sctSys->CreateTree(3, treeColor, glm::vec3(-30, 0, 30));
+	Entity tree4 = sctSys->CreateTree(3, treeColor, glm::vec3(-30, 0, 30));
 
 	sctSys->PushGrowIterations(100);
-
 	Engine::Run();
 	Engine::End();
 	return 0;
