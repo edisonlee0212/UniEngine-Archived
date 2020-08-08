@@ -36,7 +36,7 @@ void SpaceColonizationTreeSystem::Grow()
 	float attractionDistance = 25.0f;
 	float removeDistance = 5.0f;
 	float growDistance = 1.0f;
-	EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [](int i, AttractionPointCurrentStatus* status)
+	EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [](int i, Entity entity, AttractionPointCurrentStatus* status)
 		{
 			status->remove = false;
 			status->budEntityIndex = 0;
@@ -51,7 +51,7 @@ void SpaceColonizationTreeSystem::Grow()
 		}
 		unsigned budEntityIndex = budEntityList[i].Index;
 		glm::vec3 budPos = ltwList[i].value[3];
-		EntityManager::ForEach<Translation, AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, budPos, attractionDistance, removeDistance](int i, Translation* translation, AttractionPointCurrentStatus* status)
+		EntityManager::ForEach<Translation, AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, budPos, attractionDistance, removeDistance](int i, Entity entity, Translation* translation, AttractionPointCurrentStatus* status)
 			{
 				float distance = glm::distance(translation->Value, budPos);
 				if (distance < attractionDistance && distance < status->distance) {
@@ -74,7 +74,7 @@ void SpaceColonizationTreeSystem::Grow()
 		glm::vec3 growDir = glm::vec3(0.0f);
 		float attractionDistance = 25.0f;
 		float removeDistance = 5.0f;
-		EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, &ml, &amount, &growDir](int i, AttractionPointCurrentStatus* status)
+		EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, &ml, &amount, &growDir](int i, Entity entity, AttractionPointCurrentStatus* status)
 			{
 				if (status->budEntityIndex == budEntityIndex) {
 					std::lock_guard<std::mutex> lock(ml);
@@ -86,7 +86,7 @@ void SpaceColonizationTreeSystem::Grow()
 			if (budType.Value == BudTypes::APICAL_BUD && budType.Searching) {
 				glm::vec3 budPos = ltwList[i].value[3];
 				float minDistance = 999999;
-				EntityManager::ForEach<Translation>(_AttractionPointQuery, [&amount, &ml, &growDir, budPos, &minDistance](int i, Translation* translation)
+				EntityManager::ForEach<Translation>(_AttractionPointQuery, [&amount, &ml, &growDir, budPos, &minDistance](int i, Entity entity, Translation* translation)
 					{
 						float distance = glm::distance(translation->Value, budPos);
 						if (distance < minDistance) {
@@ -158,7 +158,7 @@ void SpaceColonizationTreeSystem::Grow()
 #pragma region Remove points
 	std::vector<Entity> points;
 	std::mutex ml;
-	EntityManager::ForEachWithEntity<AttractionPointCurrentStatus>(_AttractionPointQuery, [&points, &ml](int i, Entity entity, AttractionPointCurrentStatus* status) {
+	EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [&points, &ml](int i, Entity entity, AttractionPointCurrentStatus* status) {
 		if (status->remove) {
 			std::lock_guard<std::mutex> lock(ml);
 			points.push_back(entity);
@@ -260,7 +260,7 @@ void SpaceColonizationTreeSystem::PushAttractionPoints(size_t value)
 
 void SpaceColonizationTreeSystem::PushGrowIterations(size_t iteration)
 {
-	EntityManager::ForEach<BudType>(_BudQuery, [](int i, BudType* type) {
+	EntityManager::ForEach<BudType>(_BudQuery, [](int i, Entity entity, BudType* type) {
 		type->Searching = true;
 		});
 	_ToGrowIteration += iteration;
@@ -300,7 +300,7 @@ void SpaceColonizationTreeSystem::ClearAttractionPoints()
 {
 	std::vector<Entity> points;
 	std::mutex ml;
-	EntityManager::ForEachWithEntity<AttractionPointCurrentStatus>(_AttractionPointQuery, [&points, &ml](int i, Entity entity, AttractionPointCurrentStatus* status) {
+	EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [&points, &ml](int i, Entity entity, AttractionPointCurrentStatus* status) {
 		std::lock_guard<std::mutex> lock(ml);
 		points.push_back(entity);
 		});

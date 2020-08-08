@@ -73,7 +73,7 @@ void TreeUtilities::TreeBudSystem::FixedUpdate()
 
 void TreeUtilities::TreeBudSystem::RefreshParentTranslations()
 {
-	EntityManager::ForEachWithEntity<ParentTranslation>(_ParentTranslationQuery, [](int i, Entity entity, ParentTranslation* pt) {
+	EntityManager::ForEach<ParentTranslation>(_ParentTranslationQuery, [](int i, Entity entity, ParentTranslation* pt) {
 		Entity pe = EntityManager::GetParent(entity);
 		pt->Value = EntityManager::GetComponentData<LocalToWorld>(pe).value[3];
 		});
@@ -81,7 +81,7 @@ void TreeUtilities::TreeBudSystem::RefreshParentTranslations()
 
 void TreeUtilities::TreeBudSystem::RefreshConnections(float lineWidth)
 {
-	EntityManager::ForEach<ParentTranslation, LocalToWorld, Connection>(_ConnectionQuery, [lineWidth](int i, ParentTranslation* pt, LocalToWorld* ltw, Connection* c) {
+	EntityManager::ForEach<ParentTranslation, LocalToWorld, Connection>(_ConnectionQuery, [lineWidth](int i, Entity entity, ParentTranslation* pt, LocalToWorld* ltw, Connection* c) {
 		glm::vec3 pos = ltw->value[3];
 		glm::vec3 diff = pos - pt->Value;
 		glm::quat rotation = glm::quatLookAt(diff, glm::vec3(0, 1, 0));

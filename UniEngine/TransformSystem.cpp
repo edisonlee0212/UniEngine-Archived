@@ -63,47 +63,47 @@ void UniEngine::TransformSystem::OnDestroy()
 
 void UniEngine::TransformSystem::Update()
 {
-	EntityManager::ForEach<LocalToParent, LocalTranslation>(_LP, [](int i, LocalToParent* ltp, LocalTranslation* lp) {
+	EntityManager::ForEach<LocalToParent, LocalTranslation>(_LP, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp) {
 		ltp->value = glm::translate(glm::mat4(1.0f), lp->value);
 		});
-	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation>(_LPR, [](int i, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr) {
+	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation>(_LPR, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr) {
 		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::mat4_cast(lr->value);
 		});
-	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalScale>(_LPS, [](int i, LocalToParent* ltp, LocalTranslation* lp, LocalScale* ls) {
+	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalScale>(_LPS, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalScale* ls) {
 		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::scale(ls->value);
 		});
-	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation, LocalScale>(_LPRS, [](int i, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr, LocalScale* ls) {
+	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation, LocalScale>(_LPRS, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr, LocalScale* ls) {
 		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::mat4_cast(lr->value) * glm::scale(ls->value);
 		});
-	EntityManager::ForEach<LocalToParent, LocalRotation>(_LR, [](int i, LocalToParent* ltp, LocalRotation* lr) {
+	EntityManager::ForEach<LocalToParent, LocalRotation>(_LR, [](int i, Entity entity, LocalToParent* ltp, LocalRotation* lr) {
 		ltp->value = glm::mat4_cast(lr->value);
 		});
-	EntityManager::ForEach<LocalToParent, LocalRotation, LocalScale>(_LRS, [](int i, LocalToParent* ltp, LocalRotation* lr, LocalScale* ls) {
+	EntityManager::ForEach<LocalToParent, LocalRotation, LocalScale>(_LRS, [](int i, Entity entity, LocalToParent* ltp, LocalRotation* lr, LocalScale* ls) {
 		ltp->value = glm::mat4_cast(lr->value) * glm::scale(ls->value);
 		});
-	EntityManager::ForEach<LocalToParent, LocalScale>(_LS, [](int i, LocalToParent* ltp, LocalScale* ls) {
+	EntityManager::ForEach<LocalToParent, LocalScale>(_LS, [](int i, Entity entity, LocalToParent* ltp, LocalScale* ls) {
 		ltp->value = glm::scale(ls->value);
 		});
 
-	EntityManager::ForEach<LocalToWorld, Translation>(_P, [](int i, LocalToWorld* ltw, Translation* lp) {
+	EntityManager::ForEach<LocalToWorld, Translation>(_P, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp) {
 		ltw->value = glm::translate(glm::mat4(1.0f), lp->Value);
 		});
-	EntityManager::ForEach<LocalToWorld, Translation, Rotation>(_PR, [](int i, LocalToWorld* ltw, Translation* lp, Rotation* lr) {
+	EntityManager::ForEach<LocalToWorld, Translation, Rotation>(_PR, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Rotation* lr) {
 		ltw->value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value);
 		});
-	EntityManager::ForEach<LocalToWorld, Translation, Scale>(_PS, [](int i, LocalToWorld* ltw, Translation* lp, Scale* ls) {
+	EntityManager::ForEach<LocalToWorld, Translation, Scale>(_PS, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Scale* ls) {
 		ltw->value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::scale(ls->Value);
 		});
-	EntityManager::ForEach<LocalToWorld, Translation, Rotation, Scale>(_PRS, [](int i, LocalToWorld* ltw, Translation* lp, Rotation* lr, Scale* ls) {
+	EntityManager::ForEach<LocalToWorld, Translation, Rotation, Scale>(_PRS, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Rotation* lr, Scale* ls) {
 		ltw->value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
 		});
-	EntityManager::ForEach<LocalToWorld, Rotation>(_R, [](int i, LocalToWorld* ltw, Rotation* lr) {
+	EntityManager::ForEach<LocalToWorld, Rotation>(_R, [](int i, Entity entity, LocalToWorld* ltw, Rotation* lr) {
 		ltw->value = glm::mat4_cast(lr->Value);
 		});
-	EntityManager::ForEach<LocalToWorld, Rotation, Scale>(_RS, [](int i, LocalToWorld* ltw, Rotation* lr, Scale* ls) {
+	EntityManager::ForEach<LocalToWorld, Rotation, Scale>(_RS, [](int i, Entity entity, LocalToWorld* ltw, Rotation* lr, Scale* ls) {
 		ltw->value = glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
 		});
-	EntityManager::ForEach<LocalToWorld, Scale>(_S, [](int i, LocalToWorld* ltw, Scale* ls) {
+	EntityManager::ForEach<LocalToWorld, Scale>(_S, [](int i, Entity entity, LocalToWorld* ltw, Scale* ls) {
 		ltw->value = glm::scale(ls->Value);
 		});
 }

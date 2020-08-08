@@ -365,11 +365,22 @@ void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>* container)
 
 EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)
 {
-	if (entity.IsNull()) return EntityArchetype();
+	EntityArchetype retVal = EntityArchetype();
+	if (entity.IsNull()) return retVal;
 	EntityInfo info = _EntityInfos->at(entity.Index);
-	EntityArchetype retVal;
 	retVal.Index = info.ArchetypeInfoIndex;
 	return retVal;
+}
+
+void UniEngine::EntityManager::SetEnable(Entity entity, bool value) {
+	_EntityInfos->at(entity.Index).Enabled = value;
+	for (auto i : _EntityInfos->at(entity.Index).Children) {
+		SetEnable(i, value);
+	}
+}
+
+bool UniEngine::EntityManager::IsEntityEnabled(Entity entity) {
+	return _EntityInfos->at(entity.Index).Enabled;
 }
 
 EntityQuery UniEngine::EntityManager::CreateEntityQuery()

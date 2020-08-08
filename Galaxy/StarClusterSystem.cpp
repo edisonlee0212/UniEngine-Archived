@@ -81,11 +81,11 @@ void Galaxy::StarClusterSystem::Update()
 
 	_GalaxyTime += _World->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
-	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery, [time](int i, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset) {
+	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery, [time](int i, Entity entity, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset) {
 		position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0 + time, true);
 		});
 	float size = _Size;
-	EntityManager::ForEach<Translation, Scale, StarPosition>(_StarQuery, [size](int i, Translation* translation, Scale* scale, StarPosition* position) {
+	EntityManager::ForEach<Translation, Scale, StarPosition>(_StarQuery, [size](int i, Entity entity, Translation* translation, Scale* scale, StarPosition* position) {
 		translation->Value = position->Value / 20.0;
 		scale->Value = size * glm::vec3(1.0f);
 		});

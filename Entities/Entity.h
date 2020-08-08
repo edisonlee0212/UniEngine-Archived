@@ -28,6 +28,10 @@ namespace UniEngine {
 			return (size_t)Index;
 		}
 
+		bool Enabled();
+
+		bool SetEnabled(bool value);
+
 		bool IsNull() {
 			return Index == 0;
 		}
@@ -96,6 +100,7 @@ namespace UniEngine {
 	};
 
 	struct EntityInfo {
+		bool Enabled = true;
 		Entity Parent;
 		std::vector<Entity> Children;
 		//Entity _Entity;

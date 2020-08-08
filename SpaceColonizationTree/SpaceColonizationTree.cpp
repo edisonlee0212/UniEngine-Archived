@@ -79,20 +79,6 @@ int main()
 
 #pragma endregion
 	InitGround();
-
-	EntityArchetype archetype1 = EntityManager::CreateEntityArchetype<Translation, Scale, LocalToWorld>(Translation(), Scale(), LocalToWorld());
-	EntityArchetype archetype2 = EntityManager::CreateEntityArchetype<Translation, LocalToWorld>(Translation(), LocalToWorld());
-	EntityQuery eq = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters<Translation>(eq, Translation());
-	std::vector<EntityComponentStorage> storages = EntityManager::UnsafeQueryStorages(eq);
-
-
-	EntityManager::ForEach<Translation>(eq, [](int i, Translation* position) {
-		glm::vec3 pos = position->Value;
-		std::string print = std::to_string(pos.x) + ", " + std::to_string(pos.y) + ", " + std::to_string(pos.z);
-		Debug::Log(print);
-		});
-
 #pragma region EngineLoop
 	bool loopable = true;
 
