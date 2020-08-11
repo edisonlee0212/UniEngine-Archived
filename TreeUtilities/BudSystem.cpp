@@ -52,22 +52,26 @@ void TreeUtilities::BudSystem::OnDestroy()
 
 void TreeUtilities::BudSystem::Update()
 {
+	_BudEntities.clear();
+	_BudQuery.ToEntityArray(&_BudEntities);
+
 	std::vector<TreeIndex> treeIndices;
 	_TreeQuery.ToComponentDataArray(&treeIndices);
 	std::vector<TreeColor> treeColors;
 	_TreeQuery.ToComponentDataArray(&treeColors);
-	if (_ConfigFlags & BudSystem_DrawBuds) {
-		for (int i = 0; i < treeIndices.size(); i++) {
-			_BudLTWList.clear();
-			_BudQuery.ToComponentDataArray(treeIndices[i], &_BudLTWList);
-			if (_BudLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].BudColor, (glm::mat4*)_BudLTWList.data(), _BudLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
-		}
-	}
-	if (_ConfigFlags & BudSystem_DrawConnections) {
-		for (int i = 0; i < treeIndices.size(); i++) {
-			_ConnectionList.clear();
-			_BudQuery.ToComponentDataArray(treeIndices[i], &_ConnectionList);
-			if (_ConnectionList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].ConnectionColor, (glm::mat4*)_ConnectionList.data(), _ConnectionList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
+	auto treeEntities = TreeManager::GetTreeSystem()->GetTreeEntities();
+	for (int i = 0; i < treeEntities->size(); i++) {
+		if (treeEntities->at(i).Enabled()) {
+			if (_ConfigFlags & BudSystem_DrawBuds) {
+				_BudLTWList.clear();
+				_BudQuery.ToComponentDataArray(treeIndices[i], &_BudLTWList);
+				if (_BudLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].BudColor, (glm::mat4*)_BudLTWList.data(), _BudLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
+			}
+			if (_ConfigFlags & BudSystem_DrawConnections) {
+				_ConnectionList.clear();
+				_BudQuery.ToComponentDataArray(treeIndices[i], &_ConnectionList);
+				if (_ConnectionList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].ConnectionColor, (glm::mat4*)_ConnectionList.data(), _ConnectionList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
+			}
 		}
 	}
 	DrawGUI();

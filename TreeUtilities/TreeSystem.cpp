@@ -36,8 +36,8 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		index = EntityManager::GetComponentData<TreeIndex>(tree);
 		std::string title = "Tree ";
 		title += std::to_string(index.Value);
-		bool opened = ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow);
-		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+		bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedTreeEntity == tree ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
 			_SelectedTreeEntity = tree;
 		}
 		if (opened) {

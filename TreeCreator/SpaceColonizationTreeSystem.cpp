@@ -19,7 +19,7 @@ void SpaceColonizationTreeSystem::DrawGUI()
 			index = EntityManager::GetComponentData<TreeIndex>(tree);
 			std::string title = "Tree ";
 			title += std::to_string(index.Value);
-			bool opened = ImGui::CollapsingHeader(title.c_str());
+			bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog | ImGuiTreeNodeFlags_FramePadding);
 			if (opened) {
 				color = EntityManager::GetComponentData<TreeColor>(tree);
 				ImGui::Text("Tree Color: [%d, %d, %d]", (int)(color.BudColor.x * 256.0f), (int)(color.BudColor.y * 256.0f), (int)(color.BudColor.z * 256.0f));
@@ -41,6 +41,7 @@ void SpaceColonizationTreeSystem::DrawGUI()
 					iteration.Value = remain;
 					EntityManager::SetComponentData(tree, iteration);
 				}
+				ImGui::TreePop();
 			}
 		}
 	}
