@@ -19,12 +19,12 @@ inline void SpaceColonizationTreeSystem::AddAttractionPoint(Translation translat
 	_AttractionPointMaxIndex++;
 }
 
-void SpaceColonizationTreeSystem::Grow()
+void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float removeDistance, float growDistance)
 {
 	if (_AttractionPointQuery.GetEntityAmount() == 0) {
 		//No more attraction points, return.
 		Debug::Log("SpaceColonizationTreeSystem: Run out of attraction points!");
-		_ToGrowIteration = 0;
+		_AllTreesToGrowIteration = 0;
 		return;
 	}
 	unsigned newBudAmount = 0;
@@ -33,9 +33,6 @@ void SpaceColonizationTreeSystem::Grow()
 	auto ltwList = std::vector<LocalToWorld>();
 	_BudQuery.ToEntityArray(&budEntityList);
 	_BudQuery.ToComponentDataArray(&ltwList);
-	float attractionDistance = 25.0f;
-	float removeDistance = 5.0f;
-	float growDistance = 1.0f;
 	EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [](int i, Entity entity, AttractionPointCurrentStatus* status)
 		{
 			status->remove = false;
@@ -64,7 +61,20 @@ void SpaceColonizationTreeSystem::Grow()
 				}
 			});
 	}
-	//Create new buds and remove points.
+#pragma region Remove points
+	std::vector<Entity> points;
+	std::mutex ml;
+	EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [&points, &ml](int i, Entity entity, AttractionPointCurrentStatus* status) {
+		if (status->remove) {
+			std::lock_guard<std::mutex> lock(ml);
+			points.push_back(entity);
+		}
+		});
+	for (auto i : points) {
+		EntityManager::DeleteEntity(i);
+	}
+#pragma endregion
+	//Create new buds
 	for (int i = 0; i < budEntityList.size(); i++) {
 		auto budEntity = budEntityList[i];
 		if (!budEntity.Enabled()) continue;
@@ -76,8 +86,6 @@ void SpaceColonizationTreeSystem::Grow()
 		std::mutex ml;
 		unsigned amount = 0;
 		glm::vec3 growDir = glm::vec3(0.0f);
-		float attractionDistance = 25.0f;
-		float removeDistance = 5.0f;
 		EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, &ml, &amount, &growDir](int i, Entity entity, AttractionPointCurrentStatus* status)
 			{
 				if (status->budEntityIndex == budEntityIndex) {
@@ -159,24 +167,11 @@ void SpaceColonizationTreeSystem::Grow()
 #pragma endregion
 		}
 	}
-#pragma region Remove points
-	std::vector<Entity> points;
-	std::mutex ml;
-	EntityManager::ForEach<AttractionPointCurrentStatus>(_AttractionPointQuery, [&points, &ml](int i, Entity entity, AttractionPointCurrentStatus* status) {
-		if (status->remove) {
-			std::lock_guard<std::mutex> lock(ml);
-			points.push_back(entity);
-		}
-		});
-	for (auto i : points) {
-		EntityManager::DeleteEntity(i);
-	}
-#pragma endregion
 
 	if (newBudAmount == 0) {
 		//No more attraction points, return.
 		Debug::Log("SpaceColonizationTreeSystem: No new buds generated in this iteration, finish growing.");
-		_ToGrowIteration = 0;
+		_AllTreesToGrowIteration = 0;
 	}
 
 }
@@ -206,7 +201,7 @@ void SpaceColonizationTreeSystem::OnCreate()
 	_AttractionPointMaterial->Textures2Ds()->push_back(pointTex);
 
 	ResetEnvelope(60.0f, 20.0f, 80.0f);
-	_ToGrowIteration = 0;
+	_AllTreesToGrowIteration = 0;
 	Enable();
 }
 
@@ -229,10 +224,10 @@ void SpaceColonizationTreeSystem::FixedUpdate()
 		_BudSystem->RefreshConnections(0.05f);
 		_IterationFinishMark = false;
 	}
-	if (_ToGrowIteration > 0) {
-		_ToGrowIteration--;
-		Grow();
-		if (_ToGrowIteration == 0) _IterationFinishMark = true;
+	if (_AllTreesToGrowIteration > 0) {
+		_AllTreesToGrowIteration--;
+		GrowAllTrees();
+		if (_AllTreesToGrowIteration == 0) _IterationFinishMark = true;
 	}
 }
 
@@ -260,12 +255,12 @@ void SpaceColonizationTreeSystem::PushAttractionPoints(size_t value)
 	}
 }
 
-void SpaceColonizationTreeSystem::PushGrowIterations(size_t iteration)
+void SpaceColonizationTreeSystem::PushGrowAllTreesIterations(size_t iteration)
 {
 	EntityManager::ForEach<BudType>(_BudQuery, [](int i, Entity entity, BudType* type) {
-		type->Searching = true;
+		if(type->Value == BudTypes::LATERAL_BUD) type->Searching = true;
 		});
-	_ToGrowIteration += iteration;
+	_AllTreesToGrowIteration += iteration;
 	_IterationFinishMark = false;
 }
 
@@ -307,4 +302,9 @@ void SpaceColonizationTreeSystem::ClearAttractionPoints()
 	for (auto i : points) {
 		EntityManager::DeleteEntity(i);
 	}
+}
+
+unsigned SpaceColonizationTreeSystem::AllTreesToGrowIteration()
+{
+	return _AllTreesToGrowIteration;
 }

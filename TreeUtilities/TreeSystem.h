@@ -15,6 +15,8 @@ namespace TreeUtilities {
         EntityQuery _TreeQuery;
 
         std::vector<Entity> _TreeEntities;
+
+        Entity _SelectedTreeEntity;
         void BudListHelper(Entity budEntity);
         void DrawGUI();
     public:

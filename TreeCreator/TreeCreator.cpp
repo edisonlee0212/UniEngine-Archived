@@ -49,13 +49,20 @@ int main()
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
 	Entity tree4 = sctSys->CreateTree(treeColor, glm::vec3(-30, 0, 30));
 
-	sctSys->PushGrowIterations(100);
+	sctSys->PushGrowAllTreesIterations(50);
 	bool loopable = true;
+	bool needPush = true;
 	while (loopable) {
 		Application::PreUpdate();
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 		Application::Update();
+		if (needPush && sctSys->AllTreesToGrowIteration() == 0) {
+			needPush = false;
+			tree1.SetEnabled(true);
+			sctSys->PushGrowAllTreesIterations(100);
+		}
 		loopable = Application::LateUpdate();
+		
 	}
 	Application::End();
 	return 0;

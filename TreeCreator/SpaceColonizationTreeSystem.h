@@ -33,12 +33,12 @@ class SpaceColonizationTreeSystem :
 
     Material* _AttractionPointMaterial;
     Envelope _Envelope;
-    unsigned _ToGrowIteration;
+    unsigned _AllTreesToGrowIteration;
     unsigned _AttractionPointMaxIndex;
 
     bool _IterationFinishMark;
     void AddAttractionPoint(Translation translation);
-    void Grow();
+    void GrowAllTrees(float attractionDistance = 25.0f, float removeDistance = 5.0f, float growDistance = 1.0f);
 public:
     void OnCreate();
     void OnDestroy();
@@ -48,8 +48,9 @@ public:
     void ResetEnvelope(glm::vec3 spaceOffset, glm::vec3 spaceSize);
     void ResetEnvelopeType(EnvelopeType type);
     void PushAttractionPoints(size_t value);
-    void PushGrowIterations(size_t iteration);
+    void PushGrowAllTreesIterations(size_t iteration);
     Entity CreateTree(TreeColor color, glm::vec3 position, bool enabled = true);
     void ClearAttractionPoints();
+    unsigned AllTreesToGrowIteration();
 };
 
