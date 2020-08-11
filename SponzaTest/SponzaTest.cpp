@@ -187,7 +187,7 @@ int main()
 	EntityManager::SetEntityQueryAllFilters<LocalToWorld>(eq, LocalToWorld());
 
 	while (loopable) {
-		Application::Update();
+		Application::PreUpdate();
 		LightAngleSlider();
 		SplitDisplay();
 #pragma region LightsPosition

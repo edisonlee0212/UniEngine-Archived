@@ -22,10 +22,8 @@ struct AttractionPointCurrentStatus {
 class SpaceColonizationTreeSystem :
     public SystemBase
 {
-    TreeBudSystem* _TreeBudSystem;
-    EntityArchetype _BudArchetype;
-    EntityArchetype _LeafArchetype;
-    EntityArchetype _TreeArchetype;
+    BudSystem* _BudSystem;
+
     EntityQuery _BudQuery;
     EntityQuery _LeafQuery;
     EntityQuery _TreeQuery;
@@ -51,7 +49,7 @@ public:
     void ResetEnvelopeType(EnvelopeType type);
     void PushAttractionPoints(size_t value);
     void PushGrowIterations(size_t iteration);
-    Entity CreateTree(size_t index, TreeColor color, glm::vec3 position, bool enabled = true);
+    Entity CreateTree(TreeColor color, glm::vec3 position, bool enabled = true);
     void ClearAttractionPoints();
 };
 

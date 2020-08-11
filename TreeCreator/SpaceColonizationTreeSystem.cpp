@@ -138,7 +138,7 @@ void SpaceColonizationTreeSystem::Grow()
 			}
 			if (!tooClose) {
 				newBudAmount++;
-				auto newBud = EntityManager::CreateEntity(_BudArchetype);
+				auto newBud = TreeManager::CreateBud();
 				EntityManager::SetComponentData(newBud, lt);
 				EntityManager::SetComponentData(newBud, rotation);
 				EntityManager::SetComponentData(newBud, ls);
@@ -183,16 +183,14 @@ void SpaceColonizationTreeSystem::Grow()
 
 void SpaceColonizationTreeSystem::OnCreate()
 {
-	_TreeBudSystem = _World->GetSystem<TreeBudSystem>();
-	if (_TreeBudSystem == nullptr) {
+	if (!TreeManager::IsReady()) {
 		Debug::Error("SpaceColonizationTreeSystem: TreeManager not initialized!");
 	}
-	_BudArchetype = _TreeBudSystem->GetBudArchetype();
-	_LeafArchetype = _TreeBudSystem->GetLeafArchetype();
-	_TreeArchetype = _TreeBudSystem->GetTreeArchetype();
-	_LeafQuery = _TreeBudSystem->GetLeafQuery();
-	_BudQuery = _TreeBudSystem->GetBudQuery();
-	_TreeQuery = _TreeBudSystem->GetTreeQuery();
+
+	_BudSystem = TreeManager::GetBudSystem();
+	_LeafQuery = TreeManager::GetLeafQuery();
+	_BudQuery = TreeManager::GetBudQuery();
+	_TreeQuery = TreeManager::GetTreeQuery();
 
 	_AttractionPointArchetype = EntityManager::CreateEntityArchetype(
 		Translation(), Scale(), LocalToWorld(),
@@ -227,8 +225,8 @@ void SpaceColonizationTreeSystem::Update()
 void SpaceColonizationTreeSystem::FixedUpdate()
 {
 	if (_IterationFinishMark) {
-		_TreeBudSystem->RefreshParentTranslations();
-		_TreeBudSystem->RefreshConnections(0.05f);
+		_BudSystem->RefreshParentTranslations();
+		_BudSystem->RefreshConnections(0.05f);
 		_IterationFinishMark = false;
 	}
 	if (_ToGrowIteration > 0) {
@@ -271,15 +269,12 @@ void SpaceColonizationTreeSystem::PushGrowIterations(size_t iteration)
 	_IterationFinishMark = false;
 }
 
-Entity SpaceColonizationTreeSystem::CreateTree(size_t index, TreeColor color, glm::vec3 position, bool enabled)
+Entity SpaceColonizationTreeSystem::CreateTree(TreeColor color, glm::vec3 position, bool enabled)
 {
-	TreeIndex treeIndex;
-	treeIndex.Value = index;
-
 	BudType type;
 	type.Value = BudTypes::APICAL_BUD;
 	type.Searching = true;
-	auto treeEntity = EntityManager::CreateEntity(_TreeArchetype);
+	auto treeEntity = TreeManager::CreateTree();
 	Translation t;
 	t.Value = position;
 	LocalTranslation lt;
@@ -290,15 +285,14 @@ Entity SpaceColonizationTreeSystem::CreateTree(size_t index, TreeColor color, gl
 	ls.value = glm::vec3(1.0f);
 	EntityManager::SetComponentData(treeEntity, t);
 	EntityManager::SetComponentData(treeEntity, s);
-	EntityManager::SetComponentData(treeEntity, treeIndex);
 	EntityManager::SetComponentData(treeEntity, color);
 	treeEntity.SetEnabled(enabled);
-	auto rootBud = EntityManager::CreateEntity(_BudArchetype);
+	auto rootBud = TreeManager::CreateBud();
 	EntityManager::SetParent(rootBud, treeEntity);
 	EntityManager::SetComponentData(rootBud, lt);
 	EntityManager::SetComponentData(rootBud, ls);
 	EntityManager::SetComponentData(rootBud, type);
-	EntityManager::SetComponentData(rootBud, treeIndex);
+	EntityManager::SetComponentData(rootBud, EntityManager::GetComponentData<TreeIndex>(treeEntity));
 	return treeEntity;
 }
 

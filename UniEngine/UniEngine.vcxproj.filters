@@ -76,6 +76,12 @@
     <Filter Include="Source Files\Resource\Manager\Render">
       <UniqueIdentifier>{381e113b-2cd0-42e3-b73f-24ed202d65c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Editor">
+      <UniqueIdentifier>{afff9a08-eef9-40e7-9459-235eeb82f4ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Editor">
+      <UniqueIdentifier>{210e56f2-fe82-4185-a171-e73ca7cde671}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">

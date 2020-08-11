@@ -15,6 +15,9 @@ namespace UniEngine {
 		static float _TimeStep;
 		static bool _Running;
 		static ThreadPool _ThreadPool;
+
+		static void SceneWindowHelper();
+
 		static void GLInit();
 		static void LoopStart_Internal();
 		static void LoopMain_Internal();

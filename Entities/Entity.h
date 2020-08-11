@@ -150,6 +150,8 @@ namespace UniEngine {
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
 		void ToComponentDataArray(T1 filter, std::vector<T2>* container);
 		void ToEntityArray(std::vector<Entity>* container);
+		template<typename T1 = ComponentBase>
+		void ToEntityArray(T1 filter, std::vector<Entity>* container);
 		size_t GetEntityAmount();
 	};
 

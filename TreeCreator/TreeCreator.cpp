@@ -35,22 +35,28 @@ int main()
 	TreeColor treeColor;
 	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree1 = sctSys->CreateTree(0, treeColor, glm::vec3(30, 0, -30), false);
+	Entity tree1 = sctSys->CreateTree(treeColor, glm::vec3(30, 0, -30), false);
 
 	treeColor.BudColor = glm::vec4(0, 1, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree2 = sctSys->CreateTree(1, treeColor, glm::vec3(30, 0, 30));
+	Entity tree2 = sctSys->CreateTree(treeColor, glm::vec3(30, 0, 30));
 
 	treeColor.BudColor = glm::vec4(0, 0, 1, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree3 = sctSys->CreateTree(2, treeColor, glm::vec3(-30, 0, -30));
+	Entity tree3 = sctSys->CreateTree(treeColor, glm::vec3(-30, 0, -30));
 
 	treeColor.BudColor = glm::vec4(0, 1, 1, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree4 = sctSys->CreateTree(3, treeColor, glm::vec3(-30, 0, 30));
+	Entity tree4 = sctSys->CreateTree(treeColor, glm::vec3(-30, 0, 30));
 
 	sctSys->PushGrowIterations(100);
-	Application::Run();
+	bool loopable = true;
+	while (loopable) {
+		Application::PreUpdate();
+		ImGui::ShowDemoWindow();
+		Application::Update();
+		loopable = Application::LateUpdate();
+	}
 	Application::End();
 	return 0;
 }

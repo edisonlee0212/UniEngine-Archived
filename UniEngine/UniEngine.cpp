@@ -59,6 +59,58 @@ bool UniEngine::Application::LateUpdate()
 	return LoopEnd_Internal();
 }
 
+inline void UniEngine::Application::SceneWindowHelper()
+{
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImVec2 overlayPos;
+	ImVec2 work_area_size;
+	bool p_open = true;
+	const float DISTANCE = 10.0f;
+	static int corner = 1;
+	ImGuiIO& io = ImGui::GetIO();
+
+	ImGui::Begin("Scene");
+	{
+		InputManager::SetFocused(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows));
+		// Using a Child allow to fill all the space of the window.
+		// It also alows customization
+		ImGui::BeginChild("CameraRenderer");
+		viewport = ImGui::GetWindowViewport();
+		// Get the size of the child (i.e. the whole draw size of the windows).
+		work_area_size = ImGui::GetWindowSize();
+		overlayPos = ImGui::GetWindowPos();
+		// Because I use the texture from OpenGL, I need to invert the V from the UV.
+		ImGui::Image((ImTextureID)_MainCameraComponent->Value->GetTexture()->ID(), work_area_size, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::EndChild();
+
+		ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + work_area_size.x - DISTANCE) : (overlayPos.x + DISTANCE), (corner & 2) ? (overlayPos.y + work_area_size.y - DISTANCE) : (overlayPos.y + DISTANCE));
+		ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+		ImGui::SetNextWindowBgAlpha(0.35f);
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+		ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
+		ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+		size_t tris = RenderManager::Triangles();
+		std::string trisstr = "";
+		if (tris < 999) trisstr += std::to_string(tris);
+		else if (tris < 999999) trisstr += std::to_string((int)(tris / 1000)) + "K";
+		else trisstr += std::to_string((int)(tris / 1000000)) + "M";
+		trisstr += " tris";
+		ImGui::Text(trisstr.c_str());
+		ImGui::Text("%d drawcall", RenderManager::DrawCall());
+		ImGui::Separator();
+		if (ImGui::IsMousePosValid())
+			ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+		else
+			ImGui::Text("Mouse Position: <invalid>");
+
+		ImGui::EndChild();
+	}
+	ImGui::End();
+
+}
+
 void UniEngine::Application::GLInit()
 {
 	// glad: load all OpenGL function pointers
@@ -269,44 +321,8 @@ bool UniEngine::Application::LoopEnd_Internal()
 		return false;
 	}
 	InputManager::Update();
-#pragma region Main Camera Window
-
-	ImGui::Begin("Scene");
-	{
-		InputManager::SetFocused(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows));
-		// Using a Child allow to fill all the space of the window.
-		// It also alows customization
-		ImGui::BeginChild("CameraRenderer");
-		// Get the size of the child (i.e. the whole draw size of the windows).
-		ImVec2 wsize = ImGui::GetWindowSize();
-		// Because I use the texture from OpenGL, I need to invert the V from the UV.
-		ImGui::Image((ImTextureID)_MainCameraComponent->Value->GetTexture()->ID(), wsize, ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::EndChild();
-	}
-	ImGui::End();
-#pragma endregion
-#pragma region DrawInfos
-
-	ImGui::Begin("World Info");
-	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-	size_t tris = RenderManager::Triangles();
-	std::string trisstr = "";
-	if (tris < 999) {
-		trisstr += std::to_string(tris);
-	}
-	else if (tris < 999999) {
-		trisstr += std::to_string((int)(tris / 1000)) + "K";
-	}
-	else {
-		trisstr += std::to_string((int)(tris / 1000000)) + "M";
-	}
-	trisstr += " tris";
-	ImGui::Text(trisstr.c_str());
-
-	ImGui::Text("%d drawcall", RenderManager::DrawCall());
-
-	ImGui::End();
-
+	SceneWindowHelper();
+#pragma region Logs
 	ImGui::Begin("Logs");
 	size_t size = Debug::GetLogs()->size();
 	std::string logs = "";
