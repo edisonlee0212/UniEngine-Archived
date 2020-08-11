@@ -25,9 +25,17 @@ void TreeUtilities::LeafSystem::OnDestroy()
 
 void TreeUtilities::LeafSystem::Update()
 {
+	_LeafEntities.clear();
+	_LeafQuery.ToEntityArray(&_LeafEntities);
+
 	DrawGUI();
 }
 
 void TreeUtilities::LeafSystem::FixedUpdate()
 {
+}
+
+std::vector<Entity>* TreeUtilities::LeafSystem::GetTreeEntities()
+{
+	return &_LeafEntities;
 }

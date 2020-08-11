@@ -39,6 +39,8 @@ class SpaceColonizationTreeSystem :
     bool _IterationFinishMark;
     void AddAttractionPoint(Translation translation);
     void GrowAllTrees(float attractionDistance = 25.0f, float removeDistance = 5.0f, float growDistance = 1.0f);
+    void GrowTree(Entity treeEntity, float attractionDistance = 25.0f, float removeDistance = 5.0f, float growDistance = 1.0f);
+    void DrawGUI();
 public:
     void OnCreate();
     void OnDestroy();
@@ -49,7 +51,8 @@ public:
     void ResetEnvelopeType(EnvelopeType type);
     void PushAttractionPoints(size_t value);
     void PushGrowAllTreesIterations(size_t iteration);
-    Entity CreateTree(TreeColor color, glm::vec3 position, bool enabled = true);
+    void PushGrowIterationToTree(Entity treeEntity, size_t iteration);
+    Entity CreateTree(TreeColor color, glm::vec3 position, bool enabled = false);
     void ClearAttractionPoints();
     unsigned AllTreesToGrowIteration();
 };

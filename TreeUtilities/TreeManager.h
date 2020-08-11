@@ -115,6 +115,11 @@ namespace TreeUtilities {
     };
 #pragma endregion
 #pragma region Tree
+    struct TREEUTILITIES_API TreeGrowIteration : ComponentBase {
+        int Value;
+        bool Enable;
+    };
+
     struct TREEUTILITIES_API TreeColor : ComponentBase {
         glm::vec4 BudColor;
         glm::vec4 ConnectionColor;
@@ -150,6 +155,8 @@ namespace TreeUtilities {
         static EntityQuery GetTreeQuery();
         static EntityQuery GetLeafQuery();
         static BudSystem* GetBudSystem();
+        static TreeSystem* GetTreeSystem();
+        static LeafSystem* GetLeafSystem();
 
         static void GetAllTrees(std::vector<Entity>* container);
         

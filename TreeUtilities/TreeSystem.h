@@ -24,5 +24,6 @@ namespace TreeUtilities {
         void OnDestroy();
         void Update();
         void FixedUpdate();
+        TREEUTILITIES_API std::vector<Entity>* GetTreeEntities();
     };
 }

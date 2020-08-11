@@ -9,11 +9,11 @@ namespace TreeUtilities {
 
     };
     class Connection;
-    class TREEUTILITIES_API BudSystem :
+    class BudSystem :
         public SystemBase
     {
         unsigned int _ConfigFlags = 0;
-
+        float _ConnectionWidth = 0.05f;
         EntityQuery _BudQuery;
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
@@ -25,13 +25,15 @@ namespace TreeUtilities {
         std::vector<LocalToWorld> _BudLTWList;
         std::vector<Connection> _ConnectionList;
 
+        std::vector<Entity> _BudEntities;
         void DrawGUI();
     public:
         void OnCreate();
         void OnDestroy();
         void Update();
         void FixedUpdate();
-        void RefreshParentTranslations();
-        void RefreshConnections(float lineWidth);
+        TREEUTILITIES_API void RefreshParentTranslations();
+        TREEUTILITIES_API void RefreshConnections();
+        TREEUTILITIES_API std::vector<Entity>* GetBudEntities();
     };
 }

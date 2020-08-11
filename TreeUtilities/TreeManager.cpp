@@ -34,7 +34,7 @@ void TreeUtilities::TreeManager::Init()
     );
     _TreeArchetype = EntityManager::CreateEntityArchetype(
         Translation(), Rotation(), Scale(), LocalToWorld(),
-        TreeIndex(), TreeType(), TreeColor()
+        TreeIndex(), TreeType(), TreeColor(), TreeGrowIteration()
     );
 
     _LeafQuery = EntityManager::CreateEntityQuery();
@@ -81,6 +81,15 @@ BudSystem* TreeUtilities::TreeManager::GetBudSystem()
     return _BudSystem;
 }
 
+TreeSystem* TreeUtilities::TreeManager::GetTreeSystem()
+{
+    return _TreeSystem;
+}
+
+LeafSystem* TreeUtilities::TreeManager::GetLeafSystem()
+{
+    return _LeafSystem;
+}
 
 void TreeUtilities::TreeManager::GetAllTrees(std::vector<Entity>* container)
 {

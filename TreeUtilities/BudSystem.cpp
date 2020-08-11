@@ -7,6 +7,11 @@ inline void TreeUtilities::BudSystem::DrawGUI()
 	if (ImGui::CollapsingHeader("Bud System")) {
 		ImGui::Text("Bud Amount: %d ", _BudQuery.GetEntityAmount());
 		ImGui::Separator();
+		ImGui::InputFloat("Bud Connection Width", &_ConnectionWidth);
+		if (ImGui::Button("Refresh connections")) {
+			RefreshConnections();
+		}
+		ImGui::Separator();
 		ImGui::CheckboxFlags("Draw Buds", &_ConfigFlags, BudSystem_DrawBuds);
 		ImGui::CheckboxFlags("Draw Connections", &_ConfigFlags, BudSystem_DrawConnections);
 	}
@@ -14,6 +19,8 @@ inline void TreeUtilities::BudSystem::DrawGUI()
 }
 void TreeUtilities::BudSystem::OnCreate()
 {
+	_BudEntities.clear();
+	_BudQuery.ToEntityArray(&_BudEntities);
 
 	_LeafQuery = TreeManager::GetLeafQuery();
 	_BudQuery = TreeManager::GetBudQuery();
@@ -78,13 +85,20 @@ void TreeUtilities::BudSystem::RefreshParentTranslations()
 		});
 }
 
-void TreeUtilities::BudSystem::RefreshConnections(float lineWidth)
+void TreeUtilities::BudSystem::RefreshConnections()
 {
+	RefreshParentTranslations();
+	float lineWidth = _ConnectionWidth;
 	EntityManager::ForEach<ParentTranslation, LocalToWorld, Connection>(_ConnectionQuery, [lineWidth](int i, Entity entity, ParentTranslation* pt, LocalToWorld* ltw, Connection* c) {
 		glm::vec3 pos = ltw->value[3];
 		glm::vec3 diff = pos - pt->Value;
 		glm::quat rotation = glm::quatLookAt(diff, glm::vec3(0, 1, 0));
 		c->Value = glm::translate((pos + pt->Value) / 2.0f) * glm::mat4_cast(rotation) * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(pos, pt->Value) / 2.0f));
 		});
+}
+
+std::vector<Entity>* TreeUtilities::BudSystem::GetBudEntities()
+{
+	return &_BudEntities;
 }
 

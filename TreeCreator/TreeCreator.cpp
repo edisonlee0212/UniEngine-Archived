@@ -35,7 +35,7 @@ int main()
 	TreeColor treeColor;
 	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree1 = sctSys->CreateTree(treeColor, glm::vec3(30, 0, -30), false);
+	Entity tree1 = sctSys->CreateTree(treeColor, glm::vec3(30, 0, -30));
 
 	treeColor.BudColor = glm::vec4(0, 1, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
@@ -49,9 +49,9 @@ int main()
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
 	Entity tree4 = sctSys->CreateTree(treeColor, glm::vec3(-30, 0, 30));
 
-	sctSys->PushGrowAllTreesIterations(50);
+	//sctSys->PushGrowAllTreesIterations(50);
 	bool loopable = true;
-	bool needPush = true;
+	bool needPush = false;
 	while (loopable) {
 		Application::PreUpdate();
 		ImGui::ShowDemoWindow();

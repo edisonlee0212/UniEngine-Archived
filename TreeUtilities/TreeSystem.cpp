@@ -25,6 +25,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 	if (ImGui::CollapsingHeader("Tree System")) {
 		ImGui::Text("Tree Amount: %d ", 4);
 		ImGui::Separator();
+
 	}
 	ImGui::End();
 
@@ -96,4 +97,9 @@ void TreeUtilities::TreeSystem::Update()
 
 void TreeUtilities::TreeSystem::FixedUpdate()
 {
+}
+
+std::vector<Entity>* TreeUtilities::TreeSystem::GetTreeEntities()
+{
+	return &_TreeEntities;
 }

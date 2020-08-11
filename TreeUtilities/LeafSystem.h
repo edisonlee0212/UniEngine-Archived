@@ -13,12 +13,15 @@ namespace TreeUtilities {
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
 
+        std::vector<Entity> _LeafEntities;
+
         void DrawGUI();
     public:
         void OnCreate();
         void OnDestroy();
         void Update();
         void FixedUpdate();
+        TREEUTILITIES_API std::vector<Entity>* GetTreeEntities();
     };
 }
 
