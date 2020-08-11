@@ -44,6 +44,9 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		}
 	}
 	ImGui::End();
+
+	ImGui::Begin("Tree Inspector");
+	ImGui::End();
 }
 void TreeUtilities::TreeSystem::OnCreate()
 {

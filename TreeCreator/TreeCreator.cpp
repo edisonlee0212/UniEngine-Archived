@@ -53,7 +53,7 @@ int main()
 	bool loopable = true;
 	while (loopable) {
 		Application::PreUpdate();
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}
