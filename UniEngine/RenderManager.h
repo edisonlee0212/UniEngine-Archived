@@ -40,6 +40,8 @@ namespace UniEngine {
 		static void DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
 		static void DrawGizmoCube(glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
 		static void DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoQuad(glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
 		static void DrawGizmoMesh(Mesh* mesh, glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
 		static void DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
 	};

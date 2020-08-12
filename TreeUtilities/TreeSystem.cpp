@@ -22,7 +22,7 @@ void TreeUtilities::TreeSystem::BudListHelper(Entity budEntity)
 void TreeUtilities::TreeSystem::DrawGUI()
 {
 	ImGui::Begin("TreeUtilities");
-	if (ImGui::CollapsingHeader("Tree System")) {
+	if (ImGui::CollapsingHeader("Tree System", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Text("Tree Amount: %d ", _TreeEntities.size());
 		ImGui::Separator();
 
@@ -44,10 +44,6 @@ void TreeUtilities::TreeSystem::DrawGUI()
 			color = EntityManager::GetComponentData<TreeColor>(tree);
 			bool enabled = tree.Enabled();
 			bool setEnabled = enabled;
-			title = "Tree Color: [%d, %d, %d]##";
-			title += std::to_string(index.Value);
-			ImGui::Text(title.c_str(), (int)(color.BudColor.x * 256.0f), (int)(color.BudColor.y * 256.0f), (int)(color.BudColor.z * 256.0f));
-			ImGui::Separator();
 			title = "Enable##";
 			title += std::to_string(index.Value);
 			ImGui::Checkbox(title.c_str(), &setEnabled);
@@ -74,6 +70,27 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		title += std::to_string(index.Value);
 		ImGui::Text(title.c_str());
 		ImGui::Separator();
+		title = "Generate Leaves##";
+		title += std::to_string(index.Value);
+		if (ImGui::Button(title.c_str())) {
+			TreeManager::GenerateLeavesForTree(_SelectedTreeEntity, LeafInfo());
+		}
+		auto newColor = color;
+		title = "Tree Color##";
+		title += std::to_string(index.Value);
+		ImGui::ColorEdit3(title.c_str(), (float*)&newColor.Color);
+		title = "Bud Color##";
+		title += std::to_string(index.Value);
+		ImGui::ColorEdit3(title.c_str(), (float*)&newColor.BudColor);
+		title = "Leaf Color##";
+		title += std::to_string(index.Value);
+		ImGui::ColorEdit3(title.c_str(), (float*)&newColor.LeafColor);
+		title = "Connection Color##";
+		title += std::to_string(index.Value);
+		ImGui::ColorEdit3(title.c_str(), (float*)&newColor.ConnectionColor);
+		if (!(newColor == color)) {
+			EntityManager::SetComponentData(_SelectedTreeEntity, newColor);
+		}
 
 		ImGui::Separator();
 		title = "Bud Hierarchy:##";
@@ -93,6 +110,9 @@ void TreeUtilities::TreeSystem::OnCreate()
 
 
 	_SelectedTreeEntity.Version = _SelectedTreeEntity.Index = 0;
+	_ConfigFlags = 0;
+	_ConfigFlags += TreeSystem_DrawTrees;
+	_ConfigFlags += TreeSystem_DrawTreeMeshes;
 
 	Enable();
 }

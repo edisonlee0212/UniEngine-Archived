@@ -8,15 +8,20 @@ void SpaceColonizationTreeSystem::DrawGUI()
 
 	if (ImGui::CollapsingHeader("Tree Creation controller")) {
 		ImGui::TreePush();
+		std::string title = "Tree Color";
+		ImGui::ColorEdit3(title.c_str(), (float*)&_NewTreeColor.Color);
+		title = "Bud Color";
+		ImGui::ColorEdit3(title.c_str(), (float*)&_NewTreeColor.BudColor);
+		title = "Leaf Color";
+		ImGui::ColorEdit3(title.c_str(), (float*)&_NewTreeColor.LeafColor);
+		title = "Connection Color";
+		ImGui::ColorEdit3(title.c_str(), (float*)&_NewTreeColor.ConnectionColor);
+
+
 		glm::vec3 position;
-		ImGui::ColorEdit3("Bud Color", (float*)&_NewTreeBudColor);
-		ImGui::ColorEdit3("Connection Color", (float*)&_NewTreeConnectionColor);
 		ImGui::InputFloat3("New tree position", (float*)&_NewTreePosition, 2);
 		if (ImGui::Button("Create")) {
-			TreeColor color;
-			color.BudColor = glm::vec4(_NewTreeBudColor, 0);
-			color.ConnectionColor = glm::vec4(_NewTreeConnectionColor, 0);
-			CreateTree(color, _NewTreePosition);
+			CreateTree(_NewTreeColor, _NewTreePosition);
 		}
 		ImGui::TreePop();
 	}
@@ -397,7 +402,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 			auto childList = EntityManager::GetChildren(currentBud);
 			bool tooClose = false;
 			for (auto i : childList) {
-				if (glm::distance(lt.value, EntityManager::GetComponentData<LocalTranslation>(i).value) < 0.05f) {
+				if (glm::distance(lt.value, EntityManager::GetComponentData<LocalTranslation>(i).value) < growDistance / 2.0f) {
 					tooClose = true;
 				}
 			}
@@ -471,8 +476,11 @@ void SpaceColonizationTreeSystem::OnCreate()
 	_PushAttractionPoints = 0;
 	_SelectedEnvelopeType = 1;
 	_NewTreeMenuOpen = false;
-	_NewTreeBudColor = glm::vec3(0);
-	_NewTreeConnectionColor = glm::vec3(0);
+	_NewTreeColor = TreeColor();
+	_NewTreeColor.Color = glm::vec4(1);
+	_NewTreeColor.BudColor = glm::vec4(1);
+	_NewTreeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	_NewTreeColor.LeafColor = glm::vec4(0, 1, 0, 1);
 	_NewTreePosition = glm::vec3(0);
 	Enable();
 }
@@ -494,6 +502,7 @@ void SpaceColonizationTreeSystem::FixedUpdate()
 {
 	if (_IterationFinishMark) {
 		_BudSystem->RefreshConnections();
+		TreeManager::GenerateLeavesForAllTrees(LeafInfo());
 		_IterationFinishMark = false;
 	}
 	if (_AllTreesToGrowIteration > 0) {
@@ -510,7 +519,7 @@ void SpaceColonizationTreeSystem::FixedUpdate()
 
 void SpaceColonizationTreeSystem::ResetEnvelope(float radius, float minHeight, float maxHeight)
 {
-	_Envelope.Reset(glm::vec3(-radius / 2.0f, minHeight, -radius / 2.0f), glm::vec3(radius, maxHeight - minHeight, radius));
+	_Envelope.Reset(glm::vec3(0.0f, minHeight + (maxHeight - minHeight) / 2.0f, 0.0f), glm::vec3(radius, maxHeight - minHeight, radius));
 }
 
 void SpaceColonizationTreeSystem::ResetEnvelope(glm::vec3 spaceOffset, glm::vec3 spaceSize)

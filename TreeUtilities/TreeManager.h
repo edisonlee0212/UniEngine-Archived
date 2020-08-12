@@ -53,7 +53,8 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API LeafInfo : ComponentBase {
-
+        float BendDegrees = 90.0f;
+        float CircleDegreeAddition = 120.0f;
     };
 #pragma endregion
 #pragma region Bud
@@ -121,8 +122,16 @@ namespace TreeUtilities {
     };
 
     struct TREEUTILITIES_API TreeColor : ComponentBase {
+        glm::vec4 Color;
         glm::vec4 BudColor;
         glm::vec4 ConnectionColor;
+        glm::vec4 LeafColor;
+        bool operator ==(const TreeColor& other) const {
+            return other.Color == Color
+                && other.BudColor == BudColor
+                && other.ConnectionColor == ConnectionColor
+                && other.LeafColor == LeafColor;
+        }
     };
     struct TREEUTILITIES_API TreeType : ComponentBase {
 
@@ -147,6 +156,7 @@ namespace TreeUtilities {
         static BudIndex _BudIndex;
         static LeafIndex _LeafIndex;
 
+        static void LeafGenerationHelper(LeafInfo info, Entity leaf, Entity bud, int index);
     public:
         static void Init();
         static bool IsReady();

@@ -10,6 +10,7 @@ namespace TreeUtilities {
     class TreeSystem :
         public SystemBase
     {
+        unsigned int _ConfigFlags = 0;
         EntityQuery _BudQuery;
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;

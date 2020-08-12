@@ -27,6 +27,29 @@ int main()
 	TreeManager::Init();
 
 	auto sctSys = Application::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
+	sctSys->ResetEnvelopeType(EnvelopeType::Box);
+	sctSys->ResetEnvelope(160, 20, 60);
+	sctSys->PushAttractionPoints(10000);
+
+	TreeColor treeColor;
+	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	treeColor.LeafColor = glm::vec4(0, 1, 0, 1);
+	Entity tree1 = sctSys->CreateTree(treeColor, glm::vec3(30, 0, -30));
+
+	treeColor.BudColor = glm::vec4(0, 1, 0, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	Entity tree2 = sctSys->CreateTree(treeColor, glm::vec3(30, 0, 30));
+
+	treeColor.BudColor = glm::vec4(0, 0, 1, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	Entity tree3 = sctSys->CreateTree(treeColor, glm::vec3(-30, 0, -30));
+
+	treeColor.BudColor = glm::vec4(0, 1, 1, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	Entity tree4 = sctSys->CreateTree(treeColor, glm::vec3(-30, 0, 30));
+
+	sctSys->PushGrowAllTreesIterations(100);
 
 	Application::Run();
 	Application::End();

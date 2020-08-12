@@ -41,14 +41,13 @@ class SpaceColonizationTreeSystem :
 #pragma region Popup
     bool _NewTreeMenuOpen;
     glm::vec3 _NewTreePosition;
-    glm::vec3 _NewTreeBudColor;
-    glm::vec3 _NewTreeConnectionColor;
+    TreeColor _NewTreeColor;
 #pragma endregion
 
     
     int _PushAttractionPoints;
     void AddAttractionPoint(Translation translation);
-    void GrowAllTrees(float attractionDistance = 25.0f, float removeDistance = 5.0f, float growDistance = 1.0f);
+    void GrowAllTrees(float attractionDistance = 10.0f, float removeDistance = 3.0f, float growDistance = 1.0f);
     void GrowTree(Entity treeEntity, float attractionDistance = 25.0f, float removeDistance = 5.0f, float growDistance = 1.0f);
     void DrawGUI();
 public:

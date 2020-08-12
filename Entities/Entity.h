@@ -74,6 +74,9 @@ namespace UniEngine {
 		T GetData(size_t offset);
 		template<typename T>
 		void SetData(size_t offset, T data);
+		void ClearData(size_t offset, size_t size) {
+			memset((void*)((char*)Data + offset), 0, size);
+		}
 	};
 
 	template<typename T>
@@ -86,6 +89,7 @@ namespace UniEngine {
 	{
 		*(T*)((char*)Data + offset) = data;
 	}
+
 
 	struct ComponentDataChunkArray {
 		std::vector<Entity> Entities;

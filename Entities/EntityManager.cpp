@@ -237,6 +237,17 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 		storage.ChunkArray->Entities[entityInfo.ChunkArrayIndex] = retVal;
 		_Entities->at(retVal.Index) = retVal;
 		storage.ArchetypeInfo->EntityAliveCount++;
+		//Reset all component data
+		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ArchetypeInfo;
+		size_t chunkIndex = entityInfo.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+		size_t chunkPointer = entityInfo.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+		ComponentDataChunk chunk = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+		size_t offset = 0;
+		bool found = false;
+		for (size_t i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
+			offset = chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity + chunkPointer * chunkInfo->ComponentTypes[i].Size;
+			chunk.ClearData(offset, chunkInfo->ComponentTypes[i].Size);
+		}
 		/*
 		retVal = _EntityPool->at(archetype.Index).front();
 		_EntityPool->at(archetype.Index).pop();
