@@ -23,7 +23,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 {
 	ImGui::Begin("TreeUtilities");
 	if (ImGui::CollapsingHeader("Tree System")) {
-		ImGui::Text("Tree Amount: %d ", 4);
+		ImGui::Text("Tree Amount: %d ", _TreeEntities.size());
 		ImGui::Separator();
 
 	}
@@ -44,10 +44,23 @@ void TreeUtilities::TreeSystem::DrawGUI()
 			color = EntityManager::GetComponentData<TreeColor>(tree);
 			bool enabled = tree.Enabled();
 			bool setEnabled = enabled;
-			ImGui::Text("Tree Color: [%d, %d, %d]", (int)(color.BudColor.x * 256.0f), (int)(color.BudColor.y * 256.0f), (int)(color.BudColor.z * 256.0f));
+			title = "Tree Color: [%d, %d, %d]##";
+			title += std::to_string(index.Value);
+			ImGui::Text(title.c_str(), (int)(color.BudColor.x * 256.0f), (int)(color.BudColor.y * 256.0f), (int)(color.BudColor.z * 256.0f));
 			ImGui::Separator();
-			ImGui::Checkbox("Enable", &setEnabled);
+			title = "Enable##";
+			title += std::to_string(index.Value);
+			ImGui::Checkbox(title.c_str(), &setEnabled);
 			if (setEnabled != enabled)tree.SetEnabled(setEnabled);
+
+			title = "Delete##";
+			title += std::to_string(index.Value);
+			if (ImGui::Button(title.c_str())) {
+				if (_SelectedTreeEntity == tree) _SelectedTreeEntity.Version = 0;
+				EntityManager::DeleteEntity(tree);
+				_TreeEntities.clear();
+				_TreeQuery.ToEntityArray(&_TreeEntities);
+			}
 		}
 		
 	}
@@ -63,7 +76,9 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		ImGui::Separator();
 
 		ImGui::Separator();
-		ImGui::Text("Bud Hierarchy:");
+		title = "Bud Hierarchy:##";
+		title += std::to_string(index.Value);
+		ImGui::Text(title.c_str());
 		Entity rootBud = EntityManager::GetChildren(_SelectedTreeEntity).at(0);
 		BudListHelper(rootBud);
 		ImGui::Separator();

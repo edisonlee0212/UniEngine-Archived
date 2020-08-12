@@ -5,7 +5,7 @@ void TreeUtilities::LeafSystem::DrawGUI()
 {
 	ImGui::Begin("TreeUtilities");
 	if (ImGui::CollapsingHeader("Leaf System")) {
-		ImGui::Text("Leaf Amount: %d ", 0);
+		ImGui::Text("Leaf Amount: %d ", _LeafEntities.size());
 		ImGui::Separator();
 	}
 	ImGui::End();

@@ -8,13 +8,14 @@ enum class EnvelopeType {
 	Coil
 };
 class Envelope {
+	friend class SpaceColonizationTreeSystem;
 	EnvelopeType _Type;
-	glm::vec3 _SpaceOffset;
+	glm::vec3 _SpaceCenter;
 	glm::vec3 _SpaceSize;
 	float GetRadius(float height)
 	{
-		if (height >= _SpaceOffset.y || height <= _SpaceOffset.y + _SpaceSize.y) {
-			return glm::sin(glm::pi<float>() * glm::pow((height - _SpaceOffset.y) / _SpaceSize.y, 0.6f)) * (_SpaceSize.x + _SpaceSize.z) / 4.0f;
+		if (height >= _SpaceCenter.y || height <= _SpaceCenter.y + _SpaceSize.y) {
+			return glm::sin(glm::pi<float>() * glm::pow((height - _SpaceCenter.y) / _SpaceSize.y, 0.6f)) * (_SpaceSize.x + _SpaceSize.z) / 4.0f;
 		}
 		return 0.0f;
 	}
@@ -37,27 +38,27 @@ class Envelope {
 public:
 	Envelope() {
 		_Type = EnvelopeType::Default;
-		_SpaceOffset = glm::vec3(0);
+		_SpaceCenter = glm::vec3(0);
 		_SpaceSize = glm::vec3(0);
 	}
 	Envelope(glm::vec3 spaceOffset, glm::vec3 spaceSize) {
 		_Type = EnvelopeType::Default;
-		_SpaceOffset = spaceOffset;
+		_SpaceCenter = spaceOffset;
 		_SpaceSize = spaceSize;
 	}
 	glm::vec3 GetPoint() {
 		glm::vec3 point = glm::vec3(0.0f);
 		bool succeed = true;
 		while (succeed) {
-			point = _SpaceOffset + glm::vec3(_SpaceSize.x * (float)rand() / (RAND_MAX),
-				_SpaceSize.y * (float)rand() / (RAND_MAX),
-				_SpaceSize.z * (float)rand() / (RAND_MAX));
+			point = _SpaceCenter + glm::vec3(_SpaceSize.x * (((float)rand() / RAND_MAX) - 0.5f),
+				_SpaceSize.y * (((float)rand() / RAND_MAX) - 0.5f),
+				_SpaceSize.z * (((float)rand() / RAND_MAX) - 0.5f));
 			succeed = !IsInEnvelope(point);
 		}
 		return point;
 	}
 	void Reset(glm::vec3 spaceOffset, glm::vec3 spaceSize) {
-		_SpaceOffset = spaceOffset;
+		_SpaceCenter = spaceOffset;
 		_SpaceSize = spaceSize;
 	}
 	void ResetType(EnvelopeType value) {

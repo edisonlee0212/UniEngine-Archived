@@ -28,42 +28,7 @@ int main()
 
 	auto sctSys = Application::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
 
-	sctSys->ResetEnvelopeType(EnvelopeType::Box);
-	sctSys->ResetEnvelope(160, 20, 60);
-	sctSys->PushAttractionPoints(10000);
-
-	TreeColor treeColor;
-	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
-	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree1 = sctSys->CreateTree(treeColor, glm::vec3(30, 0, -30));
-
-	treeColor.BudColor = glm::vec4(0, 1, 0, 1);
-	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree2 = sctSys->CreateTree(treeColor, glm::vec3(30, 0, 30));
-
-	treeColor.BudColor = glm::vec4(0, 0, 1, 1);
-	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree3 = sctSys->CreateTree(treeColor, glm::vec3(-30, 0, -30));
-
-	treeColor.BudColor = glm::vec4(0, 1, 1, 1);
-	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
-	Entity tree4 = sctSys->CreateTree(treeColor, glm::vec3(-30, 0, 30));
-
-	//sctSys->PushGrowAllTreesIterations(50);
-	bool loopable = true;
-	bool needPush = false;
-	while (loopable) {
-		Application::PreUpdate();
-		ImGui::ShowDemoWindow();
-		Application::Update();
-		if (needPush && sctSys->AllTreesToGrowIteration() == 0) {
-			needPush = false;
-			tree1.SetEnabled(true);
-			sctSys->PushGrowAllTreesIterations(100);
-		}
-		loopable = Application::LateUpdate();
-		
-	}
+	Application::Run();
 	Application::End();
 	return 0;
 }
@@ -119,7 +84,7 @@ void InitGround() {
 	auto mat = new Material();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto texture = new Texture2D(TextureType::DIFFUSE);
-	texture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
+	texture->LoadTexture(FileIO::GetPath("Textures/treesurface.jpg"), "");
 	mat->Textures2Ds()->push_back(texture);
 	mat->SetMaterialProperty("material.shininess", 32.0f);
 	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();

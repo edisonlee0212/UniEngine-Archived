@@ -1,49 +1,93 @@
 #include "SpaceColonizationTreeSystem.h"
 
+static const char* EnvelopeTypes[]{ "Default", "Box", "Cylinder", "Coil" };
+
 void SpaceColonizationTreeSystem::DrawGUI()
 {
 	ImGui::Begin("Space Colonization");
-	auto treeEntities = TreeManager::GetTreeSystem()->GetTreeEntities();
-	
-	if (ImGui::Button("Start all")) {
-		for (auto tree : *treeEntities) {
-			TreeGrowIteration iteration = EntityManager::GetComponentData<TreeGrowIteration>(tree);
-			iteration.Enable = true;
-			EntityManager::SetComponentData(tree, iteration);
+
+	if (ImGui::CollapsingHeader("Tree Creation controller")) {
+		ImGui::TreePush();
+		glm::vec3 position;
+		ImGui::ColorEdit3("Bud Color", (float*)&_NewTreeBudColor);
+		ImGui::ColorEdit3("Connection Color", (float*)&_NewTreeConnectionColor);
+		ImGui::InputFloat3("New tree position", (float*)&_NewTreePosition, 2);
+		if (ImGui::Button("Create")) {
+			TreeColor color;
+			color.BudColor = glm::vec4(_NewTreeBudColor, 0);
+			color.ConnectionColor = glm::vec4(_NewTreeConnectionColor, 0);
+			CreateTree(color, _NewTreePosition);
 		}
+		ImGui::TreePop();
 	}
-	if (ImGui::CollapsingHeader("Tree List")) {
-		TreeIndex index;
-		TreeColor color;
-		for (auto tree : *treeEntities) {
-			index = EntityManager::GetComponentData<TreeIndex>(tree);
-			std::string title = "Tree ";
-			title += std::to_string(index.Value);
-			bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog | ImGuiTreeNodeFlags_FramePadding);
-			if (opened) {
-				color = EntityManager::GetComponentData<TreeColor>(tree);
-				ImGui::Text("Tree Color: [%d, %d, %d]", (int)(color.BudColor.x * 256.0f), (int)(color.BudColor.y * 256.0f), (int)(color.BudColor.z * 256.0f));
-				ImGui::Separator();
+
+	auto treeEntities = TreeManager::GetTreeSystem()->GetTreeEntities();
+	if (ImGui::CollapsingHeader("Envelope controller", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::TreePush();
+		int currentType = _SelectedEnvelopeType;
+		ImGui::Combo("Envelope Type", &currentType, EnvelopeTypes, IM_ARRAYSIZE(EnvelopeTypes), 3);
+		if (currentType != _SelectedEnvelopeType) {
+			_Envelope.ResetType((EnvelopeType)currentType);
+			_SelectedEnvelopeType = currentType;
+		}
+
+		ImGui::InputFloat3("Envelope Position", (float*)&_Envelope._SpaceCenter, 2);
+		ImGui::InputFloat3("Envelope Size", (float*)&_Envelope._SpaceSize, 2);
+
+		ImGui::InputInt("Amount", &_PushAttractionPoints);
+		if (ImGui::Button("Push Attraction Points")) {
+			PushAttractionPoints(_PushAttractionPoints);
+		}
+		if (ImGui::Button("Clear Attraction Points")) {
+			ClearAttractionPoints();
+		}
+		ImGui::TreePop();
+	}
+	if (ImGui::CollapsingHeader("Growth controller")) {
+		ImGui::TreePush();
+		if (ImGui::Button("Start all")) {
+			for (auto tree : *treeEntities) {
 				TreeGrowIteration iteration = EntityManager::GetComponentData<TreeGrowIteration>(tree);
-				int remain = iteration.Value;
-				bool setEnabled = iteration.Enable;
-				std::string gtitle = "Growing##";
-				gtitle += std::to_string(index.Value);
-				ImGui::Checkbox(gtitle.c_str(), &setEnabled);
-				gtitle = "Iteration##";
-				gtitle += std::to_string(index.Value);
-				ImGui::InputInt(gtitle.c_str(), &remain);
-				if (ImGui::IsItemActivated()) {
-					setEnabled = false;
-				}
-				if (remain != iteration.Value || setEnabled != iteration.Enable) {
-					iteration.Enable = setEnabled;
-					iteration.Value = remain;
-					EntityManager::SetComponentData(tree, iteration);
-				}
-				ImGui::TreePop();
+				iteration.Enable = true;
+				EntityManager::SetComponentData(tree, iteration);
 			}
 		}
+		if (ImGui::CollapsingHeader("Tree List", ImGuiTreeNodeFlags_DefaultOpen)) {
+			TreeIndex index;
+			TreeColor color;
+			ImGui::TreePush();
+			for (auto tree : *treeEntities) {
+				index = EntityManager::GetComponentData<TreeIndex>(tree);
+				std::string title = "Tree ";
+				title += std::to_string(index.Value);
+				bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoAutoOpenOnLog | ImGuiTreeNodeFlags_FramePadding);
+				if (opened) {
+					color = EntityManager::GetComponentData<TreeColor>(tree);
+					ImGui::Text("Tree Color: [%d, %d, %d]", (int)(color.BudColor.x * 256.0f), (int)(color.BudColor.y * 256.0f), (int)(color.BudColor.z * 256.0f));
+					ImGui::Separator();
+					TreeGrowIteration iteration = EntityManager::GetComponentData<TreeGrowIteration>(tree);
+					int remain = iteration.Value;
+					bool setEnabled = iteration.Enable;
+					std::string gtitle = "Growing##";
+					gtitle += std::to_string(index.Value);
+					ImGui::Checkbox(gtitle.c_str(), &setEnabled);
+					gtitle = "Iteration##";
+					gtitle += std::to_string(index.Value);
+					ImGui::InputInt(gtitle.c_str(), &remain);
+					if (ImGui::IsItemActivated()) {
+						setEnabled = false;
+					}
+					if (remain != iteration.Value || setEnabled != iteration.Enable) {
+						iteration.Enable = setEnabled;
+						iteration.Value = remain;
+						EntityManager::SetComponentData(tree, iteration);
+					}
+					ImGui::TreePop();
+				}
+			}
+			ImGui::TreePop();
+		}
+		ImGui::TreePop();
 	}
 	ImGui::End();
 }
@@ -419,8 +463,17 @@ void SpaceColonizationTreeSystem::OnCreate()
 	pointTex->LoadTexture(FileIO::GetPath("Textures/green.png"), "");
 	_AttractionPointMaterial->Textures2Ds()->push_back(pointTex);
 
-	ResetEnvelope(60.0f, 20.0f, 80.0f);
+	_Envelope._SpaceCenter = glm::vec3(0, 50, 0);
+	_Envelope._SpaceSize = glm::vec3(180, 60, 180);
+	_Envelope._Type = EnvelopeType::Box;
+
 	_AllTreesToGrowIteration = 0;
+	_PushAttractionPoints = 0;
+	_SelectedEnvelopeType = 1;
+	_NewTreeMenuOpen = false;
+	_NewTreeBudColor = glm::vec3(0);
+	_NewTreeConnectionColor = glm::vec3(0);
+	_NewTreePosition = glm::vec3(0);
 	Enable();
 }
 
@@ -482,7 +535,7 @@ void SpaceColonizationTreeSystem::PushAttractionPoints(size_t value)
 void SpaceColonizationTreeSystem::PushGrowAllTreesIterations(size_t iteration)
 {
 	EntityManager::ForEach<BudType>(_BudQuery, [](int i, Entity entity, BudType* type) {
-		if(type->Value == BudTypes::LATERAL_BUD) type->Searching = true;
+		if (type->Value == BudTypes::LATERAL_BUD) type->Searching = true;
 		});
 	_AllTreesToGrowIteration += iteration;
 	_IterationFinishMark = false;
