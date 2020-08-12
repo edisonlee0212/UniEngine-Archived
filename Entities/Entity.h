@@ -100,6 +100,7 @@ namespace UniEngine {
 	};
 
 	struct EntityInfo {
+		size_t Version;
 		bool Enabled = true;
 		Entity Parent;
 		std::vector<Entity> Children;

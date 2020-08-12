@@ -14,7 +14,6 @@ namespace UniEngine {
 		}
 		static void Error(std::string msg) {
 			std::lock_guard<std::mutex> lock(_Mutex);
-			std::cout << msg.c_str() << std::endl;
 			_Errors.push_back(new std::string(msg + "\n"));
 		}
 		static std::vector<std::string*>* GetLogs() {

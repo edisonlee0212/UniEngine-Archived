@@ -6,7 +6,7 @@ std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos;
 std::vector<Entity>* UniEngine::EntityManager::_Entities;
 std::vector<Entity>* UniEngine::EntityManager::_ParentRoots;
 std::vector<EntityComponentStorage>* UniEngine::EntityManager::_EntityComponentStorage;
-std::vector<std::queue<Entity>>* UniEngine::EntityManager::_EntityPool;
+//std::vector<std::queue<Entity>>* UniEngine::EntityManager::_EntityPool;
 SharedComponentStorage* UniEngine::EntityManager::_EntitySharedComponentStorage;
 std::vector<EntityQuery>* UniEngine::EntityManager::_EntityQueries;
 std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos;
@@ -21,8 +21,9 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 	Entity actualEntity = _Entities->at(entity.Index);
 	if (actualEntity == entity) {
 		_EntitySharedComponentStorage->DeleteEntity(actualEntity);
-		actualEntity.Version++;
-		_EntityPool->at(info.ArchetypeInfoIndex).push(actualEntity);
+		info.Version = actualEntity.Version + 1;
+		//actualEntity.Version++;
+		//_EntityPool->at(info.ArchetypeInfoIndex).push(actualEntity);
 		//Set to version 0, marks it as deleted.
 		actualEntity.Version = 0;
 		EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
@@ -181,7 +182,7 @@ void UniEngine::EntityManager::SetWorld(World* world)
 		storage->Entities.push_back(Entity());
 		storage->EntityInfos.push_back(EntityInfo());
 		storage->EntityComponentStorage.push_back(EntityComponentStorage(nullptr, nullptr));
-		storage->EntityPool.push_back(std::queue<Entity>());
+		//storage->EntityPool.push_back(std::queue<Entity>());
 		storage->EntityQueries.push_back(EntityQuery());
 		storage->EntityQueryInfos.push_back(EntityQueryInfo());
 		_WorldEntityStorage.push_back(storage);
@@ -191,7 +192,7 @@ void UniEngine::EntityManager::SetWorld(World* world)
 	_ParentRoots = &targetStorage->ParentRoots;
 	_EntityInfos = &targetStorage->EntityInfos;
 	_EntityComponentStorage = &targetStorage->EntityComponentStorage;
-	_EntityPool = &targetStorage->EntityPool;
+	//_EntityPool = &targetStorage->EntityPool;
 	_EntitySharedComponentStorage = &targetStorage->EntitySharedComponentStorage;
 	_EntityQueries = &targetStorage->EntityQueries;
 	_EntityQueryInfos = &targetStorage->EntityQueryInfos;
@@ -204,9 +205,9 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 {
 	if (archetype.Index == 0) return Entity();
 	Entity retVal;
-	if (_EntityPool->at(archetype.Index).empty()) {
-		EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
-		EntityArchetypeInfo* info = storage.ArchetypeInfo;
+	EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
+	EntityArchetypeInfo* info = storage.ArchetypeInfo;
+	if (info->EntityCount == info->EntityAliveCount) {
 		size_t chunkIndex = info->EntityCount / info->ChunkCapacity;
 		size_t chunkPointer = info->EntityCount % info->ChunkCapacity;
 		if (storage.ChunkArray->Chunks.size() <= chunkIndex) {
@@ -219,6 +220,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 		//If the version is 0 in chunk means it's deleted.
 		retVal.Version = 1;
 		EntityInfo entityInfo;
+		entityInfo.Version = 1;
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
 		entityInfo.ChunkArrayIndex = info->EntityCount;
 		storage.ChunkArray->Entities.push_back(retVal);
@@ -229,6 +231,13 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 	}
 	else {
 		//TODO: Update version when we delete entity.
+		retVal = storage.ChunkArray->Entities.at(info->EntityAliveCount);
+		EntityInfo entityInfo = _EntityInfos->at(retVal.Index);
+		retVal.Version = entityInfo.Version;
+		storage.ChunkArray->Entities[entityInfo.ChunkArrayIndex] = retVal;
+		_Entities->at(retVal.Index) = retVal;
+		storage.ArchetypeInfo->EntityAliveCount++;
+		/*
 		retVal = _EntityPool->at(archetype.Index).front();
 		_EntityPool->at(archetype.Index).pop();
 		EntityInfo entityInfo = _EntityInfos->at(retVal.Index);
@@ -236,6 +245,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 		storage.ChunkArray->Entities[entityInfo.ChunkArrayIndex] = retVal;
 		_Entities->at(retVal.Index) = retVal;
 		storage.ArchetypeInfo->EntityAliveCount++;
+		*/
 	}
 	return retVal;
 }
@@ -251,8 +261,15 @@ void UniEngine::EntityManager::DeleteEntity(Entity entity)
 		DeleteEntity(child);
 	}
 	_EntityInfos->at(entityIndex).Children.clear();
-	DeleteEntityInternal(entity);
+	if (_EntityInfos->at(entityIndex).Parent.Index == 0) {
+		for (int i = 0; i < _ParentRoots->size(); i++) {
+			if (_Entities->at(entityIndex) == _ParentRoots->at(i)) {
+				_ParentRoots->erase(_ParentRoots->begin() + i);
+			}
+		}
+	}
 	if(_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
+	DeleteEntityInternal(entity);
 }
 
 void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)

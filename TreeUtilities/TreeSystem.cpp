@@ -56,7 +56,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 			title = "Delete##";
 			title += std::to_string(index.Value);
 			if (ImGui::Button(title.c_str())) {
-				if (_SelectedTreeEntity == tree) _SelectedTreeEntity.Version = 0;
+				if (_SelectedTreeEntity == tree) _SelectedTreeEntity.Index = 0;
 				EntityManager::DeleteEntity(tree);
 				_TreeEntities.clear();
 				_TreeQuery.ToEntityArray(&_TreeEntities);

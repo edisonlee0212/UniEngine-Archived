@@ -10,7 +10,7 @@ namespace UniEngine {
 		std::vector<Entity> Entities;
 		std::vector<Entity> ParentRoots;
 		std::vector<EntityInfo> EntityInfos;
-		std::vector<std::queue<Entity>> EntityPool;
+		//std::vector<std::queue<Entity>> EntityPool;
 		std::vector<EntityComponentStorage> EntityComponentStorage;
 		SharedComponentStorage EntitySharedComponentStorage;
 
@@ -25,7 +25,7 @@ namespace UniEngine {
 		static std::vector<Entity>* _ParentRoots;
 		static std::vector<EntityInfo>* _EntityInfos;
 		static std::vector<EntityComponentStorage>* _EntityComponentStorage;
-		static std::vector<std::queue<Entity>>* _EntityPool;
+		//static std::vector<std::queue<Entity>>* _EntityPool;
 		static SharedComponentStorage* _EntitySharedComponentStorage;
 		static std::vector<EntityQuery>* _EntityQueries;
 		static std::vector<EntityQueryInfo>* _EntityQueryInfos;
@@ -925,7 +925,7 @@ namespace UniEngine {
 			retVal.Index = _EntityComponentStorage->size();
 			info->Index = retVal.Index;
 			_EntityComponentStorage->push_back(EntityComponentStorage(info, new ComponentDataChunkArray()));
-			_EntityPool->push_back(std::queue<Entity>());
+			//_EntityPool->push_back(std::queue<Entity>());
 		}
 		else {
 			retVal.Index = duplicateIndex;

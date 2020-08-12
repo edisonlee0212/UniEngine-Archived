@@ -564,14 +564,15 @@ Entity SpaceColonizationTreeSystem::CreateTree(TreeColor color, glm::vec3 positi
 	EntityManager::SetComponentData(treeEntity, color);
 	TreeGrowIteration iteration;
 	iteration.Value = 0;
-	iteration.Enable = false;
+	iteration.Enable = enabled;
 	EntityManager::SetComponentData(treeEntity, iteration);
 	auto rootBud = TreeManager::CreateBud();
 	EntityManager::SetParent(rootBud, treeEntity);
 	EntityManager::SetComponentData(rootBud, lt);
 	EntityManager::SetComponentData(rootBud, ls);
 	EntityManager::SetComponentData(rootBud, type);
-	EntityManager::SetComponentData(rootBud, EntityManager::GetComponentData<TreeIndex>(treeEntity));
+	TreeIndex index = EntityManager::GetComponentData<TreeIndex>(treeEntity);
+	EntityManager::SetComponentData(rootBud, index);
 	return treeEntity;
 }
 
