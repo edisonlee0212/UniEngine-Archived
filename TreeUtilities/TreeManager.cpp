@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "TreeManager.h"
-
+#include "LightEstimator.h"
 using namespace TreeUtilities;
+
+LightEstimator* TreeUtilities::TreeManager::_LightEstimator;
+
 TreeSystem* TreeUtilities::TreeManager::_TreeSystem;
 BudSystem* TreeUtilities::TreeManager::_BudSystem;
 LeafSystem* TreeUtilities::TreeManager::_LeafSystem;
@@ -56,7 +59,8 @@ void TreeUtilities::TreeManager::Init()
     );
     _TreeArchetype = EntityManager::CreateEntityArchetype(
         Translation(), Rotation(), Scale(), LocalToWorld(),
-        TreeIndex(), TreeType(), TreeColor(), TreeGrowIteration()
+        TreeIndex(), TreeType(), TreeColor(), TreeGrowIteration(),
+        RewardEstimation()
     );
 
     _LeafQuery = EntityManager::CreateEntityQuery();
@@ -74,6 +78,8 @@ void TreeUtilities::TreeManager::Init()
     _BudIndex.Value = 0;
     _LeafIndex.Value = 0;
     
+    _LightEstimator = new LightEstimator();
+
     _Ready = true;
 }
 
@@ -208,6 +214,11 @@ Entity TreeUtilities::TreeManager::CreateTree()
     return entity;
 }
 
+void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
+{
+    EntityManager::DeleteEntity(treeEntity);
+}
+
 Entity TreeUtilities::TreeManager::CreateBud()
 {
     auto entity = EntityManager::CreateEntity(_BudArchetype);
@@ -222,6 +233,20 @@ Entity TreeUtilities::TreeManager::CreateLeaf()
     EntityManager::SetComponentData(entity, _LeafIndex);
     _LeafIndex.Value++;
     return entity;
+}
+
+LightEstimator* TreeUtilities::TreeManager::GetLightEstimator()
+{
+    return _LightEstimator;
+}
+
+void TreeUtilities::TreeManager::CalculateRewards(Entity treeEntity, float snapShotWidth)
+{
+    RewardEstimation estimation = EntityManager::GetComponentData<RewardEstimation>(treeEntity);
+    _LightEstimator->TakeSnapShot(treeEntity, true);
+    estimation.LightEstimationResult = _LightEstimator->GetScore();
+
+    EntityManager::SetComponentData(treeEntity, estimation);
 }
 
 Mesh* TreeUtilities::TreeManager::GetMeshForTree(Entity treeEntity)

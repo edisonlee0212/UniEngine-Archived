@@ -25,6 +25,7 @@ namespace TreeUtilities {
         void OnDestroy();
         void Update();
         void FixedUpdate();
+        Mesh* GetLeafMesh();
         TREEUTILITIES_API std::vector<Entity>* GetTreeEntities();
     };
 }

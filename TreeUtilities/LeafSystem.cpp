@@ -124,6 +124,11 @@ void TreeUtilities::LeafSystem::FixedUpdate()
 {
 }
 
+Mesh* TreeUtilities::LeafSystem::GetLeafMesh()
+{
+	return _LeafMesh;
+}
+
 std::vector<Entity>* TreeUtilities::LeafSystem::GetTreeEntities()
 {
 	return &_LeafEntities;

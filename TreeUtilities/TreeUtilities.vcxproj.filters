@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{608dd607-d79e-4275-b82a-0c40bf957e54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Estimators">
+      <UniqueIdentifier>{07e90259-d527-45a3-a1b4-c64b6fdc3232}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Estimators">
+      <UniqueIdentifier>{de0da8a3-61e8-4f79-a797-8375369f61d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -45,6 +51,9 @@
     <ClInclude Include="TreeSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="LightEstimator.h">
+      <Filter>Header Files\Estimators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -64,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="TreeSystem.cpp">
       <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="LightEstimator.cpp">
+      <Filter>Source Files\Estimators</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

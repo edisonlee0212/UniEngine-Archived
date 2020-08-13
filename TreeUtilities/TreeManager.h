@@ -3,6 +3,7 @@
 #include "TreeSystem.h"
 #include "BudSystem.h"
 #include "LeafSystem.h"
+#include "LightEstimator.h"
 using namespace UniEngine;
 namespace TreeUtilities {
 #pragma region Common
@@ -116,6 +117,10 @@ namespace TreeUtilities {
     };
 #pragma endregion
 #pragma region Tree
+    struct TREEUTILITIES_API RewardEstimation : ComponentBase {
+        float LightEstimationResult = 0.0f;
+    };
+
     struct TREEUTILITIES_API TreeGrowIteration : ComponentBase {
         int Value;
         bool Enable;
@@ -140,6 +145,8 @@ namespace TreeUtilities {
     class TREEUTILITIES_API TreeManager :
         public ManagerBase
     {
+        static LightEstimator* _LightEstimator;
+
         static TreeSystem* _TreeSystem;
         static BudSystem* _BudSystem;
         static LeafSystem* _LeafSystem;
@@ -178,7 +185,12 @@ namespace TreeUtilities {
         static void GenerateMeshForAllTrees();
 
         static Entity CreateTree();
+        static void DeleteTree(Entity treeEntity);
         static Entity CreateBud();
         static Entity CreateLeaf();
+
+        static LightEstimator* GetLightEstimator();
+
+        static void CalculateRewards(Entity treeEntity, float snapShotWidth = 100.0f);
     };
 }

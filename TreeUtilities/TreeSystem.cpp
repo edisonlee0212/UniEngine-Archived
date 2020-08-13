@@ -53,7 +53,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 			title += std::to_string(index.Value);
 			if (ImGui::Button(title.c_str())) {
 				if (_SelectedTreeEntity == tree) _SelectedTreeEntity.Index = 0;
-				EntityManager::DeleteEntity(tree);
+				TreeManager::DeleteTree(tree);
 				_TreeEntities.clear();
 				_TreeQuery.ToEntityArray(&_TreeEntities);
 			}
@@ -75,23 +75,42 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		if (ImGui::Button(title.c_str())) {
 			TreeManager::GenerateLeavesForTree(_SelectedTreeEntity, LeafInfo());
 		}
-		auto newColor = color;
-		title = "Tree Color##";
+		title = "Rewards Estimation";
 		title += std::to_string(index.Value);
-		ImGui::ColorEdit3(title.c_str(), (float*)&newColor.Color);
-		title = "Bud Color##";
-		title += std::to_string(index.Value);
-		ImGui::ColorEdit3(title.c_str(), (float*)&newColor.BudColor);
-		title = "Leaf Color##";
-		title += std::to_string(index.Value);
-		ImGui::ColorEdit3(title.c_str(), (float*)&newColor.LeafColor);
-		title = "Connection Color##";
-		title += std::to_string(index.Value);
-		ImGui::ColorEdit3(title.c_str(), (float*)&newColor.ConnectionColor);
-		if (!(newColor == color)) {
-			EntityManager::SetComponentData(_SelectedTreeEntity, newColor);
-		}
+		if (ImGui::CollapsingHeader(title.c_str())) {
+			if (ImGui::Button("Estimate lighting")) {
+				TreeManager::CalculateRewards(_SelectedTreeEntity);
+			}
+			else {
+				TreeManager::GetLightEstimator()->TakeSnapShot(_SelectedTreeEntity, false);
+			}
 
+			auto estimation = EntityManager::GetComponentData<RewardEstimation>(_SelectedTreeEntity);
+			title = "Light Rewards: " + std::to_string(estimation.LightEstimationResult);
+			ImGui::Text(title.c_str());
+			auto ss = TreeManager::GetLightEstimator()->GetSnapShots();
+			for (auto i : *ss) {
+				ImGui::Image((ImTextureID)i->SnapShotTexture()->ID(), ImVec2(100, 100));
+			}
+		}
+		if (ImGui::CollapsingHeader("Color Settings")) {
+			auto newColor = color;
+			title = "Tree Color##";
+			title += std::to_string(index.Value);
+			ImGui::ColorEdit3(title.c_str(), (float*)&newColor.Color);
+			title = "Bud Color##";
+			title += std::to_string(index.Value);
+			ImGui::ColorEdit3(title.c_str(), (float*)&newColor.BudColor);
+			title = "Leaf Color##";
+			title += std::to_string(index.Value);
+			ImGui::ColorEdit3(title.c_str(), (float*)&newColor.LeafColor);
+			title = "Connection Color##";
+			title += std::to_string(index.Value);
+			ImGui::ColorEdit3(title.c_str(), (float*)&newColor.ConnectionColor);
+			if (!(newColor == color)) {
+				EntityManager::SetComponentData(_SelectedTreeEntity, newColor);
+			}
+		}
 		ImGui::Separator();
 		title = "Bud Hierarchy:##";
 		title += std::to_string(index.Value);
@@ -114,6 +133,8 @@ void TreeUtilities::TreeSystem::OnCreate()
 	_ConfigFlags += TreeSystem_DrawTrees;
 	_ConfigFlags += TreeSystem_DrawTreeMeshes;
 
+	
+
 	Enable();
 }
 
@@ -125,8 +146,6 @@ void TreeUtilities::TreeSystem::Update()
 {
 	_TreeEntities.clear();
 	_TreeQuery.ToEntityArray(&_TreeEntities);
-
-
 	DrawGUI();
 }
 

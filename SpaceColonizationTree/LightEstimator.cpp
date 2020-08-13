@@ -43,9 +43,9 @@ SpaceColonizationTree::LightEstimator::LightEstimator(size_t resolution) : _Reso
 	_RenderTarget->AttachRenderBuffer(_DepthBuffer, GL_DEPTH_ATTACHMENT);
 	
 	std::string vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/SpaceColonizationTree/LightSnapShot.vert");
+		FileIO::LoadFileAsString("Shaders/TreeUtilities/LightSnapShot.vert");
 	std::string fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/SpaceColonizationTree/LightSnapShot.frag");
+		FileIO::LoadFileAsString("Shaders/TreeUtilities/LightSnapShot.frag");
 
 	_SnapShotProgram = new GLProgram(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
