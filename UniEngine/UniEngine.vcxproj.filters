@@ -315,4 +315,7 @@
       <Filter>Source Files\External</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

@@ -4,6 +4,8 @@
 #include "TransformSystem.h"
 #include "PhysicsSystem.h"
 #include "ParentSystem.h"
+
+
 GLenum glCheckError_(const char* file, int line);
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
@@ -27,7 +29,9 @@ float Application::_TimeStep = 0.016f;
 ThreadPool Application::_ThreadPool;
 
 #pragma region Utilities
-
+void Hello() {
+	std::cout << ("Hello World\n");
+}
 void UniEngine::Application::SetTimeStep(float value) {
 	_TimeStep = value;
 	_World->SetTimeStep(value);
