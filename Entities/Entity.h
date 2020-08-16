@@ -115,7 +115,7 @@ namespace UniEngine {
 
 	struct EntityArchetypeInfo {
 		size_t Index;
-		std::vector<ComponentType> ComponentTypes;
+		std::map<size_t, ComponentType> ComponentTypes;
 		//The size of a single entity
 		size_t EntitySize;
 		//How many entites can fit into one chunk

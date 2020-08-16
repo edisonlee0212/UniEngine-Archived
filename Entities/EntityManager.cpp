@@ -52,12 +52,9 @@ void UniEngine::EntityManager::RefreshEntityQueryInfos(size_t index)
 		for (auto i : *_EntityComponentStorage) {
 			if (i.ArchetypeInfo == nullptr) continue;
 			bool check = true;
-			for (auto type : _EntityQueryInfos->at(index).AllComponentTypes) {
-				bool contain = false;
-				for (auto confirm : i.ArchetypeInfo->ComponentTypes) {
-					if (type.TypeID == confirm.TypeID) contain = true;
-				}
-				if (!contain) check = false;
+			for (const auto& type : _EntityQueryInfos->at(index).AllComponentTypes) {
+				auto search = i.ArchetypeInfo->ComponentTypes.find(type.TypeID);
+				if (search == i.ArchetypeInfo->ComponentTypes.end()) check = false;
 			}
 			if (check) _EntityQueryInfos->at(index).QueriedStorages.push_back(i);
 		}
@@ -72,13 +69,9 @@ void UniEngine::EntityManager::RefreshEntityQueryInfos(size_t index)
 	if (!_EntityQueryInfos->at(index).AnyComponentTypes.empty()) {
 		for (int i = 0; i < _EntityQueryInfos->at(index).QueriedStorages.size(); i++) {
 			bool contain = false;
-			for (auto type : _EntityQueryInfos->at(index).AnyComponentTypes) {
-				for (auto confirm : _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes) {
-					if (confirm.TypeID == type.TypeID) {
-						contain = true;
-						break;
-					}
-				}
+			for (const auto& type : _EntityQueryInfos->at(index).AnyComponentTypes) {
+				auto search = _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes.find(type.TypeID);
+				if (search != _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes.end()) contain = true;
 				if (contain) break;
 			}
 			if (!contain) {
@@ -91,13 +84,9 @@ void UniEngine::EntityManager::RefreshEntityQueryInfos(size_t index)
 	if (!_EntityQueryInfos->at(index).NoneComponentTypes.empty()) {
 		for (int i = 0; i < _EntityQueryInfos->at(index).QueriedStorages.size(); i++) {
 			bool contain = false;
-			for (auto type : _EntityQueryInfos->at(index).NoneComponentTypes) {
-				for (auto confirm : _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes) {
-					if (confirm.TypeID == type.TypeID) {
-						contain = true;
-						break;
-					}
-				}
+			for (const auto& type : _EntityQueryInfos->at(index).NoneComponentTypes) {
+				auto search = _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes.find(type.TypeID);
+				if (search != _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes.end()) contain = true;
 				if (contain) break;
 			}
 			if (contain) {
@@ -134,18 +123,18 @@ size_t UniEngine::EntityManager::SwapEntity(EntityComponentStorage storage, size
 	size_t chunkPointer2 = index2 % capacity;
 
 	for (auto i : storage.ArchetypeInfo->ComponentTypes) {
-		void* temp = (void*)malloc(i.Size);
+		void* temp = (void*)malloc(i.second.Size);
 		void* d1 = (void*)((char*)storage.ChunkArray->Chunks[chunkIndex1].Data
-			+ i.Offset * capacity
-			+ i.Size * chunkPointer1);
+			+ i.second.Offset * capacity
+			+ i.second.Size * chunkPointer1);
 
 		void* d2 = (void*)((char*)storage.ChunkArray->Chunks[chunkIndex2].Data
-			+ i.Offset * capacity
-			+ i.Size * chunkPointer2);
+			+ i.second.Offset * capacity
+			+ i.second.Size * chunkPointer2);
 
-		memcpy(temp, d1, i.Size);
-		memcpy(d1, d2, i.Size);
-		memcpy(d2, temp, i.Size);
+		memcpy(temp, d1, i.second.Size);
+		memcpy(d1, d2, i.second.Size);
+		memcpy(d2, temp, i.second.Size);
 		free(temp);
 	}
 	return retVal;

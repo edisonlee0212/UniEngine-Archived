@@ -215,15 +215,13 @@ namespace UniEngine {
 	{
 		ComponentType targetType1 = typeof<T1>();
 		size_t entityCount = storage.ArchetypeInfo->EntityAliveCount;
-		bool found = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType1 == type) {
-				targetType1 = type;
-				found = true;
-				break;
-			}
+		bool found1 = false;
+		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
+		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType1 = search1->second;
+			found1 = true;
 		}
-		if (found) {
+		if (found1) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 			size_t chunkAmount = entityCount / capacity;
 			size_t remainder = entityCount % capacity;
@@ -275,16 +273,17 @@ namespace UniEngine {
 		size_t entityCount = storage.ArchetypeInfo->EntityAliveCount;
 		bool found1 = false;
 		bool found2 = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType1 == type) {
-				targetType1 = type;
-				found1 = true;
-			}
-			else if (targetType2 == type) {
-				targetType2 = type;
-				found2 = true;
-			}
+		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
+		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType1 = search1->second;
+			found1 = true;
 		}
+		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
+		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType2 = search2->second;
+			found2 = true;
+		}
+
 		if (found1 && found2) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 			size_t chunkAmount = entityCount / capacity;
@@ -340,19 +339,20 @@ namespace UniEngine {
 		bool found1 = false;
 		bool found2 = false;
 		bool found3 = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType1 == type) {
-				targetType1 = type;
-				found1 = true;
-			}
-			else if (targetType2 == type) {
-				targetType2 = type;
-				found2 = true;
-			}
-			else if (targetType3 == type) {
-				targetType3 = type;
-				found3 = true;
-			}
+		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
+		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType1 = search1->second;
+			found1 = true;
+		}
+		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
+		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType2 = search2->second;
+			found2 = true;
+		}
+		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
+		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType3 = search3->second;
+			found3 = true;
 		}
 		if (found1 && found2 && found3) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -413,23 +413,25 @@ namespace UniEngine {
 		bool found2 = false;
 		bool found3 = false;
 		bool found4 = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType1 == type) {
-				targetType1 = type;
-				found1 = true;
-			}
-			else if (targetType2 == type) {
-				targetType2 = type;
-				found2 = true;
-			}
-			else if (targetType3 == type) {
-				targetType3 = type;
-				found3 = true;
-			}
-			else if (targetType4 == type) {
-				targetType4 = type;
-				found4 = true;
-			}
+		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
+		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType1 = search1->second;
+			found1 = true;
+		}
+		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
+		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType2 = search2->second;
+			found2 = true;
+		}
+		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
+		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType3 = search3->second;
+			found3 = true;
+		}
+		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
+		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType4 = search4->second;
+			found4 = true;
 		}
 		if (found1 && found2 && found3 && found4) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -494,28 +496,32 @@ namespace UniEngine {
 		bool found3 = false;
 		bool found4 = false;
 		bool found5 = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType1 == type) {
-				targetType1 = type;
-				found1 = true;
-			}
-			else if (targetType2 == type) {
-				targetType2 = type;
-				found2 = true;
-			}
-			else if (targetType3 == type) {
-				targetType3 = type;
-				found3 = true;
-			}
-			else if (targetType4 == type) {
-				targetType4 = type;
-				found4 = true;
-			}
-			else if (targetType5 == type) {
-				targetType5 = type;
-				found5 = true;
-			}
+		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
+		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType1 = search1->second;
+			found1 = true;
 		}
+		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
+		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType2 = search2->second;
+			found2 = true;
+		}
+		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
+		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType3 = search3->second;
+			found3 = true;
+		}
+		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
+		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType4 = search4->second;
+			found4 = true;
+		}
+		auto search5 = storage.ArchetypeInfo->ComponentTypes.find(targetType5.TypeID);
+		if (search5 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType5 = search5->second;
+			found5 = true;
+		}
+
 		if (found1 && found2 && found3 && found4 && found5) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 			size_t chunkAmount = entityCount / capacity;
@@ -583,31 +589,35 @@ namespace UniEngine {
 		bool found4 = false;
 		bool found5 = false;
 		bool found6 = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType1 == type) {
-				targetType1 = type;
-				found1 = true;
-			}
-			else if (targetType2 == type) {
-				targetType2 = type;
-				found2 = true;
-			}
-			else if (targetType3 == type) {
-				targetType3 = type;
-				found3 = true;
-			}
-			else if (targetType4 == type) {
-				targetType4 = type;
-				found4 = true;
-			}
-			else if (targetType5 == type) {
-				targetType5 = type;
-				found5 = true;
-			}
-			else if (targetType6 == type) {
-				targetType6 = type;
-				found6 = true;
-			}
+		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
+		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType1 = search1->second;
+			found1 = true;
+		}
+		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
+		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType2 = search2->second;
+			found2 = true;
+		}
+		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
+		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType3 = search3->second;
+			found3 = true;
+		}
+		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
+		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType4 = search4->second;
+			found4 = true;
+		}
+		auto search5 = storage.ArchetypeInfo->ComponentTypes.find(targetType5.TypeID);
+		if (search5 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType5 = search5->second;
+			found5 = true;
+		}
+		auto search6 = storage.ArchetypeInfo->ComponentTypes.find(targetType6.TypeID);
+		if (search6 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType6 = search6->second;
+			found6 = true;
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -680,35 +690,40 @@ namespace UniEngine {
 		bool found5 = false;
 		bool found6 = false;
 		bool found7 = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType1 == type) {
-				targetType1 = type;
-				found1 = true;
-			}
-			else if (targetType2 == type) {
-				targetType2 = type;
-				found2 = true;
-			}
-			else if (targetType3 == type) {
-				targetType3 = type;
-				found3 = true;
-			}
-			else if (targetType4 == type) {
-				targetType4 = type;
-				found4 = true;
-			}
-			else if (targetType5 == type) {
-				targetType5 = type;
-				found5 = true;
-			}
-			else if (targetType6 == type) {
-				targetType6 = type;
-				found6 = true;
-			}
-			else if (targetType7 == type) {
-				targetType7 = type;
-				found7 = true;
-			}
+		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
+		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType1 = search1->second;
+			found1 = true;
+		}
+		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
+		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType2 = search2->second;
+			found2 = true;
+		}
+		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
+		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType3 = search3->second;
+			found3 = true;
+		}
+		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
+		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType4 = search4->second;
+			found4 = true;
+		}
+		auto search5 = storage.ArchetypeInfo->ComponentTypes.find(targetType5.TypeID);
+		if (search5 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType5 = search5->second;
+			found5 = true;
+		}
+		auto search6 = storage.ArchetypeInfo->ComponentTypes.find(targetType6.TypeID);
+		if (search6 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType6 = search6->second;
+			found6 = true;
+		}
+		auto search7 = storage.ArchetypeInfo->ComponentTypes.find(targetType7.TypeID);
+		if (search7 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType7 = search7->second;
+			found7 = true;
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6 && found7) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -785,39 +800,45 @@ namespace UniEngine {
 		bool found6 = false;
 		bool found7 = false;
 		bool found8 = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType1 == type) {
-				targetType1 = type;
-				found1 = true;
-			}
-			else if (targetType2 == type) {
-				targetType2 = type;
-				found2 = true;
-			}
-			else if (targetType3 == type) {
-				targetType3 = type;
-				found3 = true;
-			}
-			else if (targetType4 == type) {
-				targetType4 = type;
-				found4 = true;
-			}
-			else if (targetType5 == type) {
-				targetType5 = type;
-				found5 = true;
-			}
-			else if (targetType6 == type) {
-				targetType6 = type;
-				found6 = true;
-			}
-			else if (targetType7 == type) {
-				targetType7 = type;
-				found7 = true;
-			}
-			else if (targetType8 == type) {
-				targetType8 = type;
-				found8 = true;
-			}
+		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
+		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType1 = search1->second;
+			found1 = true;
+		}
+		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
+		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType2 = search2->second;
+			found2 = true;
+		}
+		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
+		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType3 = search3->second;
+			found3 = true;
+		}
+		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
+		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType4 = search4->second;
+			found4 = true;
+		}
+		auto search5 = storage.ArchetypeInfo->ComponentTypes.find(targetType5.TypeID);
+		if (search5 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType5 = search5->second;
+			found5 = true;
+		}
+		auto search6 = storage.ArchetypeInfo->ComponentTypes.find(targetType6.TypeID);
+		if (search6 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType6 = search6->second;
+			found6 = true;
+		}
+		auto search7 = storage.ArchetypeInfo->ComponentTypes.find(targetType7.TypeID);
+		if (search7 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType7 = search7->second;
+			found7 = true;
+		}
+		auto search8 = storage.ArchetypeInfo->ComponentTypes.find(targetType8.TypeID);
+		if (search8 != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType8 = search8->second;
+			found8 = true;
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6 && found7 && found8) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -884,15 +905,9 @@ namespace UniEngine {
 	{
 		ComponentType targetType = typeof<T>();
 		size_t entityCount = storage.ArchetypeInfo->EntityCount;
-		bool found = false;
-		for (auto type : storage.ArchetypeInfo->ComponentTypes) {
-			if (targetType == type) {
-				targetType = type;
-				found = true;
-				break;
-			}
-		}
-		if (found) {
+		auto search = storage.ArchetypeInfo->ComponentTypes.find(targetType.TypeID);
+		if (search != storage.ArchetypeInfo->ComponentTypes.end()) {
+			targetType = search->second;
 			size_t amount = storage.ArchetypeInfo->EntityAliveCount;
 			if (amount == 0) return;
 			container->resize(container->size() + amount);
@@ -911,8 +926,9 @@ namespace UniEngine {
 	{
 		EntityArchetypeInfo* info = new EntityArchetypeInfo();
 		info->EntityCount = 0;
-		info->ComponentTypes = CollectComponentTypes(arg, args...);
-		info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
+		std::vector<ComponentType> componentLists = CollectComponentTypes(arg, args...);
+		info->EntitySize = componentLists.back().Offset + componentLists.back().Size;
+		for (const auto& i : componentLists) info->ComponentTypes.insert({ i.TypeID, i });
 		info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
 		int duplicateIndex = -1;
 		for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
@@ -920,8 +936,9 @@ namespace UniEngine {
 			if (info->ChunkCapacity != compareInfo->ChunkCapacity) continue;
 			if (info->EntitySize != compareInfo->EntitySize) continue;
 			bool typeCheck = true;
-			for (size_t j = 0; j < compareInfo->ComponentTypes.size(); j++) {
-				if (info->ComponentTypes[j] != compareInfo->ComponentTypes[j]) typeCheck = false;
+			for (size_t j = 0; j < componentLists.size(); j++) {
+				auto search = compareInfo->ComponentTypes.find(componentLists[j].TypeID);
+				if (search == compareInfo->ComponentTypes.end()) typeCheck = false;
 			}
 			if (typeCheck) {
 				duplicateIndex = compareInfo->Index;
@@ -933,7 +950,6 @@ namespace UniEngine {
 			retVal.Index = _EntityComponentStorage->size();
 			info->Index = retVal.Index;
 			_EntityComponentStorage->push_back(EntityComponentStorage(info, new ComponentDataChunkArray()));
-			//_EntityPool->push_back(std::queue<Entity>());
 		}
 		else {
 			retVal.Index = duplicateIndex;
@@ -957,19 +973,10 @@ namespace UniEngine {
 			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-			size_t offset = 0;
-			bool found = false;
 			size_t id = typeid(T).hash_code();
-			for (size_t i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
-				if (id == chunkInfo->ComponentTypes[i].TypeID) {
-					offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
-					offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
-					found = true;
-					break;
-				}
-			}
-			if (found) {
-				chunk.SetData<T>(offset, value);
+			auto search = chunkInfo->ComponentTypes.find(id);
+			if (search != chunkInfo->ComponentTypes.end()) {
+				chunk.SetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size), value);
 			}
 			else {
 				Debug::Log("ComponentData doesn't exist");
@@ -991,19 +998,10 @@ namespace UniEngine {
 			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-			size_t offset = 0;
-			bool found = false;
 			size_t id = typeid(T).hash_code();
-			for (size_t i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
-				if (id == chunkInfo->ComponentTypes[i].TypeID) {
-					offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
-					offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
-					found = true;
-					break;
-				}
-			}
-			if (found) {
-				return chunk.GetData<T>(offset);
+			auto search = chunkInfo->ComponentTypes.find(id);
+			if (search != chunkInfo->ComponentTypes.end()) {
+				return chunk.GetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size));
 			}
 			else {
 				Debug::Log("ComponentData doesn't exist");
@@ -1025,18 +1023,9 @@ namespace UniEngine {
 			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-			size_t offset = 0;
-			bool found = false;
 			size_t id = typeid(T).hash_code();
-			for (size_t i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
-				if (id == chunkInfo->ComponentTypes[i].TypeID) {
-					offset += chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity;
-					offset += chunkPointer * chunkInfo->ComponentTypes[i].Size;
-					found = true;
-					break;
-				}
-			}
-			if (found) {
+			auto search = chunkInfo->ComponentTypes.find(id);
+			if (search != chunkInfo->ComponentTypes.end()) {
 				return true;
 			}
 			else {
