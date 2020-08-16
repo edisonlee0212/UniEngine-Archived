@@ -1139,7 +1139,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			ForEachStorage(i, func);
 		}
 	}
@@ -1155,7 +1155,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			ForEachStorage(i, func);
 		}
 	}
@@ -1171,7 +1171,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			ForEachStorage(i, func);
 		}
 	}
@@ -1187,7 +1187,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			ForEachStorage(i, func);
 		}
 	}
@@ -1203,7 +1203,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			ForEachStorage(i, func);
 		}
 	}
@@ -1219,7 +1219,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			ForEachStorage(i, func);
 		}
 	}
@@ -1235,7 +1235,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			ForEachStorage(i, func);
 		}
 	}
@@ -1251,7 +1251,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			ForEachStorage(i, func);
 		}
 	}
@@ -1269,7 +1269,7 @@ namespace UniEngine {
 			Debug::Error("EntityQuery out of date!");
 			return;
 		}
-		for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
+		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
 			GetComponentDataArrayStorage(i, container);
 		}
 	}

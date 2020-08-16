@@ -24,9 +24,9 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
 	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 	if (meshMaterials != nullptr) {
-		for (auto mmc : *meshMaterials) {
+		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
-			for (auto j : *entities) {
+			for (const auto& j : *entities) {
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
 				auto scale = EntityManager::GetComponentData<Scale>(j).Value;
 				auto meshBound = mmc->_Mesh->GetBound();
@@ -52,9 +52,9 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 	}
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 	if (instancedMeshMaterials != nullptr) {
-		for (auto immc : *instancedMeshMaterials) {
+		for (const auto& immc : *instancedMeshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
-			for (auto j : *entities) {
+			for (const auto& j : *entities) {
 				RenderManager::DrawMeshInstanced(
 					immc->_Mesh,
 					immc->_Material,
@@ -95,7 +95,7 @@ void UniEngine::RenderSystem::OnDestroy()
 void UniEngine::RenderSystem::Update()
 {
 	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
-	for (auto cc : *cameras) {
+	for (const auto& cc : *cameras) {
 		std::vector<Entity>* entities = EntityManager::GetSharedComponentEntities<CameraComponent>(cc);
 		RenderToCamera(cc, entities->at(0));
 	}

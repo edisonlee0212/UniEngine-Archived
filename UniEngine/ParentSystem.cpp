@@ -30,7 +30,7 @@ void UniEngine::ParentSystem::CalculateLTWRecursive(LocalToWorld pltw, Entity en
 		});
 	*/
 
-	for (auto i : EntityManager::GetChildren(entity)) {
+	for (const auto& i : EntityManager::GetChildren(entity)) {
 		auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
 		LocalToWorld ltw;
 		ltw.value = pltw.value * ltp.value;
@@ -42,10 +42,10 @@ void UniEngine::ParentSystem::CalculateLTWRecursive(LocalToWorld pltw, Entity en
 void UniEngine::ParentSystem::CollectHierarchy(std::vector<std::pair<Entity, Entity>>* container, Entity entity)
 {
 	auto children = EntityManager::GetChildren(entity);
-	for (auto i : children) container->push_back(std::pair<Entity, Entity>(entity, i));
+	for (const auto& i : children) container->push_back(std::pair<Entity, Entity>(entity, i));
 	for (int i = 0; i < container->size(); i++) {
 		Entity target = container->at(i).second;
-		for (auto child : EntityManager::GetChildren(target))
+		for (const auto& child : EntityManager::GetChildren(target))
 			container->push_back(std::make_pair(target, child));
 	}
 }
@@ -65,7 +65,9 @@ void UniEngine::ParentSystem::Update()
 	*/
 
 	if (EntityManager::GetParentHierarchyVersion() != _CurrentStoredHierarchyVersion) {
-		for (auto i : _CachedParentHierarchies) i.clear();
+		for (int i = 0; i < _CachedParentHierarchies.size(); i++) {
+			_CachedParentHierarchies[i].clear();
+		}
 		_CachedParentHierarchies.clear();
 		EntityManager::ForAllRootParent([this](int i, Entity rootParent) {
 			_CachedParentHierarchies.push_back(std::vector<std::pair<Entity, Entity>>());
@@ -76,14 +78,14 @@ void UniEngine::ParentSystem::Update()
 
 	std::vector<std::shared_future<void>> futures;
 	auto lists = &_CachedParentHierarchies;
-	for (int i = 0; i < lists->size(); i++) {
-		futures.push_back(_ThreadPool->Push([i, lists](int id) {
-			for (int j = 0; j < lists->at(i).size(); j++) {
-				auto pltw = EntityManager::GetComponentData<LocalToWorld>(lists->at(i).at(j).first);
-				auto ltp = EntityManager::GetComponentData<LocalToParent>(lists->at(i).at(j).second);
+	for (const auto& list : _CachedParentHierarchies) {
+		futures.push_back(_ThreadPool->Push([&list](int id) {
+			for (int j = 0; j < list.size(); j++) {
+				auto pltw = EntityManager::GetComponentData<LocalToWorld>(list[j].first);
+				auto ltp = EntityManager::GetComponentData<LocalToParent>(list[j].second);
 				LocalToWorld ltw;
 				ltw.value = pltw.value * ltp.value;
-				EntityManager::SetComponentData<LocalToWorld>(lists->at(i).at(j).second, ltw);
+				EntityManager::SetComponentData<LocalToWorld>(list[j].second, ltw);
 			}
 			}).share());
 	}
