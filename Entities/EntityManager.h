@@ -7,6 +7,7 @@ namespace UniEngine {
 #pragma region EntityManager
 	struct WorldEntityStorage {
 		size_t Index;
+		size_t ParentHierarchyVersion = 0;
 		std::vector<Entity> Entities;
 		std::vector<Entity> ParentRoots;
 		std::vector<EntityInfo> EntityInfos;
@@ -21,6 +22,7 @@ namespace UniEngine {
 	class ENTITIES_API EntityManager : public ManagerBase {
 #pragma region Data Storage
 		static std::vector<WorldEntityStorage*> _WorldEntityStorage;
+		static WorldEntityStorage* _CurrentActivitedWorldEntityStorage;
 		static std::vector<Entity>* _Entities;
 		static std::vector<Entity>* _ParentRoots;
 		static std::vector<EntityInfo>* _EntityInfos;
@@ -79,11 +81,17 @@ namespace UniEngine {
 		//Enable or Disable an Entity. Note that the disable action will recursively disable the children of current entity. You are not allowed to enable an entity unless its parent(if exist) is enabled. 
 		static void SetEnable(Entity entity, bool value);
 		static bool IsEntityEnabled(Entity entity);
+
+		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
+		static std::vector<EntityComponentStorage> UnsafeQueryStorages(EntityQuery entityQuery);
+		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
+		static std::vector<Entity>* GetAllEntitiesUnsafe();
+		static std::vector<Entity>* GetParentRootsUnsafe();
 	public:
 		static void Init(ThreadPool* threadPool);
 
 		static void GetAllEntities(std::vector<Entity>* target);
-		static std::vector<Entity>* GetAllEntitiesUnsafe();
+		
 		static void SetThreadPool(ThreadPool* pool);
 		static void SetWorld(World* world);
 		template<typename T = ComponentBase, typename... Ts>
@@ -95,11 +103,12 @@ namespace UniEngine {
 		static void SetParent(Entity entity, Entity parent);
 		static Entity GetParent(Entity entity);
 		static std::vector<Entity> GetChildren(Entity entity);
+		static void ForEachChild(Entity entity, const std::function<void(Entity child)>& func);
+
 		static void RemoveChild(Entity entity, Entity parent);
 		static void GetParentRoots(std::vector<Entity>* container);
-		static std::vector<Entity>* GetParentRootsUnsafe();
+		static size_t GetParentHierarchyVersion();
 
-		
 
 		template<typename T = ComponentBase>
 		static void SetComponentData(Entity entity, T value);
@@ -133,9 +142,7 @@ namespace UniEngine {
 		static void SetEntityQueryAnyFilters(EntityQuery entityQuery, T arg, Ts... args);
 		template<typename T = ComponentBase, typename... Ts>
 		static void SetEntityQueryNoneFilters(EntityQuery entityQuery, T arg, Ts... args);
-		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
-		static std::vector<EntityComponentStorage> UnsafeQueryStorages(EntityQuery entityQuery);
-		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
+		
 
 		template<typename T1 = ComponentBase>
 		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*)>& func);
@@ -154,7 +161,8 @@ namespace UniEngine {
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
 		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func);
 
-
+		static void ForAllEntities(const std::function<void(int i, Entity entity)>& func);
+		static void ForAllRootParent(const std::function<void(int i, Entity rootParent)>& func);
 	};
 #pragma endregion
 #pragma region Functions

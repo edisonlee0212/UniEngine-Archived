@@ -4,7 +4,10 @@ namespace UniEngine {
 	class UNIENGINE_API ParentSystem :
 		public SystemBase
 	{
-		void CalculateLTW(LocalToWorld pltw, Entity entity);
+		size_t _CurrentStoredHierarchyVersion = INT_MAX;
+		std::vector<std::vector<std::pair<Entity, Entity>>> _CachedParentHierarchies;
+		void CalculateLTWRecursive(LocalToWorld pltw, Entity entity);
+		void CollectHierarchy(std::vector<std::pair<Entity, Entity>>* container, Entity entity);
 	public:
 		void OnCreate();
 		void OnDestroy();

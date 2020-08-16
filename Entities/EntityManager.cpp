@@ -2,6 +2,7 @@
 #include "EntityManager.h"
 using namespace UniEngine;
 std::vector<WorldEntityStorage*> UniEngine::EntityManager::_WorldEntityStorage;
+WorldEntityStorage* UniEngine::EntityManager::_CurrentActivitedWorldEntityStorage;
 std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos;
 std::vector<Entity>* UniEngine::EntityManager::_Entities;
 std::vector<Entity>* UniEngine::EntityManager::_ParentRoots;
@@ -188,6 +189,7 @@ void UniEngine::EntityManager::SetWorld(World* world)
 		_WorldEntityStorage.push_back(storage);
 	}
 	WorldEntityStorage* targetStorage = _WorldEntityStorage[index];
+	_CurrentActivitedWorldEntityStorage = targetStorage;
 	_Entities = &targetStorage->Entities;
 	_ParentRoots = &targetStorage->ParentRoots;
 	_EntityInfos = &targetStorage->EntityInfos;
@@ -281,6 +283,8 @@ void UniEngine::EntityManager::DeleteEntity(Entity entity)
 	}
 	if(_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
 	DeleteEntityInternal(entity);
+
+	_CurrentActivitedWorldEntityStorage->ParentHierarchyVersion++;
 }
 
 void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
@@ -299,6 +303,7 @@ void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
 		Debug::Error("Parent must have LocalToWorld Componennt!");
 		return;
 	}
+	_CurrentActivitedWorldEntityStorage->ParentHierarchyVersion++;
 	size_t childIndex = entity.Index;
 	size_t parentIndex = parent.Index;
 	if (entity != _Entities->at(childIndex)) {
@@ -328,6 +333,7 @@ void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
 		}
 	}
 	if (addParent) _ParentRoots->push_back(_Entities->at(parentIndex));
+	
 }
 
 Entity UniEngine::EntityManager::GetParent(Entity entity)
@@ -352,6 +358,13 @@ std::vector<Entity> UniEngine::EntityManager::GetChildren(Entity entity)
 	return _EntityInfos->at(entityIndex).Children;
 }
 
+inline void UniEngine::EntityManager::ForEachChild(Entity entity, const std::function<void(Entity child)>& func)
+{
+	for (auto i : _EntityInfos->at(entity.Index).Children) {
+		func(i);
+	}
+}
+
 void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
 {
 	if (entity.IsNull() || parent.IsNull()) return;
@@ -369,6 +382,7 @@ void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
 	if (_EntityInfos->at(childIndex).Parent.Index == 0) {
 		Debug::Error("No child by the parent!");
 	}
+	_CurrentActivitedWorldEntityStorage->ParentHierarchyVersion++;
 	_EntityInfos->at(childIndex).Parent = Entity();
 	size_t childrenCount = _EntityInfos->at(parentIndex).Children.size();
 	for (int i = 0; i < childrenCount; i++) {
@@ -389,6 +403,11 @@ void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>* container)
 	size_t amount = _ParentRoots->size();
 	container->resize(container->size() + amount);
 	memcpy(&container->at(container->size() - amount), _ParentRoots->data(), amount * sizeof(Entity));
+}
+
+size_t UniEngine::EntityManager::GetParentHierarchyVersion()
+{
+	return _CurrentActivitedWorldEntityStorage->ParentHierarchyVersion;
 }
 
 EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)
@@ -473,6 +492,20 @@ ComponentDataChunkArray* UniEngine::EntityManager::UnsafeGetEntityComponentDataC
 {
 	if (entityArchetype.IsNull()) return nullptr;
 	return _EntityComponentStorage->at(entityArchetype.Index).ChunkArray;
+}
+
+void UniEngine::EntityManager::ForAllEntities(const std::function<void(int i, Entity entity)>& func)
+{
+	for (int index = 0; index < _Entities->size(); index++) {
+		func(index, _Entities->at(index));
+	}
+}
+
+inline void UniEngine::EntityManager::ForAllRootParent(const std::function<void(int i, Entity rootParent)>& func)
+{
+	for (int index = 0; index < _ParentRoots->size(); index++) {
+		func(index, _ParentRoots->at(index));
+	}
 }
 
 void UniEngine::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container)
