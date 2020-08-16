@@ -226,27 +226,29 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 #pragma region Create New bud
 			Entity currentBud = budEntityList->at(i);
 			growDir = glm::normalize(growDir);
-
-			LocalTranslation lt;
-			LocalRotation rotation;
-			rotation.value = glm::quat(0, 0, 0, 0);
-			LocalScale ls;
-			lt.value = growDir * growDistance;
-			ls.value = glm::vec3(1.0f);
+			Translation t;
+			Rotation r;
+			r.Value = glm::quat(0, 0, 0, 0);
+			Scale s;
+			LocalPosition lp;
+			lp.Value = growDir * growDistance;
+			t.Value = lp.Value + EntityManager::GetComponentData<Translation>(currentBud).Value;
+			s.Value = glm::vec3(1.0f);
 			//TODO: Check newbud is valid.
 			auto childList = EntityManager::GetChildren(currentBud);
 			bool tooClose = false;
 			for (auto i : childList) {
-				if (glm::distance(lt.value, EntityManager::GetComponentData<LocalTranslation>(i).value) < 0.05f) {
+				if (glm::distance(t.Value, EntityManager::GetComponentData<Translation>(i).Value) < 0.05f) {
 					tooClose = true;
 				}
 			}
 			if (!tooClose) {
 				newBudAmount++;
 				auto newBud = TreeManager::CreateBud();
-				EntityManager::SetComponentData(newBud, lt);
-				EntityManager::SetComponentData(newBud, rotation);
-				EntityManager::SetComponentData(newBud, ls);
+				EntityManager::SetComponentData(newBud, lp);
+				EntityManager::SetComponentData(newBud, t);
+				EntityManager::SetComponentData(newBud, r);
+				EntityManager::SetComponentData(newBud, s);
 				EntityManager::SetParent(newBud, currentBud);
 				if (budType.Value == BudTypes::APICAL_BUD) {
 					EntityManager::SetComponentData(newBud, budType);
@@ -391,27 +393,29 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 #pragma region Create New bud
 			Entity currentBud = budEntityList.at(i);
 			growDir = glm::normalize(growDir);
-
-			LocalTranslation lt;
-			LocalRotation rotation;
-			rotation.value = glm::quat(0, 0, 0, 0);
-			LocalScale ls;
-			lt.value = growDir * growDistance;
-			ls.value = glm::vec3(1.0f);
+			Translation t;
+			Rotation r;
+			r.Value = glm::quat(0, 0, 0, 0);
+			Scale s;
+			LocalPosition lp;
+			lp.Value = growDir * growDistance;
+			t.Value = lp.Value + EntityManager::GetComponentData<Translation>(currentBud).Value;
+			s.Value = glm::vec3(1.0f);
 			//TODO: Check newbud is valid.
 			auto childList = EntityManager::GetChildren(currentBud);
 			bool tooClose = false;
 			for (auto i : childList) {
-				if (glm::distance(lt.value, EntityManager::GetComponentData<LocalTranslation>(i).value) < growDistance / 2.0f) {
+				if (glm::distance(t.Value, EntityManager::GetComponentData<Translation>(i).Value) < 0.05f) {
 					tooClose = true;
 				}
 			}
 			if (!tooClose) {
 				newBudAmount++;
 				auto newBud = TreeManager::CreateBud();
-				EntityManager::SetComponentData(newBud, lt);
-				EntityManager::SetComponentData(newBud, rotation);
-				EntityManager::SetComponentData(newBud, ls);
+				EntityManager::SetComponentData(newBud, lp);
+				EntityManager::SetComponentData(newBud, t);
+				EntityManager::SetComponentData(newBud, r);
+				EntityManager::SetComponentData(newBud, s);
 				EntityManager::SetParent(newBud, currentBud);
 				if (budType.Value == BudTypes::APICAL_BUD) {
 					EntityManager::SetComponentData(newBud, budType);
@@ -562,12 +566,8 @@ Entity SpaceColonizationTreeSystem::CreateTree(TreeColor color, glm::vec3 positi
 	auto treeEntity = TreeManager::CreateTree();
 	Translation t;
 	t.Value = position;
-	LocalTranslation lt;
-	lt.value = glm::vec3(0.0f);
 	Scale s;
 	s.Value = glm::vec3(1.0f);
-	LocalScale ls;
-	ls.value = glm::vec3(1.0f);
 	EntityManager::SetComponentData(treeEntity, t);
 	EntityManager::SetComponentData(treeEntity, s);
 	EntityManager::SetComponentData(treeEntity, color);
@@ -577,8 +577,8 @@ Entity SpaceColonizationTreeSystem::CreateTree(TreeColor color, glm::vec3 positi
 	EntityManager::SetComponentData(treeEntity, iteration);
 	auto rootBud = TreeManager::CreateBud();
 	EntityManager::SetParent(rootBud, treeEntity);
-	EntityManager::SetComponentData(rootBud, lt);
-	EntityManager::SetComponentData(rootBud, ls);
+	EntityManager::SetComponentData(rootBud, t);
+	EntityManager::SetComponentData(rootBud, s);
 	EntityManager::SetComponentData(rootBud, type);
 	TreeIndex index = EntityManager::GetComponentData<TreeIndex>(treeEntity);
 	EntityManager::SetComponentData(rootBud, index);

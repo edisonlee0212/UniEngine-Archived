@@ -25,35 +25,35 @@ inline void TreeUtilities::TreeManager::LeafGenerationHelper(LeafInfo info, Enti
 {
     EntityManager::SetParent(leaf, bud);
     EntityManager::SetComponentData(leaf, info);
-    EntityManager::SetComponentData(leaf, EntityManager::GetComponentData<BudIndex>(bud));
-    LocalTranslation lt;
-    LocalScale ls;
-    LocalRotation lr;
-    lt.value = glm::vec3(0);
-    ls.value = glm::vec3(0.4f);
+    EntityManager::SetComponentData(leaf, EntityManager::GetComponentData<TreeIndex>(bud));
+    Translation t;
+    Scale s;
+    Rotation r;
+    t.Value = EntityManager::GetComponentData<Translation>(bud).Value;
+    s.Value = glm::vec3(0.4f);
 
     auto pt = EntityManager::GetComponentData<ParentTranslation>(bud);
     auto ltw = EntityManager::GetComponentData<LocalToWorld>(bud);
     glm::vec3 diff = glm::normalize(glm::vec3(ltw.value[3]) - pt.Value);
     glm::quat right = glm::quatLookAt(glm::cross(diff, glm::vec3(0, 1, 0)), diff);
     right = glm::rotate(right, glm::radians(info.CircleDegreeAddition * index), diff);
-    lr.value = glm::quatLookAt(glm::vec3(0, 1, 0), diff);
-    lr.value = glm::rotate(lr.value, glm::radians(info.BendDegrees), right * glm::vec3(0, 0, 1));
-    EntityManager::SetComponentData(leaf, lt);
-    EntityManager::SetComponentData(leaf, ls);
-    EntityManager::SetComponentData(leaf, lr);
+    r.Value = glm::quatLookAt(glm::vec3(0, 1, 0), diff);
+    r.Value = glm::rotate(r.Value, glm::radians(info.BendDegrees), right * glm::vec3(0, 0, 1));
+    EntityManager::SetComponentData(leaf, t);
+    EntityManager::SetComponentData(leaf, s);
+    EntityManager::SetComponentData(leaf, r);
 }
 void TreeUtilities::TreeManager::Init()
 {
     _LeafArchetype = EntityManager::CreateEntityArchetype(
-        LocalTranslation(), LocalRotation(), LocalScale(), LocalToParent(), LocalToWorld(),
-        Mass(), Position(), Direction(), ParentTranslation(), Connection(), TreeIndex(), BudIndex(),
+        Translation(), Rotation(), Scale(), LocalToWorld(),
+        Mass(), LocalPosition(), ParentTranslation(), Connection(), TreeIndex(),
         LeafIndex(), LeafInfo(),
         Phototropism(), Gravitropism()
     );
     _BudArchetype = EntityManager::CreateEntityArchetype(
-        LocalTranslation(), LocalRotation(), LocalScale(), LocalToParent(), LocalToWorld(),
-        Mass(), Position(), Direction(), ParentTranslation(), Connection(),
+        Translation(), Rotation(), Scale(), LocalToWorld(),
+        Mass(), LocalPosition(), ParentTranslation(), Connection(),
         Radius(), BudIndex(), Iteration(), Level(), BudType(), TreeIndex(),
         Phototropism(), Gravitropism()
     );

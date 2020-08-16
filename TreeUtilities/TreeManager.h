@@ -26,9 +26,9 @@ namespace TreeUtilities {
             return other.Value == Value;
         }
     };
-    struct TREEUTILITIES_API Position : ComponentBase {
+    struct TREEUTILITIES_API LocalPosition : ComponentBase {
         glm::vec3 Value;
-        bool operator ==(const Position& other) const {
+        bool operator ==(const LocalPosition& other) const {
             return other.Value == Value;
         }
     };

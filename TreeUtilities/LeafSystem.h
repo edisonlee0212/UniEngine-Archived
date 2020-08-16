@@ -5,6 +5,7 @@ namespace TreeUtilities {
     enum LeafSystemConfigFlags {
         LeafSystem_None = 0,
         LeafSystem_DrawLeafs = 1 << 0,
+        LeafSystem_SeperateTrees = 1 << 1
     };
     class LeafSystem :
         public SystemBase
