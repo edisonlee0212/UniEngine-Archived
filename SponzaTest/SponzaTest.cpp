@@ -27,15 +27,16 @@ enum TestScene {
 };
 int main()
 {
-	LightingManager::SetDirectionalLightResolution(2048);
+#pragma region Lighting and Shadow settings
+	LightingManager::SetDirectionalLightResolution(1024);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetMaxShadowDistance(500);
 	LightingManager::SetVSMMaxVariance(0.001f);
 	LightingManager::SetEVSMExponent(80.0f);
 	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
+#pragma endregion
 	Application::Init();
-
 #pragma region Preparations
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
@@ -50,21 +51,9 @@ int main()
 	ccs->Enable();
 	ccs->EnableWindowControl(true);
 	ccs->SetPosition(glm::vec3(-40, 25, 3));
-	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype<
-		//LocalTranslation, 
-		//LocalRotation,
-		//LocalScale,
-		LocalToParent,
-		Translation,
-		//Rotation,
-		Scale,
-		LocalToWorld
-	>(//LocalTranslation(),
-	//LocalRotation(),
-	//LocalScale(),
+	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype(
 		LocalToParent(),
 		Translation(),
-		//Rotation(),
 		Scale(),
 		LocalToWorld());
 
@@ -76,7 +65,7 @@ int main()
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = SPONZA_TEST;
+	TestScene testScene = NANOSUIT;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
@@ -99,8 +88,11 @@ int main()
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == SPONZA_TEST) {
+		//1. Load models using Assimp including textures and meshes and transforms.
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		//2. Set overall transform of the entites. We set the root entity's transform and it will
+		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformSystem & ParentSystem
 		Translation bpp;
 		bpp.Value = glm::vec3(5, 5, 5);
 		Scale bps;
@@ -135,10 +127,7 @@ int main()
 		EntityManager::SetComponentData<Scale>(model2, scale);
 		EntityManager::SetSharedComponent<MeshMaterialComponent>(model2, mmmc);
 	}
-
 #pragma endregion
-
-
 #pragma region Lights
 
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
@@ -177,15 +166,12 @@ int main()
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, plmmc);
 
 #pragma endregion
-
 	InitGround();
-
 #pragma region EngineLoop
 	bool loopable = true;
-
-	EntityQuery eq = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters<LocalToWorld>(eq, LocalToWorld());
-
+	//Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our self.
+	//Another way to run engine is to simply execute:
+	//Application.Run();
 	while (loopable) {
 		Application::PreUpdate();
 		LightAngleSlider();

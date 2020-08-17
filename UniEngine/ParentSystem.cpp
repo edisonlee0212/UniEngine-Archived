@@ -46,11 +46,11 @@ void UniEngine::ParentSystem::CollectHierarchy(std::vector<std::pair<Entity, Chi
 		if (EntityManager::HasComponentData<LocalToWorld>(i) && EntityManager::HasComponentData<LocalToParent>(i) && EntityManager::HasComponentData<LocalToWorld>(entity)) {
 			ChildInfo info;
 			info.Child = i;
-			info.LastLTP = EntityManager::GetComponentData<LocalToParent>(i);
-			info.LastPLTW = EntityManager::GetComponentData<LocalToWorld>(entity);
+			auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
+			auto pltw = EntityManager::GetComponentData<LocalToWorld>(entity);
 			container->push_back(std::make_pair(entity, info));
 			LocalToWorld ltw;
-			ltw.value = info.LastPLTW.value * info.LastLTP.value;
+			ltw.value = pltw.value * ltp.value;
 			EntityManager::SetComponentData<LocalToWorld>(i, ltw);
 		}
 	}
@@ -60,11 +60,11 @@ void UniEngine::ParentSystem::CollectHierarchy(std::vector<std::pair<Entity, Chi
 			if (EntityManager::HasComponentData<LocalToWorld>(child) && EntityManager::HasComponentData<LocalToParent>(child) && EntityManager::HasComponentData<LocalToWorld>(target)) {
 				ChildInfo info;
 				info.Child = child;
-				info.LastLTP = EntityManager::GetComponentData<LocalToParent>(child);
-				info.LastPLTW = EntityManager::GetComponentData<LocalToWorld>(target);
+				auto ltp = EntityManager::GetComponentData<LocalToParent>(child);
+				auto pltw = EntityManager::GetComponentData<LocalToWorld>(target);
 				container->push_back(std::make_pair(target, info));
 				LocalToWorld ltw;
-				ltw.value = info.LastPLTW.value * info.LastLTP.value;
+				ltw.value = pltw.value * ltp.value;
 				EntityManager::SetComponentData<LocalToWorld>(child, ltw);
 			}
 		}
@@ -96,13 +96,13 @@ void UniEngine::ParentSystem::Update()
 				{
 					for (size_t j = 0; j < capacity; j++) {
 						size_t index = capacity * i + j;
-						auto info = list->at(index);
+						const auto& info = list->at(index);
 						auto pltw = EntityManager::GetComponentData<LocalToWorld>(info.first);
 						auto ltp = EntityManager::GetComponentData<LocalToParent>(info.second.Child);
-						if (info.second.LastPLTW == pltw && info.second.LastLTP == ltp) continue;
-						info.second.LastPLTW = pltw;
-						info.second.LastLTP = ltp;
-						list->at(index) = info;
+						//if (info.second.LastPLTW == pltw && info.second.LastLTP == ltp) continue;
+						//info.second.LastPLTW = pltw;
+						//info.second.LastLTP = ltp;
+						//list->at(index) = info;
 						LocalToWorld ltw;
 						ltw.value = pltw.value * ltp.value;
 						EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
@@ -112,13 +112,13 @@ void UniEngine::ParentSystem::Update()
 		}
 		for (size_t i = 0; i < reminder; i++) {
 			size_t index = capacity * threadSize + i;
-			auto info = list->at(index);
+			const auto& info = list->at(index);
 			auto pltw = EntityManager::GetComponentData<LocalToWorld>(info.first);
 			auto ltp = EntityManager::GetComponentData<LocalToParent>(info.second.Child);
-			if (info.second.LastPLTW == pltw && info.second.LastLTP == ltp) continue;
-			info.second.LastPLTW = pltw;
-			info.second.LastLTP = ltp;
-			list->at(index) = info;
+			//if (info.second.LastPLTW == pltw && info.second.LastLTP == ltp) continue;
+			//info.second.LastPLTW = pltw;
+			//info.second.LastLTP = ltp;
+			//list->at(index) = info;
 			LocalToWorld ltw;
 			ltw.value = pltw.value * ltp.value;
 			EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
