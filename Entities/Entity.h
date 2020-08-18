@@ -3,6 +3,21 @@
 namespace UniEngine {
 #pragma region EntityManager
 #pragma region Entity
+	struct ENTITIES_API ComponentType {
+		const char* Name;
+		size_t TypeID;
+		//Size of component
+		size_t Size;
+		//Starting point of the component, this part is not comparable
+		size_t Offset;
+		bool operator ==(const ComponentType& other) const {
+			return (other.TypeID == TypeID) && (other.Size == Size);
+		}
+		bool operator !=(const ComponentType& other) const {
+			return (other.TypeID != TypeID) || (other.Size != Size);
+		}
+	};
+
 	struct ENTITIES_API ComponentBase {
 	};
 
@@ -16,6 +31,11 @@ namespace UniEngine {
 		//Position in _Entity Array
 		size_t Index = 0;
 		size_t Version = 0;
+
+		Entity() {
+			Index = 0;
+			Version = 0;
+		}
 
 		bool operator ==(const Entity& other) const {
 			return (other.Index == Index) && (other.Version == Version);
@@ -36,29 +56,16 @@ namespace UniEngine {
 			return Index == 0;
 		}
 
-		bool IsDeleted() {
-			return Version == 0;
-		}
+		bool IsDeleted();
 	};
 #pragma region Storage
 
-	struct ComponentType {
-		size_t TypeID;
-		//Size of component
-		size_t Size;
-		//Starting point of the component, this part is not comparable
-		size_t Offset;
-		bool operator ==(const ComponentType& other) const {
-			return (other.TypeID == TypeID) && (other.Size == Size);
-		}
-		bool operator !=(const ComponentType& other) const {
-			return (other.TypeID != TypeID) || (other.Size != Size);
-		}
-	};
+	
 
 	template<typename T>
 	ComponentType typeof() {
 		ComponentType type;
+		type.Name = typeid(T).name();
 		type.Size = sizeof(T);
 		type.Offset = 0;
 		type.TypeID = typeid(T).hash_code();
@@ -175,65 +182,6 @@ namespace UniEngine {
 		std::vector<EntityComponentStorage> QueriedStorages;
 	};
 #pragma endregion
-#pragma endregion
-#pragma region Predefined Componenets
-	struct ENTITIES_API Translation : ComponentBase {
-		glm::vec3 Value;
-		bool operator ==(const Translation& other) const {
-			return other.Value == Value;
-		}
-	};
-	struct ENTITIES_API Scale : ComponentBase {
-		glm::vec3 Value;
-		bool operator ==(const Scale& other) const {
-			return other.Value == Value;
-		}
-	};
-	struct ENTITIES_API Rotation : ComponentBase {
-		glm::quat Value;
-		bool operator ==(const Rotation& other) const {
-			return other.Value == Value;
-		}
-	};
-	struct ENTITIES_API LocalTranslation : ComponentBase
-	{
-		glm::vec3 value;
-		bool operator ==(const LocalTranslation& other) const {
-			return other.value == value;
-		}
-	};
-	struct ENTITIES_API LocalScale : ComponentBase {
-		glm::vec3 value;
-		bool operator ==(const LocalScale& other) const {
-			return other.value == value;
-		}
-	};
-	struct ENTITIES_API LocalRotation : ComponentBase {
-		glm::quat value;
-		bool operator ==(const LocalRotation& other) const {
-			return other.value == value;
-		}
-	};
-	struct ENTITIES_API LocalToWorld : ComponentBase {
-		glm::mat4 value;
-		bool operator ==(const LocalToWorld& other) const {
-			return other.value == value;
-		}
-	};
-	struct ENTITIES_API LocalToParent : ComponentBase {
-		glm::mat4 value;
-		bool operator ==(const LocalToParent& other) const {
-			return other.value == value;
-		}
-	};
-	struct ENTITIES_API CameraMask : ComponentBase
-	{
-		size_t value;
-		bool operator ==(const CameraMask& other) const {
-			return other.value == value;
-		}
-		CameraMask() { value = 0; }
-	};
 #pragma endregion
 
 #pragma endregion

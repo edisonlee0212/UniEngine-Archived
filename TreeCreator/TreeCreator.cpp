@@ -5,6 +5,7 @@
 #include "SpaceColonizationTreeSystem.h"
 
 #include "TreeManager.h"
+#include "EntityEditorSystem.h"
 using namespace UniEngine;
 using namespace TreeUtilities;
 void InitGround();

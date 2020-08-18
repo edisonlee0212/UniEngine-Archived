@@ -212,6 +212,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 		retVal.Version = 1;
 		EntityInfo entityInfo;
 		entityInfo.Version = 1;
+		entityInfo.Parent = Entity();
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
 		entityInfo.ChunkArrayIndex = info->EntityCount;
 		storage.ChunkArray->Entities.push_back(retVal);
@@ -404,6 +405,11 @@ void UniEngine::EntityManager::SetEnable(Entity entity, bool value) {
 
 bool UniEngine::EntityManager::IsEntityEnabled(Entity entity) {
 	return _EntityInfos->at(entity.Index).Enabled;
+}
+
+bool UniEngine::EntityManager::IsEntityDeleted(size_t index)
+{
+	return _Entities->at(index).Version == 0;
 }
 
 EntityQuery UniEngine::EntityManager::CreateEntityQuery()

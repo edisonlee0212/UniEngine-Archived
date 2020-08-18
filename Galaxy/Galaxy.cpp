@@ -3,7 +3,6 @@
 
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
-#include "ParentSystem.h"
 #include "StarClusterSystem.h"
 
 using namespace UniEngine;

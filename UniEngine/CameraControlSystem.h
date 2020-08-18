@@ -1,7 +1,7 @@
 #pragma once
 #include "UniEngineAPI.h"
 #include "CameraComponent.h"
-
+#include "TransformSystem.h"
 namespace UniEngine {
     class UNIENGINE_API CameraControlSystem :
         public SystemBase

@@ -1,9 +1,6 @@
 #include "pch.h"
 #include "UniEngine.h"
-#include "RenderSystem.h"
-#include "TransformSystem.h"
-#include "PhysicsSystem.h"
-#include "ParentSystem.h"
+
 GLenum glCheckError_(const char* file, int line);
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
@@ -167,7 +164,6 @@ void UniEngine::Application::Init(bool fullScreen)
 #pragma region Internal Systems
 	//Initialization System Group
 	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
-	_World->CreateSystem<ParentSystem>(SystemGroup::PreparationSystemGroup);
 
 	//Simulation System Group
 	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);

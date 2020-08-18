@@ -2,7 +2,7 @@
 //
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
-
+#include "EntityEditorSystem.h"
 using namespace UniEngine;
 void LightAngleSlider();
 void InitGround();
@@ -42,6 +42,7 @@ int main()
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 
+	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
 
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	
@@ -65,7 +66,7 @@ int main()
 	cylinder->_Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = NANOSUIT;
+	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
@@ -176,6 +177,7 @@ int main()
 		Application::PreUpdate();
 		LightAngleSlider();
 		SplitDisplay();
+		ImGui::ShowDemoWindow();
 #pragma region LightsPosition
 		Rotation r;
 		r.Value = glm::quatLookAt(

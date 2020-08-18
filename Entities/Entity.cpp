@@ -9,3 +9,8 @@ inline bool UniEngine::Entity::Enabled() {
 inline void UniEngine::Entity::SetEnabled(bool value) {
 	EntityManager::SetEnable(*this, value);
 }
+
+bool UniEngine::Entity::IsDeleted()
+{
+	return EntityManager::IsEntityDeleted(Index);
+}

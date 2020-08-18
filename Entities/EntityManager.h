@@ -82,6 +82,8 @@ namespace UniEngine {
 		static void SetEnable(Entity entity, bool value);
 		static bool IsEntityEnabled(Entity entity);
 
+		static bool IsEntityDeleted(size_t index);
+
 		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
 		static std::vector<EntityComponentStorage> UnsafeQueryStorages(EntityQuery entityQuery);
 		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);

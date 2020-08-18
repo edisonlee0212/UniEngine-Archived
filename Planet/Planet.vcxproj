@@ -45,12 +45,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\Submodules\glm\glm;..\Submodules\stb;..\Core;..\UniEngine;..\Entities;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\Submodules\glm\glm;..\Submodules\stb;..\Core;..\EntityEditor;..\UniEngine;..\Entities;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\Submodules\glm\glm;..\Submodules\stb;..\Core;..\UniEngine;..\Entities;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\Submodules\glm\glm;..\Submodules\stb;..\Core;..\EntityEditor;..\UniEngine;..\Entities;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -68,6 +68,7 @@
     <PostBuildEvent>
       <Command>xcopy /y /d "..\Core\$(IntDir)Core.dll" "$(OutDir)"
 xcopy /y /d "..\Entities\$(IntDir)Entities.dll" "$(OutDir)"
+xcopy /y /d "..\EntityEditor\$(IntDir)EntityEditor.dll" "$(OutDir)"
 xcopy /y /d "..\UniEngine\$(IntDir)UniEngine.dll" "$(OutDir)"
 xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
@@ -91,6 +92,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
     <PostBuildEvent>
       <Command>xcopy /y /d "..\Core\$(IntDir)Core.dll" "$(OutDir)"
 xcopy /y /d "..\Entities\$(IntDir)Entities.dll" "$(OutDir)"
+xcopy /y /d "..\EntityEditor\$(IntDir)EntityEditor.dll" "$(OutDir)"
 xcopy /y /d "..\UniEngine\$(IntDir)UniEngine.dll" "$(OutDir)"
 xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Command>
     </PostBuildEvent>
@@ -112,6 +114,9 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     </ProjectReference>
     <ProjectReference Include="..\Entities\Entities.vcxproj">
       <Project>{6eefcfb9-6499-4a25-8b47-497ad00822bd}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityEditor\EntityEditor.vcxproj">
+      <Project>{12a68164-4dcb-40ac-b4e4-0fc8f0f78954}</Project>
     </ProjectReference>
     <ProjectReference Include="..\UniEngine\UniEngine.vcxproj">
       <Project>{324d4482-9924-4f0b-aba0-e6e9ba51b02f}</Project>
