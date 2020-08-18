@@ -90,6 +90,8 @@ namespace UniEngine {
 		static std::vector<Entity>* GetAllEntitiesUnsafe();
 		static std::vector<Entity>* GetParentRootsUnsafe();
 	public:
+		static void ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func);
+
 		static void Init(ThreadPool* threadPool);
 
 		static void GetAllEntities(std::vector<Entity>* target);

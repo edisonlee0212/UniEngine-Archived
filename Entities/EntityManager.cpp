@@ -16,6 +16,21 @@ std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
 UniEngine::ThreadPool* UniEngine::EntityManager::_ThreadPool;
 #pragma region EntityManager
 
+void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func)
+{
+	if (entity.IsNull()) return;
+	EntityInfo info = _EntityInfos->at(entity.Index);
+	if (_Entities->at(entity.Index) == entity) {
+		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+		size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+		size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+		ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+		for (const auto& i : chunkInfo->ComponentTypes) {
+			func(i.second, (void*)((char*)chunk.Data + i.second.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.second.Size));
+		}
+	}
+}
+
 void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 {
 	EntityInfo info = _EntityInfos->at(entity.Index);
@@ -236,9 +251,9 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 		ComponentDataChunk chunk = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 		size_t offset = 0;
 		bool found = false;
-		for (size_t i = 0; i < chunkInfo->ComponentTypes.size(); i++) {
-			offset = chunkInfo->ComponentTypes[i].Offset * chunkInfo->ChunkCapacity + chunkPointer * chunkInfo->ComponentTypes[i].Size;
-			chunk.ClearData(offset, chunkInfo->ComponentTypes[i].Size);
+		for (const auto& i : chunkInfo->ComponentTypes) {
+			offset = i.second.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.second.Size;
+			chunk.ClearData(offset, i.second.Size);
 		}
 		/*
 		retVal = _EntityPool->at(archetype.Index).front();
@@ -479,7 +494,9 @@ ComponentDataChunkArray* UniEngine::EntityManager::UnsafeGetEntityComponentDataC
 void UniEngine::EntityManager::ForAllEntities(const std::function<void(int i, Entity entity)>& func)
 {
 	for (int index = 0; index < _Entities->size(); index++) {
-		func(index, _Entities->at(index));
+		if (_Entities->at(index).Version != 0) {
+			func(index, _Entities->at(index));
+		}
 	}
 }
 

@@ -48,7 +48,15 @@ void UniEngine::EntityEditorSystem::Update()
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityInspector) {
 		ImGui::Begin("Entity Inspector");
 		if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted()) {
-
+			std::string title = "Entity Index: ";
+			title += std::to_string(_SelectedEntity.Index);
+			EntityManager::ForEachComponentUnsafe(_SelectedEntity, [](ComponentType type, void* data) {
+				std::string info = std::string(type.Name + 7);
+				info += " Size: " + std::to_string(type.Size);
+				ImGui::Text(info.c_str());
+				
+				ImGui::Separator();
+				});
 		}
 		else {
 			_SelectedEntity.Index = 0;
