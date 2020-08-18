@@ -13,6 +13,7 @@ namespace UniEngine {
         Entity _SelectedEntity;
         void DrawEntityNode(Entity entity);
         void DisplayComponent(ComponentBase* data, ComponentType type);
+        void TempComponentInspector(ComponentType type, void* data);
     public:
         void OnCreate();
         void OnDestroy();

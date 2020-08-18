@@ -99,7 +99,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 		glClearColor(0, 0, 0, 1);
 		glm::mat4 view;
 		glm::mat4 projection;
-		glm::vec3 treePosition = glm::vec3(EntityManager::GetComponentData<LocalToWorld>(treeEntity).value[3]);
+		glm::vec3 treePosition = glm::vec3(EntityManager::GetComponentData<LocalToWorld>(treeEntity).Value[3]);
 		view = glm::lookAt(treePosition + _SnapShotWidth * glm::vec3(glm::cos(glm::radians(ss->GetAngle())), glm::sin(glm::radians(ss->GetAngle())), 0.0f), treePosition, glm::vec3(0, 0, 1));
 		projection = glm::ortho(-_SnapShotWidth, _SnapShotWidth, -_SnapShotWidth, _SnapShotWidth, 0.0f, _SnapShotWidth * 2.0f);
 		glm::mat4 lsm = projection * view;

@@ -146,7 +146,7 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 			continue;
 		}
 		unsigned budEntityIndex = budEntity.Index;
-		glm::vec3 budPos = ltwList[i].value[3];
+		glm::vec3 budPos = ltwList[i].Value[3];
 		EntityManager::ForEach<Translation, AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, budPos, attractionDistance, removeDistance](int i, Entity entity, Translation* translation, AttractionPointCurrentStatus* status)
 			{
 				float distance = glm::distance(translation->Value, budPos);
@@ -193,7 +193,7 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 			});
 		if (amount == 0) {
 			if (budType.Value == BudTypes::APICAL_BUD && budType.Searching) {
-				glm::vec3 budPos = ltwList[i].value[3];
+				glm::vec3 budPos = ltwList[i].Value[3];
 				float minDistance = 999999;
 				EntityManager::ForEach<Translation>(_AttractionPointQuery, [&amount, &ml, &growDir, budPos, &minDistance](int i, Entity entity, Translation* translation)
 					{
@@ -313,7 +313,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 			continue;
 		}
 		unsigned budEntityIndex = budEntity.Index;
-		glm::vec3 budPos = ltwList[i].value[3];
+		glm::vec3 budPos = ltwList[i].Value[3];
 		EntityManager::ForEach<Translation, AttractionPointCurrentStatus>(_AttractionPointQuery, [budEntityIndex, budPos, attractionDistance, removeDistance](int i, Entity entity, Translation* translation, AttractionPointCurrentStatus* status)
 			{
 				float distance = glm::distance(translation->Value, budPos);
@@ -360,7 +360,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 			});
 		if (amount == 0) {
 			if (budType.Value == BudTypes::APICAL_BUD && budType.Searching) {
-				glm::vec3 budPos = ltwList[i].value[3];
+				glm::vec3 budPos = ltwList[i].Value[3];
 				float minDistance = 999999;
 				EntityManager::ForEach<Translation>(_AttractionPointQuery, [&amount, &ml, &growDir, budPos, &minDistance](int i, Entity entity, Translation* translation)
 					{

@@ -28,7 +28,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 			for (const auto& j : *entities) {
-				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
+				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
 				auto meshBound = mmc->_Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
 				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
@@ -58,7 +58,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 				RenderManager::DrawMeshInstanced(
 					immc->_Mesh,
 					immc->_Material,
-					EntityManager::GetComponentData<LocalToWorld>(j).value,
+					EntityManager::GetComponentData<LocalToWorld>(j).Value,
 					immc->_Matrices->data(),
 					immc->_Matrices->size(),
 					camera);

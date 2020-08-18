@@ -23,42 +23,42 @@ namespace UniEngine {
 	};
 	struct UNIENGINE_API LocalTranslation : ComponentBase
 	{
-		glm::vec3 value;
+		glm::vec3 Value;
 		bool operator ==(const LocalTranslation& other) const {
-			return other.value == value;
+			return other.Value == Value;
 		}
 	};
 	struct UNIENGINE_API LocalScale : ComponentBase {
-		glm::vec3 value;
+		glm::vec3 Value;
 		bool operator ==(const LocalScale& other) const {
-			return other.value == value;
+			return other.Value == Value;
 		}
 	};
 	struct UNIENGINE_API LocalRotation : ComponentBase {
-		glm::quat value;
+		glm::quat Value;
 		bool operator ==(const LocalRotation& other) const {
-			return other.value == value;
+			return other.Value == Value;
 		}
 	};
 	struct UNIENGINE_API LocalToWorld : ComponentBase {
-		glm::mat4 value;
+		glm::mat4 Value;
 		bool operator ==(const LocalToWorld& other) const {
-			return other.value == value;
+			return other.Value == Value;
 		}
 	};
 	struct UNIENGINE_API LocalToParent : ComponentBase {
-		glm::mat4 value;
+		glm::mat4 Value;
 		bool operator ==(const LocalToParent& other) const {
-			return other.value == value;
+			return other.Value == Value;
 		}
 	};
 	struct UNIENGINE_API CameraMask : ComponentBase
 	{
-		size_t value;
+		size_t Value;
 		bool operator ==(const CameraMask& other) const {
-			return other.value == value;
+			return other.Value == Value;
 		}
-		CameraMask() { value = 0; }
+		CameraMask() { Value = 0; }
 	};
 #pragma endregion
 

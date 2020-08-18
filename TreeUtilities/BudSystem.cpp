@@ -27,7 +27,7 @@ void TreeUtilities::BudSystem::OnCreate()
 	_TreeQuery = TreeManager::GetTreeQuery();
 
 	_ParentTranslationQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_ParentTranslationQuery, ParentTranslation());
+	EntityManager::SetEntityQueryAllFilters(_ParentTranslationQuery, Direction());
 	_ConnectionQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_ConnectionQuery, Connection());
 
@@ -86,23 +86,26 @@ void TreeUtilities::BudSystem::FixedUpdate()
 {
 }
 
-void TreeUtilities::BudSystem::RefreshParentTranslations()
+void TreeUtilities::BudSystem::RefreshDirection()
 {
-	EntityManager::ForEach<ParentTranslation>(_ParentTranslationQuery, [](int i, Entity entity, ParentTranslation* pt) {
+	EntityManager::ForEach<Direction, Translation>(_ParentTranslationQuery, [](int i, Entity entity, Direction* d, Translation* t) {
 		Entity pe = EntityManager::GetParent(entity);
-		pt->Value = EntityManager::GetComponentData<LocalToWorld>(pe).value[3];
+		d->Value = t->Value - EntityManager::GetComponentData<Translation>(pe).Value;
 		});
 }
 
 void TreeUtilities::BudSystem::RefreshConnections()
 {
-	RefreshParentTranslations();
+	RefreshDirection();
 	float lineWidth = _ConnectionWidth;
-	EntityManager::ForEach<ParentTranslation, LocalToWorld, Connection>(_ConnectionQuery, [lineWidth](int i, Entity entity, ParentTranslation* pt, LocalToWorld* ltw, Connection* c) {
-		glm::vec3 pos = ltw->value[3];
-		glm::vec3 diff = pos - pt->Value;
+	EntityManager::ForEach<Direction, LocalToWorld, Connection>(_ConnectionQuery, [lineWidth](int i, Entity entity, Direction* d, LocalToWorld* ltw, Connection* c) {
+		glm::vec3 pos = ltw->Value[3];
+		glm::vec3 diff = d->Value;
 		glm::quat rotation = glm::quatLookAt(diff, glm::vec3(0, 1, 0));
-		c->Value = glm::translate((pos + pt->Value) / 2.0f) * glm::mat4_cast(rotation) * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(pos, pt->Value) / 2.0f));
+		if (glm::any(glm::isnan(rotation))) {
+			rotation = glm::quatLookAt(diff, glm::vec3(0, 0, 1));
+		}
+		c->Value = glm::translate(pos - (d->Value) / 2.0f) * glm::mat4_cast(rotation) * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(glm::vec3(0), d->Value) / 2.0f));
 		});
 }
 

@@ -59,47 +59,47 @@ void UniEngine::TransformSystem::OnDestroy()
 void UniEngine::TransformSystem::Update()
 {
 	EntityManager::ForEach<LocalToParent, LocalTranslation>(_LP, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp) {
-		ltp->value = glm::translate(glm::mat4(1.0f), lp->value);
+		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value);
 		});
 	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation>(_LPR, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr) {
-		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::mat4_cast(lr->value);
+		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value);
 		});
 	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalScale>(_LPS, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalScale* ls) {
-		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::scale(ls->value);
+		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::scale(ls->Value);
 		});
 	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation, LocalScale>(_LPRS, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr, LocalScale* ls) {
-		ltp->value = glm::translate(glm::mat4(1.0f), lp->value) * glm::mat4_cast(lr->value) * glm::scale(ls->value);
+		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
 		});
 	EntityManager::ForEach<LocalToParent, LocalRotation>(_LR, [](int i, Entity entity, LocalToParent* ltp, LocalRotation* lr) {
-		ltp->value = glm::mat4_cast(lr->value);
+		ltp->Value = glm::mat4_cast(lr->Value);
 		});
 	EntityManager::ForEach<LocalToParent, LocalRotation, LocalScale>(_LRS, [](int i, Entity entity, LocalToParent* ltp, LocalRotation* lr, LocalScale* ls) {
-		ltp->value = glm::mat4_cast(lr->value) * glm::scale(ls->value);
+		ltp->Value = glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
 		});
 	EntityManager::ForEach<LocalToParent, LocalScale>(_LS, [](int i, Entity entity, LocalToParent* ltp, LocalScale* ls) {
-		ltp->value = glm::scale(ls->value);
+		ltp->Value = glm::scale(ls->Value);
 		});
 
 	EntityManager::ForEach<LocalToWorld, Translation>(_P, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp) {
-		ltw->value = glm::translate(glm::mat4(1.0f), lp->Value);
+		ltw->Value = glm::translate(glm::mat4(1.0f), lp->Value);
 		});
 	EntityManager::ForEach<LocalToWorld, Translation, Rotation>(_PR, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Rotation* lr) {
-		ltw->value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value);
+		ltw->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value);
 		});
 	EntityManager::ForEach<LocalToWorld, Translation, Scale>(_PS, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Scale* ls) {
-		ltw->value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::scale(ls->Value);
+		ltw->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::scale(ls->Value);
 		});
 	EntityManager::ForEach<LocalToWorld, Translation, Rotation, Scale>(_PRS, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Rotation* lr, Scale* ls) {
-		ltw->value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
+		ltw->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
 		});
 	EntityManager::ForEach<LocalToWorld, Rotation>(_R, [](int i, Entity entity, LocalToWorld* ltw, Rotation* lr) {
-		ltw->value = glm::mat4_cast(lr->Value);
+		ltw->Value = glm::mat4_cast(lr->Value);
 		});
 	EntityManager::ForEach<LocalToWorld, Rotation, Scale>(_RS, [](int i, Entity entity, LocalToWorld* ltw, Rotation* lr, Scale* ls) {
-		ltw->value = glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
+		ltw->Value = glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
 		});
 	EntityManager::ForEach<LocalToWorld, Scale>(_S, [](int i, Entity entity, LocalToWorld* ltw, Scale* ls) {
-		ltw->value = glm::scale(ls->Value);
+		ltw->Value = glm::scale(ls->Value);
 		});
 
 	/*
@@ -133,7 +133,7 @@ void UniEngine::TransformSystem::Update()
 						//info.second.LastLTP = ltp;
 						//list->at(index) = info;
 						LocalToWorld ltw;
-						ltw.value = pltw.value * ltp.value;
+						ltw.Value = pltw.Value * ltp.Value;
 						EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
 					}
 				}
@@ -149,7 +149,7 @@ void UniEngine::TransformSystem::Update()
 			//info.second.LastLTP = ltp;
 			//list->at(index) = info;
 			LocalToWorld ltw;
-			ltw.value = pltw.value * ltp.value;
+			ltw.Value = pltw.Value * ltp.Value;
 			EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
 		}
 		for (auto i : futures) i.wait();
@@ -183,7 +183,7 @@ void UniEngine::TransformSystem::CalculateLTWRecursive(LocalToWorld pltw, Entity
 	for (const auto& i : EntityManager::GetChildren(entity)) {
 		auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
 		LocalToWorld ltw;
-		ltw.value = pltw.value * ltp.value;
+		ltw.Value = pltw.Value * ltp.Value;
 		EntityManager::SetComponentData<LocalToWorld>(i, ltw);
 		CalculateLTWRecursive(ltw, i);
 	}
@@ -201,7 +201,7 @@ void UniEngine::TransformSystem::CollectHierarchy(std::vector<std::pair<Entity, 
 			auto pltw = EntityManager::GetComponentData<LocalToWorld>(entity);
 			container->push_back(std::make_pair(entity, info));
 			LocalToWorld ltw;
-			ltw.value = pltw.value * ltp.value;
+			ltw.Value = pltw.Value * ltp.Value;
 			EntityManager::SetComponentData<LocalToWorld>(i, ltw);
 		}
 	}
@@ -215,7 +215,7 @@ void UniEngine::TransformSystem::CollectHierarchy(std::vector<std::pair<Entity, 
 				auto pltw = EntityManager::GetComponentData<LocalToWorld>(target);
 				container->push_back(std::make_pair(target, info));
 				LocalToWorld ltw;
-				ltw.value = pltw.value * ltp.value;
+				ltw.Value = pltw.Value * ltp.Value;
 				EntityManager::SetComponentData<LocalToWorld>(child, ltw);
 			}
 		}

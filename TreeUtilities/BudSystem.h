@@ -32,7 +32,7 @@ namespace TreeUtilities {
         void OnDestroy();
         void Update();
         void FixedUpdate();
-        TREEUTILITIES_API void RefreshParentTranslations();
+        TREEUTILITIES_API void RefreshDirection();
         TREEUTILITIES_API void RefreshConnections();
         TREEUTILITIES_API std::vector<Entity>* GetBudEntities();
     };

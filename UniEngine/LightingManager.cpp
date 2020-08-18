@@ -308,7 +308,7 @@ void UniEngine::LightingManager::Start()
 							auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 							for (auto j : *entities) {
 								auto mesh = mmc->_Mesh;
-								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).value;
+								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
 								auto scale = EntityManager::GetComponentData<Scale>(j).Value;
 								/*
 								#pragma region Sphere test 1. discard useless meshes. 2. Calculate scene boundary for lightFrustum;
@@ -345,7 +345,7 @@ void UniEngine::LightingManager::Start()
 							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
 							for (auto entity : *entities) {
 								auto mesh = immc->_Mesh;
-								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).value);
+								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
 								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -440,7 +440,7 @@ void UniEngine::LightingManager::Start()
 						auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 						for (auto entity : *entities) {
 							auto mesh = mmc->_Mesh;
-							_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).value);
+							_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 							mesh->Enable();
 							mesh->VAO()->DisableAttributeArray(12);
 							mesh->VAO()->DisableAttributeArray(13);
@@ -462,7 +462,7 @@ void UniEngine::LightingManager::Start()
 							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
 							for (auto entity : *entities) {
 								auto mesh = immc->_Mesh;
-								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).value);
+								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
 								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);

@@ -14,9 +14,9 @@ namespace TreeUtilities {
         }
     };
 
-    struct TREEUTILITIES_API ParentTranslation {
+    struct TREEUTILITIES_API Direction {
         glm::vec3 Value;
-        bool operator ==(const ParentTranslation& other) const {
+        bool operator ==(const Direction& other) const {
             return other.Value == Value;
         }
     };
@@ -32,13 +32,7 @@ namespace TreeUtilities {
             return other.Value == Value;
         }
     };
-    struct TREEUTILITIES_API Direction : ComponentBase
-    {
-        glm::vec3 Value;
-        bool operator ==(const Direction& other) const {
-            return other.Value == Value;
-        }
-    };
+    
     struct TREEUTILITIES_API Connection : ComponentBase {
         glm::mat4 Value;
         bool operator ==(const Connection& other) const {
@@ -88,20 +82,7 @@ namespace TreeUtilities {
         }
     };
 
-    struct TREEUTILITIES_API Phototropism : ComponentBase {
-        float Value;
-        bool operator ==(const Phototropism& other) const {
-            return other.Value == Value;
-        }
-    };
-
-    //Branches tend to grow against gravity
-    struct TREEUTILITIES_API Gravitropism : ComponentBase {
-        float Value;
-        bool operator ==(const Gravitropism& other) const {
-            return other.Value == Value;
-        }
-    };
+    
 
     //Different bud type will affect their way of growth. 
     enum TREEUTILITIES_API BudTypes {
@@ -117,6 +98,48 @@ namespace TreeUtilities {
     };
 #pragma endregion
 #pragma region Tree
+    struct TREEUTILITIES_API GeometricParamGroup : ComponentBase {
+        glm::vec3 ApicalAngleVariance;
+        int LateralBudNumber;
+
+        float MeanBranchingAngle;
+        float VarianceBranchingAngle;
+
+        float MeanRollAngle;
+        float VarianceRollAngle;
+    };
+
+    struct TREEUTILITIES_API BudFateParamGroup : ComponentBase {
+        float ApicalBudExtintionRate;
+        float LateralBudEntintionRate;
+        
+        float ApicalBudLightingFactor;
+        float LateralBudLightingFactor;
+        
+        float ApicalDominanceBase;
+        float ApicalDominanceDistance;
+        float ApicalDominanceAgeFactor;
+        
+        float GrowthRate;
+        
+        float InternodeLength;
+        float InternodeAgeFactor;
+
+        float ApicalControlLevel;
+        float ApicalAgeFactor;
+    };
+
+    struct TREEUTILITIES_API EnvironmentalParamGroup : ComponentBase {
+        float Phototropism;
+        float Gravitropism;
+
+        float PruningFactor;
+        float LowBranchPruningFactor;
+
+        float GravityBendingStrength;
+        float GravityBendingAngleFactor;
+    };
+    
     struct TREEUTILITIES_API RewardEstimation : ComponentBase {
         float LightEstimationResult = 0.0f;
     };
