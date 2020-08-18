@@ -6,6 +6,9 @@
 
 #include "TreeManager.h"
 #include "EntityEditorSystem.h"
+
+#include "EntityEditorSystem.h"
+
 using namespace UniEngine;
 using namespace TreeUtilities;
 void InitGround();
@@ -14,11 +17,13 @@ int main()
 {
 	LightingManager::SetAmbientLight(1.0f);
 	Application::Init();
+
 	Application::SetTimeStep(0.016f);
 #pragma region Preparations
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
-	
+	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
+
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();

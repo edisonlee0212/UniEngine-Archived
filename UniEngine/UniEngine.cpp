@@ -323,7 +323,6 @@ bool UniEngine::Application::LoopEnd_Internal()
 	size_t size = Debug::GetLogs()->size();
 	std::string logs = "";
 	for (int i = (int)size - 1; i >= 0; i--) {
-		if (i < size - 50) break;
 		logs += Debug::GetLogs()->at(i)->c_str();
 	}
 	ImGui::Text(logs.c_str());

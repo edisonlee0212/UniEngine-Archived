@@ -40,8 +40,9 @@ void UniEngine::EntityEditorSystem::Update()
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Hierarchy");
 		EntityManager::ForAllEntities([this](int i, Entity entity) {
-			if(EntityManager::GetParent(entity).IsNull())DrawEntityNode(entity);
+			if (EntityManager::GetParent(entity).IsNull())DrawEntityNode(entity);
 			});
+
 		ImGui::End();
 	}
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityInspector) {
