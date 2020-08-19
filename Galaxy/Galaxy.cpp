@@ -4,21 +4,9 @@
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
 #include "StarClusterSystem.h"
-
+#include "EntityEditorSystem.h"
 using namespace UniEngine;
 using namespace Galaxy;
-struct StarTag : ComponentBase
-{
-};
-
-void Worker(int i) {
-	//std::cout << i << std::endl;
-}
-
-void example_function()
-{
-	std::cout << "bla" << std::endl;
-}
 
 int main()
 {
@@ -26,6 +14,7 @@ int main()
 	Application::Init();
 	LightingManager::SetAmbientLight(1.0f);
 	World* world = Application::GetWorld();
+	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();

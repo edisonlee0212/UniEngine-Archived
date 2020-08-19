@@ -5,6 +5,8 @@
 #include "RenderSystem.h"
 #include "CameraControlSystem.h"
 #include "PlanetTerrainSystem.h"
+#include "EntityEditorSystem.h"
+
 using namespace UniEngine;
 using namespace Planet;
 int main()
@@ -14,8 +16,7 @@ int main()
 #pragma region Preparations
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
-	bool enableSCTreeSystem = false;
-
+	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 
 	
