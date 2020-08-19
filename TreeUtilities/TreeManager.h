@@ -1,6 +1,7 @@
 #pragma once
 #include "TreeUtilitiesAPI.h"
 #include "TreeSystem.h"
+#include "BranchSystem.h"
 #include "BudSystem.h"
 #include "LeafSystem.h"
 #include "LightEstimator.h"
@@ -81,20 +82,34 @@ namespace TreeUtilities {
             return other.Value == Value;
         }
     };
-
-    
-
     //Different bud type will affect their way of growth. 
     enum TREEUTILITIES_API BudTypes {
         LATERAL_BUD,
         APICAL_BUD
     };
-    struct TREEUTILITIES_API BudType : ComponentBase {
+    struct TREEUTILITIES_API BudInfo : ComponentBase {
         bool Searching;
         BudTypes Value;
-        bool operator ==(const BudType& other) const {
+        bool operator ==(const BudInfo& other) const {
             return (other.Value == Value) && (other.Searching == Searching);
         }
+    };
+#pragma endregion
+#pragma region Branch
+    struct TREEUTILITIES_API BranchIndex : ComponentBase {
+        unsigned Value;
+        bool operator ==(const BranchIndex& other) const {
+            return other.Value == Value;
+        }
+    };
+    struct TREEUTILITIES_API BranchInfo : ComponentBase {
+        float Length;
+        float Thickness;
+        float Deformation;
+        float Straightness;
+        float Slope;
+        float SiblingAngle;
+        float ParentAngle;
     };
 #pragma endregion
 #pragma region Tree
@@ -161,7 +176,7 @@ namespace TreeUtilities {
                 && other.LeafColor == LeafColor;
         }
     };
-    struct TREEUTILITIES_API TreeType : ComponentBase {
+    struct TREEUTILITIES_API TreeInfo : ComponentBase {
 
     };
 #pragma endregion
@@ -171,21 +186,28 @@ namespace TreeUtilities {
         static LightEstimator* _LightEstimator;
 
         static TreeSystem* _TreeSystem;
+        static BranchSystem* _BranchSystem;
         static BudSystem* _BudSystem;
         static LeafSystem* _LeafSystem;
-        static bool _Ready;
+        
 
         static EntityArchetype _BudArchetype;
+        static EntityArchetype _BranchArchetype;
         static EntityArchetype _LeafArchetype;
         static EntityArchetype _TreeArchetype;
+
         static EntityQuery _TreeQuery;
+        static EntityQuery _BranchQuery;
         static EntityQuery _BudQuery;
         static EntityQuery _LeafQuery;
 
         static TreeIndex _TreeIndex;
         static BudIndex _BudIndex;
         static LeafIndex _LeafIndex;
+        static BranchIndex _BranchIndex;
 
+        static bool _Ready;
+        
         static void LeafGenerationHelper(LeafInfo info, Entity leaf, Entity bud, int index);
     public:
         static void Init();
@@ -194,9 +216,12 @@ namespace TreeUtilities {
         static EntityQuery GetBudQuery();
         static EntityQuery GetTreeQuery();
         static EntityQuery GetLeafQuery();
+        static EntityQuery GetBranchQuery();
+
         static BudSystem* GetBudSystem();
         static TreeSystem* GetTreeSystem();
         static LeafSystem* GetLeafSystem();
+        static BranchSystem* GetBranchSystem();
 
         static void GetAllTrees(std::vector<Entity>* container);
         
@@ -206,11 +231,13 @@ namespace TreeUtilities {
         static Mesh* GetMeshForTree(Entity treeEntity);
         static void GenerateMeshForTree(Entity treeEntity);
         static void GenerateMeshForAllTrees();
+        static void DeleteTree(Entity treeEntity);
 
         static Entity CreateTree();
-        static void DeleteTree(Entity treeEntity);
-        static Entity CreateBud();
-        static Entity CreateLeaf();
+        
+        static Entity CreateBud(TreeIndex treeIndex, Entity parentEntity);
+        static Entity CreateLeaf(TreeIndex treeIndex, Entity parentEntity);
+        static Entity CreateBranch(TreeIndex treeIndex, Entity parentEntity);
 
         static LightEstimator* GetLightEstimator();
 

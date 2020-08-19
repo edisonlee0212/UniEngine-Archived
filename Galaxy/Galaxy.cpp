@@ -26,7 +26,7 @@ int main()
 	Application::Init();
 	LightingManager::SetAmbientLight(1.0f);
 	World* world = Application::GetWorld();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype(Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
 	ccs->SetPosition(glm::vec3(0));

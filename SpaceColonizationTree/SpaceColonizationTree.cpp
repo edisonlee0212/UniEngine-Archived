@@ -49,7 +49,7 @@ int main()
 	scale.Value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
@@ -160,7 +160,7 @@ void SplitDisplay() {
 }
 
 void InitGround() {
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
 	Translation translation = Translation();
 	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);

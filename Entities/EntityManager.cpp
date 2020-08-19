@@ -31,6 +31,15 @@ void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::
 	}
 }
 
+void UniEngine::EntityManager::ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func)
+{
+	for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
+		if (_EntityComponentStorage->at(i).ArchetypeInfo->EntityAliveCount != 0) {
+			func(i, _EntityComponentStorage->at(i));
+		}
+	}
+}
+
 void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 {
 	EntityInfo info = _EntityInfos->at(entity.Index);

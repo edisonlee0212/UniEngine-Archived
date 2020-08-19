@@ -143,7 +143,7 @@ void SpaceColonizationTree::SCTreeSystem::FixedUpdate() {
 			_Tree->Grow(_GrowDist, _AttractDist, _RemoveDist, _Envelope, glm::vec3(0.0f), 0.015f, 0.05f, 0.02f, 0.02f);
 		}
 		else {
-			EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
+			EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 			_TreeEntity = EntityManager::CreateEntity(archetype);
 			_TreeLeaves = new InstancedMeshMaterialComponent();
 			_TreeLeaves->_Material = _TreeLeafMaterial;

@@ -121,6 +121,7 @@ namespace UniEngine {
 	};
 
 	struct EntityArchetypeInfo {
+		std::string Name;
 		size_t Index;
 		std::map<size_t, ComponentType> ComponentTypes;
 		//The size of a single entity

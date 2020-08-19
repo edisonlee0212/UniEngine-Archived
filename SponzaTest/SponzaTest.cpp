@@ -44,7 +44,7 @@ int main()
 
 	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
 
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
@@ -52,7 +52,7 @@ int main()
 	ccs->Enable();
 	ccs->EnableWindowControl(true);
 	ccs->SetPosition(glm::vec3(-40, 25, 3));
-	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype(
+	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype("Model",
 		LocalToParent(),
 		Translation(),
 		Scale(),
@@ -256,7 +256,7 @@ void SplitDisplay() {
 }
 
 void InitGround() {
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype<Translation, Rotation, Scale, LocalToWorld>(Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
 	Translation translation = Translation();
 	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);

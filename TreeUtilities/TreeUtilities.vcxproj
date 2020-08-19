@@ -169,6 +169,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BranchSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="LeafSystem.h" />
     <ClInclude Include="LightEstimator.h" />
@@ -180,6 +181,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="TreeUtilitiesAPI.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BranchSystem.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="LeafSystem.cpp" />
     <ClCompile Include="LightEstimator.cpp" />

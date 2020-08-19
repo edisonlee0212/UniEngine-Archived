@@ -91,6 +91,8 @@ namespace UniEngine {
 		static std::vector<Entity>* GetParentRootsUnsafe();
 	public:
 		static void ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func);
+		static void ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func);
+
 
 		static void Init(ThreadPool* threadPool);
 
@@ -99,7 +101,7 @@ namespace UniEngine {
 		static void SetThreadPool(ThreadPool* pool);
 		static void SetWorld(World* world);
 		template<typename T = ComponentBase, typename... Ts>
-		static EntityArchetype CreateEntityArchetype(T arg, Ts... args);
+		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);
 
 		static Entity CreateEntity(EntityArchetype archetype);
 		static void DeleteEntity(Entity entity);
@@ -926,9 +928,10 @@ namespace UniEngine {
 	}
 
 	template<typename T, typename ...Ts>
-	inline EntityArchetype EntityManager::CreateEntityArchetype(T arg, Ts ...args)
+	inline EntityArchetype EntityManager::CreateEntityArchetype(std::string name, T arg, Ts ...args)
 	{
 		EntityArchetypeInfo* info = new EntityArchetypeInfo();
+		info->Name = name;
 		info->EntityCount = 0;
 		std::vector<ComponentType> componentLists = CollectComponentTypes(arg, args...);
 		info->EntitySize = componentLists.back().Offset + componentLists.back().Size;

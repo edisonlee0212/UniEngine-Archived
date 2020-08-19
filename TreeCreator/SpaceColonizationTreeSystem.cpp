@@ -141,7 +141,7 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 	for (int i = 0; i < budEntityList->size(); i++) {
 		auto budEntity = budEntityList->at(i);
 		if (!budEntity.Enabled()) continue;
-		BudType budType = EntityManager::GetComponentData<BudType>(budEntity);
+		BudInfo budType = EntityManager::GetComponentData<BudInfo>(budEntity);
 		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
 			continue;
 		}
@@ -175,7 +175,7 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 	for (int i = 0; i < budEntityList->size(); i++) {
 		auto budEntity = budEntityList->at(i);
 		if (!budEntity.Enabled()) continue;
-		BudType budType = EntityManager::GetComponentData<BudType>(budEntity);
+		BudInfo budType = EntityManager::GetComponentData<BudInfo>(budEntity);
 		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
 			continue;
 		}
@@ -244,12 +244,11 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 			}
 			if (!tooClose) {
 				newBudAmount++;
-				auto newBud = TreeManager::CreateBud();
+				auto newBud = TreeManager::CreateBud(EntityManager::GetComponentData<TreeIndex>(currentBud), currentBud);
 				EntityManager::SetComponentData(newBud, lp);
 				EntityManager::SetComponentData(newBud, t);
 				EntityManager::SetComponentData(newBud, r);
 				EntityManager::SetComponentData(newBud, s);
-				EntityManager::SetParent(newBud, currentBud);
 				if (budType.Value == BudTypes::APICAL_BUD) {
 					EntityManager::SetComponentData(newBud, budType);
 					budType.Value = BudTypes::LATERAL_BUD;
@@ -261,7 +260,6 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 					budType.Searching = true;
 					EntityManager::SetComponentData(newBud, budType);
 				}
-				EntityManager::SetComponentData(newBud, EntityManager::GetComponentData<TreeIndex>(currentBud));
 			}
 #pragma endregion
 		}
@@ -308,7 +306,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 	for (int i = 0; i < budEntityList.size(); i++) {
 		auto budEntity = budEntityList.at(i);
 		if (!budEntity.Enabled()) continue;
-		BudType budType = EntityManager::GetComponentData<BudType>(budEntity);
+		BudInfo budType = EntityManager::GetComponentData<BudInfo>(budEntity);
 		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
 			continue;
 		}
@@ -342,7 +340,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 	for (int i = 0; i < budEntityList.size(); i++) {
 		auto budEntity = budEntityList.at(i);
 		if (!budEntity.Enabled()) continue;
-		BudType budType = EntityManager::GetComponentData<BudType>(budEntity);
+		BudInfo budType = EntityManager::GetComponentData<BudInfo>(budEntity);
 		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
 			continue;
 		}
@@ -411,12 +409,11 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 			}
 			if (!tooClose) {
 				newBudAmount++;
-				auto newBud = TreeManager::CreateBud();
+				auto newBud = TreeManager::CreateBud(EntityManager::GetComponentData<TreeIndex>(currentBud), currentBud);
 				EntityManager::SetComponentData(newBud, lp);
 				EntityManager::SetComponentData(newBud, t);
 				EntityManager::SetComponentData(newBud, r);
 				EntityManager::SetComponentData(newBud, s);
-				EntityManager::SetParent(newBud, currentBud);
 				if (budType.Value == BudTypes::APICAL_BUD) {
 					EntityManager::SetComponentData(newBud, budType);
 					budType.Value = BudTypes::LATERAL_BUD;
@@ -428,7 +425,6 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 					budType.Searching = true;
 					EntityManager::SetComponentData(newBud, budType);
 				}
-				EntityManager::SetComponentData(newBud, EntityManager::GetComponentData<TreeIndex>(currentBud));
 			}
 #pragma endregion
 		}
@@ -460,6 +456,7 @@ void SpaceColonizationTreeSystem::OnCreate()
 	_TreeQuery = TreeManager::GetTreeQuery();
 
 	_AttractionPointArchetype = EntityManager::CreateEntityArchetype(
+		"Attraction Point",
 		Translation(), Scale(), LocalToWorld(),
 		AttractionPointIndex(), AttractionPointCurrentStatus());
 	_AttractionPointQuery = EntityManager::CreateEntityQuery();
@@ -547,7 +544,7 @@ void SpaceColonizationTreeSystem::PushAttractionPoints(size_t value)
 
 void SpaceColonizationTreeSystem::PushGrowAllTreesIterations(size_t iteration)
 {
-	EntityManager::ForEach<BudType>(_BudQuery, [](int i, Entity entity, BudType* type) {
+	EntityManager::ForEach<BudInfo>(_BudQuery, [](int i, Entity entity, BudInfo* type) {
 		if (type->Value == BudTypes::LATERAL_BUD) type->Searching = true;
 		});
 	_AllTreesToGrowIteration += iteration;
@@ -560,7 +557,7 @@ void SpaceColonizationTreeSystem::PushGrowIterationToTree(Entity treeEntity, siz
 
 Entity SpaceColonizationTreeSystem::CreateTree(TreeColor color, glm::vec3 position, bool enabled)
 {
-	BudType type;
+	BudInfo type;
 	type.Value = BudTypes::APICAL_BUD;
 	type.Searching = true;
 	auto treeEntity = TreeManager::CreateTree();
@@ -575,13 +572,10 @@ Entity SpaceColonizationTreeSystem::CreateTree(TreeColor color, glm::vec3 positi
 	iteration.Value = 0;
 	iteration.Enable = enabled;
 	EntityManager::SetComponentData(treeEntity, iteration);
-	auto rootBud = TreeManager::CreateBud();
-	EntityManager::SetParent(rootBud, treeEntity);
+	auto rootBud = TreeManager::CreateBud(EntityManager::GetComponentData<TreeIndex>(treeEntity), treeEntity);
 	EntityManager::SetComponentData(rootBud, t);
 	EntityManager::SetComponentData(rootBud, s);
 	EntityManager::SetComponentData(rootBud, type);
-	TreeIndex index = EntityManager::GetComponentData<TreeIndex>(treeEntity);
-	EntityManager::SetComponentData(rootBud, index);
 	return treeEntity;
 }
 

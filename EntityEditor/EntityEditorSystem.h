@@ -10,6 +10,7 @@ namespace UniEngine {
         public SystemBase
     {
         unsigned int _ConfigFlags = 0;
+        int _SelectedHierarchyDisplayMode;
         Entity _SelectedEntity;
         void DrawEntityNode(Entity entity);
         void DisplayComponent(ComponentBase* data, ComponentType type);
