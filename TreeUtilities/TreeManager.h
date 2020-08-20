@@ -1,7 +1,6 @@
 #pragma once
 #include "TreeUtilitiesAPI.h"
 #include "TreeSystem.h"
-#include "BranchSystem.h"
 #include "BudSystem.h"
 #include "LeafSystem.h"
 #include "LightEstimator.h"
@@ -54,6 +53,13 @@ namespace TreeUtilities {
     };
 #pragma endregion
 #pragma region Bud
+    struct TREEUTILITIES_API Activated : ComponentBase {
+        bool Value;
+        bool operator ==(const Activated& other) const {
+            return other.Value == Value;
+        }
+    };
+
     struct TREEUTILITIES_API Radius : ComponentBase
     {
         float Value;
@@ -84,8 +90,8 @@ namespace TreeUtilities {
     };
     //Different bud type will affect their way of growth. 
     enum TREEUTILITIES_API BudTypes {
-        LATERAL_BUD,
-        APICAL_BUD
+        LATERAL,
+        APICAL
     };
     struct TREEUTILITIES_API BudInfo : ComponentBase {
         bool Searching;
@@ -114,8 +120,10 @@ namespace TreeUtilities {
 #pragma endregion
 #pragma region Tree
     struct TREEUTILITIES_API GeometricParamGroup : ComponentBase {
-        glm::vec3 ApicalAngleVariance;
         int LateralBudNumber;
+
+        float MeanApicalAngle;
+        float VarianceApicalAngle;
 
         float MeanBranchingAngle;
         float VarianceBranchingAngle;
@@ -132,27 +140,37 @@ namespace TreeUtilities {
         float LateralBudLightingFactor;
         
         float ApicalDominanceBase;
-        float ApicalDominanceDistance;
+        float ApicalDominanceDistanceFactor;
         float ApicalDominanceAgeFactor;
         
         float GrowthRate;
         
-        float InternodeLength;
-        float InternodeAgeFactor;
+        float InternodeLengthBase;
+        float InternodeLengthAgeFactor;
 
-        float ApicalControlLevel;
-        float ApicalAgeFactor;
+        float ApicalControl;
+        float ApicalControlAgeFactor;
+        float ApicalControlLevelFactor;
+        float ApicalControlDistanceFactor;
+        float ApicalControlLevelQuadFactor;
+
+        float ApicalBudKillProbability;
+        float LateralBudKillProbability;
     };
 
     struct TREEUTILITIES_API EnvironmentalParamGroup : ComponentBase {
         float Phototropism;
-        float Gravitropism;
+        float GravitropismBase;
+        float GravitropismLevelFactor;
 
         float PruningFactor;
         float LowBranchPruningFactor;
 
         float GravityBendingStrength;
         float GravityBendingAngleFactor;
+
+        float ApicalBudLightingFactor;
+        float LateralBudLightingFactor;
     };
     
     struct TREEUTILITIES_API RewardEstimation : ComponentBase {
@@ -177,6 +195,9 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API TreeInfo : ComponentBase {
+        size_t Age;
+        size_t LateralBudsCount;
+        float ResourceToGrow;
 
     };
 #pragma endregion
@@ -186,25 +207,21 @@ namespace TreeUtilities {
         static LightEstimator* _LightEstimator;
 
         static TreeSystem* _TreeSystem;
-        static BranchSystem* _BranchSystem;
         static BudSystem* _BudSystem;
         static LeafSystem* _LeafSystem;
         
 
         static EntityArchetype _BudArchetype;
-        static EntityArchetype _BranchArchetype;
         static EntityArchetype _LeafArchetype;
         static EntityArchetype _TreeArchetype;
 
         static EntityQuery _TreeQuery;
-        static EntityQuery _BranchQuery;
         static EntityQuery _BudQuery;
         static EntityQuery _LeafQuery;
 
         static TreeIndex _TreeIndex;
         static BudIndex _BudIndex;
         static LeafIndex _LeafIndex;
-        static BranchIndex _BranchIndex;
 
         static bool _Ready;
         
@@ -216,12 +233,10 @@ namespace TreeUtilities {
         static EntityQuery GetBudQuery();
         static EntityQuery GetTreeQuery();
         static EntityQuery GetLeafQuery();
-        static EntityQuery GetBranchQuery();
 
         static BudSystem* GetBudSystem();
         static TreeSystem* GetTreeSystem();
         static LeafSystem* GetLeafSystem();
-        static BranchSystem* GetBranchSystem();
 
         static void GetAllTrees(std::vector<Entity>* container);
         
@@ -234,10 +249,8 @@ namespace TreeUtilities {
         static void DeleteTree(Entity treeEntity);
 
         static Entity CreateTree();
-        
         static Entity CreateBud(TreeIndex treeIndex, Entity parentEntity);
         static Entity CreateLeaf(TreeIndex treeIndex, Entity parentEntity);
-        static Entity CreateBranch(TreeIndex treeIndex, Entity parentEntity);
 
         static LightEstimator* GetLightEstimator();
 
