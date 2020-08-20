@@ -142,7 +142,7 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 		auto budEntity = budEntityList->at(i);
 		if (!budEntity.Enabled()) continue;
 		BudInfo budType = EntityManager::GetComponentData<BudInfo>(budEntity);
-		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
+		if (budType.Value == BudTypes::LATERAL && !budType.Searching) {
 			continue;
 		}
 		unsigned budEntityIndex = budEntity.Index;
@@ -176,7 +176,7 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 		auto budEntity = budEntityList->at(i);
 		if (!budEntity.Enabled()) continue;
 		BudInfo budType = EntityManager::GetComponentData<BudInfo>(budEntity);
-		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
+		if (budType.Value == BudTypes::LATERAL && !budType.Searching) {
 			continue;
 		}
 		unsigned budEntityIndex = budEntity.Index;
@@ -192,7 +192,7 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 				}
 			});
 		if (amount == 0) {
-			if (budType.Value == BudTypes::APICAL_BUD && budType.Searching) {
+			if (budType.Value == BudTypes::APICAL && budType.Searching) {
 				glm::vec3 budPos = ltwList[i].Value[3];
 				float minDistance = 999999;
 				EntityManager::ForEach<Translation>(_AttractionPointQuery, [&amount, &ml, &growDir, budPos, &minDistance](int i, Entity entity, Translation* translation)
@@ -207,13 +207,13 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 					});
 
 			}
-			else if (budType.Value == BudTypes::LATERAL_BUD) {
+			else if (budType.Value == BudTypes::LATERAL) {
 				budType.Searching = false;
 				EntityManager::SetComponentData(budEntityList->at(i), budType);
 			}
 		}
 		else {
-			if (budType.Value == BudTypes::APICAL_BUD) {
+			if (budType.Value == BudTypes::APICAL) {
 				//Stop overall search for apical bud if it already found the target.
 				budType.Searching = false;
 			}
@@ -249,9 +249,9 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 				EntityManager::SetComponentData(newBud, t);
 				EntityManager::SetComponentData(newBud, r);
 				EntityManager::SetComponentData(newBud, s);
-				if (budType.Value == BudTypes::APICAL_BUD) {
+				if (budType.Value == BudTypes::APICAL) {
 					EntityManager::SetComponentData(newBud, budType);
-					budType.Value = BudTypes::LATERAL_BUD;
+					budType.Value = BudTypes::LATERAL;
 					budType.Searching = true;
 					EntityManager::SetComponentData(currentBud, budType);
 				}
@@ -307,7 +307,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 		auto budEntity = budEntityList.at(i);
 		if (!budEntity.Enabled()) continue;
 		BudInfo budType = EntityManager::GetComponentData<BudInfo>(budEntity);
-		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
+		if (budType.Value == BudTypes::LATERAL && !budType.Searching) {
 			continue;
 		}
 		unsigned budEntityIndex = budEntity.Index;
@@ -341,7 +341,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 		auto budEntity = budEntityList.at(i);
 		if (!budEntity.Enabled()) continue;
 		BudInfo budType = EntityManager::GetComponentData<BudInfo>(budEntity);
-		if (budType.Value == BudTypes::LATERAL_BUD && !budType.Searching) {
+		if (budType.Value == BudTypes::LATERAL && !budType.Searching) {
 			continue;
 		}
 		unsigned budEntityIndex = budEntity.Index;
@@ -357,7 +357,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 				}
 			});
 		if (amount == 0) {
-			if (budType.Value == BudTypes::APICAL_BUD && budType.Searching) {
+			if (budType.Value == BudTypes::APICAL && budType.Searching) {
 				glm::vec3 budPos = ltwList[i].Value[3];
 				float minDistance = 999999;
 				EntityManager::ForEach<Translation>(_AttractionPointQuery, [&amount, &ml, &growDir, budPos, &minDistance](int i, Entity entity, Translation* translation)
@@ -372,13 +372,13 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 					});
 
 			}
-			else if (budType.Value == BudTypes::LATERAL_BUD) {
+			else if (budType.Value == BudTypes::LATERAL) {
 				budType.Searching = false;
 				EntityManager::SetComponentData(budEntityList.at(i), budType);
 			}
 		}
 		else {
-			if (budType.Value == BudTypes::APICAL_BUD) {
+			if (budType.Value == BudTypes::APICAL) {
 				//Stop overall search for apical bud if it already found the target.
 				budType.Searching = false;
 			}
@@ -414,9 +414,9 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 				EntityManager::SetComponentData(newBud, t);
 				EntityManager::SetComponentData(newBud, r);
 				EntityManager::SetComponentData(newBud, s);
-				if (budType.Value == BudTypes::APICAL_BUD) {
+				if (budType.Value == BudTypes::APICAL) {
 					EntityManager::SetComponentData(newBud, budType);
-					budType.Value = BudTypes::LATERAL_BUD;
+					budType.Value = BudTypes::LATERAL;
 					budType.Searching = true;
 					EntityManager::SetComponentData(currentBud, budType);
 				}
@@ -545,7 +545,7 @@ void SpaceColonizationTreeSystem::PushAttractionPoints(size_t value)
 void SpaceColonizationTreeSystem::PushGrowAllTreesIterations(size_t iteration)
 {
 	EntityManager::ForEach<BudInfo>(_BudQuery, [](int i, Entity entity, BudInfo* type) {
-		if (type->Value == BudTypes::LATERAL_BUD) type->Searching = true;
+		if (type->Value == BudTypes::LATERAL) type->Searching = true;
 		});
 	_AllTreesToGrowIteration += iteration;
 	_IterationFinishMark = false;
@@ -558,7 +558,7 @@ void SpaceColonizationTreeSystem::PushGrowIterationToTree(Entity treeEntity, siz
 Entity SpaceColonizationTreeSystem::CreateTree(TreeColor color, glm::vec3 position, bool enabled)
 {
 	BudInfo type;
-	type.Value = BudTypes::APICAL_BUD;
+	type.Value = BudTypes::APICAL;
 	type.Searching = true;
 	auto treeEntity = TreeManager::CreateTree();
 	Translation t;

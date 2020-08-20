@@ -48,12 +48,12 @@ void TreeUtilities::TreeManager::Init()
     _LeafArchetype = EntityManager::CreateEntityArchetype(
         "Leaf",
         Translation(), Rotation(), Scale(), LocalToWorld(),
-        Mass(), LocalPosition(), Direction(), Connection(), TreeIndex(),
+        LocalPosition(), Direction(), Connection(), TreeIndex(),
         LeafIndex(), LeafInfo());
     _BudArchetype = EntityManager::CreateEntityArchetype(
         "Bud",
         Translation(), Rotation(), Scale(), LocalToWorld(),
-        Mass(), LocalPosition(), Direction(), Connection(),
+        Activated(), LocalPosition(), Direction(), Connection(),
         Radius(), BudIndex(), Iteration(), Level(), BudInfo(), TreeIndex());
     _TreeArchetype = EntityManager::CreateEntityArchetype(
         "Tree",

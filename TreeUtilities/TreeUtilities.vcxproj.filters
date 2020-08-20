@@ -54,9 +54,6 @@
     <ClInclude Include="LightEstimator.h">
       <Filter>Header Files\Estimators</Filter>
     </ClInclude>
-    <ClInclude Include="BranchSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -79,9 +76,6 @@
     </ClCompile>
     <ClCompile Include="LightEstimator.cpp">
       <Filter>Source Files\Estimators</Filter>
-    </ClCompile>
-    <ClCompile Include="BranchSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
