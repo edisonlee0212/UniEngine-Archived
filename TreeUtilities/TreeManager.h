@@ -1,6 +1,7 @@
 #pragma once
 #include "TreeUtilitiesAPI.h"
 #include "TreeSystem.h"
+#include "BranchSystem.h"
 #include "BudSystem.h"
 #include "LeafSystem.h"
 #include "LightEstimator.h"
@@ -95,13 +96,24 @@ namespace TreeUtilities {
     };
     struct TREEUTILITIES_API BudInfo : ComponentBase {
         bool Searching;
-        BudTypes Value;
-        bool operator ==(const BudInfo& other) const {
-            return (other.Value == Value) && (other.Searching == Searching);
-        }
+        BudTypes Type;
+        float Inhibitor;
+        int StartAge;
+    };
+
+    struct TREEUTILITIES_API BudIllumination : ComponentBase {
+        float Value;
+    };
+
+    struct TREEUTILITIES_API BranchOwner : ComponentBase {
+        Entity Value;
     };
 #pragma endregion
 #pragma region Branch
+    struct TREEUTILITIES_API BranchBudsList : ComponentBase {
+        
+        std::vector<Entity>* Buds;
+    };
     struct TREEUTILITIES_API BranchIndex : ComponentBase {
         unsigned Value;
         bool operator ==(const BranchIndex& other) const {
@@ -109,6 +121,9 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API BranchInfo : ComponentBase {
+        float Inhibitor = 0;
+        int ActivatedBudsAmount = 0;
+        bool ApicalBudExist = false;
         float Length;
         float Thickness;
         float Deformation;
@@ -154,8 +169,7 @@ namespace TreeUtilities {
         float ApicalControlDistanceFactor;
         float ApicalControlLevelQuadFactor;
 
-        float ApicalBudKillProbability;
-        float LateralBudKillProbability;
+        int MaxBudAge;
     };
 
     struct TREEUTILITIES_API EnvironmentalParamGroup : ComponentBase {
@@ -198,7 +212,6 @@ namespace TreeUtilities {
         size_t Age;
         size_t LateralBudsCount;
         float ResourceToGrow;
-
     };
 #pragma endregion
     class TREEUTILITIES_API TreeManager :
@@ -207,34 +220,42 @@ namespace TreeUtilities {
         static LightEstimator* _LightEstimator;
 
         static TreeSystem* _TreeSystem;
+        static BranchSystem* _BranchSystem;
         static BudSystem* _BudSystem;
         static LeafSystem* _LeafSystem;
         
 
         static EntityArchetype _BudArchetype;
         static EntityArchetype _LeafArchetype;
+        static EntityArchetype _BranchArchetype;
         static EntityArchetype _TreeArchetype;
 
         static EntityQuery _TreeQuery;
+        static EntityQuery _BranchQuery;
         static EntityQuery _BudQuery;
         static EntityQuery _LeafQuery;
 
         static TreeIndex _TreeIndex;
+        static BranchIndex _BranchIndex;
         static BudIndex _BudIndex;
         static LeafIndex _LeafIndex;
 
         static bool _Ready;
         
         static void LeafGenerationHelper(LeafInfo info, Entity leaf, Entity bud, int index);
+        
+        static void BranchRemover(Entity branchEntity);
     public:
         static void Init();
         static bool IsReady();
 
         static EntityQuery GetBudQuery();
+        static EntityQuery GetBranchQuery();
         static EntityQuery GetTreeQuery();
         static EntityQuery GetLeafQuery();
 
         static BudSystem* GetBudSystem();
+        static BranchSystem* GetBranchSystem();
         static TreeSystem* GetTreeSystem();
         static LeafSystem* GetLeafSystem();
 
@@ -249,7 +270,9 @@ namespace TreeUtilities {
         static void DeleteTree(Entity treeEntity);
 
         static Entity CreateTree();
+        static Entity CreateBranch(TreeIndex treeIndex, Entity parentEntity);
         static Entity CreateBud(TreeIndex treeIndex, Entity parentEntity);
+        static Entity CreateBudForBranch(TreeIndex treeIndex, Entity branchEntity);
         static Entity CreateLeaf(TreeIndex treeIndex, Entity parentEntity);
 
         static LightEstimator* GetLightEstimator();

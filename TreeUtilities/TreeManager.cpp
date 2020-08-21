@@ -6,18 +6,22 @@ using namespace TreeUtilities;
 LightEstimator* TreeUtilities::TreeManager::_LightEstimator;
 
 TreeSystem* TreeUtilities::TreeManager::_TreeSystem;
+BranchSystem* TreeUtilities::TreeManager::_BranchSystem;
 BudSystem* TreeUtilities::TreeManager::_BudSystem;
 LeafSystem* TreeUtilities::TreeManager::_LeafSystem;
 
 EntityArchetype TreeUtilities::TreeManager::_BudArchetype;
+EntityArchetype TreeUtilities::TreeManager::_BranchArchetype;
 EntityArchetype TreeUtilities::TreeManager::_LeafArchetype;
 EntityArchetype TreeUtilities::TreeManager::_TreeArchetype;
 
 EntityQuery TreeUtilities::TreeManager::_TreeQuery;
+EntityQuery TreeUtilities::TreeManager::_BranchQuery;
 EntityQuery TreeUtilities::TreeManager::_BudQuery;
 EntityQuery TreeUtilities::TreeManager::_LeafQuery;
 
 TreeIndex TreeUtilities::TreeManager::_TreeIndex;
+BranchIndex TreeUtilities::TreeManager::_BranchIndex;
 BudIndex TreeUtilities::TreeManager::_BudIndex;
 LeafIndex TreeUtilities::TreeManager::_LeafIndex;
 
@@ -43,6 +47,14 @@ inline void TreeUtilities::TreeManager::LeafGenerationHelper(LeafInfo info, Enti
     EntityManager::SetComponentData(leaf, s);
     EntityManager::SetComponentData(leaf, r);
 }
+void TreeUtilities::TreeManager::BranchRemover(Entity branchEntity)
+{
+    BranchBudsList ob = EntityManager::GetComponentData<BranchBudsList>(branchEntity);
+    delete ob.Buds;
+    EntityManager::ForEachChild(branchEntity, [](Entity child) {
+        BranchRemover(child);
+        });
+}
 void TreeUtilities::TreeManager::Init()
 {
     _LeafArchetype = EntityManager::CreateEntityArchetype(
@@ -55,6 +67,10 @@ void TreeUtilities::TreeManager::Init()
         Translation(), Rotation(), Scale(), LocalToWorld(),
         Activated(), LocalPosition(), Direction(), Connection(),
         Radius(), BudIndex(), Iteration(), Level(), BudInfo(), TreeIndex());
+    _BranchArchetype = EntityManager::CreateEntityArchetype(
+        "Branch",
+        Activated(), BranchIndex(), BranchInfo(), TreeIndex(), BranchBudsList()
+    );
     _TreeArchetype = EntityManager::CreateEntityArchetype(
         "Tree",
         Translation(), Rotation(), Scale(), LocalToWorld(),
@@ -87,9 +103,19 @@ bool TreeUtilities::TreeManager::IsReady()
     return _Ready;
 }
 
+EntityQuery TreeUtilities::TreeManager::GetLeafQuery()
+{
+    return _LeafQuery;
+}
+
 EntityQuery TreeUtilities::TreeManager::GetBudQuery()
 {
     return _BudQuery;
+}
+
+EntityQuery TreeUtilities::TreeManager::GetBranchQuery()
+{
+    return _BranchQuery;
 }
 
 EntityQuery TreeUtilities::TreeManager::GetTreeQuery()
@@ -97,9 +123,9 @@ EntityQuery TreeUtilities::TreeManager::GetTreeQuery()
     return _TreeQuery;
 }
 
-EntityQuery TreeUtilities::TreeManager::GetLeafQuery()
+LeafSystem* TreeUtilities::TreeManager::GetLeafSystem()
 {
-    return _LeafQuery;
+    return _LeafSystem;
 }
 
 BudSystem* TreeUtilities::TreeManager::GetBudSystem()
@@ -107,15 +133,17 @@ BudSystem* TreeUtilities::TreeManager::GetBudSystem()
     return _BudSystem;
 }
 
+BranchSystem* TreeUtilities::TreeManager::GetBranchSystem()
+{
+    return _BranchSystem;
+}
+
 TreeSystem* TreeUtilities::TreeManager::GetTreeSystem()
 {
     return _TreeSystem;
 }
 
-LeafSystem* TreeUtilities::TreeManager::GetLeafSystem()
-{
-    return _LeafSystem;
-}
+
 
 void TreeUtilities::TreeManager::GetAllTrees(std::vector<Entity>* container)
 {
@@ -213,7 +241,24 @@ Entity TreeUtilities::TreeManager::CreateTree()
 
 void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
 {
+    BranchRemover(EntityManager::GetChildren(treeEntity).at(0));
     EntityManager::DeleteEntity(treeEntity);
+}
+
+Entity TreeUtilities::TreeManager::CreateBranch(TreeIndex treeIndex, Entity parentEntity)
+{
+    auto entity = EntityManager::CreateEntity(_BranchArchetype);
+    BranchBudsList ob = BranchBudsList();
+    ob.Buds = new std::vector<Entity>();
+    EntityManager::SetComponentData(entity, treeIndex);
+    EntityManager::SetParent(entity, parentEntity);
+    EntityManager::SetComponentData(entity, _BranchIndex);
+    EntityManager::SetComponentData(entity, ob);
+    _BranchIndex.Value++;
+    BranchInfo branchInfo;
+
+    EntityManager::SetComponentData(entity, branchInfo);
+    return entity;
 }
 
 Entity TreeUtilities::TreeManager::CreateBud(TreeIndex treeIndex, Entity parentEntity)
@@ -222,6 +267,20 @@ Entity TreeUtilities::TreeManager::CreateBud(TreeIndex treeIndex, Entity parentE
     EntityManager::SetComponentData(entity, treeIndex);
     EntityManager::SetParent(entity, parentEntity);
     EntityManager::SetComponentData(entity, _BudIndex);
+    _BudIndex.Value++;
+    return entity;
+}
+
+Entity TreeUtilities::TreeManager::CreateBudForBranch(TreeIndex treeIndex, Entity branchEntity)
+{
+    auto entity = EntityManager::CreateEntity(_BudArchetype);
+    BranchOwner owner;
+    owner.Value = branchEntity;
+    EntityManager::SetComponentData(entity, owner);
+    EntityManager::GetComponentData<BranchBudsList>(branchEntity).Buds->push_back(entity);
+    EntityManager::SetComponentData(entity, treeIndex);
+    EntityManager::SetComponentData(entity, _BudIndex);
+
     _BudIndex.Value++;
     return entity;
 }

@@ -33,6 +33,9 @@
     <ClCompile Include="SpaceColonizationTreeSystem.cpp">
       <Filter>Source Files\SpaceColonization</Filter>
     </ClCompile>
+    <ClCompile Include="PlantSimulationSystem.cpp">
+      <Filter>Source Files\InverseModelling</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SpaceColonizationTreeSystem.h">
@@ -40,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="Envelope.h">
       <Filter>Header Files\SpaceColonization</Filter>
+    </ClInclude>
+    <ClInclude Include="PlantSimulationSystem.h">
+      <Filter>Header Files\InverseModelling</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

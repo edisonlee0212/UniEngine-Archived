@@ -359,6 +359,17 @@ std::vector<Entity> UniEngine::EntityManager::GetChildren(Entity entity)
 	return _EntityInfos->at(entityIndex).Children;
 }
 
+size_t UniEngine::EntityManager::GetChildrenAmount(Entity entity)
+{
+	if (entity.IsNull()) return 0;
+	size_t entityIndex = entity.Index;
+	if (entity != _Entities->at(entityIndex)) {
+		Debug::Error("Parent already deleted!");
+		return 0;
+	}
+	return _EntityInfos->at(entityIndex).Children.size();
+}
+
 inline void UniEngine::EntityManager::ForEachChild(Entity entity, const std::function<void(Entity child)>& func)
 {
 	for (auto i : _EntityInfos->at(entity.Index).Children) {

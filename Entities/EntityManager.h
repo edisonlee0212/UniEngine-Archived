@@ -109,6 +109,7 @@ namespace UniEngine {
 		static void SetParent(Entity entity, Entity parent);
 		static Entity GetParent(Entity entity);
 		static std::vector<Entity> GetChildren(Entity entity);
+		static size_t GetChildrenAmount(Entity entity);
 		static void ForEachChild(Entity entity, const std::function<void(Entity child)>& func);
 
 		static void RemoveChild(Entity entity, Entity parent);
