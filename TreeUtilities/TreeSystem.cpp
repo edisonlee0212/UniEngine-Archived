@@ -3,6 +3,7 @@
 #include "TreeManager.h"
 void TreeUtilities::TreeSystem::BudListHelper(Entity budEntity)
 {
+	if (!EntityManager::HasComponentData<BudIndex>(budEntity)) return;
 	BudIndex index = EntityManager::GetComponentData<BudIndex>(budEntity);
 	std::string title = "Bud ";
 	title += std::to_string(index.Value);

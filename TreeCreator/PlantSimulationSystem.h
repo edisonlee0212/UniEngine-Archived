@@ -8,14 +8,14 @@ namespace TreeUtilities {
         PlantSimulationSystem_None = 0,
     };
 
-    struct Branch {
+    struct BranchNode {
         bool Activated;
-        Entity BranchEntity;
+        Entity BranchNodeEntity;
     };
 
-    struct Branches {
+    struct BranchNodesCollection {
         Entity TreeEntity;
-        std::vector<Branch> Branches;
+        std::vector<BranchNode> BranchNodes;
     };
 
     class PlantSimulationSystem :
@@ -27,10 +27,9 @@ namespace TreeUtilities {
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
 
-        std::vector<Branches> _TreeActivatedBranchesLists;
-
+        std::vector<BranchNodesCollection> _TreeActivatedBranchNodesLists;
+        void DeactivateBud(Entity bud, Entity branchNode, BudInfo* budInfo, BranchNodeInfo* branchNodeInfo);
         void DeactivateBranch(size_t listIndex, size_t index);
-        bool GenerateShootsFromBud(Entity budEntity, Entity branchEntity, bool isLateral);
         void DrawGUI();
         void DestroyedTreeCheck();
         void GrowTree(size_t index);

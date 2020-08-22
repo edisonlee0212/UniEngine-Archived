@@ -3,7 +3,7 @@
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
 #include "SpaceColonizationTreeSystem.h"
-
+#include "PlantSimulationSystem.h"
 #include "TreeManager.h"
 #include "EntityEditorSystem.h"
 
@@ -13,6 +13,7 @@ using namespace UniEngine;
 using namespace TreeUtilities;
 void InitGround();
 void InitSpaceColonizationTreeSystem();
+void InitPlantSimulationSystem();
 int main()
 {
 	LightingManager::SetAmbientLight(1.0f);
@@ -31,36 +32,22 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
-	InitSpaceColonizationTreeSystem();
-
+	//InitSpaceColonizationTreeSystem();
+	InitPlantSimulationSystem();
 	
 
 	Application::Run();
 	Application::End();
 	return 0; 
 }
-
-void InitGround() {
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
-	auto entity = EntityManager::CreateEntity(archetype);
-	Translation translation = Translation();
-	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
-	Scale scale = Scale();
-	scale.Value = glm::vec3(100.0f);
-	EntityManager::SetComponentData<Translation>(entity, translation);
-	EntityManager::SetComponentData<Scale>(entity, scale);
-
-
-	auto mat = new Material();
-	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
-	auto texture = new Texture2D(TextureType::DIFFUSE);
-	texture->LoadTexture(FileIO::GetPath("Textures/treesurface.jpg"), "");
-	mat->Textures2Ds()->push_back(texture);
-	mat->SetMaterialProperty("material.shininess", 32.0f);
-	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
-	meshMaterial->_Mesh = Default::Primitives::Quad;
-	meshMaterial->_Material = mat;
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
+void InitPlantSimulationSystem() {
+	auto psSys = Application::GetWorld()->CreateSystem<PlantSimulationSystem>(SystemGroup::SimulationSystemGroup);
+	TreeColor treeColor;
+	treeColor.Color = glm::vec4(1, 1, 1, 1);
+	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
+	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
+	treeColor.LeafColor = glm::vec4(0, 1, 0, 1);
+	Entity tree1 = psSys->CreateTree(treeColor, glm::vec3(30, 0, -30));
 
 }
 
@@ -92,3 +79,28 @@ void InitSpaceColonizationTreeSystem()
 
 	sctSys->PushGrowAllTreesIterations(100);
 }
+void InitGround() {
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
+	auto entity = EntityManager::CreateEntity(archetype);
+	Translation translation = Translation();
+	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
+	Scale scale = Scale();
+	scale.Value = glm::vec3(100.0f);
+	EntityManager::SetComponentData<Translation>(entity, translation);
+	EntityManager::SetComponentData<Scale>(entity, scale);
+
+
+	auto mat = new Material();
+	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	auto texture = new Texture2D(TextureType::DIFFUSE);
+	texture->LoadTexture(FileIO::GetPath("Textures/treesurface.jpg"), "");
+	mat->Textures2Ds()->push_back(texture);
+	mat->SetMaterialProperty("material.shininess", 32.0f);
+	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
+	meshMaterial->_Mesh = Default::Primitives::Quad;
+	meshMaterial->_Material = mat;
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
+
+}
+
+

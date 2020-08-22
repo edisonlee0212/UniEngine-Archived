@@ -11,7 +11,7 @@ BudSystem* TreeUtilities::TreeManager::_BudSystem;
 LeafSystem* TreeUtilities::TreeManager::_LeafSystem;
 
 EntityArchetype TreeUtilities::TreeManager::_BudArchetype;
-EntityArchetype TreeUtilities::TreeManager::_BranchArchetype;
+EntityArchetype TreeUtilities::TreeManager::_BranchNodeArchetype;
 EntityArchetype TreeUtilities::TreeManager::_LeafArchetype;
 EntityArchetype TreeUtilities::TreeManager::_TreeArchetype;
 
@@ -21,7 +21,7 @@ EntityQuery TreeUtilities::TreeManager::_BudQuery;
 EntityQuery TreeUtilities::TreeManager::_LeafQuery;
 
 TreeIndex TreeUtilities::TreeManager::_TreeIndex;
-BranchIndex TreeUtilities::TreeManager::_BranchIndex;
+BranchNodeIndex TreeUtilities::TreeManager::_BranchNodeIndex;
 BudIndex TreeUtilities::TreeManager::_BudIndex;
 LeafIndex TreeUtilities::TreeManager::_LeafIndex;
 
@@ -49,7 +49,7 @@ inline void TreeUtilities::TreeManager::LeafGenerationHelper(LeafInfo info, Enti
 }
 void TreeUtilities::TreeManager::BranchRemover(Entity branchEntity)
 {
-    BranchBudsList ob = EntityManager::GetComponentData<BranchBudsList>(branchEntity);
+    BranchNodeBudsList ob = EntityManager::GetComponentData<BranchNodeBudsList>(branchEntity);
     delete ob.Buds;
     EntityManager::ForEachChild(branchEntity, [](Entity child) {
         BranchRemover(child);
@@ -64,18 +64,23 @@ void TreeUtilities::TreeManager::Init()
         LeafIndex(), LeafInfo());
     _BudArchetype = EntityManager::CreateEntityArchetype(
         "Bud",
+        BranchNodeOwner(),
         Translation(), Rotation(), Scale(), LocalToWorld(),
         Activated(), LocalPosition(), Direction(), Connection(),
-        Radius(), BudIndex(), Iteration(), Level(), BudInfo(), TreeIndex());
-    _BranchArchetype = EntityManager::CreateEntityArchetype(
-        "Branch",
-        Activated(), BranchIndex(), BranchInfo(), TreeIndex(), BranchBudsList()
+        Radius(), BudIndex(), Iteration(), Level(), BudInfo(), TreeIndex(),
+        BudIllumination());
+    _BranchNodeArchetype = EntityManager::CreateEntityArchetype(
+        "BranchNode",
+        Activated(),
+        Translation(), Rotation(), Scale(), LocalToWorld(),
+        Direction(),
+        BranchNodeIndex(), BranchNodeInfo(), TreeIndex(), BranchNodeBudsList()
     );
     _TreeArchetype = EntityManager::CreateEntityArchetype(
         "Tree",
         Translation(), Rotation(), Scale(), LocalToWorld(),
-        TreeIndex(), TreeInfo(), TreeColor(), TreeGrowIteration(),
-        GeometricParamGroup(), BudFateParamGroup(), EnvironmentalParamGroup(),
+        TreeIndex(), TreeInfo(), TreeColor(), TreeAge(),
+        TreeParameters(),
         RewardEstimation());
 
     _LeafQuery = EntityManager::CreateEntityQuery();
@@ -234,6 +239,12 @@ void TreeUtilities::TreeManager::GenerateMeshForAllTrees()
 Entity TreeUtilities::TreeManager::CreateTree()
 {
     auto entity = EntityManager::CreateEntity(_TreeArchetype);
+    TreeInfo treeInfo;
+    treeInfo.ApicalControlTimeLevelVal = new std::vector<std::vector<float>>();
+    treeInfo.ApicalControlTimeVal = new std::vector<float>();
+    treeInfo.GravitropismLevelVal = new std::vector<float>();
+    treeInfo.ApicalDominanceTimeVal = new std::vector<float>();
+    EntityManager::SetComponentData(entity, treeInfo);
     EntityManager::SetComponentData(entity, _TreeIndex);
     _TreeIndex.Value++;
     return entity;
@@ -241,22 +252,31 @@ Entity TreeUtilities::TreeManager::CreateTree()
 
 void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
 {
-    BranchRemover(EntityManager::GetChildren(treeEntity).at(0));
+    TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(treeEntity);
+    if (treeInfo.ApicalControlTimeLevelVal != nullptr) delete treeInfo.ApicalControlTimeLevelVal;
+    if (treeInfo.GravitropismLevelVal != nullptr) delete treeInfo.GravitropismLevelVal;
+    if (treeInfo.ApicalControlTimeVal != nullptr) delete treeInfo.ApicalControlTimeVal;
+    if (treeInfo.ApicalDominanceTimeVal != nullptr) delete treeInfo.ApicalDominanceTimeVal;
+    if (EntityManager::HasComponentData<BranchNodeInfo>(EntityManager::GetChildren(treeEntity).at(0))) {
+        BranchRemover(EntityManager::GetChildren(treeEntity).at(0));
+    }
     EntityManager::DeleteEntity(treeEntity);
 }
 
-Entity TreeUtilities::TreeManager::CreateBranch(TreeIndex treeIndex, Entity parentEntity)
+Entity TreeUtilities::TreeManager::CreateBranchNode(TreeIndex treeIndex, Entity parentEntity)
 {
-    auto entity = EntityManager::CreateEntity(_BranchArchetype);
-    BranchBudsList ob = BranchBudsList();
+    auto entity = EntityManager::CreateEntity(_BranchNodeArchetype);
+    BranchNodeBudsList ob = BranchNodeBudsList();
     ob.Buds = new std::vector<Entity>();
     EntityManager::SetComponentData(entity, treeIndex);
     EntityManager::SetParent(entity, parentEntity);
-    EntityManager::SetComponentData(entity, _BranchIndex);
+    EntityManager::SetComponentData(entity, _BranchNodeIndex);
     EntityManager::SetComponentData(entity, ob);
-    _BranchIndex.Value++;
-    BranchInfo branchInfo;
-
+    _BranchNodeIndex.Value++;
+    BranchNodeInfo branchInfo;
+    Activated act;
+    act.Value = true;
+    EntityManager::SetComponentData(entity, act);
     EntityManager::SetComponentData(entity, branchInfo);
     return entity;
 }
@@ -267,20 +287,25 @@ Entity TreeUtilities::TreeManager::CreateBud(TreeIndex treeIndex, Entity parentE
     EntityManager::SetComponentData(entity, treeIndex);
     EntityManager::SetParent(entity, parentEntity);
     EntityManager::SetComponentData(entity, _BudIndex);
+    Activated act;
+    act.Value = true;
+    EntityManager::SetComponentData(entity, act);
     _BudIndex.Value++;
     return entity;
 }
 
-Entity TreeUtilities::TreeManager::CreateBudForBranch(TreeIndex treeIndex, Entity branchEntity)
+Entity TreeUtilities::TreeManager::CreateBudForBranchNode(TreeIndex treeIndex, Entity branchNodeEntity)
 {
     auto entity = EntityManager::CreateEntity(_BudArchetype);
-    BranchOwner owner;
-    owner.Value = branchEntity;
+    BranchNodeOwner owner;
+    owner.Value = branchNodeEntity;
     EntityManager::SetComponentData(entity, owner);
-    EntityManager::GetComponentData<BranchBudsList>(branchEntity).Buds->push_back(entity);
+    EntityManager::GetComponentData<BranchNodeBudsList>(branchNodeEntity).Buds->push_back(entity);
     EntityManager::SetComponentData(entity, treeIndex);
     EntityManager::SetComponentData(entity, _BudIndex);
-
+    Activated act;
+    act.Value = true;
+    EntityManager::SetComponentData(entity, act);
     _BudIndex.Value++;
     return entity;
 }

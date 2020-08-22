@@ -8,6 +8,8 @@
 using namespace UniEngine;
 namespace TreeUtilities {
 #pragma region Common
+
+
     struct TREEUTILITIES_API TreeIndex : ComponentBase {
         unsigned Value;
         bool operator ==(const TreeIndex& other) const {
@@ -98,31 +100,33 @@ namespace TreeUtilities {
         bool Searching;
         BudTypes Type;
         float Inhibitor;
-        int StartAge;
+        int StartAge = -1;
     };
 
     struct TREEUTILITIES_API BudIllumination : ComponentBase {
         float Value;
     };
 
-    struct TREEUTILITIES_API BranchOwner : ComponentBase {
+    struct TREEUTILITIES_API BranchNodeOwner : ComponentBase {
         Entity Value;
     };
 #pragma endregion
-#pragma region Branch
-    struct TREEUTILITIES_API BranchBudsList : ComponentBase {
-        
+#pragma region BranchNode
+    struct TREEUTILITIES_API BranchNodeBudsList : ComponentBase {
         std::vector<Entity>* Buds;
     };
-    struct TREEUTILITIES_API BranchIndex : ComponentBase {
+    struct TREEUTILITIES_API BranchNodeIndex : ComponentBase {
         unsigned Value;
-        bool operator ==(const BranchIndex& other) const {
+        bool operator ==(const BranchNodeIndex& other) const {
             return other.Value == Value;
         }
     };
-    struct TREEUTILITIES_API BranchInfo : ComponentBase {
+    struct TREEUTILITIES_API BranchNodeInfo : ComponentBase {
         float Inhibitor = 0;
+        float ParentInhibitorFactor = 1;
         int ActivatedBudsAmount = 0;
+        int Level = 0;
+        float DistanceToParent = 0;
         bool ApicalBudExist = false;
         float Length;
         float Thickness;
@@ -131,13 +135,14 @@ namespace TreeUtilities {
         float Slope;
         float SiblingAngle;
         float ParentAngle;
+        glm::vec3 DesiredBranchDirection;
     };
 #pragma endregion
 #pragma region Tree
-    struct TREEUTILITIES_API GeometricParamGroup : ComponentBase {
+    struct TREEUTILITIES_API TreeParameters : ComponentBase {
+#pragma region Geometric
         int LateralBudNumber;
 
-        float MeanApicalAngle;
         float VarianceApicalAngle;
 
         float MeanBranchingAngle;
@@ -145,34 +150,29 @@ namespace TreeUtilities {
 
         float MeanRollAngle;
         float VarianceRollAngle;
-    };
-
-    struct TREEUTILITIES_API BudFateParamGroup : ComponentBase {
+#pragma endregion
+#pragma region Bud fate
         float ApicalBudExtintionRate;
         float LateralBudEntintionRate;
-        
-        float ApicalBudLightingFactor;
-        float LateralBudLightingFactor;
-        
+
         float ApicalDominanceBase;
         float ApicalDominanceDistanceFactor;
         float ApicalDominanceAgeFactor;
-        
+
         float GrowthRate;
-        
+
         float InternodeLengthBase;
         float InternodeLengthAgeFactor;
 
-        float ApicalControl;
+        float ApicalControlBase;
         float ApicalControlAgeFactor;
         float ApicalControlLevelFactor;
         float ApicalControlDistanceFactor;
         float ApicalControlLevelQuadFactor;
 
         int MaxBudAge;
-    };
-
-    struct TREEUTILITIES_API EnvironmentalParamGroup : ComponentBase {
+#pragma endregion
+#pragma region Environmental
         float Phototropism;
         float GravitropismBase;
         float GravitropismLevelFactor;
@@ -185,13 +185,16 @@ namespace TreeUtilities {
 
         float ApicalBudLightingFactor;
         float LateralBudLightingFactor;
+#pragma endregion
+        int Version;
+        float ResourceToGrow;
     };
     
     struct TREEUTILITIES_API RewardEstimation : ComponentBase {
         float LightEstimationResult = 0.0f;
     };
 
-    struct TREEUTILITIES_API TreeGrowIteration : ComponentBase {
+    struct TREEUTILITIES_API TreeAge : ComponentBase {
         int Value;
         bool Enable;
     };
@@ -209,8 +212,17 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API TreeInfo : ComponentBase {
-        size_t Age;
+        float Height;
+        float ActiveLength;
+        float InitResourcesFactor;
+        int MaxLeafClusterDepth;
+        int MaxBranchingDepth;
+        size_t MaxTreeAge;
         size_t LateralBudsCount;
+        std::vector<float>* ApicalControlTimeVal;
+        std::vector<float>* ApicalDominanceTimeVal;
+        std::vector<float>* GravitropismLevelVal;
+        std::vector<std::vector<float>>* ApicalControlTimeLevelVal;
         float ResourceToGrow;
     };
 #pragma endregion
@@ -227,7 +239,7 @@ namespace TreeUtilities {
 
         static EntityArchetype _BudArchetype;
         static EntityArchetype _LeafArchetype;
-        static EntityArchetype _BranchArchetype;
+        static EntityArchetype _BranchNodeArchetype;
         static EntityArchetype _TreeArchetype;
 
         static EntityQuery _TreeQuery;
@@ -236,7 +248,7 @@ namespace TreeUtilities {
         static EntityQuery _LeafQuery;
 
         static TreeIndex _TreeIndex;
-        static BranchIndex _BranchIndex;
+        static BranchNodeIndex _BranchNodeIndex;
         static BudIndex _BudIndex;
         static LeafIndex _LeafIndex;
 
@@ -270,9 +282,9 @@ namespace TreeUtilities {
         static void DeleteTree(Entity treeEntity);
 
         static Entity CreateTree();
-        static Entity CreateBranch(TreeIndex treeIndex, Entity parentEntity);
+        static Entity CreateBranchNode(TreeIndex treeIndex, Entity parentEntity);
         static Entity CreateBud(TreeIndex treeIndex, Entity parentEntity);
-        static Entity CreateBudForBranch(TreeIndex treeIndex, Entity branchEntity);
+        static Entity CreateBudForBranchNode(TreeIndex treeIndex, Entity branchEntity);
         static Entity CreateLeaf(TreeIndex treeIndex, Entity parentEntity);
 
         static LightEstimator* GetLightEstimator();

@@ -52,7 +52,7 @@ void SpaceColonizationTreeSystem::DrawGUI()
 		ImGui::TreePush();
 		if (ImGui::Button("Start all")) {
 			for (auto tree : *treeEntities) {
-				TreeGrowIteration iteration = EntityManager::GetComponentData<TreeGrowIteration>(tree);
+				TreeAge iteration = EntityManager::GetComponentData<TreeAge>(tree);
 				iteration.Enable = true;
 				EntityManager::SetComponentData(tree, iteration);
 			}
@@ -70,7 +70,7 @@ void SpaceColonizationTreeSystem::DrawGUI()
 					color = EntityManager::GetComponentData<TreeColor>(tree);
 					ImGui::Text("Tree Color: [%d, %d, %d]", (int)(color.BudColor.x * 256.0f), (int)(color.BudColor.y * 256.0f), (int)(color.BudColor.z * 256.0f));
 					ImGui::Separator();
-					TreeGrowIteration iteration = EntityManager::GetComponentData<TreeGrowIteration>(tree);
+					TreeAge iteration = EntityManager::GetComponentData<TreeAge>(tree);
 					int remain = iteration.Value;
 					bool setEnabled = iteration.Enable;
 					std::string gtitle = "Growing##";
@@ -275,7 +275,7 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 
 void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDistance, float removeDistance, float growDistance)
 {
-	TreeGrowIteration treeIteration = EntityManager::GetComponentData<TreeGrowIteration>(treeEntity);
+	TreeAge treeIteration = EntityManager::GetComponentData<TreeAge>(treeEntity);
 	if (treeIteration.Value == 0 || !treeIteration.Enable) {
 		return;
 	}
@@ -283,7 +283,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 	if (_AttractionPointQuery.GetEntityAmount() == 0) {
 		//No more attraction points, return.
 		Debug::Log("SpaceColonizationTreeSystem: Run out of attraction points!");
-		TreeGrowIteration iteration = TreeGrowIteration();
+		TreeAge iteration = TreeAge();
 		iteration.Value = 0;
 		EntityManager::SetComponentData(treeEntity, iteration);
 		return;
@@ -433,7 +433,7 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 	if (newBudAmount == 0) {
 		//No more attraction points, return.
 		Debug::Log("SpaceColonizationTreeSystem: No new buds generated in this iteration, finish growing.");
-		TreeGrowIteration iteration = TreeGrowIteration();
+		TreeAge iteration = TreeAge();
 		iteration.Value = 0;
 		EntityManager::SetComponentData(treeEntity, iteration);
 	}
@@ -568,7 +568,7 @@ Entity SpaceColonizationTreeSystem::CreateTree(TreeColor color, glm::vec3 positi
 	EntityManager::SetComponentData(treeEntity, t);
 	EntityManager::SetComponentData(treeEntity, s);
 	EntityManager::SetComponentData(treeEntity, color);
-	TreeGrowIteration iteration;
+	TreeAge iteration;
 	iteration.Value = 0;
 	iteration.Enable = enabled;
 	EntityManager::SetComponentData(treeEntity, iteration);
