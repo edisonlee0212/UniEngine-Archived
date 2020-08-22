@@ -6,7 +6,7 @@ using namespace TreeUtilities;
 LightEstimator* TreeUtilities::TreeManager::_LightEstimator;
 
 TreeSystem* TreeUtilities::TreeManager::_TreeSystem;
-BranchSystem* TreeUtilities::TreeManager::_BranchSystem;
+BranchNodeSystem* TreeUtilities::TreeManager::_BranchNodeSystem;
 BudSystem* TreeUtilities::TreeManager::_BudSystem;
 LeafSystem* TreeUtilities::TreeManager::_LeafSystem;
 
@@ -16,7 +16,7 @@ EntityArchetype TreeUtilities::TreeManager::_LeafArchetype;
 EntityArchetype TreeUtilities::TreeManager::_TreeArchetype;
 
 EntityQuery TreeUtilities::TreeManager::_TreeQuery;
-EntityQuery TreeUtilities::TreeManager::_BranchQuery;
+EntityQuery TreeUtilities::TreeManager::_BranchNodeQuery;
 EntityQuery TreeUtilities::TreeManager::_BudQuery;
 EntityQuery TreeUtilities::TreeManager::_LeafQuery;
 
@@ -36,12 +36,12 @@ inline void TreeUtilities::TreeManager::LeafGenerationHelper(LeafInfo info, Enti
     t.Value = EntityManager::GetComponentData<Translation>(bud).Value;
     s.Value = glm::vec3(0.4f);
 
-    auto pt = EntityManager::GetComponentData<Direction>(bud);
+    auto pltw = EntityManager::GetComponentData<LocalToWorld>(EntityManager::GetParent(bud));
     auto ltw = EntityManager::GetComponentData<LocalToWorld>(bud);
-    glm::vec3 diff = glm::normalize(glm::vec3(ltw.Value[3]) - pt.Value);
+    glm::vec3 diff = glm::normalize(glm::vec3(ltw.Value[3]) - glm::vec3(pltw.Value[3]));
     glm::quat right = glm::quatLookAt(glm::cross(diff, glm::vec3(0, 1, 0)), diff);
     right = glm::rotate(right, glm::radians(info.CircleDegreeAddition * index), diff);
-    r.Value = glm::quatLookAt(glm::vec3(0, 1, 0), diff);
+    r.Value = glm::quatLookAt(diff, glm::vec3(0, 1, 0));
     r.Value = glm::rotate(r.Value, glm::radians(info.BendDegrees), right * glm::vec3(0, 0, 1));
     EntityManager::SetComponentData(leaf, t);
     EntityManager::SetComponentData(leaf, s);
@@ -60,20 +60,19 @@ void TreeUtilities::TreeManager::Init()
     _LeafArchetype = EntityManager::CreateEntityArchetype(
         "Leaf",
         Translation(), Rotation(), Scale(), LocalToWorld(),
-        LocalPosition(), Direction(), Connection(), TreeIndex(),
+        LocalPosition(), Connection(), TreeIndex(),
         LeafIndex(), LeafInfo());
     _BudArchetype = EntityManager::CreateEntityArchetype(
         "Bud",
         BranchNodeOwner(),
         Translation(), Rotation(), Scale(), LocalToWorld(),
-        Activated(), LocalPosition(), Direction(), Connection(),
+        Activated(), LocalPosition(), Connection(),
         Radius(), BudIndex(), Iteration(), Level(), BudInfo(), TreeIndex(),
         BudIllumination());
     _BranchNodeArchetype = EntityManager::CreateEntityArchetype(
         "BranchNode",
         Activated(),
-        Translation(), Rotation(), Scale(), LocalToWorld(),
-        Direction(),
+        Translation(), Rotation(), Scale(), LocalToWorld(), Connection(),
         BranchNodeIndex(), BranchNodeInfo(), TreeIndex(), BranchNodeBudsList()
     );
     _TreeArchetype = EntityManager::CreateEntityArchetype(
@@ -87,16 +86,22 @@ void TreeUtilities::TreeManager::Init()
     EntityManager::SetEntityQueryAllFilters(_LeafQuery, LeafInfo());
     _BudQuery = EntityManager::CreateEntityQuery();
     EntityManager::SetEntityQueryAllFilters(_BudQuery, BudInfo());
+    _BranchNodeQuery = EntityManager::CreateEntityQuery();
+    EntityManager::SetEntityQueryAllFilters(_BranchNodeQuery, BranchNodeInfo());
     _TreeQuery = EntityManager::CreateEntityQuery();
     EntityManager::SetEntityQueryAllFilters(_TreeQuery, TreeInfo());
     
     _TreeSystem = Application::GetWorld()->CreateSystem<TreeSystem>(SystemGroup::SimulationSystemGroup);
+    _BranchNodeSystem = Application::GetWorld()->CreateSystem<BranchNodeSystem>(SystemGroup::SimulationSystemGroup);
     _BudSystem = Application::GetWorld()->CreateSystem<BudSystem>(SystemGroup::SimulationSystemGroup);
     _LeafSystem = Application::GetWorld()->CreateSystem<LeafSystem>(SystemGroup::SimulationSystemGroup);
     
+
+
     _TreeIndex.Value = 0;
     _BudIndex.Value = 0;
     _LeafIndex.Value = 0;
+    _BranchNodeIndex.Value = 0;
 
     _LightEstimator = new LightEstimator();
 
@@ -118,9 +123,9 @@ EntityQuery TreeUtilities::TreeManager::GetBudQuery()
     return _BudQuery;
 }
 
-EntityQuery TreeUtilities::TreeManager::GetBranchQuery()
+EntityQuery TreeUtilities::TreeManager::GetBranchNodeQuery()
 {
-    return _BranchQuery;
+    return _BranchNodeQuery;
 }
 
 EntityQuery TreeUtilities::TreeManager::GetTreeQuery()
@@ -138,9 +143,9 @@ BudSystem* TreeUtilities::TreeManager::GetBudSystem()
     return _BudSystem;
 }
 
-BranchSystem* TreeUtilities::TreeManager::GetBranchSystem()
+BranchNodeSystem* TreeUtilities::TreeManager::GetBranchNodeSystem()
 {
-    return _BranchSystem;
+    return _BranchNodeSystem;
 }
 
 TreeSystem* TreeUtilities::TreeManager::GetTreeSystem()

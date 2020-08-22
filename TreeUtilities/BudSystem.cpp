@@ -8,12 +8,12 @@ inline void TreeUtilities::BudSystem::DrawGUI()
 		ImGui::Text("Bud Amount: %d ", _BudQuery.GetEntityAmount());
 		ImGui::Separator();
 		ImGui::InputFloat("Bud Connection Width", &_ConnectionWidth);
-		if (ImGui::Button("Regenerate connections")) {
+		if (ImGui::Button("Regenerate connections for buds")) {
 			RefreshConnections();
 		}
 		ImGui::Separator();
 		ImGui::CheckboxFlags("Draw Buds", &_ConfigFlags, BudSystem_DrawBuds);
-		ImGui::CheckboxFlags("Draw Connections", &_ConfigFlags, BudSystem_DrawConnections);
+		ImGui::CheckboxFlags("Draw Bud Connections", &_ConfigFlags, BudSystem_DrawConnections);
 	}
 	ImGui::End();
 }
@@ -26,8 +26,6 @@ void TreeUtilities::BudSystem::OnCreate()
 	_BudQuery = TreeManager::GetBudQuery();
 	_TreeQuery = TreeManager::GetTreeQuery();
 
-	_ParentTranslationQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_ParentTranslationQuery, Direction());
 	_ConnectionQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_ConnectionQuery, Connection());
 
@@ -41,8 +39,8 @@ void TreeUtilities::BudSystem::OnCreate()
 	_ConnectionList = std::vector<Connection>();
 
 	_ConfigFlags = 0;
-	_ConfigFlags += BudSystem_DrawBuds;
-	_ConfigFlags += BudSystem_DrawConnections;
+	//_ConfigFlags += BudSystem_DrawBuds;
+	//_ConfigFlags += BudSystem_DrawConnections;
 	Enable();
 }
 
@@ -86,26 +84,20 @@ void TreeUtilities::BudSystem::FixedUpdate()
 {
 }
 
-void TreeUtilities::BudSystem::RefreshDirection()
-{
-	EntityManager::ForEach<Direction, Translation>(_ParentTranslationQuery, [](int i, Entity entity, Direction* d, Translation* t) {
-		Entity pe = EntityManager::GetParent(entity);
-		d->Value = t->Value - EntityManager::GetComponentData<Translation>(pe).Value;
-		});
-}
+
 
 void TreeUtilities::BudSystem::RefreshConnections()
 {
-	RefreshDirection();
 	float lineWidth = _ConnectionWidth;
-	EntityManager::ForEach<Direction, LocalToWorld, Connection>(_ConnectionQuery, [lineWidth](int i, Entity entity, Direction* d, LocalToWorld* ltw, Connection* c) {
+	EntityManager::ForEach<LocalToWorld, Connection>(_BudQuery, [lineWidth](int i, Entity entity, LocalToWorld* ltw, Connection* c) {
 		glm::vec3 pos = ltw->Value[3];
-		glm::vec3 diff = d->Value;
+		glm::vec3 parentPos = EntityManager::GetComponentData<LocalToWorld>(EntityManager::GetParent(entity)).Value[3];
+		glm::vec3 diff = pos - parentPos;
 		glm::quat rotation = glm::quatLookAt(diff, glm::vec3(0, 1, 0));
 		if (glm::any(glm::isnan(rotation))) {
 			rotation = glm::quatLookAt(diff, glm::vec3(0, 0, 1));
 		}
-		c->Value = glm::translate(pos - (d->Value) / 2.0f) * glm::mat4_cast(rotation) * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(glm::vec3(0), d->Value) / 2.0f));
+		c->Value = glm::translate(pos - diff / 2.0f) * glm::mat4_cast(rotation) * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(glm::vec3(0), diff) / 2.0f));
 		});
 }
 

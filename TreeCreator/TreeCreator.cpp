@@ -32,8 +32,8 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
-	//InitSpaceColonizationTreeSystem();
-	InitPlantSimulationSystem();
+	InitSpaceColonizationTreeSystem();
+	//InitPlantSimulationSystem();
 	
 
 	Application::Run();

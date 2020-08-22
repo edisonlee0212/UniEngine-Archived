@@ -40,5 +40,5 @@
 #include <gtx/closest_point.hpp>
 #include <gtc/type_ptr.hpp>
 #include <gtc/random.hpp>
-
+#include <gtx/rotate_vector.hpp>
 #endif //PCH_H

@@ -11,6 +11,7 @@ inline void TreeUtilities::PlantSimulationSystem::DeactivateBud(Entity bud, Enti
 	}
 	EntityManager::SetComponentData(bud, *budInfo);
 	EntityManager::SetComponentData(branchNode, *branchNodeInfo);
+	EntityManager::SetComponentData(bud, act);
 }
 
 void TreeUtilities::PlantSimulationSystem::DeactivateBranch(size_t listIndex, size_t index)
@@ -47,7 +48,7 @@ void TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 		Entity branchNode = b.BranchNodeEntity;
 		BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
 		Activated branchActivated = EntityManager::GetComponentData<Activated>(branchNode);
-		//if (!branchActivated.Value) continue;
+		if (!branchActivated.Value) continue;
 		std::vector<Entity>* buds = EntityManager::GetComponentData<BranchNodeBudsList>(branchNode).Buds;
 #pragma endregion
 #pragma region Collect inhibitor from children and apply instantly.
@@ -134,6 +135,7 @@ void TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 					Rotation prevBranchNodeRotation = EntityManager::GetComponentData<Rotation>(branchNode);
 					Scale prevBranchNodeScale = EntityManager::GetComponentData<Scale>(branchNode);
 					Rotation baseBudRotation = budRotation;
+					
 					for (int selectedNewNodeIndex = 0; selectedNewNodeIndex < internodesToGrow; selectedNewNodeIndex++) {
 						Translation newBranchNodeTranslation = Translation();
 						Rotation newBranchNodeRotation = Rotation();
@@ -146,13 +148,18 @@ void TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 							newBranchNodeRotation = prevBranchNodeRotation;
 						}
 						newBranchNodeScale.Value = prevBranchNodeScale.Value;
-						newBranchNodeTranslation.Value = prevBranchNodeTranslation.Value + internodeLength * (newBranchNodeRotation.Value * glm::vec3(0, 0, 1));
+						glm::vec3 direction = newBranchNodeRotation.Value * glm::vec3(0, 0, -1);
+						newBranchNodeTranslation.Value = prevBranchNodeTranslation.Value + internodeLength * direction;
 #pragma endregion
 						Entity newBranchNode = TreeManager::CreateBranchNode(treeIndex, prevBranchNode);
+						BranchNode bn;
+						bn.Activated = true;
+						bn.BranchNodeEntity = newBranchNode;
+						_TreeActivatedBranchNodesLists[index].BranchNodes.push_back(bn);
 						BranchNodeInfo newBranchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(newBranchNode);
 						newBranchNodeInfo.DistanceToParent = internodeLength;
 						newBranchNodeInfo.ParentInhibitorFactor = glm::pow(tps.ApicalDominanceDistanceFactor, newBranchNodeInfo.DistanceToParent);
-						newBranchNodeInfo.DesiredBranchDirection = newBranchNodeRotation.Value * glm::vec3(0, 0, 1);
+						newBranchNodeInfo.DesiredBranchDirection = newBranchNodeRotation.Value * glm::vec3(0, 0, -1);
 						treeInfo.ActiveLength += newBranchNodeInfo.DistanceToParent;
 #pragma region Generate buds for branch node.
 						glm::quat prevBudRotation = baseBudRotation.Value;
@@ -169,22 +176,26 @@ void TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 							prevBudRotation = glm::rotate(prevBudRotation, glm::radians(glm::linearRand(0.0f, tps.VarianceApicalAngle)), glm::normalize(glm::vec3(glm::linearRand(-1, 1), glm::linearRand(-1, 1), glm::linearRand(-1, 1))));
 #pragma endregion
 							newBudRotation.Value = prevBudRotation;
+							glm::vec3 front = newBudRotation.Value * glm::vec3(0, 0, -1);
+							glm::vec3 up = newBudRotation.Value * glm::vec3(0, 1, 0);
+							up = glm::rotate(up,
+								glm::radians(tps.MeanRollAngle + tps.VarianceRollAngle * glm::linearRand(-1, 1)), front);
+							newBudRotation.Value = glm::quatLookAt(front, up);
+							prevBudRotation = newBudRotation.Value;
 							//If the bud is the last bud of the entire shoot, it's set as apical.
 							if (selectedBranchNodeIndex == internodesToGrow - 1 && selectedNewBudIndex == tps.LateralBudNumber - 1) {
 								newBudInfo.Type = BudTypes::APICAL;
 								
-							}
+							}  
 							else {
 								newBudInfo.Type = BudTypes::LATERAL;
 #pragma region Bend Lateral bud direction
-								glm::vec3 up = newBudRotation.Value * glm::vec3(0, 1, 0);
-								glm::vec3 left = newBudRotation.Value * glm::vec3(1, 0, 0);
-								glm::quat leftLook = glm::quatLookAt(left, glm::vec3(0, 1, 0));
-								leftLook = glm::rotate(leftLook, glm::radians(tps.MeanRollAngle + tps.VarianceRollAngle * glm::linearRand(-1, 1)), up);
-								newBudRotation.Value = glm::rotate(newBudRotation.Value,
-									glm::radians(tps.MeanBranchingAngle + tps.VarianceBranchingAngle * glm::linearRand(-1, 1)), leftLook * glm::vec3(0, 0, 1));
-#pragma endregion
-								}
+								glm::vec3 front = newBudRotation.Value * glm::vec3(0, 0, -1);
+								glm::vec3 left = newBudRotation.Value * glm::vec3(-1, 0, 0);
+								front = glm::rotate(front, glm::radians(tps.MeanBranchingAngle + tps.VarianceBranchingAngle * glm::linearRand(-1, 1)), left);
+								glm::vec3 up = glm::cross(front, left);
+								newBudRotation.Value = glm::quatLookAt(front, up);
+							}
 #pragma region Apply tropisms to bud direction
 
 #pragma endregion
@@ -329,7 +340,7 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeColor color, glm::ve
 
 	TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(treeEntity);
 #pragma region Prepare info
-	treeInfo.MaxTreeAge = 8;
+	treeInfo.MaxTreeAge = 6;
 	if (tps.ResourceToGrow > 1.0) treeInfo.InitResourcesFactor = 1.1f;
 	else treeInfo.InitResourcesFactor = 1.0 / tps.ResourceToGrow;
 	treeInfo.MaxLeafClusterDepth = glm::floor(3.0 * tps.ResourceToGrow + 0.5);

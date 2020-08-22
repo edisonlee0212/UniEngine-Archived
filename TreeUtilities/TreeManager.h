@@ -2,14 +2,13 @@
 #include "TreeUtilitiesAPI.h"
 #include "TreeSystem.h"
 #include "BranchSystem.h"
+#include "BranchNodeSystem.h"
 #include "BudSystem.h"
 #include "LeafSystem.h"
 #include "LightEstimator.h"
 using namespace UniEngine;
 namespace TreeUtilities {
 #pragma region Common
-
-
     struct TREEUTILITIES_API TreeIndex : ComponentBase {
         unsigned Value;
         bool operator ==(const TreeIndex& other) const {
@@ -17,12 +16,6 @@ namespace TreeUtilities {
         }
     };
 
-    struct TREEUTILITIES_API Direction {
-        glm::vec3 Value;
-        bool operator ==(const Direction& other) const {
-            return other.Value == Value;
-        }
-    };
     struct TREEUTILITIES_API Mass : ComponentBase {
         float Value;
         bool operator ==(const Mass& other) const {
@@ -232,7 +225,7 @@ namespace TreeUtilities {
         static LightEstimator* _LightEstimator;
 
         static TreeSystem* _TreeSystem;
-        static BranchSystem* _BranchSystem;
+        static BranchNodeSystem* _BranchNodeSystem;
         static BudSystem* _BudSystem;
         static LeafSystem* _LeafSystem;
         
@@ -243,7 +236,7 @@ namespace TreeUtilities {
         static EntityArchetype _TreeArchetype;
 
         static EntityQuery _TreeQuery;
-        static EntityQuery _BranchQuery;
+        static EntityQuery _BranchNodeQuery;
         static EntityQuery _BudQuery;
         static EntityQuery _LeafQuery;
 
@@ -262,12 +255,12 @@ namespace TreeUtilities {
         static bool IsReady();
 
         static EntityQuery GetBudQuery();
-        static EntityQuery GetBranchQuery();
+        static EntityQuery GetBranchNodeQuery();
         static EntityQuery GetTreeQuery();
         static EntityQuery GetLeafQuery();
 
         static BudSystem* GetBudSystem();
-        static BranchSystem* GetBranchSystem();
+        static BranchNodeSystem* GetBranchNodeSystem();
         static TreeSystem* GetTreeSystem();
         static LeafSystem* GetLeafSystem();
 

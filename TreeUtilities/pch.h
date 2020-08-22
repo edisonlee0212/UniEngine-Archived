@@ -40,6 +40,7 @@
 #include <gtx/closest_point.hpp>
 #include <gtc/type_ptr.hpp>
 #include <gtc/random.hpp>
+#include <gtx/rotate_vector.hpp>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"

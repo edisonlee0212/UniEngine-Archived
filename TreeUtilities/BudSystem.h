@@ -18,7 +18,6 @@ namespace TreeUtilities {
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
 
-        EntityQuery _ParentTranslationQuery;
         EntityQuery _ConnectionQuery;
         Material* _BudMaterial;
 
@@ -32,7 +31,6 @@ namespace TreeUtilities {
         void OnDestroy();
         void Update();
         void FixedUpdate();
-        TREEUTILITIES_API void RefreshDirection();
         TREEUTILITIES_API void RefreshConnections();
         TREEUTILITIES_API std::vector<Entity>* GetBudEntities();
     };
