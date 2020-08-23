@@ -132,21 +132,15 @@ void TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 					if (budInfo.Type == BudTypes::LATERAL) level++;
 					Entity prevBranchNode = branchNode;
 					Translation prevBranchNodeTranslation = EntityManager::GetComponentData<Translation>(branchNode);
-					Rotation prevBranchNodeRotation = EntityManager::GetComponentData<Rotation>(branchNode);
+					Rotation prevBranchNodeRotation = budRotation;
 					Scale prevBranchNodeScale = EntityManager::GetComponentData<Scale>(branchNode);
-					Rotation baseBudRotation = budRotation;
 					
 					for (int selectedNewNodeIndex = 0; selectedNewNodeIndex < internodesToGrow; selectedNewNodeIndex++) {
 						Translation newBranchNodeTranslation = Translation();
 						Rotation newBranchNodeRotation = Rotation();
 						Scale newBranchNodeScale = Scale();
 #pragma region Calculate new node transform
-						if (selectedNewNodeIndex == 0) {
-							newBranchNodeRotation.Value = baseBudRotation.Value;
-						}
-						else {
-							newBranchNodeRotation = prevBranchNodeRotation;
-						}
+						newBranchNodeRotation = prevBranchNodeRotation;
 						newBranchNodeScale.Value = prevBranchNodeScale.Value;
 						glm::vec3 direction = newBranchNodeRotation.Value * glm::vec3(0, 0, -1);
 						newBranchNodeTranslation.Value = prevBranchNodeTranslation.Value + internodeLength * direction;
@@ -159,33 +153,39 @@ void TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 						BranchNodeInfo newBranchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(newBranchNode);
 						newBranchNodeInfo.DistanceToParent = internodeLength;
 						newBranchNodeInfo.ParentInhibitorFactor = glm::pow(tps.ApicalDominanceDistanceFactor, newBranchNodeInfo.DistanceToParent);
-						newBranchNodeInfo.DesiredBranchDirection = newBranchNodeRotation.Value * glm::vec3(0, 0, -1);
+						newBranchNodeInfo.DesiredBranchDirection = newBranchNodeRotation.Value;
 						treeInfo.ActiveLength += newBranchNodeInfo.DistanceToParent;
 #pragma region Generate buds for branch node.
-						glm::quat prevBudRotation = baseBudRotation.Value;
+						glm::quat prevBudRotation = prevBranchNodeRotation.Value;
 						for (int selectedNewBudIndex = 0; selectedNewBudIndex < tps.LateralBudNumber; selectedNewBudIndex++) {
 							Entity newBud = TreeManager::CreateBudForBranchNode(treeIndex, newBranchNode);
 							BudInfo newBudInfo = EntityManager::GetComponentData<BudInfo>(newBud);
 							Translation newBudTranslation = Translation();
-							newBudTranslation.Value = prevBranchNodeTranslation.Value + (newBranchNodeTranslation.Value - prevBranchNodeTranslation.Value) / (float)tps.LateralBudNumber * (float)(selectedBudIndex + 1);
+							newBudTranslation.Value = prevBranchNodeTranslation.Value + (newBranchNodeTranslation.Value - prevBranchNodeTranslation.Value) / (float)tps.LateralBudNumber * (float)(selectedNewBudIndex + 1);
 							Rotation newBudRotation;
 							Scale newBudScale = Scale();
-							newBudScale.Value = prevBranchNodeScale.Value + (newBranchNodeScale.Value - prevBranchNodeScale.Value) / (float)tps.LateralBudNumber * (float)(selectedBudIndex + 1);
-#pragma region Vary bud direction
-							//Rotate variance angle by random axis.
-							prevBudRotation = glm::rotate(prevBudRotation, glm::radians(glm::linearRand(0.0f, tps.VarianceApicalAngle)), glm::normalize(glm::vec3(glm::linearRand(-1, 1), glm::linearRand(-1, 1), glm::linearRand(-1, 1))));
-#pragma endregion
+							newBudScale.Value = prevBranchNodeScale.Value + (newBranchNodeScale.Value - prevBranchNodeScale.Value) / (float)tps.LateralBudNumber * (float)(selectedNewBudIndex + 1);
 							newBudRotation.Value = prevBudRotation;
 							glm::vec3 front = newBudRotation.Value * glm::vec3(0, 0, -1);
 							glm::vec3 up = newBudRotation.Value * glm::vec3(0, 1, 0);
 							up = glm::rotate(up,
 								glm::radians(tps.MeanRollAngle + tps.VarianceRollAngle * glm::linearRand(-1, 1)), front);
+							//If this is the last bud, we need to apply apical angle variance.
+							if (selectedNewBudIndex == tps.LateralBudNumber - 1) {
+								glm::vec3 right = glm::cross(front, up);
+								right = glm::rotate(right, glm::radians(glm::linearRand(0.0f, 360.0f)), front);
+								front = glm::rotate(front, glm::radians(glm::gaussRand(tps.VarianceApicalAngle, 1.0f)), right);
+								right = glm::cross(front, up);
+								up = glm::cross(right, front);
+							}
 							newBudRotation.Value = glm::quatLookAt(front, up);
 							prevBudRotation = newBudRotation.Value;
+							if (selectedNewBudIndex == tps.LateralBudNumber - 1) {
+								prevBranchNodeRotation = newBudRotation;
+							}
 							//If the bud is the last bud of the entire shoot, it's set as apical.
 							if (selectedBranchNodeIndex == internodesToGrow - 1 && selectedNewBudIndex == tps.LateralBudNumber - 1) {
 								newBudInfo.Type = BudTypes::APICAL;
-								
 							}  
 							else {
 								newBudInfo.Type = BudTypes::LATERAL;
@@ -199,9 +199,6 @@ void TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 #pragma region Apply tropisms to bud direction
 
 #pragma endregion
-							if (selectedBranchNodeIndex == internodesToGrow - 1 && selectedNewBudIndex == tps.LateralBudNumber - 1) {
-								baseBudRotation = newBudRotation;
-							}
 #pragma region Deactivate first bud or apply info.
 							if (selectedNewBudIndex == 0) {
 								DeactivateBud(newBud, newBranchNode, &budInfo, &branchNodeInfo);
@@ -222,9 +219,7 @@ void TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 						EntityManager::SetComponentData<Scale>(newBranchNode, newBranchNodeScale);
 						prevBranchNode = newBranchNode;
 						prevBranchNodeTranslation = newBranchNodeTranslation;
-						prevBranchNodeRotation = newBranchNodeRotation;
 						prevBranchNodeScale = newBranchNodeScale;
-						prevBranchNodeRotation = newBranchNodeRotation;
 					}
 #pragma region Deactivate current bud since we formed a new shoot from this bud.
 					budRemoved = true;
@@ -313,7 +308,6 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeColor color, glm::ve
 	tps.LateralBudNumber = 4;
 	tps.VarianceApicalAngle = 38;
 	tps.MeanBranchingAngle = 38;
-	tps.VarianceApicalAngle = 2;
 	tps.MeanRollAngle = 90;
 	tps.VarianceRollAngle = 1;
 
@@ -325,10 +319,12 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeColor color, glm::ve
 	tps.ApicalDominanceDistanceFactor = 0.13f;
 	tps.ApicalDominanceAgeFactor = 0.82;
 	tps.GrowthRate = 0.98f;
-	tps.InternodeLengthBase = 1.02f;
+	tps.InternodeLengthBase = 10.2f;
 	tps.InternodeLengthAgeFactor = 0.97f;
 	tps.ApicalControlBase = 2.4f;
 	tps.ApicalControlAgeFactor = 0.85f;
+	tps.ApicalControlLevelFactor = 0.9f;
+	tps.ApicalControlLevelQuadFactor = 0.9f;
 	tps.Phototropism = 0.29f;
 	tps.GravitropismBase = 0.61f;
 	tps.PruningFactor = 0.05;

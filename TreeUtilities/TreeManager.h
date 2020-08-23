@@ -128,7 +128,7 @@ namespace TreeUtilities {
         float Slope;
         float SiblingAngle;
         float ParentAngle;
-        glm::vec3 DesiredBranchDirection;
+        glm::quat DesiredBranchDirection;
     };
 #pragma endregion
 #pragma region Tree
