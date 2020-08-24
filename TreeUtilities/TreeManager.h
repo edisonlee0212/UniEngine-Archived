@@ -136,40 +136,40 @@ namespace TreeUtilities {
 #pragma region Geometric
         int LateralBudNumber;
 
-        float VarianceApicalAngle;
+        float VarianceApicalAngle; // Training target
 
-        float MeanBranchingAngle;
-        float VarianceBranchingAngle;
+        float MeanBranchingAngle; // Training target
+        float VarianceBranchingAngle; // Training target
 
-        float MeanRollAngle;
-        float VarianceRollAngle;
+        float MeanRollAngle; // Training target
+        float VarianceRollAngle; // Training target
 #pragma endregion
 #pragma region Bud fate
-        float ApicalBudExtintionRate;
-        float LateralBudEntintionRate;
+        float ApicalBudExtintionRate; // Useless.
+        float LateralBudEntintionRate; //Useless.
 
-        float ApicalDominanceBase;
-        float ApicalDominanceDistanceFactor;
-        float ApicalDominanceAgeFactor;
+        float ApicalDominanceBase; // Training target
+        float ApicalDominanceDistanceFactor; // Training target
+        float ApicalDominanceAgeFactor; // Training target
 
         float GrowthRate;
 
-        float InternodeLengthBase;
-        float InternodeLengthAgeFactor;
+        float InternodeLengthBase; //Fixed
+        float InternodeLengthAgeFactor; // Training target
 
-        float ApicalControlBase;
-        float ApicalControlAgeFactor;
-        float ApicalControlLevelFactor;
-        float ApicalControlDistanceFactor;
+        float ApicalControl; // Training target
+        float ApicalControlAgeFactor; // Training target
+        float ApicalControlLevelFactor; // Training target
+        float ApicalControlDistanceFactor; // Training target
 
         int MaxBudAge;
 #pragma endregion
 #pragma region Environmental
-        float Phototropism;
-        float GravitropismBase;
-        float GravitropismLevelFactor;
+        float Phototropism; // Based on tree leaf properties.
+        float GravitropismBase; //Based on tree material properties.
+        float GravitropismLevelFactor;  //Based on tree material properties.
 
-        float PruningFactor;
+        float PruningFactor; 
         float LowBranchPruningFactor;
 
         float GravityBendingStrength;
@@ -178,7 +178,7 @@ namespace TreeUtilities {
         float ApicalBudLightingFactor;
         float LateralBudLightingFactor;
 #pragma endregion
-        float ResourceToGrow;
+        size_t Age;
     };
     
     struct TREEUTILITIES_API RewardEstimation : ComponentBase {
@@ -205,15 +205,10 @@ namespace TreeUtilities {
     struct TREEUTILITIES_API TreeInfo : ComponentBase {
         float Height;
         float ActiveLength;
-        float InitResourcesFactor;
-        int MaxLeafClusterDepth;
         int MaxBranchingDepth;
-        size_t Age;
         size_t LateralBudsCount;
-        std::vector<float>* ApicalControlTimeVal;
         std::vector<float>* ApicalDominanceTimeVal;
         std::vector<float>* GravitropismLevelVal;
-        std::vector<std::vector<float>>* ApicalControlTimeLevelVal;
         float ResourceToGrow;
     };
 #pragma endregion

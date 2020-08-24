@@ -32,15 +32,17 @@ namespace TreeUtilities {
         void DeactivateBranch(size_t listIndex, size_t index);
         void DrawGUI();
         void DestroyedTreeCheck();
-        void GrowTree(size_t index);
+        bool GrowTree(size_t index);
     public:
         void GrowAllTrees();
+        void CompleteAllTrees();
+        void CompleteTree(Entity treeEntity);
         void GrowTree(Entity treeEntity);
         void OnCreate();
         void OnDestroy();
         void Update();
         void FixedUpdate();
         Entity CreateTree(TreeParameters parameters, TreeColor color, glm::vec3 position, bool enabled = false);
-        Entity CreateTree(TreeColor color, glm::vec3 position, bool enabled = false);
+        Entity CreateExampleTree(TreeColor color, glm::vec3 position, int index, bool enabled = false);
     };
 }
