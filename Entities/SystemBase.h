@@ -20,8 +20,8 @@ namespace UniEngine {
 		void Disable();
 		bool Enabled();
 
-		virtual void OnCreate() {}
-		virtual void OnDestroy() {}
+		virtual void OnCreate() {};
+		virtual void OnDestroy() {};
 		virtual void Update() {};
 		virtual void FixedUpdate() {};
 	};

@@ -40,6 +40,7 @@ namespace TreeUtilities {
         void OnDestroy();
         void Update();
         void FixedUpdate();
+        Entity CreateTree(TreeParameters parameters, TreeColor color, glm::vec3 position, bool enabled = false);
         Entity CreateTree(TreeColor color, glm::vec3 position, bool enabled = false);
     };
 }

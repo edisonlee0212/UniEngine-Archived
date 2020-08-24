@@ -161,7 +161,6 @@ namespace TreeUtilities {
         float ApicalControlAgeFactor;
         float ApicalControlLevelFactor;
         float ApicalControlDistanceFactor;
-        float ApicalControlLevelQuadFactor;
 
         int MaxBudAge;
 #pragma endregion
@@ -179,7 +178,6 @@ namespace TreeUtilities {
         float ApicalBudLightingFactor;
         float LateralBudLightingFactor;
 #pragma endregion
-        int Version;
         float ResourceToGrow;
     };
     
@@ -210,7 +208,7 @@ namespace TreeUtilities {
         float InitResourcesFactor;
         int MaxLeafClusterDepth;
         int MaxBranchingDepth;
-        size_t MaxTreeAge;
+        size_t Age;
         size_t LateralBudsCount;
         std::vector<float>* ApicalControlTimeVal;
         std::vector<float>* ApicalDominanceTimeVal;
