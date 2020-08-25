@@ -48,10 +48,9 @@ void TreeUtilities::BranchNodeSystem::Update()
 void TreeUtilities::BranchNodeSystem::RefreshConnections()
 {
 	float lineWidth = _ConnectionWidth;
-	EntityManager::ForEach<LocalToWorld, Rotation, Connection>(_BranchNodeQuery, [lineWidth](int i, Entity entity, LocalToWorld* ltw, Rotation* r, Connection* c) {
+	EntityManager::ForEach<LocalToWorld, Rotation, Connection, BranchNodeInfo>(_BranchNodeQuery, [lineWidth](int i, Entity entity, LocalToWorld* ltw, Rotation* r, Connection* c, BranchNodeInfo* info) {
 		glm::vec3 pos = ltw->Value[3];
-		glm::vec3 parentPos = EntityManager::GetComponentData<LocalToWorld>(EntityManager::GetParent(entity)).Value[3];
-		glm::vec3 diff = pos - parentPos;
+		glm::vec3 diff = info->DistanceToParent * (r->Value * glm::vec3(0, 0, -1));
 		c->Value = glm::translate(pos - diff / 2.0f) * glm::mat4_cast(r->Value) * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(glm::vec3(0), diff) / 2.0f));
 		});
 }
