@@ -71,7 +71,6 @@ void TreeUtilities::TreeManager::Init()
         BudIllumination());
     _BranchNodeArchetype = EntityManager::CreateEntityArchetype(
         "BranchNode",
-        Activated(),
         Translation(), Rotation(), Scale(), LocalToWorld(), Connection(),
         BranchNodeIndex(), BranchNodeInfo(), TreeIndex(), BranchNodeBudsList()
     );
@@ -275,9 +274,6 @@ Entity TreeUtilities::TreeManager::CreateBranchNode(TreeIndex treeIndex, Entity 
     EntityManager::SetComponentData(entity, ob);
     _BranchNodeIndex.Value++;
     BranchNodeInfo branchInfo;
-    Activated act;
-    act.Value = true;
-    EntityManager::SetComponentData(entity, act);
     EntityManager::SetComponentData(entity, branchInfo);
     return entity;
 }

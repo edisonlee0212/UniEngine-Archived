@@ -115,6 +115,7 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API BranchNodeInfo : ComponentBase {
+        int MaxChildLevel;
         float Inhibitor = 0;
         float ParentInhibitorFactor = 1;
         int ActivatedBudsAmount = 0;
@@ -158,7 +159,7 @@ namespace TreeUtilities {
         float InternodeLengthAgeFactor; // Training target
 
         float ApicalControl; // Training target
-        float ApicalControlAgeFactor; // Training target
+        float ApicalControlAgeDescFactor; // Training target
         float ApicalControlLevelFactor; // Training target
         float ApicalControlDistanceFactor; // Training target
 
