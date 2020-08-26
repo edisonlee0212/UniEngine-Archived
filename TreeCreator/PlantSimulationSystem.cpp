@@ -177,6 +177,14 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 						for (int selectedNewBudIndex = 0; selectedNewBudIndex < tps.LateralBudNumber; selectedNewBudIndex++) {
 							Entity newBud = TreeManager::CreateBudForBranchNode(treeIndex, newBranchNode);
 							BudInfo newBudInfo = EntityManager::GetComponentData<BudInfo>(newBud);
+							newBudInfo.LeafWidth = 0.4f;
+							newBudInfo.LeafThickness = 1.0f;
+							newBudInfo.LeafLength = 0.6f;
+							newBudInfo.LeafAmount = 3;
+							newBudInfo.BendDegrees = 30.0f;
+							newBudInfo.CircleDegreeStart = -40.0f;
+							newBudInfo.CircleDegreeAddition = 40.0f;
+
 							Translation newBudTranslation = Translation();
 							newBudTranslation.Value = prevBranchNodeTranslation.Value + (newBranchNodeTranslation.Value - prevBranchNodeTranslation.Value) / (float)tps.LateralBudNumber * (float)(selectedNewBudIndex + 1);
 							Rotation newBudRotation;

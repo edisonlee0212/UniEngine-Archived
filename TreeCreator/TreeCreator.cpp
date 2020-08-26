@@ -14,8 +14,12 @@ using namespace TreeUtilities;
 void InitGround();
 void InitSpaceColonizationTreeSystem();
 void InitPlantSimulationSystem();
+
+
+
 int main()
 {
+
 	LightingManager::SetAmbientLight(1.0f);
 	Application::Init();
 
@@ -32,8 +36,8 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
-	//InitSpaceColonizationTreeSystem();
-	InitPlantSimulationSystem();
+	InitSpaceColonizationTreeSystem();
+	//InitPlantSimulationSystem();
 	
 
 	Application::Run();

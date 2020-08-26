@@ -401,6 +401,7 @@ void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
 		if (_EntityInfos->at(parentIndex).Children[i].Index == childIndex) {
 			_EntityInfos->at(parentIndex).Children[i] = _EntityInfos->at(parentIndex).Children.back();
 			_EntityInfos->at(parentIndex).Children.pop_back();
+			break;
 		}
 	}
 	if (_EntityInfos->at(parentIndex).Children.empty()) {

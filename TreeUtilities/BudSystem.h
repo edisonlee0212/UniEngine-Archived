@@ -5,8 +5,6 @@ namespace TreeUtilities {
     enum BudSystemConfigFlags {
         BudSystem_None = 0,
         BudSystem_DrawBuds = 1 << 0,
-        BudSystem_DrawConnections = 1 << 1
-
     };
     class Connection;
     class BudSystem :
@@ -22,7 +20,6 @@ namespace TreeUtilities {
         Material* _BudMaterial;
 
         std::vector<LocalToWorld> _BudLTWList;
-        std::vector<Connection> _ConnectionList;
 
         std::vector<Entity> _BudEntities;
         void DrawGUI();
@@ -31,7 +28,6 @@ namespace TreeUtilities {
         void OnDestroy();
         void Update();
         void FixedUpdate();
-        TREEUTILITIES_API void RefreshConnections();
         TREEUTILITIES_API std::vector<Entity>* GetBudEntities();
     };
 }

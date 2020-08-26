@@ -7,13 +7,7 @@ inline void TreeUtilities::BudSystem::DrawGUI()
 	if (ImGui::CollapsingHeader("Bud System", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Text("Bud Amount: %d ", _BudQuery.GetEntityAmount());
 		ImGui::Separator();
-		ImGui::InputFloat("Bud Connection Width", &_ConnectionWidth);
-		if (ImGui::Button("Regenerate connections for buds")) {
-			RefreshConnections();
-		}
-		ImGui::Separator();
 		ImGui::CheckboxFlags("Draw Buds", &_ConfigFlags, BudSystem_DrawBuds);
-		ImGui::CheckboxFlags("Draw Bud Connections", &_ConfigFlags, BudSystem_DrawConnections);
 	}
 	ImGui::End();
 }
@@ -36,11 +30,9 @@ void TreeUtilities::BudSystem::OnCreate()
 	_BudMaterial->Textures2Ds()->push_back(pointTex);
 
 	_BudLTWList = std::vector<LocalToWorld>();
-	_ConnectionList = std::vector<Connection>();
 
 	_ConfigFlags = 0;
 	//_ConfigFlags += BudSystem_DrawBuds;
-	//_ConfigFlags += BudSystem_DrawConnections;
 	Enable();
 }
 
@@ -68,15 +60,6 @@ void TreeUtilities::BudSystem::Update()
 
 		}
 	}
-	if (_ConfigFlags & BudSystem_DrawConnections) {
-		for (int i = 0; i < treeEntities->size(); i++) {
-			if (treeEntities->at(i).Enabled()) {
-				_ConnectionList.clear();
-				_BudQuery.ToComponentDataArray(treeIndices[i], &_ConnectionList);
-				if (_ConnectionList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].ConnectionColor, (glm::mat4*)_ConnectionList.data(), _ConnectionList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
-			}
-		}
-	}
 	DrawGUI();
 }
 
@@ -84,22 +67,6 @@ void TreeUtilities::BudSystem::FixedUpdate()
 {
 }
 
-
-
-void TreeUtilities::BudSystem::RefreshConnections()
-{
-	float lineWidth = _ConnectionWidth;
-	EntityManager::ForEach<LocalToWorld, Connection>(_BudQuery, [lineWidth](int i, Entity entity, LocalToWorld* ltw, Connection* c) {
-		glm::vec3 pos = ltw->Value[3];
-		glm::vec3 parentPos = EntityManager::GetComponentData<LocalToWorld>(EntityManager::GetParent(entity)).Value[3];
-		glm::vec3 diff = pos - parentPos;
-		glm::quat rotation = glm::quatLookAt(diff, glm::vec3(0, 1, 0));
-		if (glm::any(glm::isnan(rotation))) {
-			rotation = glm::quatLookAt(diff, glm::vec3(0, 0, 1));
-		}
-		c->Value = glm::translate(pos - diff / 2.0f) * glm::mat4_cast(rotation) * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(glm::vec3(0), diff) / 2.0f));
-		});
-}
 
 std::vector<Entity>* TreeUtilities::BudSystem::GetBudEntities()
 {

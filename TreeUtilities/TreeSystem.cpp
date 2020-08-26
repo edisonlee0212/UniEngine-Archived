@@ -74,7 +74,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		title = "Generate Leaves##";
 		title += std::to_string(index.Value);
 		if (ImGui::Button(title.c_str())) {
-			TreeManager::GenerateLeavesForTree(_SelectedTreeEntity, LeafInfo());
+			TreeManager::GenerateLeavesForTree(_SelectedTreeEntity);
 		}
 		title = "Rewards Estimation";
 		title += std::to_string(index.Value);

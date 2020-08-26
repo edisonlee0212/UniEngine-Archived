@@ -228,11 +228,11 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 			growDir = glm::normalize(growDir);
 			Translation t;
 			Rotation r;
-			r.Value = glm::quat(0, 0, 0, 0);
 			Scale s;
 			LocalPosition lp;
 			lp.Value = growDir * growDistance;
 			t.Value = lp.Value + EntityManager::GetComponentData<Translation>(currentBud).Value;
+			r.Value = glm::quatLookAt(lp.Value, glm::vec3(0, 1, 0));
 			s.Value = glm::vec3(1.0f);
 			//TODO: Check newbud is valid.
 			auto childList = EntityManager::GetChildren(currentBud);
@@ -245,6 +245,16 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 			if (!tooClose) {
 				newBudAmount++;
 				auto newBud = TreeManager::CreateBud(EntityManager::GetComponentData<TreeIndex>(currentBud), currentBud);
+				BudInfo newBudInfo;
+				newBudInfo.LeafWidth = 0.4f;
+				newBudInfo.LeafThickness = 1.0f;
+				newBudInfo.LeafLength = 0.6f;
+				newBudInfo.LeafAmount = 3;
+				newBudInfo.BendDegrees = 30.0f;
+				newBudInfo.CircleDegreeStart = -40.0f;
+				newBudInfo.CircleDegreeAddition = 40.0f;
+				EntityManager::SetComponentData(newBud, newBudInfo);
+
 				EntityManager::SetComponentData(newBud, lp);
 				EntityManager::SetComponentData(newBud, t);
 				EntityManager::SetComponentData(newBud, r);
@@ -393,11 +403,11 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 			growDir = glm::normalize(growDir);
 			Translation t;
 			Rotation r;
-			r.Value = glm::quat(0, 0, 0, 0);
 			Scale s;
 			LocalPosition lp;
 			lp.Value = growDir * growDistance;
 			t.Value = lp.Value + EntityManager::GetComponentData<Translation>(currentBud).Value;
+			r.Value = glm::quatLookAt(lp.Value, glm::vec3(0, 1, 0));
 			s.Value = glm::vec3(1.0f);
 			//TODO: Check newbud is valid.
 			auto childList = EntityManager::GetChildren(currentBud);
@@ -409,7 +419,16 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 			}
 			if (!tooClose) {
 				newBudAmount++;
-				auto newBud = TreeManager::CreateBud(EntityManager::GetComponentData<TreeIndex>(currentBud), currentBud);
+				auto newBud = TreeManager::CreateBud(EntityManager::GetComponentData<TreeIndex>(currentBud), currentBud); 
+				BudInfo newBudInfo;
+				newBudInfo.LeafWidth = 0.4f;
+				newBudInfo.LeafThickness = 1.0f;
+				newBudInfo.LeafLength = 0.6f;
+				newBudInfo.LeafAmount = 3;
+				newBudInfo.BendDegrees = 30.0f;
+				newBudInfo.CircleDegreeStart = -40.0f;
+				newBudInfo.CircleDegreeAddition = 40.0f;
+				EntityManager::SetComponentData(newBud, newBudInfo);
 				EntityManager::SetComponentData(newBud, lp);
 				EntityManager::SetComponentData(newBud, t);
 				EntityManager::SetComponentData(newBud, r);
@@ -502,8 +521,7 @@ void SpaceColonizationTreeSystem::Update()
 void SpaceColonizationTreeSystem::FixedUpdate()
 {
 	if (_IterationFinishMark) {
-		_BudSystem->RefreshConnections();
-		TreeManager::GenerateLeavesForAllTrees(LeafInfo());
+		TreeManager::GenerateLeavesForAllTrees();
 		_IterationFinishMark = false;
 	}
 	if (_AllTreesToGrowIteration > 0) {

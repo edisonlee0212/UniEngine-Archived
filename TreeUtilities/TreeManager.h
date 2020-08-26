@@ -44,8 +44,7 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API LeafInfo : ComponentBase {
-        float BendDegrees = 90.0f;
-        float CircleDegreeAddition = 120.0f;
+        
     };
 #pragma endregion
 #pragma region Bud
@@ -90,10 +89,18 @@ namespace TreeUtilities {
         APICAL
     };
     struct TREEUTILITIES_API BudInfo : ComponentBase {
-        bool Searching;
-        BudTypes Type;
-        float Inhibitor;
+        bool Searching = false;
+        BudTypes Type = BudTypes::APICAL;
+        float Inhibitor = 0;
         int StartAge = -1;
+
+        float LeafWidth = 0.4f;
+        float LeafThickness = 1.0f;
+        float LeafLength = 0.6f;
+        int LeafAmount = 3;
+        float BendDegrees = 30.0f;
+        float CircleDegreeStart = -40.0f;
+        float CircleDegreeAddition = 40.0f;
     };
 
     struct TREEUTILITIES_API BudIllumination : ComponentBase {
@@ -241,7 +248,7 @@ namespace TreeUtilities {
 
         static bool _Ready;
         
-        static void LeafGenerationHelper(LeafInfo info, Entity leaf, Entity bud, int index);
+        static void LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index);
         
         static void BranchRemover(Entity branchEntity);
     public:
@@ -260,8 +267,8 @@ namespace TreeUtilities {
 
         static void GetAllTrees(std::vector<Entity>* container);
         
-        static void GenerateLeavesForTree(Entity treeEntity, LeafInfo leafInfo);
-        static void GenerateLeavesForAllTrees(LeafInfo leafInfo);
+        static void GenerateLeavesForTree(Entity treeEntity);
+        static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);
         static void GenerateMeshForTree(Entity treeEntity);

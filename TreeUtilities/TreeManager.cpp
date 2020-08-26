@@ -27,22 +27,25 @@ LeafIndex TreeUtilities::TreeManager::_LeafIndex;
 
 bool TreeUtilities::TreeManager::_Ready;
 #pragma region Helpers
-inline void TreeUtilities::TreeManager::LeafGenerationHelper(LeafInfo info, Entity leaf, Entity bud, int index)
+inline void TreeUtilities::TreeManager::LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index)
 {
-    EntityManager::SetComponentData(leaf, info);
-    Translation t;
+    Translation t = EntityManager::GetComponentData<Translation>(bud);
     Scale s;
     Rotation r;
-    t.Value = EntityManager::GetComponentData<Translation>(bud).Value;
-    s.Value = glm::vec3(0.4f);
-
-    auto pltw = EntityManager::GetComponentData<LocalToWorld>(EntityManager::GetParent(bud));
-    auto ltw = EntityManager::GetComponentData<LocalToWorld>(bud);
-    glm::vec3 diff = glm::normalize(glm::vec3(ltw.Value[3]) - glm::vec3(pltw.Value[3]));
-    glm::quat right = glm::quatLookAt(glm::cross(diff, glm::vec3(0, 1, 0)), diff);
-    right = glm::rotate(right, glm::radians(info.CircleDegreeAddition * index), diff);
-    r.Value = glm::quatLookAt(diff, glm::vec3(0, 1, 0));
-    r.Value = glm::rotate(r.Value, glm::radians(info.BendDegrees), right * glm::vec3(0, 0, 1));
+    s.Value = glm::vec3(info.LeafWidth, info.LeafThickness, info.LeafLength);
+    BranchNodeOwner owner = EntityManager::GetComponentData<BranchNodeOwner>(bud);
+    glm::vec3 budDirection = EntityManager::GetComponentData<Rotation>(owner.Value).Value * glm::vec3(0, 0, -1);
+    glm::vec3 front = glm::normalize(glm::cross(glm::cross(budDirection, glm::vec3(0, 1, 0)), glm::vec3(0, 1, 0)));
+    front = glm::rotate(front, glm::radians(info.CircleDegreeStart + index * info.CircleDegreeAddition), glm::vec3(0, 1, 0));
+    front = glm::rotate(front, glm::radians(info.BendDegrees), glm::cross(front, glm::vec3(0, 1, 0)));
+    r.Value = glm::quatLookAt(front, glm::vec3(0, 1, 0));
+    if (glm::any(glm::isnan(r.Value))) {
+        float random = glm::radians(glm::linearRand(0.0f, 360.0f));
+        front = glm::vec3(glm::sin(random), 0, glm::cos(random));
+        front = glm::rotate(front, glm::radians(info.CircleDegreeStart + index * info.CircleDegreeAddition), glm::vec3(0, 1, 0));
+        front = glm::rotate(front, glm::radians(info.BendDegrees), glm::cross(front, glm::vec3(0, 1, 0)));
+        r.Value = glm::quatLookAt(front, glm::vec3(0, 1, 0));
+    }
     EntityManager::SetComponentData(leaf, t);
     EntityManager::SetComponentData(leaf, s);
     EntityManager::SetComponentData(leaf, r);
@@ -163,7 +166,7 @@ void TreeUtilities::TreeManager::GetAllTrees(std::vector<Entity>* container)
     return _TreeQuery.ToEntityArray(container);
 }
 
-void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity, LeafInfo leafInfo)
+void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 {
     TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(treeEntity);
 #pragma region Create leaves for all buds
@@ -175,13 +178,13 @@ void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity, LeafIn
         for (auto i : children) {
             if (EntityManager::HasComponentData<LeafIndex>(i)) EntityManager::DeleteEntity(i);
         }
+        auto budInfo = EntityManager::GetComponentData<BudInfo>(bud);
         //Generate leaves
-        int leavesAmount = 2;
-        for (int i = 0; i < leavesAmount; i++) {
+        for (int i = 0; i < budInfo.LeafAmount; i++) {
             Entity leaf = CreateLeaf(treeIndex, bud);
             //TODO: Set Component Data for leaf.
             EntityManager::SetComponentData(leaf, treeIndex);
-            LeafGenerationHelper(leafInfo, leaf, bud, i);
+            LeafGenerationHelper(budInfo, leaf, bud, i);
         }
     }
 #pragma endregion
@@ -196,23 +199,24 @@ void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity, LeafIn
 #pragma endregion
 }
 
-void TreeUtilities::TreeManager::GenerateLeavesForAllTrees(LeafInfo leafInfo)
+void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
 {
 #pragma region Create leaves for all buds
     std::vector<Entity> buds;
     _BudQuery.ToEntityArray(&buds);
-    for (Entity bud : buds) {
+    for (int budIndex = 0; budIndex < buds.size(); budIndex++) {
+        auto& bud = buds.at(budIndex);
         //Clear all leafs
         auto children = EntityManager::GetChildren(bud);
         for (auto i : children) {
             if (EntityManager::HasComponentData<LeafIndex>(i)) EntityManager::DeleteEntity(i);
         }
+        auto budInfo = EntityManager::GetComponentData<BudInfo>(bud);
         //Generate leaves
-        int leavesAmount = 2;
-        for (int i = 0; i < leavesAmount; i++) {
+        for (int i = 0; i < budInfo.LeafAmount; i++) {
             Entity leaf = CreateLeaf(EntityManager::GetComponentData<TreeIndex>(bud), bud);
             //TODO: Set Component Data for leaf.
-            LeafGenerationHelper(leafInfo, leaf, bud, i);
+            LeafGenerationHelper(budInfo, leaf, bud, i);
         }
     }
 #pragma endregion
