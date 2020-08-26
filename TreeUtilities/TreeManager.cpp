@@ -34,7 +34,13 @@ inline void TreeUtilities::TreeManager::LeafGenerationHelper(BudInfo& info, Enti
     Rotation r;
     s.Value = glm::vec3(info.LeafWidth, info.LeafThickness, info.LeafLength);
     BranchNodeOwner owner = EntityManager::GetComponentData<BranchNodeOwner>(bud);
-    glm::vec3 budDirection = EntityManager::GetComponentData<Rotation>(owner.Value).Value * glm::vec3(0, 0, -1);
+    glm::vec3 budDirection;
+    if (owner.Value.Version == 0) {
+        budDirection = EntityManager::GetComponentData<Rotation>(bud).Value * glm::vec3(0, 0, -1);
+    }
+    else {
+        budDirection = EntityManager::GetComponentData<Rotation>(owner.Value).Value* glm::vec3(0, 0, -1);
+    }
     glm::vec3 front = glm::normalize(glm::cross(glm::cross(budDirection, glm::vec3(0, 1, 0)), glm::vec3(0, 1, 0)));
     front = glm::rotate(front, glm::radians(info.CircleDegreeStart + index * info.CircleDegreeAddition), glm::vec3(0, 1, 0));
     front = glm::rotate(front, glm::radians(info.BendDegrees), glm::cross(front, glm::vec3(0, 1, 0)));

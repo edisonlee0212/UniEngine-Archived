@@ -1,20 +1,35 @@
 #include "pch.h"
 #include "LightEstimator.h"
 #include "TreeManager.h"
-TreeUtilities::LightSnapShot::LightSnapShot(size_t resolution, float angle, float weight)
+TreeUtilities::LightSnapShot::LightSnapShot(size_t resolution, glm::vec3 direction, float centerDistance, float weight)
 {
 	_SnapShotTexture = new GLTexture2D(1, GL_RGBA32F, resolution, resolution);
 	_SnapShotTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_SnapShotTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_SnapShotTexture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_SnapShotTexture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	_Angle = angle;
+	_Direction = glm::normalize(direction);
+	_CenterDistance = centerDistance;
 	_Weight = weight;
 	_Score = 0;
 	_Resolution = resolution;
 	_PPBO = new GLPPBO();
 	_PPBO->SetData(resolution * resolution * sizeof(float) * 4, nullptr, GL_STREAM_READ);
 	_SRC = (float*)malloc(resolution * resolution * sizeof(float) * 4);
+}
+
+glm::mat4 TreeUtilities::LightSnapShot::GetViewMatrix(glm::vec3& centerPosition)
+{
+	glm::mat4 view = glm::lookAt(centerPosition - _CenterDistance * _Direction, centerPosition, glm::vec3(0, 1, 0));
+	if (glm::any(glm::isnan(view[3]))) {
+		view = glm::lookAt(centerPosition - _CenterDistance * _Direction, centerPosition, glm::vec3(0, 0, 1));
+	}
+	return view;
+}
+
+glm::vec3 TreeUtilities::LightSnapShot::GetDirection()
+{
+	return _Direction;
 }
 
 float TreeUtilities::LightSnapShot::CalculateScore()
@@ -29,6 +44,21 @@ float TreeUtilities::LightSnapShot::CalculateScore()
 	return _Score;
 }
 
+float TreeUtilities::LightSnapShot::CenterDistance()
+{
+	return _CenterDistance;
+}
+
+float TreeUtilities::LightSnapShot::Width()
+{
+	return _Width;
+}
+
+float TreeUtilities::LightSnapShot::GetBlockerDistance(glm::vec3& centerPosition, glm::vec3& estimatePosition)
+{
+	return 0.0f;
+}
+
 TreeUtilities::LightSnapShot::~LightSnapShot()
 {
 	free(_SRC);
@@ -36,7 +66,7 @@ TreeUtilities::LightSnapShot::~LightSnapShot()
 	delete(_SnapShotTexture);
 }
 
-TreeUtilities::LightEstimator::LightEstimator(size_t resolution) : _Resolution(resolution)
+TreeUtilities::LightEstimator::LightEstimator(size_t resolution, float centerDistance) : _Resolution(resolution)
 {
 	_RenderTarget = new RenderTarget(resolution, resolution);
 	_DepthBuffer = new GLRenderBuffer();
@@ -51,11 +81,29 @@ TreeUtilities::LightEstimator::LightEstimator(size_t resolution) : _Resolution(r
 	_SnapShotProgram = new GLProgram(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode));
-	_SnapShots.push_back(new LightSnapShot(resolution, 0, 1.0f));
-	_SnapShots.push_back(new LightSnapShot(resolution, 45, 5.0f));
-	_SnapShots.push_back(new LightSnapShot(resolution, 90, 10.0f));
-	_SnapShots.push_back(new LightSnapShot(resolution, 135, 5.0f));
-	_SnapShots.push_back(new LightSnapShot(resolution, 180, 1.0f));
+}
+
+void TreeUtilities::LightEstimator::ResetCenterDistance(float distance)
+{
+	_CenterDistance = distance;
+}
+
+void TreeUtilities::LightEstimator::ResetSnapShotWidth(float width)
+{
+	_SnapShotWidth = width;
+}
+
+void TreeUtilities::LightEstimator::PushSnapShot(glm::vec3 direction, float weight)
+{
+	_SnapShots.push_back(new LightSnapShot(_Resolution, direction, _CenterDistance, weight));
+}
+
+void TreeUtilities::LightEstimator::Clear()
+{
+	for (int i = 0; i < _SnapShots.size(); i++) {
+		delete _SnapShots[i];
+	}
+	_SnapShots.clear();
 }
 
 void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calculateScore)
@@ -97,11 +145,10 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0, 0, 0, 1);
-		glm::mat4 view;
-		glm::mat4 projection;
 		glm::vec3 treePosition = glm::vec3(EntityManager::GetComponentData<LocalToWorld>(treeEntity).Value[3]);
-		view = glm::lookAt(treePosition + _SnapShotWidth * glm::vec3(glm::cos(glm::radians(ss->GetAngle())), glm::sin(glm::radians(ss->GetAngle())), 0.0f), treePosition, glm::vec3(0, 0, 1));
-		projection = glm::ortho(-_SnapShotWidth, _SnapShotWidth, -_SnapShotWidth, _SnapShotWidth, 0.0f, _SnapShotWidth * 2.0f);
+		glm::mat4 view = ss->GetViewMatrix(treePosition);
+		glm::mat4 projection;
+		projection = glm::ortho(-_SnapShotWidth, _SnapShotWidth, -_SnapShotWidth, _SnapShotWidth, 0.0f, _CenterDistance * 2.0f);
 		glm::mat4 lsm = projection * view;
 		_SnapShotProgram->SetFloat4x4("lightSpaceMatrix", lsm);
 		_SnapShotProgram->SetFloat4x4("model", model);
