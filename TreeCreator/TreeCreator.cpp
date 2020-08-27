@@ -41,12 +41,12 @@ int main()
 	
 	//45
 
-	/*
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0.5), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -0.5), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0.5, -1, 0), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-0.5, -1, 0), 5.0f);
-	*/
+	float tilt = 0.2f;
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 5.0f);
+	
 
 	/*
 	//90
