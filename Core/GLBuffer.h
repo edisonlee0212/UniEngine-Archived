@@ -31,9 +31,6 @@ namespace UniEngine {
 		static void BindDefault() {
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		}
-		~GLPPBO() {
-			BindDefault();
-		}
 	};
 
 	class CORE_API GLPUBO : public GLBuffer {
@@ -41,9 +38,6 @@ namespace UniEngine {
 		GLPUBO() : GLBuffer(GL_PIXEL_UNPACK_BUFFER) {}
 		static void BindDefault() {
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-		}
-		~GLPUBO() {
-			BindDefault();
 		}
 	};
 
@@ -53,9 +47,6 @@ namespace UniEngine {
 		static void BindDefault() {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
-		~GLEBO() {
-			BindDefault();
-		}
 	};
 
 	class CORE_API GLVBO : public GLBuffer {
@@ -63,9 +54,6 @@ namespace UniEngine {
 		GLVBO() : GLBuffer(GL_ARRAY_BUFFER) {}
 		static void BindDefault() {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-		}
-		~GLVBO() {
-			BindDefault();
 		}
 	};
 
@@ -82,9 +70,6 @@ namespace UniEngine {
 			GLintptr offset,
 			GLsizeiptr size) {
 			glBindBufferRange(GL_UNIFORM_BUFFER, index, _ID, offset, size);
-		}
-		~GLUBO() {
-			BindDefault();
 		}
 	};
 

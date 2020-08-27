@@ -36,20 +36,23 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
+	//From top
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, 0), 10.0f);
+	/*
+	//45
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, 1), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, -1), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(1, 1, 0), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-1, 1, 0), 5.0f);
 
-	float angle = 0;
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, glm::sin(angle), glm::cos(angle)), 1.0f);
-	angle = 45;
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, glm::sin(angle), glm::cos(angle)), 5.0f);
-	angle = 90;
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, glm::sin(angle), glm::cos(angle)), 10.0f);
-	angle = 135;
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, glm::sin(angle), glm::cos(angle)), 5.0f);
-	angle = 180;
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, glm::sin(angle), glm::cos(angle)), 1.0f);
-
-	InitSpaceColonizationTreeSystem();
-	//InitPlantSimulationSystem();
+	//90
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 0, 1), 1.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 0, -1), 1.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(1, 0, 1), 1.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-1, 0, 0), 1.0f);
+	*/
+	//InitSpaceColonizationTreeSystem();
+	InitPlantSimulationSystem();
 	
 
 	Application::Run();

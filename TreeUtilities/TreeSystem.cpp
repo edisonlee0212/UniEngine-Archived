@@ -76,7 +76,12 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		if (ImGui::Button(title.c_str())) {
 			TreeManager::GenerateLeavesForTree(_SelectedTreeEntity);
 		}
-		title = "Rewards Estimation";
+		title = "Prone Leaves##";
+		title += std::to_string(index.Value);
+		if (ImGui::Button(title.c_str())) {
+			TreeManager::ProneLeavesForTree(_SelectedTreeEntity);
+		}
+		title = "Rewards Estimation##";
 		title += std::to_string(index.Value);
 		if (ImGui::CollapsingHeader(title.c_str())) {
 			if (ImGui::Button("Estimate lighting")) {
@@ -91,7 +96,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 			ImGui::Text(title.c_str());
 			auto ss = TreeManager::GetLightEstimator()->GetSnapShots();
 			for (auto i : *ss) {
-				ImGui::Image((ImTextureID)i->SnapShotTexture()->ID(), ImVec2(100, 100));
+				ImGui::Image((ImTextureID)i->SnapShotTexture()->ID(), ImVec2(300, 300));
 			}
 		}
 		if (ImGui::CollapsingHeader("Color Settings")) {

@@ -44,7 +44,7 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API LeafInfo : ComponentBase {
-        
+        bool Illumated;
     };
 #pragma endregion
 #pragma region Bud
@@ -268,6 +268,7 @@ namespace TreeUtilities {
         static void GetAllTrees(std::vector<Entity>* container);
         
         static void GenerateLeavesForTree(Entity treeEntity);
+        static void ProneLeavesForTree(Entity treeEntity);
         static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);

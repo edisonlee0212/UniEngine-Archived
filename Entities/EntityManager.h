@@ -120,9 +120,17 @@ namespace UniEngine {
 		template<typename T = ComponentBase>
 		static void SetComponentData(Entity entity, T value);
 		template<typename T = ComponentBase>
+		static void SetComponentData(size_t index, T value);
+
+		template<typename T = ComponentBase>
 		static T GetComponentData(Entity entity);
 		template<typename T = ComponentBase>
 		static bool HasComponentData(Entity entity);
+
+		template<typename T = ComponentBase>
+		static T GetComponentData(size_t index);
+		template<typename T = ComponentBase>
+		static bool HasComponentData(size_t index);
 
 		template <typename T = SharedComponentBase>
 		static T* GetSharedComponent(Entity entity);
@@ -997,6 +1005,33 @@ namespace UniEngine {
 		}
 	}
 	template<typename T>
+	inline void EntityManager::SetComponentData(size_t index, T value)
+	{
+		if (index > _EntityInfos->size()) return;
+		EntityInfo info;
+		info = _EntityInfos->at(index);
+
+		if (_Entities->at(index).Version != 0) {
+			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+			size_t id = typeid(T).hash_code();
+			auto search = chunkInfo->ComponentTypes.find(id);
+			if (search != chunkInfo->ComponentTypes.end()) {
+				chunk.SetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size), value);
+			}
+			else {
+				Debug::Log("ComponentData doesn't exist");
+				return;
+			}
+		}
+		else {
+			Debug::Error("Entity already deleted!");
+			return;
+		}
+	}
+	template<typename T>
 	inline T EntityManager::GetComponentData(Entity entity)
 	{
 		if (entity.IsNull()) return T();
@@ -1033,12 +1068,51 @@ namespace UniEngine {
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
 			auto search = chunkInfo->ComponentTypes.find(id);
+			return search != chunkInfo->ComponentTypes.end();
+		}
+		else {
+			Debug::Error("Entity already deleted!");
+			return false;
+		}
+	}
+	template<typename T>
+	inline T EntityManager::GetComponentData(size_t index)
+	{
+		if (index > _EntityInfos->size()) return T();
+		EntityInfo info = _EntityInfos->at(index);
+		if (_Entities->at(index).Version != 0) {
+			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+			size_t id = typeid(T).hash_code();
+			auto search = chunkInfo->ComponentTypes.find(id);
 			if (search != chunkInfo->ComponentTypes.end()) {
-				return true;
+				return chunk.GetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size));
 			}
 			else {
-				return false;
+				Debug::Log("ComponentData doesn't exist");
+				return T();
 			}
+		}
+		else {
+			Debug::Error("Entity already deleted!");
+			return T();
+		}
+	}
+	template<typename T>
+	inline bool EntityManager::HasComponentData(size_t index)
+	{
+		if (index > _EntityInfos->size()) return false;
+		EntityInfo info = _EntityInfos->at(index);
+		if (_Entities->at(index).Version != 0) {
+			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+			size_t id = typeid(T).hash_code();
+			auto search = chunkInfo->ComponentTypes.find(id);
+			return search != chunkInfo->ComponentTypes.end();
 		}
 		else {
 			Debug::Error("Entity already deleted!");

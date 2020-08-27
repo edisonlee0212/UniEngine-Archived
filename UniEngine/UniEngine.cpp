@@ -143,7 +143,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	InputManager::Init();
 	_ThreadPool.Resize(std::thread::hardware_concurrency());
 	EntityManager::Init(&_ThreadPool);
-
+	ManagerBase::_ThreadPool = &_ThreadPool;
 
 	GLInit();
 	_World = new World(0, &_ThreadPool);

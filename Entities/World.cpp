@@ -47,6 +47,7 @@ void UniEngine::World::Init()
 	_Time->_LastFrameTime = 0;
 	_Time->_FixedDeltaTime = 0;
 	ManagerBase::_World = this;
+	
 }
 
 

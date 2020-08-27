@@ -5,7 +5,7 @@ static const char* EnvelopeTypes[]{ "Default", "Box", "Cylinder", "Coil" };
 void SpaceColonizationTreeSystem::DrawGUI()
 {
 	ImGui::Begin("Space Colonization");
-
+	
 	if (ImGui::CollapsingHeader("Tree Creation controller")) {
 		ImGui::TreePush();
 		std::string title = "Tree Color";
@@ -246,9 +246,9 @@ void SpaceColonizationTreeSystem::GrowAllTrees(float attractionDistance, float r
 				newBudAmount++;
 				auto newBud = TreeManager::CreateBud(EntityManager::GetComponentData<TreeIndex>(currentBud), currentBud);
 				BudInfo newBudInfo;
-				newBudInfo.LeafWidth = 0.4f;
+				newBudInfo.LeafWidth = 6.0f;
 				newBudInfo.LeafThickness = 1.0f;
-				newBudInfo.LeafLength = 0.6f;
+				newBudInfo.LeafLength = 6.6f;
 				newBudInfo.LeafAmount = 3;
 				newBudInfo.BendDegrees = 30.0f;
 				newBudInfo.CircleDegreeStart = -40.0f;
@@ -421,9 +421,9 @@ void SpaceColonizationTreeSystem::GrowTree(Entity treeEntity, float attractionDi
 				newBudAmount++;
 				auto newBud = TreeManager::CreateBud(EntityManager::GetComponentData<TreeIndex>(currentBud), currentBud); 
 				BudInfo newBudInfo;
-				newBudInfo.LeafWidth = 0.4f;
+				newBudInfo.LeafWidth = 6.0f;
 				newBudInfo.LeafThickness = 1.0f;
-				newBudInfo.LeafLength = 0.6f;
+				newBudInfo.LeafLength = 6.6f;
 				newBudInfo.LeafAmount = 3;
 				newBudInfo.BendDegrees = 30.0f;
 				newBudInfo.CircleDegreeStart = -40.0f;
