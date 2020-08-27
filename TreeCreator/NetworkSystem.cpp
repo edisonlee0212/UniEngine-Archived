@@ -41,38 +41,57 @@ void UniEngine::NetworkSystem::OnCreate() {
 }
 
 //transfer the data from local queue to the queue sending data
-void UniEngine::NetworkSystem::transferdata()
+void UniEngine::NetworkSystem::transferdataToServer()
 {
-	if (data_queue_server.empty()) {
-		data_queue_local.swap(data_queue_server);
+	if (data_queue_server_s.empty()) {
+		data_queue_local_s.swap(data_queue_server_s);
 	}
 	else {
-		while (!data_queue_local.empty())
+		while (!data_queue_local_s.empty())
 		{
-			data_queue_server.push(data_queue_local.front());
-			data_queue_local.pop();
+			data_queue_server_s.push(data_queue_local_s.front());
+			data_queue_local_s.pop();
+		}
+	}
+}
+
+void UniEngine::NetworkSystem::transferDatatoLocal()
+{
+	if (data_queue_local_r.empty()) {
+		data_queue_server_r.swap(data_queue_local_r);
+	}
+	else {
+		while (!data_queue_server_r.empty())
+		{
+			data_queue_local_r.push(data_queue_server_r.front());
+			data_queue_server_r.pop();
 		}
 	}
 }
 
 void UniEngine::NetworkSystem::FixedUpdate()
 {
-	NetworkSystem::transferdata();
+	NetworkSystem::transferdataToServer();
+	NetworkSystem::transferDatatoLocal();
 	std::vector<std::shared_future<void>> futures;
 	SOCKET s = NetworkSystem::socket_address;
-	std::queue<std::string> dqs = data_queue_server;
-	futures.push_back(_ThreadPool->Push([&s,&dqs](int id) {
-		while (!dqs.empty())
+	std::queue<std::string> dqss = data_queue_server_s;
+	std::queue<std::string> dqsr = data_queue_server_r;
+	futures.push_back(_ThreadPool->Push([&s,&dqss](int id) {
+		while (!dqss.empty())
 		{
-			std::string tempstr = dqs.front();
+			std::string tempstr = dqss.front();
 			send(s, tempstr.c_str(), tempstr.size() + 1, 0);
-			dqs.pop();
+			dqss.pop();
 		}
+	}).share());
+	futures.push_back(_ThreadPool->Push([&s, &dqsr](int id) {
 		while (true)
 		{
 			char buf[4096];
 			ZeroMemory(buf, 4096);
 			int bytesReceived = recv(s, buf, 4096, 0);
+			dqsr.push(std::string(buf));
 			if (bytesReceived == SOCKET_ERROR)
 			{
 				std::cerr << "Error in recv(). Quitting" << std::endl;
@@ -92,5 +111,6 @@ void UniEngine::NetworkSystem::FixedUpdate()
 			}
 		}
 	}).share());
+
 	//for (auto i : futures) i.wait(); // do not need to wait
 }

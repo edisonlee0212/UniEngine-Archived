@@ -14,11 +14,13 @@ namespace UniEngine {
 		void FixedUpdate();
 	public:
 		SOCKET socket_address;//might change to pool of socket in the future
-		std::queue<std::string> data_queue_local;
-		std::queue<std::string> data_queue_server;
-		std::queue<std::string> data_queue_receive;
+		std::queue<std::string> data_queue_local_s;
+		std::queue<std::string> data_queue_server_s;
+		std::queue<std::string> data_queue_server_r;
+		std::queue<std::string> data_queue_local_r;
 	private:
-		void transferdata();
+		void transferdataToServer();
+		void transferDatatoLocal();
 	};
 }
 
