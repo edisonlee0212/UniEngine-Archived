@@ -76,29 +76,30 @@ float TreeUtilities::LightSnapShot::Resolution()
 	return _Resolution;
 }
 
-float TreeUtilities::LightSnapShot::GetBlockerDistance(glm::vec3& centerPosition, glm::vec3& estimatePosition)
+float TreeUtilities::LightSnapShot::GetBlockerDistance(glm::vec3& centerPosition, glm::vec3& pos)
 {
 	glm::mat4 lightSpaceMat = GetLightSpaceMatrix(centerPosition);
-	//From shader.
-	glm::vec3 position = lightSpaceMat * glm::translate(estimatePosition) * glm::vec4(0, 0, 0, 1);
-	float x = (position.x * 0.5f + 0.5f) * _Resolution;
-	float y = (position.y * 0.5f + 0.5f) * _Resolution;
-	float depthVal = _SRC[(int)(x * _Resolution + y) * 4];
-	float distance = _CenterDistance * depthVal - position.z;
+
+	glm::vec3 position = lightSpaceMat * glm::translate(pos) * glm::vec4(0, 0, 0, 1);
+	float x = ((position.x + 1.0f) * 0.5f) * _Resolution;
+	float y = ((position.y + 1.0f) * 0.5f) * _Resolution;
+	glm::vec3 depthVal4 = GetDepth(y, x);
+	
+	float distance = 0;
 	if (distance < 0.0f) distance = 0.0f;
 	return distance;
 }
 
 unsigned TreeUtilities::LightSnapShot::GetLeafEntityIndex(size_t x, size_t y)
 {
-	unsigned r = (unsigned)(_SRC[(x * _Resolution + y) * 4] + 0.5f);
-	unsigned g = (unsigned)(_SRC[(x * _Resolution + y) * 4 + 1] + 0.5f);
-	unsigned b = (unsigned)(_SRC[(x * _Resolution + y) * 4 + 2] + 0.5f);
-	float a = _SRC[(x * _Resolution + y) * 4 + 3];
-	if ((r + 256 * g + 65536 * b) > 0) {
-		Debug::Log("Check!");
-	}
-	return r + 256 * g + 65536 * b;
+	float r = (_SRC[(x * _Resolution + y) * 4] + 0.5f);
+	int ru = r;
+	return ru;
+}
+
+glm::vec3 TreeUtilities::LightSnapShot::GetDepth(size_t x, size_t y)
+{
+	return glm::vec3(_SRC[(x * _Resolution + y) * 4 + 1], _SRC[(x * _Resolution + y) * 4 + 2], _SRC[(x * _Resolution + y) * 4 + 3]);
 }
 
 TreeUtilities::LightSnapShot::~LightSnapShot()
@@ -165,14 +166,18 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 	GLVBO indicesBuffer;
 	size_t count = matrices.size();
 	if (count == 0) return;
+	mesh->Enable();
+
 	indicesBuffer.SetData((GLsizei)count * sizeof(Entity), leafEntities.data(), GL_STATIC_DRAW);
+	mesh->VAO()->EnableAttributeArray(11);
+	mesh->VAO()->SetAttributeIntPointer(11, 1, GL_UNSIGNED_INT, sizeof(Entity), (void*)0);
+	mesh->VAO()->SetAttributeDivisor(11, 1);
+
 	GLVBO matricesBuffer;
 	matricesBuffer.SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_STATIC_DRAW);
 
-	mesh->Enable();
-	mesh->VAO()->EnableAttributeArray(11);
-	mesh->VAO()->SetAttributePointer(11, 2, GL_UNSIGNED_INT, GL_FALSE, 0, (void*)0);
-	mesh->VAO()->SetAttributeDivisor(11, 1);
+	
+	
 
 	
 	mesh->VAO()->EnableAttributeArray(12);

@@ -197,17 +197,13 @@ void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 
 }
 
-void TreeUtilities::TreeManager::ProneLeavesForTree(Entity treeEntity)
+void TreeUtilities::TreeManager::EstimationIlluminationForTreeLeaves(Entity treeEntity)
 {
 	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(treeEntity);
-#pragma region Create leaves for all buds
 	std::vector<Entity> buds;
 	_BudQuery.ToEntityArray(treeIndex, &buds);
-#pragma region Prone leaves for all buds
-
 	TreeManager::GetLightEstimator()->TakeSnapShot(treeEntity, false, true);
 	auto snapShots = TreeManager::GetLightEstimator()->GetSnapShots();
-
 	for (const auto& shot : *snapShots) {
 		size_t resolution = shot->Resolution();
 		std::vector<std::shared_future<void>> futures;
@@ -218,23 +214,15 @@ void TreeUtilities::TreeManager::ProneLeavesForTree(Entity treeEntity)
 					info.Illumated = true;
 					for (size_t j = 0; j < resolution; j++) {
 						unsigned index = shot->GetLeafEntityIndex(i, j);
-						EntityManager::SetComponentData<LeafInfo>(index, info);
+						if (index != 0) {
+							EntityManager::SetComponentData<LeafInfo>(index, info);
+						}
 					}
 				}
 			).share());
 		}
 		for (auto i : futures) i.wait();
 	}
-	for (Entity bud : buds) {
-		//Clear all leafs
-		auto children = EntityManager::GetChildren(bud);
-		for (auto i : children) {
-			if (EntityManager::HasComponentData<LeafInfo>(i)) {
-				if (!EntityManager::GetComponentData<LeafInfo>(i).Illumated) EntityManager::DeleteEntity(i);
-			}
-		}
-	}
-#pragma endregion
 }
 
 void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
@@ -257,15 +245,6 @@ void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
 			//TODO: Set Component Data for leaf.
 			LeafGenerationHelper(budInfo, leaf, bud, i);
 		}
-	}
-#pragma endregion
-#pragma region Prone leaves for all buds
-	std::vector<Entity> leaves;
-	_LeafQuery.ToEntityArray(&leaves);
-	for (Entity leaf : leaves) {
-		bool prone = false;
-		//TODO: Add prone condition here.
-		if (prone) EntityManager::DeleteEntity(leaf);
 	}
 #pragma endregion
 }

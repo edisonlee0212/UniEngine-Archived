@@ -29,8 +29,8 @@ namespace UniEngine {
 
 	struct ENTITIES_API Entity {
 		//Position in _Entity Array
-		size_t Index = 0;
-		size_t Version = 0;
+		unsigned Index = 0;
+		unsigned Version = 0;
 
 		Entity() {
 			Index = 0;

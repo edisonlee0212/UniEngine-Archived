@@ -7,10 +7,6 @@ void TreeUtilities::LeafSystem::DrawGUI()
 	if (ImGui::CollapsingHeader("Leaf System", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Text("Leaf Amount: %d ", _LeafEntities.size());
 		ImGui::Separator();
-		if (ImGui::Button("Regenerate leaves")) {
-			TreeManager::GenerateLeavesForAllTrees();
-		}
-		ImGui::Separator();
 		ImGui::CheckboxFlags("Draw Leafs", &_ConfigFlags, LeafSystem_DrawLeafs);
 		ImGui::CheckboxFlags("Draw Leafs seperately for trees", &_ConfigFlags, LeafSystem_SeperateTrees);
 	}

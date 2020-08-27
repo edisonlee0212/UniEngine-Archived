@@ -136,6 +136,15 @@ namespace UniEngine {
 			glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 		}
 
+		void SetAttributeIntPointer(GLuint index,
+			GLint size,
+			GLenum type,
+			GLsizei stride,
+			const void* pointer) {
+			Bind();
+			glVertexAttribIPointer(index, size, type, stride, pointer);
+		}
+
 		void SetAttributeDivisor(GLuint index,
 			GLuint divisor) {
 			Bind();

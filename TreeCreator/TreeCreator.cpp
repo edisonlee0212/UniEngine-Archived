@@ -37,14 +37,18 @@ int main()
 #pragma endregion
 	TreeManager::Init();
 	//From top
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, 0), 10.0f);
-	/*
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0), 10.0f);
+	
 	//45
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, 1), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, -1), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(1, 1, 0), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-1, 1, 0), 5.0f);
 
+	/*
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0.5), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -0.5), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0.5, -1, 0), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-0.5, -1, 0), 5.0f);
+	*/
+
+	/*
 	//90
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 0, 1), 1.0f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 0, -1), 1.0f);

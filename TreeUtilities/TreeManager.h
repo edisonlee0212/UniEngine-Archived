@@ -268,7 +268,7 @@ namespace TreeUtilities {
         static void GetAllTrees(std::vector<Entity>* container);
         
         static void GenerateLeavesForTree(Entity treeEntity);
-        static void ProneLeavesForTree(Entity treeEntity);
+        static void EstimationIlluminationForTreeLeaves(Entity treeEntity);
         static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);

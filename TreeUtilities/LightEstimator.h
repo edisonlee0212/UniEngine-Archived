@@ -2,7 +2,7 @@
 #include "TreeUtilitiesAPI.h"
 using namespace UniEngine;
 namespace TreeUtilities {
-	class LightSnapShot {
+	class TREEUTILITIES_API LightSnapShot {
 		GLTexture2D* _SnapShotTexture;
 		GLPPBO* _PPBO;
 		float* _SRC;
@@ -25,8 +25,10 @@ namespace TreeUtilities {
 		float Width();
 		float Weight();
 		float Resolution();
-		float GetBlockerDistance(glm::vec3& centerPosition, glm::vec3& estimatePosition);
+
+		float GetBlockerDistance(glm::vec3& centerPosition, glm::vec3& position);
 		unsigned GetLeafEntityIndex(size_t x, size_t y);
+		glm::vec3 GetDepth(size_t x, size_t y);
 		~LightSnapShot();
 	};
 
@@ -40,10 +42,10 @@ namespace TreeUtilities {
 		GLRenderBuffer* _DepthBuffer = nullptr;
 		float _LightEstimationScore = 0;
 		friend class TreeSystem;
-		float _SnapShotWidth = 100.0f;
+		float _SnapShotWidth = 50.0f;
 		float _CenterDistance = 200.0f;
 	public:
-		LightEstimator(size_t resolution = 512, float centerDistance = 200.0f);
+		LightEstimator(size_t resolution = 512, float centerDistance = 100.0f);
 		void ResetCenterDistance(float distance);
 		void ResetSnapShotWidth(float width);
 		void PushSnapShot(glm::vec3 direction, float weight);

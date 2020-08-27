@@ -71,16 +71,6 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		title += std::to_string(index.Value);
 		ImGui::Text(title.c_str());
 		ImGui::Separator();
-		title = "Generate Leaves##";
-		title += std::to_string(index.Value);
-		if (ImGui::Button(title.c_str())) {
-			TreeManager::GenerateLeavesForTree(_SelectedTreeEntity);
-		}
-		title = "Prone Leaves##";
-		title += std::to_string(index.Value);
-		if (ImGui::Button(title.c_str())) {
-			TreeManager::ProneLeavesForTree(_SelectedTreeEntity);
-		}
 		title = "Rewards Estimation##";
 		title += std::to_string(index.Value);
 		if (ImGui::CollapsingHeader(title.c_str())) {

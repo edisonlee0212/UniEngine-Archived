@@ -2,6 +2,7 @@ layout (location = 0) out vec4 vFragColor;
 
 in VS_OUT {
 	flat uint LeafIndex;
+	float distance;
 } fs_in;
 
 void main()
@@ -14,5 +15,5 @@ void main()
 	index = (index - g) / 256;
 
 	vec3 color = vec3(r, g, index);
-	vFragColor = vec4(color, gl_FragCoord.z);
+	vFragColor = vec4(fs_in.LeafIndex, fs_in.distance, 0, 1);
 }
