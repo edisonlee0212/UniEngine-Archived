@@ -1,21 +1,19 @@
 // SponzaTest.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-//#include "UniEngine.h"
-//#include "CameraControlSystem.h"
-//#include "SpaceColonizationTreeSystem.h"
+#include "UniEngine.h"
+#include "CameraControlSystem.h"
+#include "SpaceColonizationTreeSystem.h"
 
-//#include "TreeManager.h"
-//#include "EntityEditorSystem.h"
-
+#include "TreeManager.h"
 //#include "EntityEditorSystem.h"
 #include <stdlib.h>
 #include <iostream>
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
-//using namespace UniEngine;
-//using namespace TreeUtilities;
-//void InitGround();
-//void InitSpaceColonizationTreeSystem();
+using namespace UniEngine;
+using namespace TreeUtilities;
+void InitGround();
+void InitSpaceColonizationTreeSystem();
 int startserver();
 int main()
 {
@@ -100,22 +98,21 @@ int main()
 
 
 int startserver() {
-	using namespace std;
 	// Initialze winsock
 	WSADATA wsData;
 	WORD ver = MAKEWORD(2, 2);
-	cout << "Sever Start" << endl;
+	std::cout << "Sever Start" << std::endl;
 	int wsOk = WSAStartup(ver, &wsData);
 	if (wsOk != 0)
 	{
-		cerr << "Can't Initialize winsock! Quitting" << endl;
+		std::cerr << "Can't Initialize winsock! Quitting" << std::endl;
 		return -1;
 	}
 	//int64_t s = socket(address->addr.sa_family, SOCK_DGRAM, IPPROTO_UDP);
 	SOCKET listening = socket(AF_INET, SOCK_STREAM, 0);
 	if (listening == INVALID_SOCKET)
 	{
-		cerr << "Can't create a socket! Quitting" << endl;
+		std::cerr << "Can't create a socket! Quitting" << std::endl;
 		return -2;
 	}
 
@@ -124,7 +121,7 @@ int startserver() {
 	hint.sin_port = htons(57000);
 	hint.sin_addr.S_un.S_addr = INADDR_ANY; // Could also use inet_pton .... 
 	int off = 0;
-	cout << "Set Socket opt" << endl;
+	std::cout << "Set Socket opt" << std::endl;
 	int result = setsockopt(listening, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&off, sizeof(off));
 	if (result != 0)
 	{
@@ -132,7 +129,7 @@ int startserver() {
 		closesocket(listening);
 		return -1;
 	}
-	cout << "Before Binding" << endl;
+	std::cout << "Before Binding" << std::endl;
 	bind(listening, (sockaddr*)&hint, sizeof(hint));
 	listen(listening, SOMAXCONN);
 
@@ -149,19 +146,19 @@ int startserver() {
 
 		if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
 		{
-			cout << host << " connected on port " << service << endl;
-			cout << "this one " << endl;
+			std::cout << host << " connected on port " << service << std::endl;
+			std::cout << "this one " << std::endl;
 		}
 		else
 		{
 			inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
-			cout << ntohs(hint.sin_port) << endl;
-			cout << "second one " << endl;
-			cout << host << " connected on port " <<
-				ntohs(client.sin_port) << endl;
+			std::cout << ntohs(hint.sin_port) << std::endl;
+			std::cout << "second one " << std::endl;
+			std::cout << host << " connected on port " <<
+				ntohs(client.sin_port) << std::endl;
 		}
 
-		closesocket(listening);
+		//closesocket(listening);
 
 		char buf[4096];
 
@@ -171,24 +168,23 @@ int startserver() {
 			int bytesReceived = recv(clientSocket, buf, 4096, 0);
 			if (bytesReceived == SOCKET_ERROR)
 			{
-				cerr << "Error in recv(). Quitting" << endl;
+				std::cerr << "Error in recv(). Quitting" << std::endl;
 				break;
 			}
 
 			if (bytesReceived == 0)
 			{
-				cout << "Client disconnected " << endl;
+				std::cout << "Client disconnected " << std::endl;
 				break;
 			}
 
-			cout << string(buf, 0, bytesReceived) << endl;
+			std::cout << std::string(buf, 0, bytesReceived) << std::endl;
 			send(clientSocket, buf, bytesReceived + 1, 0);
 
 		}
 
 		closesocket(clientSocket);
-		WSACleanup();
-
-		system("pause");
 	}
+	WSACleanup();
+	system("pause");
 }
