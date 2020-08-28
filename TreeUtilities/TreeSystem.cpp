@@ -86,7 +86,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 			ImGui::Text(title.c_str());
 			auto ss = TreeManager::GetLightEstimator()->GetSnapShots();
 			for (auto i : *ss) {
-				ImGui::Image((ImTextureID)i->SnapShotTexture()->ID(), ImVec2(300, 300));
+				ImGui::Image((ImTextureID)i->SnapShotTexture()->ID(), ImVec2(500, 500));
 			}
 		}
 		if (ImGui::CollapsingHeader("Color Settings")) {

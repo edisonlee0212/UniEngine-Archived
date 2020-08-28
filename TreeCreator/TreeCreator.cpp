@@ -40,7 +40,6 @@ int main()
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0), 10.0f);
 	
 	//45
-
 	float tilt = 0.2f;
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 5.0f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 5.0f);

@@ -299,6 +299,7 @@ void TreeUtilities::PlantSimulationSystem::ProneLeaves()
 		std::vector<Entity> buds;
 		_BudQuery.ToEntityArray(EntityManager::GetComponentData<TreeIndex>(treeEntity), &buds);
 		for (Entity bud : buds) {
+			auto budInfo = EntityManager::GetComponentData<BudInfo>(bud);
 			//Clear all leafs
 			auto children = EntityManager::GetChildren(bud);
 			for (auto i : children) {

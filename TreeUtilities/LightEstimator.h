@@ -38,7 +38,12 @@ namespace TreeUtilities {
 		size_t _Resolution = 2048;
 		std::vector<LightSnapShot*> _SnapShots;
 		GLProgram* _SnapShotProgram = nullptr;
-		GLProgram* _SnapShotBlurProgram = nullptr;
+		
+		RenderTarget* _BlurFilterRenderTarget = nullptr;
+		GLProgram* _SnapShotVBlurProgram = nullptr;
+		GLProgram* _SnapShotHBlurProgram = nullptr;
+		GLTexture2D* _BlurFilter = nullptr;
+
 		GLRenderBuffer* _DepthBuffer = nullptr;
 		float _LightEstimationScore = 0;
 		friend class TreeSystem;

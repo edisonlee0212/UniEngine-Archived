@@ -15,5 +15,5 @@ void main()
 	index = (index - g) / 256;
 
 	vec3 color = vec3(r, g, index);
-	vFragColor = vec4(fs_in.LeafIndex, fs_in.distance, 0, 1);
+	vFragColor = vec4(fs_in.LeafIndex, 1.0 - gl_FragCoord.z, 0, 1);
 }

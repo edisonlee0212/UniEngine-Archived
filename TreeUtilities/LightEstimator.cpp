@@ -125,7 +125,32 @@ TreeUtilities::LightEstimator::LightEstimator(size_t resolution, float centerDis
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode));
 
+	vertShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
+	fragShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString("Shaders/TreeUtilities/LightSnapShotVBlur.frag");
 
+	_SnapShotVBlurProgram = new GLProgram(
+		new GLShader(ShaderType::Vertex, &vertShaderCode),
+		new GLShader(ShaderType::Fragment, &fragShaderCode));
+
+	vertShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
+	fragShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString("Shaders/TreeUtilities/LightSnapShotHBlur.frag");
+
+	_SnapShotHBlurProgram = new GLProgram(
+		new GLShader(ShaderType::Vertex, &vertShaderCode),
+		new GLShader(ShaderType::Fragment, &fragShaderCode));
+
+	_BlurFilter = new GLTexture2D(1, GL_RGBA32F, resolution, resolution);
+	_BlurFilter->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_BlurFilter->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_BlurFilter->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	_BlurFilter->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+	_BlurFilterRenderTarget = new RenderTarget(resolution, resolution);
+	_BlurFilterRenderTarget->AttachTexture(_BlurFilter, GL_COLOR_ATTACHMENT0);
 }
 
 void TreeUtilities::LightEstimator::ResetCenterDistance(float distance)
@@ -155,7 +180,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 {
 	if (treeEntity.IsDeleted() || treeEntity.IsNull()) return;
 
-	_SnapShotProgram->Bind();
+	
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	std::vector<Entity> leafEntities = std::vector<Entity>();
 	TreeManager::GetLeafQuery().ToComponentDataArray(EntityManager::GetComponentData<TreeIndex>(treeEntity), &matrices);
@@ -200,6 +225,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 	for (auto ss : _SnapShots) {
 		auto texture = ss->SnapShotTexture();
 		_RenderTarget->AttachTexture(texture, GL_COLOR_ATTACHMENT0);
+		_SnapShotProgram->Bind();
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		_RenderTarget->Bind();
 		glEnable(GL_DEPTH_TEST);
@@ -210,8 +236,33 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 		_SnapShotProgram->SetFloat4x4("model", model);
 		
 		if (matrices.size() != 0) glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	}
+	
+	mesh->VAO()->DisableAttributeArray(11);
+
+	Default::GLPrograms::ScreenVAO->Bind();
+	for (auto ss : _SnapShots) {
+		auto texture = ss->SnapShotTexture();
+		texture->Bind(0);
+		//Blur depth value here.
+		_BlurFilterRenderTarget->Bind();
+		_BlurFilterRenderTarget->AttachTexture(_BlurFilter, GL_COLOR_ATTACHMENT0);
+		_BlurFilterRenderTarget->AttachTexture(texture, GL_COLOR_ATTACHMENT1);
+		glDisable(GL_DEPTH_TEST);
+		
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		_SnapShotVBlurProgram->Bind();
+		_SnapShotVBlurProgram->SetInt("textureInput", 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		_BlurFilter->Bind(1);
+		glDrawBuffer(GL_COLOR_ATTACHMENT1);
+		_SnapShotHBlurProgram->Bind();
+		_SnapShotHBlurProgram->SetInt("textureInput", 1);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		if (calculateScore || storeSnapshot) {
-			glReadBuffer(GL_COLOR_ATTACHMENT0);
+			glReadBuffer(GL_COLOR_ATTACHMENT1);
 			ss->GetPixelBuffer()->Bind();
 			glReadPixels(0, 0, _Resolution, _Resolution, GL_RGBA, GL_FLOAT, 0);
 			GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
@@ -219,8 +270,8 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 			glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 		}
 	}
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	RenderTarget::BindDefault();
-	mesh->VAO()->DisableAttributeArray(11);
 	if (calculateScore) {
 		_LightEstimationScore = CalculateScore();
 		Debug::Log("Light Estimation Result:" + std::to_string(_LightEstimationScore));
