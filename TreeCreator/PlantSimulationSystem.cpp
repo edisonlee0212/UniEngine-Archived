@@ -179,7 +179,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 							BudInfo newBudInfo = EntityManager::GetComponentData<BudInfo>(newBud);
 							newBudInfo.LeafWidth = 1.4f;
 							newBudInfo.LeafThickness = 1.0f;
-							newBudInfo.LeafLength = 0.6f;
+							newBudInfo.LeafLength = 3.2f;
 							newBudInfo.LeafAmount = 3;
 							newBudInfo.BendDegrees = 30.0f;
 							newBudInfo.CircleDegreeStart = -40.0f;

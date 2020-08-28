@@ -52,14 +52,7 @@ namespace UniEngine {
 			return other.Value == Value;
 		}
 	};
-	struct UNIENGINE_API CameraMask : ComponentBase
-	{
-		size_t Value;
-		bool operator ==(const CameraMask& other) const {
-			return other.Value == Value;
-		}
-		CameraMask() { Value = 0; }
-	};
+	
 #pragma endregion
 
 

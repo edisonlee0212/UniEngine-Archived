@@ -7,6 +7,11 @@ using namespace UniEngine;
 GLUBO* Camera::_CameraData;
 CameraInfoBlock Camera::_MainCameraInfoBlock;
 
+size_t UniEngine::Camera::GetLayerMask()
+{
+	return _LayerMask;
+}
+
 void UniEngine::Camera::CalculatePlanes(Plane* planes, glm::mat4 projection, glm::mat4 view)
 {
 	glm::mat4 comboMatrix = projection * glm::transpose(view);
@@ -82,7 +87,7 @@ void UniEngine::Camera::GenerateMatrices()
 }
 
 
-Camera::Camera(int resolutionX, int resolutionY, float nearPlane, float farPlane) 
+Camera::Camera(int resolutionX, int resolutionY, float nearPlane, float farPlane, size_t layerMask)
 	: RenderTarget(),
 	_FOV(DEFAULTFOV)
 {
@@ -90,6 +95,7 @@ Camera::Camera(int resolutionX, int resolutionY, float nearPlane, float farPlane
 	_Pitch = PITCH;
 	_Near = nearPlane;
 	_Far = farPlane;
+	_LayerMask = layerMask;
 	_ResolutionX = resolutionX;
 	_ResolutionY = resolutionY;
 	_ColorTexture = new GLTexture2D(1, GL_RGB32F, resolutionX, resolutionY, false);

@@ -1047,7 +1047,6 @@ namespace UniEngine {
 				return chunk.GetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size));
 			}
 			else {
-				Debug::Log("ComponentData doesn't exist");
 				return T();
 			}
 		}
@@ -1091,7 +1090,6 @@ namespace UniEngine {
 				return chunk.GetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size));
 			}
 			else {
-				Debug::Log("ComponentData doesn't exist");
 				return T();
 			}
 		}

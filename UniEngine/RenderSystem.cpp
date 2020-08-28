@@ -3,11 +3,12 @@
 #include "RenderSystem.h"
 #include "CameraComponent.h"
 #include "World.h"
+#include "UniEngine.h"
 using namespace UniEngine;
 
 bool RenderSystem::_EnableWireFrame;
 
-void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, Entity cameraEntity)
+void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponent, Entity cameraEntity)
 {
 
 	Camera* camera = cameraComponent->Value;
@@ -28,6 +29,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 			for (const auto& j : *entities) {
+				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
 				auto meshBound = mmc->_Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
@@ -55,6 +57,7 @@ void UniEngine::RenderSystem::RenderToCamera(CameraComponent* cameraComponent, E
 		for (const auto& immc : *instancedMeshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 			for (const auto& j : *entities) {
+				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				RenderManager::DrawMeshInstanced(
 					immc->_Mesh,
 					immc->_Material,
@@ -94,11 +97,12 @@ void UniEngine::RenderSystem::OnDestroy()
 
 void UniEngine::RenderSystem::Update()
 {
+	/*
 	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
 	for (const auto& cc : *cameras) {
 		std::vector<Entity>* entities = EntityManager::GetSharedComponentEntities<CameraComponent>(cc);
 		RenderToCamera(cc, entities->at(0));
 	}
-
-	
+	*/
+	RenderToMainCamera(Application::GetMainCameraComponent(), Application::GetMainCameraEntity());
 }

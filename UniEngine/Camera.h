@@ -3,6 +3,23 @@
 #include "RenderTarget.h"
 
 namespace UniEngine {
+
+	enum CameraLayer {
+		CameraLayer_None = 0,
+		CameraLayer_MainCamera = 1 << 0,
+		CameraLayer_DebugCamera = 1 << 1,
+	};
+
+	struct UNIENGINE_API CameraLayerMask : ComponentBase
+	{
+		size_t Value;
+		bool operator ==(const CameraLayerMask& other) const {
+			return other.Value == Value;
+		}
+		CameraLayerMask() { Value = 0; }
+	};
+
+
 	const float YAW = -90.0f;
 	const float PITCH = 0.0f;
 	const float DEFAULTFOV = 90.0f;
@@ -24,9 +41,11 @@ namespace UniEngine {
 
 	class UNIENGINE_API Camera : public RenderTarget
 	{
+		size_t _LayerMask;
 		GLTexture2D* _ColorTexture;
 		GLRenderBuffer* _RenderBuffer;
 	public:
+		size_t GetLayerMask();
 		static GLUBO* _CameraData;
 		static CameraInfoBlock _MainCameraInfoBlock;
 		void CalculatePlanes(Plane* planes, glm::mat4 projection, glm::mat4 view);
@@ -40,7 +59,7 @@ namespace UniEngine {
 		float _Pitch;
 		// camera options
 		float _FOV;
-		Camera(int resolutionX, int resolutionY, float nearPlane = 0.1f, float farPlane = 100.0f);
+		Camera(int resolutionX, int resolutionY, float nearPlane = 0.1f, float farPlane = 100.0f, size_t layerMask = 0);
 		glm::quat ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch = true);
 		void ProcessMouseScroll(float yoffset);
 		void SetResolution(int x, int y);

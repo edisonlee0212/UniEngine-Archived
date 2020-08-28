@@ -152,7 +152,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	_World->SetTimeStep(_TimeStep);
 #pragma region Main Camera
 	Camera::GenerateMatrices();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", Translation(), Rotation(), Scale(), LocalToWorld(), CameraMask());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", Translation(), Rotation(), Scale(), LocalToWorld(), CameraLayerMask());
 	_MainCameraEntity = EntityManager::CreateEntity(archetype);
 	Translation pos;
 	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
