@@ -44,7 +44,6 @@ void UniEngine::NetworkSystem::OnCreate() {
 	int clientSize = sizeof(client);
 	_Socket = accept(listening, (sockaddr*)&client, &clientSize);
 #pragma endregion
-
 #pragma region Sending Thread Setup
 	auto sendingFunction = [this]() {
 		while (true) {
@@ -60,6 +59,7 @@ void UniEngine::NetworkSystem::OnCreate() {
 			//std::unique_lock<std::mutex> lock(_ReceivingQueueMutex);
 			//_ReceivingThreadCV.wait(lock);
 			//Receive packet
+
 		}
 	};
 
