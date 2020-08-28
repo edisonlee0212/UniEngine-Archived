@@ -25,6 +25,12 @@
     <Filter Include="Source Files\InverseModelling">
       <UniqueIdentifier>{0e82b7a9-3702-4228-8f1f-acae910f1626}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network">
+      <UniqueIdentifier>{2069fcd2-e3dd-4653-a630-1f2ff67c0749}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Network">
+      <UniqueIdentifier>{40ed09d9-e9eb-4e95-baef-1227304b11a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TreeCreator.cpp">
@@ -36,6 +42,9 @@
     <ClCompile Include="PlantSimulationSystem.cpp">
       <Filter>Source Files\InverseModelling</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkSystem.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SpaceColonizationTreeSystem.h">
@@ -46,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="PlantSimulationSystem.h">
       <Filter>Header Files\InverseModelling</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkSystem.h">
+      <Filter>Header Files\Network</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
