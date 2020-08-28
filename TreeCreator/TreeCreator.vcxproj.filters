@@ -30,6 +30,9 @@
     <ClCompile Include="NetworkSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SpaceColonizationTreeSystem.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files\SpaceColonization</Filter>
     </ClInclude>
     <ClInclude Include="NetWorkSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

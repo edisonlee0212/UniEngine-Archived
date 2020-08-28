@@ -3,6 +3,14 @@
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
 #include "SpaceColonizationTreeSystem.h"
+<<<<<<< Updated upstream
+=======
+#include "PlantSimulationSystem.h"
+#include "TreeManager.h"
+#include "EntityEditorSystem.h"
+#include "NetworkSystem.h"
+//#include "EntityEditorSystem.h"
+>>>>>>> Stashed changes
 
 #include "TreeManager.h"
 //#include "EntityEditorSystem.h"
@@ -14,7 +22,14 @@ using namespace UniEngine;
 using namespace TreeUtilities;
 void InitGround();
 void InitSpaceColonizationTreeSystem();
+<<<<<<< Updated upstream
 int startserver();
+=======
+void InitPlantSimulationSystem();
+void InitNetworkSystem();
+
+
+>>>>>>> Stashed changes
 int main()
 {
 	startserver();
@@ -34,15 +49,38 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
+<<<<<<< Updated upstream
 	InitSpaceColonizationTreeSystem();
 
 
+=======
+	//From top
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, 0), 10.0f);
+	/*
+	//45
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, 1), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 1, -1), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(1, 1, 0), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-1, 1, 0), 5.0f);
+
+	//90
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 0, 1), 1.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 0, -1), 1.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(1, 0, 1), 1.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-1, 0, 0), 1.0f);
+	*/
+	//InitSpaceColonizationTreeSystem();
+	InitPlantSimulationSystem();
+	InitNetworkSystem();
+	
+>>>>>>> Stashed changes
 
 	Application::Run();
 	Application::End();*/
 	return 0;
 }
 
+<<<<<<< Updated upstream
 /*void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
@@ -53,6 +91,14 @@ int main()
 	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 
+=======
+}
+void InitNetworkSystem() {
+	auto psSys = Application::GetWorld()->CreateSystem<NetworkSystem>(SystemGroup::SimulationSystemGroup);
+	psSys->FixedUpdate();
+
+}
+>>>>>>> Stashed changes
 
 	auto mat = new Material();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
