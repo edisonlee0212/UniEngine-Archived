@@ -177,9 +177,9 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 						for (int selectedNewBudIndex = 0; selectedNewBudIndex < tps.LateralBudNumber; selectedNewBudIndex++) {
 							Entity newBud = TreeManager::CreateBudForBranchNode(treeIndex, newBranchNode);
 							BudInfo newBudInfo = EntityManager::GetComponentData<BudInfo>(newBud);
-							newBudInfo.LeafWidth = 1.4f;
+							newBudInfo.LeafWidth = 0.4f;
 							newBudInfo.LeafThickness = 1.0f;
-							newBudInfo.LeafLength = 3.2f;
+							newBudInfo.LeafLength = 2.0f;
 							newBudInfo.LeafAmount = 3;
 							newBudInfo.BendDegrees = 30.0f;
 							newBudInfo.CircleDegreeStart = -40.0f;
@@ -288,30 +288,6 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 	return !_TreeActivatedBranchNodesLists[index].BranchNodes.empty();
 }
 
-void TreeUtilities::PlantSimulationSystem::ProneLeaves()
-{
-	while (!_TreeLeafPrunineQueue.empty()) {
-		Entity treeEntity = _TreeLeafPrunineQueue.front();
-		TreeManager::EstimationIlluminationForTreeLeaves(treeEntity);
-		Translation treeTranslation = EntityManager::GetComponentData<Translation>(treeEntity);
-		auto snapShots = TreeManager::GetLightEstimator()->GetSnapShots();
-
-		std::vector<Entity> buds;
-		_BudQuery.ToEntityArray(EntityManager::GetComponentData<TreeIndex>(treeEntity), &buds);
-		for (Entity bud : buds) {
-			auto budInfo = EntityManager::GetComponentData<BudInfo>(bud);
-			//Clear all leafs
-			auto children = EntityManager::GetChildren(bud);
-			for (auto i : children) {
-				if (!EntityManager::GetComponentData<LeafInfo>(i).Illumated) {
-					EntityManager::DeleteEntity(i);
-				}
-			}
-		}
-		_TreeLeafPrunineQueue.pop();
-		_NeedRefresh = true;
-	}
-}
 
 Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(TreeColor color, glm::vec3 position, int index, bool enabled)
 {
@@ -573,7 +549,6 @@ void TreeUtilities::PlantSimulationSystem::CompleteTree(Entity treeEntity)
 		if (treeEntity == _TreeActivatedBranchNodesLists[i].TreeEntity) {
 			while(GrowTree(i));
 			TreeManager::GenerateLeavesForTree(treeEntity);
-			_TreeLeafPrunineQueue.push(treeEntity);
 		}
 		_TreeActivatedBranchNodesLists.erase(_TreeActivatedBranchNodesLists.begin() + i);
 	}
@@ -610,13 +585,6 @@ void TreeUtilities::PlantSimulationSystem::OnDestroy()
 
 void TreeUtilities::PlantSimulationSystem::Update()
 {
-	if (_NeedRefresh) {
-		_NeedRefresh = false;
-	}
-	else
-	{
-		ProneLeaves();
-	}
 }
 
 void TreeUtilities::PlantSimulationSystem::FixedUpdate()

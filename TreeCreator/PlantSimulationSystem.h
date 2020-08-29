@@ -29,15 +29,12 @@ namespace TreeUtilities {
 
         std::vector<BranchNodesCollection> _TreeActivatedBranchNodesLists;
 
-        std::queue<Entity> _TreeLeafPrunineQueue;
-        bool _NeedRefresh;
         float GetApicalControl(BranchNodeInfo* branchNodeInfo, TreeParameters* tps, TreeAge* treeAge, int level);
         void DeactivateBud(Entity bud, Entity branchNode, BudInfo* budInfo, BranchNodeInfo* branchNodeInfo);
         void DeactivateBranch(size_t listIndex, size_t index);
         void DrawGUI();
         void DestroyedTreeCheck();
         bool GrowTree(size_t index);
-        void ProneLeaves();
     public:
         void GrowAllTrees();
         void CompleteAllTrees();

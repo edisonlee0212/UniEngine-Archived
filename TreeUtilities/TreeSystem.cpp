@@ -39,6 +39,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		title += std::to_string(index.Value);
 		bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedTreeEntity == tree ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+			_PruningFactor = EntityManager::GetComponentData<TreeLeafPruningFactor>(tree).Value;
 			_SelectedTreeEntity = tree;
 		}
 		if (opened) {
@@ -71,6 +72,8 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		title += std::to_string(index.Value);
 		ImGui::Text(title.c_str());
 		ImGui::Separator();
+		ImGui::SliderFloat("Pruning", &_PruningFactor, 0, 25);
+		ImGui::Separator();
 		title = "Rewards Estimation##";
 		title += std::to_string(index.Value);
 		if (ImGui::CollapsingHeader(title.c_str())) {
@@ -78,7 +81,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 				TreeManager::CalculateRewards(_SelectedTreeEntity);
 			}
 			else {
-				TreeManager::GetLightEstimator()->TakeSnapShot(_SelectedTreeEntity, false);
+				TreeManager::GetLightEstimator()->TakeSnapShot(true, false);
 			}
 
 			auto estimation = EntityManager::GetComponentData<RewardEstimation>(_SelectedTreeEntity);
@@ -129,8 +132,6 @@ void TreeUtilities::TreeSystem::OnCreate()
 	_ConfigFlags += TreeSystem_DrawTrees;
 	_ConfigFlags += TreeSystem_DrawTreeMeshes;
 
-	
-
 	Enable();
 }
 
@@ -147,6 +148,15 @@ void TreeUtilities::TreeSystem::Update()
 
 void TreeUtilities::TreeSystem::FixedUpdate()
 {
+	if (!_SelectedTreeEntity.IsNull()) {
+		auto pruningFactor = EntityManager::GetComponentData<TreeLeafPruningFactor>(_SelectedTreeEntity);
+		if (_PruningFactor != pruningFactor.Value) {
+			TreeManager::ProneLeavesForTree(_SelectedTreeEntity, _PruningFactor);
+			pruningFactor.Value = _PruningFactor;
+			EntityManager::SetComponentData(_SelectedTreeEntity, pruningFactor);
+		}
+	}
+	
 }
 
 std::vector<Entity>* TreeUtilities::TreeSystem::GetTreeEntities()

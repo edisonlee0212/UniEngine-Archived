@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "LightEstimator.h"
 #include "TreeManager.h"
-TreeUtilities::LightSnapShot::LightSnapShot(size_t resolution, glm::vec3 direction, float centerDistance, float width, float weight)
+TreeUtilities::LightSnapShot::LightSnapShot(size_t resolution, glm::vec3 centerPosition, glm::vec3 direction, float centerDistance, float width, float weight)
 {
 	_SnapShotTexture = new GLTexture2D(1, GL_RGBA32F, resolution, resolution);
 	_SnapShotTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -9,6 +9,7 @@ TreeUtilities::LightSnapShot::LightSnapShot(size_t resolution, glm::vec3 directi
 	_SnapShotTexture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_SnapShotTexture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	_Direction = glm::normalize(direction);
+	_CenterPosition = centerPosition;
 	_CenterDistance = centerDistance;
 	_Weight = weight;
 	_Width = width;
@@ -19,20 +20,20 @@ TreeUtilities::LightSnapShot::LightSnapShot(size_t resolution, glm::vec3 directi
 	_SRC = (float*)malloc(resolution * resolution * sizeof(float) * 4);
 }
 
-glm::mat4 TreeUtilities::LightSnapShot::GetViewMatrix(glm::vec3& centerPosition)
+glm::mat4 TreeUtilities::LightSnapShot::GetViewMatrix()
 {
-	glm::mat4 view = glm::lookAt(centerPosition - _CenterDistance * _Direction, centerPosition, glm::vec3(0, 1, 0));
+	glm::mat4 view = glm::lookAt(_CenterPosition - _CenterDistance * _Direction, _CenterPosition, glm::vec3(0, 1, 0));
 	if (glm::any(glm::isnan(view[3]))) {
-		view = glm::lookAt(centerPosition - _CenterDistance * _Direction, centerPosition, glm::vec3(0, 0, 1));
+		view = glm::lookAt(_CenterPosition - _CenterDistance * _Direction, _CenterPosition, glm::vec3(0, 0, 1));
 	}
 	return view;
 }
 
-glm::mat4 TreeUtilities::LightSnapShot::GetLightSpaceMatrix(glm::vec3& centerPosition)
+glm::mat4 TreeUtilities::LightSnapShot::GetLightSpaceMatrix()
 {
-	glm::mat4 view = glm::lookAt(centerPosition - _CenterDistance * _Direction, centerPosition, glm::vec3(0, 1, 0));
+	glm::mat4 view = glm::lookAt(_CenterPosition - _CenterDistance * _Direction, _CenterPosition, glm::vec3(0, 1, 0));
 	if (glm::any(glm::isnan(view[3]))) {
-		view = glm::lookAt(centerPosition - _CenterDistance * _Direction, centerPosition, glm::vec3(0, 0, 1));
+		view = glm::lookAt(_CenterPosition - _CenterDistance * _Direction, _CenterPosition, glm::vec3(0, 0, 1));
 	}
 	glm::mat4 projection;
 	projection = glm::ortho(-_Width, _Width, -_Width, _Width, 0.0f, _CenterDistance * 2.0f);
@@ -76,9 +77,9 @@ float TreeUtilities::LightSnapShot::Resolution()
 	return _Resolution;
 }
 
-float TreeUtilities::LightSnapShot::GetBlockerDistance(glm::vec3& centerPosition, glm::vec3& pos)
+float TreeUtilities::LightSnapShot::GetBlockerDistance(glm::vec3& pos)
 {
-	glm::mat4 lightSpaceMat = GetLightSpaceMatrix(centerPosition);
+	glm::mat4 lightSpaceMat = GetLightSpaceMatrix();
 
 	glm::vec3 position = lightSpaceMat * glm::translate(pos) * glm::vec4(0, 0, 0, 1);
 	float x = ((position.x + 1.0f) * 0.5f) * _Resolution;
@@ -107,6 +108,13 @@ TreeUtilities::LightSnapShot::~LightSnapShot()
 	free(_SRC);
 	delete(_PPBO);
 	delete(_SnapShotTexture);
+}
+
+
+
+glm::vec3 TreeUtilities::LightEstimator::GetCenterPosition()
+{
+	return _CenterPositon;
 }
 
 TreeUtilities::LightEstimator::LightEstimator(size_t resolution, float centerDistance) : _Resolution(resolution)
@@ -153,19 +161,33 @@ TreeUtilities::LightEstimator::LightEstimator(size_t resolution, float centerDis
 	_BlurFilterRenderTarget->AttachTexture(_BlurFilter, GL_COLOR_ATTACHMENT0);
 }
 
+void TreeUtilities::LightEstimator::ResetCenterPosition(glm::vec3 position)
+{
+	_CenterPositon = position;
+	for (const auto& ss : _SnapShots) {
+		ss->_CenterPosition = position;
+	}
+}
+
 void TreeUtilities::LightEstimator::ResetCenterDistance(float distance)
 {
 	_CenterDistance = distance;
+	for (const auto& ss : _SnapShots) {
+		ss->_CenterDistance = distance;
+	}
 }
 
 void TreeUtilities::LightEstimator::ResetSnapShotWidth(float width)
 {
 	_SnapShotWidth = width;
+	for (const auto& ss : _SnapShots) {
+		ss->_Width = width;
+	}
 }
 
 void TreeUtilities::LightEstimator::PushSnapShot(glm::vec3 direction, float weight)
 {
-	_SnapShots.push_back(new LightSnapShot(_Resolution, direction, _CenterDistance, _SnapShotWidth, weight));
+	_SnapShots.push_back(new LightSnapShot(_Resolution, _CenterPositon, direction, _CenterDistance, _SnapShotWidth, weight));
 }
 
 void TreeUtilities::LightEstimator::Clear()
@@ -176,16 +198,20 @@ void TreeUtilities::LightEstimator::Clear()
 	_SnapShots.clear();
 }
 
-void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calculateScore, bool storeSnapshot)
+void TreeUtilities::LightEstimator::TakeSnapShot(bool onlyCaptureAlive, bool storeSnapshot)
 {
-	if (treeEntity.IsDeleted() || treeEntity.IsNull()) return;
-
-	
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	std::vector<Entity> leafEntities = std::vector<Entity>();
-	TreeManager::GetLeafQuery().ToComponentDataArray(EntityManager::GetComponentData<TreeIndex>(treeEntity), &matrices);
-	TreeManager::GetLeafQuery().ToEntityArray(EntityManager::GetComponentData<TreeIndex>(treeEntity), &leafEntities);
-	
+	if (onlyCaptureAlive) {
+		LeafAlive alive;
+		alive.Value = true;
+		TreeManager::GetLeafQuery().ToComponentDataArray(alive, &matrices);
+		TreeManager::GetLeafQuery().ToEntityArray(alive, &leafEntities);
+	}
+	else {
+		TreeManager::GetLeafQuery().ToComponentDataArray(&matrices);
+		TreeManager::GetLeafQuery().ToEntityArray(&leafEntities);
+	}
 	auto mesh = TreeManager::GetLeafSystem()->GetLeafMesh();
 	
 	GLVBO indicesBuffer;
@@ -231,8 +257,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0, 0, 0, 1);
-		glm::vec3 treePosition = glm::vec3(EntityManager::GetComponentData<LocalToWorld>(treeEntity).Value[3]);
-		_SnapShotProgram->SetFloat4x4("lightSpaceMatrix", ss->GetLightSpaceMatrix(treePosition));
+		_SnapShotProgram->SetFloat4x4("lightSpaceMatrix", ss->GetLightSpaceMatrix());
 		_SnapShotProgram->SetFloat4x4("model", model);
 		
 		if (matrices.size() != 0) glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
@@ -261,7 +286,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 		_SnapShotHBlurProgram->SetInt("textureInput", 1);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		if (calculateScore || storeSnapshot) {
+		if (storeSnapshot) {
 			glReadBuffer(GL_COLOR_ATTACHMENT1);
 			ss->GetPixelBuffer()->Bind();
 			glReadPixels(0, 0, _Resolution, _Resolution, GL_RGBA, GL_FLOAT, 0);
@@ -272,10 +297,6 @@ void TreeUtilities::LightEstimator::TakeSnapShot(Entity treeEntity, bool calcula
 	}
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	RenderTarget::BindDefault();
-	if (calculateScore) {
-		_LightEstimationScore = CalculateScore();
-		Debug::Log("Light Estimation Result:" + std::to_string(_LightEstimationScore));
-	}
 }
 
 void TreeUtilities::LightEstimator::DrawSnapShots(Camera* camera)
@@ -290,6 +311,7 @@ void TreeUtilities::LightEstimator::DrawSnapShots(Camera* camera)
 
 float TreeUtilities::LightEstimator::CalculateScore()
 {
+	TakeSnapShot(true, true);
 	float currentScore, totalScore;
 	currentScore = totalScore = 0;
 	for (auto ss : _SnapShots) {
@@ -297,11 +319,6 @@ float TreeUtilities::LightEstimator::CalculateScore()
 		totalScore += score;
 	}
 	return totalScore;
-}
-
-float TreeUtilities::LightEstimator::GetScore()
-{
-	return _LightEstimationScore;
 }
 
 std::vector<TreeUtilities::LightSnapShot*>* TreeUtilities::LightEstimator::GetSnapShots()

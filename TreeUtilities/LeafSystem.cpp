@@ -8,7 +8,6 @@ void TreeUtilities::LeafSystem::DrawGUI()
 		ImGui::Text("Leaf Amount: %d ", _LeafEntities.size());
 		ImGui::Separator();
 		ImGui::CheckboxFlags("Draw Leafs", &_ConfigFlags, LeafSystem_DrawLeafs);
-		ImGui::CheckboxFlags("Draw Leafs seperately for trees", &_ConfigFlags, LeafSystem_SeperateTrees);
 	}
 	ImGui::End();
 }
@@ -20,7 +19,6 @@ void TreeUtilities::LeafSystem::OnCreate()
 
 	_ConfigFlags = 0;
 	_ConfigFlags += LeafSystem_DrawLeafs;
-	_ConfigFlags += LeafSystem_SeperateTrees;
 
 	_LeafMesh = new Mesh();
 	std::vector<Vertex> leafVertices;
@@ -85,7 +83,7 @@ void TreeUtilities::LeafSystem::OnCreate()
 	leafIndices.push_back(4);
 	leafIndices.push_back(1);
 
-	_LeafMesh->SetVertices((unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::TexCoord0, 
+	_LeafMesh->SetVertices((unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::TexCoord0,
 		&leafVertices, &leafIndices);
 
 	Enable();
@@ -106,20 +104,11 @@ void TreeUtilities::LeafSystem::Update()
 	_TreeQuery.ToComponentDataArray(&treeColors);
 	auto treeEntities = TreeManager::GetTreeSystem()->GetTreeEntities();
 	if (_ConfigFlags & LeafSystem_DrawLeafs) {
-		if (_ConfigFlags & LeafSystem_SeperateTrees) {
-			for (int i = 0; i < treeEntities->size(); i++) {
-				if (treeEntities->at(i).Enabled()) {
-					_LeafLTWList.clear();
-					_LeafQuery.ToComponentDataArray(treeIndices[i], &_LeafLTWList);
-					if (_LeafLTWList.size() != 0)RenderManager::DrawGizmoMeshInstanced(_LeafMesh, treeColors[i].LeafColor, (glm::mat4*)_LeafLTWList.data(), _LeafLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
-				}
-			}
-		}
-		else {
-			_LeafLTWList.clear();
-			_LeafQuery.ToComponentDataArray(&_LeafLTWList);
-			if (_LeafLTWList.size() != 0)RenderManager::DrawGizmoMeshInstanced(_LeafMesh, glm::vec4(0, 1, 0, 1), (glm::mat4*)_LeafLTWList.data(), _LeafLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
-		}
+		_LeafLTWList.clear();
+		LeafAlive alive;
+		alive.Value = true;
+		_LeafQuery.ToComponentDataArray(alive, &_LeafLTWList);
+		if (_LeafLTWList.size() != 0)RenderManager::DrawGizmoMeshInstanced(_LeafMesh, glm::vec4(0, 1, 0, 1), (glm::mat4*)_LeafLTWList.data(), _LeafLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
 	}
 
 	DrawGUI();

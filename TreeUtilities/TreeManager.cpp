@@ -70,7 +70,7 @@ void TreeUtilities::TreeManager::Init()
 		"Leaf",
 		Translation(), Rotation(), Scale(), LocalToWorld(),
 		LocalPosition(), Connection(), TreeIndex(),
-		LeafIndex(), LeafInfo());
+		LeafIndex(), LeafInfo(), LeafAlive());
 	_BudArchetype = EntityManager::CreateEntityArchetype(
 		"Bud",
 		BranchNodeOwner(),
@@ -88,7 +88,9 @@ void TreeUtilities::TreeManager::Init()
 		Translation(), Rotation(), Scale(), LocalToWorld(),
 		TreeIndex(), TreeInfo(), TreeColor(), TreeAge(),
 		TreeParameters(),
-		RewardEstimation());
+		RewardEstimation(),
+		TreeLeafPruningFactor()
+		);
 
 	_LeafQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_LeafQuery, LeafInfo());
@@ -197,25 +199,34 @@ void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 
 }
 
-void TreeUtilities::TreeManager::EstimationIlluminationForTreeLeaves(Entity treeEntity)
+void TreeUtilities::TreeManager::ProneLeavesForTree(Entity treeEntity, float illuminationThreshold)
 {
 	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(treeEntity);
 	std::vector<Entity> buds;
 	_BudQuery.ToEntityArray(treeIndex, &buds);
-	TreeManager::GetLightEstimator()->TakeSnapShot(treeEntity, false, true);
+	TreeManager::GetLightEstimator()->TakeSnapShot(false, true);
+	EntityManager::ForEach<LeafInfo, TreeIndex>(_LeafQuery, [treeIndex](int i, Entity leafEntity, LeafInfo* info, TreeIndex* index) {
+		if (treeIndex.Value == index->Value) {
+			info->WeightedLightDirection = glm::vec3(0);
+			info->Illumination = 0;
+		}
+		});
 	auto snapShots = TreeManager::GetLightEstimator()->GetSnapShots();
 	for (const auto& shot : *snapShots) {
 		size_t resolution = shot->Resolution();
 		std::vector<std::shared_future<void>> futures;
+		std::mutex leafWriteMutex;
 		for (size_t i = 0; i < resolution; i++) {
-			futures.push_back(_ThreadPool->Push([i, shot, resolution](int id)
+			futures.push_back(_ThreadPool->Push([i, shot, resolution, &leafWriteMutex](int id)
 				{
-					LeafInfo info;
-					info.Illumated = true;
 					for (size_t j = 0; j < resolution; j++) {
 						unsigned index = shot->GetLeafEntityIndex(i, j);
 						if (index != 0) {
-							EntityManager::SetComponentData<LeafInfo>(index, info);
+							std::lock_guard<std::mutex> lock(leafWriteMutex);
+							LeafInfo li = EntityManager::GetComponentData<LeafInfo>(index);
+							li.WeightedLightDirection += shot->GetDirection() * shot->Weight();
+							li.Illumination += shot->Weight();
+							EntityManager::SetComponentData<LeafInfo>(index, li);
 						}
 					}
 				}
@@ -223,6 +234,12 @@ void TreeUtilities::TreeManager::EstimationIlluminationForTreeLeaves(Entity tree
 		}
 		for (auto i : futures) i.wait();
 	}
+	
+	EntityManager::ForEach<TreeIndex, LeafInfo, LeafAlive>(_LeafQuery, [illuminationThreshold, treeIndex](int i, Entity leaf, TreeIndex* index, LeafInfo* leafInfo, LeafAlive* alive) {
+		if (treeIndex.Value == index->Value) {
+			alive->Value = leafInfo->Illumination >= illuminationThreshold;
+		}
+		});
 }
 
 void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
@@ -332,6 +349,9 @@ Entity TreeUtilities::TreeManager::CreateBudForBranchNode(TreeIndex treeIndex, E
 Entity TreeUtilities::TreeManager::CreateLeaf(TreeIndex treeIndex, Entity parentEntity)
 {
 	auto entity = EntityManager::CreateEntity(_LeafArchetype);
+	LeafAlive alive;
+	alive.Value = true;
+	EntityManager::SetComponentData(entity, alive);
 	EntityManager::SetComponentData(entity, treeIndex);
 	EntityManager::SetParent(entity, parentEntity);
 	EntityManager::SetComponentData(entity, _LeafIndex);
@@ -347,8 +367,7 @@ LightEstimator* TreeUtilities::TreeManager::GetLightEstimator()
 void TreeUtilities::TreeManager::CalculateRewards(Entity treeEntity, float snapShotWidth)
 {
 	RewardEstimation estimation = EntityManager::GetComponentData<RewardEstimation>(treeEntity);
-	_LightEstimator->TakeSnapShot(treeEntity, true);
-	estimation.LightEstimationResult = _LightEstimator->GetScore();
+	estimation.LightEstimationResult = _LightEstimator->CalculateScore();
 
 	EntityManager::SetComponentData(treeEntity, estimation);
 }

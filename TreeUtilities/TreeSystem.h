@@ -18,6 +18,7 @@ namespace TreeUtilities {
         std::vector<Entity> _TreeEntities;
 
         Entity _SelectedTreeEntity;
+        float _PruningFactor;
         void BudListHelper(Entity budEntity);
         void DrawGUI();
     public:

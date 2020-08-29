@@ -66,7 +66,7 @@ void UniEngine::NetworkSystem::OnCreate() {
 	_SendingThread = new std::thread(sendingFunction);
 	_ReceivingThread = new std::thread(receivingFunction);
 #pragma endregion
-	Enable();
+	//Enable();
 }
 
 //transfer the data from local queue to the queue sending data
@@ -122,7 +122,7 @@ void UniEngine::NetworkSystem::FixedUpdate()
 			Debug::Log("Inside Sending While");
 			std::string tempstr = _ServerSendingQueue.front();
 			send(_Socket, tempstr.c_str(), tempstr.size() + 1, 0);
-			std::lock_guard<std::mutex> lock(_SendingMutex);
+			std::lock_guard<std::mutex> lock(_SendingQueueMutex);
 			_ServerSendingQueue.pop();
 		}
 		//_SendingMutex.unlock();
@@ -140,7 +140,7 @@ void UniEngine::NetworkSystem::FixedUpdate()
 			int bytesReceived = recv(_Socket, buf, 4096, 0);
 			std::cout << buf << std::endl;
 			Debug::Log("Before Put Data in the quene");
-			std::lock_guard<std::mutex> lock(_ReceivingMutex);
+			std::lock_guard<std::mutex> lock(_ReceivingQueueMutex);
 			_ServerReadingQueue.push(std::string("abc"));
 			Debug::Log("After Put Data in the quene");
 			if (bytesReceived == SOCKET_ERROR)

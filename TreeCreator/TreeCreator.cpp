@@ -36,24 +36,31 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
+	
+	TreeManager::GetLightEstimator()->ResetCenterDistance(300);
+	TreeManager::GetLightEstimator()->ResetSnapShotWidth(200);
 	//From top
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0), 10.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0), 1.0f);
 	
 	//45
 	float tilt = 0.2f;
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 5.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 5.0f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 0.9f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 0.9f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 0.9f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 0.9f);
 	
-
-	/*
-	//90
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 0, 1), 1.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, 0, -1), 1.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(1, 0, 1), 1.0f);
-	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-1, 0, 0), 1.0f);
-	*/
+	tilt = 1.0f;
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 0.5f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 0.5f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 0.5f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 0.5f);
+	
+	tilt = 10.0f;
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 0.1f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 0.1f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 0.1f);
+	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 0.1f);
+	
 	//InitSpaceColonizationTreeSystem();
 	InitPlantSimulationSystem();
 	

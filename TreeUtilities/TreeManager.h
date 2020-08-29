@@ -44,7 +44,14 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API LeafInfo : ComponentBase {
-        bool Illumated;
+        float Illumination;
+        glm::vec3 WeightedLightDirection;
+    };
+    struct TREEUTILITIES_API LeafAlive : ComponentBase {
+        bool Value;
+        bool operator ==(const LeafAlive& other) const {
+            return other.Value == Value;
+        }
     };
 #pragma endregion
 #pragma region Bud
@@ -187,8 +194,14 @@ namespace TreeUtilities {
         float LateralBudLightingFactor;
 #pragma endregion
         size_t Age;
+
+        
     };
     
+    struct TREEUTILITIES_API TreeLeafPruningFactor : ComponentBase {
+        float Value = 0.0f;
+    };
+
     struct TREEUTILITIES_API RewardEstimation : ComponentBase {
         float LightEstimationResult = 0.0f;
     };
@@ -268,7 +281,7 @@ namespace TreeUtilities {
         static void GetAllTrees(std::vector<Entity>* container);
         
         static void GenerateLeavesForTree(Entity treeEntity);
-        static void EstimationIlluminationForTreeLeaves(Entity treeEntity);
+        static void ProneLeavesForTree(Entity treeEntity, float illuminationThreshold);
         static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);
