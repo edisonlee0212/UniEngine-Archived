@@ -1,23 +1,32 @@
 #include "PlantSimulationSystem.h"
 
 
-inline float TreeUtilities::PlantSimulationSystem::GetApicalControl(BranchNodeInfo* branchNodeInfo, TreeParameters* tps, TreeAge* treeAge, int level)
+inline float TreeUtilities::PlantSimulationSystem::GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level)
 {
-	float internodesToGrowF = tps->GrowthRate;
+	
 	//Calculate base apical control for this age.
-	float apicalControl = tps->ApicalControl * glm::pow(tps->ApicalControlAgeDescFactor, treeAge->Value);
+	float apicalControl = treeParameters.ApicalControl * glm::pow(treeParameters.ApicalControlAgeDescFactor, treeAge.Value);
 	if (level != 0) {
 		if (apicalControl > 1.0f) {
-			//internodesToGrowF /= apicalControl * glm::pow(1.0f + (apicalControl - 1.0f) * glm::pow(tps->ApicalControlLevelFactor, level), level);
-			internodesToGrowF /= glm::pow(apicalControl, level);
+			//distanceToGrow /= apicalControl * glm::pow(1.0f + (apicalControl - 1.0f) * glm::pow(treeParameters->ApicalControlLevelFactor, level), level);
+			return 1.0f / glm::pow(apicalControl, level);
 		}
 		else {
-			int reversedLevel = branchNodeInfo->MaxChildLevel - level;
-			//if(reversedLevel != 0) internodesToGrowF /= apicalControl * glm::pow(1.0f + (1.0f - apicalControl) * glm::pow(tps->ApicalControlLevelFactor, reversedLevel), reversedLevel);
-			if (reversedLevel != 0) internodesToGrowF *= glm::pow(apicalControl, reversedLevel);
+			int reversedLevel = branchNodeInfo.MaxChildLevel - level;
+			//if(reversedLevel != 0) distanceToGrow /= apicalControl * glm::pow(1.0f + (1.0f - apicalControl) * glm::pow(treeParameters->ApicalControlLevelFactor, reversedLevel), reversedLevel);
+			if (reversedLevel != 0) return glm::pow(apicalControl, reversedLevel);
 		}
 	}
-	return internodesToGrowF;
+	/*
+	if (treeInfo.ApicalControlTimeVal->at(treeAge.Value) < 1.0f) {
+		int reversedLevel = branchNodeInfo.MaxChildLevel - level;
+		return treeInfo.ApicalControlTimeLevelVal->at(treeAge.Value)[reversedLevel];
+	}
+	else {
+		return treeInfo.ApicalControlTimeLevelVal->at(treeAge.Value)[level];
+	}
+	*/
+	return 1.0f;
 }
 
 inline void TreeUtilities::PlantSimulationSystem::DeactivateBud(Entity bud, Entity branchNode, BudInfo* budInfo, BranchNodeInfo* branchNodeInfo)
@@ -53,9 +62,9 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 	Entity tree = _TreeActivatedBranchNodesLists[index].TreeEntity;
 	TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(tree);
 	TreeAge treeAge = EntityManager::GetComponentData<TreeAge>(tree);
-	TreeParameters tps = EntityManager::GetComponentData<TreeParameters>(tree);
+	TreeParameters treeParameters = EntityManager::GetComponentData<TreeParameters>(tree);
 	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(tree);
-	if (treeAge.Value >= tps.Age) {
+	if (treeAge.Value >= treeParameters.Age) {
 		return false;
 	}
 #pragma endregion
@@ -74,7 +83,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 			if (bi.MaxChildLevel > branchNodeInfo.MaxChildLevel) branchNodeInfo.MaxChildLevel = bi.MaxChildLevel;
 			gatheredInhibitor += bi.Inhibitor * bi.ParentInhibitorFactor;
 			});
-		branchNodeInfo.Inhibitor += gatheredInhibitor;
+		branchNodeInfo.Inhibitor = gatheredInhibitor;
 		EntityManager::SetComponentData<BranchNodeInfo>(branchNode, branchNodeInfo);
 #pragma endregion
 		if (branchNodeInfo.ActivatedBudsAmount == 0) continue;
@@ -93,12 +102,12 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 			float budKillProbability = 0;
 			if (budInfo.Type == BudTypes::APICAL) {
 				if (selectedBranchNodeIndex == 0) budKillProbability = 0;
-				else budKillProbability = tps.ApicalBudExtintionRate;
+				else budKillProbability = treeParameters.ApicalBudExtintionRate;
 			}
-			else budKillProbability = tps.LateralBudEntintionRate;
+			else budKillProbability = treeParameters.LateralBudEntintionRate;
 			if (glm::linearRand(0.0f, 1.0f) < budKillProbability) {
-				//DeactivateBud(bud, branchNode, &budInfo, &branchNodeInfo);
-				//continue;
+				DeactivateBud(bud, branchNode, &budInfo, &branchNodeInfo);
+				continue;
 			}
 #pragma endregion
 #pragma region Grow check
@@ -108,10 +117,10 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 			if (branchNodeInfo.Inhibitor > 0) budGrowProbability *= glm::exp(-branchNodeInfo.Inhibitor);
 			// now take into consideration the light on the bud
 			if (illumination.Value < 1) {
-				//budGrowProbability *= glm::pow(illumination.Value, budInfo.Type == BudTypes::APICAL ? tps.ApicalBudLightingFactor : tps.LateralBudLightingFactor);
+				//budGrowProbability *= glm::pow(illumination.Value, budInfo.Type == BudTypes::APICAL ? treeParameters.ApicalBudLightingFactor : treeParameters.LateralBudLightingFactor);
 			}
 			// now check whether the bud is going to flush or not
-			bool flush = true;// (budGrowProbability > glm::linearRand(0.0f, 1.0f));
+			bool flush = budGrowProbability > glm::linearRand(0.0f, 1.0f);
 #pragma endregion
 			bool budRemoved = false;
 #pragma region If the bud is flushing we need to generate the new shoot and add an inhibitor to this node.
@@ -123,21 +132,16 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 #pragma region Compute total grow distance and internodes amount.
 				int level = branchNodeInfo.Level;
 				if (isLateral) level++;
-				float apicalControl = 0;
-				float internodesToGrowF = GetApicalControl(&branchNodeInfo, &tps, &treeAge, level);
-				int internodesToGrow = glm::floor(internodesToGrowF + 0.5f);
-				if (level == 0 && !isLateral) {
-					Debug::Log("Growing level 0 truck!");
-				}
+				float distanceToGrow = treeParameters.GrowthRate * GetApicalControl(treeInfo, branchNodeInfo, treeParameters, treeAge, level);
+				int internodesToGrow = glm::floor(distanceToGrow + 0.5f);
 				if (internodesToGrow != 0) {
 					growSucceed = true;
-					
 				}
 #pragma endregion
 #pragma region Grow new shoot.
 				if (growSucceed) {
-					float internodeLength = 10.0f;
-					internodeLength *= tps.InternodeLengthBase * glm::pow(tps.InternodeLengthAgeFactor, treeAge.Value);
+					float internodeLength = distanceToGrow / (float) internodesToGrow;
+					internodeLength *= treeParameters.InternodeLengthBase * glm::pow(treeParameters.InternodeLengthAgeFactor, treeAge.Value);
 					int level = branchNodeInfo.Level;
 					if (budInfo.Type == BudTypes::LATERAL) {
 						level++;
@@ -165,51 +169,44 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 						_TreeActivatedBranchNodesLists[index].BranchNodes.push_back(bn);
 						BranchNodeInfo newBranchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(newBranchNode);
 						newBranchNodeInfo.ApicalBudExist = true;
-						newBranchNodeInfo.ActivatedBudsAmount = tps.LateralBudNumber;
+						newBranchNodeInfo.ActivatedBudsAmount = treeParameters.LateralBudNumber;
 						newBranchNodeInfo.DistanceToParent = internodeLength;
 						newBranchNodeInfo.Level = level;
 						newBranchNodeInfo.MaxChildLevel = level;
-						newBranchNodeInfo.ParentInhibitorFactor = glm::pow(tps.ApicalDominanceDistanceFactor, newBranchNodeInfo.DistanceToParent / 10.0f);
+						newBranchNodeInfo.ParentInhibitorFactor = glm::pow(treeParameters.ApicalDominanceDistanceFactor, newBranchNodeInfo.DistanceToParent);
 						newBranchNodeInfo.DesiredBranchDirection = newBranchNodeRotation.Value;
 						treeInfo.ActiveLength += newBranchNodeInfo.DistanceToParent;
 #pragma region Generate buds for branch node.
 						glm::quat prevBudRotation = prevBranchNodeRotation.Value;
-						for (int selectedNewBudIndex = 0; selectedNewBudIndex < tps.LateralBudNumber; selectedNewBudIndex++) {
+						for (int selectedNewBudIndex = 0; selectedNewBudIndex < treeParameters.LateralBudNumber; selectedNewBudIndex++) {
 							Entity newBud = TreeManager::CreateBudForBranchNode(treeIndex, newBranchNode);
-							BudInfo newBudInfo = EntityManager::GetComponentData<BudInfo>(newBud);
-							newBudInfo.LeafWidth = 0.4f;
-							newBudInfo.LeafThickness = 1.0f;
-							newBudInfo.LeafLength = 2.0f;
-							newBudInfo.LeafAmount = 3;
-							newBudInfo.BendDegrees = 30.0f;
-							newBudInfo.CircleDegreeStart = -40.0f;
-							newBudInfo.CircleDegreeAddition = 40.0f;
-
+							BudInfo newBudInfo = budInfo;
+							newBudInfo.StartAge = treeAge.Value;
 							Translation newBudTranslation = Translation();
-							newBudTranslation.Value = prevBranchNodeTranslation.Value + (newBranchNodeTranslation.Value - prevBranchNodeTranslation.Value) / (float)tps.LateralBudNumber * (float)(selectedNewBudIndex + 1);
+							newBudTranslation.Value = prevBranchNodeTranslation.Value + (newBranchNodeTranslation.Value - prevBranchNodeTranslation.Value) / (float)treeParameters.LateralBudNumber * (float)(selectedNewBudIndex + 1);
 							Rotation newBudRotation;
 							Scale newBudScale = Scale();
-							newBudScale.Value = prevBranchNodeScale.Value + (newBranchNodeScale.Value - prevBranchNodeScale.Value) / (float)tps.LateralBudNumber * (float)(selectedNewBudIndex + 1);
+							newBudScale.Value = prevBranchNodeScale.Value + (newBranchNodeScale.Value - prevBranchNodeScale.Value) / (float)treeParameters.LateralBudNumber * (float)(selectedNewBudIndex + 1);
 							newBudRotation.Value = prevBudRotation;
 							glm::vec3 front = newBudRotation.Value * glm::vec3(0, 0, -1);
 							glm::vec3 up = newBudRotation.Value * glm::vec3(0, 1, 0);
 							up = glm::rotate(up,
-								glm::radians(tps.MeanRollAngle + tps.VarianceRollAngle * glm::linearRand(-1, 1)), front);
+								glm::radians(treeParameters.MeanRollAngle + treeParameters.VarianceRollAngle * glm::linearRand(-1, 1)), front);
 							//If this is the last bud, we need to apply apical angle variance.
-							if (selectedNewBudIndex == tps.LateralBudNumber - 1) {
+							if (selectedNewBudIndex == treeParameters.LateralBudNumber - 1) {
 								glm::vec3 right = glm::cross(front, up);
 								right = glm::rotate(right, glm::radians(glm::linearRand(0.0f, 360.0f)), front);
-								front = glm::rotate(front, glm::radians(glm::gaussRand(tps.VarianceApicalAngle, 1.0f)), right);
+								front = glm::rotate(front, glm::radians(glm::gaussRand(treeParameters.VarianceApicalAngle, 1.0f)), right);
 								right = glm::cross(front, up);
 								up = glm::cross(right, front);
 							}
 							newBudRotation.Value = glm::quatLookAt(front, up);
 							prevBudRotation = newBudRotation.Value;
-							if (selectedNewBudIndex == tps.LateralBudNumber - 1) {
+							if (selectedNewBudIndex == treeParameters.LateralBudNumber - 1) {
 								prevBranchNodeRotation = newBudRotation;
 							}
 							//If the bud is the last bud of the entire shoot, it's set as apical.
-							if (selectedNewNodeIndex == internodesToGrow - 1 && selectedNewBudIndex == tps.LateralBudNumber - 1) {
+							if (selectedNewNodeIndex == internodesToGrow - 1 && selectedNewBudIndex == treeParameters.LateralBudNumber - 1) {
 								newBudInfo.Type = BudTypes::APICAL;
 							}
 							else {
@@ -217,7 +214,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 #pragma region Bend Lateral bud direction
 								glm::vec3 front = newBudRotation.Value * glm::vec3(0, 0, -1);
 								glm::vec3 left = newBudRotation.Value * glm::vec3(-1, 0, 0);
-								front = glm::rotate(front, glm::radians(tps.MeanBranchingAngle + tps.VarianceBranchingAngle * glm::linearRand(-1, 1)), left);
+								front = glm::rotate(front, glm::radians(treeParameters.MeanBranchingAngle + treeParameters.VarianceBranchingAngle * glm::linearRand(-1, 1)), left);
 								glm::vec3 up = glm::cross(front, left);
 								newBudRotation.Value = glm::quatLookAt(front, up);
 							}
@@ -225,6 +222,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 
 #pragma endregion
 #pragma region Apply info.
+							if (treeInfo.Height < newBudTranslation.Value.y) treeInfo.Height = newBudTranslation.Value.y;
 							EntityManager::SetComponentData(newBud, newBudInfo);
 							EntityManager::SetComponentData(newBranchNode, newBranchNodeInfo);
 							EntityManager::SetComponentData(newBud, newBudRotation);
@@ -247,9 +245,9 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 #pragma endregion
 #pragma region Add inhibitor to this branchnode.
 					float localInhibitor = 0;
-					if (tps.Age <= 1) localInhibitor += tps.ApicalDominanceBase;
+					if (treeParameters.Age <= 1) localInhibitor += treeParameters.ApicalDominanceBase;
 					else {
-						localInhibitor += tps.ApicalDominanceBase * glm::pow(tps.ApicalDominanceAgeFactor, treeAge.Value);
+						localInhibitor += treeParameters.ApicalDominanceBase * treeInfo.ApicalDominanceTimeVal->at(treeAge.Value);
 					}
 					if (budInfo.Type == BudTypes::APICAL) {
 						branchNodeInfo.Inhibitor += localInhibitor;
@@ -267,7 +265,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 #pragma region If the bud didnt flush then check whether we should remove it because of the old age.
 			if (!budRemoved) {
 				int budAge = treeAge.Value - budInfo.StartAge;
-				if (budAge > tps.MaxBudAge) {
+				if (budAge > treeParameters.MaxBudAge) {
 					budRemoved = true;
 					DeactivateBud(bud, branchNode, &budInfo, &branchNodeInfo);
 				}
@@ -285,6 +283,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 #pragma endregion
 	treeAge.Value++;
 	EntityManager::SetComponentData(tree, treeAge);
+	EntityManager::SetComponentData(tree, treeInfo);
 	return !_TreeActivatedBranchNodesLists[index].BranchNodes.empty();
 }
 
@@ -621,9 +620,15 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParam
 
 	BudInfo budInfo;
 	budInfo.StartAge = 0;
-	budInfo.Inhibitor = 0;
 	budInfo.Type = BudTypes::APICAL;
 	budInfo.Searching = true;
+	budInfo.LeafWidth = 0.04f;
+	budInfo.LeafThickness = 0.01f;
+	budInfo.LeafLength = 0.08f;
+	budInfo.LeafAmount = 3;
+	budInfo.BendDegrees = 30.0f;
+	budInfo.CircleDegreeStart = -40.0f;
+	budInfo.CircleDegreeAddition = 40.0f;
 
 	BranchNodeInfo branchNodeInfo;
 	branchNodeInfo.ApicalBudExist = true;
@@ -639,9 +644,28 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParam
 	int timeOff = 4;
 	treeInfo.ApicalDominanceTimeVal->resize(treeParameters.Age + timeOff);
 	treeInfo.GravitropismLevelVal->resize(treeParameters.Age + timeOff);
+	treeInfo.GravitropismLevelVal->resize(treeParameters.Age + timeOff);
+	treeInfo.ApicalControlTimeVal->resize(treeParameters.Age + timeOff);
+	treeInfo.ApicalControlTimeLevelVal->resize(treeParameters.Age + timeOff);
 	for (size_t t = 0; t < treeParameters.Age + timeOff; t++) {
 		treeInfo.ApicalDominanceTimeVal->at(t) = glm::pow(treeParameters.ApicalDominanceAgeFactor, t);
 		treeInfo.GravitropismLevelVal->at(t) = treeParameters.GravitropismBase + t * treeParameters.GravitropismLevelFactor;
+		treeInfo.ApicalControlTimeVal->at(t) = treeParameters.ApicalControl * glm::pow(treeParameters.ApicalControlAgeDescFactor, t);
+		
+		treeInfo.ApicalControlTimeLevelVal->at(t).resize(treeParameters.Age + timeOff);
+		float baseApicalControlVal = treeInfo.ApicalControlTimeVal->at(t);
+		treeInfo.ApicalControlTimeLevelVal->at(t).at(0) = baseApicalControlVal;
+		float currentVal = 1;
+		for (size_t level = 1; level < treeParameters.Age + timeOff; level++) {
+			if (baseApicalControlVal >= 1) {
+				currentVal *= 1.0f + (baseApicalControlVal - 1.0f) * glm::pow(treeParameters.ApicalControlLevelFactor, level);
+				treeInfo.ApicalControlTimeLevelVal->at(t).at(level) = 1.0f / currentVal;
+			}
+			else {
+				currentVal *= 1.0f - (1.0f - baseApicalControlVal) * glm::pow(treeParameters.ApicalControlLevelFactor, level);
+				treeInfo.ApicalControlTimeLevelVal->at(t).at(level) = currentVal;
+			}
+		}
 	}
 #pragma endregion
 

@@ -32,13 +32,13 @@ int main()
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
-	ccs->SetPosition(glm::vec3(0, 30, 60));
+	ccs->SetPosition(glm::vec3(0, 3, 6));
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
 	
-	TreeManager::GetLightEstimator()->ResetCenterDistance(300);
-	TreeManager::GetLightEstimator()->ResetSnapShotWidth(200);
+	TreeManager::GetLightEstimator()->ResetCenterDistance(20);
+	TreeManager::GetLightEstimator()->ResetSnapShotWidth(10);
 	//From top
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0), 1.0f);
 	
@@ -114,7 +114,7 @@ void InitGround() {
 	Translation translation = Translation();
 	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();
-	scale.Value = glm::vec3(100.0f);
+	scale.Value = glm::vec3(10.0f);
 	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 

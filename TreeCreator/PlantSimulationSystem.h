@@ -29,7 +29,7 @@ namespace TreeUtilities {
 
         std::vector<BranchNodesCollection> _TreeActivatedBranchNodesLists;
 
-        float GetApicalControl(BranchNodeInfo* branchNodeInfo, TreeParameters* tps, TreeAge* treeAge, int level);
+        float GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level);
         void DeactivateBud(Entity bud, Entity branchNode, BudInfo* budInfo, BranchNodeInfo* branchNodeInfo);
         void DeactivateBranch(size_t listIndex, size_t index);
         void DrawGUI();

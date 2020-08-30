@@ -285,6 +285,8 @@ Entity TreeUtilities::TreeManager::CreateTree()
 	TreeInfo treeInfo;
 	treeInfo.GravitropismLevelVal = new std::vector<float>();
 	treeInfo.ApicalDominanceTimeVal = new std::vector<float>();
+	treeInfo.ApicalControlTimeVal = new std::vector<float>();
+	treeInfo.ApicalControlTimeLevelVal = new std::vector<std::vector<float>>();
 	EntityManager::SetComponentData(entity, treeInfo);
 	EntityManager::SetComponentData(entity, _TreeIndex);
 	_TreeIndex.Value++;
@@ -296,6 +298,9 @@ void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
 	TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(treeEntity);
 	if (treeInfo.GravitropismLevelVal != nullptr) delete treeInfo.GravitropismLevelVal;
 	if (treeInfo.ApicalDominanceTimeVal != nullptr) delete treeInfo.ApicalDominanceTimeVal;
+	if (treeInfo.ApicalControlTimeVal != nullptr) delete treeInfo.ApicalControlTimeVal;
+	if (treeInfo.ApicalControlTimeLevelVal != nullptr) delete treeInfo.ApicalControlTimeLevelVal;
+
 	if (EntityManager::HasComponentData<BranchNodeInfo>(EntityManager::GetChildren(treeEntity).at(0))) {
 		BranchRemover(EntityManager::GetChildren(treeEntity).at(0));
 	}

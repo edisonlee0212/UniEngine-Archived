@@ -35,12 +35,12 @@ void TreeUtilities::BranchNodeSystem::Update()
 	_BranchNodeLTWList.clear();
 	if (_ConfigFlags & BranchNodeSystem_DrawBranchNodes) {
 		_BranchNodeQuery.ToComponentDataArray(&_BranchNodeLTWList);
-		if (_BranchNodeLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(0, 0, 1, 1), (glm::mat4*)_BranchNodeLTWList.data(), _BranchNodeLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
+		if (_BranchNodeLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(0, 0, 1, 1), (glm::mat4*)_BranchNodeLTWList.data(), _BranchNodeLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.02f);
 	}
 	if (_ConfigFlags & BranchNodeSystem_DrawConnections) {
 		_ConnectionList.clear();
 		_BranchNodeQuery.ToComponentDataArray(&_ConnectionList);
-		if (_ConnectionList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(0.6f, 0.3f, 0, 1), (glm::mat4*)_ConnectionList.data(), _ConnectionList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
+		if (_ConnectionList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(0.6f, 0.3f, 0, 1), (glm::mat4*)_ConnectionList.data(), _ConnectionList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
 	}
 	DrawGUI();
 }

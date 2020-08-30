@@ -55,7 +55,7 @@ void TreeUtilities::BudSystem::Update()
 			if (treeEntities->at(i).Enabled()) {
 				_BudLTWList.clear();
 				_BudQuery.ToComponentDataArray(treeIndices[i], &_BudLTWList);
-				if (_BudLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].BudColor, (glm::mat4*)_BudLTWList.data(), _BudLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
+				if (_BudLTWList.size() != 0)RenderManager::DrawGizmoCubeInstanced(treeColors[i].BudColor, (glm::mat4*)_BudLTWList.data(), _BudLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.01f);
 			}
 
 		}

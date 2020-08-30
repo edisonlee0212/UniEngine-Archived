@@ -98,9 +98,7 @@ namespace TreeUtilities {
     struct TREEUTILITIES_API BudInfo : ComponentBase {
         bool Searching = false;
         BudTypes Type = BudTypes::APICAL;
-        float Inhibitor = 0;
         int StartAge = -1;
-
         float LeafWidth = 0.4f;
         float LeafThickness = 1.0f;
         float LeafLength = 0.6f;
@@ -230,6 +228,9 @@ namespace TreeUtilities {
         size_t LateralBudsCount;
         std::vector<float>* ApicalDominanceTimeVal;
         std::vector<float>* GravitropismLevelVal;
+        std::vector<float>* ApicalControlTimeVal;
+        std::vector<std::vector<float>>* ApicalControlTimeLevelVal;
+
         float ResourceToGrow;
     };
 #pragma endregion
