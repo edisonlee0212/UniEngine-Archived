@@ -40,7 +40,7 @@ void TreeUtilities::BranchNodeSystem::Update()
 	if (_ConfigFlags & BranchNodeSystem_DrawConnections) {
 		_ConnectionList.clear();
 		_BranchNodeQuery.ToComponentDataArray(&_ConnectionList);
-		if (_ConnectionList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(0.6f, 0.3f, 0, 1), (glm::mat4*)_ConnectionList.data(), _ConnectionList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 0.1f);
+		if (_ConnectionList.size() != 0)RenderManager::DrawGizmoCubeInstanced(glm::vec4(0.6f, 0.3f, 0, 1), (glm::mat4*)_ConnectionList.data(), _ConnectionList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
 	}
 	DrawGUI();
 }

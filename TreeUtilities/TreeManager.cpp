@@ -318,6 +318,7 @@ Entity TreeUtilities::TreeManager::CreateBranchNode(TreeIndex treeIndex, Entity 
 	EntityManager::SetComponentData(entity, ob);
 	_BranchNodeIndex.Value++;
 	BranchNodeInfo branchInfo;
+	branchInfo.MaxChildLevel = 0;
 	EntityManager::SetComponentData(entity, branchInfo);
 	return entity;
 }

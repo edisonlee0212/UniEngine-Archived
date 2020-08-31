@@ -34,6 +34,8 @@ namespace TreeUtilities {
         void DeactivateBranch(size_t listIndex, size_t index);
         void DrawGUI();
         void DestroyedTreeCheck();
+        void UpdateBranchNodeLength(Entity& branchNode);
+        void UpdateBranchNodeLevel(Entity& branchNode);
         bool GrowTree(size_t index);
     public:
         void GrowAllTrees();

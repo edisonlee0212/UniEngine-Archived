@@ -133,6 +133,11 @@ namespace TreeUtilities {
         int ActivatedBudsAmount = 0;
         int Level = 0;
         float DistanceToParent = 0;
+        float DistanceToBranchEnd = 0;
+        float TotalDistanceToBranchEnd = 0;
+        float DistanceToBranchStart = 0;
+        bool Pruned;
+        bool IsApical;
         bool ApicalBudExist = false;
         float Length;
         float Thickness;
