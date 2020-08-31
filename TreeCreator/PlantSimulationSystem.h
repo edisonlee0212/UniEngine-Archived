@@ -36,6 +36,7 @@ namespace TreeUtilities {
         void DestroyedTreeCheck();
         void UpdateBranchNodeLength(Entity& branchNode);
         void UpdateBranchNodeLevel(Entity& branchNode);
+        void UpdateBranchNodeMeanData(Entity& branchNode, unsigned treeAge);
         bool GrowTree(size_t index);
     public:
         void GrowAllTrees();

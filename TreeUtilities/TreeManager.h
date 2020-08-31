@@ -117,6 +117,10 @@ namespace TreeUtilities {
     };
 #pragma endregion
 #pragma region BranchNode
+    struct TREEUTILITIES_API BaseBudEntity : ComponentBase {
+        Entity Value;
+    };
+
     struct TREEUTILITIES_API BranchNodeBudsList : ComponentBase {
         std::vector<Entity>* Buds;
     };
@@ -147,6 +151,10 @@ namespace TreeUtilities {
         float SiblingAngle;
         float ParentAngle;
         glm::quat DesiredBranchDirection;
+        float MeanW;
+        glm::vec3 ChildBranchesMean;
+        unsigned NumValidChild;
+
     };
 #pragma endregion
 #pragma region Tree
@@ -210,7 +218,7 @@ namespace TreeUtilities {
     };
 
     struct TREEUTILITIES_API TreeAge : ComponentBase {
-        int Value;
+        unsigned Value;
         bool Enable;
     };
 

@@ -291,6 +291,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(size_t index)
 		EntityManager::SetComponentData(branchNode, branchNodeInfo);
 	}
 #pragma endregion
+	UpdateBranchNodeMeanData(rootBranchNode, treeAge.Value);
 	treeAge.Value++;
 	EntityManager::SetComponentData(tree, treeAge);
 	EntityManager::SetComponentData(tree, treeInfo);
@@ -662,6 +663,40 @@ void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeLevel(Entity& branchN
 		EntityManager::SetComponentData(maxChild, childNodeInfo);
 		UpdateBranchNodeLevel(maxChild);
 	}
+}
+
+void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeMeanData(Entity& branchNode, unsigned treeAge)
+{
+	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
+	branchNodeInfo.DistanceToBranchEnd = 0;
+	branchNodeInfo.MeanW = 0;
+	branchNodeInfo.NumValidChild = 0;
+	branchNodeInfo.ChildBranchesMean = glm::vec3(0.0f);
+	EntityManager::SetComponentData(branchNode, branchNodeInfo);
+	if (branchNodeInfo.Pruned) return;
+	float totalChildW = 0;
+	float totalChildWSq = 0;
+	EntityManager::ForEachChild(branchNode, [this, treeAge, &branchNodeInfo, &totalChildW, &totalChildWSq](Entity child) 
+		{
+			UpdateBranchNodeMeanData(child, treeAge);
+			BranchNodeInfo childNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(child);
+			float d = childNodeInfo.DistanceToBranchEnd + childNodeInfo.DistanceToParent;
+			if (d > branchNodeInfo.DistanceToBranchEnd)branchNodeInfo.DistanceToBranchEnd = d;
+			float cL = childNodeInfo.DistanceToParent;
+			branchNodeInfo.NumValidChild += 1;
+			float w = childNodeInfo.MeanW;
+			branchNodeInfo.ChildBranchesMean += w * childNodeInfo.ChildBranchesMean;
+			totalChildW += w;
+			totalChildWSq += w * w;
+		});
+	float nodeWFactor = 1;
+	float locW = 1.0f + glm::max((int)treeAge - branchNodeInfo.Level, 0);
+	branchNodeInfo.ChildBranchesMean += EntityManager::GetComponentData<Translation>(branchNode).Value * branchNodeInfo.DistanceToParent * locW;
+	branchNodeInfo.MeanW = locW * branchNodeInfo.DistanceToParent + totalChildW;
+	if (branchNodeInfo.MeanW > 0) {
+		branchNodeInfo.ChildBranchesMean = branchNodeInfo.ChildBranchesMean / branchNodeInfo.MeanW;
+	}
+	EntityManager::SetComponentData(branchNode, branchNodeInfo);
 }
 
 void TreeUtilities::PlantSimulationSystem::GrowTree(Entity treeEntity)
