@@ -8,16 +8,7 @@ namespace TreeUtilities {
         PlantSimulationSystem_None = 0,
     };
 
-    struct BranchNode {
-        bool Activated;
-        Entity BranchNodeEntity;
-    };
-
-    struct BranchNodesCollection {
-        Entity TreeEntity;
-        std::vector<BranchNode> BranchNodes;
-    };
-
+    
     class PlantSimulationSystem :
         public SystemBase
     {
@@ -27,22 +18,18 @@ namespace TreeUtilities {
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
 
-        std::vector<BranchNodesCollection> _TreeActivatedBranchNodesLists;
-
         float GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level);
-        void DeactivateBud(Entity bud, Entity branchNode, BudInfo* budInfo, BranchNodeInfo* branchNodeInfo);
-        void DeactivateBranch(size_t listIndex, size_t index);
         void DrawGUI();
-        void DestroyedTreeCheck();
         void UpdateBranchNodeLength(Entity& branchNode);
         void UpdateBranchNodeLevel(Entity& branchNode);
         void UpdateBranchNodeMeanData(Entity& branchNode, unsigned treeAge);
-        bool GrowTree(size_t index);
+        void UpdateLocalTransform(Entity& branchNode, Translation& parentTranslation, Rotation& parentRotation, Scale& parentScale);
+        bool GrowShoots(Entity& branchNode, TreeInfo& treeInfo, TreeAge& treeAge, TreeParameters& treeParameters, TreeIndex& treeIndex);
+        void DeactivateBud(BranchNodeInfo& branchNodeInfo, Bud& bud);
     public:
-        void GrowAllTrees();
         void CompleteAllTrees();
         void CompleteTree(Entity treeEntity);
-        void GrowTree(Entity treeEntity);
+        bool GrowTree(Entity treeEntity);
         void OnCreate();
         void OnDestroy();
         void Update();

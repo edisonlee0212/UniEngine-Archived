@@ -108,22 +108,35 @@ namespace TreeUtilities {
         float CircleDegreeAddition = 40.0f;
     };
 
-    struct TREEUTILITIES_API BudIllumination : ComponentBase {
-        float Value;
-    };
 
     struct TREEUTILITIES_API BranchNodeOwner : ComponentBase {
         Entity Value;
     };
 #pragma endregion
 #pragma region BranchNode
+    struct TREEUTILITIES_API BranchNodeIllumination : ComponentBase {
+        float Value;
+        glm::vec3 LightDir;
+    };
     struct TREEUTILITIES_API BaseBudEntity : ComponentBase {
         Entity Value;
     };
 
-    struct TREEUTILITIES_API BranchNodeBudsList : ComponentBase {
-        std::vector<Entity>* Buds;
+    struct TREEUTILITIES_API Bud {
+        bool IsActive;
+        bool IsApical;
+        unsigned StartAge;
+        glm::vec3 Up;
+        glm::vec3 Front;
+
+
     };
+
+    struct TREEUTILITIES_API BranchNodeBudsList : ComponentBase {
+        std::vector<Bud>* Buds;
+    };
+
+
     struct TREEUTILITIES_API BranchNodeIndex : ComponentBase {
         unsigned Value;
         bool operator ==(const BranchNodeIndex& other) const {
@@ -150,7 +163,7 @@ namespace TreeUtilities {
         float Slope;
         float SiblingAngle;
         float ParentAngle;
-        glm::quat DesiredBranchDirection;
+        glm::quat DesiredBranchLocalDirection;
         float MeanW;
         glm::vec3 ChildBranchesMean;
         unsigned NumValidChild;
@@ -277,7 +290,7 @@ namespace TreeUtilities {
         
         static void LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index);
         
-        static void BranchRemover(Entity branchEntity);
+        static void BranchNodeRemover(Entity branchEntity);
     public:
         static void Init();
         static bool IsReady();
@@ -306,7 +319,6 @@ namespace TreeUtilities {
         static Entity CreateTree();
         static Entity CreateBranchNode(TreeIndex treeIndex, Entity parentEntity);
         static Entity CreateBud(TreeIndex treeIndex, Entity parentEntity);
-        static Entity CreateBudForBranchNode(TreeIndex treeIndex, Entity branchEntity);
         static Entity CreateLeaf(TreeIndex treeIndex, Entity parentEntity);
 
         static LightEstimator* GetLightEstimator();

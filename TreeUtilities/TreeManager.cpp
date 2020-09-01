@@ -56,12 +56,12 @@ inline void TreeUtilities::TreeManager::LeafGenerationHelper(BudInfo& info, Enti
 	EntityManager::SetComponentData(leaf, s);
 	EntityManager::SetComponentData(leaf, r);
 }
-void TreeUtilities::TreeManager::BranchRemover(Entity branchEntity)
+void TreeUtilities::TreeManager::BranchNodeRemover(Entity branchEntity)
 {
 	BranchNodeBudsList ob = EntityManager::GetComponentData<BranchNodeBudsList>(branchEntity);
 	delete ob.Buds;
 	EntityManager::ForEachChild(branchEntity, [](Entity child) {
-		BranchRemover(child);
+		BranchNodeRemover(child);
 		});
 }
 void TreeUtilities::TreeManager::Init()
@@ -76,11 +76,12 @@ void TreeUtilities::TreeManager::Init()
 		BranchNodeOwner(),
 		Translation(), Rotation(), Scale(), LocalToWorld(),
 		Activated(), LocalPosition(), Connection(),
-		Radius(), BudIndex(), Iteration(), Level(), BudInfo(), TreeIndex(),
-		BudIllumination());
+		Radius(), BudIndex(), Iteration(), Level(), BudInfo(), TreeIndex()
+	);
 	_BranchNodeArchetype = EntityManager::CreateEntityArchetype(
 		"BranchNode",
-		Translation(), Rotation(), Scale(), LocalToWorld(), Connection(),
+		LocalToParent(), LocalToWorld(), Connection(),
+		LocalTranslation(), LocalRotation(), LocalScale(), 
 		BranchNodeIndex(), BranchNodeInfo(), TreeIndex(), BranchNodeBudsList()
 	);
 	_TreeArchetype = EntityManager::CreateEntityArchetype(
@@ -302,7 +303,7 @@ void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
 	if (treeInfo.ApicalControlTimeLevelVal != nullptr) delete treeInfo.ApicalControlTimeLevelVal;
 
 	if (EntityManager::HasComponentData<BranchNodeInfo>(EntityManager::GetChildren(treeEntity).at(0))) {
-		BranchRemover(EntityManager::GetChildren(treeEntity).at(0));
+		BranchNodeRemover(EntityManager::GetChildren(treeEntity).at(0));
 	}
 	EntityManager::DeleteEntity(treeEntity);
 }
@@ -311,7 +312,7 @@ Entity TreeUtilities::TreeManager::CreateBranchNode(TreeIndex treeIndex, Entity 
 {
 	auto entity = EntityManager::CreateEntity(_BranchNodeArchetype);
 	BranchNodeBudsList ob = BranchNodeBudsList();
-	ob.Buds = new std::vector<Entity>();
+	ob.Buds = new std::vector<Bud>();
 	EntityManager::SetComponentData(entity, treeIndex);
 	EntityManager::SetParent(entity, parentEntity);
 	EntityManager::SetComponentData(entity, _BranchNodeIndex);
@@ -328,22 +329,6 @@ Entity TreeUtilities::TreeManager::CreateBud(TreeIndex treeIndex, Entity parentE
 	auto entity = EntityManager::CreateEntity(_BudArchetype);
 	EntityManager::SetComponentData(entity, treeIndex);
 	EntityManager::SetParent(entity, parentEntity);
-	EntityManager::SetComponentData(entity, _BudIndex);
-	Activated act;
-	act.Value = true;
-	EntityManager::SetComponentData(entity, act);
-	_BudIndex.Value++;
-	return entity;
-}
-
-Entity TreeUtilities::TreeManager::CreateBudForBranchNode(TreeIndex treeIndex, Entity branchNodeEntity)
-{
-	auto entity = EntityManager::CreateEntity(_BudArchetype);
-	BranchNodeOwner owner;
-	owner.Value = branchNodeEntity;
-	EntityManager::SetComponentData(entity, owner);
-	EntityManager::GetComponentData<BranchNodeBudsList>(branchNodeEntity).Buds->push_back(entity);
-	EntityManager::SetComponentData(entity, treeIndex);
 	EntityManager::SetComponentData(entity, _BudIndex);
 	Activated act;
 	act.Value = true;
