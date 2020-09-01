@@ -24,6 +24,6 @@ namespace TreeUtilities {
         void OnCreate();
         void OnDestroy();
         void Update();
-        void RefreshConnections();
+        void TREEUTILITIES_API RefreshConnections();
     };
 }

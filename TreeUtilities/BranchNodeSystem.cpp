@@ -26,6 +26,7 @@ void TreeUtilities::BranchNodeSystem::OnCreate()
 	_BranchNodeLTWList.clear();
 	_BranchNodeQuery = TreeManager::GetBranchNodeQuery();
 	_ConfigFlags = BranchNodeSystem_DrawBranchNodes;
+	_ConfigFlags = BranchNodeSystem_DrawConnections;
 	Enable();
 }
 
@@ -51,14 +52,14 @@ void TreeUtilities::BranchNodeSystem::Update()
 void TreeUtilities::BranchNodeSystem::RefreshConnections()
 {
 	float lineWidth = _ConnectionWidth;
-	EntityManager::ForEach<LocalToWorld, Connection>(_BranchNodeQuery, [lineWidth](int i, Entity entity, LocalToWorld* ltw, Connection* c) {
+	EntityManager::ForEach<LocalToWorld, Connection, BranchNodeInfo>(_BranchNodeQuery, [lineWidth](int i, Entity entity, LocalToWorld* ltw, Connection* c, BranchNodeInfo* info) {
 		glm::vec3 scale;
 		glm::quat rotation;
 		glm::vec3 translation;
 		glm::vec3 skew;
 		glm::vec4 perspective;
 		glm::decompose(ltw->Value, scale, rotation, translation, skew, perspective);
-		glm::vec3 parentTranslation = EntityManager::GetComponentData<LocalToWorld>(EntityManager::GetParent(entity)).Value[3];
+		glm::vec3 parentTranslation = translation + (rotation * glm::vec3(0, 0, 1)) * info->DistanceToParent; //EntityManager::GetComponentData<LocalToWorld>(EntityManager::GetParent(entity)).Value[3];
 		glm::mat4 rotationMat = glm::mat4_cast(rotation);
 		c->Value = glm::translate((translation + parentTranslation) / 2.0f) * rotationMat * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(translation, parentTranslation) / 2.0f));
 		});

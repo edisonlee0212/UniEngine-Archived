@@ -65,6 +65,9 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity tree)
 	treeAge.Value++;
 	EntityManager::SetComponentData(tree, treeAge);
 	EntityManager::SetComponentData(tree, treeInfo);
+	if (!idle) {
+		ComputeSagging(rootBranchNode);
+	}
 	return idle;
 }
 
@@ -277,20 +280,21 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 				Entity prevBranchNode = branchNode;
 				BranchNodeInfo prevBranchNodeInfo = branchNodeInfo;
 				glm::vec3 prevEulerAngle = bud.EulerAngles;
+				glm::mat4 templtw = EntityManager::GetComponentData<LocalToWorld>(branchNode).Value;
+				glm::vec3 scale;
+				glm::quat rotation;
+				glm::vec3 translation;
+				glm::vec3 skew;
+				glm::vec4 perspective;
+				glm::decompose(templtw, scale, rotation, translation, skew, perspective);
+				Rotation prevBranchNodeRotation;
+				prevBranchNodeRotation.Value = rotation;
 #pragma region Create branch nodes
 				for (int selectedNewNodeIndex = 0; selectedNewNodeIndex < internodesToGrow; selectedNewNodeIndex++) {
-#pragma region Transforms for branch node
-					LocalTranslation lt;
-					LocalRotation lr;
-					lr.Value = glm::quat(prevEulerAngle);
-					LocalScale ls;
-					lt.Value = lr.Value * glm::vec3(0, 0, -1) * internodeLength;
-					ls.Value = glm::vec3(1.0f);
-#pragma endregion
+#pragma region Setup branch node
 					Entity newBranchNode = TreeManager::CreateBranchNode(treeIndex, prevBranchNode);
 					BranchNodeBudsList newBranchNodeBudList = EntityManager::GetComponentData<BranchNodeBudsList>(newBranchNode);
 					BranchNodeInfo newBranchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(newBranchNode);
-#pragma region Setup branch node info
 					newBranchNodeInfo.ApicalBudExist = true;
 					newBranchNodeInfo.ActivatedBudsAmount = treeParameters.LateralBudNumber + 1;
 					newBranchNodeInfo.DistanceToParent = internodeLength;
@@ -303,10 +307,41 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 					newBranchNodeInfo.ParentInhibitorFactor = glm::pow(treeParameters.ApicalDominanceDistanceFactor, newBranchNodeInfo.DistanceToParent);
 					newBranchNodeInfo.DesiredBranchLocalDirection = prevEulerAngle;
 #pragma endregion
+#pragma region Transforms for branch node
+					LocalTranslation lt;
+					LocalRotation lr;
+					lr.Value = glm::quat(prevEulerAngle);
+#pragma region Roll branch node
+					glm::vec3 rollAngles = glm::vec3(0, 0, glm::radians(treeParameters.MeanRollAngle + treeParameters.VarianceRollAngle * glm::linearRand(-1, 1)));
+					lr.Value *= glm::quat(rollAngles);
+#pragma endregion
+
+#pragma region Apply phototropism and gravitropism
+					float gravitropism = treeInfo.GravitropismLevelVal->at(newBranchNodeInfo.Level);
+					Rotation globalRawRotation;
+					globalRawRotation.Value = prevBranchNodeRotation.Value * lr.Value;
+					glm::vec3 rawFront = globalRawRotation.Value * glm::vec3(0, 0, -1);
+					glm::vec3 rawUp = globalRawRotation.Value * glm::vec3(0, 1, 0);
+					rawFront += glm::vec3(0, -1, 0) * gravitropism;
+					rawFront += glm::vec3(0, 1, 0) * treeParameters.Phototropism;
+					rawFront = glm::normalize(rawFront);
+					rawUp = glm::cross(glm::cross(rawFront, rawUp), rawFront);
+					globalRawRotation.Value = glm::quatLookAt(rawFront, rawUp);
+					lr.Value = glm::inverse(prevBranchNodeRotation.Value) * globalRawRotation.Value;
+					prevBranchNodeRotation = globalRawRotation;
+#pragma endregion
+					LocalScale ls;
+					lt.Value = lr.Value * glm::vec3(0, 0, -1) * internodeLength;
+					ls.Value = glm::vec3(1.0f);
+#pragma endregion
+					
+					
+
 					treeInfo.ActiveLength += newBranchNodeInfo.DistanceToParent;
 #pragma region Create Apical Bud
 					Bud newApicalBud;
-					newApicalBud.EulerAngles = glm::vec3(glm::gaussRand(glm::vec2(0), glm::vec2(treeParameters.VarianceApicalAngle)), 0.0f);
+					newApicalBud.EulerAngles = glm::vec3(glm::gaussRand(glm::vec2(0), glm::vec2(treeParameters.VarianceApicalAngle)), 
+						0.0f);
 					newApicalBud.IsActive = true;
 					newApicalBud.IsApical = true;
 					newApicalBud.StartAge = treeAge.Value;
@@ -315,7 +350,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 #pragma region Create Lateral Buds
 					for (int selectedNewBudIndex = 0; selectedNewBudIndex < treeParameters.LateralBudNumber; selectedNewBudIndex++) {
 						Bud newLateralBud;
-						float rollAngle = treeParameters.MeanRollAngle * selectedNewBudIndex + treeParameters.VarianceRollAngle * glm::linearRand(-1, 1);
+						float rollAngle = 360.0f * (selectedNewBudIndex + 1) / treeParameters.LateralBudNumber + treeParameters.VarianceBranchingAngle * glm::linearRand(-1, 1);
 						float branchAngle = treeParameters.MeanBranchingAngle + treeParameters.VarianceBranchingAngle * glm::linearRand(-1, 1);
 						newLateralBud.EulerAngles = glm::vec3(glm::radians(branchAngle), 0.0f, glm::radians(rollAngle));
 						newLateralBud.IsActive = true;
@@ -375,12 +410,19 @@ void TreeUtilities::PlantSimulationSystem::DeactivateBud(BranchNodeInfo& branchN
 	if (bud.IsApical) branchNodeInfo.ApicalBudExist = false;
 }
 
+void TreeUtilities::PlantSimulationSystem::ComputeSagging(Entity& branchNode)
+{
+}
+
+void TreeUtilities::PlantSimulationSystem::EvaluatePruning(Entity& branchNode, TreeParameters& treeParameters)
+{
+}
+
 void TreeUtilities::PlantSimulationSystem::OnCreate()
 {
 	_BudQuery = TreeManager::GetBudQuery();
 	_TreeQuery = TreeManager::GetTreeQuery();
 	_LeafQuery = TreeManager::GetLeafQuery();
-	Application::SetTimeStep(1.0f);
 	Enable();
 }
 
@@ -396,25 +438,9 @@ void TreeUtilities::PlantSimulationSystem::FixedUpdate()
 {
 	std::vector<Entity> trees;
 	_TreeQuery.ToEntityArray(&trees);
-	for (const auto& tree : trees) {
-		
-		Entity branchNode = EntityManager::GetChildren(tree).at(0);
-		LocalToWorld tltw = EntityManager::GetComponentData<LocalToWorld>(tree);
-		LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(branchNode);
-		glm::vec3 scale;
-		glm::quat rotation;
-		glm::vec3 translation;
-		glm::vec3 skew;
-		glm::vec4 perspective;
-		glm::decompose(tltw.Value, scale, rotation, translation, skew, perspective);
-		glm::vec3 axis = glm::axis(rotation);
-		glm::vec3 front = rotation * glm::vec3(0, 0, -1);
-		glm::decompose(ltw.Value, scale, rotation, translation, skew, perspective);
-		front = rotation * glm::vec3(0, 0, -1);
-
-		Debug::Log("Done.");
-		
+	for (const auto& tree : trees) {	
 		GrowTree(tree);
+		TreeManager::GetBranchNodeSystem()->RefreshConnections();
 	}
 	//GrowAllTrees();
 }

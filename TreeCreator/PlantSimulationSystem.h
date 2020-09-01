@@ -17,7 +17,7 @@ namespace TreeUtilities {
         EntityQuery _BudQuery;
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
-
+        
         float GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level);
         void DrawGUI();
         void UpdateBranchNodeLength(Entity& branchNode);
@@ -26,6 +26,9 @@ namespace TreeUtilities {
         void UpdateLocalTransform(Entity& branchNode, Translation& parentTranslation, Rotation& parentRotation, Scale& parentScale);
         bool GrowShoots(Entity& branchNode, TreeInfo& treeInfo, TreeAge& treeAge, TreeParameters& treeParameters, TreeIndex& treeIndex);
         void DeactivateBud(BranchNodeInfo& branchNodeInfo, Bud& bud);
+        void ComputeSagging(Entity& branchNode);
+
+        void EvaluatePruning(Entity& branchNode, TreeParameters& treeParameters);
     public:
         void CompleteAllTrees();
         void CompleteTree(Entity treeEntity);

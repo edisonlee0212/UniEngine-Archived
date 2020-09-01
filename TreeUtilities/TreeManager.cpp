@@ -81,7 +81,8 @@ void TreeUtilities::TreeManager::Init()
 	_BranchNodeArchetype = EntityManager::CreateEntityArchetype(
 		"BranchNode",
 		LocalToParent(), LocalToWorld(), Connection(),
-		LocalTranslation(), LocalRotation(), LocalScale(), 
+		LocalTranslation(), LocalRotation(), LocalScale(),
+		BranchNodeIllumination(),
 		BranchNodeIndex(), BranchNodeInfo(), TreeIndex(), BranchNodeBudsList()
 	);
 	_TreeArchetype = EntityManager::CreateEntityArchetype(

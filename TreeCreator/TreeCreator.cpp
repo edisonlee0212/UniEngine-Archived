@@ -79,7 +79,6 @@ void InitPlantSimulationSystem() {
 	Entity tree1 = psSys->CreateExampleTree(treeColor, glm::vec3(0, 0, 0), 8);
 
 }
-
 void InitSpaceColonizationTreeSystem()
 {
 	auto sctSys = Application::GetWorld()->CreateSystem<SpaceColonizationTreeSystem>(SystemGroup::SimulationSystemGroup);
