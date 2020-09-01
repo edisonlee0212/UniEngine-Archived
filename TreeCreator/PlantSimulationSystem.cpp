@@ -306,7 +306,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 					treeInfo.ActiveLength += newBranchNodeInfo.DistanceToParent;
 #pragma region Create Apical Bud
 					Bud newApicalBud;
-					newApicalBud.EulerAngles = glm::vec3(0.0f);
+					newApicalBud.EulerAngles = glm::vec3(glm::gaussRand(glm::vec2(0), glm::vec2(treeParameters.VarianceApicalAngle)), 0.0f);
 					newApicalBud.IsActive = true;
 					newApicalBud.IsApical = true;
 					newApicalBud.StartAge = treeAge.Value;
