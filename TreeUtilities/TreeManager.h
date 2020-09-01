@@ -144,6 +144,7 @@ namespace TreeUtilities {
     };
     struct TREEUTILITIES_API BranchNodeInfo : ComponentBase {
         int MaxChildLevel;
+        int MaxActivatedChildLevel;
         float Inhibitor = 0;
         float ParentInhibitorFactor = 1;
         int ActivatedBudsAmount = 0;
@@ -152,6 +153,10 @@ namespace TreeUtilities {
         float DistanceToBranchEnd = 0;
         float TotalDistanceToBranchEnd = 0;
         float DistanceToBranchStart = 0;
+        float AccmulatedLength = 0;
+        float AccmulatedLight = 0;
+        float AccmulatedActivatedBudsAmount = 0;
+        unsigned BranchEndNodeAmount;
         bool Pruned;
         bool IsApical;
         bool ApicalBudExist = false;
@@ -162,7 +167,7 @@ namespace TreeUtilities {
         float Slope;
         float SiblingAngle;
         float ParentAngle;
-        glm::quat DesiredBranchLocalDirection;
+        glm::quat DesiredLocalRotation;
         float MeanW;
         glm::vec3 ChildBranchesMean;
         unsigned NumValidChild;
@@ -216,9 +221,15 @@ namespace TreeUtilities {
         float ApicalBudLightingFactor;
         float LateralBudLightingFactor;
 #pragma endregion
-        size_t Age;
 
-        
+#pragma region Sagging
+        float Gravity;
+        float GravityMaxBending;
+#pragma endregion
+
+        size_t Age;
+        float EndNodeThickness = 0.01f;
+        float ThicknessControlFactor = 1.0f;
     };
     
     struct TREEUTILITIES_API TreeLeafPruningFactor : ComponentBase {

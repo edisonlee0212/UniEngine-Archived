@@ -21,14 +21,17 @@ namespace TreeUtilities {
         float GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level);
         void DrawGUI();
         void UpdateBranchNodeLength(Entity& branchNode);
+        void UpdateBranchNodeActivatedLevel(Entity& branchNode);
         void UpdateBranchNodeLevel(Entity& branchNode);
         void UpdateBranchNodeMeanData(Entity& branchNode, unsigned treeAge);
         void UpdateLocalTransform(Entity& branchNode, Translation& parentTranslation, Rotation& parentRotation, Scale& parentScale);
+        void UpdateBranchNodeResource(Entity& branchNode, TreeParameters& treeParameters, TreeAge& treeAge);
+        void UpdateBranchNodeResourceAllocation(Entity& branchNode); 
         bool GrowShoots(Entity& branchNode, TreeInfo& treeInfo, TreeAge& treeAge, TreeParameters& treeParameters, TreeIndex& treeIndex);
         void DeactivateBud(BranchNodeInfo& branchNodeInfo, Bud& bud);
-        void ComputeSagging(Entity& branchNode);
-
-        void EvaluatePruning(Entity& branchNode, TreeParameters& treeParameters);
+        void ComputeSagging(Entity& branchNode, TreeParameters& treeParameters);
+        void PruneBranchNode(Entity& branchNode, TreeInfo& treeInfo);
+        void EvaluatePruning(Entity& branchNode, TreeParameters& treeParameters, TreeAge& treeAge, TreeInfo& treeInfo);
     public:
         void CompleteAllTrees();
         void CompleteTree(Entity treeEntity);

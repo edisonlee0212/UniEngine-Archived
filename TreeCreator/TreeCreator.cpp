@@ -20,7 +20,7 @@ void InitPlantSimulationSystem();
 int main()
 {
 
-	LightingManager::SetAmbientLight(1.0f);
+	LightingManager::SetAmbientLight(0.2f);
 	Application::Init();
 
 	Application::SetTimeStep(0.016f);
@@ -33,6 +33,7 @@ int main()
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
 	ccs->SetPosition(glm::vec3(0, 3, 6));
+	ccs->SetVelocity(10.0f);
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
@@ -63,7 +64,7 @@ int main()
 	
 	//InitSpaceColonizationTreeSystem();
 	InitPlantSimulationSystem();
-	
+
 
 	Application::Run();
 	Application::End();
@@ -76,7 +77,7 @@ void InitPlantSimulationSystem() {
 	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
 	treeColor.LeafColor = glm::vec4(0, 1, 0, 1);
-	Entity tree1 = psSys->CreateExampleTree(treeColor, glm::vec3(0, 0, 0), 8);
+	Entity tree1 = psSys->CreateExampleTree(treeColor, glm::vec3(0, 0, 0), 2);
 
 }
 void InitSpaceColonizationTreeSystem()
@@ -121,7 +122,7 @@ void InitGround() {
 	auto mat = new Material();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto texture = new Texture2D(TextureType::DIFFUSE);
-	texture->LoadTexture(FileIO::GetPath("Textures/treesurface.jpg"), "");
+	texture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
 	mat->Textures2Ds()->push_back(texture);
 	mat->SetMaterialProperty("material.shininess", 32.0f);
 	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
