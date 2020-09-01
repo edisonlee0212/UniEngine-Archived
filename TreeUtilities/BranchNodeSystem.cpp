@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "BranchNodeSystem.h"
 #include "TreeManager.h"
+
+#include <gtx/matrix_decompose.hpp>
+
 void TreeUtilities::BranchNodeSystem::DrawGUI()
 {
 	ImGui::Begin("TreeUtilities");
@@ -48,9 +51,12 @@ void TreeUtilities::BranchNodeSystem::Update()
 void TreeUtilities::BranchNodeSystem::RefreshConnections()
 {
 	float lineWidth = _ConnectionWidth;
-	EntityManager::ForEach<LocalToWorld, Rotation, Connection, BranchNodeInfo>(_BranchNodeQuery, [lineWidth](int i, Entity entity, LocalToWorld* ltw, Rotation* r, Connection* c, BranchNodeInfo* info) {
-		glm::vec3 pos = ltw->Value[3];
-		glm::vec3 diff = info->DistanceToParent * (r->Value * glm::vec3(0, 0, -1));
-		c->Value = glm::translate(pos - diff / 2.0f) * glm::mat4_cast(r->Value) * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(glm::vec3(0), diff) / 2.0f));
+	EntityManager::ForEach<LocalToWorld, Connection, BranchNodeInfo>(_BranchNodeQuery, [lineWidth](int i, Entity entity, LocalToWorld* ltw, Connection* c, BranchNodeInfo* info) {
+		glm::vec3 translation = ltw->Value[3];
+		glm::vec3 parentTranslation = EntityManager::GetComponentData<LocalToWorld>(EntityManager::GetParent(entity)).Value[3];
+		glm::quat rotation = glm::quatLookAt(parentTranslation - translation, glm::vec3(0, 0, 1));
+		glm::mat4 rotationMat = glm::mat4_cast(rotation);
+		if(glm::any(glm::isnan(rotationMat[3]))) rotationMat = glm::mat4_cast(glm::quatLookAt(parentTranslation - translation, glm::vec3(0, 1, 0 )));
+		c->Value = glm::translate((translation + parentTranslation) / 2.0f) * rotationMat * glm::scale(glm::vec3(lineWidth, lineWidth, glm::distance(translation, parentTranslation) / 2.0f));
 		});
 }
