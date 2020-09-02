@@ -15,6 +15,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity tree)
 	TreeAge treeAge = EntityManager::GetComponentData<TreeAge>(tree);
 	TreeParameters treeParameters = EntityManager::GetComponentData<TreeParameters>(tree);
 	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(tree);
+	LocalToWorld treeLocalToWorld = EntityManager::GetComponentData<LocalToWorld>(tree);
 #pragma endregion
 	if (treeAge.Value >= treeParameters.Age) {
 		return false;
@@ -60,12 +61,12 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity tree)
 	EntityManager::SetComponentData(rootBranchNode, tempBNInfo);
 	UpdateBranchNodeActivatedLevel(rootBranchNode);
 #pragma endregion
-	bool idle = GrowShoots(rootBranchNode, treeInfo, treeAge, treeParameters, treeIndex);
+	bool growed = GrowShoots(rootBranchNode, treeInfo, treeAge, treeParameters, treeIndex);
 	UpdateBranchNodeMeanData(rootBranchNode, treeAge.Value);
 	treeAge.Value++;
 	EntityManager::SetComponentData(tree, treeAge);
 	EntityManager::SetComponentData(tree, treeInfo);
-	if (!idle) {
+	if (growed) {
 		ComputeSagging(rootBranchNode, treeParameters);
 		
 		//UpdateBranchNodeLevel(rootBranchNode);
@@ -75,8 +76,9 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity tree)
 
 		EvaluatePruning(rootBranchNode, treeParameters, treeAge, treeInfo);
 		EntityManager::SetComponentData(tree, treeInfo);
+		UpdateLocalTransform(rootBranchNode, treeLocalToWorld);
 	}
-	return idle;
+	return growed;
 }
 
 #pragma region Helpers
@@ -102,7 +104,8 @@ void TreeUtilities::PlantSimulationSystem::CompleteAllTrees()
 void TreeUtilities::PlantSimulationSystem::CompleteTree(Entity treeEntity)
 {
 	while (GrowTree(treeEntity));
-	TreeManager::GenerateLeavesForTree(treeEntity);
+	TreeManager::GetBranchNodeSystem()->RefreshConnections();
+	//TreeManager::GenerateLeavesForTree(treeEntity);
 }
 
 void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeLength(Entity& branchNode)
@@ -218,18 +221,20 @@ void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeMeanData(Entity& bran
 	EntityManager::SetComponentData(branchNode, branchNodeInfo);
 }
 
-void TreeUtilities::PlantSimulationSystem::UpdateLocalTransform(Entity& branchNode, Translation& parentTranslation, Rotation& parentRotation, Scale& parentScale)
+void TreeUtilities::PlantSimulationSystem::UpdateLocalTransform(Entity& branchNode, LocalToWorld& parentLTW)
 {
-	Translation t = EntityManager::GetComponentData<Translation>(branchNode);
-	Rotation r = EntityManager::GetComponentData<Rotation>(branchNode);
-	Scale s = EntityManager::GetComponentData<Scale>(branchNode);
-
-	LocalTranslation lt;
-	LocalRotation lr;
-	LocalScale ls;
-	EntityManager::ForEachChild(branchNode, [this, &t, &r, &s](Entity child)
+	LocalTranslation lt = EntityManager::GetComponentData<LocalTranslation>(branchNode);
+	LocalRotation lr = EntityManager::GetComponentData<LocalRotation>(branchNode);
+	LocalScale ls = EntityManager::GetComponentData<LocalScale>(branchNode);
+	LocalToParent ltp;
+	ltp.Value = glm::translate(glm::mat4(1.0f), lt.Value) * glm::mat4_cast(lr.Value) * glm::scale(ls.Value);
+	LocalToWorld ltw;
+	ltw.Value = parentLTW.Value * ltp.Value;
+	EntityManager::SetComponentData(branchNode, ltp);
+	EntityManager::SetComponentData(branchNode, ltw);
+	EntityManager::ForEachChild(branchNode, [this, &ltw](Entity child)
 		{
-			UpdateLocalTransform(child, t, r, s);
+			UpdateLocalTransform(child, ltw);
 		}
 	);
 }
@@ -421,7 +426,9 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 			if (budAge > treeParameters.MaxBudAge) {
 				DeactivateBud(branchNodeInfo, bud);
 			}
-
+		}
+		else {
+			ret = true;
 		}
 #pragma endregion
 	}
@@ -523,13 +530,6 @@ void TreeUtilities::PlantSimulationSystem::Update()
 
 void TreeUtilities::PlantSimulationSystem::FixedUpdate()
 {
-	std::vector<Entity> trees;
-	_TreeQuery.ToEntityArray(&trees);
-	for (const auto& tree : trees) {	
-		GrowTree(tree);
-		TreeManager::GetBranchNodeSystem()->RefreshConnections();
-	}
-	//GrowAllTrees();
 }
 
 Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParameters, TreeColor color, glm::vec3 position, bool enabled)
@@ -543,9 +543,12 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParam
 	s.Value = glm::vec3(1.0f);
 	Rotation r;
 	r.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+	LocalToWorld ltw;
+	ltw.Value = glm::translate(glm::mat4(1.0f), t.Value) * glm::mat4_cast(r.Value) * glm::scale(s.Value);
 	EntityManager::SetComponentData(treeEntity, t);
 	EntityManager::SetComponentData(treeEntity, s);
 	EntityManager::SetComponentData(treeEntity, r);
+	EntityManager::SetComponentData(treeEntity, ltw);
 	EntityManager::SetComponentData(treeEntity, color);
 
 	LocalTranslation lt;
@@ -587,7 +590,7 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParam
 	EntityManager::SetComponentData(treeEntity, treeInfo);
 	EntityManager::SetComponentData(treeEntity, age);
 
-	//CompleteTree(tree);
+	CompleteTree(treeEntity);
 	return treeEntity;
 }
 

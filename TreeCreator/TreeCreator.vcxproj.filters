@@ -45,6 +45,9 @@
     <ClCompile Include="NetworkSystem.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
+    <ClCompile Include="TreeMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SpaceColonizationTreeSystem.h">
@@ -58,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="NetworkSystem.h">
       <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeMesh.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
