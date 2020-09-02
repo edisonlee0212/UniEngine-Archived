@@ -127,8 +127,10 @@ namespace TreeUtilities {
         bool IsApical;
         unsigned StartAge;
         glm::vec3 EulerAngles;
+    };
 
-
+    struct TREEUTILITIES_API ForceSensor {
+        glm::vec3 CombinedForce;
     };
 
     struct TREEUTILITIES_API BranchNodeBudsList : ComponentBase {
