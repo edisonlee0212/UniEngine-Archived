@@ -112,6 +112,11 @@ TreeUtilities::LightSnapShot::~LightSnapShot()
 
 
 
+void TreeUtilities::LightEstimator::SetMaxIllumination(float value)
+{
+	_MaxIllumination = value;
+}
+
 glm::vec3 TreeUtilities::LightEstimator::GetCenterPosition()
 {
 	return _CenterPositon;
@@ -254,9 +259,10 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool storeSnapshot, float budNo
 	}
 	
 	mesh->VAO()->DisableAttributeArray(11);
-	/*
+	
 	Default::GLPrograms::ScreenVAO->Bind();
 	for (auto ss : _SnapShots) {
+		
 		auto texture = ss->SnapShotTexture();
 		texture->Bind(0);
 		//Blur depth value here.
@@ -275,7 +281,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool storeSnapshot, float budNo
 		_SnapShotHBlurProgram->Bind();
 		_SnapShotHBlurProgram->SetInt("textureInput", 1);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-
+		
 		if (storeSnapshot) {
 			glReadBuffer(GL_COLOR_ATTACHMENT1);
 			ss->GetPixelBuffer()->Bind();
@@ -286,7 +292,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool storeSnapshot, float budNo
 		}
 	}
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	*/
+	
 	RenderTarget::BindDefault();
 }
 
@@ -298,6 +304,11 @@ void TreeUtilities::LightEstimator::DrawSnapShots(Camera* camera)
 		RenderManager::DrawTexture2D(ss->SnapShotTexture(), 0, glm::vec2(startX, 0.1f * 16.0 / 9.0f - 1.0f), glm::vec2(0.1f, 0.1f * 16.0 / 9.0f), camera);
 		startX += 0.2f;
 	}
+}
+
+float TreeUtilities::LightEstimator::GetMaxIllumination()
+{
+	return _MaxIllumination;
 }
 
 float TreeUtilities::LightEstimator::CalculateScore()

@@ -14,11 +14,11 @@ namespace TreeUtilities {
     {
         unsigned int _ConfigFlags = 0;
         float _Gravity;
+        bool _Growing;
         EntityQuery _BudQuery;
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
         EntityQuery _BranchNodeQuery;
-        std::queue<Entity> _GrowTreeQueue;
         float GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level);
         void DrawGUI();
         void UpdateBranchNodeLength(Entity& branchNode);
@@ -36,9 +36,9 @@ namespace TreeUtilities {
         void CalculateDirectGravityForce(Entity& treeEntity, float gravity);
         void BackPropagateForce(Entity& branchNode, float fixedPropagationCoefficient);
     public:
-        void CompleteAllTrees();
-        void CompleteTree(Entity& treeEntity);
+        void TryGrowAllTrees(std::vector<Entity>& trees);
         bool GrowTree(Entity& treeEntity);
+        void CalculatePhysics(std::vector<Entity>& trees);
         void OnCreate();
         void OnDestroy();
         void Update();

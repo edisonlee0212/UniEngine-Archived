@@ -15,7 +15,7 @@ namespace TreeUtilities {
         unsigned int _ConfigFlags = 0;
         EntityQuery _BranchNodeQuery;
 
-        float _ConnectionWidth = 0.01f;
+        float _ConnectionWidth = 1.0f;
 
         std::vector<LocalToWorld> _BranchNodeLTWList;
         std::vector<Connection> _ConnectionList;

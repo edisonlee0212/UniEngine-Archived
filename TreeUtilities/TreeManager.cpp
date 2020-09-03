@@ -212,14 +212,17 @@ void TreeUtilities::TreeManager::CalculateBranchNodeIllumination(Entity treeEnti
 			illumination->Value = 0;
 		}
 		});
-	auto snapShots = TreeManager::GetLightEstimator()->GetSnapShots();
+	auto snapShots = _LightEstimator->GetSnapShots();
+	float maxIllumination = 0;
 	for (const auto& shot : *snapShots) {
 		size_t resolution = shot->Resolution();
 		std::vector<std::shared_future<void>> futures;
 		std::mutex writeMutex;
+		std::mutex maxIlluminationMutex;
 		for (size_t i = 0; i < resolution; i++) {
-			futures.push_back(_ThreadPool->Push([i, shot, resolution, &writeMutex](int id)
+			futures.push_back(_ThreadPool->Push([i, shot, resolution, &writeMutex, &maxIlluminationMutex, &maxIllumination](int id)
 				{
+					float localMaxIllumination = 0;
 					for (size_t j = 0; j < resolution; j++) {
 						unsigned index = shot->GetEntityIndex(i, j);
 						if (index != 0) {
@@ -227,14 +230,18 @@ void TreeUtilities::TreeManager::CalculateBranchNodeIllumination(Entity treeEnti
 							BranchNodeIllumination illumination = EntityManager::GetComponentData<BranchNodeIllumination>(index);
 							illumination.LightDir += shot->GetDirection() * shot->Weight();
 							illumination.Value += shot->Weight();
+							if (localMaxIllumination < illumination.Value) localMaxIllumination = illumination.Value;
 							EntityManager::SetComponentData(index, illumination);
 						}
 					}
+					std::lock_guard<std::mutex> lock(maxIlluminationMutex);
+					if (maxIllumination < localMaxIllumination) maxIllumination = localMaxIllumination;
 				}
 			).share());
 		}
 		for (auto i : futures) i.wait();
 	}
+	_LightEstimator->SetMaxIllumination(maxIllumination);
 }
 
 void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()

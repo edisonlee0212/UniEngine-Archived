@@ -48,7 +48,7 @@ int main()
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, dlc2);
 #pragma endregion
 #pragma region Preparations
-	Application::SetTimeStep(0.016f);
+	Application::SetTimeStep(0.5f);
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
@@ -66,7 +66,7 @@ int main()
 	TreeManager::GetLightEstimator()->ResetSnapShotWidth(15);
 	//From top
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0), 1.0f);
-
+	
 	//45
 	float tilt = 0.2f;
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 0.9f);
@@ -148,7 +148,7 @@ void InitPlantSimulationSystem() {
 
 	tps.ApicalBudExtintionRate = 0.99903945880000000;
 	tps.LateralBudEntintionRate = 0.0062681600000000001;
-	tps.ApicalBudLightingFactor = 0.099225700000000000;
+	tps.ApicalBudLightingFactor = 1.0;// 0.099225700000000000;
 	tps.LateralBudLightingFactor = 1.0005922199999999;
 	tps.ApicalDominanceBase = 5.0524730000000000;
 	tps.ApicalDominanceDistanceFactor = 0.37777800000000000;
@@ -168,13 +168,15 @@ void InitPlantSimulationSystem() {
 	tps.Age = 14;
 	tps.GravityFactor = 0.050594199999999999;
 	tps.MaxBudAge = 8;
-	tps.EndNodeThickness = 0.5f;
-	tps.ThicknessControlFactor = 0.75f;
+
+	tps.EndNodeThickness = 0.02f;
+	tps.ThicknessControlFactor = 0.8f;
 	tps.GravityBackPropageteFixedCoefficient = 0.5f;
-	tps.InternodeSize = 0.1f;
+	tps.InternodeSize = 0.2f;
 #pragma endregion
-	Entity tree1 = psSys->CreateTree(tps, treeColor, glm::vec3(-3, 0, 0), true);
-	Entity tree2 = psSys->CreateExampleTree(treeColor, glm::vec3(3, 0, 0), 1);
+	Entity tree1 = psSys->CreateTree(tps, treeColor, glm::vec3(-2, 0, 0), true);
+	//Entity tree2 = psSys->CreateTree(tps, treeColor, glm::vec3(3, 0, 0), true);
+	Entity tree2 = psSys->CreateExampleTree(treeColor, glm::vec3(2, 0, 0), 1);
 }
 void InitSpaceColonizationTreeSystem()
 {
