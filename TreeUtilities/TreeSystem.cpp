@@ -82,7 +82,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 				TreeManager::CalculateRewards(_SelectedTreeEntity);
 			}
 			else {
-				TreeManager::GetLightEstimator()->TakeSnapShot(false, tps.InternodeSize);
+				TreeManager::GetLightEstimator()->TakeSnapShot(false);
 			}
 
 			auto estimation = EntityManager::GetComponentData<RewardEstimation>(_SelectedTreeEntity);

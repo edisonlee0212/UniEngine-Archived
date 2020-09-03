@@ -200,18 +200,17 @@ void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 
 }
 
-void TreeUtilities::TreeManager::CalculateBranchNodeIllumination(Entity treeEntity, TreeParameters& treeParameters)
+void TreeUtilities::TreeManager::CalculateBranchNodeIllumination()
 {
-	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(treeEntity);
 	std::vector<Entity> branchNodes;
-	_BranchNodeQuery.ToEntityArray(treeIndex, &branchNodes);
-	TreeManager::GetLightEstimator()->TakeSnapShot(true, treeParameters.InternodeSize);
-	EntityManager::ForEach<BranchNodeIllumination, TreeIndex>(_BranchNodeQuery, [treeIndex](int i, Entity leafEntity, BranchNodeIllumination* illumination, TreeIndex* index) {
-		if (treeIndex.Value == index->Value) {
+	_BranchNodeQuery.ToEntityArray(&branchNodes);
+	TreeManager::GetLightEstimator()->TakeSnapShot(true);
+	EntityManager::ForEach<BranchNodeIllumination, TreeIndex>(_BranchNodeQuery, [](int i, Entity leafEntity, BranchNodeIllumination* illumination, TreeIndex* index) 
+		{
 			illumination->LightDir = glm::vec3(0);
 			illumination->Value = 0;
 		}
-		});
+	);
 	auto snapShots = _LightEstimator->GetSnapShots();
 	float maxIllumination = 0;
 	for (const auto& shot : *snapShots) {

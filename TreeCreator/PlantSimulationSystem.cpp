@@ -14,12 +14,13 @@ void TreeUtilities::PlantSimulationSystem::TryGrowAllTrees(std::vector<Entity>& 
 {
 	bool growed = false;
 	if (_Growing) {
+		TreeManager::CalculateBranchNodeIllumination();
 		for (auto& tree : trees) {
 			Rotation rotation = EntityManager::GetComponentData<Rotation>(tree);
 			LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(tree);
 			TreeParameters treeParameters = EntityManager::GetComponentData<TreeParameters>(tree);
 			Entity rootBranchNode = EntityManager::GetChildren(tree).at(0);
-			TreeManager::CalculateBranchNodeIllumination(tree, treeParameters);
+			
 			if (GrowTree(tree)) {
 				growed = true;
 			}
@@ -657,7 +658,6 @@ Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(TreeColor color, 
 		tps.EndNodeThickness = 0.02f;
 		tps.ThicknessControlFactor = 0.7f;
 		tps.GravityBackPropageteFixedCoefficient = 0.5f;
-		tps.InternodeSize = 0.2f;
 		break;
 	case 2:
 		tps.VarianceApicalAngle = 0.42990970562500003;
@@ -692,7 +692,6 @@ Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(TreeColor color, 
 		tps.EndNodeThickness = 0.02f;
 		tps.ThicknessControlFactor = 0.8f;
 		tps.GravityBackPropageteFixedCoefficient = 0.5f;
-		tps.InternodeSize = 0.2f;
 		break;
 	default:
 		tps.VarianceApicalAngle = 0.42990970562500003;
@@ -727,7 +726,6 @@ Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(TreeColor color, 
 		tps.EndNodeThickness = 0.02f;
 		tps.ThicknessControlFactor = 0.8f;
 		tps.GravityBackPropageteFixedCoefficient = 0.5f;
-		tps.InternodeSize = 0.2f;
 		break;
 	}
 	/*case 2:

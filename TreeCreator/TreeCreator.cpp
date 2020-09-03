@@ -48,7 +48,7 @@ int main()
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, dlc2);
 #pragma endregion
 #pragma region Preparations
-	Application::SetTimeStep(0.5f);
+	Application::SetTimeStep(0.016f);
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
@@ -61,6 +61,7 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
+	TreeManager::GetLightEstimator()->SetBranchNodeSize(0.3f);
 #pragma region Light estimator setup
 	TreeManager::GetLightEstimator()->ResetCenterDistance(30);
 	TreeManager::GetLightEstimator()->ResetSnapShotWidth(15);
@@ -172,7 +173,6 @@ void InitPlantSimulationSystem() {
 	tps.EndNodeThickness = 0.02f;
 	tps.ThicknessControlFactor = 0.8f;
 	tps.GravityBackPropageteFixedCoefficient = 0.5f;
-	tps.InternodeSize = 0.2f;
 #pragma endregion
 	Entity tree1 = psSys->CreateTree(tps, treeColor, glm::vec3(-2, 0, 0), true);
 	//Entity tree2 = psSys->CreateTree(tps, treeColor, glm::vec3(3, 0, 0), true);

@@ -54,9 +54,12 @@ namespace TreeUtilities {
 
 		float _MaxIllumination;
 		glm::vec3 _CenterPositon = glm::vec3(0.0f);
+
+		float _BranchNodeSize = 0.2f;
 		friend class TreeManager;
 		void SetMaxIllumination(float value);
 	public:
+		void SetBranchNodeSize(float value);
 		glm::vec3 GetCenterPosition();
 		LightEstimator(size_t resolution = 512, float centerDistance = 100.0f);
 		void ResetCenterPosition(glm::vec3 position);
@@ -64,9 +67,10 @@ namespace TreeUtilities {
 		void ResetSnapShotWidth(float width);
 		void PushSnapShot(glm::vec3 direction, float weight);
 		void Clear();
-		void TakeSnapShot(bool storeSnapShot, float budNodeSize = 1.0f);
+		void TakeSnapShot(bool storeSnapShot);
 		void DrawSnapShots(Camera* camera);
 		float GetMaxIllumination();
+		float GetBranchNodeSize();
 		float CalculateScore();
 		std::vector<LightSnapShot*>* GetSnapShots();
 	};

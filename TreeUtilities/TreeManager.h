@@ -241,7 +241,6 @@ namespace TreeUtilities {
         size_t Age;
         float EndNodeThickness = 0.01f;
         float ThicknessControlFactor = 1.0f;
-        float InternodeSize = 0.1f;
     };
     
     struct TREEUTILITIES_API TreeLeafPruningFactor : ComponentBase {
@@ -329,7 +328,7 @@ namespace TreeUtilities {
         static void GetAllTrees(std::vector<Entity>* container);
         
         static void GenerateLeavesForTree(Entity treeEntity);
-        static void CalculateBranchNodeIllumination(Entity treeEntity, TreeParameters& treeParameters);
+        static void CalculateBranchNodeIllumination();
         static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);
