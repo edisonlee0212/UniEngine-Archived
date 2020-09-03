@@ -5,7 +5,7 @@
 using namespace UniEngine;
 using namespace SpaceColonizationTree;
 
-void LightAngleSlider();
+void LightSettingMenu();
 void InitGround();
 void SplitDisplay();
 float lightAngle0 = 0;
@@ -86,7 +86,7 @@ int main()
 	while (loopable) {
 		Application::PreUpdate();
 
-		LightAngleSlider();
+		LightSettingMenu();
 		SplitDisplay();
 #pragma region LightsPosition
 		Rotation r;
@@ -134,7 +134,7 @@ int main()
 	return 0;
 }
 
-void LightAngleSlider() {
+void LightSettingMenu() {
 	ImGui::Begin("Light Angle Controller");
 	ImGui::SliderFloat("Soft light angle", &lightAngle0, 0.0f, 89.0f);
 	ImGui::SliderFloat("Soft light circle", &lightAngle1, 0.0f, 360.0f);

@@ -14,17 +14,41 @@ using namespace TreeUtilities;
 void InitGround();
 void InitSpaceColonizationTreeSystem();
 void InitPlantSimulationSystem();
+void LightSettingMenu();
 
-
+float lightAngle0 = 0;
+float lightAngle1 = 0;
+float lightAngle2 = 0;
+float lightAngle3 = 0;
+float lightAngle4 = 0.8f;
+float lightAngle5 = 0.0f;
+float lightSize = 0.5;
+float lightBleedControl = 0.0;
+float pcssScale = 1.0f;
 
 int main()
 {
-
-	LightingManager::SetAmbientLight(0.2f);
+#pragma region Global light settings
+	LightingManager::SetDirectionalLightResolution(1024);
+	LightingManager::SetStableFit(true);
+	LightingManager::SetSeamFixRatio(0.05f);
+	LightingManager::SetMaxShadowDistance(500);
+	LightingManager::SetVSMMaxVariance(0.001f);
+	LightingManager::SetEVSMExponent(80.0f);
+	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
+#pragma endregion
 	Application::Init();
-
-	Application::SetTimeStep(0.016f);
+#pragma region Lights
+	EntityArchetype lightArchetype = EntityManager::CreateEntityArchetype("Light", Translation(), Rotation(), Scale(), LocalToWorld());
+	DirectionalLightComponent* dlc = new DirectionalLightComponent();
+	Entity dle = EntityManager::CreateEntity(lightArchetype);
+	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
+	DirectionalLightComponent* dlc2 = new DirectionalLightComponent();
+	Entity dle2 = EntityManager::CreateEntity(lightArchetype);
+	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, dlc2);
+#pragma endregion
 #pragma region Preparations
+	Application::SetTimeStep(0.016f);
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
@@ -37,32 +61,72 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
-	
+#pragma region Light estimator setup
 	TreeManager::GetLightEstimator()->ResetCenterDistance(20);
 	TreeManager::GetLightEstimator()->ResetSnapShotWidth(10);
 	//From top
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0), 1.0f);
-	
+
 	//45
 	float tilt = 0.2f;
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 0.9f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 0.9f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 0.9f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 0.9f);
-	
+
 	tilt = 1.0f;
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 0.5f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 0.5f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 0.5f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 0.5f);
-	
+
 	tilt = 10.0f;
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, tilt), 0.1f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 0.1f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 0.1f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 0.1f);
+#pragma endregion
 	InitPlantSimulationSystem();
-	Application::Run();
+#pragma region Engine Loop
+	bool loopable = true;
+	//Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our self.
+	//Another way to run engine is to simply execute:
+	//Application.Run();
+	while (loopable) {
+		Application::PreUpdate();
+		LightSettingMenu();
+#pragma region Apply lights
+		Rotation r;
+		r.Value = glm::quatLookAt(
+			glm::normalize(glm::vec3(
+				glm::cos(glm::radians(lightAngle0)) * glm::sin(glm::radians(lightAngle1)),
+				glm::sin(glm::radians(lightAngle0)),
+				glm::cos(glm::radians(lightAngle0)) * glm::cos(glm::radians(lightAngle1))))
+			, glm::vec3(0, 1, 0));
+		EntityManager::SetComponentData<Rotation>(dle, r);
+
+		r.Value = glm::quatLookAt(
+			glm::normalize(glm::vec3(
+				glm::cos(glm::radians(lightAngle2)) * glm::sin(glm::radians(lightAngle3)),
+				glm::sin(glm::radians(lightAngle2)),
+				glm::cos(glm::radians(lightAngle2)) * glm::cos(glm::radians(lightAngle3))))
+			, glm::vec3(0, 1, 0));
+		EntityManager::SetComponentData<Rotation>(dle2, r);
+
+		dlc->specular = glm::vec3(lightAngle4);
+		dlc->diffuse = glm::vec3(lightAngle4);
+		dlc2->specular = glm::vec3(lightAngle5);
+		dlc2->diffuse = glm::vec3(lightAngle5);
+
+		
+		dlc->lightSize = lightSize;
+		LightingManager::SetLightBleedControlFactor(lightBleedControl);
+		LightingManager::SetPCSSScaleFactor(pcssScale);
+#pragma endregion
+		Application::Update();
+		loopable = Application::LateUpdate();
+	}
+#pragma endregion
 	Application::End();
 	return 0; 
 }
@@ -162,5 +226,16 @@ void InitGround() {
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
 
 }
-
-
+void LightSettingMenu() {
+	ImGui::Begin("Light Angle Controller");
+	ImGui::SliderFloat("Soft light angle", &lightAngle0, 0.0f, 89.0f);
+	ImGui::SliderFloat("Soft light circle", &lightAngle1, 0.0f, 360.0f);
+	ImGui::SliderFloat("Hard light angle", &lightAngle2, 0.0f, 89.0f);
+	ImGui::SliderFloat("Hard light circle", &lightAngle3, 0.0f, 360.0f);
+	ImGui::SliderFloat("Soft Light brightness", &lightAngle4, 0.0f, 2.0f);
+	ImGui::SliderFloat("Hard light brightness", &lightAngle5, 0.0f, 2.0f);
+	ImGui::SliderFloat("Light Bleed Control", &lightBleedControl, 0.0f, 1.0f);
+	ImGui::SliderFloat("PCSS Scale", &pcssScale, 0.0f, 2.0f);
+	ImGui::SliderFloat("Directional Light Size", &lightSize, 0.0f, 1.0f);
+	ImGui::End();
+}

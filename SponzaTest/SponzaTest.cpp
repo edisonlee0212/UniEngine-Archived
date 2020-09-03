@@ -4,7 +4,7 @@
 #include "CameraControlSystem.h"
 #include "EntityEditorSystem.h"
 using namespace UniEngine;
-void LightAngleSlider();
+void LightSettingMenu();
 void InitGround();
 void SplitDisplay();
 float lightAngle0 = 0;
@@ -175,7 +175,7 @@ int main()
 	//Application.Run();
 	while (loopable) {
 		Application::PreUpdate();
-		LightAngleSlider();
+		LightSettingMenu();
 		SplitDisplay();
 		ImGui::ShowDemoWindow();
 #pragma region LightsPosition
@@ -230,7 +230,7 @@ int main()
 	return 0;
 }
 
-void LightAngleSlider() {
+void LightSettingMenu() {
 	ImGui::Begin("Light Angle Controller");
 	ImGui::SliderFloat("Soft light angle", &lightAngle0, 0.0f, 89.0f);
 	ImGui::SliderFloat("Soft light circle", &lightAngle1, 0.0f, 360.0f);
