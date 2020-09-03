@@ -129,8 +129,8 @@ namespace TreeUtilities {
         glm::vec3 EulerAngles;
     };
 
-    struct TREEUTILITIES_API ForceSensor {
-        glm::vec3 CombinedForce;
+    struct TREEUTILITIES_API GravityForceSensor {
+        float Value;
     };
 
     struct TREEUTILITIES_API BranchNodeBudsList : ComponentBase {
@@ -145,11 +145,7 @@ namespace TreeUtilities {
         }
     };
     struct TREEUTILITIES_API BranchNodeInfo : ComponentBase {
-        int MaxChildLevel;
-        int MaxActivatedChildLevel;
-        float Inhibitor = 0;
-        float ParentInhibitorFactor = 1;
-        int ActivatedBudsAmount = 0;
+#pragma region General
         int Level = 0;
         float DistanceToParent = 0;
         float DistanceToBranchEnd = 0;
@@ -158,10 +154,21 @@ namespace TreeUtilities {
         float AccmulatedLength = 0;
         float AccmulatedLight = 0;
         float AccmulatedActivatedBudsAmount = 0;
+        float AccmulatedGravity = 0;
+        unsigned NumValidChild;
+#pragma endregion
+#pragma region Growth
+        int MaxChildLevel;
+        int MaxActivatedChildLevel;
+        float Inhibitor = 0;
+        float ParentInhibitorFactor = 1;
+        int ActivatedBudsAmount = 0;
         unsigned BranchEndNodeAmount;
         bool Pruned;
         bool IsApical;
         bool ApicalBudExist = false;
+#pragma endregion
+#pragma region Geometric
         float Length;
         float Thickness;
         float Deformation;
@@ -169,11 +176,13 @@ namespace TreeUtilities {
         float Slope;
         float SiblingAngle;
         float ParentAngle;
+#pragma endregion
+#pragma region Transformation
+        glm::quat DesiredGlobalRotation;
         glm::quat DesiredLocalRotation;
-        float MeanW;
-        glm::vec3 ChildBranchesMean;
-        unsigned NumValidChild;
-
+        glm::mat4 GlobalTransform;
+        glm::mat4 LocalTransform;
+#pragma endregion
     };
 #pragma endregion
 #pragma region Tree
@@ -218,15 +227,14 @@ namespace TreeUtilities {
         float LowBranchPruningFactor;
 
         float GravityBendingStrength;
-        float GravityBendingAngleFactor;
 
         float ApicalBudLightingFactor;
         float LateralBudLightingFactor;
 #pragma endregion
 
 #pragma region Sagging
-        float Gravity;
-        float GravityMaxBending;
+        float GravityFactor;
+        float GravityBackPropageteFixedCoefficient;
 #pragma endregion
 
         size_t Age;

@@ -13,30 +13,31 @@ namespace TreeUtilities {
         public SystemBase
     {
         unsigned int _ConfigFlags = 0;
-
+        float _Gravity;
         EntityQuery _BudQuery;
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
-        
+        EntityQuery _BranchNodeQuery;
         float GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level);
         void DrawGUI();
         void UpdateBranchNodeLength(Entity& branchNode);
         void UpdateBranchNodeActivatedLevel(Entity& branchNode);
         void UpdateBranchNodeLevel(Entity& branchNode);
         void UpdateBranchNodeMeanData(Entity& branchNode, unsigned treeAge);
-        void UpdateLocalTransform(Entity& branchNode, LocalToWorld& parentLTW);
+        void UpdateLocalTransform(Entity& branchNode, TreeParameters& treeParameters, glm::mat4& parentLTW);
         void UpdateBranchNodeResource(Entity& branchNode, TreeParameters& treeParameters, TreeAge& treeAge);
         void UpdateBranchNodeResourceAllocation(Entity& branchNode); 
         bool GrowShoots(Entity& branchNode, TreeInfo& treeInfo, TreeAge& treeAge, TreeParameters& treeParameters, TreeIndex& treeIndex);
         void DeactivateBud(BranchNodeInfo& branchNodeInfo, Bud& bud);
-        void ComputeSagging(Entity& branchNode, TreeParameters& treeParameters);
         void PruneBranchNode(Entity& branchNode, TreeInfo& treeInfo);
         void EvaluatePruning(Entity& branchNode, TreeParameters& treeParameters, TreeAge& treeAge, TreeInfo& treeInfo);
         
+        void CalculateDirectGravityForce(Entity& treeEntity, float gravity);
+        void BackPropagateForce(Entity& branchNode, float fixedPropagationCoefficient);
     public:
         void CompleteAllTrees();
-        void CompleteTree(Entity treeEntity);
-        bool GrowTree(Entity treeEntity);
+        void CompleteTree(Entity& treeEntity);
+        bool GrowTree(Entity& treeEntity);
         void OnCreate();
         void OnDestroy();
         void Update();

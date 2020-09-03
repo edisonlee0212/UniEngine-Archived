@@ -4,11 +4,13 @@
 
 void TreeUtilities::PlantSimulationSystem::DrawGUI()
 {
-
+	ImGui::Begin("Plant Simulation System");
+	ImGui::SliderFloat("Gravity", &_Gravity, 0.0f, 20.0f);
+	ImGui::End();
 }
 
 
-bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity tree)
+bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity& tree)
 {
 #pragma region Collect tree data
 	TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(tree);
@@ -67,19 +69,18 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity tree)
 	EntityManager::SetComponentData(tree, treeAge);
 	EntityManager::SetComponentData(tree, treeInfo);
 	if (growed) {
-		ComputeSagging(rootBranchNode, treeParameters);
-		
 		//UpdateBranchNodeLevel(rootBranchNode);
 		//ComputeLight();
 		UpdateBranchNodeResource(rootBranchNode, treeParameters, treeAge);
-		UpdateBranchNodeResourceAllocation(rootBranchNode);
+		//UpdateBranchNodeResourceAllocation(rootBranchNode);
 
-		EvaluatePruning(rootBranchNode, treeParameters, treeAge, treeInfo);
+		//EvaluatePruning(rootBranchNode, treeParameters, treeAge, treeInfo);
 		EntityManager::SetComponentData(tree, treeInfo);
-		UpdateLocalTransform(rootBranchNode, treeLocalToWorld);
 	}
 	return growed;
 }
+
+
 
 #pragma region Helpers
 inline float TreeUtilities::PlantSimulationSystem::GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level)
@@ -101,11 +102,9 @@ void TreeUtilities::PlantSimulationSystem::CompleteAllTrees()
 
 }
 
-void TreeUtilities::PlantSimulationSystem::CompleteTree(Entity treeEntity)
+void TreeUtilities::PlantSimulationSystem::CompleteTree(Entity& treeEntity)
 {
 	while (GrowTree(treeEntity));
-	TreeManager::GetBranchNodeSystem()->RefreshConnections();
-	//TreeManager::GenerateLeavesForTree(treeEntity);
 }
 
 void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeLength(Entity& branchNode)
@@ -191,9 +190,7 @@ void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeMeanData(Entity& bran
 {
 	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
 	branchNodeInfo.DistanceToBranchEnd = 0;
-	branchNodeInfo.MeanW = 0;
 	branchNodeInfo.NumValidChild = 0;
-	branchNodeInfo.ChildBranchesMean = glm::vec3(0.0f);
 	EntityManager::SetComponentData(branchNode, branchNodeInfo);
 	if (branchNodeInfo.Pruned) return;
 	float totalChildW = 0;
@@ -206,35 +203,44 @@ void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeMeanData(Entity& bran
 			if (d > branchNodeInfo.DistanceToBranchEnd)branchNodeInfo.DistanceToBranchEnd = d;
 			float cL = childNodeInfo.DistanceToParent;
 			branchNodeInfo.NumValidChild += 1;
-			float w = childNodeInfo.MeanW;
-			branchNodeInfo.ChildBranchesMean += w * childNodeInfo.ChildBranchesMean;
-			totalChildW += w;
-			totalChildWSq += w * w;
 		});
 	float nodeWFactor = 1;
 	float locW = 1.0f + glm::max((int)treeAge - branchNodeInfo.Level, 0);
-	branchNodeInfo.ChildBranchesMean += EntityManager::GetComponentData<Translation>(branchNode).Value * branchNodeInfo.DistanceToParent * locW;
-	branchNodeInfo.MeanW = locW * branchNodeInfo.DistanceToParent + totalChildW;
-	if (branchNodeInfo.MeanW > 0) {
-		branchNodeInfo.ChildBranchesMean = branchNodeInfo.ChildBranchesMean / branchNodeInfo.MeanW;
-	}
 	EntityManager::SetComponentData(branchNode, branchNodeInfo);
 }
 
-void TreeUtilities::PlantSimulationSystem::UpdateLocalTransform(Entity& branchNode, LocalToWorld& parentLTW)
+void TreeUtilities::PlantSimulationSystem::UpdateLocalTransform(Entity& branchNode, TreeParameters& treeParameters, glm::mat4& parentLTW)
 {
-	LocalTranslation lt = EntityManager::GetComponentData<LocalTranslation>(branchNode);
-	LocalRotation lr = EntityManager::GetComponentData<LocalRotation>(branchNode);
-	LocalScale ls = EntityManager::GetComponentData<LocalScale>(branchNode);
-	LocalToParent ltp;
-	ltp.Value = glm::translate(glm::mat4(1.0f), lt.Value) * glm::mat4_cast(lr.Value) * glm::scale(ls.Value);
+	glm::vec3 scale;
+	glm::quat parentRotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(parentLTW, scale, parentRotation, translation, skew, perspective);
+
+	glm::quat actualLocalRotation;
+	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
+#pragma region Apply force here.
+	glm::quat newGlobalRotation = parentRotation * branchNodeInfo.DesiredLocalRotation;
+	glm::vec3 front = newGlobalRotation * glm::vec3(0, 0, -1);
+	glm::vec3 up = newGlobalRotation * glm::vec3(0, 1, 0);
+	float gravityBending = treeParameters.GravityBendingStrength * branchNodeInfo.AccmulatedGravity;
+	front += gravityBending * glm::vec3(0, -1, 0);
+	//front.y /= gravityBending;
+	front = glm::normalize(front);
+	up = glm::cross(glm::cross(front, up), front);
+	newGlobalRotation = glm::quatLookAt(front, up);
+	actualLocalRotation = glm::inverse(parentRotation) * newGlobalRotation;
+#pragma endregion
 	LocalToWorld ltw;
-	ltw.Value = parentLTW.Value * ltp.Value;
-	EntityManager::SetComponentData(branchNode, ltp);
+	ltw.Value = parentLTW * (
+		glm::translate(glm::mat4(1.0f), actualLocalRotation * glm::vec3(0, 0, -1) 
+			* branchNodeInfo.DistanceToParent) * glm::mat4_cast(actualLocalRotation) 
+				* glm::scale(glm::vec3(1.0f)));
 	EntityManager::SetComponentData(branchNode, ltw);
-	EntityManager::ForEachChild(branchNode, [this, &ltw](Entity child)
+	EntityManager::ForEachChild(branchNode, [this, &treeParameters, &ltw](Entity child)
 		{
-			UpdateLocalTransform(child, ltw);
+			UpdateLocalTransform(child, treeParameters, ltw.Value);
 		}
 	);
 }
@@ -310,15 +316,8 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 				Entity prevBranchNode = branchNode;
 				BranchNodeInfo prevBranchNodeInfo = branchNodeInfo;
 				glm::vec3 prevEulerAngle = bud.EulerAngles;
-				glm::mat4 templtw = EntityManager::GetComponentData<LocalToWorld>(branchNode).Value;
-				glm::vec3 scale;
-				glm::quat rotation;
-				glm::vec3 translation;
-				glm::vec3 skew;
-				glm::vec4 perspective;
-				glm::decompose(templtw, scale, rotation, translation, skew, perspective);
-				Rotation prevBranchNodeRotation;
-				prevBranchNodeRotation.Value = rotation;
+				glm::quat prevBranchNodeRotation;
+				prevBranchNodeRotation = branchNodeInfo.DesiredGlobalRotation;
 #pragma region Create branch nodes
 				for (int selectedNewNodeIndex = 0; selectedNewNodeIndex < internodesToGrow; selectedNewNodeIndex++) {
 #pragma region Setup branch node
@@ -338,37 +337,27 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 					
 #pragma endregion
 #pragma region Transforms for branch node
-					LocalTranslation lt;
-					LocalRotation lr;
-					lr.Value = glm::quat(prevEulerAngle);
+					newBranchNodeInfo.DesiredLocalRotation = glm::quat(prevEulerAngle);
 #pragma region Roll branch node
 					glm::vec3 rollAngles = glm::vec3(0.0f, 0.0f, glm::radians(treeParameters.MeanRollAngle + treeParameters.VarianceRollAngle * glm::linearRand(-1, 1)));
-					lr.Value *= glm::quat(rollAngles);
+					newBranchNodeInfo.DesiredLocalRotation *= glm::quat(rollAngles);
 #pragma endregion
 
 #pragma region Apply phototropism and gravitropism
 					float gravitropism = treeInfo.GravitropismLevelVal->at(newBranchNodeInfo.Level);
-					Rotation globalRawRotation;
-					globalRawRotation.Value = prevBranchNodeRotation.Value * lr.Value;
-					glm::vec3 rawFront = globalRawRotation.Value * glm::vec3(0, 0, -1);
-					glm::vec3 rawUp = globalRawRotation.Value * glm::vec3(0, 1, 0);
+					glm::quat globalRawRotation = prevBranchNodeRotation * newBranchNodeInfo.DesiredLocalRotation;
+					glm::vec3 rawFront = globalRawRotation * glm::vec3(0, 0, -1);
+					glm::vec3 rawUp = globalRawRotation * glm::vec3(0, 1, 0);
 					rawFront += glm::vec3(0, -1, 0) * gravitropism;
 					rawFront += glm::vec3(0, 1, 0) * treeParameters.Phototropism;
 					rawFront = glm::normalize(rawFront);
 					rawUp = glm::cross(glm::cross(rawFront, rawUp), rawFront);
-					globalRawRotation.Value = glm::quatLookAt(rawFront, rawUp);
-					lr.Value = glm::inverse(prevBranchNodeRotation.Value) * globalRawRotation.Value;
+					globalRawRotation = glm::quatLookAt(rawFront, rawUp);
+					newBranchNodeInfo.DesiredLocalRotation = glm::inverse(prevBranchNodeRotation) * globalRawRotation;
+					newBranchNodeInfo.DesiredGlobalRotation = globalRawRotation;
 					prevBranchNodeRotation = globalRawRotation;
-					//Store desired local rotation, if we want to sag by different value later.
-					newBranchNodeInfo.DesiredLocalRotation = lr.Value;
 #pragma endregion
-					LocalScale ls;
-					lt.Value = lr.Value * glm::vec3(0, 0, -1) * internodeLength;
-					ls.Value = glm::vec3(1.0f);
 #pragma endregion
-					
-					
-
 					treeInfo.ActiveLength += newBranchNodeInfo.DistanceToParent;
 #pragma region Create Apical Bud
 					Bud newApicalBud;
@@ -394,9 +383,6 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 					prevBranchNode = newBranchNode;
 					prevBranchNodeInfo = newBranchNodeInfo;
 #pragma region Apply new branch node info
-					EntityManager::SetComponentData(newBranchNode, lt);
-					EntityManager::SetComponentData(newBranchNode, ls);
-					EntityManager::SetComponentData(newBranchNode, lr);
 					EntityManager::SetComponentData(newBranchNode, newBranchNodeBudList);
 					EntityManager::SetComponentData(newBranchNode, newBranchNodeInfo);
 #pragma endregion
@@ -443,12 +429,6 @@ void TreeUtilities::PlantSimulationSystem::DeactivateBud(BranchNodeInfo& branchN
 	if (bud.IsApical) branchNodeInfo.ApicalBudExist = false;
 }
 
-void TreeUtilities::PlantSimulationSystem::ComputeSagging(Entity& branchNode, TreeParameters& treeParameters)
-{
-	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
-	if (branchNodeInfo.Pruned) return;
-}
-
 void TreeUtilities::PlantSimulationSystem::PruneBranchNode(Entity& branchNode, TreeInfo& treeInfo)
 {
 	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
@@ -480,6 +460,30 @@ void TreeUtilities::PlantSimulationSystem::EvaluatePruning(Entity& branchNode, T
 	if (factor < treeParameters.PruningFactor) {
 		PruneBranchNode(branchNode, treeInfo);
 	}
+	EntityManager::SetComponentData(branchNode, branchNodeInfo);
+}
+
+void TreeUtilities::PlantSimulationSystem::CalculateDirectGravityForce(Entity& treeEntity, float gravity)
+{
+	float gravityFactor = EntityManager::GetComponentData<TreeParameters>(treeEntity).GravityFactor;
+	EntityManager::ForEach<LocalToWorld, BranchNodeInfo, GravityForceSensor>(_BranchNodeQuery, [gravityFactor, gravity](int i, Entity branchNode, LocalToWorld* ltw, BranchNodeInfo* bni, GravityForceSensor* fs) 
+		{
+			float thickness = bni->Thickness;
+			fs->Value = gravity * gravityFactor * bni->DistanceToParent;
+		});
+}
+
+void TreeUtilities::PlantSimulationSystem::BackPropagateForce(Entity& branchNode, float fixedPropagationCoefficient)
+{
+	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
+	float gfs = EntityManager::GetComponentData<GravityForceSensor>(branchNode).Value;
+	branchNodeInfo.AccmulatedGravity = gfs;
+	EntityManager::ForEachChild(branchNode, [this, &branchNodeInfo, fixedPropagationCoefficient](Entity child)
+		{
+			BackPropagateForce(child, fixedPropagationCoefficient);
+			auto childNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(child);
+			branchNodeInfo.AccmulatedGravity += fixedPropagationCoefficient * childNodeInfo.AccmulatedGravity * childNodeInfo.Thickness / branchNodeInfo.Thickness;
+		});
 	EntityManager::SetComponentData(branchNode, branchNodeInfo);
 }
 
@@ -517,6 +521,8 @@ void TreeUtilities::PlantSimulationSystem::OnCreate()
 	_BudQuery = TreeManager::GetBudQuery();
 	_TreeQuery = TreeManager::GetTreeQuery();
 	_LeafQuery = TreeManager::GetLeafQuery();
+	_BranchNodeQuery = TreeManager::GetBranchNodeQuery();
+	_Gravity = 0;
 	Enable();
 }
 
@@ -526,10 +532,24 @@ void TreeUtilities::PlantSimulationSystem::OnDestroy()
 
 void TreeUtilities::PlantSimulationSystem::Update()
 {
+	DrawGUI();
 }
 
 void TreeUtilities::PlantSimulationSystem::FixedUpdate()
 {
+	auto trees = std::vector<Entity>();
+	_TreeQuery.ToEntityArray(&trees);
+	for (auto& tree : trees) {
+		Rotation rotation = EntityManager::GetComponentData<Rotation>(tree);
+		LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(tree);
+		TreeParameters treeParameters = EntityManager::GetComponentData<TreeParameters>(tree);
+		Entity rootBranchNode = EntityManager::GetChildren(tree).at(0);
+		CalculateDirectGravityForce(tree, _Gravity);
+		BackPropagateForce(rootBranchNode, treeParameters.GravityBackPropageteFixedCoefficient);
+		UpdateLocalTransform(rootBranchNode, treeParameters, ltw.Value);
+		TreeManager::GetBranchNodeSystem()->RefreshConnections();
+	}
+	
 }
 
 Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParameters, TreeColor color, glm::vec3 position, bool enabled)
@@ -550,18 +570,6 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParam
 	EntityManager::SetComponentData(treeEntity, r);
 	EntityManager::SetComponentData(treeEntity, ltw);
 	EntityManager::SetComponentData(treeEntity, color);
-
-	LocalTranslation lt;
-	lt.Value = glm::vec3(0.0f);
-	LocalScale ls;
-	ls.Value = glm::vec3(1.0f);
-	LocalRotation lr;
-	lr.Value = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
-
-	EntityManager::SetComponentData(branchNodeEntity, lt);
-	EntityManager::SetComponentData(branchNodeEntity, ls);
-	EntityManager::SetComponentData(branchNodeEntity, lr);
-
 #pragma endregion
 	TreeAge age;
 	age.Value = 0;
@@ -582,6 +590,9 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParam
 	branchNodeInfo.MaxActivatedChildLevel = 0;
 	branchNodeInfo.ActivatedBudsAmount = 1;
 	branchNodeInfo.Pruned = false;
+	branchNodeInfo.DistanceToParent = 0;
+	branchNodeInfo.DesiredGlobalRotation = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+	branchNodeInfo.DesiredLocalRotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
 	TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(treeEntity);
 
 
@@ -626,10 +637,12 @@ Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(TreeColor color, 
 		tps.PruningFactor = 0.05;
 		tps.LowBranchPruningFactor = 1.3f;
 		tps.GravityBendingStrength = 0.73f;
-		tps.GravityBendingAngleFactor = 0.05f;
 		tps.Age = 8;
-		tps.EndNodeThickness = 0.005f;
-		tps.ThicknessControlFactor = 0.9f;
+		tps.GravityFactor = 0.050594199999999999;
+		tps.MaxBudAge = 8;
+		tps.EndNodeThickness = 0.5f;
+		tps.ThicknessControlFactor = 0.7f;
+		tps.GravityBackPropageteFixedCoefficient = 0.5f;
 		break;
 	case 2:
 		tps.VarianceApicalAngle = 0.42990970562500003;
@@ -657,14 +670,13 @@ Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(TreeColor color, 
 		tps.GravitropismBase = 0.039603199999999998;
 		tps.PruningFactor = 0.43430900000000000;
 		tps.LowBranchPruningFactor = 0.63922599999999996;
-		tps.GravityBendingStrength = 0.05f;
-		tps.GravityBendingAngleFactor = 0.05f;
-		tps.Age = 9;
-		tps.Gravity = 0.050594199999999999;
-		tps.GravityMaxBending = 0.50084200000000001;
+		tps.GravityBendingStrength = 0.2f;
+		tps.Age = 14;
+		tps.GravityFactor = 0.050594199999999999;
 		tps.MaxBudAge = 8;
 		tps.EndNodeThickness = 0.5f;
-		tps.ThicknessControlFactor = 0.8f;
+		tps.ThicknessControlFactor = 0.75f;
+		tps.GravityBackPropageteFixedCoefficient = 0.5f;
 		break;
 	default:
 		tps.LateralBudNumber = 4;
@@ -692,7 +704,6 @@ Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(TreeColor color, 
 		tps.PruningFactor = 0.05;
 		tps.LowBranchPruningFactor = 1.3f;
 		tps.GravityBendingStrength = 0.73f;
-		tps.GravityBendingAngleFactor = 0.05f;
 		tps.Age = 8;
 		break;
 	}

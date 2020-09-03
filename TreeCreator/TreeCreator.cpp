@@ -77,7 +77,7 @@ void InitPlantSimulationSystem() {
 	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
 	treeColor.LeafColor = glm::vec4(0, 1, 0, 1);
-	Entity tree1 = psSys->CreateExampleTree(treeColor, glm::vec3(0, 0, 0), 2);
+	Entity tree1 = psSys->CreateExampleTree(treeColor, glm::vec3(0, 0, 0), 1);
 
 }
 void InitSpaceColonizationTreeSystem()
