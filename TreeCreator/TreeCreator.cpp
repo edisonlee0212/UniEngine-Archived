@@ -56,12 +56,12 @@ int main()
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
-	ccs->SetPosition(glm::vec3(0, 3, 6));
+	ccs->SetPosition(glm::vec3(0, 6, 20));
 	ccs->SetVelocity(10.0f);
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
-	TreeManager::GetLightEstimator()->SetBranchNodeSize(0.3f);
+	TreeManager::GetLightEstimator()->SetBranchNodeSize(0.4f);
 #pragma region Light estimator setup
 	TreeManager::GetLightEstimator()->ResetCenterDistance(30);
 	TreeManager::GetLightEstimator()->ResetSnapShotWidth(15);
@@ -161,22 +161,22 @@ void InitPlantSimulationSystem() {
 	tps.ApicalControl = 0.93576000000000004;
 	tps.ApicalControlAgeDescFactor = 0.91815700000000000;
 	tps.ApicalControlLevelFactor = 1.0000000000000000;
-	tps.Phototropism = 0.22445109999999999;
-	tps.GravitropismBase = 0.039603199999999998;
+	tps.Phototropism = 0.42445109999999999;
+	tps.GravitropismBase = 0.239603199999999998;
 	tps.PruningFactor = 0.43430900000000000;
 	tps.LowBranchPruningFactor = 0.63922599999999996;
 	tps.GravityBendingStrength = 0.2f;
 	tps.Age = 14;
 	tps.GravityFactor = 0.050594199999999999;
-	tps.MaxBudAge = 8;
+	tps.MaxBudAge = 10;
 
 	tps.EndNodeThickness = 0.02f;
-	tps.ThicknessControlFactor = 0.8f;
+	tps.ThicknessControlFactor = 0.75f;
 	tps.GravityBackPropageteFixedCoefficient = 0.5f;
 #pragma endregion
-	Entity tree1 = psSys->CreateTree(tps, treeColor, glm::vec3(-2, 0, 0), true);
+	Entity tree1 = psSys->CreateTree(tps, treeColor, glm::vec3(-1.5, 0, 0), true);
 	//Entity tree2 = psSys->CreateTree(tps, treeColor, glm::vec3(3, 0, 0), true);
-	Entity tree2 = psSys->CreateExampleTree(treeColor, glm::vec3(2, 0, 0), 1);
+	Entity tree2 = psSys->CreateExampleTree(treeColor, glm::vec3(1.5, 0, 0), 1);
 }
 void InitSpaceColonizationTreeSystem()
 {

@@ -92,8 +92,6 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity& tree)
 	if (growed) {
 		UpdateBranchNodeLevel(rootBranchNode);
 		UpdateBranchNodeResource(rootBranchNode, treeParameters, treeAge);
-		//UpdateBranchNodeResourceAllocation(rootBranchNode);
-		
 		EvaluatePruning(rootBranchNode, treeParameters, treeAge, treeInfo);
 		EntityManager::SetComponentData(tree, treeInfo);
 	}
@@ -305,16 +303,18 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 #pragma endregion
 #pragma region Flush check
 		//compute probability that the given bud can grow
-		float budGrowProbability = 1;
-		// first take into account the apical dominance
-		if (branchNodeInfo.Inhibitor > 0) budGrowProbability *= glm::exp(-branchNodeInfo.Inhibitor);
-		// now take into consideration the light on the bud
-		float illumination = branchNodeIllumination.Value / TreeManager::GetLightEstimator()->GetMaxIllumination();
-		if (illumination < 1) {
-			budGrowProbability *= glm::pow(illumination, bud.IsApical ? treeParameters.ApicalBudLightingFactor : treeParameters.LateralBudLightingFactor);
+		float budGrowProbability = 1.0f;
+		if (treeAge.Value > 2) {
+			// first take into account the apical dominance
+			if (branchNodeInfo.Inhibitor > 0) budGrowProbability *= glm::exp(-branchNodeInfo.Inhibitor);
+			// now take into consideration the light on the bud
+			float illumination = branchNodeIllumination.Value / TreeManager::GetLightEstimator()->GetMaxIllumination();
+			if (illumination < 1.0f) {
+				budGrowProbability *= glm::pow(illumination, bud.IsApical ? treeParameters.ApicalBudLightingFactor : treeParameters.LateralBudLightingFactor);
+			}
 		}
 		// now check whether the bud is going to flush or not
-		bool flush = budGrowProbability > glm::linearRand(0.0f, 1.0f);
+		bool flush = budGrowProbability >= glm::linearRand(0.0f, 1.0f);
 #pragma endregion
 		bool growSucceed = false;
 		if (flush) {
