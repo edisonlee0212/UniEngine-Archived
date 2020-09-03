@@ -61,11 +61,7 @@ int main()
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, -tilt), 0.1f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(tilt, -1, 0), 0.1f);
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(-tilt, -1, 0), 0.1f);
-	
-	//InitSpaceColonizationTreeSystem();
 	InitPlantSimulationSystem();
-
-
 	Application::Run();
 	Application::End();
 	return 0; 
@@ -77,8 +73,43 @@ void InitPlantSimulationSystem() {
 	treeColor.BudColor = glm::vec4(1, 0, 0, 1);
 	treeColor.ConnectionColor = glm::vec4(0.6f, 0.3f, 0, 1);
 	treeColor.LeafColor = glm::vec4(0, 1, 0, 1);
-	Entity tree1 = psSys->CreateExampleTree(treeColor, glm::vec3(0, 0, 0), 1);
+	TreeParameters tps = TreeParameters();
+#pragma region Parameters
+	tps.VarianceApicalAngle = 0.42990970562500003;
+	tps.LateralBudNumber = 2;
+	tps.MeanBranchingAngle = 27.198200000000000;
+	tps.VarianceBranchingAngle = 0.037388089600000000;
+	tps.MeanRollAngle = 113.11000000000000;
+	tps.VarianceRollAngle = 13.090141080900001;
 
+	tps.ApicalBudExtintionRate = 0.99903945880000000;
+	tps.LateralBudEntintionRate = 0.0062681600000000001;
+	tps.ApicalBudLightingFactor = 0.099225700000000000;
+	tps.LateralBudLightingFactor = 1.0005922199999999;
+	tps.ApicalDominanceBase = 5.0524730000000000;
+	tps.ApicalDominanceDistanceFactor = 0.37777800000000000;
+	tps.ApicalDominanceAgeFactor = 0.44704700000000003;
+	tps.GrowthRate = 1.3069500000000001;
+	tps.InternodeLengthBase = 0.92382719999999996;
+	tps.InternodeLengthAgeFactor = 0.95584000000000002;
+
+	tps.ApicalControl = 0.93576000000000004;
+	tps.ApicalControlAgeDescFactor = 0.91815700000000000;
+	tps.ApicalControlLevelFactor = 1.0000000000000000;
+	tps.Phototropism = 0.22445109999999999;
+	tps.GravitropismBase = 0.039603199999999998;
+	tps.PruningFactor = 0.43430900000000000;
+	tps.LowBranchPruningFactor = 0.63922599999999996;
+	tps.GravityBendingStrength = 0.2f;
+	tps.Age = 14;
+	tps.GravityFactor = 0.050594199999999999;
+	tps.MaxBudAge = 8;
+	tps.EndNodeThickness = 0.5f;
+	tps.ThicknessControlFactor = 0.75f;
+	tps.GravityBackPropageteFixedCoefficient = 0.5f;
+#pragma endregion
+	Entity tree1 = psSys->CreateTree(tps, treeColor, glm::vec3(-3, 0, 0), true);
+	Entity tree2 = psSys->CreateExampleTree(treeColor, glm::vec3(3, 0, 0), 1);
 }
 void InitSpaceColonizationTreeSystem()
 {
