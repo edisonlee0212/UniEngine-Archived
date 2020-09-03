@@ -91,7 +91,7 @@ float TreeUtilities::LightSnapShot::GetBlockerDistance(glm::vec3& pos)
 	return distance;
 }
 
-unsigned TreeUtilities::LightSnapShot::GetLeafEntityIndex(size_t x, size_t y)
+unsigned TreeUtilities::LightSnapShot::GetEntityIndex(size_t x, size_t y)
 {
 	float r = (_SRC[(x * _Resolution + y) * 4] + 0.5f);
 	int ru = r;
@@ -198,21 +198,15 @@ void TreeUtilities::LightEstimator::Clear()
 	_SnapShots.clear();
 }
 
-void TreeUtilities::LightEstimator::TakeSnapShot(bool onlyCaptureAlive, bool storeSnapshot)
+void TreeUtilities::LightEstimator::TakeSnapShot(bool storeSnapshot, float budNodeSize)
 {
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	std::vector<Entity> leafEntities = std::vector<Entity>();
-	if (onlyCaptureAlive) {
-		LeafAlive alive;
-		alive.Value = true;
-		TreeManager::GetLeafQuery().ToComponentDataArray(alive, &matrices);
-		TreeManager::GetLeafQuery().ToEntityArray(alive, &leafEntities);
-	}
-	else {
-		TreeManager::GetLeafQuery().ToComponentDataArray(&matrices);
-		TreeManager::GetLeafQuery().ToEntityArray(&leafEntities);
-	}
-	auto mesh = TreeManager::GetLeafSystem()->GetLeafMesh();
+	
+	TreeManager::GetBranchNodeQuery().ToComponentDataArray(&matrices);
+	TreeManager::GetBranchNodeQuery().ToEntityArray(&leafEntities);
+	
+	auto mesh = Default::Primitives::Sphere;
 	
 	GLVBO indicesBuffer;
 	size_t count = matrices.size();
@@ -227,10 +221,6 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool onlyCaptureAlive, bool sto
 	GLVBO matricesBuffer;
 	matricesBuffer.SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_STATIC_DRAW);
 
-	
-	
-
-	
 	mesh->VAO()->EnableAttributeArray(12);
 	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
 	mesh->VAO()->EnableAttributeArray(13);
@@ -245,8 +235,8 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool onlyCaptureAlive, bool sto
 	mesh->VAO()->SetAttributeDivisor(15, 1);
 
 	glm::mat4 model;
-	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+	glm::mat4 translation = glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f));
+	glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), glm::vec3(1.0f));
 	model = translation * scale;
 	for (auto ss : _SnapShots) {
 		auto texture = ss->SnapShotTexture();
@@ -259,7 +249,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool onlyCaptureAlive, bool sto
 		glClearColor(0, 0, 0, 1);
 		_SnapShotProgram->SetFloat4x4("lightSpaceMatrix", ss->GetLightSpaceMatrix());
 		_SnapShotProgram->SetFloat4x4("model", model);
-		
+		_SnapShotProgram->SetFloat4x4("scaleMatrix", glm::scale(glm::identity<glm::mat4>(), glm::vec3(budNodeSize)));
 		if (matrices.size() != 0) glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	}
 	
@@ -311,7 +301,6 @@ void TreeUtilities::LightEstimator::DrawSnapShots(Camera* camera)
 
 float TreeUtilities::LightEstimator::CalculateScore()
 {
-	TakeSnapShot(true, true);
 	float currentScore, totalScore;
 	currentScore = totalScore = 0;
 	for (auto ss : _SnapShots) {

@@ -105,9 +105,7 @@ void TreeUtilities::LeafSystem::Update()
 	auto treeEntities = TreeManager::GetTreeSystem()->GetTreeEntities();
 	if (_ConfigFlags & LeafSystem_DrawLeafs) {
 		_LeafLTWList.clear();
-		LeafAlive alive;
-		alive.Value = true;
-		_LeafQuery.ToComponentDataArray(alive, &_LeafLTWList);
+		_LeafQuery.ToComponentDataArray(&_LeafLTWList);
 		if (_LeafLTWList.size() != 0)RenderManager::DrawGizmoMeshInstanced(_LeafMesh, glm::vec4(0, 1, 0, 1), (glm::mat4*)_LeafLTWList.data(), _LeafLTWList.size(), Application::GetMainCameraComponent()->Value, glm::mat4(1.0f), 1.0f);
 	}
 

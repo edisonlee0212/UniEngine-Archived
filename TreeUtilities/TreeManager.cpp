@@ -70,7 +70,7 @@ void TreeUtilities::TreeManager::Init()
 		"Leaf",
 		Translation(), Rotation(), Scale(), LocalToWorld(),
 		LocalPosition(), Connection(), TreeIndex(),
-		LeafIndex(), LeafInfo(), LeafAlive());
+		LeafIndex(), LeafInfo());
 	_BudArchetype = EntityManager::CreateEntityArchetype(
 		"Bud",
 		BranchNodeOwner(),
@@ -178,7 +178,7 @@ void TreeUtilities::TreeManager::GetAllTrees(std::vector<Entity>* container)
 void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 {
 	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(treeEntity);
-#pragma region Create leaves for all buds
+#pragma region Create leaves for all branchNodes
 	std::vector<Entity> buds;
 	_BudQuery.ToEntityArray(treeIndex, &buds);
 	for (Entity bud : buds) {
@@ -200,34 +200,34 @@ void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 
 }
 
-void TreeUtilities::TreeManager::ProneLeavesForTree(Entity treeEntity, float illuminationThreshold)
+void TreeUtilities::TreeManager::CalculateBranchNodeIllumination(Entity treeEntity, TreeParameters& treeParameters, float illuminationThreshold)
 {
 	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(treeEntity);
-	std::vector<Entity> buds;
-	_BudQuery.ToEntityArray(treeIndex, &buds);
-	TreeManager::GetLightEstimator()->TakeSnapShot(false, true);
-	EntityManager::ForEach<LeafInfo, TreeIndex>(_LeafQuery, [treeIndex](int i, Entity leafEntity, LeafInfo* info, TreeIndex* index) {
+	std::vector<Entity> branchNodes;
+	_BranchNodeQuery.ToEntityArray(treeIndex, &branchNodes);
+	TreeManager::GetLightEstimator()->TakeSnapShot(true, treeParameters.InternodeSize);
+	EntityManager::ForEach<BranchNodeIllumination, TreeIndex>(_BranchNodeQuery, [treeIndex](int i, Entity leafEntity, BranchNodeIllumination* illumination, TreeIndex* index) {
 		if (treeIndex.Value == index->Value) {
-			info->WeightedLightDirection = glm::vec3(0);
-			info->Illumination = 0;
+			illumination->LightDir = glm::vec3(0);
+			illumination->Value = 0;
 		}
 		});
 	auto snapShots = TreeManager::GetLightEstimator()->GetSnapShots();
 	for (const auto& shot : *snapShots) {
 		size_t resolution = shot->Resolution();
 		std::vector<std::shared_future<void>> futures;
-		std::mutex leafWriteMutex;
+		std::mutex writeMutex;
 		for (size_t i = 0; i < resolution; i++) {
-			futures.push_back(_ThreadPool->Push([i, shot, resolution, &leafWriteMutex](int id)
+			futures.push_back(_ThreadPool->Push([i, shot, resolution, &writeMutex](int id)
 				{
 					for (size_t j = 0; j < resolution; j++) {
-						unsigned index = shot->GetLeafEntityIndex(i, j);
+						unsigned index = shot->GetEntityIndex(i, j);
 						if (index != 0) {
-							std::lock_guard<std::mutex> lock(leafWriteMutex);
-							LeafInfo li = EntityManager::GetComponentData<LeafInfo>(index);
-							li.WeightedLightDirection += shot->GetDirection() * shot->Weight();
-							li.Illumination += shot->Weight();
-							EntityManager::SetComponentData<LeafInfo>(index, li);
+							std::lock_guard<std::mutex> lock(writeMutex);
+							BranchNodeIllumination illumination = EntityManager::GetComponentData<BranchNodeIllumination>(index);
+							illumination.LightDir += shot->GetDirection() * shot->Weight();
+							illumination.Value += shot->Weight();
+							EntityManager::SetComponentData(index, illumination);
 						}
 					}
 				}
@@ -235,17 +235,11 @@ void TreeUtilities::TreeManager::ProneLeavesForTree(Entity treeEntity, float ill
 		}
 		for (auto i : futures) i.wait();
 	}
-	
-	EntityManager::ForEach<TreeIndex, LeafInfo, LeafAlive>(_LeafQuery, [illuminationThreshold, treeIndex](int i, Entity leaf, TreeIndex* index, LeafInfo* leafInfo, LeafAlive* alive) {
-		if (treeIndex.Value == index->Value) {
-			alive->Value = leafInfo->Illumination >= illuminationThreshold;
-		}
-		});
 }
 
 void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
 {
-#pragma region Create leaves for all buds
+#pragma region Create leaves for all branchNodes
 	std::vector<Entity> buds;
 	_BudQuery.ToEntityArray(&buds);
 	for (int budIndex = 0; budIndex < buds.size(); budIndex++) {

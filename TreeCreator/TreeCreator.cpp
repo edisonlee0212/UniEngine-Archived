@@ -62,8 +62,8 @@ int main()
 #pragma endregion
 	TreeManager::Init();
 #pragma region Light estimator setup
-	TreeManager::GetLightEstimator()->ResetCenterDistance(20);
-	TreeManager::GetLightEstimator()->ResetSnapShotWidth(10);
+	TreeManager::GetLightEstimator()->ResetCenterDistance(30);
+	TreeManager::GetLightEstimator()->ResetSnapShotWidth(15);
 	//From top
 	TreeManager::GetLightEstimator()->PushSnapShot(glm::vec3(0, -1, 0), 1.0f);
 
@@ -171,6 +171,7 @@ void InitPlantSimulationSystem() {
 	tps.EndNodeThickness = 0.5f;
 	tps.ThicknessControlFactor = 0.75f;
 	tps.GravityBackPropageteFixedCoefficient = 0.5f;
+	tps.InternodeSize = 0.1f;
 #pragma endregion
 	Entity tree1 = psSys->CreateTree(tps, treeColor, glm::vec3(-3, 0, 0), true);
 	Entity tree2 = psSys->CreateExampleTree(treeColor, glm::vec3(3, 0, 0), 1);
@@ -209,7 +210,7 @@ void InitGround() {
 	Translation translation = Translation();
 	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();
-	scale.Value = glm::vec3(10.0f);
+	scale.Value = glm::vec3(15.0f);
 	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
 

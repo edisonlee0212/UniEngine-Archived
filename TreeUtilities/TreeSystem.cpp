@@ -68,6 +68,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 	if (!_SelectedTreeEntity.IsNull()) {
 		index = EntityManager::GetComponentData<TreeIndex>(_SelectedTreeEntity);
 		color = EntityManager::GetComponentData<TreeColor>(_SelectedTreeEntity);
+		TreeParameters tps = EntityManager::GetComponentData<TreeParameters>(_SelectedTreeEntity);
 		std::string title = "Tree ";
 		title += std::to_string(index.Value);
 		ImGui::Text(title.c_str());
@@ -81,7 +82,7 @@ void TreeUtilities::TreeSystem::DrawGUI()
 				TreeManager::CalculateRewards(_SelectedTreeEntity);
 			}
 			else {
-				TreeManager::GetLightEstimator()->TakeSnapShot(true, false);
+				TreeManager::GetLightEstimator()->TakeSnapShot(false, tps.InternodeSize);
 			}
 
 			auto estimation = EntityManager::GetComponentData<RewardEstimation>(_SelectedTreeEntity);
@@ -151,7 +152,6 @@ void TreeUtilities::TreeSystem::FixedUpdate()
 	if (!_SelectedTreeEntity.IsNull()) {
 		auto pruningFactor = EntityManager::GetComponentData<TreeLeafPruningFactor>(_SelectedTreeEntity);
 		if (_PruningFactor != pruningFactor.Value) {
-			TreeManager::ProneLeavesForTree(_SelectedTreeEntity, _PruningFactor);
 			pruningFactor.Value = _PruningFactor;
 			EntityManager::SetComponentData(_SelectedTreeEntity, pruningFactor);
 		}

@@ -29,7 +29,7 @@ namespace TreeUtilities {
 		float Resolution();
 
 		float GetBlockerDistance(glm::vec3& position);
-		unsigned GetLeafEntityIndex(size_t x, size_t y);
+		unsigned GetEntityIndex(size_t x, size_t y);
 		glm::vec3 GetDepth(size_t x, size_t y);
 		~LightSnapShot();
 	};
@@ -60,7 +60,7 @@ namespace TreeUtilities {
 		void ResetSnapShotWidth(float width);
 		void PushSnapShot(glm::vec3 direction, float weight);
 		void Clear();
-		void TakeSnapShot(bool onlyCaptureAlive, bool storeSnapShot);
+		void TakeSnapShot(bool storeSnapShot, float budNodeSize = 1.0f);
 		void DrawSnapShots(Camera* camera);
 		float CalculateScore();
 		std::vector<LightSnapShot*>* GetSnapShots();

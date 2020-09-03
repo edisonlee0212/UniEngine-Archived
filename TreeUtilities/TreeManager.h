@@ -211,6 +211,7 @@ namespace TreeUtilities {
         float InternodeLengthBase; //Fixed
         float InternodeLengthAgeFactor; // Training target
 
+
         float ApicalControl; // Training target
         float ApicalControlAgeDescFactor; // Training target
         float ApicalControlLevelFactor; // Training target
@@ -240,6 +241,7 @@ namespace TreeUtilities {
         size_t Age;
         float EndNodeThickness = 0.01f;
         float ThicknessControlFactor = 1.0f;
+        float InternodeSize = 0.1f;
     };
     
     struct TREEUTILITIES_API TreeLeafPruningFactor : ComponentBase {
@@ -276,7 +278,6 @@ namespace TreeUtilities {
         std::vector<float>* GravitropismLevelVal;
         std::vector<float>* ApicalControlTimeVal;
         std::vector<std::vector<float>>* ApicalControlTimeLevelVal;
-
         float ResourceToGrow;
     };
 #pragma endregion
@@ -328,7 +329,7 @@ namespace TreeUtilities {
         static void GetAllTrees(std::vector<Entity>* container);
         
         static void GenerateLeavesForTree(Entity treeEntity);
-        static void ProneLeavesForTree(Entity treeEntity, float illuminationThreshold);
+        static void CalculateBranchNodeIllumination(Entity treeEntity, TreeParameters& treeParameters, float illuminationThreshold);
         static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);
