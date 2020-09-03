@@ -242,8 +242,8 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool storeSnapshot, float budNo
 		auto texture = ss->SnapShotTexture();
 		_RenderTarget->AttachTexture(texture, GL_COLOR_ATTACHMENT0);
 		_SnapShotProgram->Bind();
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		_RenderTarget->Bind();
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0, 0, 0, 1);
@@ -254,7 +254,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool storeSnapshot, float budNo
 	}
 	
 	mesh->VAO()->DisableAttributeArray(11);
-
+	/*
 	Default::GLPrograms::ScreenVAO->Bind();
 	for (auto ss : _SnapShots) {
 		auto texture = ss->SnapShotTexture();
@@ -286,6 +286,7 @@ void TreeUtilities::LightEstimator::TakeSnapShot(bool storeSnapshot, float budNo
 		}
 	}
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	*/
 	RenderTarget::BindDefault();
 }
 

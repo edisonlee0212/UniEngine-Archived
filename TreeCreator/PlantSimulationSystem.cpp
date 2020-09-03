@@ -63,6 +63,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity& tree)
 	EntityManager::SetComponentData(rootBranchNode, tempBNInfo);
 	UpdateBranchNodeActivatedLevel(rootBranchNode);
 #pragma endregion
+	TreeManager::CalculateBranchNodeIllumination(tree, treeParameters); 
 	bool growed = GrowShoots(rootBranchNode, treeInfo, treeAge, treeParameters, treeIndex);
 	UpdateBranchNodeMeanData(rootBranchNode, treeAge.Value);
 	treeAge.Value++;
@@ -73,8 +74,8 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity& tree)
 		//ComputeLight();
 		UpdateBranchNodeResource(rootBranchNode, treeParameters, treeAge);
 		//UpdateBranchNodeResourceAllocation(rootBranchNode);
-
-		//EvaluatePruning(rootBranchNode, treeParameters, treeAge, treeInfo);
+		UpdateLocalTransform(rootBranchNode, treeParameters, treeLocalToWorld.Value);
+		EvaluatePruning(rootBranchNode, treeParameters, treeAge, treeInfo);
 		EntityManager::SetComponentData(tree, treeInfo);
 	}
 	return growed;
@@ -537,6 +538,11 @@ void TreeUtilities::PlantSimulationSystem::Update()
 
 void TreeUtilities::PlantSimulationSystem::FixedUpdate()
 {
+	while (!_GrowTreeQueue.empty()) {
+		CompleteTree(_GrowTreeQueue.front());
+		_GrowTreeQueue.pop();
+	}
+
 	auto trees = std::vector<Entity>();
 	_TreeQuery.ToEntityArray(&trees);
 	for (auto& tree : trees) {
@@ -601,7 +607,8 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParam
 	EntityManager::SetComponentData(treeEntity, treeInfo);
 	EntityManager::SetComponentData(treeEntity, age);
 
-	CompleteTree(treeEntity);
+	//CompleteTree(treeEntity);
+	_GrowTreeQueue.push(treeEntity);
 	return treeEntity;
 }
 

@@ -18,6 +18,7 @@ namespace TreeUtilities {
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
         EntityQuery _BranchNodeQuery;
+        std::queue<Entity> _GrowTreeQueue;
         float GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level);
         void DrawGUI();
         void UpdateBranchNodeLength(Entity& branchNode);

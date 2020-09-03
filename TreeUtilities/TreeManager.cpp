@@ -200,7 +200,7 @@ void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 
 }
 
-void TreeUtilities::TreeManager::CalculateBranchNodeIllumination(Entity treeEntity, TreeParameters& treeParameters, float illuminationThreshold)
+void TreeUtilities::TreeManager::CalculateBranchNodeIllumination(Entity treeEntity, TreeParameters& treeParameters)
 {
 	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(treeEntity);
 	std::vector<Entity> branchNodes;
