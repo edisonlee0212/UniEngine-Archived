@@ -265,7 +265,7 @@ namespace TreeUtilities {
         static void GenerateSimpleMeshForTree(Entity treeEntity, float resolution);
         static void DeleteTree(Entity treeEntity);
 
-        static Entity CreateTree(Material* treeSurfaceMaterial);
+        static Entity CreateTree(MeshMaterialComponent* treeSurfaceMaterial);
         static Entity CreateBranchNode(TreeIndex treeIndex, Entity parentEntity);
         static Entity CreateLeaf(TreeIndex treeIndex, Entity parentEntity);
 

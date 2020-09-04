@@ -47,7 +47,7 @@ namespace TreeUtilities {
         void OnDestroy();
         void Update();
         void FixedUpdate();
-        Entity CreateTree(Material* treeSurfaceMaterial, TreeParameters parameters, TreeColor color, glm::vec3 position, bool enabled = false);
-        Entity CreateExampleTree(Material* treeSurfaceMaterial, TreeColor color, glm::vec3 position, int index, bool enabled = false);
+        Entity CreateTree(MeshMaterialComponent* treeSurfaceMaterial, TreeParameters parameters, TreeColor color, glm::vec3 position, bool enabled = false);
+        Entity CreateExampleTree(MeshMaterialComponent* treeSurfaceMaterial, TreeColor color, glm::vec3 position, int index, bool enabled = false);
     };
 }

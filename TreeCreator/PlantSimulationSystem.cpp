@@ -642,7 +642,7 @@ void TreeUtilities::PlantSimulationSystem::Update()
 
 
 
-Entity TreeUtilities::PlantSimulationSystem::CreateTree(Material* treeSurfaceMaterial, TreeParameters treeParameters, TreeColor color, glm::vec3 position, bool enabled)
+Entity TreeUtilities::PlantSimulationSystem::CreateTree(MeshMaterialComponent* treeSurfaceMaterial, TreeParameters treeParameters, TreeColor color, glm::vec3 position, bool enabled)
 {
 	auto treeEntity = TreeManager::CreateTree(treeSurfaceMaterial);
 	Entity branchNodeEntity = TreeManager::CreateBranchNode(EntityManager::GetComponentData<TreeIndex>(treeEntity), treeEntity);
@@ -696,7 +696,7 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(Material* treeSurfaceMat
 	return treeEntity;
 }
 
-Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(Material* treeSurfaceMaterial, TreeColor color, glm::vec3 position, int index, bool enabled)
+Entity TreeUtilities::PlantSimulationSystem::CreateExampleTree(MeshMaterialComponent* treeSurfaceMaterial, TreeColor color, glm::vec3 position, int index, bool enabled)
 {
 	TreeParameters tps = TreeParameters();
 	switch (index)

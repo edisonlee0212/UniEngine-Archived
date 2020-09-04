@@ -60,6 +60,7 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
+	//The smaller the branch node's size, the more branching for tree.
 	TreeManager::GetLightEstimator()->SetBranchNodeSize(0.7f);
 #pragma region Light estimator setup
 	TreeManager::GetLightEstimator()->ResetCenterDistance(30);
@@ -173,15 +174,18 @@ void InitPlantSimulationSystem() {
 	tps.ThicknessControlFactor = 0.75f;
 	tps.GravityBackPropageteFixedCoefficient = 0.5f;
 #pragma endregion
+	MeshMaterialComponent* mmc1 = new MeshMaterialComponent();
+	MeshMaterialComponent* mmc2 = new MeshMaterialComponent();
 	auto treeSurfaceMaterial = new Material();
 	treeSurfaceMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto texture = new Texture2D(TextureType::DIFFUSE);
 	texture->LoadTexture(FileIO::GetPath("Textures/brown.png"), "");
 	treeSurfaceMaterial->Textures2Ds()->push_back(texture);
-
-	//Entity tree1 = psSys->CreateTree(treeSurfaceMaterial, tps, treeColor, glm::vec3(-1.5, 0, 0), true);
-	//Entity tree2 = psSys->CreateTree(treeSurfaceMaterial, tps, treeColor, glm::vec3(3, 0, 0), true);
-	Entity tree2 = psSys->CreateExampleTree(treeSurfaceMaterial, treeColor, glm::vec3(1.5, 0, 0), 1);
+	mmc1->_Material = treeSurfaceMaterial;
+	mmc2->_Material = treeSurfaceMaterial;
+	//Multiple tree growth.
+	Entity tree1 = psSys->CreateTree(mmc1, tps, treeColor, glm::vec3(-1.5, 0, 0), true);
+	Entity tree2 = psSys->CreateExampleTree(mmc2, treeColor, glm::vec3(1.5, 0, 0), 1);
 }
 void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());

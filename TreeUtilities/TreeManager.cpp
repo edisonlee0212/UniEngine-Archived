@@ -286,7 +286,7 @@ void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
 }
 */
 
-Entity TreeUtilities::TreeManager::CreateTree(Material* treeSurfaceMaterial)
+Entity TreeUtilities::TreeManager::CreateTree(MeshMaterialComponent* treeSurfaceMaterial)
 {
 	auto entity = EntityManager::CreateEntity(_TreeArchetype);
 	TreeInfo treeInfo;
@@ -298,11 +298,7 @@ Entity TreeUtilities::TreeManager::CreateTree(Material* treeSurfaceMaterial)
 	treeInfo.Indices = new std::vector<unsigned>();
 	EntityManager::SetComponentData(entity, treeInfo);
 	EntityManager::SetComponentData(entity, _TreeIndex);
-	MeshMaterialComponent* mmc = new MeshMaterialComponent();
-
-	mmc->_Material = treeSurfaceMaterial;
-	mmc->_Mesh = nullptr;
-	EntityManager::SetSharedComponent(entity, mmc);
+	EntityManager::SetSharedComponent(entity, treeSurfaceMaterial);
 	_TreeIndex.Value++;
 	return entity;
 }
@@ -316,11 +312,6 @@ void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
 	if (treeInfo.ApicalControlTimeLevelVal != nullptr) delete treeInfo.ApicalControlTimeLevelVal;
 	if (treeInfo.Vertices != nullptr) delete treeInfo.Vertices;
 	if (treeInfo.Indices != nullptr) delete treeInfo.Indices;
-	
-	MeshMaterialComponent* mmc = EntityManager::GetSharedComponent<MeshMaterialComponent>(treeEntity);
-	if (mmc->_Material != nullptr) delete mmc->_Material;
-	if (mmc->_Mesh != nullptr) delete mmc->_Mesh;
-	delete mmc;
 	if (EntityManager::HasComponentData<BranchNodeInfo>(EntityManager::GetChildren(treeEntity).at(0))) {
 		BranchNodeCleaner(EntityManager::GetChildren(treeEntity).at(0));
 	}
