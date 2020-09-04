@@ -20,7 +20,7 @@ void TreeUtilities::PlantSimulationSystem::TryGrowAllTrees(std::vector<Entity>& 
 			LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(tree);
 			TreeParameters treeParameters = EntityManager::GetComponentData<TreeParameters>(tree);
 			Entity rootBranchNode = EntityManager::GetChildren(tree).at(0);
-			
+
 			if (GrowTree(tree)) {
 				growed = true;
 			}
@@ -255,9 +255,9 @@ void TreeUtilities::PlantSimulationSystem::UpdateLocalTransform(Entity& branchNo
 #pragma endregion
 	LocalToWorld ltw;
 	ltw.Value = parentLTW * (
-		glm::translate(glm::mat4(1.0f), actualLocalRotation * glm::vec3(0, 0, -1) 
-			* branchNodeInfo.DistanceToParent) * glm::mat4_cast(actualLocalRotation) 
-				* glm::scale(glm::vec3(1.0f)));
+		glm::translate(glm::mat4(1.0f), actualLocalRotation * glm::vec3(0, 0, -1)
+			* branchNodeInfo.DistanceToParent) * glm::mat4_cast(actualLocalRotation)
+		* glm::scale(glm::vec3(1.0f)));
 	EntityManager::SetComponentData(branchNode, ltw);
 	EntityManager::ForEachChild(branchNode, [this, &treeParameters, &ltw](Entity child)
 		{
@@ -304,17 +304,16 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 #pragma region Flush check
 		//compute probability that the given bud can grow
 		float budGrowProbability = 1.0f;
-		if (treeAge.Value > 2) {
-			// first take into account the apical dominance
-			if (branchNodeInfo.Inhibitor > 0) budGrowProbability *= glm::exp(-branchNodeInfo.Inhibitor);
-			// now take into consideration the light on the bud
-			float illumination = branchNodeIllumination.Value / TreeManager::GetLightEstimator()->GetMaxIllumination();
-			if (illumination < 1.0f) {
-				budGrowProbability *= glm::pow(illumination, bud.IsApical ? treeParameters.ApicalBudLightingFactor : treeParameters.LateralBudLightingFactor);
-			}
+		// first take into account the apical dominance
+		if (branchNodeInfo.Inhibitor > 0) budGrowProbability *= glm::exp(-branchNodeInfo.Inhibitor);
+		// now take into consideration the light on the bud
+		float illumination = branchNodeIllumination.Value / TreeManager::GetLightEstimator()->GetMaxIllumination();
+		if (illumination < 1.0f) {
+			budGrowProbability *= glm::pow(illumination, bud.IsApical ? treeParameters.ApicalBudLightingFactor : treeParameters.LateralBudLightingFactor);
 		}
+
 		// now check whether the bud is going to flush or not
-		bool flush = budGrowProbability >= glm::linearRand(0.0f, 1.0f);
+		bool flush = treeAge.Value < 2 ? true : budGrowProbability >= glm::linearRand(0.0f, 1.0f);
 #pragma endregion
 		bool growSucceed = false;
 		if (flush) {
@@ -358,7 +357,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 					else newBranchNodeInfo.Level = prevBranchNodeInfo.Level + 1;
 					newBranchNodeInfo.MaxActivatedChildLevel = level;
 					newBranchNodeInfo.ParentInhibitorFactor = glm::pow(treeParameters.ApicalDominanceDistanceFactor, newBranchNodeInfo.DistanceToParent);
-					
+
 #pragma endregion
 #pragma region Transforms for branch node
 					newBranchNodeInfo.DesiredLocalRotation = glm::quat(prevEulerAngle);
@@ -370,10 +369,12 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 #pragma region Apply phototropism and gravitropism
 					float gravitropism = treeInfo.GravitropismLevelVal->at(newBranchNodeInfo.Level);
 					glm::quat globalRawRotation = prevBranchNodeRotation * newBranchNodeInfo.DesiredLocalRotation;
-					glm::vec3 rawFront = globalRawRotation * glm::vec3(0, 0, -1);
-					glm::vec3 rawUp = globalRawRotation * glm::vec3(0, 1, 0);
+					glm::vec3 rawFront = globalRawRotation * glm::vec3(0, 0, -1.05f);
+					glm::vec3 rawUp = globalRawRotation * glm::vec3(0, 1.05f, 0);
 					rawFront += glm::vec3(0, -1, 0) * gravitropism;
-					rawFront += glm::normalize(-branchNodeIllumination.LightDir) * treeParameters.Phototropism;
+					if (branchNodeIllumination.Value > 0) {
+						rawFront += glm::normalize(-branchNodeIllumination.LightDir) * treeParameters.Phototropism;
+					}
 					rawFront = glm::normalize(rawFront);
 					rawUp = glm::cross(glm::cross(rawFront, rawUp), rawFront);
 					globalRawRotation = glm::quatLookAt(rawFront, rawUp);
@@ -431,7 +432,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 #pragma endregion
 		}
 #pragma region If the bud didnt flush then check whether we should remove it because of the old age.
-		if(!growSucceed){
+		if (!growSucceed) {
 			int budAge = treeAge.Value - bud.StartAge;
 			if (budAge > treeParameters.MaxBudAge) {
 				DeactivateBud(branchNodeInfo, bud);
@@ -458,7 +459,7 @@ void TreeUtilities::PlantSimulationSystem::PruneBranchNode(Entity& branchNode, T
 	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
 	branchNodeInfo.Pruned = true;
 	treeInfo.ActiveLength -= branchNodeInfo.DistanceToParent;
-	EntityManager::ForEachChild(branchNode, [this, &treeInfo](Entity child) 
+	EntityManager::ForEachChild(branchNode, [this, &treeInfo](Entity child)
 		{
 			PruneBranchNode(child, treeInfo);
 		}
@@ -490,7 +491,7 @@ void TreeUtilities::PlantSimulationSystem::EvaluatePruning(Entity& branchNode, T
 void TreeUtilities::PlantSimulationSystem::CalculateDirectGravityForce(Entity& treeEntity, float gravity)
 {
 	float gravityFactor = EntityManager::GetComponentData<TreeParameters>(treeEntity).GravityFactor;
-	EntityManager::ForEach<LocalToWorld, BranchNodeInfo, GravityForceSensor>(_BranchNodeQuery, [gravityFactor, gravity](int i, Entity branchNode, LocalToWorld* ltw, BranchNodeInfo* bni, GravityForceSensor* fs) 
+	EntityManager::ForEach<LocalToWorld, BranchNodeInfo, GravityForceSensor>(_BranchNodeQuery, [gravityFactor, gravity](int i, Entity branchNode, LocalToWorld* ltw, BranchNodeInfo* bni, GravityForceSensor* fs)
 		{
 			float thickness = bni->Thickness;
 			fs->Value = gravity * gravityFactor * bni->DistanceToParent;
@@ -531,7 +532,7 @@ void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeResource(Entity& bran
 		}
 	);
 	branchNodeInfo.Thickness = treeParameters.EndNodeThickness * ((float)branchNodeInfo.BranchEndNodeAmount) * glm::pow(treeParameters.ThicknessControlFactor, treeAge.Value - branchNodeInfo.Level);
-	
+
 	EntityManager::SetComponentData(branchNode, branchNodeInfo);
 }
 

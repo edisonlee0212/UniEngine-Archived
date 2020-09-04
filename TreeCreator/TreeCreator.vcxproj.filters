@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\SpaceColonization">
-      <UniqueIdentifier>{39c0c3aa-663e-4168-a764-00545e5b8fae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\SpaceColonization">
-      <UniqueIdentifier>{135cba74-b72b-4a5f-ba8c-54a7c8626610}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\InverseModelling">
       <UniqueIdentifier>{efcea481-68f9-4ab2-8783-575afba39ea1}</UniqueIdentifier>
     </Filter>
@@ -36,9 +30,6 @@
     <ClCompile Include="TreeCreator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpaceColonizationTreeSystem.cpp">
-      <Filter>Source Files\SpaceColonization</Filter>
-    </ClCompile>
     <ClCompile Include="PlantSimulationSystem.cpp">
       <Filter>Source Files\InverseModelling</Filter>
     </ClCompile>
@@ -50,12 +41,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SpaceColonizationTreeSystem.h">
-      <Filter>Header Files\SpaceColonization</Filter>
-    </ClInclude>
-    <ClInclude Include="Envelope.h">
-      <Filter>Header Files\SpaceColonization</Filter>
-    </ClInclude>
     <ClInclude Include="PlantSimulationSystem.h">
       <Filter>Header Files\InverseModelling</Filter>
     </ClInclude>
