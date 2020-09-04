@@ -54,12 +54,15 @@ inline void TreeUtilities::TreeManager::LeafGenerationHelper(BudInfo& info, Enti
 	EntityManager::SetComponentData(leaf, r);
 }
 */
-void TreeUtilities::TreeManager::BranchNodeRemover(Entity branchEntity)
+void TreeUtilities::TreeManager::BranchNodeCleaner(Entity branchEntity)
 {
-	BranchNodeBudsList ob = EntityManager::GetComponentData<BranchNodeBudsList>(branchEntity);
+	BudList ob = EntityManager::GetComponentData<BudList>(branchEntity);
 	delete ob.Buds;
+	RingMeshList rml = EntityManager::GetComponentData<RingMeshList>(branchEntity);
+	delete rml.Rings;
+
 	EntityManager::ForEachChild(branchEntity, [](Entity child) {
-		BranchNodeRemover(child);
+		BranchNodeCleaner(child);
 		});
 }
 void TreeUtilities::TreeManager::Init()
@@ -67,13 +70,13 @@ void TreeUtilities::TreeManager::Init()
 	_LeafArchetype = EntityManager::CreateEntityArchetype(
 		"Leaf",
 		Translation(), Rotation(), Scale(), LocalToWorld(),
-		LocalPosition(), Connection(), TreeIndex(),
+		Connection(), TreeIndex(),
 		LeafIndex(), LeafInfo());
 	_BranchNodeArchetype = EntityManager::CreateEntityArchetype(
 		"BranchNode",
 		LocalToWorld(), Connection(),
-		BranchNodeIllumination(), GravityForceSensor(),
-		BranchNodeIndex(), BranchNodeInfo(), TreeIndex(), BranchNodeBudsList()
+		Illumination(), Gravity(), RingMeshList(),
+		BranchNodeIndex(), BranchNodeInfo(), TreeIndex(), BudList()
 	);
 	_TreeArchetype = EntityManager::CreateEntityArchetype(
 		"Tree",
@@ -182,7 +185,7 @@ void TreeUtilities::TreeManager::CalculateBranchNodeIllumination()
 	std::vector<Entity> branchNodes;
 	_BranchNodeQuery.ToEntityArray(&branchNodes);
 	TreeManager::GetLightEstimator()->TakeSnapShot(true);
-	EntityManager::ForEach<BranchNodeIllumination, TreeIndex>(_BranchNodeQuery, [](int i, Entity leafEntity, BranchNodeIllumination* illumination, TreeIndex* index) 
+	EntityManager::ForEach<Illumination, TreeIndex>(_BranchNodeQuery, [](int i, Entity leafEntity, Illumination* illumination, TreeIndex* index) 
 		{
 			illumination->LightDir = glm::vec3(0);
 			illumination->Value = 0;
@@ -203,7 +206,7 @@ void TreeUtilities::TreeManager::CalculateBranchNodeIllumination()
 						unsigned index = shot->GetEntityIndex(i, j);
 						if (index != 0) {
 							std::lock_guard<std::mutex> lock(writeMutex);
-							BranchNodeIllumination illumination = EntityManager::GetComponentData<BranchNodeIllumination>(index);
+							Illumination illumination = EntityManager::GetComponentData<Illumination>(index);
 							illumination.LightDir += shot->GetDirection() * shot->Weight();
 							illumination.Value += shot->Weight();
 							if (localMaxIllumination < illumination.Value) localMaxIllumination = illumination.Value;
@@ -253,7 +256,7 @@ void TreeUtilities::TreeManager::GenerateMeshForAllTrees()
 	std::vector<Entity> trees;
 	GetAllTrees(&trees);
 	for (auto i : trees) {
-		GenerateMeshForTree(i);
+		GenerateSimpleMeshForTree(i);
 	}
 }
 
@@ -267,6 +270,10 @@ Entity TreeUtilities::TreeManager::CreateTree()
 	treeInfo.ApicalControlTimeLevelVal = new std::vector<std::vector<float>>();
 	EntityManager::SetComponentData(entity, treeInfo);
 	EntityManager::SetComponentData(entity, _TreeIndex);
+	MeshMaterialComponent* mmc = new MeshMaterialComponent();
+	mmc->_Material = nullptr;
+	mmc->_Mesh = nullptr;
+	EntityManager::SetSharedComponent(entity, mmc);
 	_TreeIndex.Value++;
 	return entity;
 }
@@ -278,9 +285,12 @@ void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
 	if (treeInfo.ApicalDominanceTimeVal != nullptr) delete treeInfo.ApicalDominanceTimeVal;
 	if (treeInfo.ApicalControlTimeVal != nullptr) delete treeInfo.ApicalControlTimeVal;
 	if (treeInfo.ApicalControlTimeLevelVal != nullptr) delete treeInfo.ApicalControlTimeLevelVal;
-
+	MeshMaterialComponent* mmc = EntityManager::GetSharedComponent<MeshMaterialComponent>(treeEntity);
+	if (mmc->_Material != nullptr) delete mmc->_Material;
+	if (mmc->_Mesh != nullptr) delete mmc->_Mesh;
+	delete mmc;
 	if (EntityManager::HasComponentData<BranchNodeInfo>(EntityManager::GetChildren(treeEntity).at(0))) {
-		BranchNodeRemover(EntityManager::GetChildren(treeEntity).at(0));
+		BranchNodeCleaner(EntityManager::GetChildren(treeEntity).at(0));
 	}
 	EntityManager::DeleteEntity(treeEntity);
 }
@@ -288,12 +298,15 @@ void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
 Entity TreeUtilities::TreeManager::CreateBranchNode(TreeIndex treeIndex, Entity parentEntity)
 {
 	auto entity = EntityManager::CreateEntity(_BranchNodeArchetype);
-	BranchNodeBudsList ob = BranchNodeBudsList();
+	BudList ob = BudList();
 	ob.Buds = new std::vector<Bud>();
+	RingMeshList rml = RingMeshList();
+	rml.Rings = new std::vector<RingMesh>();
 	EntityManager::SetComponentData(entity, treeIndex);
 	EntityManager::SetParent(entity, parentEntity);
 	EntityManager::SetComponentData(entity, _BranchNodeIndex);
 	EntityManager::SetComponentData(entity, ob);
+	EntityManager::SetComponentData(entity, rml);
 	_BranchNodeIndex.Value++;
 	BranchNodeInfo branchInfo;
 	branchInfo.MaxActivatedChildLevel = 0;
@@ -338,12 +351,14 @@ Mesh* TreeUtilities::TreeManager::GetMeshForTree(Entity treeEntity)
 #pragma endregion
 
 
-void TreeUtilities::TreeManager::GenerateMeshForTree(Entity treeEntity)
+void TreeUtilities::TreeManager::GenerateSimpleMeshForTree(Entity treeEntity)
 {
 	if (!_Ready) {
 		Debug::Error("TreeManager: Not initialized!");
 		return;
 	}
-	auto rootBud = EntityManager::GetChildren(treeEntity).at(0);
+	MeshMaterialComponent* mmc = EntityManager::GetSharedComponent<MeshMaterialComponent>(treeEntity);
+	auto branchNode = EntityManager::GetChildren(treeEntity).at(0);
 	//TODO: Finish mesh generation here.
+
 }

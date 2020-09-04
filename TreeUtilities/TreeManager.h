@@ -16,27 +16,7 @@ namespace TreeUtilities {
         bool operator ==(const TreeIndex& other) const {
             return other.Value == Value;
         }
-    };
-
-    struct TREEUTILITIES_API Mass : ComponentBase {
-        float Value;
-        bool operator ==(const Mass& other) const {
-            return other.Value == Value;
-        }
-    };
-    struct TREEUTILITIES_API LocalPosition : ComponentBase {
-        glm::vec3 Value;
-        bool operator ==(const LocalPosition& other) const {
-            return other.Value == Value;
-        }
-    };
-    
-    struct TREEUTILITIES_API Connection : ComponentBase {
-        glm::mat4 Value;
-        bool operator ==(const Connection& other) const {
-            return other.Value == Value;
-        }
-    };
+    };    
 #pragma endregion
 #pragma region Leaf
     struct TREEUTILITIES_API LeafIndex : ComponentBase {
@@ -56,9 +36,19 @@ namespace TreeUtilities {
         }
     };
 #pragma endregion
-
 #pragma region BranchNode
-    struct TREEUTILITIES_API BranchNodeIllumination : ComponentBase {
+    struct RingMeshList : ComponentBase {
+        std::vector<RingMesh>* Rings;
+    };
+
+    struct TREEUTILITIES_API Connection : ComponentBase {
+        glm::mat4 Value;
+        bool operator ==(const Connection& other) const {
+            return other.Value == Value;
+        }
+    };
+
+    struct TREEUTILITIES_API Illumination : ComponentBase {
         float Value;
         glm::vec3 LightDir;
     };
@@ -73,11 +63,11 @@ namespace TreeUtilities {
         glm::vec3 EulerAngles;
     };
 
-    struct TREEUTILITIES_API GravityForceSensor {
+    struct TREEUTILITIES_API Gravity {
         float Value;
     };
 
-    struct TREEUTILITIES_API BranchNodeBudsList : ComponentBase {
+    struct TREEUTILITIES_API BudList : ComponentBase {
         std::vector<Bud>* Buds;
     };
 
@@ -250,7 +240,7 @@ namespace TreeUtilities {
         
         //static void LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index);
         
-        static void BranchNodeRemover(Entity branchEntity);
+        static void BranchNodeCleaner(Entity branchEntity);
     public:
         static void Init();
         static bool IsReady();
@@ -270,7 +260,7 @@ namespace TreeUtilities {
         //static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);
-        static void GenerateMeshForTree(Entity treeEntity);
+        static void GenerateSimpleMeshForTree(Entity treeEntity);
         static void GenerateMeshForAllTrees();
         static void DeleteTree(Entity treeEntity);
 

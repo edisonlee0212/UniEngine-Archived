@@ -279,8 +279,8 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 	);
 	if (branchNodeInfo.ActivatedBudsAmount == 0) return ret;
 #pragma endregion
-	BranchNodeIllumination branchNodeIllumination = EntityManager::GetComponentData<BranchNodeIllumination>(branchNode);
-	BranchNodeBudsList budsList = EntityManager::GetComponentData<BranchNodeBudsList>(branchNode);
+	Illumination branchNodeIllumination = EntityManager::GetComponentData<Illumination>(branchNode);
+	BudList budsList = EntityManager::GetComponentData<BudList>(branchNode);
 	BranchNodeIndex branchNodeIndex = EntityManager::GetComponentData<BranchNodeIndex>(branchNode);
 	float lateralInhibitorToAdd = 0;
 	for (auto& bud : *budsList.Buds) {
@@ -342,7 +342,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeIn
 				for (int selectedNewNodeIndex = 0; selectedNewNodeIndex < internodesToGrow; selectedNewNodeIndex++) {
 #pragma region Setup branch node
 					Entity newBranchNode = TreeManager::CreateBranchNode(treeIndex, prevBranchNode);
-					BranchNodeBudsList newBranchNodeBudList = EntityManager::GetComponentData<BranchNodeBudsList>(newBranchNode);
+					BudList newBranchNodeBudList = EntityManager::GetComponentData<BudList>(newBranchNode);
 					BranchNodeInfo newBranchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(newBranchNode);
 					newBranchNodeInfo.ApicalBudExist = true;
 					newBranchNodeInfo.ActivatedBudsAmount = treeParameters.LateralBudNumber + 1;
@@ -488,7 +488,7 @@ void TreeUtilities::PlantSimulationSystem::EvaluatePruning(Entity& branchNode, T
 void TreeUtilities::PlantSimulationSystem::CalculateDirectGravityForce(Entity& treeEntity, float gravity)
 {
 	float gravityFactor = EntityManager::GetComponentData<TreeParameters>(treeEntity).GravityFactor;
-	EntityManager::ForEach<LocalToWorld, BranchNodeInfo, GravityForceSensor>(_BranchNodeQuery, [gravityFactor, gravity](int i, Entity branchNode, LocalToWorld* ltw, BranchNodeInfo* bni, GravityForceSensor* fs)
+	EntityManager::ForEach<LocalToWorld, BranchNodeInfo, Gravity>(_BranchNodeQuery, [gravityFactor, gravity](int i, Entity branchNode, LocalToWorld* ltw, BranchNodeInfo* bni, Gravity* fs)
 		{
 			float thickness = bni->Thickness;
 			fs->Value = gravity * gravityFactor * bni->DistanceToParent;
@@ -498,7 +498,7 @@ void TreeUtilities::PlantSimulationSystem::CalculateDirectGravityForce(Entity& t
 void TreeUtilities::PlantSimulationSystem::BackPropagateForce(Entity& branchNode, float fixedPropagationCoefficient)
 {
 	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
-	float gfs = EntityManager::GetComponentData<GravityForceSensor>(branchNode).Value;
+	float gfs = EntityManager::GetComponentData<Gravity>(branchNode).Value;
 	branchNodeInfo.AccmulatedGravity = gfs;
 	EntityManager::ForEachChild(branchNode, [this, &branchNodeInfo, fixedPropagationCoefficient](Entity child)
 		{
@@ -512,7 +512,7 @@ void TreeUtilities::PlantSimulationSystem::BackPropagateForce(Entity& branchNode
 void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeResource(Entity& branchNode, TreeParameters& treeParameters, TreeAge& treeAge)
 {
 	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
-	BranchNodeIllumination branchNodeIllumination = EntityManager::GetComponentData<BranchNodeIllumination>(branchNode);
+	Illumination branchNodeIllumination = EntityManager::GetComponentData<Illumination>(branchNode);
 	branchNodeInfo.AccmulatedLight = branchNodeIllumination.Value;
 	branchNodeInfo.AccmulatedLength = branchNodeInfo.DistanceToParent;
 	branchNodeInfo.AccmulatedActivatedBudsAmount = branchNodeInfo.ActivatedBudsAmount;
@@ -593,7 +593,7 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(TreeParameters treeParam
 	bud.IsApical = true;
 	bud.StartAge = 0;
 
-	BranchNodeBudsList list = EntityManager::GetComponentData<BranchNodeBudsList>(branchNodeEntity);
+	BudList list = EntityManager::GetComponentData<BudList>(branchNodeEntity);
 	list.Buds->push_back(bud);
 
 	BranchNodeInfo branchNodeInfo;

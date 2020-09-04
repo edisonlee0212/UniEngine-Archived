@@ -304,6 +304,7 @@ void UniEngine::LightingManager::Start()
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
+						if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
 						if (mmc->_CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 							for (auto j : *entities) {
@@ -338,6 +339,7 @@ void UniEngine::LightingManager::Start()
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
+						if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
 						if (immc->_CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();
@@ -436,6 +438,7 @@ void UniEngine::LightingManager::Start()
 				_PointLightProgram->SetInt("index", i);
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 				for (auto mmc : *meshMaterials) {
+					if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
 					if (mmc->_CastShadow) {
 						auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 						for (auto entity : *entities) {
@@ -455,6 +458,7 @@ void UniEngine::LightingManager::Start()
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
+						if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
 						if (immc->_CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 							size_t count = immc->_Matrices->size();

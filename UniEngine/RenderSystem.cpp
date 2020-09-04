@@ -28,6 +28,7 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 	if (meshMaterials != nullptr) {
 		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
+			if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
 			for (const auto& j : *entities) {
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
@@ -55,6 +56,7 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 	if (instancedMeshMaterials != nullptr) {
 		for (const auto& immc : *instancedMeshMaterials) {
+			if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
 			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 			for (const auto& j : *entities) {
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
