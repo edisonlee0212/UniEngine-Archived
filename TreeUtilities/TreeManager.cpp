@@ -7,26 +7,23 @@ LightEstimator* TreeUtilities::TreeManager::_LightEstimator;
 
 TreeSystem* TreeUtilities::TreeManager::_TreeSystem;
 BranchNodeSystem* TreeUtilities::TreeManager::_BranchNodeSystem;
-BudSystem* TreeUtilities::TreeManager::_BudSystem;
 LeafSystem* TreeUtilities::TreeManager::_LeafSystem;
 
-EntityArchetype TreeUtilities::TreeManager::_BudArchetype;
 EntityArchetype TreeUtilities::TreeManager::_BranchNodeArchetype;
 EntityArchetype TreeUtilities::TreeManager::_LeafArchetype;
 EntityArchetype TreeUtilities::TreeManager::_TreeArchetype;
 
 EntityQuery TreeUtilities::TreeManager::_TreeQuery;
 EntityQuery TreeUtilities::TreeManager::_BranchNodeQuery;
-EntityQuery TreeUtilities::TreeManager::_BudQuery;
 EntityQuery TreeUtilities::TreeManager::_LeafQuery;
 
 TreeIndex TreeUtilities::TreeManager::_TreeIndex;
 BranchNodeIndex TreeUtilities::TreeManager::_BranchNodeIndex;
-BudIndex TreeUtilities::TreeManager::_BudIndex;
 LeafIndex TreeUtilities::TreeManager::_LeafIndex;
 
 bool TreeUtilities::TreeManager::_Ready;
 #pragma region Helpers
+/*
 inline void TreeUtilities::TreeManager::LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index)
 {
 	Translation t = EntityManager::GetComponentData<Translation>(bud);
@@ -56,6 +53,7 @@ inline void TreeUtilities::TreeManager::LeafGenerationHelper(BudInfo& info, Enti
 	EntityManager::SetComponentData(leaf, s);
 	EntityManager::SetComponentData(leaf, r);
 }
+*/
 void TreeUtilities::TreeManager::BranchNodeRemover(Entity branchEntity)
 {
 	BranchNodeBudsList ob = EntityManager::GetComponentData<BranchNodeBudsList>(branchEntity);
@@ -71,13 +69,6 @@ void TreeUtilities::TreeManager::Init()
 		Translation(), Rotation(), Scale(), LocalToWorld(),
 		LocalPosition(), Connection(), TreeIndex(),
 		LeafIndex(), LeafInfo());
-	_BudArchetype = EntityManager::CreateEntityArchetype(
-		"Bud",
-		BranchNodeOwner(),
-		Translation(), Rotation(), Scale(), LocalToWorld(),
-		Activated(), LocalPosition(), Connection(),
-		Radius(), BudIndex(), Iteration(), Level(), BudInfo(), TreeIndex()
-	);
 	_BranchNodeArchetype = EntityManager::CreateEntityArchetype(
 		"BranchNode",
 		LocalToWorld(), Connection(),
@@ -95,8 +86,6 @@ void TreeUtilities::TreeManager::Init()
 
 	_LeafQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_LeafQuery, LeafInfo());
-	_BudQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_BudQuery, BudInfo());
 	_BranchNodeQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_BranchNodeQuery, BranchNodeInfo());
 	_TreeQuery = EntityManager::CreateEntityQuery();
@@ -104,13 +93,11 @@ void TreeUtilities::TreeManager::Init()
 
 	_TreeSystem = Application::GetWorld()->CreateSystem<TreeSystem>(SystemGroup::SimulationSystemGroup);
 	_BranchNodeSystem = Application::GetWorld()->CreateSystem<BranchNodeSystem>(SystemGroup::SimulationSystemGroup);
-	_BudSystem = Application::GetWorld()->CreateSystem<BudSystem>(SystemGroup::SimulationSystemGroup);
 	_LeafSystem = Application::GetWorld()->CreateSystem<LeafSystem>(SystemGroup::SimulationSystemGroup);
 
 
 
 	_TreeIndex.Value = 0;
-	_BudIndex.Value = 0;
 	_LeafIndex.Value = 0;
 	_BranchNodeIndex.Value = 0;
 
@@ -129,11 +116,6 @@ EntityQuery TreeUtilities::TreeManager::GetLeafQuery()
 	return _LeafQuery;
 }
 
-EntityQuery TreeUtilities::TreeManager::GetBudQuery()
-{
-	return _BudQuery;
-}
-
 EntityQuery TreeUtilities::TreeManager::GetBranchNodeQuery()
 {
 	return _BranchNodeQuery;
@@ -147,11 +129,6 @@ EntityQuery TreeUtilities::TreeManager::GetTreeQuery()
 LeafSystem* TreeUtilities::TreeManager::GetLeafSystem()
 {
 	return _LeafSystem;
-}
-
-BudSystem* TreeUtilities::TreeManager::GetBudSystem()
-{
-	return _BudSystem;
 }
 
 BranchNodeSystem* TreeUtilities::TreeManager::GetBranchNodeSystem()
@@ -174,7 +151,7 @@ void TreeUtilities::TreeManager::GetAllTrees(std::vector<Entity>* container)
 	}
 	return _TreeQuery.ToEntityArray(container);
 }
-
+/*
 void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 {
 	TreeIndex treeIndex = EntityManager::GetComponentData<TreeIndex>(treeEntity);
@@ -199,7 +176,7 @@ void TreeUtilities::TreeManager::GenerateLeavesForTree(Entity treeEntity)
 #pragma endregion
 
 }
-
+*/
 void TreeUtilities::TreeManager::CalculateBranchNodeIllumination()
 {
 	std::vector<Entity> branchNodes;
@@ -242,12 +219,12 @@ void TreeUtilities::TreeManager::CalculateBranchNodeIllumination()
 	}
 	_LightEstimator->SetMaxIllumination(maxIllumination);
 }
-
+/*
 void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
 {
 #pragma region Create leaves for all branchNodes
 	std::vector<Entity> buds;
-	_BudQuery.ToEntityArray(&buds);
+	//_BudQuery.ToEntityArray(&buds);
 	for (int budIndex = 0; budIndex < buds.size(); budIndex++) {
 		auto& bud = buds.at(budIndex);
 		//Clear all leafs
@@ -266,7 +243,7 @@ void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
 	}
 #pragma endregion
 }
-
+*/
 void TreeUtilities::TreeManager::GenerateMeshForAllTrees()
 {
 	if (!_Ready) {
@@ -321,19 +298,6 @@ Entity TreeUtilities::TreeManager::CreateBranchNode(TreeIndex treeIndex, Entity 
 	BranchNodeInfo branchInfo;
 	branchInfo.MaxActivatedChildLevel = 0;
 	EntityManager::SetComponentData(entity, branchInfo);
-	return entity;
-}
-
-Entity TreeUtilities::TreeManager::CreateBud(TreeIndex treeIndex, Entity parentEntity)
-{
-	auto entity = EntityManager::CreateEntity(_BudArchetype);
-	EntityManager::SetComponentData(entity, treeIndex);
-	EntityManager::SetParent(entity, parentEntity);
-	EntityManager::SetComponentData(entity, _BudIndex);
-	Activated act;
-	act.Value = true;
-	EntityManager::SetComponentData(entity, act);
-	_BudIndex.Value++;
 	return entity;
 }
 

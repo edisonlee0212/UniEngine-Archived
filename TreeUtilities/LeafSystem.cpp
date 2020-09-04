@@ -14,7 +14,6 @@ void TreeUtilities::LeafSystem::DrawGUI()
 void TreeUtilities::LeafSystem::OnCreate()
 {
 	_LeafQuery = TreeManager::GetLeafQuery();
-	_BudQuery = TreeManager::GetBudQuery();
 	_TreeQuery = TreeManager::GetTreeQuery();
 
 	_ConfigFlags = 0;

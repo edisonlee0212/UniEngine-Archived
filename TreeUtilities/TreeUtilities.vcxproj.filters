@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Estimators">
       <UniqueIdentifier>{de0da8a3-61e8-4f79-a797-8375369f61d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\SimpleMeshModel">
+      <UniqueIdentifier>{57d63043-3738-4e8f-bda8-33ca6566a14d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SimpleMeshModel">
+      <UniqueIdentifier>{df5d0390-ae07-4f95-9284-531e8f8a766f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -45,9 +51,6 @@
     <ClInclude Include="LeafSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="BudSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="TreeSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -59,6 +62,15 @@
     </ClInclude>
     <ClInclude Include="BranchNodeSystem.h">
       <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="RingMesh.h">
+      <Filter>Header Files\SimpleMeshModel</Filter>
+    </ClInclude>
+    <ClInclude Include="BezierCurve.h">
+      <Filter>Header Files\SimpleMeshModel</Filter>
+    </ClInclude>
+    <ClInclude Include="Curve.h">
+      <Filter>Header Files\SimpleMeshModel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -74,9 +86,6 @@
     <ClCompile Include="LeafSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="BudSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="TreeSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
@@ -88,6 +97,15 @@
     </ClCompile>
     <ClCompile Include="BranchNodeSystem.cpp">
       <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="BezierCurve.cpp">
+      <Filter>Source Files\SimpleMeshModel</Filter>
+    </ClCompile>
+    <ClCompile Include="Curve.cpp">
+      <Filter>Source Files\SimpleMeshModel</Filter>
+    </ClCompile>
+    <ClCompile Include="RingMesh.cpp">
+      <Filter>Source Files\SimpleMeshModel</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

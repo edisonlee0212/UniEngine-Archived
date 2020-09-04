@@ -11,7 +11,6 @@ namespace TreeUtilities {
         public SystemBase
     {
         unsigned int _ConfigFlags = 0;
-        EntityQuery _BudQuery;
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
 
@@ -19,7 +18,7 @@ namespace TreeUtilities {
 
         Entity _SelectedTreeEntity;
         float _PruningFactor;
-        void BudListHelper(Entity budEntity);
+        void BranchNodeListHelper(Entity budEntity);
         void DrawGUI();
     public:
         void OnCreate();

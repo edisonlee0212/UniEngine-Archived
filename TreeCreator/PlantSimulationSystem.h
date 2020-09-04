@@ -15,7 +15,6 @@ namespace TreeUtilities {
         unsigned int _ConfigFlags = 0;
         float _Gravity;
         bool _Growing = false;
-        EntityQuery _BudQuery;
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
         EntityQuery _BranchNodeQuery;

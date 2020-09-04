@@ -1,19 +1,18 @@
 #include "pch.h"
 #include "TreeSystem.h"
 #include "TreeManager.h"
-void TreeUtilities::TreeSystem::BudListHelper(Entity budEntity)
+void TreeUtilities::TreeSystem::BranchNodeListHelper(Entity branchNode)
 {
-	if (!EntityManager::HasComponentData<BudIndex>(budEntity)) return;
-	BudIndex index = EntityManager::GetComponentData<BudIndex>(budEntity);
+	BranchNodeIndex index = EntityManager::GetComponentData<BranchNodeIndex>(branchNode);
 	std::string title = "Bud ";
 	title += std::to_string(index.Value);
 	if (ImGui::TreeNodeEx(title.c_str(), (ImGuiTreeNodeFlags)ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
-		auto childList = EntityManager::GetChildren(budEntity);
+		auto childList = EntityManager::GetChildren(branchNode);
 		if (childList.size() > 1) {
 			ImGui::TreePush();
 		}
-		for (auto childbud : childList) {
-			BudListHelper(childbud);
+		for (auto child : childList) {
+			BranchNodeListHelper(child);
 		}
 		if (childList.size() > 1) {
 			ImGui::TreePop();
@@ -115,8 +114,8 @@ void TreeUtilities::TreeSystem::DrawGUI()
 		title = "Bud Hierarchy:##";
 		title += std::to_string(index.Value);
 		ImGui::Text(title.c_str());
-		Entity rootBud = EntityManager::GetChildren(_SelectedTreeEntity).at(0);
-		BudListHelper(rootBud);
+		Entity rootNode = EntityManager::GetChildren(_SelectedTreeEntity).at(0);
+		BranchNodeListHelper(rootNode);
 		ImGui::Separator();
 	}
 	ImGui::End();
@@ -124,7 +123,6 @@ void TreeUtilities::TreeSystem::DrawGUI()
 void TreeUtilities::TreeSystem::OnCreate()
 {
 	_LeafQuery = TreeManager::GetLeafQuery();
-	_BudQuery = TreeManager::GetBudQuery();
 	_TreeQuery = TreeManager::GetTreeQuery();
 
 

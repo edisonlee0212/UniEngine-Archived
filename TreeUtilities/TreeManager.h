@@ -3,9 +3,11 @@
 #include "TreeSystem.h"
 #include "BranchSystem.h"
 #include "BranchNodeSystem.h"
-#include "BudSystem.h"
 #include "LeafSystem.h"
 #include "LightEstimator.h"
+
+#include "RingMesh.h"
+#include "BezierCurve.h"
 using namespace UniEngine;
 namespace TreeUtilities {
 #pragma region Common
@@ -54,65 +56,7 @@ namespace TreeUtilities {
         }
     };
 #pragma endregion
-#pragma region Bud
-    struct TREEUTILITIES_API Activated : ComponentBase {
-        bool Value;
-        bool operator ==(const Activated& other) const {
-            return other.Value == Value;
-        }
-    };
 
-    struct TREEUTILITIES_API Radius : ComponentBase
-    {
-        float Value;
-        bool operator ==(const Radius& other) const {
-            return other.Value == Value;
-        }
-    };
-
-    struct TREEUTILITIES_API BudIndex : ComponentBase {
-        unsigned Value;
-        bool operator ==(const BudIndex& other) const {
-            return other.Value == Value;
-        }
-    };
-
-    struct TREEUTILITIES_API Iteration : ComponentBase {
-        unsigned Value;
-        bool operator ==(const Iteration& other) const {
-            return other.Value == Value;
-        }
-    };
-    //Gravelius Order
-    struct TREEUTILITIES_API Level : ComponentBase {
-        unsigned Value;
-        bool operator ==(const Level& other) const {
-            return other.Value == Value;
-        }
-    };
-    //Different bud type will affect their way of growth. 
-    enum TREEUTILITIES_API BudTypes {
-        LATERAL,
-        APICAL
-    };
-    struct TREEUTILITIES_API BudInfo : ComponentBase {
-        bool Searching = false;
-        BudTypes Type = BudTypes::APICAL;
-        int StartAge = -1;
-        float LeafWidth = 0.4f;
-        float LeafThickness = 1.0f;
-        float LeafLength = 0.6f;
-        int LeafAmount = 3;
-        float BendDegrees = 30.0f;
-        float CircleDegreeStart = -40.0f;
-        float CircleDegreeAddition = 40.0f;
-    };
-
-
-    struct TREEUTILITIES_API BranchNodeOwner : ComponentBase {
-        Entity Value;
-    };
-#pragma endregion
 #pragma region BranchNode
     struct TREEUTILITIES_API BranchNodeIllumination : ComponentBase {
         float Value;
@@ -287,49 +231,43 @@ namespace TreeUtilities {
 
         static TreeSystem* _TreeSystem;
         static BranchNodeSystem* _BranchNodeSystem;
-        static BudSystem* _BudSystem;
         static LeafSystem* _LeafSystem;
         
 
-        static EntityArchetype _BudArchetype;
         static EntityArchetype _LeafArchetype;
         static EntityArchetype _BranchNodeArchetype;
         static EntityArchetype _TreeArchetype;
 
         static EntityQuery _TreeQuery;
         static EntityQuery _BranchNodeQuery;
-        static EntityQuery _BudQuery;
         static EntityQuery _LeafQuery;
 
         static TreeIndex _TreeIndex;
         static BranchNodeIndex _BranchNodeIndex;
-        static BudIndex _BudIndex;
         static LeafIndex _LeafIndex;
 
         static bool _Ready;
         
-        static void LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index);
+        //static void LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index);
         
         static void BranchNodeRemover(Entity branchEntity);
     public:
         static void Init();
         static bool IsReady();
 
-        static EntityQuery GetBudQuery();
         static EntityQuery GetBranchNodeQuery();
         static EntityQuery GetTreeQuery();
         static EntityQuery GetLeafQuery();
 
-        static BudSystem* GetBudSystem();
         static BranchNodeSystem* GetBranchNodeSystem();
         static TreeSystem* GetTreeSystem();
         static LeafSystem* GetLeafSystem();
 
         static void GetAllTrees(std::vector<Entity>* container);
         
-        static void GenerateLeavesForTree(Entity treeEntity);
+        //static void GenerateLeavesForTree(Entity treeEntity);
         static void CalculateBranchNodeIllumination();
-        static void GenerateLeavesForAllTrees();
+        //static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);
         static void GenerateMeshForTree(Entity treeEntity);
@@ -338,7 +276,6 @@ namespace TreeUtilities {
 
         static Entity CreateTree();
         static Entity CreateBranchNode(TreeIndex treeIndex, Entity parentEntity);
-        static Entity CreateBud(TreeIndex treeIndex, Entity parentEntity);
         static Entity CreateLeaf(TreeIndex treeIndex, Entity parentEntity);
 
         static LightEstimator* GetLightEstimator();

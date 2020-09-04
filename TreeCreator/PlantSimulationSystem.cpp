@@ -9,28 +9,6 @@ void TreeUtilities::PlantSimulationSystem::DrawGUI()
 	ImGui::End();
 }
 
-
-void TreeUtilities::PlantSimulationSystem::TryGrowAllTrees(std::vector<Entity>& trees)
-{
-	bool growed = false;
-	if (_Growing) {
-		TreeManager::CalculateBranchNodeIllumination();
-		for (auto& tree : trees) {
-			Rotation rotation = EntityManager::GetComponentData<Rotation>(tree);
-			LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(tree);
-			TreeParameters treeParameters = EntityManager::GetComponentData<TreeParameters>(tree);
-			Entity rootBranchNode = EntityManager::GetChildren(tree).at(0);
-
-			if (GrowTree(tree)) {
-				growed = true;
-			}
-		}
-	}
-	if (growed == false) {
-		_Growing = false;
-	}
-}
-
 bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity& tree)
 {
 #pragma region Collect tree data
@@ -98,6 +76,7 @@ bool TreeUtilities::PlantSimulationSystem::GrowTree(Entity& tree)
 	return growed;
 }
 
+#pragma region Helpers
 void TreeUtilities::PlantSimulationSystem::CalculatePhysics(std::vector<Entity>& trees)
 {
 	for (auto& tree : trees) {
@@ -112,9 +91,27 @@ void TreeUtilities::PlantSimulationSystem::CalculatePhysics(std::vector<Entity>&
 	}
 }
 
+void TreeUtilities::PlantSimulationSystem::TryGrowAllTrees(std::vector<Entity>& trees)
+{
+	bool growed = false;
+	if (_Growing) {
+		TreeManager::CalculateBranchNodeIllumination();
+		for (auto& tree : trees) {
+			Rotation rotation = EntityManager::GetComponentData<Rotation>(tree);
+			LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(tree);
+			TreeParameters treeParameters = EntityManager::GetComponentData<TreeParameters>(tree);
+			Entity rootBranchNode = EntityManager::GetChildren(tree).at(0);
 
+			if (GrowTree(tree)) {
+				growed = true;
+			}
+		}
+	}
+	if (growed == false) {
+		_Growing = false;
+	}
+}
 
-#pragma region Helpers
 inline float TreeUtilities::PlantSimulationSystem::GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level)
 {
 	float apicalControl = treeParameters.ApicalControl * glm::pow(treeParameters.ApicalControlAgeDescFactor, treeAge.Value);
@@ -481,7 +478,7 @@ void TreeUtilities::PlantSimulationSystem::EvaluatePruning(Entity& branchNode, T
 	float normalL = branchNodeInfo.AccmulatedLength / treeParameters.InternodeLengthBase;
 	float ratioScale = 1;
 	float factor = ratioScale / glm::sqrt(branchNodeInfo.AccmulatedLength);
-	//factor *= branchNodeInfo.AccmulatedLight;
+	factor *= branchNodeInfo.AccmulatedLight;
 	if (factor < treeParameters.PruningFactor) {
 		PruneBranchNode(branchNode, treeInfo);
 	}
@@ -543,7 +540,6 @@ void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeResourceAllocation(En
 
 void TreeUtilities::PlantSimulationSystem::OnCreate()
 {
-	_BudQuery = TreeManager::GetBudQuery();
 	_TreeQuery = TreeManager::GetTreeQuery();
 	_LeafQuery = TreeManager::GetLeafQuery();
 	_BranchNodeQuery = TreeManager::GetBranchNodeQuery();
