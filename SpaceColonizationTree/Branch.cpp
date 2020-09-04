@@ -29,11 +29,11 @@ void SpaceColonizationTree::Branch::CollectPoint(std::vector<glm::mat4>* matrice
 		for (auto i : mChildren) i->CollectPoint(matrices);
 	}
 	else {
-		auto size = mRings.size();
+		auto size = rings.size();
 		glm::mat4 transform = glm::mat4(1.0f);
 		for (int i = 0; i < size; i++) {
-			transform = glm::translate(glm::mat4(1.0f), mRings[i].EndPosition);
-			transform = glm::scale(transform, glm::vec3(mRings[i].EndRadius / 2.0f));
+			transform = glm::translate(glm::mat4(1.0f), rings[i].EndPosition);
+			transform = glm::scale(transform, glm::vec3(rings[i].EndRadius / 2.0f));
 			matrices->push_back(transform);
 		}
 		for (auto i : mChildren) i->CollectPoint(matrices);
@@ -93,13 +93,13 @@ void SpaceColonizationTree::Branch::Subdivision(glm::vec3 fromPos, glm::vec3 fro
 	float radiusStep = (radius - fromRadius) / (float)amount;
 
 	for (int i = 1; i < amount; i++) {
-		mRings.push_back(RingMesh(
+		rings.push_back(RingMesh(
 			curve.GetPoint(posStep * (i - 1)), curve.GetPoint(posStep * i),
 			fromDir + (float)(i - 1) * dirStep, fromDir + (float)i * dirStep,
 			fromRadius + (float)(i - 1) * radiusStep, fromRadius + (float)i * radiusStep));
 	}
-	if (amount > 1)mRings.push_back(RingMesh(curve.GetPoint(1.0f - posStep), position, direction - dirStep, direction, radius - radiusStep, radius));
-	else mRings.push_back(RingMesh(fromPos, position, fromDir, direction, fromRadius, radius));
+	if (amount > 1)rings.push_back(RingMesh(curve.GetPoint(1.0f - posStep), position, direction - dirStep, direction, radius - radiusStep, radius));
+	else rings.push_back(RingMesh(fromPos, position, fromDir, direction, fromRadius, radius));
 	isSubdivided = true;
 
 	for (auto i : mChildren) {
@@ -109,19 +109,19 @@ void SpaceColonizationTree::Branch::Subdivision(glm::vec3 fromPos, glm::vec3 fro
 
 void SpaceColonizationTree::Branch::CalculateMesh(glm::vec3 rootPos, std::vector<Vertex>* vertices, int resolution)
 {
-	for (auto i : mRings) {
+	for (auto i : rings) {
 		i.AppendPoints(vertices, resolution);
 	}
-	if (mChildren.empty() && !mRings.empty()) {
+	if (mChildren.empty() && !rings.empty()) {
 		std::vector<Vertex> endRing;
 		float angleStep = 360.0f / (float)(resolution);
 		Vertex archetype;
 		for (int i = 0; i < resolution; i++) {
-			archetype.Position = mRings.back().GetPoint(angleStep * i, false);
+			archetype.Position = rings.back().GetPoint(angleStep * i, false);
 			endRing.push_back(archetype);
 		}
 		Vertex center = Vertex();
-		center.Position = mRings.back().EndPosition;
+		center.Position = rings.back().EndPosition;
 		center.TexCoords0 = glm::vec2(1.0f, 1.0f);
 		for (size_t i = 0; i < (size_t)resolution - 1; i++) {
 			endRing[i].TexCoords0 = glm::vec2(0.0f, 0.0f);
@@ -150,7 +150,7 @@ void SpaceColonizationTree::Branch::GenerateOrgan(std::vector<glm::mat4>* matric
 		float random = (float)rand();
 		random /= RAND_MAX;
 		if (random == 1.0f) random = 0.9f;
-		auto ring = mRings[(size_t)(random * mRings.size())];
+		auto ring = rings[(size_t)(random * rings.size())];
 		auto position = ring.GetPoint(random * 360.0f, false);
 		position = ring.EndPosition + (position - ring.EndPosition) * 3.0f;
 

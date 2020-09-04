@@ -180,7 +180,7 @@ void SpaceColonizationTree::Tree::CalculateMesh(int resolution, int triangleLimi
 	if (_Mesh != nullptr) delete _Mesh;
 	_Mesh = new Mesh();
 
-	_Mesh->SetVertices(33, &vertices, &indices);
+	_Mesh->SetVertices(33, vertices, indices);
 
 	_MeshGenerated = true;
 }

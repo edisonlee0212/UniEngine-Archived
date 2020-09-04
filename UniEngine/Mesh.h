@@ -44,11 +44,11 @@ namespace UniEngine {
 		float GetRadius();
 		Mesh();
 		~Mesh();
-		void SetVertices(unsigned mask, std::vector<Vertex>* vertices, std::vector<unsigned>* indices);
+		void SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
 		size_t GetVerticesAmount();
 		size_t Size();
-		void RecalculateNormal(std::vector<Vertex>* vertices, std::vector<unsigned>* indices);
-		void RecalculateTangent(std::vector<Vertex>* vertices, std::vector<unsigned>* indices);
+		void RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
+		void RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
 		GLVAO* VAO();
 		void Enable();
 		void* GetAttributeArray(VertexAttribute channel);

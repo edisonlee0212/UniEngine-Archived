@@ -28,13 +28,13 @@ float pcssScale = 1.0f;
 int main()
 {
 #pragma region Global light settings
-	LightingManager::SetDirectionalLightResolution(1024);
+	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetStableFit(true);
+	LightingManager::SetMaxShadowDistance(50.0f);
 	LightingManager::SetSeamFixRatio(0.05f);
-	LightingManager::SetMaxShadowDistance(500);
 	LightingManager::SetVSMMaxVariance(0.001f);
 	LightingManager::SetEVSMExponent(80.0f);
-	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
+	LightingManager::SetSplitRatio(0.4f, 0.6f, 0.7f, 1.0f);
 #pragma endregion
 	Application::Init();
 #pragma region Lights
@@ -60,7 +60,7 @@ int main()
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
-	TreeManager::GetLightEstimator()->SetBranchNodeSize(0.4f);
+	TreeManager::GetLightEstimator()->SetBranchNodeSize(0.7f);
 #pragma region Light estimator setup
 	TreeManager::GetLightEstimator()->ResetCenterDistance(30);
 	TreeManager::GetLightEstimator()->ResetSnapShotWidth(15);
@@ -173,9 +173,15 @@ void InitPlantSimulationSystem() {
 	tps.ThicknessControlFactor = 0.75f;
 	tps.GravityBackPropageteFixedCoefficient = 0.5f;
 #pragma endregion
-	Entity tree1 = psSys->CreateTree(tps, treeColor, glm::vec3(-1.5, 0, 0), true);
-	//Entity tree2 = psSys->CreateTree(tps, treeColor, glm::vec3(3, 0, 0), true);
-	Entity tree2 = psSys->CreateExampleTree(treeColor, glm::vec3(1.5, 0, 0), 1);
+	auto treeSurfaceMaterial = new Material();
+	treeSurfaceMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	auto texture = new Texture2D(TextureType::DIFFUSE);
+	texture->LoadTexture(FileIO::GetPath("Textures/brown.png"), "");
+	treeSurfaceMaterial->Textures2Ds()->push_back(texture);
+
+	//Entity tree1 = psSys->CreateTree(treeSurfaceMaterial, tps, treeColor, glm::vec3(-1.5, 0, 0), true);
+	//Entity tree2 = psSys->CreateTree(treeSurfaceMaterial, tps, treeColor, glm::vec3(3, 0, 0), true);
+	Entity tree2 = psSys->CreateExampleTree(treeSurfaceMaterial, treeColor, glm::vec3(1.5, 0, 0), 1);
 }
 void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());

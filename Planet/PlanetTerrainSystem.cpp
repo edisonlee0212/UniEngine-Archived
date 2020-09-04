@@ -26,7 +26,7 @@ void Planet::PlanetTerrainSystem::GenerateTerrain(PlanetTerrain* planetTerrain, 
 		}*/
 		vertices->at(index).Position = glm::vec3(pointOnUnitCube * planetTerrain->_Info.Radius * (1.0 + elevation));
 	}
-	mesh->SetVertices(1, vertices, &planetTerrain->_SharedTriangles);
+	mesh->SetVertices(1, planetTerrain->_SharedVertices, planetTerrain->_SharedTriangles);
 	targetChunk->_Mesh = mesh;
 }
 

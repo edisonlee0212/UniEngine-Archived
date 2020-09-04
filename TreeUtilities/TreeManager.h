@@ -37,7 +37,7 @@ namespace TreeUtilities {
     };
 #pragma endregion
 #pragma region BranchNode
-    struct RingMeshList : ComponentBase {
+    struct BranchNodeRingList : ComponentBase {
         std::vector<RingMesh>* Rings;
     };
 
@@ -210,6 +210,8 @@ namespace TreeUtilities {
         std::vector<float>* ApicalDominanceTimeVal;
         std::vector<float>* GravitropismLevelVal;
         std::vector<float>* ApicalControlTimeVal;
+        std::vector<Vertex>* Vertices;
+        std::vector<unsigned>* Indices;
         std::vector<std::vector<float>>* ApicalControlTimeLevelVal;
         float ResourceToGrow;
     };
@@ -239,7 +241,7 @@ namespace TreeUtilities {
         static bool _Ready;
         
         //static void LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index);
-        
+        static void SimpleMeshGenerator(Entity& branchNode, std::vector<Vertex>& vertices, float resolution);
         static void BranchNodeCleaner(Entity branchEntity);
     public:
         static void Init();
@@ -260,11 +262,10 @@ namespace TreeUtilities {
         //static void GenerateLeavesForAllTrees();
 
         static Mesh* GetMeshForTree(Entity treeEntity);
-        static void GenerateSimpleMeshForTree(Entity treeEntity);
-        static void GenerateMeshForAllTrees();
+        static void GenerateSimpleMeshForTree(Entity treeEntity, float resolution);
         static void DeleteTree(Entity treeEntity);
 
-        static Entity CreateTree();
+        static Entity CreateTree(Material* treeSurfaceMaterial);
         static Entity CreateBranchNode(TreeIndex treeIndex, Entity parentEntity);
         static Entity CreateLeaf(TreeIndex treeIndex, Entity parentEntity);
 

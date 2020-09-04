@@ -17,7 +17,7 @@ namespace SpaceColonizationTree {
 		glm::mat4 transform;
 		bool hasLeaves;
 		bool isTrunk;
-		std::vector<RingMesh> mRings;
+		std::vector<RingMesh> rings;
 		bool isSubdivided;
 		Branch(glm::vec3 position, Branch* parent, bool isTrunk, int growIteration, float initialRadius = 0.01f);
 

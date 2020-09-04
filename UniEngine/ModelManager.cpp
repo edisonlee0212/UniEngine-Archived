@@ -172,7 +172,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     aiMaterial* pointMaterial = scene->mMaterials[aimesh->mMaterialIndex];
 
     auto mesh = new Mesh();
-    mesh->SetVertices(mask, &vertices, &indices);
+    mesh->SetVertices(mask, vertices, indices);
 
     auto material = new Material();
     float shininess;

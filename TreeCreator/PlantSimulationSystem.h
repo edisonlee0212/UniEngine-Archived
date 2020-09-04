@@ -18,6 +18,11 @@ namespace TreeUtilities {
         EntityQuery _LeafQuery;
         EntityQuery _TreeQuery;
         EntityQuery _BranchNodeQuery;
+        std::queue<Entity> _MeshGenerationQueue;
+
+        void WriteToFile(std::string path, std::ios_base::openmode mode);
+        void ExportOBJ(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
+
         float GetApicalControl(TreeInfo& treeInfo, BranchNodeInfo& branchNodeInfo, TreeParameters& treeParameters, TreeAge& treeAge, int level);
         void DrawGUI();
         void UpdateBranchNodeLength(Entity& branchNode);
@@ -31,7 +36,7 @@ namespace TreeUtilities {
         void DeactivateBud(BranchNodeInfo& branchNodeInfo, Bud& bud);
         void PruneBranchNode(Entity& branchNode, TreeInfo& treeInfo);
         void EvaluatePruning(Entity& branchNode, TreeParameters& treeParameters, TreeAge& treeAge, TreeInfo& treeInfo);
-        
+        void ApplyLocalTransform(Entity& treeEntity);
         void CalculateDirectGravityForce(Entity& treeEntity, float gravity);
         void BackPropagateForce(Entity& branchNode, float fixedPropagationCoefficient);
     public:
@@ -42,7 +47,7 @@ namespace TreeUtilities {
         void OnDestroy();
         void Update();
         void FixedUpdate();
-        Entity CreateTree(TreeParameters parameters, TreeColor color, glm::vec3 position, bool enabled = false);
-        Entity CreateExampleTree(TreeColor color, glm::vec3 position, int index, bool enabled = false);
+        Entity CreateTree(Material* treeSurfaceMaterial, TreeParameters parameters, TreeColor color, glm::vec3 position, bool enabled = false);
+        Entity CreateExampleTree(Material* treeSurfaceMaterial, TreeColor color, glm::vec3 position, int index, bool enabled = false);
     };
 }

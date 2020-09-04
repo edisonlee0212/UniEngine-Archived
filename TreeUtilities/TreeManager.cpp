@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TreeManager.h"
 #include "LightEstimator.h"
+#include <gtx/matrix_decompose.hpp>
 using namespace TreeUtilities;
 
 LightEstimator* TreeUtilities::TreeManager::_LightEstimator;
@@ -23,6 +24,43 @@ LeafIndex TreeUtilities::TreeManager::_LeafIndex;
 
 bool TreeUtilities::TreeManager::_Ready;
 #pragma region Helpers
+void TreeUtilities::TreeManager::SimpleMeshGenerator(Entity& branchNode, std::vector<Vertex>& vertices, float resolution)
+{
+	auto rings = EntityManager::GetComponentData<BranchNodeRingList>(branchNode).Rings;
+	for (auto i : *rings) {
+		i.AppendPoints(vertices, resolution);
+	}
+	
+	if (EntityManager::GetChildrenAmount(branchNode) == 0 && !rings->empty()) {
+		std::vector<Vertex> endRing;
+		int step = (rings->end()->StartRadius / resolution);
+		if (step < 3) step = 3;
+		float angleStep = 360.0f / (float)(step);
+		Vertex archetype;
+		for (unsigned i = 0; i < step; i++) {
+			archetype.Position = rings->back().GetPoint(angleStep * i, false);
+			endRing.push_back(archetype);
+		}
+		Vertex center = Vertex();
+		center.Position = rings->back().EndPosition;
+		center.TexCoords0 = glm::vec2(1.0f, 1.0f);
+		for (unsigned i = 0; i < step - 1; i++) {
+			endRing[i].TexCoords0 = glm::vec2(0.0f, 0.0f);
+			endRing[i + 1].TexCoords0 = glm::vec2(0.0f, 1.0f);
+			vertices.push_back(endRing[i]);
+			vertices.push_back(endRing[i + 1]);
+			vertices.push_back(center);
+		}
+		vertices.push_back(endRing[step - 1]);
+		vertices.push_back(endRing[0]);
+		vertices.push_back(center);
+	}
+	EntityManager::ForEachChild(branchNode, [&vertices, resolution](Entity child)
+		{
+			SimpleMeshGenerator(child, vertices, resolution);
+		}
+	);
+}
 /*
 inline void TreeUtilities::TreeManager::LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index)
 {
@@ -58,7 +96,7 @@ void TreeUtilities::TreeManager::BranchNodeCleaner(Entity branchEntity)
 {
 	BudList ob = EntityManager::GetComponentData<BudList>(branchEntity);
 	delete ob.Buds;
-	RingMeshList rml = EntityManager::GetComponentData<RingMeshList>(branchEntity);
+	BranchNodeRingList rml = EntityManager::GetComponentData<BranchNodeRingList>(branchEntity);
 	delete rml.Rings;
 
 	EntityManager::ForEachChild(branchEntity, [](Entity child) {
@@ -75,7 +113,7 @@ void TreeUtilities::TreeManager::Init()
 	_BranchNodeArchetype = EntityManager::CreateEntityArchetype(
 		"BranchNode",
 		LocalToWorld(), Connection(),
-		Illumination(), Gravity(), RingMeshList(),
+		Illumination(), Gravity(), BranchNodeRingList(),
 		BranchNodeIndex(), BranchNodeInfo(), TreeIndex(), BudList()
 	);
 	_TreeArchetype = EntityManager::CreateEntityArchetype(
@@ -247,20 +285,8 @@ void TreeUtilities::TreeManager::GenerateLeavesForAllTrees()
 #pragma endregion
 }
 */
-void TreeUtilities::TreeManager::GenerateMeshForAllTrees()
-{
-	if (!_Ready) {
-		Debug::Error("TreeManager: Not initialized!");
-		return;
-	}
-	std::vector<Entity> trees;
-	GetAllTrees(&trees);
-	for (auto i : trees) {
-		GenerateSimpleMeshForTree(i);
-	}
-}
 
-Entity TreeUtilities::TreeManager::CreateTree()
+Entity TreeUtilities::TreeManager::CreateTree(Material* treeSurfaceMaterial)
 {
 	auto entity = EntityManager::CreateEntity(_TreeArchetype);
 	TreeInfo treeInfo;
@@ -268,10 +294,13 @@ Entity TreeUtilities::TreeManager::CreateTree()
 	treeInfo.ApicalDominanceTimeVal = new std::vector<float>();
 	treeInfo.ApicalControlTimeVal = new std::vector<float>();
 	treeInfo.ApicalControlTimeLevelVal = new std::vector<std::vector<float>>();
+	treeInfo.Vertices = new std::vector<Vertex>();
+	treeInfo.Indices = new std::vector<unsigned>();
 	EntityManager::SetComponentData(entity, treeInfo);
 	EntityManager::SetComponentData(entity, _TreeIndex);
 	MeshMaterialComponent* mmc = new MeshMaterialComponent();
-	mmc->_Material = nullptr;
+
+	mmc->_Material = treeSurfaceMaterial;
 	mmc->_Mesh = nullptr;
 	EntityManager::SetSharedComponent(entity, mmc);
 	_TreeIndex.Value++;
@@ -285,6 +314,9 @@ void TreeUtilities::TreeManager::DeleteTree(Entity treeEntity)
 	if (treeInfo.ApicalDominanceTimeVal != nullptr) delete treeInfo.ApicalDominanceTimeVal;
 	if (treeInfo.ApicalControlTimeVal != nullptr) delete treeInfo.ApicalControlTimeVal;
 	if (treeInfo.ApicalControlTimeLevelVal != nullptr) delete treeInfo.ApicalControlTimeLevelVal;
+	if (treeInfo.Vertices != nullptr) delete treeInfo.Vertices;
+	if (treeInfo.Indices != nullptr) delete treeInfo.Indices;
+	
 	MeshMaterialComponent* mmc = EntityManager::GetSharedComponent<MeshMaterialComponent>(treeEntity);
 	if (mmc->_Material != nullptr) delete mmc->_Material;
 	if (mmc->_Mesh != nullptr) delete mmc->_Mesh;
@@ -300,7 +332,7 @@ Entity TreeUtilities::TreeManager::CreateBranchNode(TreeIndex treeIndex, Entity 
 	auto entity = EntityManager::CreateEntity(_BranchNodeArchetype);
 	BudList ob = BudList();
 	ob.Buds = new std::vector<Bud>();
-	RingMeshList rml = RingMeshList();
+	BranchNodeRingList rml = BranchNodeRingList();
 	rml.Rings = new std::vector<RingMesh>();
 	EntityManager::SetComponentData(entity, treeIndex);
 	EntityManager::SetParent(entity, parentEntity);
@@ -351,14 +383,70 @@ Mesh* TreeUtilities::TreeManager::GetMeshForTree(Entity treeEntity)
 #pragma endregion
 
 
-void TreeUtilities::TreeManager::GenerateSimpleMeshForTree(Entity treeEntity)
+void TreeUtilities::TreeManager::GenerateSimpleMeshForTree(Entity treeEntity, float resolution)
 {
+	if (resolution <= 0.0f) {
+		Debug::Error("TreeManager: Resolution must be larger than 0!");
+		return;
+	}
 	if (!_Ready) {
 		Debug::Error("TreeManager: Not initialized!");
 		return;
 	}
+	//Prepare ring mesh.
+	EntityManager::ForEach<BranchNodeInfo, BranchNodeRingList>(_BranchNodeQuery, [](int i, Entity branchNode, BranchNodeInfo* info, BranchNodeRingList* list) 
+		{
+			if (EntityManager::HasComponentData<TreeInfo>(EntityManager::GetParent(branchNode))) return;
+			auto parentInfo = EntityManager::GetComponentData<BranchNodeInfo>(EntityManager::GetParent(branchNode));
+			std::vector<RingMesh>* rings = list->Rings;
+			rings->clear();
+			glm::vec3 scale;
+			glm::quat rotation;
+			glm::vec3 translation;
+			glm::quat parentRotation;
+			glm::vec3 parentTranslation;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			glm::decompose(info->GlobalTransform, scale, rotation, translation, skew, perspective);
+			glm::mat4 parentTransform = parentInfo.GlobalTransform;
+			glm::decompose(parentTransform, scale, parentRotation, parentTranslation, skew, perspective);
+			glm::vec3 fromDir = parentRotation * glm::vec3(0, 0, -1);
+			glm::vec3 direction = rotation * glm::vec3(0, 0, -1);
+#pragma region Subdivision branch here.
+			auto distance = glm::distance(parentTranslation, translation);
+			int amount = distance / (info->Thickness + parentInfo.Thickness) / 2.0f; //distance / ((fromRadius + radius) / 2.0f);
+
+			BezierCurve curve = BezierCurve(parentTranslation, parentTranslation + distance / 3.0f * fromDir, translation - distance / 3.0f * direction, translation);
+			float posStep = 1.0f / (float)amount;
+			glm::vec3 dirStep = (direction - fromDir) / (float)amount;
+			float radiusStep = (info->Thickness - parentInfo.Thickness) / (float)amount;
+
+			for (int i = 1; i < amount; i++) {
+				rings->push_back(RingMesh(
+					curve.GetPoint(posStep * (i - 1)), curve.GetPoint(posStep * i),
+					fromDir + (float)(i - 1) * dirStep, fromDir + (float)i * dirStep,
+					parentInfo.Thickness + (float)(i - 1) * radiusStep, parentInfo.Thickness + (float)i * radiusStep));
+			}
+			if (amount > 1)rings->push_back(RingMesh(curve.GetPoint(1.0f - posStep), translation, direction - dirStep, direction, info->Thickness - radiusStep, info->Thickness));
+			else rings->push_back(RingMesh(parentTranslation, translation, fromDir, direction, parentInfo.Thickness, info->Thickness));
+#pragma endregion
+		}
+	);
+
 	MeshMaterialComponent* mmc = EntityManager::GetSharedComponent<MeshMaterialComponent>(treeEntity);
+	TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(treeEntity);
+	treeInfo.Vertices->clear();
+	treeInfo.Indices->clear();
+
 	auto branchNode = EntityManager::GetChildren(treeEntity).at(0);
 	//TODO: Finish mesh generation here.
-
+	
+	SimpleMeshGenerator(EntityManager::GetChildren(branchNode).at(0), *treeInfo.Vertices, resolution);
+	if (mmc->_Mesh != nullptr) delete mmc->_Mesh;
+	mmc->_Mesh = new Mesh();
+	size_t size = treeInfo.Vertices->size();
+	for (int i = 0; i < size; i++) {
+		treeInfo.Indices->push_back(i);
+	}
+	mmc->_Mesh->SetVertices(33, *treeInfo.Vertices, *treeInfo.Indices);
 }

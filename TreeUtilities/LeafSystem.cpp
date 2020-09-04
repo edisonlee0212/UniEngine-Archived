@@ -83,7 +83,7 @@ void TreeUtilities::LeafSystem::OnCreate()
 	leafIndices.push_back(1);
 
 	_LeafMesh->SetVertices((unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::TexCoord0,
-		&leafVertices, &leafIndices);
+		leafVertices, leafIndices);
 
 	Enable();
 }
