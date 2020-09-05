@@ -15,7 +15,7 @@ void InitSpaceColonizationTreeSystem();
 void InitPlantSimulationSystem();
 void LightSettingMenu();
 
-float lightAngle0 = 0;
+float lightAngle0 = 60;
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;
@@ -185,7 +185,7 @@ void InitPlantSimulationSystem() {
 	mmc2->_Material = treeSurfaceMaterial;
 	//Multiple tree growth.
 	Entity tree1 = psSys->CreateTree(mmc1, tps, treeColor, glm::vec3(-1.5, 0, 0), true);
-	Entity tree2 = psSys->CreateExampleTree(mmc2, treeColor, glm::vec3(1.5, 0, 0), 1);
+	//Entity tree2 = psSys->CreateExampleTree(mmc2, treeColor, glm::vec3(1.5, 0, 0), 1);
 }
 void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());

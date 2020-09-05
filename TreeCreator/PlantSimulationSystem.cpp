@@ -18,7 +18,7 @@ void TreeUtilities::PlantSimulationSystem::FixedUpdate()
 
 	while (!_MeshGenerationQueue.empty()) {
 		Entity targetTree = _MeshGenerationQueue.front();
-		TreeManager::GenerateSimpleMeshForTree(targetTree, 0.002f);
+		TreeManager::GenerateSimpleMeshForTree(targetTree, 0.01f);
 		TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(targetTree);
 		ExportOBJ(*treeInfo.Vertices, *treeInfo.Indices);
 		_MeshGenerationQueue.pop();
@@ -102,7 +102,7 @@ void TreeUtilities::PlantSimulationSystem::CalculatePhysics(std::vector<Entity>&
 		CalculateDirectGravityForce(tree, _Gravity);
 		BackPropagateForce(rootBranchNode, treeParameters.GravityBackPropageteFixedCoefficient);
 		glm::mat4 transform = glm::identity<glm::mat4>(); //glm::translate(glm::mat4(1.0f), glm::vec3(0.0f))* glm::mat4_cast(glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1)))* glm::scale(glm::vec3(1.0f));
-		UpdateLocalTransform(rootBranchNode, treeParameters, transform);
+		UpdateLocalTransform(rootBranchNode, treeParameters, transform, rotation.Value);
 		ApplyLocalTransform(tree);
 		TreeManager::GetBranchNodeSystem()->RefreshConnections();
 	}
@@ -286,22 +286,18 @@ void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeMeanData(Entity& bran
 	EntityManager::SetComponentData(branchNode, branchNodeInfo);
 }
 
-void TreeUtilities::PlantSimulationSystem::UpdateLocalTransform(Entity& branchNode, TreeParameters& treeParameters, glm::mat4& parentLTW)
+void TreeUtilities::PlantSimulationSystem::UpdateLocalTransform(Entity& branchNode, TreeParameters& treeParameters, glm::mat4& parentLTW, glm::quat& treeRotation)
 {
 	BranchNodeInfo branchNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
 	glm::quat actualLocalRotation = branchNodeInfo.DesiredLocalRotation;
-	/*
+	
 	glm::vec3 scale;
-	glm::quat parentRotation;
-	glm::vec3 translation;
 	glm::vec3 skew;
 	glm::vec4 perspective;
-	glm::decompose(parentLTW, scale, parentRotation, translation, skew, perspective);
-
-	
+	glm::decompose(parentLTW, scale, branchNodeInfo.ParentRotation, branchNodeInfo.ParentTranslation, skew, perspective);
 	
 #pragma region Apply force here.
-	glm::quat newGlobalRotation = parentRotation * branchNodeInfo.DesiredLocalRotation;
+	glm::quat newGlobalRotation = treeRotation * branchNodeInfo.ParentRotation * branchNodeInfo.DesiredLocalRotation;
 	glm::vec3 front = newGlobalRotation * glm::vec3(0, 0, -1);
 	glm::vec3 up = newGlobalRotation * glm::vec3(0, 1, 0);
 	float gravityBending = treeParameters.GravityBendingStrength * branchNodeInfo.AccmulatedGravity;
@@ -309,20 +305,40 @@ void TreeUtilities::PlantSimulationSystem::UpdateLocalTransform(Entity& branchNo
 	front = glm::normalize(front);
 	up = glm::cross(glm::cross(front, up), front);
 	newGlobalRotation = glm::quatLookAt(front, up);
-	actualLocalRotation = glm::inverse(parentRotation) * newGlobalRotation;
+	actualLocalRotation = glm::inverse(branchNodeInfo.ParentRotation) * glm::inverse(treeRotation) * newGlobalRotation;
 #pragma endregion
-	*/
+	
 	branchNodeInfo.LocalTransform = glm::translate(glm::mat4(1.0f), actualLocalRotation * glm::vec3(0, 0, -1)
 		* branchNodeInfo.DistanceToParent) * glm::mat4_cast(actualLocalRotation)
 		* glm::scale(glm::vec3(1.0f));
 	
 	branchNodeInfo.GlobalTransform = parentLTW * branchNodeInfo.LocalTransform;
-	EntityManager::SetComponentData(branchNode, branchNodeInfo);
-	EntityManager::ForEachChild(branchNode, [this, &treeParameters, &branchNodeInfo](Entity child)
+	float mainChildThickness = 0;
+	BranchNodeInfo mainChildInfo;
+	unsigned mainChildEntityIndex = 0;
+	EntityManager::ForEachChild(branchNode, [this, &mainChildInfo, &mainChildEntityIndex, &mainChildThickness, &treeParameters, &branchNodeInfo, &treeRotation](Entity child)
 		{
-			UpdateLocalTransform(child, treeParameters, branchNodeInfo.GlobalTransform);
+			UpdateLocalTransform(child, treeParameters, branchNodeInfo.GlobalTransform, treeRotation);
+			BranchNodeInfo childNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(child);
+			childNodeInfo.ParentThickness = branchNodeInfo.Thickness;
+			if (mainChildThickness < childNodeInfo.Thickness) {
+				glm::vec3 cscale;
+				glm::quat crotation;
+				glm::vec3 ctranslation;
+				glm::vec3 cskew;
+				glm::vec4 cperspective;
+				glm::decompose(childNodeInfo.GlobalTransform, cscale, crotation, ctranslation, cskew, cperspective);
+				branchNodeInfo.MainChildRotation = crotation;
+				mainChildEntityIndex = child.Index;
+				mainChildInfo = childNodeInfo;
+				mainChildInfo.IsMainChild = true;
+			}
+			EntityManager::SetComponentData(child, childNodeInfo);
 		}
 	);
+	if (EntityManager::GetChildrenAmount(branchNode) == 0) branchNodeInfo.MainChildRotation = glm::inverse(treeRotation) * newGlobalRotation;
+	else EntityManager::SetComponentData(mainChildEntityIndex, mainChildInfo);
+	EntityManager::SetComponentData(branchNode, branchNodeInfo);
 }
 
 bool TreeUtilities::PlantSimulationSystem::GrowShoots(Entity& branchNode, TreeInfo& treeInfo, TreeAge& treeAge, TreeParameters& treeParameters, TreeIndex& treeIndex)
@@ -606,7 +622,9 @@ void TreeUtilities::PlantSimulationSystem::UpdateBranchNodeResource(Entity& bran
 			BranchNodeInfo childNodeInfo = EntityManager::GetComponentData<BranchNodeInfo>(child);
 			branchNodeInfo.BranchEndNodeAmount += childNodeInfo.BranchEndNodeAmount;
 			branchNodeInfo.Thickness += treeParameters.ThicknessControlFactor * childNodeInfo.Thickness;
-			if (childNodeInfo.Thickness > mainChildThickness) mainChildThickness = childNodeInfo.Thickness;
+			if (childNodeInfo.Thickness > mainChildThickness) {
+				mainChildThickness = childNodeInfo.Thickness;
+			}
 			if (childNodeInfo.Pruned) return;
 			branchNodeInfo.AccmulatedLight += childNodeInfo.AccmulatedLight;
 			branchNodeInfo.AccmulatedActivatedBudsAmount += childNodeInfo.AccmulatedActivatedBudsAmount;
@@ -686,7 +704,8 @@ Entity TreeUtilities::PlantSimulationSystem::CreateTree(MeshMaterialComponent* t
 	branchNodeInfo.DesiredLocalRotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
 	TreeInfo treeInfo = EntityManager::GetComponentData<TreeInfo>(treeEntity);
 
-	UpdateLocalTransform(branchNodeEntity, treeParameters, ltw.Value);
+	glm::mat4 transform = glm::identity<glm::mat4>();
+	UpdateLocalTransform(branchNodeEntity, treeParameters, transform, r.Value);
 
 	EntityManager::SetComponentData(branchNodeEntity, branchNodeInfo);
 	EntityManager::SetComponentData(treeEntity, treeParameters);

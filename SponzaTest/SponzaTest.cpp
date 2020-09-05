@@ -7,7 +7,7 @@ using namespace UniEngine;
 void LightSettingMenu();
 void InitGround();
 void SplitDisplay();
-float lightAngle0 = 0;
+float lightAngle0 = 25;
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;

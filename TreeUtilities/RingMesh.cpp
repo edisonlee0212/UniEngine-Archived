@@ -11,21 +11,19 @@ TreeUtilities::RingMesh::RingMesh(glm::vec3 startPosition, glm::vec3 endPosition
 {
 }
 
-void TreeUtilities::RingMesh::AppendPoints(std::vector<Vertex>& vertices, float resolution)
+void TreeUtilities::RingMesh::AppendPoints(std::vector<Vertex>& vertices, glm::vec3& normalDir, int step)
 {
 	std::vector<Vertex> startRing;
 	std::vector<Vertex> endRing;
 
-	int step = (int)(StartRadius / resolution);
-	if (step < 3) step = 3;
 	float angleStep = 360.0f / (float)(step);
 	Vertex archetype;
 	for (int i = 0; i < step; i++) {
-		archetype.Position = GetPoint(angleStep * i, true);
+		archetype.Position = GetPoint(normalDir, angleStep * i, true);
 		startRing.push_back(archetype);
 	}
 	for (int i = 0; i < step; i++) {
-		archetype.Position = GetPoint(angleStep * i, false);
+		archetype.Position = GetPoint(normalDir, angleStep * i, false);
 		endRing.push_back(archetype);
 	}
 	float textureXstep = 1.0f / step * 4;
@@ -54,19 +52,11 @@ void TreeUtilities::RingMesh::AppendPoints(std::vector<Vertex>& vertices, float 
 	vertices.push_back(startRing[0]);
 }
 
-inline glm::vec3 TreeUtilities::RingMesh::GetPoint(float angle, bool isStart)
+inline glm::vec3 TreeUtilities::RingMesh::GetPoint(glm::vec3& normalDir, float angle, bool isStart)
 {
 	glm::vec3 position;
-
-	glm::vec3 normal;
-	if (StartAxis != EndAxis) {
-		normal = glm::cross(StartAxis, EndAxis);
-	}
-	else {
-		normal = glm::cross(EndAxis, glm::vec3(0, 0, -1.0f));
-	}
 	glm::vec3 direction;
-	direction = glm::cross(normal, isStart ? this->StartAxis : this->EndAxis);
+	direction = glm::cross(normalDir, isStart ? this->StartAxis : this->EndAxis);
 	direction = glm::rotate(direction, glm::radians(angle), isStart ? this->StartAxis : this->EndAxis);
 	direction = glm::normalize(direction);
 	position = (isStart ? StartPosition : EndPosition) + direction * (isStart ? StartRadius : EndRadius);

@@ -24,21 +24,22 @@ LeafIndex TreeUtilities::TreeManager::_LeafIndex;
 
 bool TreeUtilities::TreeManager::_Ready;
 #pragma region Helpers
-void TreeUtilities::TreeManager::SimpleMeshGenerator(Entity& branchNode, std::vector<Vertex>& vertices, float resolution)
+void TreeUtilities::TreeManager::SimpleMeshGenerator(Entity& branchNode, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, float resolution)
 {
-	auto rings = EntityManager::GetComponentData<BranchNodeRingList>(branchNode).Rings;
+	auto list = EntityManager::GetComponentData<BranchNodeRingList>(branchNode);
+	auto rings = list.Rings;
+	int step = (rings->front().StartRadius / resolution);
+	if (step < 3) step = 3;
 	for (auto i : *rings) {
-		i.AppendPoints(vertices, resolution);
+		i.AppendPoints(vertices, list.NormalDir, step);
 	}
 	
 	if (EntityManager::GetChildrenAmount(branchNode) == 0 && !rings->empty()) {
 		std::vector<Vertex> endRing;
-		int step = (rings->end()->StartRadius / resolution);
-		if (step < 3) step = 3;
 		float angleStep = 360.0f / (float)(step);
 		Vertex archetype;
 		for (unsigned i = 0; i < step; i++) {
-			archetype.Position = rings->back().GetPoint(angleStep * i, false);
+			archetype.Position = rings->back().GetPoint(list.NormalDir, angleStep * i, false);
 			endRing.push_back(archetype);
 		}
 		Vertex center = Vertex();
@@ -385,41 +386,46 @@ void TreeUtilities::TreeManager::GenerateSimpleMeshForTree(Entity treeEntity, fl
 		return;
 	}
 	//Prepare ring mesh.
-	EntityManager::ForEach<BranchNodeInfo, BranchNodeRingList>(_BranchNodeQuery, [](int i, Entity branchNode, BranchNodeInfo* info, BranchNodeRingList* list) 
+	EntityManager::ForEach<BranchNodeInfo, BranchNodeRingList>(_BranchNodeQuery, [resolution](int i, Entity branchNode, BranchNodeInfo* info, BranchNodeRingList* list) 
 		{
 			if (EntityManager::HasComponentData<TreeInfo>(EntityManager::GetParent(branchNode))) return;
-			auto parentInfo = EntityManager::GetComponentData<BranchNodeInfo>(EntityManager::GetParent(branchNode));
 			std::vector<RingMesh>* rings = list->Rings;
 			rings->clear();
+			glm::quat parentRotation = info->ParentRotation;
+			glm::vec3 parentTranslation = info->ParentTranslation;
+			float parentThickness = info->ParentThickness;
+
 			glm::vec3 scale;
 			glm::quat rotation;
 			glm::vec3 translation;
-			glm::quat parentRotation;
-			glm::vec3 parentTranslation;
 			glm::vec3 skew;
 			glm::vec4 perspective;
 			glm::decompose(info->GlobalTransform, scale, rotation, translation, skew, perspective);
-			glm::mat4 parentTransform = parentInfo.GlobalTransform;
-			glm::decompose(parentTransform, scale, parentRotation, parentTranslation, skew, perspective);
-			glm::vec3 fromDir = parentRotation * glm::vec3(0, 0, -1);
-			glm::vec3 direction = rotation * glm::vec3(0, 0, -1);
+			
+			glm::vec3 parentDir = parentRotation * glm::vec3(0, 0, -1);
+			glm::vec3 dir = rotation * glm::vec3(0, 0, -1);
+			glm::vec3 mainChildDir = info->MainChildRotation * glm::vec3(0, 0, -1);
+			glm::vec3 fromDir = info->IsMainChild ? (parentDir + dir) / 2.0f : parentDir;
+			dir = (dir + mainChildDir) / 2.0f;
 #pragma region Subdivision branch here.
 			auto distance = glm::distance(parentTranslation, translation);
-			int amount = distance / (info->Thickness + parentInfo.Thickness) / 2.0f; //distance / ((fromRadius + radius) / 2.0f);
+			int amount = distance / ((info->Thickness + parentThickness) * resolution * glm::pi<float>() * glm::pi<float>()); //distance / ((fromRadius + radius) / 2.0f);
 
-			BezierCurve curve = BezierCurve(parentTranslation, parentTranslation + distance / 3.0f * fromDir, translation - distance / 3.0f * direction, translation);
+			BezierCurve curve = BezierCurve(parentTranslation, parentTranslation + distance / 3.0f * fromDir, translation - distance / 3.0f * dir, translation);
 			float posStep = 1.0f / (float)amount;
-			glm::vec3 dirStep = (direction - fromDir) / (float)amount;
-			float radiusStep = (info->Thickness - parentInfo.Thickness) / (float)amount;
+			glm::vec3 dirStep = (dir - fromDir) / (float)amount;
+			float radiusStep = (info->Thickness - parentThickness) / (float)amount;
+
+			list->NormalDir = fromDir == dir ? glm::cross(dir, glm::vec3(0, 0, 1)) : glm::cross(fromDir, dir);
 
 			for (int i = 1; i < amount; i++) {
 				rings->push_back(RingMesh(
 					curve.GetPoint(posStep * (i - 1)), curve.GetPoint(posStep * i),
 					fromDir + (float)(i - 1) * dirStep, fromDir + (float)i * dirStep,
-					parentInfo.Thickness + (float)(i - 1) * radiusStep, parentInfo.Thickness + (float)i * radiusStep));
+					parentThickness + (float)(i - 1) * radiusStep, parentThickness + (float)i * radiusStep));
 			}
-			if (amount > 1)rings->push_back(RingMesh(curve.GetPoint(1.0f - posStep), translation, direction - dirStep, direction, info->Thickness - radiusStep, info->Thickness));
-			else rings->push_back(RingMesh(parentTranslation, translation, fromDir, direction, parentInfo.Thickness, info->Thickness));
+			if (amount > 1)rings->push_back(RingMesh(curve.GetPoint(1.0f - posStep), translation, dir - dirStep, dir, info->Thickness - radiusStep, info->Thickness));
+			else rings->push_back(RingMesh(parentTranslation, translation, fromDir, dir, parentThickness, info->Thickness));
 #pragma endregion
 		}
 	);

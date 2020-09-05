@@ -29,7 +29,7 @@ namespace TreeUtilities {
         void UpdateBranchNodeActivatedLevel(Entity& branchNode);
         void UpdateBranchNodeLevel(Entity& branchNode);
         void UpdateBranchNodeMeanData(Entity& branchNode, unsigned treeAge);
-        void UpdateLocalTransform(Entity& branchNode, TreeParameters& treeParameters, glm::mat4& parentLTW);
+        void UpdateLocalTransform(Entity& branchNode, TreeParameters& treeParameters, glm::mat4& parentLTW, glm::quat& treeRotation);
         void UpdateBranchNodeResource(Entity& branchNode, TreeParameters& treeParameters, TreeAge& treeAge);
         void UpdateBranchNodeResourceAllocation(Entity& branchNode); 
         bool GrowShoots(Entity& branchNode, TreeInfo& treeInfo, TreeAge& treeAge, TreeParameters& treeParameters, TreeIndex& treeIndex);

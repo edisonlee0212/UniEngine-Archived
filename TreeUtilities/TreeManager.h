@@ -39,6 +39,7 @@ namespace TreeUtilities {
 #pragma region BranchNode
     struct BranchNodeRingList : ComponentBase {
         std::vector<RingMesh>* Rings;
+        glm::vec3 NormalDir;
     };
 
     struct TREEUTILITIES_API Connection : ComponentBase {
@@ -116,7 +117,19 @@ namespace TreeUtilities {
         glm::quat DesiredLocalRotation;
         glm::mat4 GlobalTransform;
         glm::mat4 LocalTransform;
+
+
+        
 #pragma endregion
+
+#pragma region Mesh generation
+        glm::vec3 ParentTranslation;
+        glm::quat ParentRotation;
+        float ParentThickness;
+        glm::quat MainChildRotation;
+        bool IsMainChild = false;
+#pragma endregion
+
     };
 #pragma endregion
 #pragma region Tree

@@ -92,7 +92,7 @@ void UniEngine::WindowManager::Start()
 
 void UniEngine::WindowManager::Update()
 {
-	glfwSwapBuffers(_Window);
+ 	glfwSwapBuffers(_Window);
 }
 
 void UniEngine::WindowManager::DrawTexture(GLTexture2D* texture)
