@@ -29,11 +29,68 @@ void TreeUtilities::TreeManager::SimpleMeshGenerator(Entity& branchNode, std::ve
 	auto list = EntityManager::GetComponentData<BranchNodeRingList>(branchNode);
 	auto rings = list.Rings;
 	int step = (rings->front().StartRadius / resolution);
-	if (step < 3) step = 3;
-	for (auto i : *rings) {
-		i.AppendPoints(vertices, list.NormalDir, step);
+	if (step < 4) step = 4;
+	if (step % 2 != 0) step++;
+	float angleStep = 360.0f / (float)(step);
+	int vertexIndex = vertices.size();
+	Vertex archetype;
+	float textureXstep = 1.0f / step * 4.0f;
+	for (int i = 0; i < step; i++) {
+		archetype.Position = rings->at(0).GetPoint(list.NormalDir, angleStep * i, true);
+		float x = i < (step / 2) ? i * textureXstep : (step - i) * textureXstep;
+		archetype.TexCoords0 = glm::vec2(x, 0.0f);
+		vertices.push_back(archetype);
 	}
-	
+	int ringSize = rings->size();
+	float textureYstep = 1.0f / ringSize * 2.0f;
+	for (int ringIndex = 0; ringIndex < ringSize; ringIndex++) {
+		for (int i = 0; i < step; i++) {
+			archetype.Position = rings->at(ringIndex).GetPoint(list.NormalDir, angleStep * i, false);
+			float x = i < (step / 2) ? i * textureXstep : (step - i) * textureXstep;
+			float y = ringIndex < (ringSize / 2) ? (ringIndex + 1) * textureYstep : (ringSize - ringIndex - 1) * textureYstep;
+			archetype.TexCoords0 = glm::vec2(x, y);
+			vertices.push_back(archetype);
+		}
+		for (int i = 0; i < step - 1; i++) {
+			//Down triangle
+			indices.push_back(vertexIndex + ringIndex * step + i);
+			indices.push_back(vertexIndex + ringIndex * step + i + 1);
+			indices.push_back(vertexIndex + (ringIndex + 1) * step + i);
+			//Up triangle
+			indices.push_back(vertexIndex + (ringIndex + 1) * step + i + 1);
+			indices.push_back(vertexIndex + (ringIndex + 1) * step + i);
+			indices.push_back(vertexIndex + ringIndex * step + i + 1);
+		}
+		//Down triangle
+		indices.push_back(vertexIndex + ringIndex * step + step - 1);
+		indices.push_back(vertexIndex + ringIndex * step);
+		indices.push_back(vertexIndex + (ringIndex + 1) * step + step - 1);
+		//Up triangle
+		indices.push_back(vertexIndex + (ringIndex + 1) * step);
+		indices.push_back(vertexIndex + (ringIndex + 1) * step + step - 1);
+		indices.push_back(vertexIndex + ringIndex * step);
+	}
+	/*
+	for (int i = 0; i < step - 1; i++) {
+		//Down triangle
+		indices.push_back(vertexIndex + ringSize * step + i);
+		indices.push_back(vertexIndex + ringSize * step + i + 1);
+		indices.push_back(vertexIndex + (ringSize + 1) * step + i);
+		//Up triangle
+		indices.push_back(vertexIndex + (ringSize + 1) * step + i + 1);
+		indices.push_back(vertexIndex + (ringSize + 1) * step + i);
+		indices.push_back(vertexIndex + ringSize * step + i + 1);
+	}
+	//Down triangle
+	indices.push_back(vertexIndex + ringSize * step + step - 1);
+	indices.push_back(vertexIndex + ringSize * step);
+	indices.push_back(vertexIndex + (ringSize + 1) * step + step - 1);
+	//Up triangle
+	indices.push_back(vertexIndex + (ringSize + 1) * step);
+	indices.push_back(vertexIndex + (ringSize + 1) * step + step - 1);
+	indices.push_back(vertexIndex + ringSize * step);
+	*/
+	/*
 	if (EntityManager::GetChildrenAmount(branchNode) == 0 && !rings->empty()) {
 		std::vector<Vertex> endRing;
 		float angleStep = 360.0f / (float)(step);
@@ -56,9 +113,10 @@ void TreeUtilities::TreeManager::SimpleMeshGenerator(Entity& branchNode, std::ve
 		vertices.push_back(endRing[0]);
 		vertices.push_back(center);
 	}
-	EntityManager::ForEachChild(branchNode, [&vertices, resolution](Entity child)
+	*/
+	EntityManager::ForEachChild(branchNode, [&vertices, &indices, resolution](Entity child)
 		{
-			SimpleMeshGenerator(child, vertices, resolution);
+			SimpleMeshGenerator(child, vertices, indices, resolution);
 		}
 	);
 }
@@ -410,7 +468,7 @@ void TreeUtilities::TreeManager::GenerateSimpleMeshForTree(Entity treeEntity, fl
 #pragma region Subdivision branch here.
 			auto distance = glm::distance(parentTranslation, translation);
 			int amount = distance / ((info->Thickness + parentThickness) * resolution * glm::pi<float>() * glm::pi<float>()); //distance / ((fromRadius + radius) / 2.0f);
-
+			if (amount % 2 != 0) amount++;
 			BezierCurve curve = BezierCurve(parentTranslation, parentTranslation + distance / 3.0f * fromDir, translation - distance / 3.0f * dir, translation);
 			float posStep = 1.0f / (float)amount;
 			glm::vec3 dirStep = (dir - fromDir) / (float)amount;
@@ -438,12 +496,8 @@ void TreeUtilities::TreeManager::GenerateSimpleMeshForTree(Entity treeEntity, fl
 	auto branchNode = EntityManager::GetChildren(treeEntity).at(0);
 	//TODO: Finish mesh generation here.
 	
-	SimpleMeshGenerator(EntityManager::GetChildren(branchNode).at(0), *treeInfo.Vertices, resolution);
+	SimpleMeshGenerator(EntityManager::GetChildren(branchNode).at(0), *treeInfo.Vertices, *treeInfo.Indices, resolution);
 	if (mmc->_Mesh != nullptr) delete mmc->_Mesh;
 	mmc->_Mesh = new Mesh();
-	size_t size = treeInfo.Vertices->size();
-	for (int i = 0; i < size; i++) {
-		treeInfo.Indices->push_back(i);
-	}
-	mmc->_Mesh->SetVertices(33, *treeInfo.Vertices, *treeInfo.Indices);
+	mmc->_Mesh->SetVertices(17, *treeInfo.Vertices, *treeInfo.Indices);
 }

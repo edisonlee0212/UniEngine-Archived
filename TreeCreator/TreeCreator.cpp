@@ -40,6 +40,8 @@ int main()
 #pragma region Lights
 	EntityArchetype lightArchetype = EntityManager::CreateEntityArchetype("Light", Translation(), Rotation(), Scale(), LocalToWorld());
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
+	dlc->diffuse = glm::vec3(255, 0, 0);
+	dlc->specular = glm::vec3(1, 1, 1);
 	Entity dle = EntityManager::CreateEntity(lightArchetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
 	DirectionalLightComponent* dlc2 = new DirectionalLightComponent();
@@ -56,7 +58,7 @@ int main()
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
 	ccs->SetPosition(glm::vec3(0, 6, 20));
-	ccs->SetVelocity(10.0f);
+	ccs->SetVelocity(5.0f);
 	InitGround();
 #pragma endregion
 	TreeManager::Init();
@@ -176,16 +178,31 @@ void InitPlantSimulationSystem() {
 #pragma endregion
 	MeshMaterialComponent* mmc1 = new MeshMaterialComponent();
 	MeshMaterialComponent* mmc2 = new MeshMaterialComponent();
-	auto treeSurfaceMaterial = new Material();
-	treeSurfaceMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
-	auto texture = new Texture2D(TextureType::DIFFUSE);
-	texture->LoadTexture(FileIO::GetPath("Textures/brown.png"), "");
-	treeSurfaceMaterial->Textures2Ds()->push_back(texture);
-	mmc1->_Material = treeSurfaceMaterial;
-	mmc2->_Material = treeSurfaceMaterial;
+	auto treeSurfaceMaterial1 = new Material();
+	treeSurfaceMaterial1->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	auto textureDiffuse1 = new Texture2D(TextureType::DIFFUSE);
+	textureDiffuse1->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Bark_Pine_baseColor.jpg"), "");
+	auto textureNormal1 = new Texture2D(TextureType::NORMAL);
+	textureNormal1->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Bark_Pine_normal.jpg"), "");
+	treeSurfaceMaterial1->Textures2Ds()->push_back(textureDiffuse1);
+	treeSurfaceMaterial1->Textures2Ds()->push_back(textureNormal1);
+
+	auto treeSurfaceMaterial2 = new Material();
+	treeSurfaceMaterial2->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	auto textureDiffuse2 = new Texture2D(TextureType::DIFFUSE);
+	textureDiffuse2->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Aspen_bark_001_COLOR.jpg"), "");
+	auto textureNormal2 = new Texture2D(TextureType::NORMAL);
+	textureNormal2->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Aspen_bark_001_NORM.jpg"), "");
+	treeSurfaceMaterial2->Textures2Ds()->push_back(textureDiffuse2);
+	treeSurfaceMaterial2->Textures2Ds()->push_back(textureNormal2);
+
+	treeSurfaceMaterial1->SetMaterialProperty("material.shininess", 4.0f);
+	treeSurfaceMaterial2->SetMaterialProperty("material.shininess", 4.0f);
+	mmc1->_Material = treeSurfaceMaterial1;
+	mmc2->_Material = treeSurfaceMaterial2;
 	//Multiple tree growth.
 	Entity tree1 = psSys->CreateTree(mmc1, tps, treeColor, glm::vec3(-1.5, 0, 0), true);
-	//Entity tree2 = psSys->CreateExampleTree(mmc2, treeColor, glm::vec3(1.5, 0, 0), 1);
+	Entity tree2 = psSys->CreateExampleTree(mmc2, treeColor, glm::vec3(1.5, 0, 0), 1);
 }
 void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());

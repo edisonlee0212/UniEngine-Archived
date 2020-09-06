@@ -191,8 +191,8 @@ void UniEngine::LightingManager::Start()
 				float planeDistance = 0;
 				glm::vec3 center;
 				_DirectionalLights[i].direction = glm::vec4(lightDir, 0.0f);
-				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 0);
-				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 0);
+				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 1);
+				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 1);
 #pragma endregion
 				for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
 					//2.	计算Cascade Split所需信息

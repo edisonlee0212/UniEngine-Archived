@@ -254,7 +254,7 @@ namespace TreeUtilities {
         static bool _Ready;
         
         //static void LeafGenerationHelper(BudInfo& info, Entity& leaf, Entity& bud, int index);
-        static void SimpleMeshGenerator(Entity& branchNode, std::vector<Vertex>& vertices, float resolution);
+        static void SimpleMeshGenerator(Entity& branchNode, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, float resolution);
         static void BranchNodeCleaner(Entity branchEntity);
     public:
         static void Init();
