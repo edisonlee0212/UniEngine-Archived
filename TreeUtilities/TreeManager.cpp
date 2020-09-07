@@ -26,6 +26,9 @@ bool TreeUtilities::TreeManager::_Ready;
 #pragma region Helpers
 void TreeUtilities::TreeManager::SimpleMeshGenerator(Entity& branchNode, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, float resolution)
 {
+	BranchNodeInfo info = EntityManager::GetComponentData<BranchNodeInfo>(branchNode);
+	if (info.Pruned) return;
+
 	auto list = EntityManager::GetComponentData<BranchNodeRingList>(branchNode);
 	auto rings = list.Rings;
 	int step = (rings->front().StartRadius / resolution);
@@ -70,50 +73,7 @@ void TreeUtilities::TreeManager::SimpleMeshGenerator(Entity& branchNode, std::ve
 		indices.push_back(vertexIndex + (ringIndex + 1) * step + step - 1);
 		indices.push_back(vertexIndex + ringIndex * step);
 	}
-	/*
-	for (int i = 0; i < step - 1; i++) {
-		//Down triangle
-		indices.push_back(vertexIndex + ringSize * step + i);
-		indices.push_back(vertexIndex + ringSize * step + i + 1);
-		indices.push_back(vertexIndex + (ringSize + 1) * step + i);
-		//Up triangle
-		indices.push_back(vertexIndex + (ringSize + 1) * step + i + 1);
-		indices.push_back(vertexIndex + (ringSize + 1) * step + i);
-		indices.push_back(vertexIndex + ringSize * step + i + 1);
-	}
-	//Down triangle
-	indices.push_back(vertexIndex + ringSize * step + step - 1);
-	indices.push_back(vertexIndex + ringSize * step);
-	indices.push_back(vertexIndex + (ringSize + 1) * step + step - 1);
-	//Up triangle
-	indices.push_back(vertexIndex + (ringSize + 1) * step);
-	indices.push_back(vertexIndex + (ringSize + 1) * step + step - 1);
-	indices.push_back(vertexIndex + ringSize * step);
-	*/
-	/*
-	if (EntityManager::GetChildrenAmount(branchNode) == 0 && !rings->empty()) {
-		std::vector<Vertex> endRing;
-		float angleStep = 360.0f / (float)(step);
-		Vertex archetype;
-		for (unsigned i = 0; i < step; i++) {
-			archetype.Position = rings->back().GetPoint(list.NormalDir, angleStep * i, false);
-			endRing.push_back(archetype);
-		}
-		Vertex center = Vertex();
-		center.Position = rings->back().EndPosition;
-		center.TexCoords0 = glm::vec2(1.0f, 1.0f);
-		for (unsigned i = 0; i < step - 1; i++) {
-			endRing[i].TexCoords0 = glm::vec2(0.0f, 0.0f);
-			endRing[i + 1].TexCoords0 = glm::vec2(0.0f, 1.0f);
-			vertices.push_back(endRing[i]);
-			vertices.push_back(endRing[i + 1]);
-			vertices.push_back(center);
-		}
-		vertices.push_back(endRing[step - 1]);
-		vertices.push_back(endRing[0]);
-		vertices.push_back(center);
-	}
-	*/
+	
 	EntityManager::ForEachChild(branchNode, [&vertices, &indices, resolution](Entity child)
 		{
 			SimpleMeshGenerator(child, vertices, indices, resolution);

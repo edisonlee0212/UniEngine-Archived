@@ -34,7 +34,7 @@ int main()
 	LightingManager::SetSeamFixRatio(0.05f);
 	LightingManager::SetVSMMaxVariance(0.001f);
 	LightingManager::SetEVSMExponent(80.0f);
-	LightingManager::SetSplitRatio(0.4f, 0.6f, 0.7f, 1.0f);
+	LightingManager::SetSplitRatio(0.2f, 0.4f, 0.7f, 1.0f);
 #pragma endregion
 	Application::Init();
 #pragma region Lights

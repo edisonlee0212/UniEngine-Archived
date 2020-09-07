@@ -79,6 +79,8 @@ vec3 CalculateLights(float dist, vec3 normal, vec3 viewDir, vec3 fragPos){
 			shadow = (nextLevel * (dist - (SplitDistance2 - SplitDistance2 * SeamFixRatio)) + shadow * (SplitDistance2 - dist)) / (SplitDistance2 * SeamFixRatio);
 		}else if(dist < SplitDistance3){
 			shadow = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
+		}else{
+			shadow = 1.0;
 		}
 		
 		result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (shadow);
