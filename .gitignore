@@ -4,8 +4,6 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 #Exclude glfw and Assimp Library
-GLFW/**
-Assimp/**
 
 #Discard VTune results
 VTune Profiler Results/
