@@ -27,6 +27,7 @@ enum TestScene {
 };
 int main()
 {
+	FileIO::SetResourcePath("../Resources/");
 #pragma region Lighting and Shadow settings
 	LightingManager::SetDirectionalLightResolution(1024);
 	LightingManager::SetStableFit(true);
@@ -69,7 +70,7 @@ int main()
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
-		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
+		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		Translation bpp;
 		bpp.Value = glm::vec3(0, 5, 0);
@@ -79,7 +80,7 @@ int main()
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == BACKPACK) {
-		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
+		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		Translation bpp;
 		bpp.Value = glm::vec3(0, 10, 0);
@@ -90,7 +91,7 @@ int main()
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
-		Model* backpack = ModelManager::LoadModel(FileIO::GetPath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
+		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformSystem & ParentSystem
@@ -306,7 +307,7 @@ void InitGround() {
 	auto mat = new Material();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto texture = new Texture2D(TextureType::DIFFUSE);
-	texture->LoadTexture(FileIO::GetPath("Textures/floor.png"), "");
+	texture->LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), "");
 	mat->Textures2Ds()->push_back(texture);
 	mat->SetMaterialProperty("material.shininess", 32.0f);
 	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();

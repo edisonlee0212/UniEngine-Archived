@@ -81,11 +81,11 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 #pragma region Textures
 	Textures::MissingTexture = new Texture2D(TextureType::DIFFUSE);
-	Textures::MissingTexture->LoadTexture(FileIO::GetPath("Textures/texture-missing.png"), "");
+	Textures::MissingTexture->LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"), "");
 	Textures::UV = new Texture2D(TextureType::DIFFUSE);
-	Textures::UV->LoadTexture(FileIO::GetPath("Textures/uv-test.png"), "");
+	Textures::UV->LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"), "");
 	Textures::StandardTexture = new Texture2D(TextureType::DIFFUSE);
-	Textures::StandardTexture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
+	Textures::StandardTexture->LoadTexture(FileIO::GetResourcePath("Textures/white.png"), "");
 #pragma endregion
 #pragma region Standard Shader
 	vertShaderCode = std::string("#version 460 core\n")
@@ -182,31 +182,31 @@ void UniEngine::Default::Load(World* world)
 	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
 #pragma endregion
 #pragma region Models & Primitives
-	Model* model = ModelManager::LoadModel(FileIO::GetPath("Primitives/quad.obj"));
+	Model* model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"));
 	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/sphere.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"));
 	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cube.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"));
 	Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cone.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"));
 	Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/cylinder.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"));
 	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/ring.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"));
 	Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetPath("Primitives/monkey.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"));
 	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
 	//delete model;
 #pragma endregion

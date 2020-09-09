@@ -11,6 +11,7 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
+	FileIO::SetResourcePath("../Resources/");
 	Application::Init();
 
 #pragma region Preparations

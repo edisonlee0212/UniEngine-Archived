@@ -1,14 +1,21 @@
 #include "pch.h"
 #include "FileIO.h"
+std::string* UniEngine::FileIO::_ResourceRootPath = nullptr;
 
-std::string UniEngine::FileIO::GetPath(std::string path)
+void UniEngine::FileIO::SetResourcePath(std::string path)
 {
-    return "../Resources/" + path;
+    if (_ResourceRootPath != nullptr) delete _ResourceRootPath;
+    _ResourceRootPath = new std::string(path);
+}
+
+std::string UniEngine::FileIO::GetResourcePath(std::string path)
+{
+    return *_ResourceRootPath + path;
 }
 
 std::string UniEngine::FileIO::LoadFileAsString(std::string path)
 {
-    std::string actualPath = GetPath(path);
+    std::string actualPath = GetResourcePath(path);
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try

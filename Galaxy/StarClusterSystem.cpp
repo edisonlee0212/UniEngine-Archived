@@ -5,7 +5,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	_StarMaterial = new Material();
 	_StarMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
 	auto starTex = new Texture2D(TextureType::DIFFUSE);
-	starTex->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
+	starTex->LoadTexture(FileIO::GetResourcePath("Textures/white.png"), "");
 	_StarMaterial->Textures2Ds()->push_back(starTex);
 
 

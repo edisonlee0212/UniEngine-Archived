@@ -3,8 +3,10 @@
 #include "Debug.h"
 namespace UniEngine {
 	class CORE_API FileIO {
+		static std::string* _ResourceRootPath;
 	public:
-		static std::string GetPath(std::string path);
+		static void SetResourcePath(std::string path);
+		static std::string GetResourcePath(std::string path);
 
 		static std::string LoadFileAsString(std::string path);
 	};

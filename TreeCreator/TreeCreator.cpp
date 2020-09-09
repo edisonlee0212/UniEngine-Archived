@@ -27,6 +27,7 @@ float pcssScale = 1.0f;
 
 int main()
 {
+	FileIO::SetResourcePath("../Resources/");
 	glm::inverse(glm::mat4(0.0f));
 #pragma region Global light settings
 	LightingManager::SetDirectionalLightResolution(2048);
@@ -182,18 +183,18 @@ void InitPlantSimulationSystem() {
 	auto treeSurfaceMaterial1 = new Material();
 	treeSurfaceMaterial1->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto textureDiffuse1 = new Texture2D(TextureType::DIFFUSE);
-	textureDiffuse1->LoadTexture(FileIO::GetPath("Textures/brown.png"), "");
+	textureDiffuse1->LoadTexture(FileIO::GetResourcePath("Textures/brown.png"), "");
 	auto textureNormal1 = new Texture2D(TextureType::NORMAL);
-	textureNormal1->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Bark_Pine_normal.jpg"), "");
+	textureNormal1->LoadTexture(FileIO::GetResourcePath("Textures/BarkMaterial/Bark_Pine_normal.jpg"), "");
 	treeSurfaceMaterial1->Textures2Ds()->push_back(textureDiffuse1);
 	treeSurfaceMaterial1->Textures2Ds()->push_back(textureNormal1);
 
 	auto treeSurfaceMaterial2 = new Material();
 	treeSurfaceMaterial2->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto textureDiffuse2 = new Texture2D(TextureType::DIFFUSE);
-	textureDiffuse2->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Aspen_bark_001_COLOR.jpg"), "");
+	textureDiffuse2->LoadTexture(FileIO::GetResourcePath("Textures/BarkMaterial/Aspen_bark_001_COLOR.jpg"), "");
 	auto textureNormal2 = new Texture2D(TextureType::NORMAL);
-	textureNormal2->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Aspen_bark_001_NORM.jpg"), "");
+	textureNormal2->LoadTexture(FileIO::GetResourcePath("Textures/BarkMaterial/Aspen_bark_001_NORM.jpg"), "");
 	treeSurfaceMaterial2->Textures2Ds()->push_back(textureDiffuse2);
 	treeSurfaceMaterial2->Textures2Ds()->push_back(textureNormal2);
 
@@ -219,7 +220,7 @@ void InitGround() {
 	auto mat = new Material();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto texture = new Texture2D(TextureType::DIFFUSE);
-	texture->LoadTexture(FileIO::GetPath("Textures/white.png"), "");
+	texture->LoadTexture(FileIO::GetResourcePath("Textures/white.png"), "");
 	mat->Textures2Ds()->push_back(texture);
 	mat->SetMaterialProperty("material.shininess", 32.0f);
 	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();

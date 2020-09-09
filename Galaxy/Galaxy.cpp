@@ -10,6 +10,7 @@ using namespace Galaxy;
 
 int main()
 {
+	FileIO::SetResourcePath("../Resources/"); 
 #pragma region Application Preparations
 	Application::Init();
 	LightingManager::SetAmbientLight(1.0f);
