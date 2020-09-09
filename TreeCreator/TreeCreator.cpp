@@ -27,6 +27,7 @@ float pcssScale = 1.0f;
 
 int main()
 {
+	glm::inverse(glm::mat4(0.0f));
 #pragma region Global light settings
 	LightingManager::SetDirectionalLightResolution(2048);
 	LightingManager::SetStableFit(true);
@@ -181,7 +182,7 @@ void InitPlantSimulationSystem() {
 	auto treeSurfaceMaterial1 = new Material();
 	treeSurfaceMaterial1->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto textureDiffuse1 = new Texture2D(TextureType::DIFFUSE);
-	textureDiffuse1->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Bark_Pine_baseColor.jpg"), "");
+	textureDiffuse1->LoadTexture(FileIO::GetPath("Textures/brown.png"), "");
 	auto textureNormal1 = new Texture2D(TextureType::NORMAL);
 	textureNormal1->LoadTexture(FileIO::GetPath("Textures/BarkMaterial/Bark_Pine_normal.jpg"), "");
 	treeSurfaceMaterial1->Textures2Ds()->push_back(textureDiffuse1);
@@ -202,7 +203,7 @@ void InitPlantSimulationSystem() {
 	mmc2->_Material = treeSurfaceMaterial2;
 	//Multiple tree growth.
 	Entity tree1 = psSys->CreateTree(mmc1, tps, treeColor, glm::vec3(-1.5, 0, 0), true);
-	Entity tree2 = psSys->CreateExampleTree(mmc2, treeColor, glm::vec3(1.5, 0, 0), 1);
+	//Entity tree2 = psSys->CreateExampleTree(mmc2, treeColor, glm::vec3(1.5, 0, 0), 1);
 }
 void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
