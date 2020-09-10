@@ -377,7 +377,7 @@ void UniEngine::LightingManager::Start()
 			glDisable(GL_DEPTH_TEST);
 			Default::GLPrograms::ScreenVAO->Bind();
 			for (int i = 0; i < size; i++) {
-				if (_DirectionalLights[i].ReservedParameters.y != 0) {
+				//if (_DirectionalLights[i].ReservedParameters.y != 0) {
 					glDrawBuffer(GL_COLOR_ATTACHMENT0);
 					_DirectionalLightVFilterProgram->Bind();
 					_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
@@ -389,7 +389,7 @@ void UniEngine::LightingManager::Start()
 					_DirectionalLightHFilterProgram->SetInt("textureMapArray", 1);
 					_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
 					glDrawArrays(GL_TRIANGLES, 0, 6);
-				}
+				//}
 			}
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
