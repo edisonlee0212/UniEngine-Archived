@@ -216,7 +216,7 @@ void UniEngine::Application::LoopStart_Internal()
 
 	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 	// because it would be confusing to have two docking targets within each others.
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 	if (opt_fullscreen)
 	{
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -239,48 +239,20 @@ void UniEngine::Application::LoopStart_Internal()
 	// all active windows docked into it will lose their parent and become undocked.
 	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+	
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	static bool openDock = true;
-	ImGui::Begin("DockSpace Demo", &openDock, window_flags);
+	ImGui::Begin("Root DockSpace", &openDock, window_flags);
 	ImGui::PopStyleVar();
-
 	if (opt_fullscreen)
 		ImGui::PopStyleVar(2);
-
-	// DockSpace
-	ImGuiIO& io = ImGui::GetIO();
-	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-	{
-		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-	}
-
-
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			// Disabling fullscreen would allow the window to be moved to the front of other windows,
-			// which we can't undo at the moment without finer window depth/z control.
-			//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-
-			if (ImGui::MenuItem("Flag: NoSplit", "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0))                 dockspace_flags ^= ImGuiDockNodeFlags_NoSplit;
-			if (ImGui::MenuItem("Flag: NoResize", "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0))                dockspace_flags ^= ImGuiDockNodeFlags_NoResize;
-			if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0))  dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode;
-			if (ImGui::MenuItem("Flag: PassthruCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0))     dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode;
-			if (ImGui::MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0))          dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar;
-			ImGui::Separator();
-			if (ImGui::MenuItem("Close DockSpace", NULL, false, &openDock != NULL))
-				openDock = false;
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
-
+	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	ImGui::End();
+
 	ImVec2 viewPortSize;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-	ImGui::Begin("Scene");
+	ImGui::Begin("Scene", NULL);
 	{
 		//viewPortSize = ImGui::GetContentRegionAvail();
 		ImGui::BeginChild("CameraRenderer");
