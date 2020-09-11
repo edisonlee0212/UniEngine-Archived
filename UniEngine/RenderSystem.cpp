@@ -29,7 +29,8 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 			if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
-			for (const auto& j : *entities) {
+			for (auto& j : *entities) {
+				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
 				auto meshBound = mmc->_Mesh->GetBound();
@@ -58,7 +59,8 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 		for (const auto& immc : *instancedMeshMaterials) {
 			if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
 			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
-			for (const auto& j : *entities) {
+			for (auto& j : *entities) {
+				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				RenderManager::DrawMeshInstanced(
 					immc->_Mesh,

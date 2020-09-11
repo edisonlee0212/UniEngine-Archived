@@ -12,7 +12,8 @@ namespace UniEngine {
         unsigned int _ConfigFlags = 0;
         int _SelectedHierarchyDisplayMode;
         Entity _SelectedEntity;
-        void DrawEntityNode(Entity entity);
+        void DrawEntityMenu(bool enabled, Entity& entity);
+        void DrawEntityNode(Entity& entity);
         void DisplayComponent(ComponentBase* data, ComponentType type);
         void TempComponentInspector(ComponentType type, void* data);
     public:
@@ -20,5 +21,6 @@ namespace UniEngine {
         void OnDestroy();
         void Update();
         void FixedUpdate();
+        Entity GetSelectedEntity();
     };
 }

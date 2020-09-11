@@ -18,8 +18,7 @@ UniEngine::SharedComponentStorage::SharedComponentStorage()
 void UniEngine::SharedComponentStorage::DeleteEntity(Entity entity)
 {
 	for (auto scc : _SCCollectionsList) {
-		size_t ocSize = scc->_OwnersCollectionsList.size();
-		for (size_t i = 0; i < ocSize; i++) {
+		for (size_t i = 0; i < scc->_OwnersCollectionsList.size(); i++) {
 			OwnersCollection* oc = scc->_OwnersCollectionsList[i];
 			auto entitySearch = oc->_OwnersMap.find(entity);
 			if (entitySearch != oc->_OwnersMap.end()) {

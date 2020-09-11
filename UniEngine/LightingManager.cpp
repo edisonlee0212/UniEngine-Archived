@@ -307,7 +307,8 @@ void UniEngine::LightingManager::Start()
 						if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
 						if (mmc->_CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
-							for (auto j : *entities) {
+							for (auto& j : *entities) {
+								if (!j.Enabled()) continue;
 								auto mesh = mmc->_Mesh;
 								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
 								auto scale = EntityManager::GetComponentData<Scale>(j).Value;
@@ -345,7 +346,8 @@ void UniEngine::LightingManager::Start()
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
 							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
-							for (auto entity : *entities) {
+							for (auto& entity : *entities) {
+								if (!entity.Enabled()) continue;
 								auto mesh = immc->_Mesh;
 								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 								mesh->Enable();
@@ -441,7 +443,8 @@ void UniEngine::LightingManager::Start()
 					if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
 					if (mmc->_CastShadow) {
 						auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
-						for (auto entity : *entities) {
+						for (auto& entity : *entities) {
+							if (!entity.Enabled()) continue;
 							auto mesh = mmc->_Mesh;
 							_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 							mesh->Enable();
@@ -464,7 +467,8 @@ void UniEngine::LightingManager::Start()
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
 							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
-							for (auto entity : *entities) {
+							for (auto& entity : *entities) {
+								if (!entity.Enabled()) continue;
 								auto mesh = immc->_Mesh;
 								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 								mesh->Enable();

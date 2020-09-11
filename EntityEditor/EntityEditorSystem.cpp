@@ -1,14 +1,42 @@
 #include "pch.h"
 #include "EntityEditorSystem.h"
 
-void UniEngine::EntityEditorSystem::DrawEntityNode(Entity entity)
+inline void UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& entity)
+{
+	if (ImGui::BeginPopupContextItem())
+	{
+		if (ImGui::Button("Delete"))
+			EntityManager::DeleteEntity(entity);
+
+		if (ImGui::Button(enabled ? "Disable" : "Enable")) {
+			if (enabled) {
+				entity.SetEnabled(false);
+			}
+			else {
+				entity.SetEnabled(true);
+			}
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void UniEngine::EntityEditorSystem::DrawEntityNode(Entity& entity)
 {
 	std::string title = "Entity ";
+	bool enabled = entity.Enabled();
+	if (enabled) {
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
+	}
 	title += std::to_string(entity.Index);
+	
 	bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
+	if (enabled) {
+		ImGui::PopStyleColor();
+	}
 	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
 		_SelectedEntity = entity;
 	}
+	DrawEntityMenu(enabled, entity);
 	if (opened) {
 		ImGui::TreePush();
 		EntityManager::ForEachChild(entity, [this](Entity child) {
@@ -89,8 +117,16 @@ void UniEngine::EntityEditorSystem::Update()
 					for (int j = 0; j < storage.ArchetypeInfo->EntityAliveCount; j++) {
 						std::string title = "Entity ";
 						Entity entity = storage.ChunkArray->Entities.at(j);
+						bool enabled = entity.Enabled();
+						if (enabled) {
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({1, 1, 1, 1}));
+						}
 						title += std::to_string(entity.Index);
 						bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
+						if (enabled) {
+							ImGui::PopStyleColor();
+						}
+						DrawEntityMenu(enabled, entity);
 						if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
 							_SelectedEntity = entity;
 						}
@@ -138,4 +174,9 @@ void UniEngine::EntityEditorSystem::Update()
 
 void UniEngine::EntityEditorSystem::FixedUpdate()
 {
+}
+
+UniEngine::Entity UniEngine::EntityEditorSystem::GetSelectedEntity()
+{
+	return _SelectedEntity;
 }
