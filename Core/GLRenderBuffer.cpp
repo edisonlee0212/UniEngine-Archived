@@ -23,10 +23,10 @@ inline UniEngine::GLRenderBuffer::~GLRenderBuffer()
 	glDeleteRenderbuffers(1, &_ID);
 }
 
-inline void UniEngine::GLRenderBuffer::AllocateStorage(GLenum internalformat, GLsizei width, GLsizei height)
+inline void UniEngine::GLRenderBuffer::AllocateStorage(GLenum internalformat​, GLsizei width​, GLsizei height)
 {
 	Bind();
-	glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
+	glRenderbufferStorage(GL_RENDERBUFFER, internalformat​, width​, height);
 }
 
 inline void UniEngine::GLRenderBuffer::Attach(GLenum attachment, GLuint frameBufferID)

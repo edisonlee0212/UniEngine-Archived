@@ -3,24 +3,19 @@
 #include "SystemBase.h"
 #include "WorldTime.h"
 #include "Entity.h"
-
-namespace UniEngine
-{
-	struct ENTITIES_API Bound
-	{
+namespace UniEngine {
+	struct ENTITIES_API Bound {
 		glm::vec3 Center;
 		glm::vec3 Size;
 		float Radius;
 		Bound();
 	};
 
-	enum class ENTITIES_API SystemGroup
-	{
+	enum class ENTITIES_API SystemGroup {
 		PreparationSystemGroup,
 		SimulationSystemGroup,
 		PresentationSystemGroup
 	};
-
 	class ENTITIES_API World
 	{
 		WorldTime* _Time;
@@ -28,7 +23,7 @@ namespace UniEngine
 		std::vector<SystemBase*> _SimulationSystems;
 		std::vector<SystemBase*> _PresentationSystems;
 		size_t _Index;
-		Bound _WorldBound;
+		UniEngine::Bound _WorldBound;
 		ThreadPool* _ThreadPool;
 	public:
 		Bound GetBound();
@@ -50,11 +45,9 @@ namespace UniEngine
 	};
 
 	template <class T>
-	T* World::CreateSystem(SystemGroup group)
-	{
+	T* World::CreateSystem(SystemGroup group) {
 		T* system = GetSystem<T>();
-		if (system != nullptr)
-		{
+		if (system != nullptr) {
 			return system;
 		}
 		system = new T();
@@ -64,14 +57,14 @@ namespace UniEngine
 		system->OnCreate();
 		switch (group)
 		{
-		case SystemGroup::PreparationSystemGroup:
-			_PreparationSystems.push_back(static_cast<SystemBase*>(system));
+		case UniEngine::SystemGroup::PreparationSystemGroup:
+			_PreparationSystems.push_back((SystemBase*)system);
 			break;
-		case SystemGroup::SimulationSystemGroup:
-			_SimulationSystems.push_back(static_cast<SystemBase*>(system));
+		case UniEngine::SystemGroup::SimulationSystemGroup:
+			_SimulationSystems.push_back((SystemBase*)system);
 			break;
-		case SystemGroup::PresentationSystemGroup:
-			_PresentationSystems.push_back(static_cast<SystemBase*>(system));
+		case UniEngine::SystemGroup::PresentationSystemGroup:
+			_PresentationSystems.push_back((SystemBase*)system);
 			break;
 		default:
 			break;
@@ -79,39 +72,28 @@ namespace UniEngine
 
 		return system;
 	}
-
 	template <class T>
-	void World::DestroySystem()
-	{
+	void World::DestroySystem() {
 		T* system = GetSystem<T>();
-		if (system != nullptr)
-		{
+		if (system != nullptr) {
 			system->OnDestroy();
 			delete system;
 		}
 	}
-
 	template <class T>
-	T* World::GetSystem()
-	{
-		for (auto i : _PreparationSystems)
-		{
-			if (dynamic_cast<T*>(i) != nullptr)
-			{
+	T* World::GetSystem() {
+		for (auto i : _PreparationSystems) {
+			if (dynamic_cast<T*>(i) != nullptr) {
 				return dynamic_cast<T*>(i);
 			}
 		}
-		for (auto i : _SimulationSystems)
-		{
-			if (dynamic_cast<T*>(i) != nullptr)
-			{
+		for (auto i : _SimulationSystems) {
+			if (dynamic_cast<T*>(i) != nullptr) {
 				return dynamic_cast<T*>(i);
 			}
 		}
-		for (auto i : _PresentationSystems)
-		{
-			if (dynamic_cast<T*>(i) != nullptr)
-			{
+		for (auto i : _PresentationSystems) {
+			if (dynamic_cast<T*>(i) != nullptr) {
 				return dynamic_cast<T*>(i);
 			}
 		}

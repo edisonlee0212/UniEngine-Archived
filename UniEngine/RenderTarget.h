@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "UniEngineAPI.h"
-
-namespace UniEngine
-{
+namespace UniEngine {
 	class UNIENGINE_API RenderTarget
 	{
 		bool _Bound;
@@ -22,4 +20,5 @@ namespace UniEngine
 		void Clear();
 		static void BindDefault();
 	};
+
 }

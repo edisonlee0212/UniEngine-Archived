@@ -1,99 +1,66 @@
 #pragma once
 #include "UniEngineAPI.h"
+namespace UniEngine {
 
-namespace UniEngine
-{
 #pragma region Predefined Componenets
-	struct UNIENGINE_API Translation : ComponentBase
-	{
+	struct UNIENGINE_API Translation : ComponentBase {
 		glm::vec3 Value;
-
-		bool operator ==(const Translation& other) const
-		{
+		bool operator ==(const Translation& other) const {
 			return other.Value == Value;
 		}
 	};
-
-	struct UNIENGINE_API Scale : ComponentBase
-	{
+	struct UNIENGINE_API Scale : ComponentBase {
 		glm::vec3 Value;
-
-		bool operator ==(const Scale& other) const
-		{
+		bool operator ==(const Scale& other) const {
 			return other.Value == Value;
 		}
 	};
-
-	struct UNIENGINE_API Rotation : ComponentBase
-	{
+	struct UNIENGINE_API Rotation : ComponentBase {
 		glm::quat Value;
-
-		bool operator ==(const Rotation& other) const
-		{
+		bool operator ==(const Rotation& other) const {
 			return other.Value == Value;
 		}
 	};
-
 	struct UNIENGINE_API LocalTranslation : ComponentBase
 	{
 		glm::vec3 Value;
-
-		bool operator ==(const LocalTranslation& other) const
-		{
+		bool operator ==(const LocalTranslation& other) const {
 			return other.Value == Value;
 		}
 	};
-
-	struct UNIENGINE_API LocalScale : ComponentBase
-	{
+	struct UNIENGINE_API LocalScale : ComponentBase {
 		glm::vec3 Value;
-
-		bool operator ==(const LocalScale& other) const
-		{
+		bool operator ==(const LocalScale& other) const {
 			return other.Value == Value;
 		}
 	};
-
-	struct UNIENGINE_API LocalRotation : ComponentBase
-	{
+	struct UNIENGINE_API LocalRotation : ComponentBase {
 		glm::quat Value;
-
-		bool operator ==(const LocalRotation& other) const
-		{
+		bool operator ==(const LocalRotation& other) const {
 			return other.Value == Value;
 		}
 	};
-
-	struct UNIENGINE_API LocalToWorld : ComponentBase
-	{
+	struct UNIENGINE_API LocalToWorld : ComponentBase {
 		glm::mat4 Value;
-
-		bool operator ==(const LocalToWorld& other) const
-		{
+		bool operator ==(const LocalToWorld& other) const {
 			return other.Value == Value;
 		}
 	};
-
-	struct UNIENGINE_API LocalToParent : ComponentBase
-	{
+	struct UNIENGINE_API LocalToParent : ComponentBase {
 		glm::mat4 Value;
-
-		bool operator ==(const LocalToParent& other) const
-		{
+		bool operator ==(const LocalToParent& other) const {
 			return other.Value == Value;
 		}
 	};
-
+	
 #pragma endregion
 
 
-	struct ChildInfo
-	{
+	struct ChildInfo {
 		Entity Child;
 		LocalToParent LastLTP;
 		LocalToWorld LastPLTW;
 	};
-
 	class UNIENGINE_API TransformSystem :
 		public SystemBase
 	{
@@ -118,8 +85,9 @@ namespace UniEngine
 		void CalculateLTWRecursive(LocalToWorld pltw, Entity entity);
 		void CollectHierarchy(std::vector<std::pair<Entity, ChildInfo>>* container, Entity entity);
 	public:
-		void OnCreate() override;
-		void OnDestroy() override;
-		void Update() override;
+		void OnCreate();
+		void OnDestroy();
+		void Update();
 	};
+
 }

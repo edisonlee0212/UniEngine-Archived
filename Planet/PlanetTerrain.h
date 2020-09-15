@@ -2,11 +2,8 @@
 #include "UniEngine.h"
 #include "TerrainChunk.h"
 using namespace UniEngine;
-
-namespace Planet
-{
-	struct PlanetInfo
-	{
+namespace Planet {
+	struct PlanetInfo {
 		glm::dvec3 Position;
 		glm::quat Rotation;
 		unsigned MaxLodLevel;
@@ -16,14 +13,10 @@ namespace Planet
 		unsigned Resolution;
 	};
 
-	struct MeshInfo
-	{
+	struct MeshInfo {
 		unsigned Index;
 		bool Enabled;
-
-		MeshInfo(unsigned index, bool enabled = true) : Index(index), Enabled(enabled)
-		{
-		};
+		MeshInfo(unsigned index, bool enabled = true) : Index(index), Enabled(enabled) {};
 	};
 
 	class PlanetTerrain : SharedComponentBase
@@ -33,14 +26,14 @@ namespace Planet
 		std::vector<TerrainChunk*> _WaitingList;
 		std::vector<TerrainChunk*> _RecycledChunkList;
 		PlanetInfo _Info;
-		Material* _SurfaceMaterial;
+		Material* _SurfaceMaterial;	
 		//Used for fast mesh generation;
 		std::vector<Vertex> _SharedVertices;
 		std::vector<unsigned> _SharedTriangles;
 
 	public:
-
-		size_t GetHashCode() override;
+		
+		size_t GetHashCode();
 		PlanetTerrain(PlanetInfo info, Material* surfaceMaterial, std::queue<TerrainChunk*>* generationQueue);
 		~PlanetTerrain();
 	};

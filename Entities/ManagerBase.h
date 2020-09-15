@@ -1,10 +1,7 @@
 #pragma once
 #include "EntitiesAPI.h"
-
-namespace UniEngine
-{
+namespace UniEngine {
 	class World;
-
 	class ENTITIES_API ManagerBase
 	{
 	protected:

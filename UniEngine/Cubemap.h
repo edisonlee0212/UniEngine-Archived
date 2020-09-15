@@ -1,8 +1,6 @@
 #pragma once
 #include "UniEngineAPI.h"
-
-namespace UniEngine
-{
+namespace UniEngine {
 	class UNIENGINE_API Cubemap
 	{
 		GLTextureCubeMap* _Texture;
@@ -14,3 +12,4 @@ namespace UniEngine
 		std::vector<std::string> Paths();
 	};
 }
+

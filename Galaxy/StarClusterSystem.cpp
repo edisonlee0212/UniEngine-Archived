@@ -14,13 +14,11 @@ void Galaxy::StarClusterSystem::OnCreate()
 	EntityManager::SetEntityQueryAllFilters(_StarQuery, StarSeed());
 	_Patterns.push_back(pattern);
 	_StarArchetype = EntityManager::CreateEntityArchetype("Star",
-	                                                      Translation(), Rotation(), Scale(), LocalToWorld(),
-	                                                      StarClusterIndex(),
-	                                                      StarIndex(),
-	                                                      StarSeed(), StarOrbit(), StarOrbitOffset(),
-	                                                      StarOrbitProportion(), StarPosition(),
-	                                                      SelectionStatus(), OriginalColor(), SurfaceColor(),
-	                                                      DisplayColor()
+		Translation(), Rotation(), Scale(), LocalToWorld(),
+		StarClusterIndex(),
+		StarIndex(),
+		StarSeed(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),
+		SelectionStatus(), OriginalColor(), SurfaceColor(), DisplayColor()
 	);
 
 	//TODO: Set star pattern.
@@ -57,8 +55,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
-	for (auto i = 0; i < 60000; i++)
-	{
+	for (auto i = 0; i < 60000; i++) {
 		auto starEntity = EntityManager::CreateEntity(_StarArchetype);
 		index.Value = i;
 		seed.Value = glm::linearRand(0.0, 1.0);
@@ -84,27 +81,20 @@ void Galaxy::StarClusterSystem::Update()
 
 	_GalaxyTime += _World->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
-	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
-		_StarQuery, [time](int i, Entity entity, StarSeed* seed, StarPosition* position, StarOrbit* orbit,
-		                   StarOrbitOffset* offset)
-		{
-			position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0 + time, true);
+	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery, [time](int i, Entity entity, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset) {
+		position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0 + time, true);
 		});
 	float size = _Size;
-	EntityManager::ForEach<Translation, Scale, StarPosition>(
-		_StarQuery, [size](int i, Entity entity, Translation* translation, Scale* scale, StarPosition* position)
-		{
-			translation->Value = position->Value / 20.0;
-			scale->Value = size * glm::vec3(1.0f);
+	EntityManager::ForEach<Translation, Scale, StarPosition>(_StarQuery, [size](int i, Entity entity, Translation* translation, Scale* scale, StarPosition* position) {
+		translation->Value = position->Value / 20.0;
+		scale->Value = size * glm::vec3(1.0f);
 		});
 	std::vector<Entity> entities = std::vector<Entity>();
 	_StarQuery.ToEntityArray(&entities);
 	//Render from last update.
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	_StarQuery.ToComponentDataArray(&matrices);
-	RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, _StarMaterial, glm::mat4(1.0f),
-	                                 (glm::mat4*)matrices.data(), matrices.size(),
-	                                 Application::GetMainCameraComponent()->Value);
+	RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, _StarMaterial, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), Application::GetMainCameraComponent()->Value);
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

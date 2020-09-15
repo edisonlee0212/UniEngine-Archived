@@ -3,8 +3,7 @@
 #include "GLRenderBuffer.h"
 #include "GLTexture.h"
 
-namespace UniEngine
-{
+namespace UniEngine {
 	class CORE_API GLFrameBuffer : public GLObject
 	{
 		bool _Color;

@@ -19,15 +19,12 @@ float lightSize = 0.5;
 float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
 bool enableNormalMapping = true;
-
-enum TestScene
-{
+enum TestScene {
 	NANOSUIT,
 	BACKPACK,
 	SPONZA_TEST,
 	PCSS,
 };
-
 int main()
 {
 	FileIO::SetResourcePath("../Resources/");
@@ -48,9 +45,8 @@ int main()
 
 	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
 
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(),
-	                                                                 LocalToWorld());
-
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
+	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
@@ -58,10 +54,11 @@ int main()
 	ccs->EnableWindowControl(true);
 	ccs->SetPosition(glm::vec3(-40, 25, 3));
 	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype("Model",
-	                                                                         LocalToParent(),
-	                                                                         Translation(),
-	                                                                         Scale(),
-	                                                                         LocalToWorld());
+		LocalToParent(),
+		Translation(),
+		Scale(),
+		LocalToWorld());
+
 
 
 #pragma endregion
@@ -72,10 +69,8 @@ int main()
 	scale.Value = glm::vec3(0.5f);
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
-	if (testScene == NANOSUIT)
-	{
-		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"),
-		                                          Default::GLPrograms::StandardProgram);
+	if (testScene == NANOSUIT) {
+		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		Translation bpp;
 		bpp.Value = glm::vec3(0, 5, 0);
@@ -84,10 +79,8 @@ int main()
 		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
-	else if (testScene == BACKPACK)
-	{
-		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"),
-		                                          Default::GLPrograms::StandardProgram);
+	else if (testScene == BACKPACK) {
+		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		Translation bpp;
 		bpp.Value = glm::vec3(0, 10, 0);
@@ -96,11 +89,9 @@ int main()
 		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
-	else if (testScene == SPONZA_TEST)
-	{
+	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
-		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"),
-		                                          Default::GLPrograms::StandardProgram);
+		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformSystem & ParentSystem
@@ -111,8 +102,7 @@ int main()
 		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
-	else if (testScene == PCSS)
-	{
+	else if (testScene == PCSS) {
 		MeshMaterialComponent* cmmc = new MeshMaterialComponent();
 		cmmc->_Mesh = Default::Primitives::Cube;
 		cmmc->_Material = Default::Materials::StandardMaterial;
@@ -184,24 +174,23 @@ int main()
 	//Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our self.
 	//Another way to run engine is to simply execute:
 	//Application.Run();
-	while (loopable)
-	{
+	while (loopable) {
 		Application::PreUpdate();
 		LightSettingMenu();
 		SplitDisplay();
 		ImGui::ShowDemoWindow();
 #pragma region LightsPosition
 		Rotation r;
-		r.Value = quatLookAt(
-			normalize(glm::vec3(
+		r.Value = glm::quatLookAt(
+			glm::normalize(glm::vec3(
 				glm::cos(glm::radians(lightAngle0)) * glm::sin(glm::radians(lightAngle1)),
 				glm::sin(glm::radians(lightAngle0)),
 				glm::cos(glm::radians(lightAngle0)) * glm::cos(glm::radians(lightAngle1))))
 			, glm::vec3(0, 1, 0));
 		EntityManager::SetComponentData<Rotation>(dle, r);
 
-		r.Value = quatLookAt(
-			normalize(glm::vec3(
+		r.Value = glm::quatLookAt(
+			glm::normalize(glm::vec3(
 				glm::cos(glm::radians(lightAngle2)) * glm::sin(glm::radians(lightAngle3)),
 				glm::sin(glm::radians(lightAngle2)),
 				glm::cos(glm::radians(lightAngle2)) * glm::cos(glm::radians(lightAngle3))))
@@ -214,8 +203,7 @@ int main()
 		dlc2->diffuse = glm::vec3(lightAngle5);
 
 		Translation p;
-		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)),
-		                              30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
+		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple, p);
 		plc->diffuse = glm::vec3(lightAngle7);
 
@@ -243,8 +231,7 @@ int main()
 	return 0;
 }
 
-void LightSettingMenu()
-{
+void LightSettingMenu() {
 	ImGui::Begin("Light Angle Controller");
 	ImGui::SliderFloat("Soft light angle", &lightAngle0, 0.0f, 89.0f);
 	ImGui::SliderFloat("Soft light circle", &lightAngle1, 0.0f, 360.0f);
@@ -259,22 +246,18 @@ void LightSettingMenu()
 
 bool _DisplaySplit = false;
 
-void SplitDisplay()
-{
+void SplitDisplay() {
 	ImGui::Begin("Cascades Shadow Map");
 	std::string text = std::string(_DisplaySplit ? "Disable" : "Enable");
-	if (ImGui::Button(text.c_str()))
-	{
+	if (ImGui::Button(text.c_str())) {
 		_DisplaySplit = !_DisplaySplit;
 		LightingManager::SetEnableSplitDisplay(_DisplaySplit);
 	}
 	ImGui::End();
 }
 
-void InitGround()
-{
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(),
-	                                                                 LocalToWorld());
+void InitGround() {
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
 	Translation translation = Translation();
 	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -287,7 +270,7 @@ void InitGround()
 	translation.Value = glm::vec3(-100.0f, 0.0f, 0.0f);
 	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
 	Rotation rotation;
-	rotation.Value = quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
+	rotation.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
 	EntityManager::SetComponentData<Translation>(entity1, translation);
 	EntityManager::SetComponentData<Scale>(entity1, scale);
 	EntityManager::SetComponentData<Rotation>(entity1, rotation);
@@ -295,7 +278,7 @@ void InitGround()
 	auto entity2 = EntityManager::CreateEntity(archetype);
 	translation.Value = glm::vec3(100.0f, 0.0f, 0.0f);
 	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
-	rotation.Value = quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
+	rotation.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
 
 	EntityManager::SetComponentData<Translation>(entity2, translation);
 	EntityManager::SetComponentData<Scale>(entity2, scale);
@@ -305,7 +288,7 @@ void InitGround()
 	auto entity3 = EntityManager::CreateEntity(archetype);
 	translation.Value = glm::vec3(0.0f, 0.0f, -100.0f);
 	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
-	rotation.Value = quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+	rotation.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 
 	EntityManager::SetComponentData<Translation>(entity3, translation);
 	EntityManager::SetComponentData<Scale>(entity3, scale);
@@ -314,7 +297,7 @@ void InitGround()
 	auto entity4 = EntityManager::CreateEntity(archetype);
 	translation.Value = glm::vec3(0.0f, 0.0f, 100.0f);
 	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
-	rotation.Value = quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
+	rotation.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
 
 	EntityManager::SetComponentData<Translation>(entity4, translation);
 	EntityManager::SetComponentData<Scale>(entity4, scale);

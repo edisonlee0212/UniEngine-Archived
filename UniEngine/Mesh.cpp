@@ -1,51 +1,44 @@
 #include "pch.h"
 #include "Mesh.h"
 using namespace UniEngine;
-
-glm::vec3 Mesh::GetCenter()
+glm::vec3 UniEngine::Mesh::GetCenter()
 {
 	return _Bound.Center;
 }
-
-Bound Mesh::GetBound()
+Bound UniEngine::Mesh::GetBound()
 {
 	return _Bound;
 }
-
-float Mesh::GetRadius()
+float UniEngine::Mesh::GetRadius()
 {
 	return _Bound.Radius;
 }
-
-Mesh::Mesh()
+UniEngine::Mesh::Mesh()
 {
 	_VAO = new GLVAO();
 	_IndicesSize = 0;
 	_Bound = Bound();
 }
 
-Mesh::~Mesh()
+UniEngine::Mesh::~Mesh()
 {
 	delete _VAO;
 }
 
-void Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
+void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
 {
 	_Mask = mask;
 	_IndicesSize = indices.size();
 	_VerticesSize = vertices.size();
-	if (_VerticesSize == 0)
-	{
+	if (_VerticesSize == 0) {
 		Debug::Log("Mesh: SetVertices empty!");
 		return;
 	}
-	if (!(mask & static_cast<unsigned>(VertexAttribute::Position)))
-	{
+	if (!(mask & (unsigned)VertexAttribute::Position)) {
 		Debug::Error("No Position Data!");
 		return;
 	}
-	if (!(mask & static_cast<unsigned>(VertexAttribute::TexCoord0)))
-	{
+	if (!(mask & (unsigned)VertexAttribute::TexCoord0)) {
 		Debug::Error("No TexCoord0!");
 		//return;
 	}
@@ -63,289 +56,238 @@ void Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector
 	std::vector<glm::vec2> texcoords7s = std::vector<glm::vec2>();
 #pragma region DataAllocation
 	size_t attributeSize = 3 * sizeof(glm::vec3);
-	if (mask & static_cast<unsigned>(VertexAttribute::Color))
-	{
+	if (mask & (unsigned)VertexAttribute::Color) {
 		attributeSize += sizeof(glm::vec4);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord0))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord0) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord1))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord1) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord2))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord2) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord3))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord3) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord4))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord4) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord5))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord5) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord6))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord6) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord7))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord7) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	_VAO->SetData(static_cast<GLsizei>(_VerticesSize * attributeSize), nullptr, GL_STATIC_DRAW);
+	_VAO->SetData((GLsizei)(_VerticesSize * attributeSize), nullptr, GL_STATIC_DRAW);
 #pragma endregion
 #pragma region Copy
 	glm::vec3 minBound = vertices.at(0).Position;
 	glm::vec3 maxBound = vertices.at(0).Position;
-	for (size_t i = 0; i < _VerticesSize; i++)
-	{
+	for (size_t i = 0; i < _VerticesSize; i++) {
 		auto position = vertices.at(i).Position;
-		minBound = glm::vec3(glm::min(minBound.x, position.x), glm::min(minBound.y, position.y),
-		                     glm::min(minBound.z, position.z));
-		maxBound = glm::vec3(glm::max(maxBound.x, position.x), glm::max(maxBound.y, position.y),
-		                     glm::max(maxBound.z, position.z));
+		minBound = glm::vec3(glm::min(minBound.x, position.x), glm::min(minBound.y, position.y), glm::min(minBound.z, position.z));
+		maxBound = glm::vec3(glm::max(maxBound.x, position.x), glm::max(maxBound.y, position.y), glm::max(maxBound.z, position.z));
 		positions.push_back(vertices.at(i).Position);
-		if (mask & static_cast<unsigned>(VertexAttribute::Normal))
-		{
+		if (mask & (unsigned)VertexAttribute::Normal) {
 			normals.push_back(vertices.at(i).Normal);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::Tangent))
-		{
+		if (mask & (unsigned)VertexAttribute::Tangent) {
 			tangents.push_back(vertices.at(i).Tangent);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::Color))
-		{
+		if (mask & (unsigned)VertexAttribute::Color) {
 			colors.push_back(vertices.at(i).Color);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::TexCoord0))
-		{
+		if (mask & (unsigned)VertexAttribute::TexCoord0) {
 			texcoords0s.push_back(vertices.at(i).TexCoords0);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::TexCoord1))
-		{
+		if (mask & (unsigned)VertexAttribute::TexCoord1) {
 			texcoords1s.push_back(vertices.at(i).TexCoords1);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::TexCoord2))
-		{
+		if (mask & (unsigned)VertexAttribute::TexCoord2) {
 			texcoords2s.push_back(vertices.at(i).TexCoords2);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::TexCoord3))
-		{
+		if (mask & (unsigned)VertexAttribute::TexCoord3) {
 			texcoords3s.push_back(vertices.at(i).TexCoords3);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::TexCoord4))
-		{
+		if (mask & (unsigned)VertexAttribute::TexCoord4) {
 			texcoords4s.push_back(vertices.at(i).TexCoords4);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::TexCoord5))
-		{
+		if (mask & (unsigned)VertexAttribute::TexCoord5) {
 			texcoords5s.push_back(vertices.at(i).TexCoords5);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::TexCoord6))
-		{
+		if (mask & (unsigned)VertexAttribute::TexCoord6) {
 			texcoords6s.push_back(vertices.at(i).TexCoords6);
 		}
-		if (mask & static_cast<unsigned>(VertexAttribute::TexCoord7))
-		{
+		if (mask & (unsigned)VertexAttribute::TexCoord7) {
 			texcoords7s.push_back(vertices.at(i).TexCoords7);
 		}
 	}
 	_Bound.Size = (maxBound - minBound) / 2.0f;
 	_Bound.Center = (maxBound + minBound) / 2.0f;
-	_Bound.Radius = length(_Bound.Size);
+	_Bound.Radius = glm::length(_Bound.Size);
 #pragma endregion
 #pragma region ToGPU
 
 	_VAO->SubData(0, _VerticesSize * sizeof(glm::vec3), &positions[0]);
 
-	if (mask & static_cast<unsigned>(VertexAttribute::Normal))
+	if (mask & (unsigned)VertexAttribute::Normal)
 		_VAO->SubData(_VerticesSize * sizeof(glm::vec3), _VerticesSize * sizeof(glm::vec3), &normals[0]);
-	else
-	{
+	else {
 		RecalculateNormal(vertices, indices);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::Tangent))
-	{
+	if (mask & (unsigned)VertexAttribute::Tangent) {
 		_VAO->SubData(_VerticesSize * 2 * sizeof(glm::vec3), _VerticesSize * sizeof(glm::vec3), &tangents[0]);
 	}
-	else
-	{
+	else {
 		RecalculateTangent(vertices, indices);
 	}
 	attributeSize = 3 * sizeof(glm::vec3);
-	if (mask & static_cast<unsigned>(VertexAttribute::Color))
-	{
+	if (mask & (unsigned)VertexAttribute::Color) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec4), &colors[0]);
 		attributeSize += sizeof(glm::vec4);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord0))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord0) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords0s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord1))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord1) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords1s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord2))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord2) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords2s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord3))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord3) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords3s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord4))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord4) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords4s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord5))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord5) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords5s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord6))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord6) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords6s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord7))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord7) {
 		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords7s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 #pragma endregion
 #pragma region AttributePointer
 	_VAO->EnableAttributeArray(0);
-	_VAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
+	_VAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
 	_VAO->EnableAttributeArray(1);
 	_VAO->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * _VerticesSize));
 	_VAO->EnableAttributeArray(2);
-	_VAO->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
-	                          (void*)(2 * sizeof(glm::vec3) * _VerticesSize));
+	_VAO->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(2 * sizeof(glm::vec3) * _VerticesSize));
 	attributeSize = 3 * sizeof(glm::vec3);
-	if (mask & static_cast<unsigned>(VertexAttribute::Color))
-	{
+	if (mask & (unsigned)VertexAttribute::Color) {
 		_VAO->EnableAttributeArray(3);
 		_VAO->SetAttributePointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec4);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord0))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord0) {
 		_VAO->EnableAttributeArray(4);
 		_VAO->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord1))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord1) {
 		_VAO->EnableAttributeArray(5);
 		_VAO->SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord2))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord2) {
 		_VAO->EnableAttributeArray(6);
 		_VAO->SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord3))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord3) {
 		_VAO->EnableAttributeArray(7);
 		_VAO->SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord4))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord4) {
 		_VAO->EnableAttributeArray(8);
 		_VAO->SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord5))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord5) {
 		_VAO->EnableAttributeArray(9);
 		_VAO->SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord6))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord6) {
 		_VAO->EnableAttributeArray(10);
 		_VAO->SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
-	if (mask & static_cast<unsigned>(VertexAttribute::TexCoord7))
-	{
+	if (mask & (unsigned)VertexAttribute::TexCoord7) {
 		_VAO->EnableAttributeArray(11);
 		_VAO->SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 #pragma endregion
-	_VAO->EBO()->SetData(static_cast<GLsizei>(_IndicesSize) * sizeof(unsigned), &indices.at(0), GL_STATIC_DRAW);
+	_VAO->EBO()->SetData((GLsizei)_IndicesSize * sizeof(unsigned), &indices.at(0), GL_STATIC_DRAW);
 }
 
 
-size_t Mesh::GetVerticesAmount()
+size_t UniEngine::Mesh::GetVerticesAmount()
 {
 	return _IndicesSize;
 }
 
-size_t Mesh::Size()
+size_t UniEngine::Mesh::Size()
 {
 	return _IndicesSize;
 }
 
-void Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
+void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
 {
 	std::vector<std::vector<glm::vec3>> normalLists = std::vector<std::vector<glm::vec3>>();
 	auto size = vertices.size();
-	for (auto i = 0; i < size; i++)
-	{
+	for (auto i = 0; i < size; i++) {
 		normalLists.push_back(std::vector<glm::vec3>());
 	}
-	for (size_t i = 0; i < _IndicesSize / 3; i++)
-	{
+	for (size_t i = 0; i < _IndicesSize / 3; i++) {
 		auto v1 = vertices.at(indices.at(3 * i)).Position;
 		auto v2 = vertices.at(indices.at(3 * i + 1)).Position;
 		auto v3 = vertices.at(indices.at(3 * i + 2)).Position;
-		auto normal = normalize(cross(v1 - v2, v1 - v3));
+		auto normal = glm::normalize(glm::cross(v1 - v2, v1 - v3));
 		normalLists[indices.at(3 * i)].push_back(normal);
 		normalLists[indices.at(3 * i + 1)].push_back(normal);
 		normalLists[indices.at(3 * i + 2)].push_back(normal);
 	}
 	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
-	for (auto i = 0; i < size; i++)
-	{
+	for (auto i = 0; i < size; i++) {
 		glm::vec3 normal = glm::vec3(0.0f);
-		for (auto j : normalLists[i])
-		{
+		for (auto j : normalLists[i]) {
 			normal += j;
 		}
-		normals.push_back(normalize(normal));
+		normals.push_back(glm::normalize(normal));
 	}
 
 	_VAO->SubData(size * sizeof(glm::vec3), size * sizeof(glm::vec3), &normals[0]);
 }
 
-void Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
+void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
 {
 	std::vector<std::vector<glm::vec3>> tangentLists = std::vector<std::vector<glm::vec3>>();
 	auto size = vertices.size();
-	for (auto i = 0; i < size; i++)
-	{
+	for (auto i = 0; i < size; i++) {
 		tangentLists.push_back(std::vector<glm::vec3>());
 	}
-	for (size_t i = 0; i < _IndicesSize / 3; i++)
-	{
+	for (size_t i = 0; i < _IndicesSize / 3; i++) {
 		auto v1 = vertices.at(indices.at(3 * i)).Position;
 		auto v2 = vertices.at(indices.at(3 * i + 1)).Position;
 		auto v3 = vertices.at(indices.at(3 * i + 2)).Position;
@@ -367,32 +309,31 @@ void Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigne
 		tangentLists[indices.at(3 * i + 2)].push_back(tangent);
 	}
 	std::vector<glm::vec3> tangents = std::vector<glm::vec3>();
-	for (auto i = 0; i < size; i++)
-	{
+	for (auto i = 0; i < size; i++) {
 		glm::vec3 tangent = glm::vec3(0.0f);
-		for (auto j : tangentLists[i])
-		{
+		for (auto j : tangentLists[i]) {
 			tangent += j;
 		}
-		tangents.push_back(normalize(tangent));
+		tangents.push_back(glm::normalize(tangent));
 	}
 
 	_VAO->SubData(size * 2 * sizeof(glm::vec3), size * sizeof(glm::vec3), &tangents[0]);
 }
 
 
-GLVAO* Mesh::VAO()
+
+GLVAO* UniEngine::Mesh::VAO()
 {
 	return _VAO;
 }
 
-void Mesh::Enable()
+void UniEngine::Mesh::Enable()
 {
 	_VAO->Bind();
 }
 
 
-void* Mesh::GetAttributeArray(VertexAttribute channel)
+void* UniEngine::Mesh::GetAttributeArray(VertexAttribute channel)
 {
 	return nullptr;
 }

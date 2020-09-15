@@ -3,14 +3,14 @@
 #include "Debug.h"
 using namespace UniEngine;
 
-inline void GLShader::SetCode(std::string* code)
+inline void UniEngine::GLShader::SetCode(std::string* code)
 {
 	_Code = code;
 	_Compileable = true;
 	Compile();
 }
 
-inline GLShader::GLShader(ShaderType type) : _Type(type)
+inline UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
 {
 	_Code = nullptr;
 	_ID = 0;
@@ -18,13 +18,13 @@ inline GLShader::GLShader(ShaderType type) : _Type(type)
 	_Compileable = false;
 	switch (_Type)
 	{
-	case ShaderType::Vertex:
+	case UniEngine::ShaderType::Vertex:
 		_ID = glCreateShader(GL_VERTEX_SHADER);
 		break;
-	case ShaderType::Geometry:
+	case UniEngine::ShaderType::Geometry:
 		_ID = glCreateShader(GL_GEOMETRY_SHADER);
 		break;
-	case ShaderType::Fragment:
+	case UniEngine::ShaderType::Fragment:
 		_ID = glCreateShader(GL_FRAGMENT_SHADER);
 		break;
 	default:
@@ -32,7 +32,7 @@ inline GLShader::GLShader(ShaderType type) : _Type(type)
 	}
 }
 
-inline GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
+inline UniEngine::GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
 {
 	_Code = code;
 	_ID = 0;
@@ -40,13 +40,13 @@ inline GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
 	_Compileable = false;
 	switch (_Type)
 	{
-	case ShaderType::Vertex:
+	case UniEngine::ShaderType::Vertex:
 		_ID = glCreateShader(GL_VERTEX_SHADER);
 		break;
-	case ShaderType::Geometry:
+	case UniEngine::ShaderType::Geometry:
 		_ID = glCreateShader(GL_GEOMETRY_SHADER);
 		break;
-	case ShaderType::Fragment:
+	case UniEngine::ShaderType::Fragment:
 		_ID = glCreateShader(GL_FRAGMENT_SHADER);
 		break;
 	default:
@@ -55,27 +55,27 @@ inline GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
 	SetCode(_Code);
 }
 
-inline GLShader::~GLShader()
+inline UniEngine::GLShader::~GLShader()
 {
 	glDeleteShader(_ID);
 }
 
-inline ShaderType GLShader::Type()
+inline ShaderType UniEngine::GLShader::Type()
 {
 	return _Type;
 }
 
-inline bool GLShader::Attachable()
+inline bool UniEngine::GLShader::Attachable()
 {
 	return _Attachable;
 }
 
-inline bool GLShader::Compileable()
+inline bool UniEngine::GLShader::Compileable()
 {
 	return _Compileable;
 }
 
-inline void GLShader::Compile()
+inline void UniEngine::GLShader::Compile()
 {
 	const char* code = _Code->c_str();
 	glShaderSource(_ID, 1, &code, nullptr);
@@ -85,33 +85,30 @@ inline void GLShader::Compile()
 	glGetShaderiv(_ID, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(_ID, 1024, nullptr, infoLog);
+		glGetShaderInfoLog(_ID, 1024, NULL, infoLog);
 		std::string type;
 		switch (_Type)
 		{
-		case ShaderType::Vertex:
+		case UniEngine::ShaderType::Vertex:
 			type = "Vertex";
 			break;
-		case ShaderType::Geometry:
+		case UniEngine::ShaderType::Geometry:
 			type = "Geometry";
 			break;
-		case ShaderType::Fragment:
+		case UniEngine::ShaderType::Fragment:
 			type = "Fragment";
 			break;
 		default:
 			break;
 		}
-		Debug::Error(
-			"ERROR::SHADER_COMPILATION_ERROR of type: " + type + "\n" + infoLog +
-			"\n -- --------------------------------------------------- -- ");
+		Debug::Error("ERROR::SHADER_COMPILATION_ERROR of type: " + type + "\n" + infoLog + "\n -- --------------------------------------------------- -- ");
 	}
 	_Attachable = true;
 }
 
-inline void GLShader::Attach(GLuint programID)
+inline void UniEngine::GLShader::Attach(GLuint programID)
 {
-	if (!_Compileable)
-	{
+	if (!_Compileable) {
 		Debug::Error("Error");
 		return;
 	}
@@ -119,7 +116,8 @@ inline void GLShader::Attach(GLuint programID)
 	glAttachShader(programID, _ID);
 }
 
-inline void GLShader::Detach(GLuint programID)
+inline void UniEngine::GLShader::Detach(GLuint programID)
 {
 	glDetachShader(programID, _ID);
 }
+

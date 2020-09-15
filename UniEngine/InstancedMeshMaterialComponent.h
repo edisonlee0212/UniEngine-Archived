@@ -2,9 +2,7 @@
 #include "UniEngineAPI.h"
 #include "Mesh.h"
 #include "Material.h"
-
-namespace UniEngine
-{
+namespace UniEngine {
 	class UNIENGINE_API InstancedMeshMaterialComponent :
 		public SharedComponentBase
 	{
@@ -14,6 +12,6 @@ namespace UniEngine
 		std::vector<glm::mat4>* _Matrices;
 		Mesh* _Mesh;
 		Material* _Material;
-		size_t GetHashCode() override;
+		size_t GetHashCode();
 	};
 }

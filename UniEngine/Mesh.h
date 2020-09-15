@@ -1,10 +1,7 @@
 #pragma once
 #include "UniEngineAPI.h"
-
-namespace UniEngine
-{
-	struct UNIENGINE_API Vertex
-	{
+namespace UniEngine {
+	struct UNIENGINE_API Vertex {
 		glm::vec3 Position;
 		glm::vec3 Normal;
 		glm::vec3 Tangent;
@@ -18,7 +15,6 @@ namespace UniEngine
 		glm::vec2 TexCoords6;
 		glm::vec2 TexCoords7;
 	};
-
 	enum class UNIENGINE_API VertexAttribute
 	{
 		Position = 1,

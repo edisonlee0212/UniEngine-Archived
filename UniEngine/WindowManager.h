@@ -2,8 +2,7 @@
 #include "UniEngineAPI.h"
 #include "Texture2D.h"
 
-namespace UniEngine
-{
+namespace UniEngine {
 	class UNIENGINE_API WindowManager : public ManagerBase
 	{
 	public:
@@ -22,4 +21,5 @@ namespace UniEngine
 		static unsigned _WindowWidth;
 		static unsigned _WindowHeight;
 	};
+
 }

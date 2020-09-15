@@ -1,8 +1,6 @@
 #pragma once
 #include "UniEngineAPI.h"
-
-namespace UniEngine
-{
+namespace UniEngine {
 	struct UNIENGINE_API DirectionalLight
 	{
 		glm::vec4 position;
@@ -14,7 +12,6 @@ namespace UniEngine
 		glm::vec4 lightFrustumDistance;
 		glm::vec4 ReservedParameters;
 	};
-
 	class UNIENGINE_API DirectionalLightComponent :
 		public SharedComponentBase
 	{
@@ -24,6 +21,7 @@ namespace UniEngine
 		float depthBias = 0.007f;
 		float normalOffset = 0.001f;
 		float lightSize = 0.01f;
-		size_t GetHashCode() override;
+		size_t GetHashCode();
 	};
+
 }

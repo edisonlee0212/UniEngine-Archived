@@ -2,12 +2,10 @@
 #include "UniEngineAPI.h"
 #include "CameraComponent.h"
 #include "TransformSystem.h"
-
-namespace UniEngine
-{
-	class UNIENGINE_API CameraControlSystem :
-		public SystemBase
-	{
+namespace UniEngine {
+    class UNIENGINE_API CameraControlSystem :
+        public SystemBase
+    {
 		float _Velocity = 20.0f;
 		float _Sensitivity = 0.1f;
 		bool _EnableWindowControl = false;
@@ -19,10 +17,10 @@ namespace UniEngine
 		float _P[3];
 		float _R[4];
 	public:
-		void Update() override;
+		void Update();
 		void EnableWindowControl(bool value);
 		void SetPosition(glm::vec3 position);
 		void SetVelocity(float velocity);
 		void SetSensitivity(float sensitivity);
-	};
+    };
 }

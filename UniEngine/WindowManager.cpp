@@ -12,13 +12,12 @@ unsigned WindowManager::_WindowWidth;
 unsigned WindowManager::_WindowHeight;
 
 
-void WindowManager::ResizeCallback(GLFWwindow* window, int width, int height)
-{
+void WindowManager::ResizeCallback(GLFWwindow* window, int width, int height) {
 	_WindowWidth = width;
 	_WindowHeight = height;
 }
 
-void WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int event)
+void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int event)
 {
 	if (event == GLFW_CONNECTED)
 	{
@@ -29,10 +28,8 @@ void WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int event)
 	else if (event == GLFW_DISCONNECTED)
 	{
 		// The monitor was disconnected
-		for (auto i = 0; i < _Monitors.size(); i++)
-		{
-			if (monitor == _Monitors[i])
-			{
+		for (auto i = 0; i < _Monitors.size(); i++) {
+			if (monitor == _Monitors[i]) {
 				_Monitors.erase(_Monitors.begin() + i);
 			}
 		}
@@ -40,7 +37,7 @@ void WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int event)
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 }
 
-void WindowManager::Init(std::string name, bool fullScreen)
+void UniEngine::WindowManager::Init(std::string name, bool fullScreen)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -53,54 +50,52 @@ void WindowManager::Init(std::string name, bool fullScreen)
 #endif
 	int size;
 	auto monitors = glfwGetMonitors(&size);
-	for (auto i = 0; i < size; i++)
-	{
+	for (auto i = 0; i < size; i++) {
 		_Monitors.push_back(monitors[i]);
 	}
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 	glfwSetMonitorCallback(SetMonitorCallback);
 
-
+	
 	// glfw window creation
 	// --------------------
 	const GLFWvidmode* mode = glfwGetVideoMode(_PrimaryMonitor);
 	_WindowWidth = fullScreen ? mode->width : mode->width - 200;
 	_WindowHeight = fullScreen ? mode->height : mode->height - 200;
 
-	_Window = glfwCreateWindow(_WindowWidth, _WindowHeight, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr,
-	                           nullptr);
-	if (!fullScreen) glfwMaximizeWindow(_Window);
-	glfwSetFramebufferSizeCallback(_Window, ResizeCallback);
+	_Window = glfwCreateWindow(_WindowWidth, _WindowHeight, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr, NULL);
+	if(!fullScreen) glfwMaximizeWindow(_Window);
+	glfwSetFramebufferSizeCallback(_Window, WindowManager::ResizeCallback);
 	InputManager::SetWindow(_Window);
-	if (_Window == nullptr)
+	if (_Window == NULL)
 	{
 		Debug::Error("Failed to create GLFW window");
 	}
 	glfwMakeContextCurrent(_Window);
 }
 
-GLFWwindow* WindowManager::GetWindow()
+GLFWwindow* UniEngine::WindowManager::GetWindow()
 {
 	return _Window;
 }
 
-GLFWmonitor* WindowManager::PrimaryMonitor()
+GLFWmonitor* UniEngine::WindowManager::PrimaryMonitor()
 {
 	return _PrimaryMonitor;
 }
 
-void WindowManager::Start()
+void UniEngine::WindowManager::Start()
 {
 	RenderTarget::BindDefault();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void WindowManager::Update()
+void UniEngine::WindowManager::Update()
 {
-	glfwSwapBuffers(_Window);
+ 	glfwSwapBuffers(_Window);
 }
 
-void WindowManager::DrawTexture(GLTexture2D* texture)
+void UniEngine::WindowManager::DrawTexture(GLTexture2D* texture)
 {
 	RenderTarget::BindDefault();
 	/* Make the window's context current */
@@ -120,3 +115,5 @@ void WindowManager::DrawTexture(GLTexture2D* texture)
 	program->SetFloat2("size", glm::vec2(1.0));
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
+
+

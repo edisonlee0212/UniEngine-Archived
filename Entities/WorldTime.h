@@ -1,10 +1,7 @@
 #pragma once
 #include "EntitiesAPI.h"
-
-namespace UniEngine
-{
-	class ENTITIES_API WorldTime
-	{
+namespace UniEngine {
+	class ENTITIES_API WorldTime {
 	private:
 		friend class World;
 		double _WorldTime;

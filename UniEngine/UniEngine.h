@@ -8,11 +8,8 @@
 #include "RenderSystem.h"
 #include "TransformSystem.h"
 #include "PhysicsSystem.h"
-
-namespace UniEngine
-{
-	class UNIENGINE_API Application
-	{
+namespace UniEngine {
+	class UNIENGINE_API Application {
 		static World* _World;
 		static Entity _MainCameraEntity;
 		static CameraComponent* _MainCameraComponent;

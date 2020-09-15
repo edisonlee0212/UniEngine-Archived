@@ -1,9 +1,7 @@
 #pragma once
 #include "UniEngineAPI.h"
 #include "RenderManager.h"
-
-namespace UniEngine
-{
+namespace UniEngine {
 	class UNIENGINE_API RenderSystem : public SystemBase
 	{
 		static bool _EnableWireFrame;
@@ -11,8 +9,9 @@ namespace UniEngine
 	public:
 		static void SetWireFrameMode(bool value);
 		RenderSystem();
-		void OnCreate() override;
-		void OnDestroy() override;
-		void Update() override;
+		void OnCreate();
+		void OnDestroy();
+		void Update();
 	};
+
 }

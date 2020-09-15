@@ -8,32 +8,30 @@ using namespace UniEngine;
 
 bool RenderSystem::_EnableWireFrame;
 
-void RenderSystem::RenderToMainCamera(CameraComponent* cameraComponent, Entity cameraEntity)
+void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponent, Entity cameraEntity)
 {
+
 	Camera* camera = cameraComponent->Value;
 	camera->Bind();
 	Camera::_MainCameraInfoBlock.UpdateMatrices(camera,
-	                                            EntityManager::GetComponentData<Translation>(cameraEntity).Value,
-	                                            EntityManager::GetComponentData<Rotation>(cameraEntity).Value
-	);
+		EntityManager::GetComponentData<Translation>(cameraEntity).Value,
+		EntityManager::GetComponentData<Rotation>(cameraEntity).Value
+		);
 	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
-
+	
+	
 
 	auto worldBound = _World->GetBound();
-	glm::vec3 minBound = glm::vec3(static_cast<int>(INT_MAX));
-	glm::vec3 maxBound = glm::vec3(static_cast<int>(INT_MIN));
+	glm::vec3 minBound = glm::vec3((int)INT_MAX);
+	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
 	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
-	if (meshMaterials != nullptr)
-	{
-		for (const auto& mmc : *meshMaterials)
-		{
+	if (meshMaterials != nullptr) {
+		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 			if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
-			for (auto& j : *entities)
-			{
+			for (auto& j : *entities) {
 				if (!j.Enabled()) continue;
-				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<
-					CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
+				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
 				auto meshBound = mmc->_Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
@@ -57,17 +55,13 @@ void RenderSystem::RenderToMainCamera(CameraComponent* cameraComponent, Entity c
 		}
 	}
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
-	if (instancedMeshMaterials != nullptr)
-	{
-		for (const auto& immc : *instancedMeshMaterials)
-		{
+	if (instancedMeshMaterials != nullptr) {
+		for (const auto& immc : *instancedMeshMaterials) {
 			if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
 			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
-			for (auto& j : *entities)
-			{
+			for (auto& j : *entities) {
 				if (!j.Enabled()) continue;
-				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<
-					CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
+				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				RenderManager::DrawMeshInstanced(
 					immc->_Mesh,
 					immc->_Material,
@@ -80,32 +74,32 @@ void RenderSystem::RenderToMainCamera(CameraComponent* cameraComponent, Entity c
 	}
 	worldBound.Size = (maxBound - minBound) / 2.0f;
 	worldBound.Center = (maxBound + minBound) / 2.0f;
-	worldBound.Radius = length(worldBound.Size);
+	worldBound.Radius = glm::length(worldBound.Size);
 	_World->SetBound(worldBound);
 }
 
 
-void RenderSystem::SetWireFrameMode(bool value)
+void UniEngine::RenderSystem::SetWireFrameMode(bool value)
 {
 	_EnableWireFrame = value;
 }
 
-RenderSystem::RenderSystem()
-{
+UniEngine::RenderSystem::RenderSystem()
+{	
 }
 
-void RenderSystem::OnCreate()
+void UniEngine::RenderSystem::OnCreate()
 {
 	_EnableWireFrame = false;
 	Enable();
 }
 
-void RenderSystem::OnDestroy()
+void UniEngine::RenderSystem::OnDestroy()
 {
 	Disable();
 }
 
-void RenderSystem::Update()
+void UniEngine::RenderSystem::Update()
 {
 	/*
 	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();

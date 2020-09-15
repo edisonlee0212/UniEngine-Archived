@@ -3,74 +3,70 @@
 #include <stb_image.h>
 
 using namespace UniEngine;
-
-Texture2D::Texture2D(TextureType type) : _Type(type)
+UniEngine::Texture2D::Texture2D(TextureType type) : _Type(type)
 {
-	_Texture = nullptr;
+    _Texture = nullptr;
 }
 
-Texture2D::~Texture2D()
+UniEngine::Texture2D::~Texture2D()
 {
-	if (_Texture != nullptr) delete _Texture;
+    if(_Texture != nullptr) delete _Texture;
 }
 
-GLTexture2D* Texture2D::Texture()
+GLTexture2D* UniEngine::Texture2D::Texture()
 {
 	return _Texture;
 }
 
-TextureType Texture2D::Type()
+TextureType UniEngine::Texture2D::Type()
 {
 	return _Type;
 }
 
-void Texture2D::LoadTexture(std::string path, const std::string& directory)
+void UniEngine::Texture2D::LoadTexture(std::string path, const std::string& directory)
 {
-	_Path = path;
-	std::string filename = path;
-	if (!directory._Equal(""))
-		filename = directory + '/' + filename;
+    _Path = path;
+    std::string filename = path;
+    if (!directory._Equal(""))
+        filename = directory + '/' + filename;
 
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format = GL_RED;
-		GLenum iformat = GL_R8;
-		if (nrComponents == 2)
-		{
-			format = GL_RG;
-			iformat = GL_RG8;
-		}
-		else if (nrComponents == 3)
-		{
-			format = GL_RGB;
-			iformat = GL_RGB8;
-		}
-		else if (nrComponents == 4)
-		{
-			format = GL_RGBA;
-			iformat = GL_RGBA8;
-		}
-		_Texture = new GLTexture2D(1, iformat, width, height, false);
-		_Texture->SetData(0, iformat, format, GL_UNSIGNED_BYTE, data);
-		_Texture->GenerateMipMap();
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format = GL_RED;
+        GLenum iformat = GL_R8;
+        if (nrComponents == 2) {
+            format = GL_RG;
+            iformat = GL_RG8;
+        }
+        else if (nrComponents == 3) {
+            format = GL_RGB;
+            iformat = GL_RGB8;
+        }
+        else if (nrComponents == 4) {
+            format = GL_RGBA;
+            iformat = GL_RGBA8;
+        }
+        _Texture = new GLTexture2D(1, iformat, width, height, false);
+        _Texture->SetData(0, iformat, format, GL_UNSIGNED_BYTE, data);
+        _Texture->GenerateMipMap();
 
-		_Texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
-		_Texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
-		_Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		_Texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        _Texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+        _Texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+        _Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        _Texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		stbi_image_free(data);
-	}
-	else
-	{
-		Debug::Log("Texture failed to load at path: " + filename);
-		stbi_image_free(data);
-	}
+        stbi_image_free(data);
+    }
+    else
+    {
+        Debug::Log("Texture failed to load at path: " + filename);
+        stbi_image_free(data);
+    }
 }
 
-std::string Texture2D::Path()
+std::string UniEngine::Texture2D::Path()
 {
-	return _Path;
+    return _Path;
 }

@@ -2,9 +2,7 @@
 #include "UniEngineAPI.h"
 #include "Texture2D.h"
 #include "Cubemap.h"
-
-namespace UniEngine
-{
+namespace UniEngine {
 	class UNIENGINE_API Material
 	{
 		friend class RenderManager;
@@ -21,3 +19,4 @@ namespace UniEngine
 		std::vector<GLProgram*>* Programs();
 	};
 }
+

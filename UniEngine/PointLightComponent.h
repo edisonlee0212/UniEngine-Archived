@@ -1,8 +1,6 @@
 #pragma once
 #include "UniEngineAPI.h"
-
-namespace UniEngine
-{
+namespace UniEngine {
 	struct UNIENGINE_API PointLight
 	{
 		glm::vec4 position;
@@ -24,6 +22,6 @@ namespace UniEngine
 		float bias = 0.3f;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
-		size_t GetHashCode() override;
+		size_t GetHashCode();
 	};
 }
