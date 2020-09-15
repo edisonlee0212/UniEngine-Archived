@@ -9,9 +9,11 @@
 #include "DirectionalLightShadowMap.h"
 #include "PointLightShadowMap.h"
 #include "Default.h"
-namespace UniEngine {
 
-	enum class UNIENGINE_API ShadowMode {
+namespace UniEngine
+{
+	enum class UNIENGINE_API ShadowMode
+	{
 		PCF,
 		VSM,
 		ESM,
@@ -19,9 +21,10 @@ namespace UniEngine {
 		HARD
 	};
 
-	struct UNIENGINE_API ShadowSettings {
+	struct UNIENGINE_API ShadowSettings
+	{
 		float SplitDistance[4];
-		int SoftShadowMode = (int)ShadowMode::PCSS;
+		int SoftShadowMode = static_cast<int>(ShadowMode::PCSS);
 		float PCSSScaleFactor = 0.0f;
 		float DisplaySplit = 0.0f;
 		float SeamFixRatio = 0.05f;
@@ -37,7 +40,7 @@ namespace UniEngine {
 		static GLUBO* _DirectionalLightBlock;
 		static GLUBO* _PointLightBlock;
 		static GLUBO* _SpotLightBlock;
-		
+
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
 		static size_t _DirectionalShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
@@ -55,7 +58,7 @@ namespace UniEngine {
 		static GLProgram* _PointLightProgram;
 		static GLProgram* _DirectionalLightInstancedProgram;
 		static GLProgram* _PointLightInstancedProgram;
-		
+
 		friend class RenderManager;
 		static DirectionalLightShadowMap* _DirectionalLightShadowMap;
 		static RenderTarget* _DirectionalLightShadowMapFilter;

@@ -2,15 +2,18 @@
 #include "Entity.h"
 #include "EntityManager.h"
 using namespace UniEngine;
-inline bool UniEngine::Entity::Enabled() {
+
+inline bool Entity::Enabled()
+{
 	return EntityManager::IsEntityEnabled(*this);
 }
 
-inline void UniEngine::Entity::SetEnabled(bool value) {
+inline void Entity::SetEnabled(bool value)
+{
 	EntityManager::SetEnable(*this, value);
 }
 
-bool UniEngine::Entity::IsDeleted()
+bool Entity::IsDeleted()
 {
 	return EntityManager::IsEntityDeleted(Index);
 }

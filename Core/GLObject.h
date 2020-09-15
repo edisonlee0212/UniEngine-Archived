@@ -1,13 +1,16 @@
 #pragma once
 #include "CoreAPI.h"
 #include "Debug.h"
-namespace UniEngine {
+
+namespace UniEngine
+{
 	class CORE_API GLObject
 	{
 	protected:
 		GLuint _ID;
 	public:
-		GLuint ID() {
+		GLuint ID()
+		{
 			return _ID;
 		}
 	};

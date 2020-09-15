@@ -1,7 +1,9 @@
 #pragma once
 #include "UniEngine.h"
 using namespace UniEngine;
-namespace Galaxy {
+
+namespace Galaxy
+{
 	/// <summary>
 	/// The calculated precise position of the star.
 	/// </summary>
@@ -9,18 +11,20 @@ namespace Galaxy {
 	{
 		glm::dvec3 Value;
 	};
+
 	struct SelectionStatus : ComponentBase
 	{
 		int Value;
 	};
+
 	/// <summary>
 	/// The seed of the star, use this to calculate initial position.
 	/// </summary>
 	struct StarSeed : ComponentBase
 	{
-
 		float Value;
 	};
+
 	/// <summary>
 	/// This keep track of the position of the star in the list.
 	/// </summary>
@@ -28,6 +32,7 @@ namespace Galaxy {
 	{
 		int Value;
 	};
+
 	/// <summary>
 	/// Original color of the star
 	/// </summary>
@@ -35,6 +40,7 @@ namespace Galaxy {
 	{
 		glm::vec4 Value;
 	};
+
 	/// <summary>
 	/// The deviation of its orbit
 	/// </summary>
@@ -42,6 +48,7 @@ namespace Galaxy {
 	{
 		glm::dvec3 Value;
 	};
+
 	/// <summary>
 	/// This will help calculate the orbit. Smaller = close to center, bigger = close to disk
 	/// </summary>
@@ -49,6 +56,7 @@ namespace Galaxy {
 	{
 		double Value;
 	};
+
 	/// <summary>
 	/// This will help calculate the orbit. Smaller = close to center, bigger = close to disk
 	/// </summary>
@@ -56,6 +64,7 @@ namespace Galaxy {
 	{
 		glm::vec4 Value;
 	};
+
 	/// <summary>
 	/// The actual display color after selection system.
 	/// </summary>
@@ -84,9 +93,9 @@ namespace Galaxy {
 			point.y = orbitOffset.y;
 			point.z = glm::cos(glm::radians(angle)) * B + orbitOffset.z;
 
-			point = Rotate(glm::angleAxis(glm::radians(TiltX), glm::dvec3(1, 0, 0)), point);
-			point = Rotate(glm::angleAxis(glm::radians(TiltY), glm::dvec3(0, 1, 0)), point);
-			point = Rotate(glm::angleAxis(glm::radians(TiltZ), glm::dvec3(0, 0, 1)), point);
+			point = Rotate(angleAxis(glm::radians(TiltX), glm::dvec3(1, 0, 0)), point);
+			point = Rotate(angleAxis(glm::radians(TiltY), glm::dvec3(0, 1, 0)), point);
+			point = Rotate(angleAxis(glm::radians(TiltZ), glm::dvec3(0, 0, 1)), point);
 
 			point.x += Center.x;
 			point.y += Center.y;
@@ -115,6 +124,7 @@ namespace Galaxy {
 			return res;
 		}
 	};
+
 	/// <summary>
 	/// The star cluster it actually belongs to.
 	/// </summary>
@@ -127,12 +137,14 @@ namespace Galaxy {
 	{
 	public:
 		StarClusterIndex Index;
+
 		bool Equals(StarClusterPattern other)
 		{
 			return Index.Value == other.Index.Value;
 		}
 
-		std::size_t GetHashCode() {
+		std::size_t GetHashCode() override
+		{
 			return Index.Value;
 		}
 
@@ -173,6 +185,7 @@ namespace Galaxy {
 
 		double Rotation;
 		glm::dvec3 CenterPosition;
+
 		void SetAB()
 		{
 			DiskA = DiskAB * DiskEccentricity;
@@ -184,8 +197,6 @@ namespace Galaxy {
 				* CoreProportion;
 			CoreA = CoreAB * CoreEccentricity;
 			CoreB = CoreAB * (1 - CoreEccentricity);
-
-
 		}
 
 		/// <summary>
@@ -204,8 +215,8 @@ namespace Galaxy {
 			{
 				//If the wave is outside the disk;
 				double actualProportion = (starOrbitProportion - CoreProportion) / (1 - CoreProportion);
-				orbit.A = (float)(CoreA + (DiskA - CoreA) * actualProportion);
-				orbit.B = (float)(CoreB + (DiskB - CoreB) * actualProportion);
+				orbit.A = static_cast<float>(CoreA + (DiskA - CoreA) * actualProportion);
+				orbit.B = static_cast<float>(CoreB + (DiskB - CoreB) * actualProportion);
 				orbit.TiltX = CoreTiltX - (CoreTiltX - DiskTiltX) * actualProportion;
 				orbit.TiltZ = CoreTiltZ - (CoreTiltZ - DiskTiltZ) * actualProportion;
 				orbit.SpeedMultiplier = CoreSpeed + (DiskSpeed - CoreSpeed) * actualProportion;
@@ -213,8 +224,8 @@ namespace Galaxy {
 			else
 			{
 				double actualProportion = starOrbitProportion / CoreProportion;
-				orbit.A = (float)(CenterA + (CoreA - CenterA) * actualProportion);
-				orbit.B = (float)(CenterB + (CoreB - CenterB) * actualProportion);
+				orbit.A = static_cast<float>(CenterA + (CoreA - CenterA) * actualProportion);
+				orbit.B = static_cast<float>(CenterB + (CoreB - CenterB) * actualProportion);
 				orbit.TiltX = CenterTiltX - (CenterTiltX - CoreTiltX) * actualProportion;
 				orbit.TiltZ = CenterTiltZ - (CenterTiltZ - CoreTiltZ) * actualProportion;
 				orbit.SpeedMultiplier = CenterSpeed + (CoreSpeed - CenterSpeed) * actualProportion;
@@ -244,14 +255,16 @@ namespace Galaxy {
 			{
 				//If the wave is outside the disk;
 				double actualProportion = (proportion - CoreProportion) / (1 - CoreProportion);
-				color = CoreColor * (1 - (float)actualProportion) + DiskColor * (float)actualProportion;
+				color = CoreColor * (1 - static_cast<float>(actualProportion)) + DiskColor * static_cast<float>(
+					actualProportion);
 			}
 			else
 			{
 				double actualProportion = proportion / CoreProportion;
-				color = CoreColor * (float)actualProportion + CenterColor * (1 - (float)actualProportion);
+				color = CoreColor * static_cast<float>(actualProportion) + CenterColor * (1 - static_cast<float>(
+					actualProportion));
 			}
-			color = glm::normalize(color);
+			color = normalize(color);
 			return color;
 		}
 
@@ -272,9 +285,8 @@ namespace Galaxy {
 		float _Size = 0.1f;
 		float _GalaxyTime = 0.0f;
 	public:
-		void OnCreate();
-		void Update();
-		void FixedUpdate();
+		void OnCreate() override;
+		void Update() override;
+		void FixedUpdate() override;
 	};
 }
-

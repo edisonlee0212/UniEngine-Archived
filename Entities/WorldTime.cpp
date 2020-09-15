@@ -18,15 +18,15 @@ double UniEngine::WorldTime::Time()
 
 float UniEngine::WorldTime::FixedDeltaTime()
 {
-	return (float)_FixedDeltaTime;
+	return static_cast<float>(_FixedDeltaTime);
 }
 
 float UniEngine::WorldTime::DeltaTime()
 {
-	return (float)_DeltaTime;
+	return static_cast<float>(_DeltaTime);
 }
 
 float UniEngine::WorldTime::LastFrameTime()
 {
-	return (float)_LastFrameTime;
+	return static_cast<float>(_LastFrameTime);
 }

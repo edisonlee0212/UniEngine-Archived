@@ -32,33 +32,37 @@ Material* Default::Materials::StandardMaterial;
 Material* Default::Materials::StandardInstancedMaterial;
 
 
-void UniEngine::Default::Load(World* world)
+void Default::Load(World* world)
 {
 #pragma region Screen Shader
-	float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+	float quadVertices[] = {
+		// vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 		// positions   // texCoords
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		-1.0f, -1.0f,  0.0f, 0.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, 1.0f, 0.0f,
 
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
-		 1.0f,  1.0f,  1.0f, 1.0f
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, -1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f
 	};
 
 	GLPrograms::ScreenVAO = new GLVAO();
 	auto quadVBO = GLPrograms::ScreenVAO->VBO();
 	GLPrograms::ScreenVAO->SetData(sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 	GLPrograms::ScreenVAO->EnableAttributeArray(0);
-	GLPrograms::ScreenVAO->SetAttributePointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	GLPrograms::ScreenVAO->
+		SetAttributePointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void*>(nullptr));
 	GLPrograms::ScreenVAO->EnableAttributeArray(1);
 	GLPrograms::ScreenVAO->SetAttributePointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	GLShader* screenvert = new GLShader(ShaderType::Vertex);
-	std::string vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Vertex/Screen.vert"));
+	std::string vertShaderCode = std::string("#version 460 core\n") + std::string(
+		FileIO::LoadFileAsString("Shaders/Vertex/Screen.vert"));
 	screenvert->SetCode(&vertShaderCode);
 	GLShader* screenfrag = new GLShader(ShaderType::Fragment);
-	std::string fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Fragment/Screen.frag"));
+	std::string fragShaderCode = std::string("#version 460 core\n") + std::string(
+		FileIO::LoadFileAsString("Shaders/Fragment/Screen.frag"));
 	screenfrag->SetCode(&fragShaderCode);
 	GLPrograms::ScreenProgram = new GLProgram();
 	GLPrograms::ScreenProgram->Attach(ShaderType::Vertex, screenvert);
@@ -89,17 +93,17 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 #pragma region Standard Shader
 	vertShaderCode = std::string("#version 460 core\n")
-		+ *Default::ShaderIncludes::Uniform +
+		+ *ShaderIncludes::Uniform +
 		+"\n"
 		+ FileIO::LoadFileAsString("Shaders/Vertex/Standard.vert");
 
 
 	fragShaderCode = std::string("#version 460 core\n")
-		+ *Default::ShaderIncludes::Uniform
+		+ *ShaderIncludes::Uniform
 		+ "\n"
-		+ *Default::ShaderIncludes::Shadow
+		+ *ShaderIncludes::Shadow
 		+ "\n"
-		+ *Default::ShaderIncludes::Lights
+		+ *ShaderIncludes::Lights
 		+ "\n"
 		+ FileIO::LoadFileAsString("Shaders/Fragment/Standard.frag");
 
@@ -115,7 +119,7 @@ void UniEngine::Default::Load(World* world)
 	delete standardfrag;
 
 	vertShaderCode = std::string("#version 460 core\n")
-		+ *Default::ShaderIncludes::Uniform +
+		+ *ShaderIncludes::Uniform +
 		+"\n"
 		+ FileIO::LoadFileAsString("Shaders/Vertex/StandardInstanced.vert");
 
@@ -133,12 +137,12 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 #pragma region Gizmo Shader
 	fragShaderCode = std::string("#version 460 core\n")
-		+ *Default::ShaderIncludes::Uniform
+		+ *ShaderIncludes::Uniform
 		+ "\n"
 		+ FileIO::LoadFileAsString("Shaders/Fragment/Gizmo.frag");
 
 	vertShaderCode = std::string("#version 460 core\n")
-		+ *Default::ShaderIncludes::Uniform +
+		+ *ShaderIncludes::Uniform +
 		+"\n"
 		+ FileIO::LoadFileAsString("Shaders/Vertex/Gizmo.vert");
 
@@ -155,7 +159,7 @@ void UniEngine::Default::Load(World* world)
 
 
 	vertShaderCode = std::string("#version 460 core\n")
-		+ *Default::ShaderIncludes::Uniform +
+		+ *ShaderIncludes::Uniform +
 		+"\n"
 		+ FileIO::LoadFileAsString("Shaders/Vertex/GizmoInstanced.vert");
 
@@ -172,12 +176,12 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 #pragma region Standard Material
 	Materials::StandardMaterial = new Material();
-	Materials::StandardMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	Materials::StandardMaterial->Programs()->push_back(GLPrograms::StandardProgram);
 	Materials::StandardMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
 	Materials::StandardMaterial->SetMaterialProperty("material.shininess", 32.0f);
 
 	Materials::StandardInstancedMaterial = new Material();
-	Materials::StandardInstancedMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
+	Materials::StandardInstancedMaterial->Programs()->push_back(GLPrograms::StandardInstancedProgram);
 	Materials::StandardInstancedMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
 	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
 #pragma endregion

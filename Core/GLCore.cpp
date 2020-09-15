@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "GLCore.h"
+
 inline void UniEngine::GLCore::Init()
 {
 	int max = 0;

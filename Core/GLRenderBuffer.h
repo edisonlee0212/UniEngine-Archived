@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "GLObject.h"
-namespace UniEngine {
+
+namespace UniEngine
+{
 	class CORE_API GLRenderBuffer : public GLObject
 	{
 	public:
@@ -8,8 +10,7 @@ namespace UniEngine {
 		static void BindDefault();
 		GLRenderBuffer();
 		~GLRenderBuffer();
-		void AllocateStorage(GLenum internalformat​, GLsizei width​, GLsizei height);
+		void AllocateStorage(GLenum internalformat, GLsizei width, GLsizei height);
 		void Attach(GLenum attachment, GLuint frameBufferID);
 	};
 }
-

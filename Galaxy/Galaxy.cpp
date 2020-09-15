@@ -10,13 +10,14 @@ using namespace Galaxy;
 
 int main()
 {
-	FileIO::SetResourcePath("../Resources/"); 
+	FileIO::SetResourcePath("../Resources/");
 #pragma region Application Preparations
 	Application::Init();
 	LightingManager::SetAmbientLight(1.0f);
 	World* world = Application::GetWorld();
 	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(),
+	                                                                 LocalToWorld());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
 	ccs->SetPosition(glm::vec3(0));

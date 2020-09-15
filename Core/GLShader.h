@@ -1,11 +1,15 @@
 #pragma once
 #include "GLObject.h"
-namespace UniEngine {
-	enum class CORE_API ShaderType {
+
+namespace UniEngine
+{
+	enum class CORE_API ShaderType
+	{
 		Vertex,
 		Geometry,
 		Fragment
 	};
+
 	class CORE_API GLShader : public GLObject
 	{
 		std::string* _Code;
@@ -25,4 +29,3 @@ namespace UniEngine {
 		void Detach(GLuint programID);
 	};
 }
-

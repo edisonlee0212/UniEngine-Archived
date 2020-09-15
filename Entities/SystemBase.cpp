@@ -1,28 +1,31 @@
 #include "pch.h"
 #include "SystemBase.h"
 using namespace UniEngine;
-UniEngine::SystemBase::SystemBase()
+
+SystemBase::SystemBase()
 {
 	_Enabled = false;
 }
 
-void UniEngine::SystemBase::Enable()
+void SystemBase::Enable()
 {
-	if (!_Enabled) {
+	if (!_Enabled)
+	{
 		_Enabled = true;
 		OnStartRunning();
 	}
 }
 
-void UniEngine::SystemBase::Disable()
+void SystemBase::Disable()
 {
-	if (_Enabled) {
+	if (_Enabled)
+	{
 		_Enabled = false;
 		OnStopRuning();
 	}
 }
 
-bool UniEngine::SystemBase::Enabled()
+bool SystemBase::Enabled()
 {
 	return _Enabled;
 }

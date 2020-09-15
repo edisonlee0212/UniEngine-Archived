@@ -7,15 +7,15 @@ size_t RenderManager::_DrawCall;
 size_t RenderManager::_Triangles;
 
 #pragma region Internal
-void UniEngine::RenderManager::DrawMeshInstanced(
+void RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow)
 {
 	glEnable(GL_DEPTH_TEST);
 	GLVBO* matricesBuffer = new GLVBO();
-	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	matricesBuffer->SetData(static_cast<GLsizei>(count) * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
 	mesh->VAO()->EnableAttributeArray(12);
-	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), static_cast<void*>(nullptr));
 	mesh->VAO()->EnableAttributeArray(13);
 	mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
 	mesh->VAO()->EnableAttributeArray(14);
@@ -28,46 +28,54 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	mesh->VAO()->SetAttributeDivisor(15, 1);
 
 
-
 	size_t textureStartIndex = 0;
-	if (receiveShadow) {
+	if (receiveShadow)
+	{
 		LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
 		textureStartIndex += 2;
 	}
 	GLint max = GLTexture::GetMaxAllowedTexture();
-	if (material->Textures2Ds()->size() != 0) {
-		for (auto texture : *material->Textures2Ds()) {
-			if (textureStartIndex >= max) {
+	if (material->Textures2Ds()->size() != 0)
+	{
+		for (auto texture : *material->Textures2Ds())
+		{
+			if (textureStartIndex >= max)
+			{
 				Debug::Error("Max allowed texture exceeded!");
 				break;
 			}
-			texture->Texture()->Bind((GLenum)textureStartIndex);
+			texture->Texture()->Bind(static_cast<GLenum>(textureStartIndex));
 			textureStartIndex++;
 		}
 	}
 
 	auto programs = material->Programs();
 	textureStartIndex = 0;
-	for (auto i = 0; i < programs->size(); i++) {
-		RenderManager::_DrawCall++;
-		RenderManager::_Triangles += mesh->Size() * count / 3;
+	for (auto i = 0; i < programs->size(); i++)
+	{
+		_DrawCall++;
+		_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
 		program->Bind();
 		program->SetBool("receiveShadow", receiveShadow);
-		if (receiveShadow) {
+		if (receiveShadow)
+		{
 			program->SetInt("directionalShadowMap", 0);
 			program->SetInt("pointShadowMap", 1);
 			textureStartIndex += 2;
 		}
 		program->SetFloat4x4("model", model);
-		for (auto j : material->_FloatPropertyList) {
+		for (auto j : material->_FloatPropertyList)
+		{
 			program->SetFloat(j.first, j.second);
 		}
-		for (auto j : material->_Float4x4PropertyList) {
+		for (auto j : material->_Float4x4PropertyList)
+		{
 			program->SetFloat4x4(j.first, j.second);
 		}
-		if (material->Textures2Ds()->size() != 0) {
+		if (material->Textures2Ds()->size() != 0)
+		{
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
 			unsigned diffuseNr = 0;
@@ -117,32 +125,38 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 				default:
 					break;
 				}
-				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
-					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)(j + textureStartIndex));
+				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount)
+				{
+					program->SetInt("TEXTURE_" + name + std::to_string(size), static_cast<int>(j + textureStartIndex));
 				}
-				if (normalNr == 0) {
-					program->SetInt("TEXTURE_NORMAL0", (int)textureStartIndex);
+				if (normalNr == 0)
+				{
+					program->SetInt("TEXTURE_NORMAL0", static_cast<int>(textureStartIndex));
 					program->SetBool("enableNormalMapping", false);
 				}
-				else {
+				else
+				{
 					program->SetBool("enableNormalMapping", true);
 				}
-				if (specularNr == 0) {
-					program->SetInt("TEXTURE_SPECULAR0", (int)textureStartIndex);
+				if (specularNr == 0)
+				{
+					program->SetInt("TEXTURE_SPECULAR0", static_cast<int>(textureStartIndex));
 					program->SetBool("enableSpecularMapping", false);
 				}
-				else {
+				else
+				{
 					program->SetBool("enableSpecularMapping", true);
 				}
 			}
 		}
-		glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+		glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->Size()), GL_UNSIGNED_INT, nullptr,
+		                        static_cast<GLsizei>(count));
 	}
 	GLVAO::BindDefault();
 	delete matricesBuffer;
 }
 
-void UniEngine::RenderManager::DrawMesh(
+void RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow)
 {
 	glEnable(GL_DEPTH_TEST);
@@ -153,45 +167,54 @@ void UniEngine::RenderManager::DrawMesh(
 	mesh->VAO()->DisableAttributeArray(15);
 
 	size_t textureStartIndex = 0;
-	if (receiveShadow) {
+	if (receiveShadow)
+	{
 		LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
 		textureStartIndex += 2;
 	}
 	GLint max = GLTexture::GetMaxAllowedTexture();
-	if (material->Textures2Ds()->size() != 0) {
-		for (auto texture : *material->Textures2Ds()) {
-			if (textureStartIndex >= max) {
+	if (material->Textures2Ds()->size() != 0)
+	{
+		for (auto texture : *material->Textures2Ds())
+		{
+			if (textureStartIndex >= max)
+			{
 				Debug::Error("Max allowed texture exceeded!");
 				break;
 			}
-			texture->Texture()->Bind((GLenum)textureStartIndex);
+			texture->Texture()->Bind(static_cast<GLenum>(textureStartIndex));
 			textureStartIndex++;
 		}
 	}
 
 	auto programs = material->Programs();
 	textureStartIndex = 0;
-	for (auto i = 0; i < programs->size(); i++) {
-		RenderManager::_DrawCall++;
-		RenderManager::_Triangles += mesh->Size() / 3;
+	for (auto i = 0; i < programs->size(); i++)
+	{
+		_DrawCall++;
+		_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Bind();
 		program->SetBool("receiveShadow", receiveShadow);
-		if (receiveShadow) {
+		if (receiveShadow)
+		{
 			program->SetInt("directionalShadowMap", 0);
 			program->SetInt("pointShadowMap", 1);
 
 			textureStartIndex += 2;
 		}
 		program->SetFloat4x4("model", model);
-		for (auto j : material->_FloatPropertyList) {
+		for (auto j : material->_FloatPropertyList)
+		{
 			program->SetFloat(j.first, j.second);
 		}
-		for (auto j : material->_Float4x4PropertyList) {
+		for (auto j : material->_Float4x4PropertyList)
+		{
 			program->SetFloat4x4(j.first, j.second);
 		}
-		if (material->Textures2Ds()->size() != 0) {
+		if (material->Textures2Ds()->size() != 0)
+		{
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
 			unsigned diffuseNr = 0;
@@ -242,31 +265,36 @@ void UniEngine::RenderManager::DrawMesh(
 				default:
 					break;
 				}
-				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
-					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)(j + textureStartIndex));
+				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount)
+				{
+					program->SetInt("TEXTURE_" + name + std::to_string(size), static_cast<int>(j + textureStartIndex));
 				}
-				if (normalNr == 0) {
-					program->SetInt("TEXTURE_NORMAL0", (int)textureStartIndex);
+				if (normalNr == 0)
+				{
+					program->SetInt("TEXTURE_NORMAL0", static_cast<int>(textureStartIndex));
 					program->SetBool("enableNormalMapping", false);
 				}
-				else {
+				else
+				{
 					program->SetBool("enableNormalMapping", true);
 				}
-				if (specularNr == 0) {
-					program->SetInt("TEXTURE_SPECULAR0", (int)textureStartIndex);
+				if (specularNr == 0)
+				{
+					program->SetInt("TEXTURE_SPECULAR0", static_cast<int>(textureStartIndex));
 					program->SetBool("enableSpecularMapping", false);
 				}
-				else {
+				else
+				{
 					program->SetBool("enableSpecularMapping", true);
 				}
 			}
 		}
-		glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->Size()), GL_UNSIGNED_INT, nullptr);
 	}
 	GLVAO::BindDefault();
 }
 
-void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size)
+void RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size)
 {
 	auto program = Default::GLPrograms::ScreenProgram;
 	program->Bind();
@@ -279,14 +307,15 @@ void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix)
+void RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count,
+                                       glm::mat4 scaleMatrix)
 {
 	glEnable(GL_DEPTH_TEST);
 	GLVBO* matricesBuffer = new GLVBO();
-	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	matricesBuffer->SetData(static_cast<GLsizei>(count) * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
 	mesh->VAO()->EnableAttributeArray(12);
-	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), static_cast<void*>(nullptr));
 	mesh->VAO()->EnableAttributeArray(13);
 	mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
 	mesh->VAO()->EnableAttributeArray(14);
@@ -302,14 +331,15 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", model);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-	RenderManager::_DrawCall++;
-	RenderManager::_Triangles += mesh->Size() * count / 3;
-	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	_DrawCall++;
+	_Triangles += mesh->Size() * count / 3;
+	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->Size()), GL_UNSIGNED_INT, nullptr,
+	                        static_cast<GLsizei>(count));
 	GLVAO::BindDefault();
 	delete matricesBuffer;
 }
 
-void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model)
+void RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model)
 {
 	glEnable(GL_DEPTH_TEST);
 	mesh->Enable();
@@ -321,20 +351,22 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 	Default::GLPrograms::GizmoProgram->Bind();
 	Default::GLPrograms::GizmoProgram->SetFloat4("surfaceColor", color);
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("model", model);
-	RenderManager::_DrawCall++;
-	RenderManager::_Triangles += mesh->Size() / 3;
-	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	_DrawCall++;
+	_Triangles += mesh->Size() / 3;
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->Size()), GL_UNSIGNED_INT, nullptr);
 	GLVAO::BindDefault();
 }
 #pragma endregion
 
 #pragma region External
-void UniEngine::RenderManager::DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model, float size)
+void RenderManager::DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4* matrices, size_t count,
+                                           RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
-	DrawGizmoInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+	DrawGizmoInstanced(mesh, color, model, matrices, count, scale(glm::mat4(1.0f), glm::vec3(size)));
 }
-void UniEngine::RenderManager::DrawMesh(
+
+void RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow)
 {
 	target->Bind();
@@ -342,68 +374,78 @@ void UniEngine::RenderManager::DrawMesh(
 }
 
 #pragma region DrawTexture
-void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
+void RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size,
+                                  RenderTarget* target)
 {
 	target->Bind();
 	DrawTexture2D(texture, depth, center, size);
 }
 
-void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, float centerX, float centerY, float sizeX, float sizeY, RenderTarget* target)
+void RenderManager::DrawTexture2D(Texture2D* texture, float depth, float centerX, float centerY, float sizeX,
+                                  float sizeY, RenderTarget* target)
 {
 	DrawTexture2D(texture, depth, glm::vec2(centerX, centerY), glm::vec2(sizeX, sizeY), target);
 }
 
-void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
+void RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size,
+                                  RenderTarget* target)
 {
 	target->Bind();
 	DrawTexture2D(texture->Texture(), depth, center, size);
 }
 #pragma endregion
 #pragma region Gizmo
-void UniEngine::RenderManager::DrawMeshInstanced(
-	Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow)
+void RenderManager::DrawMeshInstanced(
+	Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target,
+	bool receiveShadow)
 {
 	target->Bind();
 	DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
 }
 
-void UniEngine::RenderManager::DrawGizmoPoint(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
+void RenderManager::DrawGizmoPoint(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
 	DrawGizmo(Default::Primitives::Sphere, color, model);
 }
 
-void UniEngine::RenderManager::DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model, float size)
+void RenderManager::DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target,
+                                            glm::mat4 model, float size)
 {
 	target->Bind();
-	DrawGizmoInstanced(Default::Primitives::Sphere, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+	DrawGizmoInstanced(Default::Primitives::Sphere, color, model, matrices, count,
+	                   scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
-void UniEngine::RenderManager::DrawGizmoCube(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
+void RenderManager::DrawGizmoCube(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
 	DrawGizmo(Default::Primitives::Cube, color, model);
 }
 
-void UniEngine::RenderManager::DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model, float size)
+void RenderManager::DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target,
+                                           glm::mat4 model, float size)
 {
 	target->Bind();
-	DrawGizmoInstanced(Default::Primitives::Cube, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+	DrawGizmoInstanced(Default::Primitives::Cube, color, model, matrices, count,
+	                   scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
-void UniEngine::RenderManager::DrawGizmoQuad(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
+void RenderManager::DrawGizmoQuad(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
 	DrawGizmo(Default::Primitives::Quad, color, model);
 }
 
-void UniEngine::RenderManager::DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model, float size)
+void RenderManager::DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target,
+                                           glm::mat4 model, float size)
 {
 	target->Bind();
-	DrawGizmoInstanced(Default::Primitives::Quad, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+	DrawGizmoInstanced(Default::Primitives::Quad, color, model, matrices, count,
+	                   scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
-void UniEngine::RenderManager::DrawGizmoMesh(Mesh* mesh, glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
+void RenderManager::DrawGizmoMesh(Mesh* mesh, glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
 	DrawGizmo(mesh, color, model);
@@ -412,26 +454,25 @@ void UniEngine::RenderManager::DrawGizmoMesh(Mesh* mesh, glm::vec4 color, Render
 #pragma endregion
 
 #pragma region Status
-void UniEngine::RenderManager::Start()
+void RenderManager::Start()
 {
 	_Triangles = 0;
 	_DrawCall = 0;
 	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
-	for (auto cc : *cameras) {
+	for (auto cc : *cameras)
+	{
 		cc->Value->Clear();
 	}
 }
 
-size_t UniEngine::RenderManager::Triangles()
+size_t RenderManager::Triangles()
 {
 	return _Triangles;
 }
 
-size_t UniEngine::RenderManager::DrawCall()
+size_t RenderManager::DrawCall()
 {
 	return _DrawCall;
 }
 
 #pragma endregion
-
-

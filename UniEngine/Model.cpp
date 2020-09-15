@@ -1,21 +1,24 @@
 #include "pch.h"
 #include "Model.h"
 using namespace UniEngine;
-UniEngine::Model::Model()
+
+Model::Model()
 {
-    _RootNode = new ModelNode();
-}
-UniEngine::Model::~Model()
-{
-    delete _RootNode;
-}
-ModelNode* UniEngine::Model::RootNode()
-{
-    return _RootNode;
+	_RootNode = new ModelNode();
 }
 
-UniEngine::ModelNode::~ModelNode()
+Model::~Model()
 {
-    for (auto i : _MeshMaterialComponents) delete i;
-    for (auto i : Children) delete i;
+	delete _RootNode;
+}
+
+ModelNode* Model::RootNode()
+{
+	return _RootNode;
+}
+
+ModelNode::~ModelNode()
+{
+	for (auto i : _MeshMaterialComponents) delete i;
+	for (auto i : Children) delete i;
 }

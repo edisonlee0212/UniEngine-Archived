@@ -2,7 +2,9 @@
 #include "UniEngineAPI.h"
 #include "Mesh.h"
 #include "Material.h"
-namespace UniEngine {
+
+namespace UniEngine
+{
 	class UNIENGINE_API MeshMaterialComponent :
 		public SharedComponentBase
 	{
@@ -11,7 +13,6 @@ namespace UniEngine {
 		bool _ReceiveShadow = true;
 		Mesh* _Mesh;
 		Material* _Material;
-		size_t GetHashCode();
+		size_t GetHashCode() override;
 	};
 }
-

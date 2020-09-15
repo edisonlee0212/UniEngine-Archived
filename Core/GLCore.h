@@ -7,7 +7,9 @@
 #include "GLRenderBuffer.h"
 #include "GLShader.h"
 #include "GLTexture.h"
-namespace UniEngine {
+
+namespace UniEngine
+{
 	class CORE_API GLCore
 	{
 	public:

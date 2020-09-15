@@ -9,6 +9,7 @@
 
 using namespace UniEngine;
 using namespace Planet;
+
 int main()
 {
 	FileIO::SetResourcePath("../Resources/");
@@ -18,9 +19,10 @@ int main()
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(),
+	                                                                 LocalToWorld());
 
-	
+
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(15.0f);
@@ -102,25 +104,30 @@ int main()
 
 #pragma region EngineLoop
 	bool loopable = true;
-	
+
 	//RenderSystem::SetWireFrameMode(true);
 	bool wireFrame = false;
-	while (loopable) {
+	while (loopable)
+	{
 		Application::PreUpdate();
 		static bool show = true;
 #pragma region LightsPosition
 		Translation p;
-		p.Value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(time->Time() / 2.0f), -20.0f * glm::cos(time->Time() / 2.0f)), 0.0f);
+		p.Value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(time->Time() / 2.0f),
+		                              -20.0f * glm::cos(time->Time() / 2.0f)), 0.0f);
 		EntityManager::SetComponentData<Translation>(dle, p);
-		p.Value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->Time() / 2.0f), 20.0f * glm::sin(time->Time() / 2.0f), 0.0f), 0.0f);
+		p.Value = glm::vec4(glm::vec3(-20.0f * glm::cos(time->Time() / 2.0f), 20.0f * glm::sin(time->Time() / 2.0f),
+		                              0.0f), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple, p);
-		p.Value = glm::vec4(glm::vec3(20.0f * glm::cos(time->Time() / 2.0f), 15.0f, 20.0f * glm::sin(time->Time() / 2.0f)), 0.0f);
+		p.Value = glm::vec4(glm::vec3(20.0f * glm::cos(time->Time() / 2.0f), 15.0f,
+		                              20.0f * glm::sin(time->Time() / 2.0f)), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple2, p);
 #pragma endregion
 
 		ImGui::Begin("Wire Frame");
 		std::string text = std::string(wireFrame ? "Disable" : "Enable");
-		if (ImGui::Button(text.c_str())) {
+		if (ImGui::Button(text.c_str()))
+		{
 			wireFrame = !wireFrame;
 			RenderSystem::SetWireFrameMode(wireFrame);
 		}

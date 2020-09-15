@@ -2,8 +2,8 @@
 #include "RenderTarget.h"
 #include "UniEngineAPI.h"
 
-namespace UniEngine {
-
+namespace UniEngine
+{
 	class UNIENGINE_API PointLightShadowMap :
 		public RenderTarget
 	{
@@ -13,5 +13,4 @@ namespace UniEngine {
 		GLTextureCubeMapArray* DepthCubeMapArray();
 		void Bind();
 	};
-
 }

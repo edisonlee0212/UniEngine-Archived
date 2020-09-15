@@ -2,27 +2,27 @@
 #include "Material.h"
 using namespace UniEngine;
 
-void UniEngine::Material::SetMaterialProperty(std::string name, float value)
+void Material::SetMaterialProperty(std::string name, float value)
 {
 	_FloatPropertyList[name] = value;
 }
 
-void UniEngine::Material::SetMaterialProperty(std::string name, glm::mat4 value)
+void Material::SetMaterialProperty(std::string name, glm::mat4 value)
 {
 	_Float4x4PropertyList[name] = value;
 }
 
-std::vector<Texture2D*>* UniEngine::Material::Textures2Ds()
+std::vector<Texture2D*>* Material::Textures2Ds()
 {
 	return &_Texture2Ds;
 }
 
-std::vector<Cubemap*>* UniEngine::Material::Cubemaps()
+std::vector<Cubemap*>* Material::Cubemaps()
 {
 	return &_Cubemaps;
 }
 
-std::vector<GLProgram*>* UniEngine::Material::Programs()
+std::vector<GLProgram*>* Material::Programs()
 {
 	return &_Programs;
 }
