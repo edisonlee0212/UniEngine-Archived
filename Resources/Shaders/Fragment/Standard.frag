@@ -239,14 +239,12 @@ float DirectionalLightBlockerSearch(int index, vec3 shadowCoords, float searchWi
 	for(int x = -sampleAmount; x < sampleAmount; x++){
 		for(int y = -sampleAmount; y < sampleAmount; y++){
 			float closestDepth = texture(directionalShadowMap, vec3(shadowCoords.xy + vec2(x, y) * step, index)).r;
-			if(closestDepth != 0.0 && shadowCoords.z > closestDepth){
-				avgDistance += closestDepth ;
-				blockers++;
-			}
+			int tf = int(closestDepth != 0.0 && shadowCoords.z > closestDepth);
+			avgDistance += closestDepth * tf;
+			blockers += tf;
 		}
 	}
-	if(blockers == 0) return 0.0;
-	return (avgDistance / blockers);
+	return blockers == 0 ? 0.0 : (avgDistance / blockers);
 }
 
 
@@ -267,10 +265,10 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	projCoords = vec3(projCoords.xy, projCoords.z - bias);
 	float shadow = 0.0;
 	float lightSize = light.ReservedParameters.x;
-	float blockerDistance = DirectionalLightBlockerSearch(i * 4 + splitIndex, projCoords, lightSize, 3);
+	float blockerDistance = DirectionalLightBlockerSearch(i * 4 + splitIndex, projCoords, lightSize, 2);
 	if(blockerDistance < 0.1) return 1.0;
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
-	int sampleWidth = 10;
+	int sampleWidth = 2;
 	float texelSize = penumbraWidth / sampleWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex] * DirectionalLights[i].lightFrustumDistance[splitIndex] / 100;
 	int sampleAmount = 0;
 	
@@ -279,14 +277,14 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 		for(int y = -sampleWidth; y <= sampleWidth; ++y)
 		{
 			float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
-			if(cloestDepth == 0.0) continue;
+			//if(cloestDepth < 0.01) shadow += 1;
 			shadow += projCoords.z < cloestDepth ? 1.0 : 0.0;
 			sampleAmount++;
 		}
 	}
-	if(sampleAmount == 0) return 1.0;
 	shadow /= sampleAmount;
-	return shadow;
+	//Shadow should be 1 for boundary
+	return sampleAmount == 0 ? 1.0 : shadow;
 }
 
 float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 normal)

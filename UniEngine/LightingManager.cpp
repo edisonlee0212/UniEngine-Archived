@@ -124,8 +124,8 @@ void UniEngine::LightingManager::Init()
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	_DLVSMVFilter = new GLTexture2DArray(1, GL_RG32F, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)Default::ShaderIncludes::ShadowCascadeAmount);
 
-	_DLVSMVFilter->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_DLVSMVFilter->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_DLVSMVFilter->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_DLVSMVFilter->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_DLVSMVFilter->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_DLVSMVFilter->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	_DLVSMVFilter->SetFloat4(GL_TEXTURE_BORDER_COLOR, borderColor);
@@ -277,8 +277,6 @@ void UniEngine::LightingManager::Start()
 					if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, 0, dlc->depthBias, dlc->normalOffset);
 
 				}
-
-
 			}
 #pragma endregion
 			_DirectionalLightBlock->SubData(0, 4, &size);
@@ -295,7 +293,9 @@ void UniEngine::LightingManager::Start()
 				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)size * 4, GL_RG, GL_FLOAT, NULL);
 			}
 			else {
-				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)size * 4, GL_RED, GL_FLOAT, NULL);
+				GLfloat clearColor[4] = { 1.0f };
+				glClearBufferfv(GL_COLOR, 0, clearColor);
+				//glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)size * 4, GL_RED, GL_FLOAT, NULL);
 			}
 			for (int i = 0; i < size; i++) {
 				glClear(GL_DEPTH_BUFFER_BIT);
