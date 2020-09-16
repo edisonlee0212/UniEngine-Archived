@@ -164,6 +164,7 @@ int main()
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, plmmc);
 
 #pragma endregion
+
 	InitGround();
 #pragma region EngineLoop
 	bool loopable = true;

@@ -18,10 +18,10 @@ namespace UniEngine {
 	enum class UNIENGINE_API VertexAttribute
 	{
 		Position = 1,
-		Normal = 1 << 1,
+		Normal = 1 << 1,//2
 		Tangent = 1 << 2,
-		Color = 1 << 3,
-		TexCoord0 = 1 << 4,
+		Color = 1 << 3,//8
+		TexCoord0 = 1 << 4,//16
 		TexCoord1 = 1 << 5,
 		TexCoord2 = 1 << 6,
 		TexCoord3 = 1 << 7,
@@ -38,19 +38,25 @@ namespace UniEngine {
 		size_t _IndicesSize;
 		unsigned _Mask;
 		Bound _Bound;
+
+		bool _LocalStored;
+		std::vector<Vertex> _Vertices;
+		std::vector<unsigned> _Indices;
 	public:
 		glm::vec3 GetCenter();
 		Bound GetBound();
 		float GetRadius();
 		Mesh();
 		~Mesh();
-		void SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
+		void SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store = false);
 		size_t GetVerticesAmount();
 		size_t Size();
 		void RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
 		void RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
 		GLVAO* VAO();
 		void Enable();
-		void* GetAttributeArray(VertexAttribute channel);
+		std::vector<Vertex>* GetVerticesUnsafe();
+		std::vector<unsigned>* GetIndicesUnsafe();
+		void LoadBin(std::string& fileName);
 	};
 }

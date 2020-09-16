@@ -25,8 +25,17 @@ UniEngine::Mesh::~Mesh()
 	delete _VAO;
 }
 
-void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
+void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store)
 {
+	_LocalStored = store;
+	if(store)
+	{
+		_Vertices.resize(vertices.size());
+		_Indices.resize(indices.size());
+		memcpy(_Vertices.data(), vertices.data(), vertices.size() * sizeof(Vertex));
+		memcpy(_Indices.data(), indices.data(), indices.size() * sizeof(unsigned));
+	}
+	
 	_Mask = mask;
 	_IndicesSize = indices.size();
 	_VerticesSize = vertices.size();
@@ -332,8 +341,102 @@ void UniEngine::Mesh::Enable()
 	_VAO->Bind();
 }
 
-
-void* UniEngine::Mesh::GetAttributeArray(VertexAttribute channel)
+std::vector<Vertex>* Mesh::GetVerticesUnsafe()
 {
-	return nullptr;
+	if (_LocalStored) return &_Vertices;
+	else return nullptr;
 }
+
+std::vector<unsigned>* Mesh::GetIndicesUnsafe()
+{
+	if (_LocalStored) return &_Indices;
+	else return nullptr;
+}
+
+void Mesh::LoadBin(std::string& fileName)
+{
+	std::ifstream ifs(fileName, std::ios::binary);
+	if (ifs.fail()) {
+		Debug::Error("INFO: cannot open file: ");
+		return;
+	}
+	int vertN = 0;
+	ifs.read((char*)&vertN, sizeof(int));
+	_VerticesSize = vertN;
+	char yn;
+	ifs.read(&yn, 1); // always xyz
+	if (yn != 'y') {
+		Debug::Error("INTERNAL ERROR: there should always be vertex xyz data");
+		return;
+	}
+	_Vertices.resize(_VerticesSize);
+	bool hasColor = false;
+	bool hasNormal = false;
+	bool hasTextureCoords = false;
+	ifs.read(&yn, 1); // Color
+	if (yn == 'y') {
+		hasColor = true;
+	}
+	ifs.read(&yn, 1); // Normal
+	if (yn == 'y') {
+		hasNormal = true;
+	}
+	ifs.read(&yn, 1); // TexCoords
+	if (yn == 'y') {
+		hasTextureCoords = true;
+	}
+	for(int i = 0; i < _VerticesSize; i++)
+	{
+		ifs.read((char*)&_Vertices[i], sizeof(glm::vec3));
+	}
+	if(hasColor)
+	{
+		for (int i = 0; i < _VerticesSize; i++)
+		{
+			ifs.read((char*)(&_Vertices[i]) + offsetof(Vertex, Color), sizeof(glm::vec3));
+		}
+	}
+	if (hasNormal)
+	{
+		for (int i = 0; i < _VerticesSize; i++)
+		{
+			ifs.read((char*)(&_Vertices[i]) + offsetof(Vertex, Normal), sizeof(glm::vec3));
+		}
+	}
+	glm::vec3 temp;
+	if (hasTextureCoords)
+	{
+		for (int i = 0; i < _VerticesSize; i++)
+		{
+			//ifs.read((char*)(&_Vertices[i]) + offsetof(Vertex, TexCoords0), sizeof(glm::vec2));
+			ifs.read((char*)&temp, sizeof(glm::vec2));
+		}
+	}
+	int trisN = 0;
+	ifs.read((char*)&trisN, sizeof(int));
+	_IndicesSize = trisN;
+	_IndicesSize = _IndicesSize * 3;
+	_Indices.resize(_IndicesSize);
+
+	for (int i = 0; i < _IndicesSize; i++)
+	{
+		ifs.read((char*)&_Indices[i], sizeof(unsigned));
+	}
+	unsigned mask = 1;
+	if (hasColor)
+	{
+		mask += (unsigned)VertexAttribute::Color;
+	}
+	if (hasNormal)
+	{
+		mask += (unsigned)VertexAttribute::Normal;
+	}
+	if (hasTextureCoords)
+	{
+		//mask += (int)VertexAttribute::TexCoord0;
+	}
+	SetVertices(mask, _Vertices, _Indices);
+	_LocalStored = true;
+}
+
+
