@@ -7,7 +7,6 @@ namespace UniEngine {
 	protected:
 		friend class World;
 		static World* _World;
-		static ThreadPool* _ThreadPool;
 	public:
 		ManagerBase(ManagerBase& other) = delete;
 		void operator=(const ManagerBase&) = delete;

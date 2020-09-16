@@ -2,7 +2,6 @@
 //
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
-#include "EntityEditorSystem.h"
 using namespace UniEngine;
 void LightSettingMenu();
 void InitGround();
@@ -42,9 +41,6 @@ int main()
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
-
-	EntityEditorSystem* editorSystem = world->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
-
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);

@@ -64,6 +64,7 @@ namespace UniEngine {
 	class UNIENGINE_API TransformSystem :
 		public SystemBase
 	{
+		bool _AddCheck;
 		EntityQuery _P;
 		EntityQuery _PR;
 		EntityQuery _PS;

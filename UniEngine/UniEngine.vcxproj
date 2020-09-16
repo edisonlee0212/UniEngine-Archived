@@ -117,6 +117,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
+    <ClInclude Include="EntityEditorSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstancedMeshMaterialComponent.h" />
@@ -206,6 +207,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="DirectionalLightComponent.cpp" />
     <ClCompile Include="DirectionalLightShadowMap.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="EntityEditorSystem.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InstancedMeshMaterialComponent.cpp" />
     <ClCompile Include="LightingManager.cpp" />

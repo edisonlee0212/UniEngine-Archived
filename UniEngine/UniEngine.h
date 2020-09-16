@@ -8,6 +8,7 @@
 #include "RenderSystem.h"
 #include "TransformSystem.h"
 #include "PhysicsSystem.h"
+#include "EntityEditorSystem.h"
 namespace UniEngine {
 	class UNIENGINE_API Application {
 		static World* _World;

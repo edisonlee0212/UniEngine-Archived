@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "TransformSystem.h"
+
+#include "EntityEditorSystem.h"
 using namespace UniEngine;
 
 void UniEngine::TransformSystem::OnCreate()
@@ -48,6 +50,82 @@ void UniEngine::TransformSystem::OnCreate()
 	EntityManager::SetEntityQueryAllFilters(_S, LocalToWorld(), Scale());
 	EntityManager::SetEntityQueryNoneFilters(_S, Translation(), Rotation());
 
+	auto ees = _World->GetSystem<EntityEditorSystem>();
+
+	ees->AddComponentInspector(typeof<Translation>(), [](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::InputFloat3(stream.str().c_str(), (float*)data, 2);
+		});
+
+	ees->AddComponentInspector(typeof<Rotation>(), [](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)data, 2);
+		});
+
+	ees->AddComponentInspector(typeof<Scale>(), [](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::InputFloat3(stream.str().c_str(), (float*)data, 2);
+		});
+
+	ees->AddComponentInspector(typeof<LocalToWorld>(), [](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)data, 2);
+			stream.str(std::string());
+			stream << std::hex << "0x" << (size_t)data + 16;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)((char*)data + 16), 2);
+			stream.str(std::string());
+			stream << std::hex << "0x" << (size_t)data + 32;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)((char*)data + 32), 2);
+			stream.str(std::string());
+			stream << std::hex << "0x" << (size_t)data + 48;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)((char*)data + 48), 2);
+		});
+
+	ees->AddComponentInspector(typeof<LocalTranslation>(), [](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::InputFloat3(stream.str().c_str(), (float*)data, 2);
+		});
+
+	ees->AddComponentInspector(typeof<LocalRotation>(), [](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)data, 2);
+		});
+
+	ees->AddComponentInspector(typeof<LocalScale>(), [](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::InputFloat3(stream.str().c_str(), (float*)data, 2);
+		});
+
+	ees->AddComponentInspector(typeof<LocalToParent>(), [](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)data, 2);
+			stream.str(std::string());
+			stream << std::hex << "0x" << (size_t)data + 16;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)((char*)data + 16), 2);
+			stream.str(std::string());
+			stream << std::hex << "0x" << (size_t)data + 32;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)((char*)data + 32), 2);
+			stream.str(std::string());
+			stream << std::hex << "0x" << (size_t)data + 48;
+			ImGui::InputFloat4(stream.str().c_str(), (float*)((char*)data + 48), 2);
+		});
+	
 	Enable();
 }
 

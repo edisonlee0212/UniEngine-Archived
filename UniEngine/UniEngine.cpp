@@ -143,7 +143,6 @@ void UniEngine::Application::Init(bool fullScreen)
 	InputManager::Init();
 	_ThreadPool.Resize(std::thread::hardware_concurrency());
 	EntityManager::Init(&_ThreadPool);
-	ManagerBase::_ThreadPool = &_ThreadPool;
 
 	GLInit();
 	_World = new World(0, &_ThreadPool);
@@ -162,6 +161,8 @@ void UniEngine::Application::Init(bool fullScreen)
 	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
 #pragma endregion
 #pragma region Internal Systems
+	_World->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
+	
 	//Initialization System Group
 	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
 

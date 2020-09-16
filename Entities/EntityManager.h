@@ -346,7 +346,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3>
-	static void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func) {
+	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func) {
 		ComponentType targetType1 = typeof<T1>();
 		ComponentType targetType2 = typeof<T2>();
 		ComponentType targetType3 = typeof<T3>();
@@ -418,7 +418,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4>
-	static void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func) {
+	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func) {
 		ComponentType targetType1 = typeof<T1>();
 		ComponentType targetType2 = typeof<T2>();
 		ComponentType targetType3 = typeof<T3>();
@@ -499,7 +499,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	static void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func) {
+	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func) {
 		ComponentType targetType1 = typeof<T1>();
 		ComponentType targetType2 = typeof<T2>();
 		ComponentType targetType3 = typeof<T3>();
@@ -590,7 +590,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	static void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func) {
+	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func) {
 		ComponentType targetType1 = typeof<T1>();
 		ComponentType targetType2 = typeof<T2>();
 		ComponentType targetType3 = typeof<T3>();
@@ -689,7 +689,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-	static void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func) {
+	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func) {
 		ComponentType targetType1 = typeof<T1>();
 		ComponentType targetType2 = typeof<T2>();
 		ComponentType targetType3 = typeof<T3>();
@@ -797,7 +797,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-	static void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func) {
+	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func) {
 		ComponentType targetType1 = typeof<T1>();
 		ComponentType targetType2 = typeof<T2>();
 		ComponentType targetType3 = typeof<T3>();
@@ -1224,7 +1224,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2>
-	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*)>& func) {
+	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*)>& func) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
@@ -1240,7 +1240,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3>
-	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func) {
+	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
@@ -1256,7 +1256,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4>
-	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func) {
+	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
@@ -1272,7 +1272,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func) {
+	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
@@ -1288,7 +1288,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func) {
+	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
@@ -1304,7 +1304,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func) {
+	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {
@@ -1320,7 +1320,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-	static void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func) {
+	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (_EntityQueries->at(index).IsDeleted()) {

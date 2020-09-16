@@ -4,4 +4,3 @@
 using namespace UniEngine;
 
 World* ManagerBase::_World;
-ThreadPool* ManagerBase::_ThreadPool;
