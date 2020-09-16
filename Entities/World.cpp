@@ -4,6 +4,11 @@
 using namespace UniEngine;
 
 
+ThreadPool* World::GetThreadPool()
+{
+	return _ThreadPool;
+}
+
 Bound UniEngine::World::GetBound()
 {
 	return _WorldBound;

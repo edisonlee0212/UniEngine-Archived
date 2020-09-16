@@ -26,6 +26,7 @@ namespace UniEngine {
 		UniEngine::Bound _WorldBound;
 		ThreadPool* _ThreadPool;
 	public:
+		ThreadPool* GetThreadPool();
 		Bound GetBound();
 		void SetBound(Bound value);
 		void SetWorldTime(double time);
