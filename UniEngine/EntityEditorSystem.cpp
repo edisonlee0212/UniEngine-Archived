@@ -3,7 +3,7 @@
 #include "TransformSystem.h"
 
 std::map<size_t, std::function<void(UniEngine::ComponentBase* data)>> UniEngine::EntityEditorSystem::_ComponentGUIMap;
-
+UniEngine::Entity UniEngine::EntityEditorSystem::_SelectedEntity;
 inline void UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	if (ImGui::BeginPopupContextItem())
@@ -148,9 +148,4 @@ void UniEngine::EntityEditorSystem::Update()
 
 void UniEngine::EntityEditorSystem::FixedUpdate()
 {
-}
-
-UniEngine::Entity UniEngine::EntityEditorSystem::GetSelectedEntity() const
-{
-	return _SelectedEntity;
 }
