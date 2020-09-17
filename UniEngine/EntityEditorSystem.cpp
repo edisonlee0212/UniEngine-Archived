@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "EntityEditorSystem.h"
 #include "TransformSystem.h"
+
+std::map<size_t, std::function<void(UniEngine::ComponentBase* data)>> UniEngine::EntityEditorSystem::_ComponentGUIMap;
+
 inline void UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	if (ImGui::BeginPopupContextItem())
@@ -51,12 +54,6 @@ void UniEngine::EntityEditorSystem::InspectComponent(ComponentBase* data, Compon
 	if (_ComponentGUIMap.find(type.TypeID) != _ComponentGUIMap.end()) {
 		_ComponentGUIMap.at(type.TypeID)(data);
 	}
-}
-
-void UniEngine::EntityEditorSystem::AddComponentInspector(ComponentType type,
-	const std::function<void(ComponentBase* data)>& func)
-{
-	_ComponentGUIMap.insert_or_assign(type.TypeID, func);
 }
 
 void UniEngine::EntityEditorSystem::OnCreate()

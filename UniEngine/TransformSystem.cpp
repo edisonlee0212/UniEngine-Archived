@@ -52,28 +52,28 @@ void UniEngine::TransformSystem::OnCreate()
 
 	auto ees = _World->GetSystem<EntityEditorSystem>();
 
-	ees->AddComponentInspector(typeof<Translation>(), [](ComponentBase* data)
+	ees->AddComponentInspector<Translation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
 			ImGui::InputFloat3(stream.str().c_str(), (float*)data, 2);
 		});
 
-	ees->AddComponentInspector(typeof<Rotation>(), [](ComponentBase* data)
+	ees->AddComponentInspector<Rotation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
 			ImGui::InputFloat4(stream.str().c_str(), (float*)data, 2);
 		});
 
-	ees->AddComponentInspector(typeof<Scale>(), [](ComponentBase* data)
+	ees->AddComponentInspector<Scale>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
 			ImGui::InputFloat3(stream.str().c_str(), (float*)data, 2);
 		});
 
-	ees->AddComponentInspector(typeof<LocalToWorld>(), [](ComponentBase* data)
+	ees->AddComponentInspector<LocalToWorld>( [](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
@@ -89,28 +89,28 @@ void UniEngine::TransformSystem::OnCreate()
 			ImGui::InputFloat4(stream.str().c_str(), (float*)((char*)data + 48), 2);
 		});
 
-	ees->AddComponentInspector(typeof<LocalTranslation>(), [](ComponentBase* data)
+	ees->AddComponentInspector<LocalTranslation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
 			ImGui::InputFloat3(stream.str().c_str(), (float*)data, 2);
 		});
 
-	ees->AddComponentInspector(typeof<LocalRotation>(), [](ComponentBase* data)
+	ees->AddComponentInspector<LocalRotation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
 			ImGui::InputFloat4(stream.str().c_str(), (float*)data, 2);
 		});
 
-	ees->AddComponentInspector(typeof<LocalScale>(), [](ComponentBase* data)
+	ees->AddComponentInspector<LocalScale>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
 			ImGui::InputFloat3(stream.str().c_str(), (float*)data, 2);
 		});
 
-	ees->AddComponentInspector(typeof<LocalToParent>(), [](ComponentBase* data)
+	ees->AddComponentInspector<LocalToParent>( [](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
