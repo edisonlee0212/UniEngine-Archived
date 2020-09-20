@@ -68,6 +68,7 @@ int main()
 	if (testScene == NANOSUIT) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		backpackEntity.SetName("Nanosuit");
 		Translation bpp;
 		bpp.Value = glm::vec3(0, 5, 0);
 		Scale bps;
@@ -78,6 +79,7 @@ int main()
 	else if (testScene == BACKPACK) {
 		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		backpackEntity.SetName("Backpack");
 		Translation bpp;
 		bpp.Value = glm::vec3(0, 10, 0);
 		Scale bps;
@@ -89,6 +91,7 @@ int main()
 		//1. Load models using Assimp including textures and meshes and transforms.
 		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		backpackEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformSystem & ParentSystem
 		Translation bpp;
