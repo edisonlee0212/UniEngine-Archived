@@ -1358,8 +1358,8 @@ namespace UniEngine {
 	{
 		std::vector<T1> componentDataList;
 		std::vector<T2> targetDataList;
-		GetComponentDataArray(entityQuery, &componentDataList);
-		GetComponentDataArray(entityQuery, &targetDataList);
+		GetComponentDataArray(entityQuery, componentDataList);
+		GetComponentDataArray(entityQuery, targetDataList);
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList.size();
 		std::vector<std::vector<T2>> collectedDataLists;
@@ -1397,8 +1397,8 @@ namespace UniEngine {
 	{
 		std::vector<Entity> allEntities;
 		std::vector<T1> componentDataList;
-		GetEntityArray(entityQuery, &allEntities);
-		GetComponentDataArray(entityQuery, &componentDataList);
+		GetEntityArray(entityQuery, allEntities);
+		GetComponentDataArray(entityQuery, componentDataList);
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
