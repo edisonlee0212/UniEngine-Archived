@@ -25,12 +25,12 @@ inline void UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& 
 
 void UniEngine::EntityEditorSystem::DrawEntityNode(Entity& entity)
 {
-	std::string title = "Entity ";
+	std::string title = std::to_string(entity.Index) + ": ";
+	title += entity.GetName();
 	bool enabled = entity.Enabled();
 	if (enabled) {
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
 	}
-	title += std::to_string(entity.Index);
 
 	bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
 	if (enabled) {
@@ -87,13 +87,13 @@ void UniEngine::EntityEditorSystem::Update()
 					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
 					ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
 					for (int j = 0; j < storage.ArchetypeInfo->EntityAliveCount; j++) {
-						std::string title = "Entity ";
 						Entity entity = storage.ChunkArray->Entities.at(j);
+						std::string title = std::to_string(entity.Index) + ": ";
+						title += entity.GetName();
 						bool enabled = entity.Enabled();
 						if (enabled) {
 							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
 						}
-						title += std::to_string(entity.Index);
 						bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
 						if (enabled) {
 							ImGui::PopStyleColor();

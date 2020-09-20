@@ -57,6 +57,24 @@ namespace UniEngine {
 		}
 
 		bool IsDeleted();
+
+		template<typename T = ComponentBase>
+		void SetComponentData(T value);
+		template<typename T = ComponentBase>
+		T GetComponentData();
+		template<typename T = ComponentBase>
+		bool HasComponentData();
+		template <typename T = SharedComponentBase>
+		T* GetSharedComponent();
+		template <typename T = SharedComponentBase>
+		void SetSharedComponent(T* value);
+		template <typename T = SharedComponentBase>
+		bool RemoveSharedComponent();
+		template <typename T = SharedComponentBase>
+		bool HasSharedComponent();
+
+		inline std::string GetName();
+		inline bool SetName(std::string name);
 	};
 #pragma region Storage
 
@@ -111,6 +129,7 @@ namespace UniEngine {
 	};
 
 	struct EntityInfo {
+		std::string Name;
 		size_t Version;
 		bool Enabled = true;
 		Entity Parent;

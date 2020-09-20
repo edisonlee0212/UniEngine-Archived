@@ -171,8 +171,8 @@ void UniEngine::EntityManager::Init(ThreadPool* threadPool)
 	SetThreadPool(threadPool);
 }
 
-void UniEngine::EntityManager::GetAllEntities(std::vector<Entity>* target) {
-	target->insert(target->end() ,_Entities->begin() + 1, _Entities->end());
+void UniEngine::EntityManager::GetAllEntities(std::vector<Entity>& target) {
+	target.insert(target.end() ,_Entities->begin() + 1, _Entities->end());
 }
 
 std::vector<Entity>* UniEngine::EntityManager::GetAllEntitiesUnsafe()
@@ -212,7 +212,8 @@ void UniEngine::EntityManager::SetWorld(World* world)
 	
 }
 
-Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
+
+Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::string name)
 {
 	if (archetype.Index == 0) return Entity();
 	Entity retVal;
@@ -231,6 +232,13 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 		//If the version is 0 in chunk means it's deleted.
 		retVal.Version = 1;
 		EntityInfo entityInfo;
+		if(name.length() == 0)
+		{
+			entityInfo.Name = "Unnamed";
+		}else
+		{
+			entityInfo.Name = name;
+		}
 		entityInfo.Version = 1;
 		entityInfo.Parent = Entity();
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
@@ -245,6 +253,14 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 		//TODO: Update version when we delete entity.
 		retVal = storage.ChunkArray->Entities.at(info->EntityAliveCount);
 		EntityInfo entityInfo = _EntityInfos->at(retVal.Index);
+		if (name.length() == 0)
+		{
+			entityInfo.Name = "Unnamed";
+		}
+		else
+		{
+			entityInfo.Name = name;
+		}
 		retVal.Version = entityInfo.Version;
 		storage.ChunkArray->Entities[entityInfo.ChunkArrayIndex] = retVal;
 		_Entities->at(retVal.Index) = retVal;
@@ -260,15 +276,6 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype)
 			offset = i.second.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.second.Size;
 			chunk.ClearData(offset, i.second.Size);
 		}
-		/*
-		retVal = _EntityPool->at(archetype.Index).front();
-		_EntityPool->at(archetype.Index).pop();
-		EntityInfo entityInfo = _EntityInfos->at(retVal.Index);
-		EntityComponentStorage storage = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex);
-		storage.ChunkArray->Entities[entityInfo.ChunkArrayIndex] = retVal;
-		_Entities->at(retVal.Index) = retVal;
-		storage.ArchetypeInfo->EntityAliveCount++;
-		*/
 	}
 	return retVal;
 }
@@ -295,6 +302,37 @@ void UniEngine::EntityManager::DeleteEntity(Entity entity)
 	DeleteEntityInternal(entity);
 
 	_CurrentActivitedWorldEntityStorage->ParentHierarchyVersion++;
+}
+
+std::string EntityManager::GetEntityName(Entity entity)
+{
+	if (entity.IsNull()) return "";
+	size_t index = entity.Index;
+
+	if (entity != _Entities->at(index)) {
+		Debug::Error("Child already deleted!");
+		return "";
+	}
+	return _EntityInfos->at(index).Name;
+}
+
+bool EntityManager::SetEntityName(Entity entity, std::string name)
+{
+	if (entity.IsNull()) return false;
+	size_t index = entity.Index;
+
+	if (entity != _Entities->at(index)) {
+		Debug::Error("Child already deleted!");
+		return false;
+	}
+	if (name.length() != 0) {
+		_EntityInfos->at(index).Name = name;
+		return true;
+	}
+	
+	_EntityInfos->at(index).Name = "Unnamed";
+	return false;
+	
 }
 
 void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
@@ -487,7 +525,7 @@ void UniEngine::EntityManager::DeleteEntityQuery(EntityQuery entityQuery)
 	_EntityQueryPools->push(toPool);
 }
 
-std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorages(EntityQuery entityQuery)
+std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorage(EntityQuery entityQuery)
 {
 	if (entityQuery.IsNull()) return std::vector<EntityComponentStorage>();
 	size_t index = entityQuery.Index;

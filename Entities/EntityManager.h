@@ -85,7 +85,7 @@ namespace UniEngine {
 		static bool IsEntityDeleted(size_t index);
 
 		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
-		static std::vector<EntityComponentStorage> UnsafeQueryStorages(EntityQuery entityQuery);
+		static std::vector<EntityComponentStorage> UnsafeQueryStorage(EntityQuery entityQuery);
 		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
 		static std::vector<Entity>* GetAllEntitiesUnsafe();
 		static std::vector<Entity>* GetParentRootsUnsafe();
@@ -96,16 +96,20 @@ namespace UniEngine {
 
 		static void Init(ThreadPool* threadPool);
 
-		static void GetAllEntities(std::vector<Entity>* target);
+		static void GetAllEntities(std::vector<Entity>& target);
 		
 		static void SetThreadPool(ThreadPool* pool);
 		static void SetWorld(World* world);
 		template<typename T = ComponentBase, typename... Ts>
 		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);
 
-		static Entity CreateEntity(EntityArchetype archetype);
+		static Entity CreateEntity(EntityArchetype archetype, std::string name = "");
 		static void DeleteEntity(Entity entity);
 
+		static std::string GetEntityName(Entity entity);
+
+		static bool SetEntityName(Entity entity, std::string name);
+		
 		static void SetParent(Entity entity, Entity parent);
 		static Entity GetParent(Entity entity);
 		static std::vector<Entity> GetChildren(Entity entity);
@@ -1431,6 +1435,49 @@ namespace UniEngine {
 			}
 		}
 	}
+
+	template <typename T>
+	void Entity::SetComponentData(T value)
+	{
+		EntityManager::SetComponentData(this, value);
+	}
+
+	template <typename T>
+	T Entity::GetComponentData()
+	{
+		return EntityManager::GetComponentData<T>(this);
+	}
+
+	template <typename T>
+	bool Entity::HasComponentData()
+	{
+		return EntityManager::HasComponentData<T>(this);
+	}
+
+	template <typename T>
+	T* Entity::GetSharedComponent()
+	{
+		return EntityManager::GetSharedComponent<T>(this);
+	}
+
+	template <typename T>
+	void Entity::SetSharedComponent(T* value)
+	{
+		EntityManager::SetSharedComponent(this, value);
+	}
+
+	template <typename T>
+	bool Entity::RemoveSharedComponent()
+	{
+		return EntityManager::RemoveSharedComponent<T>();
+	}
+
+	template <typename T>
+	bool Entity::HasSharedComponent()
+	{
+		return EntityManager::HasSharedComponent<T>();
+	}
+
 	template<typename T>
 	inline void EntityQuery::ToComponentDataArray(std::vector<T>& container)
 	{

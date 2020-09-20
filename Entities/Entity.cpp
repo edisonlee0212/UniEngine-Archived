@@ -14,3 +14,13 @@ bool UniEngine::Entity::IsDeleted()
 {
 	return EntityManager::IsEntityDeleted(Index);
 }
+
+inline std::string Entity::GetName()
+{
+	return EntityManager::GetEntityName(*this);
+}
+
+inline bool Entity::SetName(std::string name)
+{
+	return EntityManager::SetEntityName(*this, name);
+}
