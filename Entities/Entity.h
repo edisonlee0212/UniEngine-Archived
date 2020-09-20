@@ -78,7 +78,7 @@ namespace UniEngine {
 	};
 #pragma region Storage
 
-	
+
 
 	template<typename T>
 	ComponentType typeof() {
@@ -128,21 +128,33 @@ namespace UniEngine {
 		}
 	};
 
+	struct SharedComponentElement
+	{
+		size_t TypeID;
+		SharedComponentBase* SharedComponentData;
+		SharedComponentElement(size_t id, SharedComponentBase* data)
+		{
+			TypeID = id;
+			SharedComponentData = data;
+		}
+	};
+	
 	struct EntityInfo {
 		std::string Name;
 		size_t Version;
 		bool Enabled = true;
 		Entity Parent;
+		std::vector<SharedComponentElement> SharedComponentElements;
 		std::vector<Entity> Children;
-		//Entity _Entity;
 		size_t ArchetypeInfoIndex;
 		size_t ChunkArrayIndex;
 	};
 
-	struct EntityArchetypeInfo {
+	struct ENTITIES_API EntityArchetypeInfo {
 		std::string Name;
 		size_t Index;
-		std::map<size_t, ComponentType> ComponentTypes;
+		//std::map<size_t, ComponentType> ComponentTypes;
+		std::vector<ComponentType> ComponentTypes;
 		//The size of a single entity
 		size_t EntitySize;
 		//How many entities can fit into one chunk
@@ -153,6 +165,7 @@ namespace UniEngine {
 		size_t EntityAliveCount = 0;
 		template<typename T>
 		bool HasType();
+		bool HasType(size_t typeID);
 	};
 
 	struct ENTITIES_API EntityQuery {

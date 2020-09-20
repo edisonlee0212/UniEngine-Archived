@@ -97,7 +97,7 @@ namespace UniEngine {
 		static void Init(ThreadPool* threadPool);
 
 		static void GetAllEntities(std::vector<Entity>& target);
-		
+
 		static void SetThreadPool(ThreadPool* pool);
 		static void SetWorld(World* world);
 		template<typename T = ComponentBase, typename... Ts>
@@ -109,7 +109,7 @@ namespace UniEngine {
 		static std::string GetEntityName(Entity entity);
 
 		static bool SetEntityName(Entity entity, std::string name);
-		
+
 		static void SetParent(Entity entity, Entity parent);
 		static Entity GetParent(Entity entity);
 		static std::vector<Entity> GetChildren(Entity entity);
@@ -161,7 +161,7 @@ namespace UniEngine {
 		static void SetEntityQueryAnyFilters(EntityQuery entityQuery, T arg, Ts... args);
 		template<typename T = ComponentBase, typename... Ts>
 		static void SetEntityQueryNoneFilters(EntityQuery entityQuery, T arg, Ts... args);
-		
+
 
 		template<typename T1 = ComponentBase>
 		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*)>& func);
@@ -230,15 +230,18 @@ namespace UniEngine {
 #pragma endregion
 #pragma region ForEachStorage
 	template<typename T1>
-	inline void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*)>& func)
+	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*)>& func)
 	{
 		ComponentType targetType1 = typeof<T1>();
 		size_t entityCount = storage.ArchetypeInfo->EntityAliveCount;
 		bool found1 = false;
-		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
-		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType1 = search1->second;
-			found1 = true;
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType1.TypeID)
+			{
+				targetType1 = type;
+				found1 = true;
+			}
 		}
 		if (found1) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -285,22 +288,25 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2>
-	inline void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*)>& func)
+	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*)>& func)
 	{
 		ComponentType targetType1 = typeof<T1>();
 		ComponentType targetType2 = typeof<T2>();
 		size_t entityCount = storage.ArchetypeInfo->EntityAliveCount;
 		bool found1 = false;
 		bool found2 = false;
-		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
-		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType1 = search1->second;
-			found1 = true;
-		}
-		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
-		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType2 = search2->second;
-			found2 = true;
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType1.TypeID)
+			{
+				targetType1 = type;
+				found1 = true;
+			}
+			else if (type.TypeID == targetType2.TypeID)
+			{
+				targetType2 = type;
+				found2 = true;
+			}
 		}
 
 		if (found1 && found2) {
@@ -358,20 +364,23 @@ namespace UniEngine {
 		bool found1 = false;
 		bool found2 = false;
 		bool found3 = false;
-		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
-		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType1 = search1->second;
-			found1 = true;
-		}
-		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
-		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType2 = search2->second;
-			found2 = true;
-		}
-		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
-		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType3 = search3->second;
-			found3 = true;
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType1.TypeID)
+			{
+				targetType1 = type;
+				found1 = true;
+			}
+			else if (type.TypeID == targetType2.TypeID)
+			{
+				targetType2 = type;
+				found2 = true;
+			}
+			else if (type.TypeID == targetType3.TypeID)
+			{
+				targetType3 = type;
+				found3 = true;
+			}
 		}
 		if (found1 && found2 && found3) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -432,25 +441,28 @@ namespace UniEngine {
 		bool found2 = false;
 		bool found3 = false;
 		bool found4 = false;
-		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
-		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType1 = search1->second;
-			found1 = true;
-		}
-		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
-		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType2 = search2->second;
-			found2 = true;
-		}
-		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
-		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType3 = search3->second;
-			found3 = true;
-		}
-		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
-		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType4 = search4->second;
-			found4 = true;
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType1.TypeID)
+			{
+				targetType1 = type;
+				found1 = true;
+			}
+			else if (type.TypeID == targetType2.TypeID)
+			{
+				targetType2 = type;
+				found2 = true;
+			}
+			else if (type.TypeID == targetType3.TypeID)
+			{
+				targetType3 = type;
+				found3 = true;
+			}
+			else if (type.TypeID == targetType4.TypeID)
+			{
+				targetType4 = type;
+				found4 = true;
+			}
 		}
 		if (found1 && found2 && found3 && found4) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -515,32 +527,34 @@ namespace UniEngine {
 		bool found3 = false;
 		bool found4 = false;
 		bool found5 = false;
-		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
-		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType1 = search1->second;
-			found1 = true;
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType1.TypeID)
+			{
+				targetType1 = type;
+				found1 = true;
+			}
+			else if (type.TypeID == targetType2.TypeID)
+			{
+				targetType2 = type;
+				found2 = true;
+			}
+			else if (type.TypeID == targetType3.TypeID)
+			{
+				targetType3 = type;
+				found3 = true;
+			}
+			else if (type.TypeID == targetType4.TypeID)
+			{
+				targetType4 = type;
+				found4 = true;
+			}
+			else if (type.TypeID == targetType5.TypeID)
+			{
+				targetType5 = type;
+				found5 = true;
+			}
 		}
-		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
-		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType2 = search2->second;
-			found2 = true;
-		}
-		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
-		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType3 = search3->second;
-			found3 = true;
-		}
-		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
-		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType4 = search4->second;
-			found4 = true;
-		}
-		auto search5 = storage.ArchetypeInfo->ComponentTypes.find(targetType5.TypeID);
-		if (search5 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType5 = search5->second;
-			found5 = true;
-		}
-
 		if (found1 && found2 && found3 && found4 && found5) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 			size_t chunkAmount = entityCount / capacity;
@@ -608,35 +622,38 @@ namespace UniEngine {
 		bool found4 = false;
 		bool found5 = false;
 		bool found6 = false;
-		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
-		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType1 = search1->second;
-			found1 = true;
-		}
-		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
-		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType2 = search2->second;
-			found2 = true;
-		}
-		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
-		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType3 = search3->second;
-			found3 = true;
-		}
-		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
-		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType4 = search4->second;
-			found4 = true;
-		}
-		auto search5 = storage.ArchetypeInfo->ComponentTypes.find(targetType5.TypeID);
-		if (search5 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType5 = search5->second;
-			found5 = true;
-		}
-		auto search6 = storage.ArchetypeInfo->ComponentTypes.find(targetType6.TypeID);
-		if (search6 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType6 = search6->second;
-			found6 = true;
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType1.TypeID)
+			{
+				targetType1 = type;
+				found1 = true;
+			}
+			else if (type.TypeID == targetType2.TypeID)
+			{
+				targetType2 = type;
+				found2 = true;
+			}
+			else if (type.TypeID == targetType3.TypeID)
+			{
+				targetType3 = type;
+				found3 = true;
+			}
+			else if (type.TypeID == targetType4.TypeID)
+			{
+				targetType4 = type;
+				found4 = true;
+			}
+			else if (type.TypeID == targetType5.TypeID)
+			{
+				targetType5 = type;
+				found5 = true;
+			}
+			else if (type.TypeID == targetType6.TypeID)
+			{
+				targetType6 = type;
+				found6 = true;
+			}
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -709,40 +726,43 @@ namespace UniEngine {
 		bool found5 = false;
 		bool found6 = false;
 		bool found7 = false;
-		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
-		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType1 = search1->second;
-			found1 = true;
-		}
-		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
-		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType2 = search2->second;
-			found2 = true;
-		}
-		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
-		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType3 = search3->second;
-			found3 = true;
-		}
-		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
-		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType4 = search4->second;
-			found4 = true;
-		}
-		auto search5 = storage.ArchetypeInfo->ComponentTypes.find(targetType5.TypeID);
-		if (search5 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType5 = search5->second;
-			found5 = true;
-		}
-		auto search6 = storage.ArchetypeInfo->ComponentTypes.find(targetType6.TypeID);
-		if (search6 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType6 = search6->second;
-			found6 = true;
-		}
-		auto search7 = storage.ArchetypeInfo->ComponentTypes.find(targetType7.TypeID);
-		if (search7 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType7 = search7->second;
-			found7 = true;
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType1.TypeID)
+			{
+				targetType1 = type;
+				found1 = true;
+			}
+			else if (type.TypeID == targetType2.TypeID)
+			{
+				targetType2 = type;
+				found2 = true;
+			}
+			else if (type.TypeID == targetType3.TypeID)
+			{
+				targetType3 = type;
+				found3 = true;
+			}
+			else if (type.TypeID == targetType4.TypeID)
+			{
+				targetType4 = type;
+				found4 = true;
+			}
+			else if (type.TypeID == targetType5.TypeID)
+			{
+				targetType5 = type;
+				found5 = true;
+			}
+			else if (type.TypeID == targetType6.TypeID)
+			{
+				targetType6 = type;
+				found6 = true;
+			}
+			else if (type.TypeID == targetType7.TypeID)
+			{
+				targetType7 = type;
+				found7 = true;
+			}
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6 && found7) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -819,45 +839,48 @@ namespace UniEngine {
 		bool found6 = false;
 		bool found7 = false;
 		bool found8 = false;
-		auto search1 = storage.ArchetypeInfo->ComponentTypes.find(targetType1.TypeID);
-		if (search1 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType1 = search1->second;
-			found1 = true;
-		}
-		auto search2 = storage.ArchetypeInfo->ComponentTypes.find(targetType2.TypeID);
-		if (search2 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType2 = search2->second;
-			found2 = true;
-		}
-		auto search3 = storage.ArchetypeInfo->ComponentTypes.find(targetType3.TypeID);
-		if (search3 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType3 = search3->second;
-			found3 = true;
-		}
-		auto search4 = storage.ArchetypeInfo->ComponentTypes.find(targetType4.TypeID);
-		if (search4 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType4 = search4->second;
-			found4 = true;
-		}
-		auto search5 = storage.ArchetypeInfo->ComponentTypes.find(targetType5.TypeID);
-		if (search5 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType5 = search5->second;
-			found5 = true;
-		}
-		auto search6 = storage.ArchetypeInfo->ComponentTypes.find(targetType6.TypeID);
-		if (search6 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType6 = search6->second;
-			found6 = true;
-		}
-		auto search7 = storage.ArchetypeInfo->ComponentTypes.find(targetType7.TypeID);
-		if (search7 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType7 = search7->second;
-			found7 = true;
-		}
-		auto search8 = storage.ArchetypeInfo->ComponentTypes.find(targetType8.TypeID);
-		if (search8 != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType8 = search8->second;
-			found8 = true;
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType1.TypeID)
+			{
+				targetType1 = type;
+				found1 = true;
+			}
+			else if (type.TypeID == targetType2.TypeID)
+			{
+				targetType2 = type;
+				found2 = true;
+			}
+			else if (type.TypeID == targetType3.TypeID)
+			{
+				targetType3 = type;
+				found3 = true;
+			}
+			else if (type.TypeID == targetType4.TypeID)
+			{
+				targetType4 = type;
+				found4 = true;
+			}
+			else if (type.TypeID == targetType5.TypeID)
+			{
+				targetType5 = type;
+				found5 = true;
+			}
+			else if (type.TypeID == targetType6.TypeID)
+			{
+				targetType6 = type;
+				found6 = true;
+			}
+			else if (type.TypeID == targetType7.TypeID)
+			{
+				targetType7 = type;
+				found7 = true;
+			}
+			else if (type.TypeID == targetType8.TypeID)
+			{
+				targetType8 = type;
+				found8 = true;
+			}
 		}
 		if (found1 && found2 && found3 && found4 && found5 && found6 && found7 && found8) {
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
@@ -920,23 +943,26 @@ namespace UniEngine {
 #pragma endregion
 #pragma region Others
 	template<typename T>
-	inline void EntityManager::GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>& container)
+	void EntityManager::GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>& container)
 	{
 		ComponentType targetType = typeof<T>();
 		size_t entityCount = storage.ArchetypeInfo->EntityCount;
-		auto search = storage.ArchetypeInfo->ComponentTypes.find(targetType.TypeID);
-		if (search != storage.ArchetypeInfo->ComponentTypes.end()) {
-			targetType = search->second;
-			size_t amount = storage.ArchetypeInfo->EntityAliveCount;
-			if (amount == 0) return;
-			container.resize(container.size() + amount);
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			size_t chunkAmount = amount / capacity;
-			size_t remainAmount = amount % capacity;
-			for (size_t i = 0; i < chunkAmount; i++) {
-				memcpy(&container.at(container.size() - remainAmount - capacity * (chunkAmount - i)), (void*)((char*)storage.ChunkArray->Chunks[i].Data + capacity * targetType.Offset), capacity * targetType.Size);
+		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == targetType.TypeID)
+			{
+				targetType = type;
+				size_t amount = storage.ArchetypeInfo->EntityAliveCount;
+				if (amount == 0) return;
+				container.resize(container.size() + amount);
+				size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+				size_t chunkAmount = amount / capacity;
+				size_t remainAmount = amount % capacity;
+				for (size_t i = 0; i < chunkAmount; i++) {
+					memcpy(&container.at(container.size() - remainAmount - capacity * (chunkAmount - i)), (void*)((char*)storage.ChunkArray->Chunks[i].Data + capacity * targetType.Offset), capacity * targetType.Size);
+				}
+				if (remainAmount > 0) memcpy(&container.at(container.size() - remainAmount), (void*)((char*)storage.ChunkArray->Chunks[chunkAmount].Data + capacity * targetType.Offset), remainAmount * targetType.Size);
 			}
-			if (remainAmount > 0) memcpy(&container.at(container.size() - remainAmount), (void*)((char*)storage.ChunkArray->Chunks[chunkAmount].Data + capacity * targetType.Offset), remainAmount * targetType.Size);
 		}
 	}
 
@@ -946,9 +972,8 @@ namespace UniEngine {
 		EntityArchetypeInfo* info = new EntityArchetypeInfo();
 		info->Name = name;
 		info->EntityCount = 0;
-		std::vector<ComponentType> componentLists = CollectComponentTypes(arg, args...);
-		info->EntitySize = componentLists.back().Offset + componentLists.back().Size;
-		for (const auto& i : componentLists) info->ComponentTypes.insert({ i.TypeID, i });
+		info->ComponentTypes = CollectComponentTypes(arg, args...);
+		info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
 		info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
 		int duplicateIndex = -1;
 		for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
@@ -956,9 +981,9 @@ namespace UniEngine {
 			if (info->ChunkCapacity != compareInfo->ChunkCapacity) continue;
 			if (info->EntitySize != compareInfo->EntitySize) continue;
 			bool typeCheck = true;
-			for (size_t j = 0; j < componentLists.size(); j++) {
-				auto search = compareInfo->ComponentTypes.find(componentLists[j].TypeID);
-				if (search == compareInfo->ComponentTypes.end()) typeCheck = false;
+
+			for (size_t j = 0; j < info->ComponentTypes.size(); j++) {
+				if (!compareInfo->HasType(info->ComponentTypes[j].TypeID)) typeCheck = false;
 			}
 			if (typeCheck) {
 				duplicateIndex = compareInfo->Index;
@@ -982,7 +1007,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma region GetSetHas
 	template<typename T>
-	inline void EntityManager::SetComponentData(Entity entity, T value)
+	void EntityManager::SetComponentData(Entity entity, T value)
 	{
 		if (entity.IsNull()) return;
 		EntityInfo info;
@@ -994,22 +1019,23 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
-			auto search = chunkInfo->ComponentTypes.find(id);
-			if (search != chunkInfo->ComponentTypes.end()) {
-				chunk.SetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size), value);
+			bool found = false;
+			for (const auto& type : chunkInfo->ComponentTypes)
+			{
+				if (type.TypeID == id)
+				{
+					chunk.SetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size), value);
+					return;
+				}
 			}
-			else {
-				Debug::Log("ComponentData doesn't exist");
-				return;
-			}
+			Debug::Log("ComponentData doesn't exist");
 		}
 		else {
 			Debug::Error("Entity already deleted!");
-			return;
 		}
 	}
 	template<typename T>
-	inline void EntityManager::SetComponentData(size_t index, T value)
+	void EntityManager::SetComponentData(size_t index, T value)
 	{
 		if (index > _EntityInfos->size()) return;
 		EntityInfo info;
@@ -1021,22 +1047,23 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
-			auto search = chunkInfo->ComponentTypes.find(id);
-			if (search != chunkInfo->ComponentTypes.end()) {
-				chunk.SetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size), value);
+			bool found = false;
+			for (const auto& type : chunkInfo->ComponentTypes)
+			{
+				if (type.TypeID == id)
+				{
+					chunk.SetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size), value);
+					return;
+				}
 			}
-			else {
-				Debug::Log("ComponentData doesn't exist");
-				return;
-			}
+			Debug::Log("ComponentData doesn't exist");
 		}
 		else {
 			Debug::Error("Entity already deleted!");
-			return;
 		}
 	}
 	template<typename T>
-	inline T EntityManager::GetComponentData(Entity entity)
+	T EntityManager::GetComponentData(Entity entity)
 	{
 		if (entity.IsNull()) return T();
 		EntityInfo info = _EntityInfos->at(entity.Index);
@@ -1046,13 +1073,15 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
-			auto search = chunkInfo->ComponentTypes.find(id);
-			if (search != chunkInfo->ComponentTypes.end()) {
-				return chunk.GetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size));
+			for (const auto& type : chunkInfo->ComponentTypes)
+			{
+				if (type.TypeID == id)
+				{
+					return chunk.GetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size));
+				}
 			}
-			else {
-				return T();
-			}
+			Debug::Log("ComponentData doesn't exist");
+			return T();
 		}
 		else {
 			Debug::Error("Entity already deleted!");
@@ -1060,7 +1089,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T>
-	inline bool EntityManager::HasComponentData(Entity entity)
+	bool EntityManager::HasComponentData(Entity entity)
 	{
 		if (entity.IsNull()) return false;
 		EntityInfo info = _EntityInfos->at(entity.Index);
@@ -1070,16 +1099,20 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
-			auto search = chunkInfo->ComponentTypes.find(id);
-			return search != chunkInfo->ComponentTypes.end();
-		}
-		else {
-			Debug::Error("Entity already deleted!");
+			for (const auto& type : chunkInfo->ComponentTypes)
+			{
+				if (type.TypeID == id)
+				{
+					return true;
+				}
+			}
 			return false;
 		}
+		Debug::Error("Entity already deleted!");
+		return false;
 	}
 	template<typename T>
-	inline T EntityManager::GetComponentData(size_t index)
+	T EntityManager::GetComponentData(size_t index)
 	{
 		if (index > _EntityInfos->size()) return T();
 		EntityInfo info = _EntityInfos->at(index);
@@ -1089,13 +1122,15 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
-			auto search = chunkInfo->ComponentTypes.find(id);
-			if (search != chunkInfo->ComponentTypes.end()) {
-				return chunk.GetData<T>((size_t)(search->second.Offset * chunkInfo->ChunkCapacity + chunkPointer * search->second.Size));
+			for (const auto& type : chunkInfo->ComponentTypes)
+			{
+				if (type.TypeID == id)
+				{
+					return chunk.GetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size));
+				}
 			}
-			else {
-				return T();
-			}
+			Debug::Log("ComponentData doesn't exist");
+			return T();
 		}
 		else {
 			Debug::Error("Entity already deleted!");
@@ -1103,7 +1138,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T>
-	inline bool EntityManager::HasComponentData(size_t index)
+	bool EntityManager::HasComponentData(size_t index)
 	{
 		if (index > _EntityInfos->size()) return false;
 		EntityInfo info = _EntityInfos->at(index);
@@ -1113,53 +1148,95 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
-			auto search = chunkInfo->ComponentTypes.find(id);
-			return search != chunkInfo->ComponentTypes.end();
-		}
-		else {
-			Debug::Error("Entity already deleted!");
+			for (const auto& type : chunkInfo->ComponentTypes)
+			{
+				if (type.TypeID == id)
+				{
+					return true;
+				}
+			}
 			return false;
 		}
+		Debug::Error("Entity already deleted!");
+		return false;
 	}
 	template<typename T>
-	inline T* EntityManager::GetSharedComponent(Entity entity)
+	T* EntityManager::GetSharedComponent(Entity entity)
 	{
 		if (entity.IsNull()) return nullptr;
-		return _EntitySharedComponentStorage->GetSharedComponent<T>(entity);
+		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
+		{
+			if (element.TypeID == typeid(T).hash_code())
+			{
+				return reinterpret_cast<T*>(element.SharedComponentData);
+			}
+		}
+		return nullptr;;
 	}
 	template<typename T>
-	inline void EntityManager::SetSharedComponent(Entity entity, T* value)
+	void EntityManager::SetSharedComponent(Entity entity, T* value)
 	{
 		if (entity.IsNull()) return;
+		bool found = false;
+		for(auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
+		{
+			if(element.TypeID == typeid(T).hash_code())
+			{
+				found = true;
+				element.SharedComponentData = value;
+			}
+		}
+		if(!found)
+		{
+			_EntityInfos->at(entity.Index).SharedComponentElements.push_back(SharedComponentElement(typeid(T).hash_code(), value));
+		}
 		_EntitySharedComponentStorage->SetSharedComponent<T>(entity, value);
 	}
 	template<typename T>
-	inline bool EntityManager::RemoveSharedComponent(Entity entity)
+	bool EntityManager::RemoveSharedComponent(Entity entity)
 	{
 		if (entity.IsNull()) return false;
-		return _EntitySharedComponentStorage->RemoveSharedComponent<T>(entity);
+		bool found = false;
+		for(auto i = 0; i < _EntityInfos->at(entity.Index).SharedComponentElements.size(); i++)
+		{
+			if (_EntityInfos->at(entity.Index).SharedComponentElements[i].TypeID == typeid(T).hash_code())
+			{
+				found = true;
+				_EntityInfos->at(entity.Index).SharedComponentElements.erase(_EntityInfos->at(entity.Index).SharedComponentElements.begin() + i);
+			}
+		}
+		bool check = _EntitySharedComponentStorage->RemoveSharedComponent<T>(entity);
+		if (found != check) Debug::Error("Error in RemoveSharedComponent!");
+		return check;
 	}
 	template<typename T>
-	inline bool EntityManager::HasSharedComponent(Entity entity)
+	bool EntityManager::HasSharedComponent(Entity entity)
 	{
-		if (entity.IsNull()) return nullptr;
-		return _EntitySharedComponentStorage->GetSharedComponent<T>(entity) != nullptr;
+		if (entity.IsNull()) return false;
+		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
+		{
+			if (element.TypeID == typeid(T).hash_code())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	template<typename T>
-	inline std::vector<Entity>* EntityManager::GetSharedComponentEntities(T* value)
+	std::vector<Entity>* EntityManager::GetSharedComponentEntities(T* value)
 	{
 		return _EntitySharedComponentStorage->GetOwnersList<T>(value);
 	}
 #pragma endregion
 #pragma region SharedQuery
 	template<typename T>
-	inline std::vector<T*>* EntityManager::GetSharedComponentDataArray()
+	std::vector<T*>* EntityManager::GetSharedComponentDataArray()
 	{
 		return _EntitySharedComponentStorage->GetSCList<T>();
 	}
 
 	template<typename T, typename ...Ts>
-	inline void EntityManager::SetEntityQueryAllFilters(EntityQuery entityQuery, T arg, Ts ...args)
+	void EntityManager::SetEntityQueryAllFilters(EntityQuery entityQuery, T arg, Ts ...args)
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
@@ -1387,7 +1464,7 @@ namespace UniEngine {
 			container.resize(container.size() + listSize);
 			memcpy(&container.at(container.size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T2));
 		}
-		
+
 
 		size_t remainder = size % 8;
 		for (int i = 0; i < remainder; i++) {

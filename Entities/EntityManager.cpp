@@ -25,7 +25,7 @@ void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::
 		size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 		ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 		for (const auto& i : chunkInfo->ComponentTypes) {
-			func(i.second, (void*)((char*)chunk.Data + i.second.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.second.Size));
+			func(i, (void*)((char*)chunk.Data + i.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.Size));
 		}
 	}
 }
@@ -74,8 +74,7 @@ void UniEngine::EntityManager::RefreshEntityQueryInfos(size_t index)
 			if (i.ArchetypeInfo == nullptr) continue;
 			bool check = true;
 			for (const auto& type : _EntityQueryInfos->at(index).AllComponentTypes) {
-				auto search = i.ArchetypeInfo->ComponentTypes.find(type.TypeID);
-				if (search == i.ArchetypeInfo->ComponentTypes.end()) check = false;
+				if (!i.ArchetypeInfo->HasType(type.TypeID)) check = false;
 			}
 			if (check) _EntityQueryInfos->at(index).QueriedStorages.push_back(i);
 		}
@@ -91,8 +90,7 @@ void UniEngine::EntityManager::RefreshEntityQueryInfos(size_t index)
 		for (int i = 0; i < _EntityQueryInfos->at(index).QueriedStorages.size(); i++) {
 			bool contain = false;
 			for (const auto& type : _EntityQueryInfos->at(index).AnyComponentTypes) {
-				auto search = _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes.find(type.TypeID);
-				if (search != _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes.end()) contain = true;
+				if (_EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->HasType(type.TypeID)) contain = true;
 				if (contain) break;
 			}
 			if (!contain) {
@@ -106,8 +104,7 @@ void UniEngine::EntityManager::RefreshEntityQueryInfos(size_t index)
 		for (int i = 0; i < _EntityQueryInfos->at(index).QueriedStorages.size(); i++) {
 			bool contain = false;
 			for (const auto& type : _EntityQueryInfos->at(index).NoneComponentTypes) {
-				auto search = _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes.find(type.TypeID);
-				if (search != _EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->ComponentTypes.end()) contain = true;
+				if (_EntityQueryInfos->at(index).QueriedStorages.at(i).ArchetypeInfo->HasType(type.TypeID)) contain = true;
 				if (contain) break;
 			}
 			if (contain) {
@@ -144,18 +141,18 @@ size_t UniEngine::EntityManager::SwapEntity(EntityComponentStorage storage, size
 	size_t chunkPointer2 = index2 % capacity;
 
 	for (auto i : storage.ArchetypeInfo->ComponentTypes) {
-		void* temp = (void*)malloc(i.second.Size);
+		void* temp = (void*)malloc(i.Size);
 		void* d1 = (void*)((char*)storage.ChunkArray->Chunks[chunkIndex1].Data
-			+ i.second.Offset * capacity
-			+ i.second.Size * chunkPointer1);
+			+ i.Offset * capacity
+			+ i.Size * chunkPointer1);
 
 		void* d2 = (void*)((char*)storage.ChunkArray->Chunks[chunkIndex2].Data
-			+ i.second.Offset * capacity
-			+ i.second.Size * chunkPointer2);
+			+ i.Offset * capacity
+			+ i.Size * chunkPointer2);
 
-		memcpy(temp, d1, i.second.Size);
-		memcpy(d1, d2, i.second.Size);
-		memcpy(d2, temp, i.second.Size);
+		memcpy(temp, d1, i.Size);
+		memcpy(d1, d2, i.Size);
+		memcpy(d2, temp, i.Size);
 		free(temp);
 	}
 	return retVal;
@@ -172,7 +169,7 @@ void UniEngine::EntityManager::Init(ThreadPool* threadPool)
 }
 
 void UniEngine::EntityManager::GetAllEntities(std::vector<Entity>& target) {
-	target.insert(target.end() ,_Entities->begin() + 1, _Entities->end());
+	target.insert(target.end(), _Entities->begin() + 1, _Entities->end());
 }
 
 std::vector<Entity>* UniEngine::EntityManager::GetAllEntitiesUnsafe()
@@ -209,7 +206,7 @@ void UniEngine::EntityManager::SetWorld(World* world)
 	_EntityQueryInfos = &targetStorage->EntityQueryInfos;
 	_EntityQueryPools = &targetStorage->EntityQueryPools;
 
-	
+
 }
 
 
@@ -232,10 +229,11 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 		//If the version is 0 in chunk means it's deleted.
 		retVal.Version = 1;
 		EntityInfo entityInfo;
-		if(name.length() == 0)
+		if (name.length() == 0)
 		{
 			entityInfo.Name = "Unnamed";
-		}else
+		}
+		else
 		{
 			entityInfo.Name = name;
 		}
@@ -273,8 +271,8 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 		size_t offset = 0;
 		bool found = false;
 		for (const auto& i : chunkInfo->ComponentTypes) {
-			offset = i.second.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.second.Size;
-			chunk.ClearData(offset, i.second.Size);
+			offset = i.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.Size;
+			chunk.ClearData(offset, i.Size);
 		}
 	}
 	return retVal;
@@ -298,7 +296,7 @@ void UniEngine::EntityManager::DeleteEntity(Entity entity)
 			}
 		}
 	}
-	if(_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
+	if (_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
 	DeleteEntityInternal(entity);
 
 	_CurrentActivitedWorldEntityStorage->ParentHierarchyVersion++;
@@ -329,10 +327,10 @@ bool EntityManager::SetEntityName(Entity entity, std::string name)
 		_EntityInfos->at(index).Name = name;
 		return true;
 	}
-	
+
 	_EntityInfos->at(index).Name = "Unnamed";
 	return false;
-	
+
 }
 
 void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
@@ -368,7 +366,7 @@ void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
 		}
 	}
 	if (addParent) _ParentRoots->push_back(_Entities->at(parentIndex));
-	
+
 }
 
 Entity UniEngine::EntityManager::GetParent(Entity entity)
@@ -489,7 +487,7 @@ EntityQuery UniEngine::EntityManager::CreateEntityQuery()
 		retVal.Index = _EntityQueries->size();
 		retVal.Version = 1;
 		_EntityQueries->push_back(retVal);
-		
+
 		EntityQueryInfo info;
 		_EntityQueryInfos->push_back(info);
 		RefreshEntityQueryInfos(retVal.Index);
@@ -603,7 +601,7 @@ size_t UniEngine::EntityManager::GetEntityAmount(EntityQuery entityQuery) {
 	}
 	size_t retVal = 0;
 	for (auto i : _EntityQueryInfos->at(index).QueriedStorages) {
-		 retVal += i.ArchetypeInfo->EntityAliveCount;
+		retVal += i.ArchetypeInfo->EntityAliveCount;
 	}
 	return retVal;
 }

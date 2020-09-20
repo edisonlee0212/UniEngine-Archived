@@ -24,3 +24,12 @@ inline bool Entity::SetName(std::string name)
 {
 	return EntityManager::SetEntityName(*this, name);
 }
+
+bool EntityArchetypeInfo::HasType(size_t typeID)
+{
+	for (const auto& type : ComponentTypes)
+	{
+		if (typeID == type.TypeID) return true;
+	}
+	return false;
+}
