@@ -90,10 +90,10 @@ void Galaxy::StarClusterSystem::Update()
 		scale->Value = size * glm::vec3(1.0f);
 		});
 	std::vector<Entity> entities = std::vector<Entity>();
-	_StarQuery.ToEntityArray(&entities);
+	_StarQuery.ToEntityArray(entities);
 	//Render from last update.
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
-	_StarQuery.ToComponentDataArray(&matrices);
+	_StarQuery.ToComponentDataArray(matrices);
 	RenderManager::DrawMeshInstanced(Default::Primitives::Sphere, _StarMaterial, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), Application::GetMainCameraComponent()->Value);
 }
 

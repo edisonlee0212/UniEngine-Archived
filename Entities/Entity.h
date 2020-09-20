@@ -126,7 +126,7 @@ namespace UniEngine {
 		std::map<size_t, ComponentType> ComponentTypes;
 		//The size of a single entity
 		size_t EntitySize;
-		//How many entites can fit into one chunk
+		//How many entities can fit into one chunk
 		size_t ChunkCapacity;
 		//Current allocated entity count.
 		size_t EntityCount = 0;
@@ -148,23 +148,25 @@ namespace UniEngine {
 		}
 		size_t operator() (EntityQuery const& key) const
 		{
-			return (size_t)Index;
+			return Index;
 		}
 
-		bool IsNull() {
+		bool IsNull() const
+		{
 			return Index == 0;
 		}
 
-		bool IsDeleted() {
+		bool IsDeleted() const
+		{
 			return Version == 0;
 		}
 		template<typename T = ComponentBase>
-		void ToComponentDataArray(std::vector<T>* container);
+		void ToComponentDataArray(std::vector<T>& container);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		void ToComponentDataArray(T1 filter, std::vector<T2>* container);
-		void ToEntityArray(std::vector<Entity>* container);
+		void ToComponentDataArray(T1 filter, std::vector<T2>& container);
+		void ToEntityArray(std::vector<Entity>& container);
 		template<typename T1 = ComponentBase>
-		void ToEntityArray(T1 filter, std::vector<Entity>* container);
+		void ToEntityArray(T1 filter, std::vector<Entity>& container);
 		size_t GetEntityAmount();
 	};
 

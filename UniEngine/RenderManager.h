@@ -21,7 +21,7 @@ namespace UniEngine {
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow);
 		
 		static void DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix);
-		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 matrix);
+		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 matrix, glm::mat4 scaleMatrix);
 
 		static void DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size);
 	public:

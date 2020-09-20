@@ -63,18 +63,18 @@ namespace UniEngine {
 
 #pragma endregion
 		template<typename T = ComponentBase>
-		static void GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container);
-		static void GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>* container);
+		static void GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>& container);
+		static void GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>& container);
 		static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
 
 		friend struct EntityQuery;
 		template<typename T = ComponentBase>
-		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container);
+		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>& container);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static void GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>* container);
-		static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>* container);
+		static void GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>& container);
+		static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container);
 		template<typename T1 = ComponentBase>
-		static void GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>* container);
+		static void GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container);
 
 		static size_t GetEntityAmount(EntityQuery entityQuery);
 		friend struct Entity;
@@ -916,7 +916,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma region Others
 	template<typename T>
-	inline void EntityManager::GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>* container)
+	inline void EntityManager::GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>& container)
 	{
 		ComponentType targetType = typeof<T>();
 		size_t entityCount = storage.ArchetypeInfo->EntityCount;
@@ -925,14 +925,14 @@ namespace UniEngine {
 			targetType = search->second;
 			size_t amount = storage.ArchetypeInfo->EntityAliveCount;
 			if (amount == 0) return;
-			container->resize(container->size() + amount);
+			container.resize(container.size() + amount);
 			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
 			size_t chunkAmount = amount / capacity;
 			size_t remainAmount = amount % capacity;
 			for (size_t i = 0; i < chunkAmount; i++) {
-				memcpy(&container->at(container->size() - remainAmount - capacity * (chunkAmount - i)), (void*)((char*)storage.ChunkArray->Chunks[i].Data + capacity * targetType.Offset), capacity * targetType.Size);
+				memcpy(&container.at(container.size() - remainAmount - capacity * (chunkAmount - i)), (void*)((char*)storage.ChunkArray->Chunks[i].Data + capacity * targetType.Offset), capacity * targetType.Size);
 			}
-			if (remainAmount > 0) memcpy(&container->at(container->size() - remainAmount), (void*)((char*)storage.ChunkArray->Chunks[chunkAmount].Data + capacity * targetType.Offset), remainAmount * targetType.Size);
+			if (remainAmount > 0) memcpy(&container.at(container.size() - remainAmount), (void*)((char*)storage.ChunkArray->Chunks[chunkAmount].Data + capacity * targetType.Offset), remainAmount * targetType.Size);
 		}
 	}
 
@@ -1337,7 +1337,7 @@ namespace UniEngine {
 	}
 #pragma endregion
 	template<typename T>
-	inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T>* container)
+	inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T>& container)
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
@@ -1354,7 +1354,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2>
-	inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>* container)
+	inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>& container)
 	{
 		std::vector<T1> componentDataList;
 		std::vector<T2> targetDataList;
@@ -1393,7 +1393,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1>
-	inline void EntityManager::GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>* container)
+	inline void EntityManager::GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container)
 	{
 		std::vector<Entity> allEntities;
 		std::vector<T1> componentDataList;
@@ -1419,30 +1419,30 @@ namespace UniEngine {
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			auto listSize = collectedEntityLists[i].size();
 			if (listSize == 0) continue;
-			container->resize(container->size() + listSize);
-			memcpy(&container->at(container->size() - listSize), collectedEntityLists[i].data(), listSize * sizeof(Entity));
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedEntityLists[i].data(), listSize * sizeof(Entity));
 		}
 
 
 		size_t remainder = size % 8;
 		for (int i = 0; i < remainder; i++) {
 			if (filter == componentDataList[size - remainder + i]) {
-				container->push_back(allEntities[size - remainder + i]);
+				container.push_back(allEntities[size - remainder + i]);
 			}
 		}
 	}
 	template<typename T>
-	inline void EntityQuery::ToComponentDataArray(std::vector<T>* container)
+	inline void EntityQuery::ToComponentDataArray(std::vector<T>& container)
 	{
 		EntityManager::GetComponentDataArray(*this, container);
 	}
 	template<typename T1, typename T2>
-	inline void EntityQuery::ToComponentDataArray(T1 filter, std::vector<T2>* container)
+	inline void EntityQuery::ToComponentDataArray(T1 filter, std::vector<T2>& container)
 	{
 		EntityManager::GetComponentDataArray(*this, filter, container);
 	}
 	template<typename T1>
-	inline void EntityQuery::ToEntityArray(T1 filter, std::vector<Entity>* container)
+	inline void EntityQuery::ToEntityArray(T1 filter, std::vector<Entity>& container)
 	{
 		EntityManager::GetEntityArray(*this, filter, container);
 	}

@@ -309,7 +309,7 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	delete matricesBuffer;
 }
 
-void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model)
+void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix)
 {
 	glEnable(GL_DEPTH_TEST);
 	mesh->Enable();
@@ -321,6 +321,8 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 	Default::GLPrograms::GizmoProgram->Bind();
 	Default::GLPrograms::GizmoProgram->SetFloat4("surfaceColor", color);
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("model", model);
+	Default::GLPrograms::GizmoProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+
 	RenderManager::_DrawCall++;
 	RenderManager::_Triangles += mesh->Size() / 3;
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
@@ -370,7 +372,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 void UniEngine::RenderManager::DrawGizmoPoint(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
-	DrawGizmo(Default::Primitives::Sphere, color, model);
+	DrawGizmo(Default::Primitives::Sphere, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void UniEngine::RenderManager::DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model, float size)
@@ -382,7 +384,7 @@ void UniEngine::RenderManager::DrawGizmoPointInstanced(glm::vec4 color, glm::mat
 void UniEngine::RenderManager::DrawGizmoCube(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
-	DrawGizmo(Default::Primitives::Cube, color, model);
+	DrawGizmo(Default::Primitives::Cube, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void UniEngine::RenderManager::DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model, float size)
@@ -394,7 +396,7 @@ void UniEngine::RenderManager::DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4
 void UniEngine::RenderManager::DrawGizmoQuad(glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
-	DrawGizmo(Default::Primitives::Quad, color, model);
+	DrawGizmo(Default::Primitives::Quad, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void UniEngine::RenderManager::DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model, float size)
@@ -406,7 +408,7 @@ void UniEngine::RenderManager::DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4
 void UniEngine::RenderManager::DrawGizmoMesh(Mesh* mesh, glm::vec4 color, RenderTarget* target, glm::mat4 model, float size)
 {
 	target->Bind();
-	DrawGizmo(mesh, color, model);
+	DrawGizmo(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 #pragma endregion
 #pragma endregion
