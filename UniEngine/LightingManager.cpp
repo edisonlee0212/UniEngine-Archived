@@ -185,7 +185,6 @@ void UniEngine::LightingManager::Start()
 #pragma region DirectionalLight data collection
 				DirectionalLightComponent* dlc = directionLightsList->at(i);
 				Entity lightEntity = EntityManager::GetSharedComponentEntities<DirectionalLightComponent>(dlc)->at(0);
-
 				glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).Value;
 				glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 				float planeDistance = 0;
@@ -311,7 +310,6 @@ void UniEngine::LightingManager::Start()
 								if (!j.Enabled()) continue;
 								auto mesh = mmc->_Mesh;
 								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
-								auto scale = EntityManager::GetComponentData<Scale>(j).Value;
 								/*
 								#pragma region Sphere test 1. discard useless meshes. 2. Calculate scene boundary for lightFrustum;
 													auto bound = mesh->GetBound();
@@ -407,7 +405,7 @@ void UniEngine::LightingManager::Start()
 			for (int i = 0; i < size; i++) {
 				PointLightComponent* plc = pointLightsList->at(i);
 				Entity lightEntity = EntityManager::GetSharedComponentEntities<PointLightComponent>(plc)->at(0);
-				glm::vec3 position = EntityManager::GetComponentData<Translation>(lightEntity).Value;
+				glm::vec3 position = EntityManager::GetComponentData<LocalToWorld>(lightEntity).Value[3];
 				_PointLights[i].position = glm::vec4(position, 0);
 
 				_PointLights[i].constantLinearQuadFarPlane.x = plc->constant;
