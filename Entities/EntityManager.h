@@ -1380,15 +1380,15 @@ namespace UniEngine {
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			auto listSize = collectedDataLists[i].size();
 			if (listSize == 0) continue;
-			container->resize(container->size() + listSize);
-			memcpy(&container->at(container->size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T2));
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T2));
 		}
 		
 
 		size_t remainder = size % 8;
 		for (int i = 0; i < remainder; i++) {
 			if (filter == componentDataList[size - remainder + i]) {
-				container->push_back(targetDataList[size - remainder + i]);
+				container.push_back(targetDataList[size - remainder + i]);
 			}
 		}
 	}
