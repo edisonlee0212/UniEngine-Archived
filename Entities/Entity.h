@@ -65,7 +65,7 @@ namespace UniEngine {
 		template<typename T = ComponentBase>
 		bool HasComponentData();
 		template <typename T = SharedComponentBase>
-		T* GetSharedComponent();
+		std::shared_ptr<T> GetSharedComponent();
 		template <typename T = SharedComponentBase>
 		void SetSharedComponent(T* value);
 		template <typename T = SharedComponentBase>

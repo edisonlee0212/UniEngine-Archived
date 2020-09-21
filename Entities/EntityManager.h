@@ -1530,9 +1530,9 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	T* Entity::GetSharedComponent()
+	std::shared_ptr<T> Entity::GetSharedComponent()
 	{
-		return EntityManager::GetSharedComponent<T>(this);
+		return std::move(EntityManager::GetSharedComponent<T>(this));
 	}
 
 	template <typename T>

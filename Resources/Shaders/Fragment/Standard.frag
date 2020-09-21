@@ -308,7 +308,7 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 	float compare = 0.0;
 	for(int j = 0; j < samples; ++j)
 	{
-		shadow += texture(pointShadowMap, vec4((fragToLight + gridSamplingDisk[j] * diskRadius), i), (currentDepth - bias) / far_plane, 0);
+		shadow += texture(pointShadowMap, vec4((fragToLight + gridSamplingDisk[j] * diskRadius), i), (currentDepth - bias) / far_plane);
 	}
 	shadow /= float(samples);
 	return shadow;
