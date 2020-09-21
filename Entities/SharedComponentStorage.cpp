@@ -34,7 +34,6 @@ void UniEngine::SharedComponentStorage::DeleteEntity(Entity entity)
 					scc->_OwnersCollectionsList[index] = std::move(scc->_OwnersCollectionsList.back());
 					scc->_SCList.pop_back();
 					scc->_OwnersCollectionsList.pop_back();
-					delete oc;
 				}
 				else {
 					Index index = entitySearch->second;
