@@ -114,7 +114,7 @@ int main()
 		scale.Value = glm::vec3(4.0f, 8.0f, 4.0f);
 		EntityManager::SetComponentData<Translation>(model1, pos);
 		EntityManager::SetComponentData<Scale>(model1, scale);
-		EntityManager::SetSharedComponent<MeshMaterialComponent>(model1, cylinder);
+		EntityManager::SetSharedComponent<MeshMaterialComponent>(model1, std::shared_ptr<MeshMaterialComponent>(cylinder));
 
 		MeshMaterialComponent* mmmc = new MeshMaterialComponent();
 		mmmc->_Mesh = Default::Primitives::Sphere;
@@ -126,7 +126,7 @@ int main()
 		scale.Value = glm::vec3(5.0f, 5.0f, 5.0f);
 		EntityManager::SetComponentData<Translation>(model2, pos);
 		EntityManager::SetComponentData<Scale>(model2, scale);
-		EntityManager::SetSharedComponent<MeshMaterialComponent>(model2, mmmc);
+		EntityManager::SetSharedComponent<MeshMaterialComponent>(model2, std::shared_ptr<MeshMaterialComponent>(mmmc));
 	}
 #pragma endregion
 #pragma region Lights
@@ -139,13 +139,13 @@ int main()
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
 
 	Entity dle = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
+	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, std::shared_ptr<DirectionalLightComponent>(dlc));
 	EntityManager::SetComponentData<Scale>(dle, scale);
 
 
 	DirectionalLightComponent* dlc2 = new DirectionalLightComponent();
 	Entity dle2 = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, dlc2);
+	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, std::shared_ptr<DirectionalLightComponent>(dlc2));
 	EntityManager::SetComponentData<Scale>(dle2, scale);
 
 
@@ -162,9 +162,10 @@ int main()
 	plc->diffuse = glm::vec3(3.0f);
 	plc->specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<PointLightComponent>(ple, plc);
+	EntityManager::SetSharedComponent<PointLightComponent>(ple, std::shared_ptr<PointLightComponent>(plc));
 	EntityManager::SetComponentData<Scale>(ple, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, plmmc);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, std::shared_ptr<MeshMaterialComponent>(plmmc));
+
 
 #pragma endregion
 
@@ -313,9 +314,9 @@ void InitGround() {
 	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
 	meshMaterial->_Mesh = Default::Primitives::Quad;
 	meshMaterial->_Material = mat;
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, meshMaterial);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, meshMaterial);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, meshMaterial);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity3, meshMaterial);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, meshMaterial);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity3, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
 }

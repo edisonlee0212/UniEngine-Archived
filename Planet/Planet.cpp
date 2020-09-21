@@ -64,9 +64,9 @@ int main()
 	dlc->diffuse = glm::vec3(1.0f);
 	dlc->specular = glm::vec3(0.5f);
 	Entity dle = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, dlc);
+	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, std::shared_ptr<DirectionalLightComponent>(dlc));
 	EntityManager::SetComponentData<Scale>(dle, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(dle, dlmmc);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(dle, std::shared_ptr<MeshMaterialComponent>(dlmmc));
 
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
 	plmmc->_Mesh = Default::Primitives::Sphere;
@@ -81,9 +81,9 @@ int main()
 	plc->diffuse = glm::vec3(2.0f);
 	plc->specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<PointLightComponent>(ple, plc);
+	EntityManager::SetSharedComponent<PointLightComponent>(ple, std::shared_ptr<PointLightComponent>(plc));
 	EntityManager::SetComponentData<Scale>(ple, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, plmmc);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, std::shared_ptr<MeshMaterialComponent>(plmmc));
 
 	plc = new PointLightComponent();
 	plc->constant = 1.0f;
@@ -93,9 +93,9 @@ int main()
 	plc->diffuse = glm::vec3(2.0f);
 	plc->specular = glm::vec3(5.0f);
 	Entity ple2 = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<PointLightComponent>(ple2, plc);
-	EntityManager::SetComponentData<Scale>(ple2, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, plmmc);
+	EntityManager::SetSharedComponent<PointLightComponent>(ple2, std::shared_ptr<PointLightComponent>(plc));
+	EntityManager::SetComponentData<Scale>(ple, scale);
+	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, std::shared_ptr<MeshMaterialComponent>(plmmc));
 #pragma endregion
 
 #pragma region EngineLoop

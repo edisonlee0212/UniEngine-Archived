@@ -158,7 +158,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
 	_MainCameraComponent = new CameraComponent();
 	_MainCameraComponent->Value = new Camera(1600, 900, 0.1f, 500.0f);;
-	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
+	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, std::shared_ptr<CameraComponent>(_MainCameraComponent));
 #pragma endregion
 #pragma region Internal Systems
 	_World->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);

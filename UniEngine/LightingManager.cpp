@@ -183,8 +183,8 @@ void UniEngine::LightingManager::Start()
 			size_t size = directionLightsList->size();
 			for (int i = 0; i < size; i++) {
 #pragma region DirectionalLight data collection
-				DirectionalLightComponent* dlc = directionLightsList->at(i);
-				Entity lightEntity = EntityManager::GetSharedComponentEntities<DirectionalLightComponent>(dlc)->at(0);
+				DirectionalLightComponent* dlc = directionLightsList->at(i).get();
+				Entity lightEntity = EntityManager::GetSharedComponentEntities<DirectionalLightComponent>(directionLightsList->at(i))->at(0);
 				glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).Value;
 				glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 				float planeDistance = 0;
@@ -305,7 +305,7 @@ void UniEngine::LightingManager::Start()
 					for (auto mmc : *meshMaterials) {
 						if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
 						if (mmc->_CastShadow) {
-							auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
+							auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(std::shared_ptr<MeshMaterialComponent>(mmc));
 							for (auto& j : *entities) {
 								if (!j.Enabled()) continue;
 								auto mesh = mmc->_Mesh;
@@ -340,7 +340,7 @@ void UniEngine::LightingManager::Start()
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
 						if (immc->_CastShadow) {
-							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
+							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
 							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
@@ -403,8 +403,8 @@ void UniEngine::LightingManager::Start()
 #pragma region Prepare PointLight data
 			size_t size = pointLightsList->size();
 			for (int i = 0; i < size; i++) {
-				PointLightComponent* plc = pointLightsList->at(i);
-				Entity lightEntity = EntityManager::GetSharedComponentEntities<PointLightComponent>(plc)->at(0);
+				PointLightComponent* plc = pointLightsList->at(i).get();
+				Entity lightEntity = EntityManager::GetSharedComponentEntities<PointLightComponent>(pointLightsList->at(i))->at(0);
 				glm::vec3 position = EntityManager::GetComponentData<LocalToWorld>(lightEntity).Value[3];
 				_PointLights[i].position = glm::vec4(position, 0);
 
@@ -440,7 +440,7 @@ void UniEngine::LightingManager::Start()
 				for (auto mmc : *meshMaterials) {
 					if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
 					if (mmc->_CastShadow) {
-						auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
+						auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(std::shared_ptr<MeshMaterialComponent>(mmc));
 						for (auto& entity : *entities) {
 							if (!entity.Enabled()) continue;
 							auto mesh = mmc->_Mesh;
@@ -461,7 +461,7 @@ void UniEngine::LightingManager::Start()
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
 						if (immc->_CastShadow) {
-							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
+							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
 							size_t count = immc->_Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
 							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);

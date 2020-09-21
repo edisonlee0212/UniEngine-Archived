@@ -11,7 +11,6 @@ namespace UniEngine {
 		std::vector<Entity> Entities;
 		std::vector<Entity> ParentRoots;
 		std::vector<EntityInfo> EntityInfos;
-		//std::vector<std::queue<Entity>> EntityPool;
 		std::vector<EntityComponentStorage> EntityComponentStorage;
 		SharedComponentStorage EntitySharedComponentStorage;
 
@@ -27,7 +26,6 @@ namespace UniEngine {
 		static std::vector<Entity>* _ParentRoots;
 		static std::vector<EntityInfo>* _EntityInfos;
 		static std::vector<EntityComponentStorage>* _EntityComponentStorage;
-		//static std::vector<std::queue<Entity>>* _EntityPool;
 		static SharedComponentStorage* _EntitySharedComponentStorage;
 		static std::vector<EntityQuery>* _EntityQueries;
 		static std::vector<EntityQueryInfo>* _EntityQueryInfos;
@@ -137,9 +135,9 @@ namespace UniEngine {
 		static bool HasComponentData(size_t index);
 
 		template <typename T = SharedComponentBase>
-		static T* GetSharedComponent(Entity entity);
+		static std::shared_ptr<T> GetSharedComponent(Entity entity);
 		template <typename T = SharedComponentBase>
-		static void SetSharedComponent(Entity entity, T* value);
+		static void SetSharedComponent(Entity entity, std::shared_ptr<T> value);
 		template <typename T = SharedComponentBase>
 		static bool RemoveSharedComponent(Entity entity);
 		template <typename T = SharedComponentBase>
@@ -147,9 +145,9 @@ namespace UniEngine {
 
 
 		template <typename T = SharedComponentBase>
-		static std::vector<Entity>* GetSharedComponentEntities(T* value);
+		static std::vector<Entity>* GetSharedComponentEntities(std::shared_ptr<T> value);
 		template <typename T = SharedComponentBase>
-		static std::vector<T*>* GetSharedComponentDataArray();
+		static std::vector<std::shared_ptr<T>>* GetSharedComponentDataArray();
 
 		static EntityArchetype GetEntityArchetype(Entity entity);
 
@@ -1161,20 +1159,20 @@ namespace UniEngine {
 		return false;
 	}
 	template<typename T>
-	T* EntityManager::GetSharedComponent(Entity entity)
+	std::shared_ptr<T> EntityManager::GetSharedComponent(Entity entity)
 	{
 		if (entity.IsNull()) return nullptr;
 		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
 		{
 			if (element.TypeID == typeid(T).hash_code())
 			{
-				return reinterpret_cast<T*>(element.SharedComponentData);
+				return std::dynamic_pointer_cast<T>(element.SharedComponentData);
 			}
 		}
-		return nullptr;;
+		return nullptr;
 	}
 	template<typename T>
-	void EntityManager::SetSharedComponent(Entity entity, T* value)
+	void EntityManager::SetSharedComponent(Entity entity, std::shared_ptr<T> value)
 	{
 		if (entity.IsNull()) return;
 		bool found = false;
@@ -1223,14 +1221,14 @@ namespace UniEngine {
 		return false;
 	}
 	template<typename T>
-	std::vector<Entity>* EntityManager::GetSharedComponentEntities(T* value)
+	std::vector<Entity>* EntityManager::GetSharedComponentEntities(std::shared_ptr<T> value)
 	{
 		return _EntitySharedComponentStorage->GetOwnersList<T>(value);
 	}
 #pragma endregion
 #pragma region SharedQuery
 	template<typename T>
-	std::vector<T*>* EntityManager::GetSharedComponentDataArray()
+	std::vector<std::shared_ptr<T>>* EntityManager::GetSharedComponentDataArray()
 	{
 		return _EntitySharedComponentStorage->GetSCList<T>();
 	}

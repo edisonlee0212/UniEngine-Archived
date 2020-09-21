@@ -131,11 +131,11 @@ namespace UniEngine {
 	struct SharedComponentElement
 	{
 		size_t TypeID;
-		SharedComponentBase* SharedComponentData;
-		SharedComponentElement(size_t id, SharedComponentBase* data)
+		std::shared_ptr<SharedComponentBase> SharedComponentData;
+		SharedComponentElement(size_t id, std::shared_ptr<SharedComponentBase> data)
 		{
 			TypeID = id;
-			SharedComponentData = data;
+			SharedComponentData = std::move(data);
 		}
 	};
 	

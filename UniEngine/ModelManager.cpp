@@ -35,7 +35,7 @@ Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, Model* model
     ltw.Value = modelNode->_LocalToParent;
     EntityManager::SetComponentData<LocalToWorld>(entity, ltw);
     for (auto i : modelNode->_MeshMaterialComponents) {
-        EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, i);
+        EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, std::shared_ptr<MeshMaterialComponent>(i));
     }
     for (auto i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
@@ -233,7 +233,7 @@ void UniEngine::ModelManager::AttachChildren(EntityArchetype archetype, ModelNod
     ltp.Value = modelNode->_LocalToParent;
     EntityManager::SetComponentData<LocalToParent>(entity, ltp);
     for (auto i : modelNode->_MeshMaterialComponents) {
-        EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, i);
+        EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, std::shared_ptr<MeshMaterialComponent>(i));
     }
     for (auto i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
