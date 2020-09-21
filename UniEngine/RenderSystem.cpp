@@ -11,9 +11,9 @@ bool RenderSystem::_EnableWireFrame;
 void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponent, Entity cameraEntity)
 {
 
-	Camera* camera = cameraComponent->Value;
+	auto camera = cameraComponent->Value;
 	camera->Bind();
-	Camera::_MainCameraInfoBlock.UpdateMatrices(camera,
+	Camera::_MainCameraInfoBlock.UpdateMatrices(camera.get(),
 		EntityManager::GetComponentData<Translation>(cameraEntity).Value,
 		EntityManager::GetComponentData<Rotation>(cameraEntity).Value
 		);
@@ -28,12 +28,12 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 	if (meshMaterials != nullptr) {
 		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
-			if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
+			if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 			for (auto& j : *entities) {
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
-				auto meshBound = mmc->_Mesh->GetBound();
+				auto meshBound = mmc->Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
 				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
 				minBound = glm::vec3(
@@ -47,28 +47,28 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 					glm::max(maxBound.z, center.z + size.z));
 
 				RenderManager::DrawMesh(
-					mmc->_Mesh,
-					mmc->_Material,
+					mmc->Mesh.get(),
+					mmc->Material.get(),
 					ltw,
-					camera);
+					camera.get());
 			}
 		}
 	}
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 	if (instancedMeshMaterials != nullptr) {
 		for (const auto& immc : *instancedMeshMaterials) {
-			if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
+			if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
 			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 			for (auto& j : *entities) {
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				RenderManager::DrawMeshInstanced(
-					immc->_Mesh,
-					immc->_Material,
+					immc->Mesh.get(),
+					immc->Material.get(),
 					EntityManager::GetComponentData<LocalToWorld>(j).Value,
-					immc->_Matrices->data(),
-					immc->_Matrices->size(),
-					camera);
+					immc->Matrices->data(),
+					immc->Matrices->size(),
+					camera.get());
 			}
 		}
 	}

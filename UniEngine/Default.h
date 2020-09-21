@@ -41,19 +41,19 @@ namespace UniEngine {
 
 		class UNIENGINE_API Primitives {
 		public:
-			static Mesh* Sphere;
-			static Mesh* Cube;
-			static Mesh* Quad;
-			static Mesh* Cylinder;
-			static Mesh* Cone;
-			static Mesh* Ring;
-			static Mesh* Monkey;
+			static std::shared_ptr<Mesh> Sphere;
+			static std::shared_ptr<Mesh> Cube;
+			static std::shared_ptr<Mesh> Quad;
+			static std::shared_ptr<Mesh> Cylinder;
+			static std::shared_ptr<Mesh> Cone;
+			static std::shared_ptr<Mesh> Ring;
+			static std::shared_ptr<Mesh> Monkey;
 		};
 
 		class UNIENGINE_API Materials {
 		public:
-			static Material* StandardMaterial;
-			static Material* StandardInstancedMaterial;
+			static std::shared_ptr<Material> StandardMaterial;
+			static std::shared_ptr<Material> StandardInstancedMaterial;
 		};
 
 		static void Load(World* world);

@@ -26,7 +26,7 @@ namespace Planet {
 		std::vector<TerrainChunk*> _WaitingList;
 		std::vector<TerrainChunk*> _RecycledChunkList;
 		PlanetInfo _Info;
-		Material* _SurfaceMaterial;	
+		std::shared_ptr<Material> _SurfaceMaterial;	
 		//Used for fast mesh generation;
 		std::vector<Vertex> _SharedVertices;
 		std::vector<unsigned> _SharedTriangles;
@@ -34,7 +34,7 @@ namespace Planet {
 	public:
 		
 		size_t GetHashCode();
-		PlanetTerrain(PlanetInfo info, Material* surfaceMaterial, std::queue<TerrainChunk*>* generationQueue);
+		PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial, std::queue<TerrainChunk*>* generationQueue);
 		~PlanetTerrain();
 	};
 }

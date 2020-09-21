@@ -20,16 +20,16 @@ Texture2D* Default::Textures::MissingTexture;
 Texture2D* Default::Textures::UV;
 Texture2D* Default::Textures::StandardTexture;
 
-Mesh* Default::Primitives::Sphere;
-Mesh* Default::Primitives::Cube;
-Mesh* Default::Primitives::Quad;
-Mesh* Default::Primitives::Cone;
-Mesh* Default::Primitives::Ring;
-Mesh* Default::Primitives::Cylinder;
-Mesh* Default::Primitives::Monkey;
+std::shared_ptr<Mesh> Default::Primitives::Sphere;
+std::shared_ptr<Mesh> Default::Primitives::Cube;
+std::shared_ptr<Mesh> Default::Primitives::Quad;
+std::shared_ptr<Mesh> Default::Primitives::Cone;
+std::shared_ptr<Mesh> Default::Primitives::Ring;
+std::shared_ptr<Mesh> Default::Primitives::Cylinder;
+std::shared_ptr<Mesh> Default::Primitives::Monkey;
 
-Material* Default::Materials::StandardMaterial;
-Material* Default::Materials::StandardInstancedMaterial;
+std::shared_ptr<Material> Default::Materials::StandardMaterial;
+std::shared_ptr<Material> Default::Materials::StandardInstancedMaterial;
 
 
 void UniEngine::Default::Load(World* world)
@@ -171,43 +171,43 @@ void UniEngine::Default::Load(World* world)
 	delete standardfrag;
 #pragma endregion
 #pragma region Standard Material
-	Materials::StandardMaterial = new Material();
+	Materials::StandardMaterial = std::make_shared<Material>();
 	Materials::StandardMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	Materials::StandardMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
 	Materials::StandardMaterial->SetMaterialProperty("material.shininess", 32.0f);
 
-	Materials::StandardInstancedMaterial = new Material();
+	Materials::StandardInstancedMaterial = std::make_shared<Material>();
 	Materials::StandardInstancedMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
 	Materials::StandardInstancedMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
 	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
 #pragma endregion
 #pragma region Models & Primitives
 	Model* model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"));
-	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"));
-	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"));
-	Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"));
-	Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"));
-	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"));
-	Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
 
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"));
-	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->_Mesh;
+	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
 #pragma endregion
 }

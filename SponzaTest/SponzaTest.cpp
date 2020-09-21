@@ -59,8 +59,8 @@ int main()
 
 #pragma endregion
 	MeshMaterialComponent* cylinder = new MeshMaterialComponent();
-	cylinder->_Mesh = Default::Primitives::Cylinder;
-	cylinder->_Material = Default::Materials::StandardMaterial;
+	cylinder->Mesh = Default::Primitives::Cylinder;
+	cylinder->Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
 	TestScene testScene = BACKPACK;
@@ -103,8 +103,8 @@ int main()
 	}
 	else if (testScene == PCSS) {
 		MeshMaterialComponent* cmmc = new MeshMaterialComponent();
-		cmmc->_Mesh = Default::Primitives::Cube;
-		cmmc->_Material = Default::Materials::StandardMaterial;
+		cmmc->Mesh = Default::Primitives::Cube;
+		cmmc->Material = Default::Materials::StandardMaterial;
 		Translation pos;
 
 		Entity model1 = EntityManager::CreateEntity(archetype);
@@ -117,8 +117,8 @@ int main()
 		EntityManager::SetSharedComponent<MeshMaterialComponent>(model1, std::shared_ptr<MeshMaterialComponent>(cylinder));
 
 		MeshMaterialComponent* mmmc = new MeshMaterialComponent();
-		mmmc->_Mesh = Default::Primitives::Sphere;
-		mmmc->_Material = Default::Materials::StandardMaterial;
+		mmmc->Mesh = Default::Primitives::Sphere;
+		mmmc->Material = Default::Materials::StandardMaterial;
 
 		Entity model2 = EntityManager::CreateEntity(archetype);
 		pos.Value = glm::vec3(6.0f, 7.0f, 0.0f);
@@ -132,8 +132,8 @@ int main()
 #pragma region Lights
 
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
-	cylinder->_Mesh = Default::Primitives::Ring;
-	cylinder->_Material = Default::Materials::StandardMaterial;
+	cylinder->Mesh = Default::Primitives::Ring;
+	cylinder->Material = Default::Materials::StandardMaterial;
 	scale.Value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
@@ -150,8 +150,8 @@ int main()
 
 
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
-	plmmc->_Mesh = Default::Primitives::Sphere;
-	plmmc->_Material = Default::Materials::StandardMaterial;
+	plmmc->Mesh = Default::Primitives::Sphere;
+	plmmc->Material = Default::Materials::StandardMaterial;
 	scale.Value = glm::vec3(0.5f);
 
 	PointLightComponent* plc = new PointLightComponent();
@@ -305,15 +305,15 @@ void InitGround() {
 	EntityManager::SetComponentData<Rotation>(entity4, rotation);
 
 
-	auto mat = new Material();
+	auto mat = std::make_shared<Material>();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto texture = new Texture2D(TextureType::DIFFUSE);
 	texture->LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), "");
 	mat->Textures2Ds()->push_back(texture);
 	mat->SetMaterialProperty("material.shininess", 32.0f);
 	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
-	meshMaterial->_Mesh = Default::Primitives::Quad;
-	meshMaterial->_Material = mat;
+	meshMaterial->Mesh = Default::Primitives::Quad;
+	meshMaterial->Material = mat;
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, std::shared_ptr<MeshMaterialComponent>(meshMaterial));

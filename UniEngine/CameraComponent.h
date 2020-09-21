@@ -6,7 +6,7 @@ namespace UniEngine {
 		public SharedComponentBase
 	{	
 	public:
-		Camera* Value;
+		std::shared_ptr<Camera> Value;
 		std::size_t GetHashCode();
 	};
 

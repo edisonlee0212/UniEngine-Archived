@@ -166,7 +166,7 @@ void UniEngine::LightingManager::Init()
 
 void UniEngine::LightingManager::Start()
 {
-	Camera* camera = Application::GetMainCameraComponent()->Value;
+	auto camera = Application::GetMainCameraComponent()->Value;
 	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity()).Value;
 	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(Application::GetMainCameraEntity()).Value;
 	auto worldBound = _World->GetBound();
@@ -303,12 +303,12 @@ void UniEngine::LightingManager::Start()
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
-						if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
-						if (mmc->_CastShadow) {
+						if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+						if (mmc->CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(std::shared_ptr<MeshMaterialComponent>(mmc));
 							for (auto& j : *entities) {
 								if (!j.Enabled()) continue;
-								auto mesh = mmc->_Mesh;
+								auto mesh = mmc->Mesh;
 								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
 								/*
 								#pragma region Sphere test 1. discard useless meshes. 2. Calculate scene boundary for lightFrustum;
@@ -338,15 +338,15 @@ void UniEngine::LightingManager::Start()
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
-						if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
+						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->_CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
-							size_t count = immc->_Matrices->size();
+							size_t count = immc->Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
+							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->Matrices->at(0), GL_STATIC_DRAW);
 							for (auto& entity : *entities) {
 								if (!entity.Enabled()) continue;
-								auto mesh = immc->_Mesh;
+								auto mesh = immc->Mesh;
 								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
@@ -438,12 +438,12 @@ void UniEngine::LightingManager::Start()
 				_PointLightProgram->SetInt("index", i);
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 				for (auto mmc : *meshMaterials) {
-					if (mmc->_Material == nullptr || mmc->_Mesh == nullptr) continue;
-					if (mmc->_CastShadow) {
+					if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+					if (mmc->CastShadow) {
 						auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(std::shared_ptr<MeshMaterialComponent>(mmc));
 						for (auto& entity : *entities) {
 							if (!entity.Enabled()) continue;
-							auto mesh = mmc->_Mesh;
+							auto mesh = mmc->Mesh;
 							_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 							mesh->Enable();
 							mesh->VAO()->DisableAttributeArray(12);
@@ -459,15 +459,15 @@ void UniEngine::LightingManager::Start()
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
-						if (immc->_Material == nullptr || immc->_Mesh == nullptr) continue;
+						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->_CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
-							size_t count = immc->_Matrices->size();
+							size_t count = immc->Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->_Matrices->at(0), GL_STATIC_DRAW);
+							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->Matrices->at(0), GL_STATIC_DRAW);
 							for (auto& entity : *entities) {
 								if (!entity.Enabled()) continue;
-								auto mesh = immc->_Mesh;
+								auto mesh = immc->Mesh;
 								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);

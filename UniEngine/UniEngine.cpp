@@ -157,7 +157,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
 	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
 	_MainCameraComponent = new CameraComponent();
-	_MainCameraComponent->Value = new Camera(1600, 900, 0.1f, 500.0f);;
+	_MainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
 	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, std::shared_ptr<CameraComponent>(_MainCameraComponent));
 #pragma endregion
 #pragma region Internal Systems

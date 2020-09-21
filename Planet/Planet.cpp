@@ -55,8 +55,8 @@ int main()
 
 #pragma region Lights
 	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
-	dlmmc->_Mesh = Default::Primitives::Cylinder;
-	dlmmc->_Material = Default::Materials::StandardMaterial;
+	dlmmc->Mesh = Default::Primitives::Cylinder;
+	dlmmc->Material = Default::Materials::StandardMaterial;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
 
@@ -69,8 +69,8 @@ int main()
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(dle, std::shared_ptr<MeshMaterialComponent>(dlmmc));
 
 	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
-	plmmc->_Mesh = Default::Primitives::Sphere;
-	plmmc->_Material = Default::Materials::StandardMaterial;
+	plmmc->Mesh = Default::Primitives::Sphere;
+	plmmc->Material = Default::Materials::StandardMaterial;
 	scale.Value = glm::vec3(0.5f);
 
 	PointLightComponent* plc = new PointLightComponent();

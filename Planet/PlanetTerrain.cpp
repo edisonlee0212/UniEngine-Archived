@@ -5,7 +5,7 @@ size_t Planet::PlanetTerrain::GetHashCode()
 	return (size_t)this;
 }
 
-Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, Material* surfaceMaterial, std::queue<TerrainChunk*>* generationQueue)
+Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial, std::queue<TerrainChunk*>* generationQueue)
 {
 	_Info = info;
 	_SurfaceMaterial = surfaceMaterial;

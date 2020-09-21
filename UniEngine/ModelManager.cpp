@@ -171,10 +171,10 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     // process materials
     aiMaterial* pointMaterial = scene->mMaterials[aimesh->mMaterialIndex];
 
-    auto mesh = new Mesh();
+    auto mesh = std::make_shared<Mesh>() ;
     mesh->SetVertices(mask, vertices, indices);
 
-    auto material = new Material();
+    auto material = std::make_shared<Material>();
     float shininess;
     pointMaterial->Get(AI_MATKEY_SHININESS, shininess);
     material->SetMaterialProperty("material.shininess", shininess);
@@ -192,8 +192,8 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     //std::vector<Texture2D*> heightMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_HEIGHT, TextureType::HEIGHT);
     //Texture2Ds->insert(Texture2Ds->end(), heightMaps.begin(), heightMaps.end());
     MeshMaterialComponent* mmc = new MeshMaterialComponent();
-    mmc->_Mesh = mesh;
-    mmc->_Material = material;
+    mmc->Mesh = mesh;
+    mmc->Material = material;
     modelNode->_MeshMaterialComponents.push_back(mmc);
 }
 std::vector<Texture2D*> ModelManager::LoadMaterialTextures(std::string directory, std::vector<Texture2D*>* Texture2DsLoaded, aiMaterial* mat, aiTextureType type, TextureType typeName)
