@@ -28,6 +28,7 @@ int main()
 {
 	FileIO::SetResourcePath("../Resources/");
 #pragma region Lighting and Shadow settings
+	LightingManager::SetEnableShadow(true);
 	LightingManager::SetDirectionalLightResolution(512);
 	LightingManager::SetStableFit(true);
 	LightingManager::SetSeamFixRatio(0.05f);

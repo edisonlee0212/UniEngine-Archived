@@ -47,9 +47,7 @@ namespace UniEngine {
 		static PointLight _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
 		static SpotLight _SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
 
-		static bool _UpdateDirectionalLightBlock;
-		static bool _UpdatePointLightBlock;
-		static bool _UpdateSpotLightBlock;
+		static bool _EnableShadow;
 
 		static GLProgram* _DirectionalLightProgram;
 		static GLProgram* _PointLightProgram;
@@ -82,6 +80,7 @@ namespace UniEngine {
 		static void SetLightBleedControlFactor(float value);
 		static void SetEVSMExponent(float value);
 		static void SetAmbientLight(float value);
+		static void SetEnableShadow(bool value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 	};
 }

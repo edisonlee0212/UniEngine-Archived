@@ -76,6 +76,12 @@
     <Filter Include="Source Files\Resource\Manager\Render">
       <UniqueIdentifier>{381e113b-2cd0-42e3-b73f-24ed202d65c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Resource\Component">
+      <UniqueIdentifier>{3d72652e-0113-4c97-aa32-c390abf10261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\Component">
+      <UniqueIdentifier>{98d9d20f-ef8f-48b9-8036-be6a5c011733}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -197,6 +203,9 @@
     </ClInclude>
     <ClInclude Include="EntityEditorSystem.h">
       <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Header Files\Resource\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

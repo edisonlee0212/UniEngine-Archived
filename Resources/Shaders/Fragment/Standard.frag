@@ -54,40 +54,44 @@ vec3 CalculateLights(float dist, vec3 normal, vec3 viewDir, vec3 fragPos){
 
 	// phase 1: directional lighting
 	for(int i = 0; i < DirectionalLightCount; i++){
-		int split = 0;
-		float shadow = 0.0;
-		if(dist < SplitDistance0 - SplitDistance0 * SeamFixRatio){
-			shadow = DirectionalLightShadowCalculation(i, 0, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[0] * vec4(fs_in.FragPos, 1.0), norm);
-		}else if(dist < SplitDistance0){
-			//Blend between split 1 & 2
-			shadow = DirectionalLightShadowCalculation(i, 0, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[0] * vec4(fs_in.FragPos, 1.0), norm);
-			float nextLevel = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
-			shadow = (nextLevel * (dist - (SplitDistance0 - SplitDistance0 * SeamFixRatio)) + shadow * (SplitDistance0 - dist)) / (SplitDistance0 * SeamFixRatio);
-		}else if(dist < SplitDistance1 - SplitDistance1 * SeamFixRatio){
-			shadow = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
-		}else if(dist < SplitDistance1){
-			//Blend between split 2 & 3
-			shadow = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
-			float nextLevel = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
-			shadow = (nextLevel * (dist - (SplitDistance1 - SplitDistance1 * SeamFixRatio)) + shadow * (SplitDistance1 - dist)) / (SplitDistance1 * SeamFixRatio);
-		}else if(dist < SplitDistance2 - SplitDistance2 * SeamFixRatio){
-			shadow = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
-		}else if(dist < SplitDistance2){
-			//Blend between split 3 & 4
-			shadow = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
-			float nextLevel = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
-			shadow = (nextLevel * (dist - (SplitDistance2 - SplitDistance2 * SeamFixRatio)) + shadow * (SplitDistance2 - dist)) / (SplitDistance2 * SeamFixRatio);
-		}else if(dist < SplitDistance3){
-			shadow = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
-		}else{
-			shadow = 1.0;
+		float shadow = 1.0;
+		if(enableShadow){
+			int split = 0;
+			if(dist < SplitDistance0 - SplitDistance0 * SeamFixRatio){
+				shadow = DirectionalLightShadowCalculation(i, 0, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[0] * vec4(fs_in.FragPos, 1.0), norm);
+			}else if(dist < SplitDistance0){
+				//Blend between split 1 & 2
+				shadow = DirectionalLightShadowCalculation(i, 0, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[0] * vec4(fs_in.FragPos, 1.0), norm);
+				float nextLevel = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
+				shadow = (nextLevel * (dist - (SplitDistance0 - SplitDistance0 * SeamFixRatio)) + shadow * (SplitDistance0 - dist)) / (SplitDistance0 * SeamFixRatio);
+			}else if(dist < SplitDistance1 - SplitDistance1 * SeamFixRatio){
+				shadow = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
+			}else if(dist < SplitDistance1){
+				//Blend between split 2 & 3
+				shadow = DirectionalLightShadowCalculation(i, 1, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[1] * vec4(fs_in.FragPos, 1.0), norm);
+				float nextLevel = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
+				shadow = (nextLevel * (dist - (SplitDistance1 - SplitDistance1 * SeamFixRatio)) + shadow * (SplitDistance1 - dist)) / (SplitDistance1 * SeamFixRatio);
+			}else if(dist < SplitDistance2 - SplitDistance2 * SeamFixRatio){
+				shadow = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
+			}else if(dist < SplitDistance2){
+				//Blend between split 3 & 4
+				shadow = DirectionalLightShadowCalculation(i, 2, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[2] * vec4(fs_in.FragPos, 1.0), norm);
+				float nextLevel = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
+				shadow = (nextLevel * (dist - (SplitDistance2 - SplitDistance2 * SeamFixRatio)) + shadow * (SplitDistance2 - dist)) / (SplitDistance2 * SeamFixRatio);
+			}else if(dist < SplitDistance3){
+				shadow = DirectionalLightShadowCalculation(i, 3, DirectionalLights[i], DirectionalLights[i].lightSpaceMatrix[3] * vec4(fs_in.FragPos, 1.0), norm);
+			}else{
+				shadow = 1.0;
+			}
 		}
-		
-		result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * (shadow);
+		result += CalcDirectionalLight(DirectionalLights[i], norm, viewDir) * shadow;
 	}
 	// phase 2: point lights
 	for(int i = 0; i < PointLightCount; i++){
-		float shadow = PointLightShadowCalculation(i, PointLights[i], fragPos, norm);
+		float shadow = 0.0;
+		if(enableShadow){
+			shadow = PointLightShadowCalculation(i, PointLights[i], fragPos, norm);
+		}
 		result += CalcPointLight(PointLights[i], norm, fragPos, viewDir) * (1.0 - shadow);
 	}
 	// phase 3: spot light

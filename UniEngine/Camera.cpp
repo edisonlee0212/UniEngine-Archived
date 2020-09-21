@@ -161,6 +161,13 @@ GLTexture2D* UniEngine::Camera::GetTexture()
 	return _ColorTexture;
 }
 
+Ray Camera::ScreenPointToRay(glm::vec3 cameraPos, glm::vec3 mousePosition)
+{
+	glm::vec3 start = cameraPos;
+	glm::vec3 end = cameraPos;
+	return Ray(start, end);
+}
+
 void UniEngine::Plane::Normalize()
 {
 	float mag = glm::sqrt(a * a + b * b + c * c);

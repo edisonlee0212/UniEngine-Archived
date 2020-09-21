@@ -50,8 +50,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	auto programs = material->Programs();
 	textureStartIndex = 0;
 	for (auto i = 0; i < programs->size(); i++) {
-		RenderManager::_DrawCall++;
-		RenderManager::_Triangles += mesh->Size() * count / 3;
+		_DrawCall++;
+		_Triangles += mesh->Size() * count / 3;
 		auto program = programs->at(i);
 		program->Bind();
 		program->SetBool("receiveShadow", receiveShadow);
@@ -60,6 +60,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 			program->SetInt("pointShadowMap", 1);
 			textureStartIndex += 2;
 		}
+		program->SetBool("enableShadow", LightingManager::_EnableShadow);
 		program->SetFloat4x4("model", model);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);
@@ -184,6 +185,7 @@ void UniEngine::RenderManager::DrawMesh(
 
 			textureStartIndex += 2;
 		}
+		program->SetBool("enableShadow", LightingManager::_EnableShadow);
 		program->SetFloat4x4("model", model);
 		for (auto j : material->_FloatPropertyList) {
 			program->SetFloat(j.first, j.second);

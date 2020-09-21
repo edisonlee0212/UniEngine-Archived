@@ -128,6 +128,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="Model.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLightComponent.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="SharedComponentSystem.h" />
     <ClInclude Include="SpotLightComponent.h" />

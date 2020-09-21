@@ -1,7 +1,7 @@
 #pragma once
 #include "UniEngineAPI.h"
 #include "RenderTarget.h"
-
+#include "Ray.h"
 namespace UniEngine {
 
 	enum CameraLayer {
@@ -64,5 +64,7 @@ namespace UniEngine {
 		void ProcessMouseScroll(float yoffset);
 		void SetResolution(int x, int y);
 		GLTexture2D* GetTexture();
+
+		Ray ScreenPointToRay(glm::vec3 cameraPos, glm::vec3 mousePosition);
 	};
 }

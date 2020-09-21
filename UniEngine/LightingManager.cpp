@@ -33,9 +33,7 @@ GLUBO* LightingManager::_SpotLightBlock;
 PointLight LightingManager::_PointLights[Default::ShaderIncludes::MaxPointLightAmount];
 SpotLight LightingManager::_SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
 
-bool LightingManager::_UpdateDirectionalLightBlock;
-bool LightingManager::_UpdatePointLightBlock;
-bool LightingManager::_UpdateSpotLightBlock;
+bool LightingManager::_EnableShadow = false;
 
 
 PointLightShadowMap* LightingManager::_PointLightShadowMap;
@@ -159,9 +157,6 @@ void UniEngine::LightingManager::Init()
 		new GLShader(ShaderType::Geometry, &geomShaderCode)
 	);
 #pragma endregion
-	_UpdateDirectionalLightBlock = true;
-	_UpdatePointLightBlock = true;
-	_UpdateSpotLightBlock = true;
 }
 
 void UniEngine::LightingManager::Start()
@@ -175,113 +170,114 @@ void UniEngine::LightingManager::Start()
 
 	_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowSettings), &_ShadowSettings);
 
-	if (_UpdateDirectionalLightBlock) {
-		//1.	利用EntityManager找到场景内所有Light instance。
-		auto directionLightsList = EntityManager::GetSharedComponentDataArray<DirectionalLightComponent>();
-		if (directionLightsList != nullptr) {
+
+	//1.	利用EntityManager找到场景内所有Light instance。
+	auto directionLightsList = EntityManager::GetSharedComponentDataArray<DirectionalLightComponent>();
+	if (directionLightsList != nullptr) {
 #pragma region Prepare DirectionalLight data
-			size_t size = directionLightsList->size();
-			for (int i = 0; i < size; i++) {
+		size_t size = directionLightsList->size();
+		for (int i = 0; i < size; i++) {
 #pragma region DirectionalLight data collection
-				DirectionalLightComponent* dlc = directionLightsList->at(i).get();
-				Entity lightEntity = EntityManager::GetSharedComponentEntities<DirectionalLightComponent>(directionLightsList->at(i))->at(0);
-				glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).Value;
-				glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
-				float planeDistance = 0;
-				glm::vec3 center;
-				_DirectionalLights[i].direction = glm::vec4(lightDir, 0.0f);
-				_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 1);
-				_DirectionalLights[i].specular = glm::vec4(dlc->specular, 1);
+			DirectionalLightComponent* dlc = directionLightsList->at(i).get();
+			Entity lightEntity = EntityManager::GetSharedComponentEntities<DirectionalLightComponent>(directionLightsList->at(i))->at(0);
+			glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).Value;
+			glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
+			float planeDistance = 0;
+			glm::vec3 center;
+			_DirectionalLights[i].direction = glm::vec4(lightDir, 0.0f);
+			_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 1);
+			_DirectionalLights[i].specular = glm::vec4(dlc->specular, 1);
 #pragma endregion
-				for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
-					//2.	计算Cascade Split所需信息
-					float splitStart = 0;
-					float splitEnd = _MaxShadowDistance;
-					if (split != 0) splitStart = _MaxShadowDistance * _ShadowCascadeSplit[split - 1];
-					if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = _MaxShadowDistance * _ShadowCascadeSplit[split];
-					_ShadowSettings.SplitDistance[split] = splitEnd;
-					glm::mat4 lightProjection, lightView;
-					float max = 0;
-					glm::vec3 lightPos;
+			for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
+				//2.	计算Cascade Split所需信息
+				float splitStart = 0;
+				float splitEnd = _MaxShadowDistance;
+				if (split != 0) splitStart = _MaxShadowDistance * _ShadowCascadeSplit[split - 1];
+				if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = _MaxShadowDistance * _ShadowCascadeSplit[split];
+				_ShadowSettings.SplitDistance[split] = splitEnd;
+				glm::mat4 lightProjection, lightView;
+				float max = 0;
+				glm::vec3 lightPos;
 #pragma region AABB
-					glm::vec3 cornerPoints[8];
-					camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cameraRot, cornerPoints);
-					glm::vec3 cameraFrustumCenter = (cameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
-					if (_StableFit) {
-						//Less detail but no shimmering when rotating the camera.
-						//max = glm::distance(cornerPoints[4], cameraFrustumCenter);
-						max = splitEnd;
-					}
-					else {
-						//More detail but cause shimmering when rotating camera. 
-						max = glm::max(max, glm::distance(cornerPoints[0], ClosestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-						max = glm::max(max, glm::distance(cornerPoints[1], ClosestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-						max = glm::max(max, glm::distance(cornerPoints[2], ClosestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-						max = glm::max(max, glm::distance(cornerPoints[3], ClosestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-						max = glm::max(max, glm::distance(cornerPoints[4], ClosestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-						max = glm::max(max, glm::distance(cornerPoints[5], ClosestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-						max = glm::max(max, glm::distance(cornerPoints[6], ClosestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-						max = glm::max(max, glm::distance(cornerPoints[7], ClosestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-					}
+				glm::vec3 cornerPoints[8];
+				camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cameraRot, cornerPoints);
+				glm::vec3 cameraFrustumCenter = (cameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
+				if (_StableFit) {
+					//Less detail but no shimmering when rotating the camera.
+					//max = glm::distance(cornerPoints[4], cameraFrustumCenter);
+					max = splitEnd;
+				}
+				else {
+					//More detail but cause shimmering when rotating camera. 
+					max = glm::max(max, glm::distance(cornerPoints[0], ClosestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[1], ClosestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[2], ClosestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[3], ClosestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[4], ClosestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[5], ClosestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[6], ClosestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+					max = glm::max(max, glm::distance(cornerPoints[7], ClosestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+				}
 
 
-					glm::vec3 p0 = ClosestPointOnLine(glm::vec3(maxBound.x, maxBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
-					glm::vec3 p7 = ClosestPointOnLine(glm::vec3(minBound.x, minBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				glm::vec3 p0 = ClosestPointOnLine(glm::vec3(maxBound.x, maxBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				glm::vec3 p7 = ClosestPointOnLine(glm::vec3(minBound.x, minBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
 
-					float d0 = glm::distance(p0, p7);
+				float d0 = glm::distance(p0, p7);
 
-					glm::vec3 p1 = ClosestPointOnLine(glm::vec3(maxBound.x, maxBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
-					glm::vec3 p6 = ClosestPointOnLine(glm::vec3(minBound.x, minBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				glm::vec3 p1 = ClosestPointOnLine(glm::vec3(maxBound.x, maxBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				glm::vec3 p6 = ClosestPointOnLine(glm::vec3(minBound.x, minBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
 
-					float d1 = glm::distance(p1, p6);
+				float d1 = glm::distance(p1, p6);
 
-					glm::vec3 p2 = ClosestPointOnLine(glm::vec3(maxBound.x, minBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
-					glm::vec3 p5 = ClosestPointOnLine(glm::vec3(minBound.x, maxBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				glm::vec3 p2 = ClosestPointOnLine(glm::vec3(maxBound.x, minBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				glm::vec3 p5 = ClosestPointOnLine(glm::vec3(minBound.x, maxBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
 
-					float d2 = glm::distance(p2, p5);
+				float d2 = glm::distance(p2, p5);
 
-					glm::vec3 p3 = ClosestPointOnLine(glm::vec3(maxBound.x, minBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
-					glm::vec3 p4 = ClosestPointOnLine(glm::vec3(minBound.x, maxBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				glm::vec3 p3 = ClosestPointOnLine(glm::vec3(maxBound.x, minBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				glm::vec3 p4 = ClosestPointOnLine(glm::vec3(minBound.x, maxBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
 
-					float d3 = glm::distance(p3, p4);
+				float d3 = glm::distance(p3, p4);
 
-					center = ClosestPointOnLine(worldBound.Center, cameraFrustumCenter, cameraFrustumCenter + lightDir);
-					planeDistance = glm::max(glm::max(d0, d1), glm::max(d2, d3));
-					lightPos = center - lightDir * planeDistance;
-					lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 1.0, 0.0));
-					if (glm::any(glm::isnan(lightView[3]))) {
-						lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 0.0, 1.0));
-					}
-					lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance * 2.0f);
+				center = ClosestPointOnLine(worldBound.Center, cameraFrustumCenter, cameraFrustumCenter + lightDir);
+				planeDistance = glm::max(glm::max(d0, d1), glm::max(d2, d3));
+				lightPos = center - lightDir * planeDistance;
+				lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 1.0, 0.0));
+				if (glm::any(glm::isnan(lightView[3]))) {
+					lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 0.0, 1.0));
+				}
+				lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance * 2.0f);
 
 #pragma region Fix Shimmering due to the movement of the camera
 
-					glm::mat4 shadowMatrix = lightProjection * lightView;
-					glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-					shadowOrigin = shadowMatrix * shadowOrigin;
-					GLfloat storedW = shadowOrigin.w;
-					shadowOrigin = shadowOrigin * (float)_DirectionalShadowMapResolution / 2.0f;
-					glm::vec4 roundedOrigin = glm::round(shadowOrigin);
-					glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
-					roundOffset = roundOffset * 2.0f / (float)_DirectionalShadowMapResolution;
-					roundOffset.z = 0.0f;
-					roundOffset.w = 0.0f;
-					glm::mat4 shadowProj = lightProjection;
-					shadowProj[3] += roundOffset;
-					lightProjection = shadowProj;
+				glm::mat4 shadowMatrix = lightProjection * lightView;
+				glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+				shadowOrigin = shadowMatrix * shadowOrigin;
+				GLfloat storedW = shadowOrigin.w;
+				shadowOrigin = shadowOrigin * (float)_DirectionalShadowMapResolution / 2.0f;
+				glm::vec4 roundedOrigin = glm::round(shadowOrigin);
+				glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
+				roundOffset = roundOffset * 2.0f / (float)_DirectionalShadowMapResolution;
+				roundOffset.z = 0.0f;
+				roundOffset.w = 0.0f;
+				glm::mat4 shadowProj = lightProjection;
+				shadowProj[3] += roundOffset;
+				lightProjection = shadowProj;
 #pragma endregion
-					_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
-					_DirectionalLights[i].lightFrustumWidth[split] = max;
-					_DirectionalLights[i].lightFrustumDistance[split] = planeDistance;
-					if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, 0, dlc->depthBias, dlc->normalOffset);
+				_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
+				_DirectionalLights[i].lightFrustumWidth[split] = max;
+				_DirectionalLights[i].lightFrustumDistance[split] = planeDistance;
+				if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, 0, dlc->depthBias, dlc->normalOffset);
 
-				}
 			}
+		}
 #pragma endregion
-			_DirectionalLightBlock->SubData(0, 4, &size);
-			if (size != 0) {
-				_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
-			}
+		_DirectionalLightBlock->SubData(0, 4, &size);
+		if (size != 0) {
+			_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
+		}
+		if (_EnableShadow) {
 #pragma region Directional Light Shadowmap pass
 			LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 			_DirectionalLightShadowMap->SetLightAmount(size);
@@ -378,17 +374,17 @@ void UniEngine::LightingManager::Start()
 			Default::GLPrograms::ScreenVAO->Bind();
 			for (int i = 0; i < size; i++) {
 				//if (_DirectionalLights[i].ReservedParameters.y != 0) {
-					glDrawBuffer(GL_COLOR_ATTACHMENT0);
-					_DirectionalLightVFilterProgram->Bind();
-					_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
-					_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
-					glDrawArrays(GL_TRIANGLES, 0, 6);
-					_DLVSMVFilter->Bind(1);
-					glDrawBuffer(GL_COLOR_ATTACHMENT1);
-					_DirectionalLightHFilterProgram->Bind();
-					_DirectionalLightHFilterProgram->SetInt("textureMapArray", 1);
-					_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
-					glDrawArrays(GL_TRIANGLES, 0, 6);
+				glDrawBuffer(GL_COLOR_ATTACHMENT0);
+				_DirectionalLightVFilterProgram->Bind();
+				_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
+				_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+				_DLVSMVFilter->Bind(1);
+				glDrawBuffer(GL_COLOR_ATTACHMENT1);
+				_DirectionalLightHFilterProgram->Bind();
+				_DirectionalLightHFilterProgram->SetInt("textureMapArray", 1);
+				_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
 				//}
 			}
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -396,37 +392,38 @@ void UniEngine::LightingManager::Start()
 #pragma endregion
 		}
 	}
-	
-	if (_UpdatePointLightBlock) {
-		auto pointLightsList = EntityManager::GetSharedComponentDataArray<PointLightComponent>();
-		if (pointLightsList != nullptr) {
+
+
+	auto pointLightsList = EntityManager::GetSharedComponentDataArray<PointLightComponent>();
+	if (pointLightsList != nullptr) {
 #pragma region Prepare PointLight data
-			size_t size = pointLightsList->size();
-			for (int i = 0; i < size; i++) {
-				PointLightComponent* plc = pointLightsList->at(i).get();
-				Entity lightEntity = EntityManager::GetSharedComponentEntities<PointLightComponent>(pointLightsList->at(i))->at(0);
-				glm::vec3 position = EntityManager::GetComponentData<LocalToWorld>(lightEntity).Value[3];
-				_PointLights[i].position = glm::vec4(position, 0);
+		size_t size = pointLightsList->size();
+		for (int i = 0; i < size; i++) {
+			PointLightComponent* plc = pointLightsList->at(i).get();
+			Entity lightEntity = EntityManager::GetSharedComponentEntities<PointLightComponent>(pointLightsList->at(i))->at(0);
+			glm::vec3 position = EntityManager::GetComponentData<LocalToWorld>(lightEntity).Value[3];
+			_PointLights[i].position = glm::vec4(position, 0);
 
-				_PointLights[i].constantLinearQuadFarPlane.x = plc->constant;
-				_PointLights[i].constantLinearQuadFarPlane.y = plc->linear;
-				_PointLights[i].constantLinearQuadFarPlane.z = plc->quadratic;
-				_PointLights[i].diffuse = glm::vec4(plc->diffuse, 0);
-				_PointLights[i].specular = glm::vec4(plc->specular, 0);
-				_PointLights[i].constantLinearQuadFarPlane.w = plc->farPlane;
+			_PointLights[i].constantLinearQuadFarPlane.x = plc->constant;
+			_PointLights[i].constantLinearQuadFarPlane.y = plc->linear;
+			_PointLights[i].constantLinearQuadFarPlane.z = plc->quadratic;
+			_PointLights[i].diffuse = glm::vec4(plc->diffuse, 0);
+			_PointLights[i].specular = glm::vec4(plc->specular, 0);
+			_PointLights[i].constantLinearQuadFarPlane.w = plc->farPlane;
 
-				glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), _PointLightShadowMap->GetResolutionRatio(), 1.0f, _PointLights[i].constantLinearQuadFarPlane.w);
-				_PointLights[i].lightSpaceMatrix[0] = shadowProj * glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-				_PointLights[i].lightSpaceMatrix[1] = shadowProj * glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-				_PointLights[i].lightSpaceMatrix[2] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-				_PointLights[i].lightSpaceMatrix[3] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-				_PointLights[i].lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-				_PointLights[i].lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-				_PointLights[i].ReservedParameters = glm::vec4(plc->bias, 0, 0, 0);
-			}
+			glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), _PointLightShadowMap->GetResolutionRatio(), 1.0f, _PointLights[i].constantLinearQuadFarPlane.w);
+			_PointLights[i].lightSpaceMatrix[0] = shadowProj * glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+			_PointLights[i].lightSpaceMatrix[1] = shadowProj * glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+			_PointLights[i].lightSpaceMatrix[2] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			_PointLights[i].lightSpaceMatrix[3] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+			_PointLights[i].lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+			_PointLights[i].lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+			_PointLights[i].ReservedParameters = glm::vec4(plc->bias, 0, 0, 0);
+		}
 #pragma endregion
-			_PointLightBlock->SubData(0, 4, &size);
-			if (size != 0)_PointLightBlock->SubData(16, size * sizeof(PointLight), &_PointLights[0]);
+		_PointLightBlock->SubData(0, 4, &size);
+		if (size != 0)_PointLightBlock->SubData(16, size * sizeof(PointLight), &_PointLights[0]);
+		if (_EnableShadow) {
 #pragma region PointLight Shadowmap Pass
 			LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(0);
 			_PointLightShadowMap->Bind();
@@ -569,6 +566,11 @@ void UniEngine::LightingManager::SetEVSMExponent(float value)
 void UniEngine::LightingManager::SetAmbientLight(float value)
 {
 	_ShadowSettings.AmbientLight = value;
+}
+
+void LightingManager::SetEnableShadow(bool value)
+{
+	_EnableShadow = value;
 }
 
 glm::vec3 UniEngine::LightingManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)
