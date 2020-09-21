@@ -202,7 +202,6 @@ namespace UniEngine {
 					scc->get()->_OwnersCollectionsList[index] = std::move(scc->get()->_OwnersCollectionsList.back());
 					scc->get()->_SCList.pop_back();
 					scc->get()->_OwnersCollectionsList.pop_back();
-					delete oc;
 				}
 				else {
 					Index index = entitySearch->second;
