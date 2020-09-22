@@ -62,7 +62,6 @@ inline void UniEngine::Application::SceneWindowHelper()
 	ImVec2 overlayPos;
 	ImVec2 work_area_size;
 	bool p_open = true;
-	const float DISTANCE = 10.0f;
 	static int corner = 1;
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -80,7 +79,7 @@ inline void UniEngine::Application::SceneWindowHelper()
 		ImGui::Image((ImTextureID)_MainCameraComponent->Value->GetTexture()->ID(), work_area_size, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::EndChild();
 
-		ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + work_area_size.x - DISTANCE) : (overlayPos.x + DISTANCE), (corner & 2) ? (overlayPos.y + work_area_size.y - DISTANCE) : (overlayPos.y + DISTANCE));
+		ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + work_area_size.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + work_area_size.y) : (overlayPos.y));
 		ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
 		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
 		ImGui::SetNextWindowBgAlpha(0.35f);
@@ -97,11 +96,16 @@ inline void UniEngine::Application::SceneWindowHelper()
 		ImGui::Text(trisstr.c_str());
 		ImGui::Text("%d drawcall", RenderManager::DrawCall());
 		ImGui::Separator();
-		if (ImGui::IsMousePosValid())
-			ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
-		else
+		if (ImGui::IsMousePosValid()) {
+			float x = io.MousePos.x - window_pos.x;
+			float y = io.MousePos.y - window_pos.y;
+			InputManager::_MouseScreenPosition = glm::vec2(x, y);
+			ImGui::Text("Mouse Position: (%.1f,%.1f)", x, y);
+		}
+		else {
+			InputManager::_MouseScreenPosition = glm::vec2(FLT_MAX, FLT_MAX);
 			ImGui::Text("Mouse Position: <invalid>");
-
+		}
 		ImGui::EndChild();
 	}
 	ImGui::End();

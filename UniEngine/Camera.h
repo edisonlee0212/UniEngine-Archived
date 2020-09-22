@@ -3,6 +3,7 @@
 #include "RenderTarget.h"
 #include "Ray.h"
 namespace UniEngine {
+	struct LocalToWorld;
 
 	enum CameraLayer {
 		CameraLayer_None = 0,
@@ -65,6 +66,12 @@ namespace UniEngine {
 		void SetResolution(int x, int y);
 		GLTexture2D* GetTexture();
 
-		Ray ScreenPointToRay(glm::vec3 cameraPos, glm::vec3 mousePosition);
+		glm::vec3 Project(LocalToWorld& ltw, glm::vec3 position);
+
+		glm::vec3 UnProject(LocalToWorld& ltw, glm::vec3 position);
+
+		glm::vec3 GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition);
+		
+		Ray ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const;
 	};
 }

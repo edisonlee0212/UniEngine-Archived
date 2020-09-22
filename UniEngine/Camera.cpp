@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Camera.h"
+
+#include "TransformSystem.h"
 #include "WindowManager.h"
 
 using namespace UniEngine;
@@ -161,11 +163,58 @@ GLTexture2D* UniEngine::Camera::GetTexture()
 	return _ColorTexture;
 }
 
-Ray Camera::ScreenPointToRay(glm::vec3 cameraPos, glm::vec3 mousePosition)
+glm::vec3 Camera::Project(LocalToWorld& ltw, glm::vec3 position)
 {
-	glm::vec3 start = cameraPos;
-	glm::vec3 end = cameraPos;
-	return Ray(start, end);
+	return _MainCameraInfoBlock.Projection * _MainCameraInfoBlock.View * glm::vec4(position, 1.0f);
+}
+
+glm::vec3 Camera::UnProject(LocalToWorld& ltw, glm::vec3 position)
+{
+	glm::mat4 inversed = glm::inverse(_MainCameraInfoBlock.Projection * _MainCameraInfoBlock.View);
+	glm::vec4 start = glm::vec4(
+		position, 1.0f);
+	start = inversed * start;
+	return start / start.w;
+}
+
+glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition)
+{
+	glm::mat4 inversed = glm::inverse(_MainCameraInfoBlock.Projection * _MainCameraInfoBlock.View);
+	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
+	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
+	const glm::vec4 start = glm::vec4(
+		(mousePosition.x - halfX) / halfX,
+		-1 * (mousePosition.y - halfY) / halfY,
+		0.0f, 1.0f);
+	const auto position = inversed * start;
+	return start / start.w;
+}
+
+Ray Camera::ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const
+{
+	
+	const glm::mat4 inv = glm::inverse(_MainCameraInfoBlock.Projection * _MainCameraInfoBlock.View);
+	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
+	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
+	const auto realX = (mousePosition.x + halfX) / halfX;
+	const auto realY = (mousePosition.y - halfY) / halfY;
+	if (glm::abs(realX) > 1.0f || glm::abs(realY) > 1.0f) return { glm::vec3(FLT_MAX), glm::vec3(FLT_MAX) };
+	glm::vec4 start = glm::vec4(
+		realX,
+		-1 * realY,
+		-1, 1.0);
+	glm::vec4 end = glm::vec4(realX,
+	                                -1 * realY,
+	                                1, 1.0);
+	
+	
+	start = inv * start;
+	end = inv * end;
+	start /= start.w;
+	end /= end.w;
+	const glm::vec3 dir = glm::normalize(glm::vec3(end - start));
+	
+	return {glm::vec3(ltw.Value[3]) + (_Near + 10.0f) * dir, glm::vec3(ltw.Value[3]) + _Far * dir};
 }
 
 void UniEngine::Plane::Normalize()

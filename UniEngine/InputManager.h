@@ -9,7 +9,8 @@ namespace UniEngine {
         static void MouseScrollCallback(GLFWwindow* window, double xpos, double ypos);
         static bool GetKey(int key);
         static bool GetMouse(int button);
-        static glm::vec2 GetMousePosition();
+        static glm::vec2 GetMouseAbsolutePosition();
+        static glm::vec2 GetMouseScreenPosition();
         static glm::vec2 GetMouseScroll();
         static bool GetMouseScrolled();
         static bool GetMouseMoved();
@@ -26,6 +27,8 @@ namespace UniEngine {
         static double _CursorY;
         static double _CursorScrollX;
         static double _CursorScrollY;
+        friend class Application;
+        static glm::vec2 _MouseScreenPosition;
         static bool _CursorMoved;
         static bool _CursorScrolled;
     };

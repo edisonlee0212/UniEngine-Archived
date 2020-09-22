@@ -42,7 +42,7 @@ void CameraControlSystem::Update()
 		_P[1] = position.y;
 		_P[2] = position.z;
 	}
-	auto mousePosition = InputManager::GetMousePosition();
+	auto mousePosition = InputManager::GetMouseAbsolutePosition();
 	if (!startMouse) {
 		_LastX = mousePosition.x;
 		_LastY = mousePosition.y;

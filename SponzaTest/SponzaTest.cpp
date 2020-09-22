@@ -225,6 +225,12 @@ int main()
 		dlc->lightSize = lightSize;
 
 #pragma endregion
+		auto cameraLtw = EntityManager::GetComponentData<LocalToWorld>(Application::GetMainCameraEntity());
+		glm::vec2 mousepos = InputManager::GetMouseScreenPosition();
+		auto ray = Application::GetMainCameraComponent()->Value.get()->ScreenPointToRay(cameraLtw, mousepos);
+
+		RenderManager::DrawGizmoRay(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), Application::GetMainCameraComponent()->Value.get(), ray, 0.1f);
+		
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}

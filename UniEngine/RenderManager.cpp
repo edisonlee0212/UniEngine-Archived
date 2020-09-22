@@ -338,6 +338,22 @@ void UniEngine::RenderManager::DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 colo
 	target->Bind();
 	DrawGizmoInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
+
+void RenderManager::DrawGizmoRay(glm::vec4 color, RenderTarget* target, glm::vec3 start, glm::vec3 end, float width)
+{
+	
+	
+}
+
+void RenderManager::DrawGizmoRay(glm::vec4 color, RenderTarget* target, Ray& ray, float width)
+{
+	glm::quat rotation = glm::quatLookAt(ray.Direction, glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+	glm::mat4 rotationMat = glm::mat4_cast(rotation);
+	auto model = glm::translate((ray.Start + ray.Direction * ray.Length / 2.0f)) * rotationMat * glm::scale(glm::vec3(width, ray.Length / 2.0f, width));
+	DrawGizmoMesh(Default::Primitives::Cylinder.get(), color, target, model);
+}
+
 void UniEngine::RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow)
 {
