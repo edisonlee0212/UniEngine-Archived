@@ -25,7 +25,6 @@ inline void UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& 
 			static char newName[256];
 			ImGui::InputText("New name", newName, 256);
 			if (ImGui::Button("Confirm"))EntityManager::SetEntityName(entity, std::string(newName));
-			ImGui::EndMenu();
 
 			ImGui::EndMenu();
 		}
