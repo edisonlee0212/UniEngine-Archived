@@ -192,13 +192,19 @@ namespace UniEngine {
 		{
 			return Version == 0;
 		}
-		template<typename T = ComponentBase>
-		void ToComponentDataArray(std::vector<T>& container);
+		template<typename T1 = ComponentBase>
+		void ToComponentDataArray(std::vector<T1>& container);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(T2&)>& filterFunc);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
+		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(T2&, T3&)>& filterFunc);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
 		void ToComponentDataArray(T1 filter, std::vector<T2>& container);
 		void ToEntityArray(std::vector<Entity>& container);
 		template<typename T1 = ComponentBase>
 		void ToEntityArray(T1 filter, std::vector<Entity>& container);
+		template<typename T1 = ComponentBase>
+		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(Entity, T1&)>& filterFunc);
 		size_t GetEntityAmount();
 	};
 

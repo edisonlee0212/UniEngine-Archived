@@ -69,8 +69,18 @@ namespace UniEngine {
 		template<typename T = ComponentBase>
 		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>& container);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container, const std::function<bool(T2&)>& filterFunc);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
+		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container, const std::function<bool(T2&, T3&)>& filterFunc);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
 		static void GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>& container);
+
+		
 		static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container);
+		template<typename T1 = ComponentBase>
+		static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container, const std::function<bool(Entity, T1&)>& filterFunc);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+		static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container, const std::function<bool(Entity, T1&, T2&)>& filterFunc);
 		template<typename T1 = ComponentBase>
 		static void GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container);
 
@@ -185,7 +195,7 @@ namespace UniEngine {
 #pragma region Functions
 #pragma region Collectors
 	template<typename T>
-	inline size_t EntityManager::CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg)
+	size_t EntityManager::CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg)
 	{
 		ComponentType type = typeof<T>();
 		componentTypes->push_back(type);
@@ -193,7 +203,7 @@ namespace UniEngine {
 	}
 
 	template<typename T, typename ...Ts>
-	inline size_t EntityManager::CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg, Ts ...args)
+	size_t EntityManager::CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg, Ts ...args)
 	{
 		auto offset = CollectComponentTypes(componentTypes, args...);
 		ComponentType type = typeof<T>();
@@ -202,7 +212,7 @@ namespace UniEngine {
 	}
 
 	template<typename T, typename ...Ts>
-	inline std::vector<ComponentType> EntityManager::CollectComponentTypes(T arg, Ts ...args)
+	std::vector<ComponentType> EntityManager::CollectComponentTypes(T arg, Ts ...args)
 	{
 		std::vector<ComponentType> retVal = std::vector<ComponentType>();
 		CollectComponentTypes(&retVal, arg, args...);
@@ -1416,7 +1426,7 @@ namespace UniEngine {
 	}
 #pragma endregion
 	template<typename T>
-	inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T>& container)
+	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T>& container)
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
@@ -1432,13 +1442,101 @@ namespace UniEngine {
 			GetComponentDataArrayStorage(i, container);
 		}
 	}
+
+	template <typename T1, typename T2>
+	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container,
+		const std::function<bool(T2&)>& filterFunc)
+	{
+		std::vector<T2> componentDataList;
+		std::vector<T1> targetDataList;
+		GetComponentDataArray(entityQuery, componentDataList);
+		GetComponentDataArray(entityQuery, targetDataList);
+		if (targetDataList.size() != componentDataList.size()) return;
+		std::vector<std::shared_future<void>> futures;
+		size_t size = componentDataList.size();
+		std::vector<std::vector<T1>> collectedDataLists;
+		for (int i = 0; i < _ThreadPool->Size(); i++) {
+			collectedDataLists.push_back(std::vector<T1>());
+		}
+		for (int i = 0; i < collectedDataLists.size(); i++) {
+			std::vector<T1>* collectedDataList = &collectedDataLists[i];
+			futures.push_back(_ThreadPool->Push([&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc](int id) {
+				for (int j = 0; j < size / 8; j++) {
+					if (filterFunc(componentDataList[j * 8 + i])) {
+						collectedDataList->push_back(targetDataList[j * 8 + i]);
+					}
+				}
+				}).share());
+		}
+		for (auto i : futures) i.wait();
+		for (int i = 0; i < collectedDataLists.size(); i++) {
+			auto listSize = collectedDataLists[i].size();
+			if (listSize == 0) continue;
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T1));
+		}
+
+
+		size_t remainder = size % 8;
+		for (int i = 0; i < remainder; i++) {
+			if (filterFunc(componentDataList[size - remainder + i])) {
+				container.push_back(targetDataList[size - remainder + i]);
+			}
+		}
+	}
+
+	template <typename T1, typename T2, typename T3>
+	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container,
+		const std::function<bool(T2&, T3&)>& filterFunc)
+	{
+		std::vector<T3> componentDataList2;
+		std::vector<T2> componentDataList1;
+		std::vector<T1> targetDataList;
+		GetComponentDataArray(entityQuery, componentDataList2);
+		GetComponentDataArray(entityQuery, componentDataList1);
+		GetComponentDataArray(entityQuery, targetDataList);
+		if (targetDataList.size() != componentDataList1.size() || componentDataList1.size() != componentDataList2.size()) return;
+		std::vector<std::shared_future<void>> futures;
+		size_t size = componentDataList1.size();
+		std::vector<std::vector<T1>> collectedDataLists;
+		for (int i = 0; i < _ThreadPool->Size(); i++) {
+			collectedDataLists.push_back(std::vector<T1>());
+		}
+		for (int i = 0; i < collectedDataLists.size(); i++) {
+			std::vector<T1>* collectedDataList = &collectedDataLists[i];
+			futures.push_back(_ThreadPool->Push([&targetDataList, &componentDataList1, &componentDataList2, size, collectedDataList, i, filterFunc](int id) {
+				for (int j = 0; j < size / 8; j++) {
+					if (filterFunc(componentDataList1[j * 8 + i], componentDataList2[j * 8 + i])) {
+						collectedDataList->push_back(targetDataList[j * 8 + i]);
+					}
+				}
+				}).share());
+		}
+		for (auto i : futures) i.wait();
+		for (int i = 0; i < collectedDataLists.size(); i++) {
+			auto listSize = collectedDataLists[i].size();
+			if (listSize == 0) continue;
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T1));
+		}
+
+
+		size_t remainder = size % 8;
+		for (int i = 0; i < remainder; i++) {
+			if (filterFunc(componentDataList1[size - remainder + i], componentDataList2[size - remainder + i])) {
+				container.push_back(targetDataList[size - remainder + i]);
+			}
+		}
+	}
+
 	template<typename T1, typename T2>
-	inline void EntityManager::GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>& container)
+	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>& container)
 	{
 		std::vector<T1> componentDataList;
 		std::vector<T2> targetDataList;
 		GetComponentDataArray(entityQuery, componentDataList);
 		GetComponentDataArray(entityQuery, targetDataList);
+		if (targetDataList.size() != componentDataList.size()) return;
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList.size();
 		std::vector<std::vector<T2>> collectedDataLists;
@@ -1471,8 +1569,96 @@ namespace UniEngine {
 			}
 		}
 	}
+
+	template <typename T1>
+	void EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container,
+		const std::function<bool(Entity, T1&)>& filterFunc)
+	{
+		std::vector<Entity> allEntities;
+		std::vector<T1> componentDataList;
+		GetEntityArray(entityQuery, allEntities);
+		GetComponentDataArray(entityQuery, componentDataList);
+		if (allEntities.size() != componentDataList.size()) return;
+		std::vector<std::shared_future<void>> futures;
+		size_t size = allEntities.size();
+		std::vector<std::vector<Entity>> collectedEntityLists;
+		for (int i = 0; i < _ThreadPool->Size(); i++) {
+			collectedEntityLists.push_back(std::vector<Entity>());
+		}
+		for (int i = 0; i < collectedEntityLists.size(); i++) {
+			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
+			futures.push_back(_ThreadPool->Push([&allEntities, &componentDataList, size, collectedEntityList, i, filterFunc](int id) {
+				for (int j = 0; j < size / 8; j++) {
+					if (filterFunc(allEntities[j * 8 + i], componentDataList[j * 8 + i])) {
+						collectedEntityList->push_back(allEntities[j * 8 + i]);
+					}
+				}
+				}).share());
+		}
+		for (auto i : futures) i.wait();
+		for (int i = 0; i < collectedEntityLists.size(); i++) {
+			auto listSize = collectedEntityLists[i].size();
+			if (listSize == 0) continue;
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedEntityLists[i].data(), listSize * sizeof(Entity));
+		}
+
+
+		size_t remainder = size % 8;
+		for (int i = 0; i < remainder; i++) {
+			if (filterFunc(allEntities[size - remainder + i], componentDataList[size - remainder + i])) {
+				container.push_back(allEntities[size - remainder + i]);
+			}
+		}
+	}
+
+	template <typename T1, typename T2>
+	void EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container,
+		const std::function<bool(Entity, T1&, T2&)>& filterFunc)
+	{
+		std::vector<Entity> allEntities;
+		std::vector<T1> componentDataList1;
+		std::vector<T2> componentDataList2;
+		GetEntityArray(entityQuery, allEntities);
+		GetComponentDataArray(entityQuery, componentDataList1);
+		GetComponentDataArray(entityQuery, componentDataList2);
+		if(allEntities.size() != componentDataList1.size() || componentDataList1.size() != componentDataList2.size()) return;
+		std::vector<std::shared_future<void>> futures;
+		size_t size = allEntities.size();
+		std::vector<std::vector<Entity>> collectedEntityLists;
+		for (int i = 0; i < _ThreadPool->Size(); i++) {
+			collectedEntityLists.push_back(std::vector<Entity>());
+		}
+		for (int i = 0; i < collectedEntityLists.size(); i++) {
+			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
+			futures.push_back(_ThreadPool->Push([&allEntities, &componentDataList1, &componentDataList2, size, collectedEntityList, i, filterFunc](int id) {
+				for (int j = 0; j < size / 8; j++) {
+					if (filterFunc(allEntities[j * 8 + i], componentDataList1[j * 8 + i], componentDataList2[j * 8 + i])) {
+						collectedEntityList->push_back(allEntities[j * 8 + i]);
+					}
+				}
+				}).share());
+		}
+		for (auto i : futures) i.wait();
+		for (int i = 0; i < collectedEntityLists.size(); i++) {
+			auto listSize = collectedEntityLists[i].size();
+			if (listSize == 0) continue;
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedEntityLists[i].data(), listSize * sizeof(Entity));
+		}
+
+
+		size_t remainder = size % 8;
+		for (int i = 0; i < remainder; i++) {
+			if (filterFunc(allEntities[size - remainder + i], componentDataList1[size - remainder + i], componentDataList2[size - remainder + i])) {
+				container.push_back(allEntities[size - remainder + i]);
+			}
+		}
+	}
+
+
 	template<typename T1>
-	inline void EntityManager::GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container)
+	void EntityManager::GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container)
 	{
 		std::vector<Entity> allEntities;
 		std::vector<T1> componentDataList;
@@ -1553,20 +1739,41 @@ namespace UniEngine {
 		return EntityManager::HasSharedComponent<T>();
 	}
 
-	template<typename T>
-	inline void EntityQuery::ToComponentDataArray(std::vector<T>& container)
+	template<typename T1>
+	void EntityQuery::ToComponentDataArray(std::vector<T1>& container)
 	{
 		EntityManager::GetComponentDataArray(*this, container);
 	}
+
+	template <typename T1, typename T2>
+	void EntityQuery::ToComponentDataArray(std::vector<T1>& container,
+		const std::function<bool(T2&)>& filterFunc)
+	{
+		EntityManager::GetComponentDataArray(*this, container, filterFunc);
+	}
+
+	template <typename T1, typename T2, typename T3>
+	void EntityQuery::ToComponentDataArray(std::vector<T1>& container,
+		const std::function<bool(T2&, T3&)>& filterFunc)
+	{
+		EntityManager::GetComponentDataArray(*this, container, filterFunc);
+	}
+
 	template<typename T1, typename T2>
-	inline void EntityQuery::ToComponentDataArray(T1 filter, std::vector<T2>& container)
+	void EntityQuery::ToComponentDataArray(T1 filter, std::vector<T2>& container)
 	{
 		EntityManager::GetComponentDataArray(*this, filter, container);
 	}
 	template<typename T1>
-	inline void EntityQuery::ToEntityArray(T1 filter, std::vector<Entity>& container)
+	void EntityQuery::ToEntityArray(T1 filter, std::vector<Entity>& container)
 	{
 		EntityManager::GetEntityArray(*this, filter, container);
+	}
+
+	template <typename T1>
+	void EntityQuery::ToEntityArray(std::vector<Entity>& container, const std::function<bool(Entity, T1&)>& filterFunc)
+	{
+		EntityManager::GetEntityArray<T1>(*this, container, filterFunc);
 	}
 #pragma endregion
 

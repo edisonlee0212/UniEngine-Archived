@@ -94,6 +94,8 @@ void Galaxy::StarClusterSystem::Update()
 	//Render from last update.
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	_StarQuery.ToComponentDataArray(matrices);
+	
+	
 	RenderManager::DrawMeshInstanced(Default::Primitives::Sphere.get(), _StarMaterial, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), Application::GetMainCameraComponent()->Value.get());
 }
 
