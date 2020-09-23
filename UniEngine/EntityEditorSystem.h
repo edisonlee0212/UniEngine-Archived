@@ -24,6 +24,7 @@ namespace UniEngine {
 		void Update() override;
 		void FixedUpdate() override;
 		static Entity GetSelectedEntity() { return _SelectedEntity; }
+		static void SetSelectedEntity(Entity entity);
 	};
 
 	template <typename T1>

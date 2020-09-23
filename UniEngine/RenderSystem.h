@@ -9,9 +9,9 @@ namespace UniEngine {
 	public:
 		static void SetWireFrameMode(bool value);
 		RenderSystem();
-		void OnCreate();
-		void OnDestroy();
-		void Update();
+		void OnCreate() override;
+		void OnDestroy() override;
+		void Update() override;
 	};
 
 }

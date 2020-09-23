@@ -83,12 +83,12 @@ namespace UniEngine {
 
 		size_t _CurrentStoredHierarchyVersion = INT_MAX;
 		std::vector<std::pair<Entity, ChildInfo>> _CachedParentHierarchies;
-		void CalculateLTWRecursive(LocalToWorld pltw, Entity entity);
+		void CalculateLtwRecursive(LocalToWorld pltw, Entity entity);
 		void CollectHierarchy(std::vector<std::pair<Entity, ChildInfo>>* container, Entity entity);
 	public:
-		void OnCreate();
-		void OnDestroy();
-		void Update();
+		void OnCreate() override;
+		void OnDestroy() override;
+		void Update() override;
 	};
 
 }

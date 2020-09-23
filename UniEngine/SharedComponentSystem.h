@@ -6,10 +6,10 @@ namespace UniEngine {
 	{
 	public:
 		SharedComponentSystem();
-		void OnCreate();
-		void OnDestroy();
-		void Update();
-		void FixedUpdate();
+		void OnCreate() override;
+		void OnDestroy() override;
+		void Update() override;
+		void FixedUpdate() override;
 	};
 
 }

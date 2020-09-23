@@ -241,7 +241,7 @@ void UniEngine::TransformSystem::Update()
 	}
 }
 
-void UniEngine::TransformSystem::CalculateLTWRecursive(LocalToWorld pltw, Entity entity)
+void UniEngine::TransformSystem::CalculateLtwRecursive(LocalToWorld pltw, Entity entity)
 {
 	/*
 	Here we have 2 ways to deal with children, you can use lambda function or you can get children
@@ -263,7 +263,7 @@ void UniEngine::TransformSystem::CalculateLTWRecursive(LocalToWorld pltw, Entity
 		LocalToWorld ltw;
 		ltw.Value = pltw.Value * ltp.Value;
 		EntityManager::SetComponentData<LocalToWorld>(i, ltw);
-		CalculateLTWRecursive(ltw, i);
+		CalculateLtwRecursive(ltw, i);
 	}
 }
 

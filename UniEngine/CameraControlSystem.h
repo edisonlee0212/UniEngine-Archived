@@ -17,7 +17,7 @@ namespace UniEngine {
 		float _P[3];
 		float _R[4];
 	public:
-		void Update();
+		void Update() override;
 		void EnableWindowControl(bool value);
 		void SetPosition(glm::vec3 position);
 		void SetVelocity(float velocity);

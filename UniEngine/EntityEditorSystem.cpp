@@ -143,7 +143,6 @@ void UniEngine::EntityEditorSystem::Update()
 				std::string info = std::string(type.Name + 7);
 				info += " Size: " + std::to_string(type.Size);
 				ImGui::Text(info.c_str());
-				//TempComponentInspector(type, data);
 				InspectComponent(static_cast<ComponentBase*>(data), type);
 				ImGui::Separator();
 				});
@@ -157,4 +156,10 @@ void UniEngine::EntityEditorSystem::Update()
 
 void UniEngine::EntityEditorSystem::FixedUpdate()
 {
+}
+
+void UniEngine::EntityEditorSystem::SetSelectedEntity(Entity entity)
+{
+	if(entity.IsNull() || entity.IsDeleted()) return;
+	_SelectedEntity = entity;
 }
