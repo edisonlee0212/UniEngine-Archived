@@ -214,7 +214,7 @@ Ray Camera::ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const
 	end /= end.w;
 	const glm::vec3 dir = glm::normalize(glm::vec3(end - start));
 	
-	return {glm::vec3(ltw.Value[3]) + (_Near + 10.0f) * dir, glm::vec3(ltw.Value[3]) + _Far * dir};
+	return {glm::vec3(ltw.Value[3]) + _Near * dir, glm::vec3(ltw.Value[3]) + _Far * dir};
 }
 
 void UniEngine::Plane::Normalize()
