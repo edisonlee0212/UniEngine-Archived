@@ -2,7 +2,7 @@
 #include "EntityManager.h"
 using namespace UniEngine;
 std::vector<WorldEntityStorage*> UniEngine::EntityManager::_WorldEntityStorage;
-WorldEntityStorage* UniEngine::EntityManager::_CurrentActivitedWorldEntityStorage;
+WorldEntityStorage* UniEngine::EntityManager::_CurrentActivatedWorldEntityStorage;
 std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos;
 std::vector<Entity>* UniEngine::EntityManager::_Entities;
 std::vector<Entity>* UniEngine::EntityManager::_ParentRoots;
@@ -195,7 +195,7 @@ void UniEngine::EntityManager::SetWorld(World* world)
 		_WorldEntityStorage.push_back(storage);
 	}
 	WorldEntityStorage* targetStorage = _WorldEntityStorage[index];
-	_CurrentActivitedWorldEntityStorage = targetStorage;
+	_CurrentActivatedWorldEntityStorage = targetStorage;
 	_Entities = &targetStorage->Entities;
 	_ParentRoots = &targetStorage->ParentRoots;
 	_EntityInfos = &targetStorage->EntityInfos;
@@ -299,7 +299,7 @@ void UniEngine::EntityManager::DeleteEntity(Entity entity)
 	if (_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
 	DeleteEntityInternal(entity);
 
-	_CurrentActivitedWorldEntityStorage->ParentHierarchyVersion++;
+	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
 }
 
 std::string EntityManager::GetEntityName(Entity entity)
@@ -336,7 +336,7 @@ bool EntityManager::SetEntityName(Entity entity, std::string name)
 void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
 {
 	if (entity.IsNull() || parent.IsNull()) return;
-	_CurrentActivitedWorldEntityStorage->ParentHierarchyVersion++;
+	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
 	size_t childIndex = entity.Index;
 	size_t parentIndex = parent.Index;
 	if (entity != _Entities->at(childIndex)) {
@@ -426,7 +426,7 @@ void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
 	if (_EntityInfos->at(childIndex).Parent.Index == 0) {
 		Debug::Error("No child by the parent!");
 	}
-	_CurrentActivitedWorldEntityStorage->ParentHierarchyVersion++;
+	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
 	_EntityInfos->at(childIndex).Parent = Entity();
 	size_t childrenCount = _EntityInfos->at(parentIndex).Children.size();
 	for (int i = 0; i < childrenCount; i++) {
@@ -452,7 +452,7 @@ void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>* container)
 
 size_t UniEngine::EntityManager::GetParentHierarchyVersion()
 {
-	return _CurrentActivitedWorldEntityStorage->ParentHierarchyVersion;
+	return _CurrentActivatedWorldEntityStorage->ParentHierarchyVersion;
 }
 
 EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)

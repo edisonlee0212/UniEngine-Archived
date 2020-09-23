@@ -21,7 +21,7 @@ namespace UniEngine {
 	class ENTITIES_API EntityManager : public ManagerBase {
 #pragma region Data Storage
 		static std::vector<WorldEntityStorage*> _WorldEntityStorage;
-		static WorldEntityStorage* _CurrentActivitedWorldEntityStorage;
+		static WorldEntityStorage* _CurrentActivatedWorldEntityStorage;
 		static std::vector<Entity>* _Entities;
 		static std::vector<Entity>* _ParentRoots;
 		static std::vector<EntityInfo>* _EntityInfos;
@@ -1700,31 +1700,31 @@ namespace UniEngine {
 	template <typename T>
 	void Entity::SetComponentData(T value)
 	{
-		EntityManager::SetComponentData(this, value);
+		EntityManager::SetComponentData(*this, value);
 	}
 
 	template <typename T>
 	T Entity::GetComponentData()
 	{
-		return EntityManager::GetComponentData<T>(this);
+		return EntityManager::GetComponentData<T>(*this);
 	}
 
 	template <typename T>
 	bool Entity::HasComponentData()
 	{
-		return EntityManager::HasComponentData<T>(this);
+		return EntityManager::HasComponentData<T>(*this);
 	}
 
 	template <typename T>
 	std::shared_ptr<T> Entity::GetSharedComponent()
 	{
-		return std::move(EntityManager::GetSharedComponent<T>(this));
+		return std::move(EntityManager::GetSharedComponent<T>(*this));
 	}
 
 	template <typename T>
 	void Entity::SetSharedComponent(T* value)
 	{
-		EntityManager::SetSharedComponent(this, value);
+		EntityManager::SetSharedComponent(*this, value);
 	}
 
 	template <typename T>
