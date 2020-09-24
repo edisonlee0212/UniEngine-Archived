@@ -4,13 +4,15 @@
 
 std::map<size_t, std::function<void(UniEngine::ComponentBase* data)>> UniEngine::EntityEditorSystem::_ComponentGUIMap;
 UniEngine::Entity UniEngine::EntityEditorSystem::_SelectedEntity;
-inline void UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& entity)
+inline bool UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& entity)
 {
+	bool deleted = false;
 	if (ImGui::BeginPopupContextItem())
 	{
-		if (ImGui::Button("Delete"))
+		if (ImGui::Button("Delete")) {
 			EntityManager::DeleteEntity(entity);
-
+			deleted = true;
+		}
 		if (ImGui::Button(enabled ? "Disable" : "Enable")) {
 			if (enabled) {
 				entity.SetEnabled(false);
@@ -30,6 +32,7 @@ inline void UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& 
 		}
 		ImGui::EndPopup();
 	}
+	return deleted;
 }
 
 void UniEngine::EntityEditorSystem::DrawEntityNode(Entity& entity)
@@ -48,8 +51,8 @@ void UniEngine::EntityEditorSystem::DrawEntityNode(Entity& entity)
 	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
 		_SelectedEntity = entity;
 	}
-	DrawEntityMenu(enabled, entity);
-	if (opened) {
+	const bool deleted = DrawEntityMenu(enabled, entity);
+	if (opened && !deleted) {
 		ImGui::TreePush();
 		EntityManager::ForEachChild(entity, [this](Entity child) {
 			DrawEntityNode(child);
@@ -103,7 +106,7 @@ void UniEngine::EntityEditorSystem::Update()
 						if (enabled) {
 							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
 						}
-						bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
+						ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
 						if (enabled) {
 							ImGui::PopStyleColor();
 						}
@@ -123,7 +126,7 @@ void UniEngine::EntityEditorSystem::Update()
 			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
 			ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
 			EntityManager::ForAllEntities([this](int i, Entity entity) {
-				if (EntityManager::GetParent(entity).IsNull())DrawEntityNode(entity);
+				if (EntityManager::GetParent(entity).IsNull()) DrawEntityNode(entity);
 				});
 			ImGui::PopStyleColor();
 			ImGui::PopStyleColor();
@@ -135,17 +138,20 @@ void UniEngine::EntityEditorSystem::Update()
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityInspector) {
 		ImGui::Begin("Entity Inspector");
 		if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted()) {
-			std::string title = "Entity Index: ";
-			title += std::to_string(_SelectedEntity.Index);
+			std::string title = std::to_string(_SelectedEntity.Index) + ": ";
+			title += _SelectedEntity.GetName();
 			ImGui::Text(title.c_str());
+			bool deleted = DrawEntityMenu(_SelectedEntity.Enabled(), _SelectedEntity);
 			ImGui::Separator();
-			EntityManager::ForEachComponentUnsafe(_SelectedEntity, [this](ComponentType type, void* data) {
-				std::string info = std::string(type.Name + 7);
-				info += " Size: " + std::to_string(type.Size);
-				ImGui::Text(info.c_str());
-				InspectComponent(static_cast<ComponentBase*>(data), type);
-				ImGui::Separator();
-				});
+			if (!deleted) {
+				EntityManager::ForEachComponentUnsafe(_SelectedEntity, [this](ComponentType type, void* data) {
+					std::string info = std::string(type.Name + 7);
+					info += " Size: " + std::to_string(type.Size);
+					ImGui::Text(info.c_str());
+					InspectComponent(static_cast<ComponentBase*>(data), type);
+					ImGui::Separator();
+					});
+			}
 		}
 		else {
 			_SelectedEntity.Index = 0;

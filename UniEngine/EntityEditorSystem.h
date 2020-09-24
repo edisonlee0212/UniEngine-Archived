@@ -13,7 +13,7 @@ namespace UniEngine {
 		unsigned int _ConfigFlags = 0;
 		int _SelectedHierarchyDisplayMode = 1;
 		static Entity _SelectedEntity;
-		void DrawEntityMenu(bool enabled, Entity& entity);
+		bool DrawEntityMenu(bool enabled, Entity& entity);
 		void DrawEntityNode(Entity& entity);
 		void InspectComponent(ComponentBase* data, ComponentType type);
 	public:
