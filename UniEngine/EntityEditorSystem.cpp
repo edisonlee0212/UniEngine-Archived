@@ -7,7 +7,7 @@ UniEngine::Entity UniEngine::EntityEditorSystem::_SelectedEntity;
 inline bool UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	bool deleted = false;
-	if (ImGui::BeginPopupContextItem())
+	if (ImGui::BeginPopupContextItem(std::to_string(entity.Index).c_str()))
 	{
 		if (ImGui::Button("Delete")) {
 			EntityManager::DeleteEntity(entity);
