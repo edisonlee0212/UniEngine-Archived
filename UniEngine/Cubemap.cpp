@@ -21,21 +21,31 @@ void UniEngine::Cubemap::LoadCubeMap(std::vector<std::string> paths)
         Debug::Error("Texture::LoadCubeMap: Size error.");
         return;
     }
-    for (unsigned int i = 0; i < size; i++)
+    delete _Texture;
+    unsigned char* temp = stbi_load(_Paths[0].c_str(), &width, &height, &nrComponents, 0);
+    stbi_image_free(temp);
+    _Texture = new GLTextureCubeMap(1, GL_RGB, width, height, false);
+    for (int i = 0; i < size; i++)
     {
         unsigned char* data = stbi_load(_Paths[i].c_str(), &width, &height, &nrComponents, 0);
         if (data)
         {
+            GLenum iformat = GL_R8;
             GLenum format = GL_RED;
-            if (nrComponents == 1)
-                format = GL_RED;
-            else if (nrComponents == 3)
+            if (nrComponents == 2) {
+                format = GL_RG;
+                iformat = GL_RG8;
+            }
+            else if (nrComponents == 3) {
                 format = GL_RGB;
-            else if (nrComponents == 4)
+                iformat = GL_RGB8;
+            }
+            else if (nrComponents == 4) {
                 format = GL_RGBA;
-
-            _Texture = new GLTextureCubeMap(1, GL_RGBA8, width, height);
-            _Texture->SetData((CubeMapIndex)i, 0, format, GL_UNSIGNED_BYTE, data);
+                iformat = GL_RGBA8;
+            }
+        	
+            _Texture->SetData((CubeMapIndex)i, 0, iformat, format, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
         else

@@ -180,7 +180,7 @@ int main()
 		Application::PreUpdate();
 		LightSettingMenu();
 		SplitDisplay();
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 #pragma region LightsPosition
 		Rotation r;
 		r.Value = glm::quatLookAt(
@@ -225,11 +225,6 @@ int main()
 		dlc->lightSize = lightSize;
 
 #pragma endregion
-		auto cameraLtw = EntityManager::GetComponentData<LocalToWorld>(Application::GetMainCameraEntity());
-		glm::vec2 mousepos = InputManager::GetMouseScreenPosition();
-		auto ray = Application::GetMainCameraComponent()->Value.get()->ScreenPointToRay(cameraLtw, mousepos);
-
-		RenderManager::DrawGizmoRay(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), Application::GetMainCameraComponent()->Value.get(), ray, 0.1f);
 		
 		Application::Update();
 		loopable = Application::LateUpdate();
@@ -273,7 +268,7 @@ void InitGround() {
 	scale.Value = glm::vec3(100.0f);
 	EntityManager::SetComponentData<Translation>(entity, translation);
 	EntityManager::SetComponentData<Scale>(entity, scale);
-
+	/*
 	auto entity1 = EntityManager::CreateEntity(archetype);
 	translation.Value = glm::vec3(-100.0f, 0.0f, 0.0f);
 	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
@@ -311,7 +306,7 @@ void InitGround() {
 	EntityManager::SetComponentData<Scale>(entity4, scale);
 	EntityManager::SetComponentData<Rotation>(entity4, rotation);
 
-
+	*/
 	auto mat = std::make_shared<Material>();
 	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
 	auto texture = new Texture2D(TextureType::DIFFUSE);
@@ -322,8 +317,8 @@ void InitGround() {
 	meshMaterial->Mesh = Default::Primitives::Quad;
 	meshMaterial->Material = mat;
 	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity3, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	//EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	//EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	//EntityManager::SetSharedComponent<MeshMaterialComponent>(entity3, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	//EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
 }

@@ -13,7 +13,8 @@ void APIENTRY glDebugOutput(GLenum source,
 	const void* userParam);
 
 using namespace UniEngine;
-
+bool Application::_DrawSkybox = true;
+std::shared_ptr<Cubemap>  Application::_Skybox;
 World* Application::_World = nullptr;
 Entity Application::_MainCameraEntity;
 CameraComponent* Application::_MainCameraComponent = nullptr;
@@ -196,6 +197,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	ImGui_ImplOpenGL3_Init("#version 460 core");
 #pragma endregion
 	Default::Load(_World);
+	_Skybox = Default::Textures::DefaultSkybox;
 	LightingManager::Init();
 	_Loopable = true;
 
@@ -272,7 +274,24 @@ void UniEngine::Application::LoopStart_Internal()
 	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
 #pragma endregion
 	WindowManager::Start();
+	
 	RenderManager::Start();
+#pragma region Render skybox
+	if (_DrawSkybox) {
+		_MainCameraComponent->Value->Bind();
+		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+		Default::GLPrograms::SkyboxProgram->Bind();
+		// skybox cube
+		Default::GLPrograms::SkyboxVAO->Bind();
+		_Skybox->Texture()->Bind(0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		GLVAO::BindDefault();
+		glDepthFunc(GL_LESS); // set depth function back to default
+	}
+#pragma endregion
+
+	
+	
 	LightingManager::Start();
 	return;
 }
@@ -327,6 +346,16 @@ bool UniEngine::Application::LoopEnd_Internal()
 	WindowManager::Update();
 
 	return _Loopable;
+}
+
+void Application::ResetSkybox(std::shared_ptr<Cubemap> cubemap)
+{
+	_Skybox = std::move(cubemap);
+}
+
+void Application::SetEnableSkybox(bool value)
+{
+	_DrawSkybox = value;
 }
 
 void UniEngine::Application::End()

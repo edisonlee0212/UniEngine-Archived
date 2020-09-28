@@ -5,6 +5,8 @@
 #include "ModelManager.h"
 using namespace UniEngine;
 
+std::shared_ptr<GLProgram> Default::GLPrograms::SkyboxProgram;
+
 GLProgram* Default::GLPrograms::ScreenProgram;
 GLProgram* Default::GLPrograms::StandardProgram;
 GLProgram* Default::GLPrograms::StandardInstancedProgram;
@@ -12,6 +14,7 @@ GLProgram* Default::GLPrograms::GizmoProgram;
 GLProgram* Default::GLPrograms::GizmoInstancedProgram;
 
 GLVAO* Default::GLPrograms::ScreenVAO;
+std::shared_ptr<GLVAO> Default::GLPrograms::SkyboxVAO;
 std::string* Default::ShaderIncludes::Uniform;
 std::string* Default::ShaderIncludes::Lights;
 std::string* Default::ShaderIncludes::Shadow;
@@ -19,6 +22,7 @@ std::string* Default::ShaderIncludes::Shadow;
 Texture2D* Default::Textures::MissingTexture;
 Texture2D* Default::Textures::UV;
 Texture2D* Default::Textures::StandardTexture;
+std::shared_ptr<Cubemap> Default::Textures::DefaultSkybox;
 
 std::shared_ptr<Mesh> Default::Primitives::Sphere;
 std::shared_ptr<Mesh> Default::Primitives::Cube;
@@ -34,6 +38,99 @@ std::shared_ptr<Material> Default::Materials::StandardInstancedMaterial;
 
 void UniEngine::Default::Load(World* world)
 {
+#pragma region Shader Includes
+	std::string add =
+		"#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
+		"\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxDirectionalLightAmount) +
+		"\n#define POINT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxPointLightAmount) +
+		"\n#define SHADOW_CASCADE_AMOUNT " + std::to_string(ShaderIncludes::ShadowCascadeAmount) +
+		"\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
+
+	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString("Shaders/Include/Uniform.inc"));
+	ShaderIncludes::Shadow = new std::string(FileIO::LoadFileAsString("Shaders/Include/Shadow.frag"));
+	ShaderIncludes::Lights = new std::string(FileIO::LoadFileAsString("Shaders/Include/Lights.frag"));
+#pragma endregion
+#pragma region Skybox
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+	GLPrograms::SkyboxVAO = std::make_shared<GLVAO>();
+	GLPrograms::SkyboxVAO->SetData(sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	GLPrograms::SkyboxVAO->EnableAttributeArray(0);
+	GLPrograms::SkyboxVAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	Textures::DefaultSkybox = std::make_shared<Cubemap>();
+	const std::vector<std::string> facesPath
+	{
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/right.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/left.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/top.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/bottom.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/front.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/back.jpg"),
+	};
+	Textures::DefaultSkybox->LoadCubeMap(facesPath);
+	
+	GLShader* skyboxvert = new GLShader(ShaderType::Vertex);
+	std::string vertShaderCode = std::string("#version 460 core\n")
+		+ *ShaderIncludes::Uniform +
+		+"\n" + std::string(FileIO::LoadFileAsString("Shaders/Vertex/Skybox.vert"));
+	skyboxvert->SetCode(&vertShaderCode);
+	GLShader* skyboxfrag = new GLShader(ShaderType::Fragment);
+	std::string fragShaderCode = std::string("#version 460 core\n")
+		+ *ShaderIncludes::Uniform +
+		+"\n" + std::string(FileIO::LoadFileAsString("Shaders/Fragment/Skybox.frag"));
+	skyboxfrag->SetCode(&fragShaderCode);
+	GLPrograms::SkyboxProgram = std::make_shared<GLProgram>();
+	GLPrograms::SkyboxProgram->Attach(ShaderType::Vertex, skyboxvert);
+	GLPrograms::SkyboxProgram->Attach(ShaderType::Fragment, skyboxfrag);
+	GLPrograms::SkyboxProgram->Link();
+	GLPrograms::SkyboxProgram->SetInt("skybox", 0);
+	delete skyboxvert;
+	delete skyboxfrag;
+#pragma endregion
+
 #pragma region Screen Shader
 	float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 		// positions   // texCoords
@@ -47,7 +144,6 @@ void UniEngine::Default::Load(World* world)
 	};
 
 	GLPrograms::ScreenVAO = new GLVAO();
-	auto quadVBO = GLPrograms::ScreenVAO->VBO();
 	GLPrograms::ScreenVAO->SetData(sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 	GLPrograms::ScreenVAO->EnableAttributeArray(0);
 	GLPrograms::ScreenVAO->SetAttributePointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
@@ -55,10 +151,10 @@ void UniEngine::Default::Load(World* world)
 	GLPrograms::ScreenVAO->SetAttributePointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	GLShader* screenvert = new GLShader(ShaderType::Vertex);
-	std::string vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Vertex/Screen.vert"));
+	vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Vertex/Screen.vert"));
 	screenvert->SetCode(&vertShaderCode);
 	GLShader* screenfrag = new GLShader(ShaderType::Fragment);
-	std::string fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Fragment/Screen.frag"));
+	fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Fragment/Screen.frag"));
 	screenfrag->SetCode(&fragShaderCode);
 	GLPrograms::ScreenProgram = new GLProgram();
 	GLPrograms::ScreenProgram->Attach(ShaderType::Vertex, screenvert);
@@ -67,18 +163,7 @@ void UniEngine::Default::Load(World* world)
 	delete screenvert;
 	delete screenfrag;
 #pragma endregion
-#pragma region Shader Includes
-	std::string add =
-		"#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
-		"\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxDirectionalLightAmount) +
-		"\n#define POINT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxPointLightAmount) +
-		"\n#define SHADOW_CASCADE_AMOUNT " + std::to_string(ShaderIncludes::ShadowCascadeAmount) +
-		"\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
 
-	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString("Shaders/Include/Uniform.inc"));
-	ShaderIncludes::Shadow = new std::string(FileIO::LoadFileAsString("Shaders/Include/Shadow.frag"));
-	ShaderIncludes::Lights = new std::string(FileIO::LoadFileAsString("Shaders/Include/Lights.frag"));
-#pragma endregion
 #pragma region Textures
 	Textures::MissingTexture = new Texture2D(TextureType::DIFFUSE);
 	Textures::MissingTexture->LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"), "");

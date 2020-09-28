@@ -10,6 +10,9 @@ namespace UniEngine {
 			static GLProgram* ScreenProgram;
 			static GLVAO* ScreenVAO;
 
+			static std::shared_ptr<GLVAO> SkyboxVAO;
+
+			static std::shared_ptr<GLProgram> SkyboxProgram;
 			static GLProgram* StandardProgram;
 			static GLProgram* StandardInstancedProgram;
 
@@ -37,6 +40,7 @@ namespace UniEngine {
 			static Texture2D* MissingTexture;
 			static Texture2D* UV;
 			static Texture2D* StandardTexture;
+			static std::shared_ptr<Cubemap> DefaultSkybox;
 		};
 
 		class UNIENGINE_API Primitives {

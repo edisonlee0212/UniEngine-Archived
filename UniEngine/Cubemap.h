@@ -8,6 +8,7 @@ namespace UniEngine {
 	public:
 		Cubemap();
 		~Cubemap();
+		GLTextureCubeMap* Texture() { return _Texture; }
 		void LoadCubeMap(std::vector<std::string> paths);
 		std::vector<std::string> Paths();
 	};
