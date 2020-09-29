@@ -23,8 +23,10 @@ namespace UniEngine {
 
 
 	class ENTITIES_API SharedComponentBase {
+		
 	public:
 		virtual size_t GetHashCode() = 0;
+		virtual void OnGui() {}
 	};
 
 	struct ENTITIES_API Entity {
@@ -130,10 +132,12 @@ namespace UniEngine {
 
 	struct SharedComponentElement
 	{
+		const char* Name;
 		size_t TypeID;
 		std::shared_ptr<SharedComponentBase> SharedComponentData;
-		SharedComponentElement(size_t id, std::shared_ptr<SharedComponentBase> data)
+		SharedComponentElement(const char* name, size_t id, std::shared_ptr<SharedComponentBase> data)
 		{
+			Name = name;
 			TypeID = id;
 			SharedComponentData = std::move(data);
 		}

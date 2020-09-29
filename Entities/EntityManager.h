@@ -99,6 +99,7 @@ namespace UniEngine {
 		static std::vector<Entity>* GetParentRootsUnsafe();
 	public:
 		static void ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func);
+		static void ForEachSharedComponent(Entity entity, const std::function<void(SharedComponentElement data)>& func);
 		static void ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func);
 
 
@@ -1196,7 +1197,7 @@ namespace UniEngine {
 		}
 		if(!found)
 		{
-			_EntityInfos->at(entity.Index).SharedComponentElements.push_back(SharedComponentElement(typeid(T).hash_code(), value));
+			_EntityInfos->at(entity.Index).SharedComponentElements.push_back(SharedComponentElement(typeid(T).name(), typeid(T).hash_code(), value));
 		}
 		_EntitySharedComponentStorage->SetSharedComponent<T>(entity, value);
 	}

@@ -21,7 +21,8 @@ namespace UniEngine {
 		float depthBias = 0.007f;
 		float normalOffset = 0.001f;
 		float lightSize = 0.01f;
-		size_t GetHashCode();
+		size_t GetHashCode() override;
+		void OnGui() override;
 	};
 
 }

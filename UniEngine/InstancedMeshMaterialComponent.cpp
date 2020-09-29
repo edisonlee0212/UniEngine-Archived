@@ -5,3 +5,7 @@ size_t UniEngine::InstancedMeshMaterialComponent::GetHashCode()
 {
 	return ((size_t)this);
 }
+
+void UniEngine::InstancedMeshMaterialComponent::OnGui()
+{
+}

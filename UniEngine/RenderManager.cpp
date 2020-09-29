@@ -30,11 +30,10 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 
 
 	size_t textureStartIndex = 0;
-	if (receiveShadow) {
-		LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
-		textureStartIndex += 2;
-	}
+	LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
+	LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+	textureStartIndex += 2;
+	
 	GLint max = GLTexture::GetMaxAllowedTexture();
 	if (material->Textures2Ds()->size() != 0) {
 		for (auto texture : *material->Textures2Ds()) {
@@ -55,11 +54,11 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		auto program = programs->at(i);
 		program->Bind();
 		program->SetBool("receiveShadow", receiveShadow);
-		if (receiveShadow) {
-			program->SetInt("directionalShadowMap", 0);
-			program->SetInt("pointShadowMap", 1);
-			textureStartIndex += 2;
-		}
+
+		program->SetInt("directionalShadowMap", 0);
+		program->SetInt("pointShadowMap", 1);
+		textureStartIndex += 2;
+		
 		program->SetBool("enableShadow", LightingManager::_EnableShadow);
 		program->SetFloat4x4("model", model);
 		for (auto j : material->_FloatPropertyList) {
@@ -154,11 +153,10 @@ void UniEngine::RenderManager::DrawMesh(
 	mesh->VAO()->DisableAttributeArray(15);
 
 	size_t textureStartIndex = 0;
-	if (receiveShadow) {
-		LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-		LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
-		textureStartIndex += 2;
-	}
+	LightingManager::_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
+	LightingManager::_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+	textureStartIndex += 2;
+	
 	GLint max = GLTexture::GetMaxAllowedTexture();
 	if (material->Textures2Ds()->size() != 0) {
 		for (auto texture : *material->Textures2Ds()) {
@@ -179,12 +177,11 @@ void UniEngine::RenderManager::DrawMesh(
 		auto program = programs->at(i);
 		program->Bind();
 		program->SetBool("receiveShadow", receiveShadow);
-		if (receiveShadow) {
-			program->SetInt("directionalShadowMap", 0);
-			program->SetInt("pointShadowMap", 1);
-
-			textureStartIndex += 2;
-		}
+		
+		program->SetInt("directionalShadowMap", 0);
+		program->SetInt("pointShadowMap", 1);
+		textureStartIndex += 2;
+		
 		program->SetBool("enableShadow", LightingManager::_EnableShadow);
 		program->SetFloat4x4("model", model);
 		for (auto j : material->_FloatPropertyList) {

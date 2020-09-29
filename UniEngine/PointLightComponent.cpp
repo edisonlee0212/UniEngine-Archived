@@ -5,3 +5,7 @@ size_t UniEngine::PointLightComponent::GetHashCode()
 {
 	return (size_t)this;
 }
+
+void UniEngine::PointLightComponent::OnGui()
+{
+}

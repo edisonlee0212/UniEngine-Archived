@@ -335,7 +335,7 @@ void UniEngine::LightingManager::Start()
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
-						if (immc->_CastShadow) {
+						if (immc->CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
 							size_t count = immc->Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();
@@ -457,7 +457,7 @@ void UniEngine::LightingManager::Start()
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
-						if (immc->_CastShadow) {
+						if (immc->CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
 							size_t count = immc->Matrices->size();
 							GLVBO* matricesBuffer = new GLVBO();

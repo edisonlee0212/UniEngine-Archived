@@ -30,6 +30,19 @@ void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::
 	}
 }
 
+void EntityManager::ForEachSharedComponent(Entity entity, const std::function<void(SharedComponentElement data)>& func)
+{
+	if (entity.IsNull()) return;
+	EntityInfo info = _EntityInfos->at(entity.Index);
+	if (_Entities->at(entity.Index) == entity)
+	{
+		for (auto& component : info.SharedComponentElements)
+		{
+			func(component);
+		}
+	}
+}
+
 void UniEngine::EntityManager::ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func)
 {
 	for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {

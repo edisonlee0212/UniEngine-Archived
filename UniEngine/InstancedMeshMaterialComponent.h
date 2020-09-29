@@ -7,11 +7,12 @@ namespace UniEngine {
 		public SharedComponentBase
 	{
 	public:
-		bool _CastShadow = true;
-		bool _ReceiveShadow = true;
+		bool CastShadow = true;
+		bool ReceiveShadow = true;
 		std::vector<glm::mat4>* Matrices;
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
-		size_t GetHashCode();
+		size_t GetHashCode() override;
+		void OnGui() override;
 	};
 }

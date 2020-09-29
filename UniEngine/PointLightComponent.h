@@ -22,6 +22,7 @@ namespace UniEngine {
 		float bias = 0.3f;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
-		size_t GetHashCode();
+		size_t GetHashCode() override;
+		void OnGui() override;
 	};
 }

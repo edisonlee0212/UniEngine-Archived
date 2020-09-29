@@ -20,6 +20,7 @@ namespace UniEngine {
 	{
 	public:
 		SpotLight value;
-		size_t GetHashCode();
+		size_t GetHashCode() override;
+		void OnGui() override;
 	};
 }

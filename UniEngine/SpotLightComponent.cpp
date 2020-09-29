@@ -5,3 +5,7 @@ size_t UniEngine::SpotLightComponent::GetHashCode()
 {
 	return (size_t)this;
 }
+
+void UniEngine::SpotLightComponent::OnGui()
+{
+}

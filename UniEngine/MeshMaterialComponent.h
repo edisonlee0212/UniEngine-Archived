@@ -11,7 +11,8 @@ namespace UniEngine {
 		bool ReceiveShadow = true;
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
-		size_t GetHashCode();
+		size_t GetHashCode() override;
+		void OnGui() override;
 	};
 }
 

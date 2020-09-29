@@ -5,3 +5,7 @@ std::size_t UniEngine::CameraComponent::GetHashCode()
 {
 	return (size_t)this;
 }
+
+void UniEngine::CameraComponent::OnGui()
+{
+}

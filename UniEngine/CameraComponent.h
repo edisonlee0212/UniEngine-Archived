@@ -7,7 +7,8 @@ namespace UniEngine {
 	{	
 	public:
 		std::shared_ptr<Camera> Value;
-		std::size_t GetHashCode();
+		std::size_t GetHashCode() override;
+		void OnGui() override;
 	};
 
 }

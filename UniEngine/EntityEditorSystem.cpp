@@ -144,13 +144,23 @@ void UniEngine::EntityEditorSystem::Update()
 			bool deleted = DrawEntityMenu(_SelectedEntity.Enabled(), _SelectedEntity);
 			ImGui::Separator();
 			if (!deleted) {
-				EntityManager::ForEachComponentUnsafe(_SelectedEntity, [this](ComponentType type, void* data) {
-					std::string info = std::string(type.Name + 7);
-					info += " Size: " + std::to_string(type.Size);
-					ImGui::Text(info.c_str());
-					InspectComponent(static_cast<ComponentBase*>(data), type);
-					ImGui::Separator();
-					});
+				if (ImGui::CollapsingHeader("Local components", ImGuiTreeNodeFlags_DefaultOpen)) {
+					EntityManager::ForEachComponentUnsafe(_SelectedEntity, [this](ComponentType type, void* data) {
+						std::string info = std::string(type.Name + 7);
+						info += " Size: " + std::to_string(type.Size);
+						ImGui::Text(info.c_str());
+						InspectComponent(static_cast<ComponentBase*>(data), type);
+						ImGui::Separator();
+						});
+				}
+				if (ImGui::CollapsingHeader("Shared components", ImGuiTreeNodeFlags_DefaultOpen)) {
+					EntityManager::ForEachSharedComponent(_SelectedEntity, [](SharedComponentElement data)
+						{
+							ImGui::Text(data.Name + 6);
+							data.SharedComponentData->OnGui();
+							ImGui::Separator();
+						});
+				}
 			}
 		}
 		else {
