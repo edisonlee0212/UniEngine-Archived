@@ -46,6 +46,9 @@ GLProgram* LightingManager::_PointLightInstancedProgram;
 
 void UniEngine::LightingManager::Init()
 {
+	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+	
 	_ShadowCascadeInfoBlock = new GLUBO();
 	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowSettings), NULL, GL_DYNAMIC_DRAW);
 	_ShadowCascadeInfoBlock->SetBase(4);

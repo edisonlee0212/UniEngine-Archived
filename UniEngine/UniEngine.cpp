@@ -278,6 +278,9 @@ void UniEngine::Application::LoopStart_Internal()
 	RenderManager::Start();
 #pragma region Render skybox
 	if (_DrawSkybox) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_CULL_FACE);
 		_MainCameraComponent->Value->Bind();
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		Default::GLPrograms::SkyboxProgram->Bind();

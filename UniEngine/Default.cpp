@@ -27,6 +27,7 @@ std::shared_ptr<Cubemap> Default::Textures::DefaultSkybox;
 std::shared_ptr<Mesh> Default::Primitives::Sphere;
 std::shared_ptr<Mesh> Default::Primitives::Cube;
 std::shared_ptr<Mesh> Default::Primitives::Quad;
+std::shared_ptr<Mesh> Default::Primitives::FrontBackQuad;
 std::shared_ptr<Mesh> Default::Primitives::Cone;
 std::shared_ptr<Mesh> Default::Primitives::Ring;
 std::shared_ptr<Mesh> Default::Primitives::Cylinder;
@@ -271,6 +272,10 @@ void UniEngine::Default::Load(World* world)
 	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
 
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/frontbackquad.obj"));
+	Primitives::FrontBackQuad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+	//delete model;
+	
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"));
 	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
 	//delete model;
