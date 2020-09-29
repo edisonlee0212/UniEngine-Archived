@@ -9,7 +9,7 @@ namespace UniEngine {
 	public:
 		bool CastShadow = true;
 		bool ReceiveShadow = true;
-		std::vector<glm::mat4>* Matrices;
+		std::vector<glm::mat4> Matrices;
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
 		size_t GetHashCode() override;

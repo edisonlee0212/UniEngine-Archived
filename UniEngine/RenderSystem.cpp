@@ -67,8 +67,8 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 					immc->Mesh.get(),
 					immc->Material.get(),
 					EntityManager::GetComponentData<LocalToWorld>(j).Value,
-					immc->Matrices->data(),
-					immc->Matrices->size(),
+					immc->Matrices.data(),
+					immc->Matrices.size(),
 					camera.get(),
 					immc->ReceiveShadow);
 			}

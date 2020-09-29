@@ -337,9 +337,9 @@ void UniEngine::LightingManager::Start()
 						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
-							size_t count = immc->Matrices->size();
+							size_t count = immc->Matrices.size();
 							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->Matrices->at(0), GL_STATIC_DRAW);
+							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 							for (auto& entity : *entities) {
 								if (!entity.Enabled()) continue;
 								auto mesh = immc->Mesh;
@@ -459,9 +459,9 @@ void UniEngine::LightingManager::Start()
 						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
-							size_t count = immc->Matrices->size();
+							size_t count = immc->Matrices.size();
 							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), &immc->Matrices->at(0), GL_STATIC_DRAW);
+							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 							for (auto& entity : *entities) {
 								if (!entity.Enabled()) continue;
 								auto mesh = immc->Mesh;
