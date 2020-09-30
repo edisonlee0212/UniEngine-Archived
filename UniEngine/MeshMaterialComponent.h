@@ -9,6 +9,7 @@ namespace UniEngine {
 	public:
 		bool CastShadow = true;
 		bool ReceiveShadow = true;
+		bool BackCulling = true;
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
 		size_t GetHashCode() override;

@@ -300,6 +300,8 @@ void UniEngine::LightingManager::Start()
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
 						if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+						if (mmc->BackCulling)glEnable(GL_CULL_FACE);
+						else glDisable(GL_CULL_FACE);
 						if (mmc->CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(std::shared_ptr<MeshMaterialComponent>(mmc));
 							for (auto& j : *entities) {
@@ -335,6 +337,8 @@ void UniEngine::LightingManager::Start()
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
+						if (immc->BackCulling)glEnable(GL_CULL_FACE);
+						else glDisable(GL_CULL_FACE);
 						if (immc->CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
 							size_t count = immc->Matrices.size();
@@ -436,6 +440,8 @@ void UniEngine::LightingManager::Start()
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
 				for (auto mmc : *meshMaterials) {
 					if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+					if (mmc->BackCulling)glEnable(GL_CULL_FACE);
+					else glDisable(GL_CULL_FACE);
 					if (mmc->CastShadow) {
 						auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(std::shared_ptr<MeshMaterialComponent>(mmc));
 						for (auto& entity : *entities) {
@@ -457,6 +463,8 @@ void UniEngine::LightingManager::Start()
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
 						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
+						if (immc->BackCulling)glEnable(GL_CULL_FACE);
+						else glDisable(GL_CULL_FACE);
 						if (immc->CastShadow) {
 							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(std::shared_ptr<InstancedMeshMaterialComponent>(immc));
 							size_t count = immc->Matrices.size();

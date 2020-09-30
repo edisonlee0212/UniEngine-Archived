@@ -16,10 +16,10 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 	Camera::_MainCameraInfoBlock.UpdateMatrices(camera.get(),
 		EntityManager::GetComponentData<Translation>(cameraEntity).Value,
 		EntityManager::GetComponentData<Rotation>(cameraEntity).Value
-		);
+	);
 	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
 
-	glEnable(GL_CULL_FACE);
+
 
 	auto worldBound = _World->GetBound();
 	glm::vec3 minBound = glm::vec3((int)INT_MAX);
@@ -29,6 +29,8 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
 			if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
+			else glDisable(GL_CULL_FACE);
 			for (auto& j : *entities) {
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
@@ -59,6 +61,8 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 	if (instancedMeshMaterials != nullptr) {
 		for (const auto& immc : *instancedMeshMaterials) {
 			if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
+			if (immc->BackCulling)glEnable(GL_CULL_FACE);
+			else glDisable(GL_CULL_FACE);
 			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
 			for (auto& j : *entities) {
 				if (!j.Enabled()) continue;
@@ -87,7 +91,7 @@ void UniEngine::RenderSystem::SetWireFrameMode(bool value)
 }
 
 UniEngine::RenderSystem::RenderSystem()
-{	
+{
 }
 
 void UniEngine::RenderSystem::OnCreate()
