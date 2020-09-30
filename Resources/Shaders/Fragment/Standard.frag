@@ -19,6 +19,10 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 
 void main()
 {	
+	vec4 textureColor = texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgba;
+	if(textureColor.a < 0.5)
+        discard;
+
 	// properties
 	vec3 normal;
 	if(enableNormalMapping){
@@ -43,7 +47,7 @@ void main()
 		}else if(dist < SplitDistance3){
 		}
 	}
-	FragColor = vec4(result + AmbientLight * texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgb, texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).a);
+	FragColor = vec4(result + AmbientLight * textureColor.rgb, textureColor.a);
 }
 
 
@@ -111,8 +115,8 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir)
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
 	// combine results
-	vec3 diffuse = light.diffuse * diff * texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgb;
-	vec3 specular = light.specular * spec;
+	vec3 diffuse = light.diffuse * (diff >= 0.0 ? diff : 0.0) * texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgb;
+	vec3 specular = light.specular * (spec >= 0.0 ? spec : 0.0);
 	if(enableSpecularMapping){
 		specular *= texture(TEXTURE_SPECULAR0, fs_in.TexCoords).r;
 	}else{

@@ -18,9 +18,7 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 		EntityManager::GetComponentData<Rotation>(cameraEntity).Value
 		);
 	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glEnable(GL_CULL_FACE);
 
 	auto worldBound = _World->GetBound();
