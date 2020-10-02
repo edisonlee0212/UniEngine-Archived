@@ -130,7 +130,6 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RenderSystem.h" />
-    <ClInclude Include="SharedComponentSystem.h" />
     <ClInclude Include="SpotLightComponent.h" />
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UniEngineAPI.h" />
@@ -218,7 +217,6 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
-    <ClCompile Include="SharedComponentSystem.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -65,7 +65,7 @@ void UniEngine::Camera::CalculateFrustumPoints(float nearPlane, float farPlane, 
 	glm::vec3 nearCenter = front * nearPlane;
 	glm::vec3 farCenter = front * farPlane;
 
-	float e = tanf(glm::radians(_FOV * 0.5f));
+	float e = tanf(glm::radians(FieldOfView * 0.5f));
 	float near_ext_y = e * nearPlane;
 	float near_ext_x = near_ext_y * GetResolutionRatio();
 	float far_ext_y = e * farPlane;
@@ -91,12 +91,12 @@ void UniEngine::Camera::GenerateMatrices()
 
 Camera::Camera(int resolutionX, int resolutionY, float nearPlane, float farPlane, size_t layerMask)
 	: RenderTarget(),
-	_FOV(DEFAULTFOV)
+	FieldOfView(DEFAULTFOV)
 {
-	_Yaw = YAW;
-	_Pitch = PITCH;
-	_Near = nearPlane;
-	_Far = farPlane;
+	YawAngle = YAW;
+	PitchAngle = PITCH;
+	NearDistance = nearPlane;
+	FarDistance = farPlane;
 	_LayerMask = layerMask;
 	_ResolutionX = resolutionX;
 	_ResolutionY = resolutionY;
@@ -115,22 +115,22 @@ glm::quat UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, 
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
 
-	_Yaw += xoffset;
-	_Pitch += yoffset;
+	YawAngle += xoffset;
+	PitchAngle += yoffset;
 
 	// Make sure that when pitch is out of bounds, screen doesn't get flipped
 	if (constrainPitch)
 	{
-		if (_Pitch > 89.0f)
-			_Pitch = 89.0f;
-		if (_Pitch < -89.0f)
-			_Pitch = -89.0f;
+		if (PitchAngle > 89.0f)
+			PitchAngle = 89.0f;
+		if (PitchAngle < -89.0f)
+			PitchAngle = -89.0f;
 	}
 
 	glm::vec3 front;
-	front.x = cos(glm::radians(_Yaw)) * cos(glm::radians(_Pitch));
-	front.y = sin(glm::radians(_Pitch));
-	front.z = sin(glm::radians(_Yaw)) * cos(glm::radians(_Pitch));
+	front.x = cos(glm::radians(YawAngle)) * cos(glm::radians(PitchAngle));
+	front.y = sin(glm::radians(PitchAngle));
+	front.z = sin(glm::radians(YawAngle)) * cos(glm::radians(PitchAngle));
 	front = glm::normalize(front);
 	glm::vec3 right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 	glm::vec3 up = glm::normalize(glm::cross(right, front));
@@ -139,12 +139,12 @@ glm::quat UniEngine::Camera::ProcessMouseMovement(float xoffset, float yoffset, 
 
 void UniEngine::Camera::ProcessMouseScroll(float yoffset)
 {
-	if (_FOV >= 1.0f && _FOV <= 180.0f)
-		_FOV -= yoffset;
-	if (_FOV <= 1.0f)
-		_FOV = 1.0f;
-	if (_FOV >= 180.0f)
-		_FOV = 180.0f;
+	if (FieldOfView >= 1.0f && FieldOfView <= 180.0f)
+		FieldOfView -= yoffset;
+	if (FieldOfView <= 1.0f)
+		FieldOfView = 1.0f;
+	if (FieldOfView >= 180.0f)
+		FieldOfView = 180.0f;
 }
 
 void UniEngine::Camera::SetResolution(int x, int y)
@@ -214,7 +214,7 @@ Ray Camera::ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const
 	end /= end.w;
 	const glm::vec3 dir = glm::normalize(glm::vec3(end - start));
 	
-	return {glm::vec3(ltw.Value[3]) + _Near * dir, glm::vec3(ltw.Value[3]) + _Far * dir};
+	return {glm::vec3(ltw.Value[3]) + NearDistance * dir, glm::vec3(ltw.Value[3]) + FarDistance * dir};
 }
 
 void UniEngine::Plane::Normalize()
@@ -232,10 +232,10 @@ void UniEngine::CameraInfoBlock::UpdateMatrices(Camera* camera, glm::vec3 positi
 	glm::vec3 up = rotation * glm::vec3(0, 1, 0);
 	auto ratio = camera->GetResolutionRatio();
 	if (ratio == 0) return;
-	Projection = glm::perspective(glm::radians(camera->_FOV * 0.5f), ratio, camera->_Near, camera->_Far);
+	Projection = glm::perspective(glm::radians(camera->FieldOfView * 0.5f), ratio, camera->NearDistance, camera->FarDistance);
 	Position = glm::vec4(position, 0);
 	View = glm::lookAt(position, position + front, up);
-	ReservedParameters = glm::vec4(camera->_Near, camera->_Far, camera->_FOV, 0);
+	ReservedParameters = glm::vec4(camera->NearDistance, camera->FarDistance, camera->FieldOfView, 0);
 }
 
 void UniEngine::CameraInfoBlock::UploadMatrices(GLUBO* target)

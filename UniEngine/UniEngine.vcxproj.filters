@@ -165,9 +165,6 @@
     <ClInclude Include="RenderSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="SharedComponentSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -279,9 +276,6 @@
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="SharedComponentSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="TransformSystem.cpp">

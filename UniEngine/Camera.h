@@ -45,6 +45,9 @@ namespace UniEngine {
 		size_t _LayerMask;
 		GLTexture2D* _ColorTexture;
 		GLRenderBuffer* _RenderBuffer;
+		// Euler Angles
+		float YawAngle;
+		float PitchAngle;
 	public:
 		size_t GetLayerMask();
 		static GLUBO* _CameraData;
@@ -53,16 +56,14 @@ namespace UniEngine {
 		void CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3* points);
 		static void GenerateMatrices();
 
-		float _Near;
-		float _Far;
-		// Euler Angles
-		float _Yaw;
-		float _Pitch;
+		float NearDistance;
+		float FarDistance;
+		
 		// camera options
-		float _FOV;
+		float FieldOfView;
 		Camera(int resolutionX, int resolutionY, float nearPlane = 0.1f, float farPlane = 100.0f, size_t layerMask = 0);
-		glm::quat ProcessMouseMovement(float xoffset, float yoffset, float sensitivity, GLboolean constrainPitch = true);
-		void ProcessMouseScroll(float yoffset);
+		glm::quat ProcessMouseMovement(float xOffset, float yOffset, float sensitivity, GLboolean constrainPitch = true);
+		void ProcessMouseScroll(float yOffset);
 		void SetResolution(int x, int y);
 		GLTexture2D* GetTexture();
 
