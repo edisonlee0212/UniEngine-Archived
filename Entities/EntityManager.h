@@ -1723,7 +1723,7 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	void Entity::SetSharedComponent(T* value)
+	void Entity::SetSharedComponent(std::shared_ptr<T> value)
 	{
 		EntityManager::SetSharedComponent(*this, value);
 	}

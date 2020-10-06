@@ -21,6 +21,7 @@ void UniEngine::World::SetBound(Bound value)
 
 UniEngine::Bound::Bound()
 {
+	Center = glm::vec3(0.0f);
 	Radius = 0;
 }
 

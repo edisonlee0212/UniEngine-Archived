@@ -63,10 +63,23 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 			for (auto& j : *entities) {
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
+				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
+				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
+				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
+				minBound = glm::vec3(
+					glm::min(minBound.x, center.x - size.x),
+					glm::min(minBound.y, center.y - size.y),
+					glm::min(minBound.z, center.z - size.z));
+
+				maxBound = glm::vec3(
+					glm::max(maxBound.x, center.x + size.x),
+					glm::max(maxBound.y, center.y + size.y),
+					glm::max(maxBound.z, center.z + size.z));
+
 				RenderManager::DrawMeshInstanced(
 					immc->Mesh.get(),
 					immc->Material.get(),
-					EntityManager::GetComponentData<LocalToWorld>(j).Value,
+					ltw,
 					immc->Matrices.data(),
 					immc->Matrices.size(),
 					camera.get(),

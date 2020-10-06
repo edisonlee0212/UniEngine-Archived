@@ -69,7 +69,7 @@ namespace UniEngine {
 		template <typename T = SharedComponentBase>
 		std::shared_ptr<T> GetSharedComponent();
 		template <typename T = SharedComponentBase>
-		void SetSharedComponent(T* value);
+		void SetSharedComponent(std::shared_ptr<T> value);
 		template <typename T = SharedComponentBase>
 		bool RemoveSharedComponent();
 		template <typename T = SharedComponentBase>
