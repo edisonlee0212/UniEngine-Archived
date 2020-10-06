@@ -184,7 +184,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -198,7 +198,7 @@ void UniEngine::Application::Init(bool fullScreen)
 #pragma endregion
 	Default::Load(_World);
 	_Skybox = Default::Textures::DefaultSkybox;
-	LightingManager::Init();
+	RenderManager::Init();
 	_Loopable = true;
 
 }
@@ -289,11 +289,6 @@ void UniEngine::Application::LoopStart_Internal()
 		glDepthFunc(GL_LESS); // set depth function back to default
 	}
 #pragma endregion
-
-	
-	
-	LightingManager::Start();
-	return;
 }
 
 void UniEngine::Application::LoopMain_Internal()
@@ -302,8 +297,6 @@ void UniEngine::Application::LoopMain_Internal()
 		return;
 	}
 	_World->Update();
-
-	return;
 }
 
 bool UniEngine::Application::LoopEnd_Internal()
@@ -327,10 +320,8 @@ bool UniEngine::Application::LoopEnd_Internal()
 #pragma region ImGui
 	RenderTarget::BindDefault();
 	ImGui::Render();
-	int display_w, display_h;
-	glfwGetFramebufferSize(WindowManager::GetWindow(), &display_w, &display_h);
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+	/*
 	// Update and Render additional Platform Windows
 	// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
 	//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
@@ -342,6 +333,7 @@ bool UniEngine::Application::LoopEnd_Internal()
 		glfwMakeContextCurrent(backup_current_context);
 	}
 #pragma endregion
+*/
 	//Swap Window's framebuffer
 	WindowManager::Update();
 

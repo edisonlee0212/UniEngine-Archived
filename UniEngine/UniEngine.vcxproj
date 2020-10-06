@@ -120,11 +120,10 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="EntityEditorSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="InstancedMeshMaterialComponent.h" />
-    <ClInclude Include="LightingManager.h" />
+    <ClInclude Include="InstancedMeshRenderer.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshMaterialComponent.h" />
+    <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLightComponent.h" />
@@ -209,11 +208,10 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EntityEditorSystem.cpp" />
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="InstancedMeshMaterialComponent.cpp" />
-    <ClCompile Include="LightingManager.cpp" />
+    <ClCompile Include="InstancedMeshRenderer.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshMaterialComponent.cpp" />
+    <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="RenderSystem.cpp" />

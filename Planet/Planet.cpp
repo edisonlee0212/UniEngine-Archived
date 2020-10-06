@@ -54,7 +54,7 @@ int main()
 #pragma endregion
 
 #pragma region Lights
-	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
+	MeshRenderer* dlmmc = new MeshRenderer();
 	dlmmc->Mesh = Default::Primitives::Cylinder;
 	dlmmc->Material = Default::Materials::StandardMaterial;
 	Scale scale;
@@ -66,9 +66,9 @@ int main()
 	Entity dle = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, std::shared_ptr<DirectionalLightComponent>(dlc));
 	EntityManager::SetComponentData<Scale>(dle, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(dle, std::shared_ptr<MeshMaterialComponent>(dlmmc));
+	EntityManager::SetSharedComponent<MeshRenderer>(dle, std::shared_ptr<MeshRenderer>(dlmmc));
 
-	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
+	MeshRenderer* plmmc = new MeshRenderer();
 	plmmc->Mesh = Default::Primitives::Sphere;
 	plmmc->Material = Default::Materials::StandardMaterial;
 	scale.Value = glm::vec3(0.5f);
@@ -83,7 +83,7 @@ int main()
 	Entity ple = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<PointLightComponent>(ple, std::shared_ptr<PointLightComponent>(plc));
 	EntityManager::SetComponentData<Scale>(ple, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, std::shared_ptr<MeshMaterialComponent>(plmmc));
+	EntityManager::SetSharedComponent<MeshRenderer>(ple, std::shared_ptr<MeshRenderer>(plmmc));
 
 	plc = new PointLightComponent();
 	plc->constant = 1.0f;
@@ -95,7 +95,7 @@ int main()
 	Entity ple2 = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<PointLightComponent>(ple2, std::shared_ptr<PointLightComponent>(plc));
 	EntityManager::SetComponentData<Scale>(ple, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple2, std::shared_ptr<MeshMaterialComponent>(plmmc));
+	EntityManager::SetSharedComponent<MeshRenderer>(ple2, std::shared_ptr<MeshRenderer>(plmmc));
 #pragma endregion
 
 #pragma region EngineLoop

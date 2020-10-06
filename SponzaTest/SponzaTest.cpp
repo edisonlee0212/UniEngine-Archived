@@ -28,14 +28,14 @@ int main()
 {
 	FileIO::SetResourcePath("../Resources/");
 #pragma region Lighting and Shadow settings
-	LightingManager::SetEnableShadow(true);
-	LightingManager::SetDirectionalLightResolution(512);
-	LightingManager::SetStableFit(true);
-	LightingManager::SetSeamFixRatio(0.05f);
-	LightingManager::SetMaxShadowDistance(500);
-	LightingManager::SetVSMMaxVariance(0.001f);
-	LightingManager::SetEVSMExponent(80.0f);
-	LightingManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
+	RenderManager::SetEnableShadow(true);
+	RenderManager::SetDirectionalLightResolution(512);
+	RenderManager::SetStableFit(false);
+	RenderManager::SetSeamFixRatio(0.05f);
+	RenderManager::SetMaxShadowDistance(500);
+	RenderManager::SetVSMMaxVariance(0.001f);
+	RenderManager::SetEVSMExponent(80.0f);
+	RenderManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 #pragma endregion
 	Application::Init();
 #pragma region Preparations
@@ -59,7 +59,7 @@ int main()
 
 
 #pragma endregion
-	MeshMaterialComponent* cylinder = new MeshMaterialComponent();
+	MeshRenderer* cylinder = new MeshRenderer();
 	cylinder->Mesh = Default::Primitives::Cylinder;
 	cylinder->Material = Default::Materials::StandardMaterial;
 	Scale scale;
@@ -103,7 +103,7 @@ int main()
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == PCSS) {
-		MeshMaterialComponent* cmmc = new MeshMaterialComponent();
+		MeshRenderer* cmmc = new MeshRenderer();
 		cmmc->Mesh = Default::Primitives::Cube;
 		cmmc->Material = Default::Materials::StandardMaterial;
 		Translation pos;
@@ -115,9 +115,9 @@ int main()
 		scale.Value = glm::vec3(4.0f, 8.0f, 4.0f);
 		EntityManager::SetComponentData<Translation>(model1, pos);
 		EntityManager::SetComponentData<Scale>(model1, scale);
-		EntityManager::SetSharedComponent<MeshMaterialComponent>(model1, std::shared_ptr<MeshMaterialComponent>(cylinder));
+		EntityManager::SetSharedComponent<MeshRenderer>(model1, std::shared_ptr<MeshRenderer>(cylinder));
 
-		MeshMaterialComponent* mmmc = new MeshMaterialComponent();
+		MeshRenderer* mmmc = new MeshRenderer();
 		mmmc->Mesh = Default::Primitives::Sphere;
 		mmmc->Material = Default::Materials::StandardMaterial;
 
@@ -127,12 +127,12 @@ int main()
 		scale.Value = glm::vec3(5.0f, 5.0f, 5.0f);
 		EntityManager::SetComponentData<Translation>(model2, pos);
 		EntityManager::SetComponentData<Scale>(model2, scale);
-		EntityManager::SetSharedComponent<MeshMaterialComponent>(model2, std::shared_ptr<MeshMaterialComponent>(mmmc));
+		EntityManager::SetSharedComponent<MeshRenderer>(model2, std::shared_ptr<MeshRenderer>(mmmc));
 	}
 #pragma endregion
 #pragma region Lights
 
-	MeshMaterialComponent* dlmmc = new MeshMaterialComponent();
+	MeshRenderer* dlmmc = new MeshRenderer();
 	cylinder->Mesh = Default::Primitives::Ring;
 	cylinder->Material = Default::Materials::StandardMaterial;
 	scale.Value = glm::vec3(0.5f);
@@ -150,7 +150,7 @@ int main()
 	EntityManager::SetComponentData<Scale>(dle2, scale);
 
 
-	MeshMaterialComponent* plmmc = new MeshMaterialComponent();
+	MeshRenderer* plmmc = new MeshRenderer();
 	plmmc->Mesh = Default::Primitives::Sphere;
 	plmmc->Material = Default::Materials::StandardMaterial;
 	scale.Value = glm::vec3(0.5f);
@@ -165,7 +165,7 @@ int main()
 	Entity ple = EntityManager::CreateEntity(archetype);
 	EntityManager::SetSharedComponent<PointLightComponent>(ple, std::shared_ptr<PointLightComponent>(plc));
 	EntityManager::SetComponentData<Scale>(ple, scale);
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(ple, std::shared_ptr<MeshMaterialComponent>(plmmc));
+	EntityManager::SetSharedComponent<MeshRenderer>(ple, std::shared_ptr<MeshRenderer>(plmmc));
 
 
 #pragma endregion
@@ -212,12 +212,12 @@ int main()
 		ImGui::Begin("Light Bleed Control");
 		ImGui::SliderFloat("Factor", &lightBleedControl, 0.0f, 1.0f);
 		ImGui::End();
-		LightingManager::SetLightBleedControlFactor(lightBleedControl);
+		RenderManager::SetLightBleedControlFactor(lightBleedControl);
 
 		ImGui::Begin("PCSS Scale factor");
 		ImGui::SliderFloat("Factor", &pcssScale, 0.0f, 2.0f);
 		ImGui::End();
-		LightingManager::SetPCSSScaleFactor(pcssScale);
+		RenderManager::SetPCSSScaleFactor(pcssScale);
 
 		ImGui::Begin("Directional Light Size");
 		ImGui::SliderFloat("Size", &lightSize, 0.0f, 1.0f);
@@ -254,7 +254,7 @@ void SplitDisplay() {
 	std::string text = std::string(_DisplaySplit ? "Disable" : "Enable");
 	if (ImGui::Button(text.c_str())) {
 		_DisplaySplit = !_DisplaySplit;
-		LightingManager::SetEnableSplitDisplay(_DisplaySplit);
+		RenderManager::SetEnableSplitDisplay(_DisplaySplit);
 	}
 	ImGui::End();
 }
@@ -313,12 +313,12 @@ void InitGround() {
 	texture->LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), "");
 	mat->Textures2Ds()->push_back(texture);
 	mat->SetMaterialProperty("material.shininess", 32.0f);
-	MeshMaterialComponent* meshMaterial = new MeshMaterialComponent();
+	MeshRenderer* meshMaterial = new MeshRenderer();
 	meshMaterial->Mesh = Default::Primitives::Quad;
 	meshMaterial->Material = mat;
-	EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
-	//EntityManager::SetSharedComponent<MeshMaterialComponent>(entity1, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
-	//EntityManager::SetSharedComponent<MeshMaterialComponent>(entity2, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
-	//EntityManager::SetSharedComponent<MeshMaterialComponent>(entity3, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
-	//EntityManager::SetSharedComponent<MeshMaterialComponent>(entity4, std::shared_ptr<MeshMaterialComponent>(meshMaterial));
+	EntityManager::SetSharedComponent<MeshRenderer>(entity, std::shared_ptr<MeshRenderer>(meshMaterial));
+	//EntityManager::SetSharedComponent<MeshRenderer>(entity1, std::shared_ptr<MeshRenderer>(meshMaterial));
+	//EntityManager::SetSharedComponent<MeshRenderer>(entity2, std::shared_ptr<MeshRenderer>(meshMaterial));
+	//EntityManager::SetSharedComponent<MeshRenderer>(entity3, std::shared_ptr<MeshRenderer>(meshMaterial));
+	//EntityManager::SetSharedComponent<MeshRenderer>(entity4, std::shared_ptr<MeshRenderer>(meshMaterial));
 }

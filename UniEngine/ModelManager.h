@@ -1,7 +1,7 @@
 #pragma once
 #include "UniEngineAPI.h"
 #include "Texture2D.h"
-#include "MeshMaterialComponent.h"
+#include "MeshRenderer.h"
 #include "Model.h"
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

@@ -1,6 +1,8 @@
 #pragma once
+#include "Material.h"
+#include "Mesh.h"
 #include "UniEngineAPI.h"
-#include "RenderManager.h"
+
 
 namespace UniEngine {
 	class UNIENGINE_API Default {

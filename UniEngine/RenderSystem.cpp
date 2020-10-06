@@ -10,7 +10,6 @@ bool RenderSystem::_EnableWireFrame;
 
 void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponent, Entity cameraEntity)
 {
-
 	auto camera = cameraComponent->Value;
 	camera->Bind();
 	Camera::_MainCameraInfoBlock.UpdateMatrices(camera.get(),
@@ -18,16 +17,13 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 		EntityManager::GetComponentData<Rotation>(cameraEntity).Value
 	);
 	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
-
-
-
 	auto worldBound = _World->GetBound();
 	glm::vec3 minBound = glm::vec3((int)INT_MAX);
 	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
-	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshMaterialComponent>();
+	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
 	if (meshMaterials != nullptr) {
 		for (const auto& mmc : *meshMaterials) {
-			auto entities = EntityManager::GetSharedComponentEntities<MeshMaterialComponent>(mmc);
+			auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc);
 			if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
@@ -57,13 +53,13 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 			}
 		}
 	}
-	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshMaterialComponent>();
+	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 	if (instancedMeshMaterials != nullptr) {
 		for (const auto& immc : *instancedMeshMaterials) {
 			if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
 			if (immc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
-			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshMaterialComponent>(immc);
+			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(immc);
 			for (auto& j : *entities) {
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;

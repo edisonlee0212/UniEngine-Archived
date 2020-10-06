@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Default.h"
 #include "World.h"
-#include "MeshMaterialComponent.h"
+#include "MeshRenderer.h"
 #include "ModelManager.h"
+#include "RenderManager.h"
 using namespace UniEngine;
 
 std::shared_ptr<GLProgram> Default::GLPrograms::SkyboxProgram;

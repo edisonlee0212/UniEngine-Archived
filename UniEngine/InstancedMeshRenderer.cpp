@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "InstancedMeshMaterialComponent.h"
+#include "InstancedMeshRenderer.h"
 
-size_t UniEngine::InstancedMeshMaterialComponent::GetHashCode()
+size_t UniEngine::InstancedMeshRenderer::GetHashCode()
 {
 	return (size_t)this;
 }
 
-void UniEngine::InstancedMeshMaterialComponent::OnGui()
+void UniEngine::InstancedMeshRenderer::OnGui()
 {
 	ImGui::Checkbox("Cast shadow", &CastShadow);
 	ImGui::Checkbox("Receive shadow", &ReceiveShadow);

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TransformSystem.h"
 #include "ModelManager.h"
-#include "MeshMaterialComponent.h"
+#include "MeshRenderer.h"
 #include <stb_image.h>
 
 using namespace UniEngine;
@@ -35,7 +35,7 @@ Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, Model* model
     ltw.Value = modelNode->_LocalToParent;
     EntityManager::SetComponentData<LocalToWorld>(entity, ltw);
     for (auto i : modelNode->_MeshMaterialComponents) {
-        EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, std::shared_ptr<MeshMaterialComponent>(i));
+        EntityManager::SetSharedComponent<MeshRenderer>(entity, std::shared_ptr<MeshRenderer>(i));
     }
     for (auto i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
@@ -191,7 +191,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     // 4. height maps
     //std::vector<Texture2D*> heightMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_HEIGHT, TextureType::HEIGHT);
     //Texture2Ds->insert(Texture2Ds->end(), heightMaps.begin(), heightMaps.end());
-    MeshMaterialComponent* mmc = new MeshMaterialComponent();
+    MeshRenderer* mmc = new MeshRenderer();
     mmc->Mesh = mesh;
     mmc->Material = material;
     modelNode->_MeshMaterialComponents.push_back(mmc);
@@ -233,7 +233,7 @@ void UniEngine::ModelManager::AttachChildren(EntityArchetype archetype, ModelNod
     ltp.Value = modelNode->_LocalToParent;
     EntityManager::SetComponentData<LocalToParent>(entity, ltp);
     for (auto i : modelNode->_MeshMaterialComponents) {
-        EntityManager::SetSharedComponent<MeshMaterialComponent>(entity, std::shared_ptr<MeshMaterialComponent>(i));
+        EntityManager::SetSharedComponent<MeshRenderer>(entity, std::shared_ptr<MeshRenderer>(i));
     }
     for (auto i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
