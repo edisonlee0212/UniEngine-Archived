@@ -9,21 +9,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Planet", "Planet\Planet.vcx
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniEngine", "UniEngine\UniEngine.vcxproj", "{324D4482-9924-4F0B-ABA0-E6E9BA51B02F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6EEFCFB9-6499-4A25-8B47-497AD00822BD} = {6EEFCFB9-6499-4A25-8B47-497AD00822BD}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Galaxy", "Galaxy\Galaxy.vcxproj", "{A4D55BEE-BEC4-4A9A-B1BD-832314007B4A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{324D4482-9924-4F0B-ABA0-E6E9BA51B02F} = {324D4482-9924-4F0B-ABA0-E6E9BA51B02F}
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Entities", "Entities\Entities.vcxproj", "{6EEFCFB9-6499-4A25-8B47-497AD00822BD}"
-	ProjectSection(ProjectDependencies) = postProject
-		{105D0CEC-D794-48FC-AED7-B4C911A6FF4E} = {105D0CEC-D794-48FC-AED7-B4C911A6FF4E}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Core\Core.vcxproj", "{105D0CEC-D794-48FC-AED7-B4C911A6FF4E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SponzaTest", "SponzaTest\SponzaTest.vcxproj", "{70909587-7159-43BF-BDB3-43E091328CE0}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -56,18 +46,6 @@ Global
 		{A4D55BEE-BEC4-4A9A-B1BD-832314007B4A}.Release|x64.ActiveCfg = Release|x64
 		{A4D55BEE-BEC4-4A9A-B1BD-832314007B4A}.Release|x64.Build.0 = Release|x64
 		{A4D55BEE-BEC4-4A9A-B1BD-832314007B4A}.Release|x86.ActiveCfg = Release|x64
-		{6EEFCFB9-6499-4A25-8B47-497AD00822BD}.Debug|x64.ActiveCfg = Debug|x64
-		{6EEFCFB9-6499-4A25-8B47-497AD00822BD}.Debug|x64.Build.0 = Debug|x64
-		{6EEFCFB9-6499-4A25-8B47-497AD00822BD}.Debug|x86.ActiveCfg = Debug|x64
-		{6EEFCFB9-6499-4A25-8B47-497AD00822BD}.Release|x64.ActiveCfg = Release|x64
-		{6EEFCFB9-6499-4A25-8B47-497AD00822BD}.Release|x64.Build.0 = Release|x64
-		{6EEFCFB9-6499-4A25-8B47-497AD00822BD}.Release|x86.ActiveCfg = Release|x64
-		{105D0CEC-D794-48FC-AED7-B4C911A6FF4E}.Debug|x64.ActiveCfg = Debug|x64
-		{105D0CEC-D794-48FC-AED7-B4C911A6FF4E}.Debug|x64.Build.0 = Debug|x64
-		{105D0CEC-D794-48FC-AED7-B4C911A6FF4E}.Debug|x86.ActiveCfg = Debug|x64
-		{105D0CEC-D794-48FC-AED7-B4C911A6FF4E}.Release|x64.ActiveCfg = Release|x64
-		{105D0CEC-D794-48FC-AED7-B4C911A6FF4E}.Release|x64.Build.0 = Release|x64
-		{105D0CEC-D794-48FC-AED7-B4C911A6FF4E}.Release|x86.ActiveCfg = Release|x64
 		{70909587-7159-43BF-BDB3-43E091328CE0}.Debug|x64.ActiveCfg = Debug|x64
 		{70909587-7159-43BF-BDB3-43E091328CE0}.Debug|x64.Build.0 = Debug|x64
 		{70909587-7159-43BF-BDB3-43E091328CE0}.Debug|x86.ActiveCfg = Debug|x64

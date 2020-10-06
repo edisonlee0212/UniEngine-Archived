@@ -1,10 +1,10 @@
 #pragma once
-#include "EntitiesAPI.h"
-#include "Entity.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
+	class ThreadPool;
 	class World;
 	class WorldTime;
-	class ENTITIES_API SystemBase
+	class UNIENGINE_API SystemBase
 	{
 	protected:
 		friend class World;

@@ -46,19 +46,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\Submodules\glm\glm;..\Submodules\stb;..\Entities;..\Core;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\Submodules\glm\glm;..\Submodules\stb;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\Submodules\glm\glm;..\Submodules\stb;..\Entities;..\Core;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\examples;..\Submodules\ImGui;..\includes\glad\include;..\includes\Assimp\include;..\Submodules\glm\glm;..\Submodules\stb;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>IMGUI_API=__declspec( dllexport );GLAD_GLAPI_EXPORT;_DEBUG;UNIENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IMGUI_API=__declspec( dllexport );GLAD_GLAPI_EXPORT;GLAD_GLAPI_EXPORT_BUILD;UNIENGINE_EXPORTS;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -70,9 +70,7 @@
       <AdditionalDependencies>..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;..\includes\glfw\glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "..\Core\$(IntDir)Core.dll" "$(OutDir)"
-xcopy /y /d "..\Entities\$(IntDir)Entities.dll" "$(OutDir)"
-xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Command>
+      <Command>xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -81,7 +79,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>IMGUI_API=__declspec( dllexport );GLAD_GLAPI_EXPORT;NDEBUG;UNIENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IMGUI_API=__declspec( dllexport );GLAD_GLAPI_EXPORT;GLAD_GLAPI_EXPORT_BUILD;UNIENGINE_EXPORTS;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -95,9 +93,7 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Comm
       <AdditionalDependencies>..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;..\includes\glfw\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "..\Core\$(IntDir)Core.dll" "$(OutDir)"
-xcopy /y /d "..\Entities\$(IntDir)Entities.dll" "$(OutDir)"
-xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Command>
+      <Command>xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -113,15 +109,30 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CameraControlSystem.h" />
+    <ClInclude Include="Core.h" />
     <ClInclude Include="Cubemap.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityEditorSystem.h" />
+    <ClInclude Include="EntityManager.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GLBuffer.h" />
+    <ClInclude Include="GLCore.h" />
+    <ClInclude Include="GLFrameBuffer.h" />
+    <ClInclude Include="GLObject.h" />
+    <ClInclude Include="GLProgram.h" />
+    <ClInclude Include="GLRenderBuffer.h" />
+    <ClInclude Include="GLShader.h" />
+    <ClInclude Include="GLTexture.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstancedMeshRenderer.h" />
+    <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Model.h" />
@@ -129,7 +140,10 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="SharedComponentStorage.h" />
     <ClInclude Include="SpotLightComponent.h" />
+    <ClInclude Include="SystemBase.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UniEngineAPI.h" />
     <ClInclude Include="ModelManager.h" />
@@ -140,8 +154,14 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="UniEngine.h" />
     <ClInclude Include="WindowManager.h" />
+    <ClInclude Include="World.h" />
+    <ClInclude Include="WorldTime.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\glad\src\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_glfw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -202,14 +222,27 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="CameraControlSystem.cpp" />
     <ClCompile Include="Cubemap.cpp" />
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Default.cpp" />
     <ClCompile Include="DirectionalLightComponent.cpp" />
     <ClCompile Include="DirectionalLightShadowMap.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityEditorSystem.cpp" />
+    <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="GLBuffer.cpp" />
+    <ClCompile Include="GLCore.cpp" />
+    <ClCompile Include="GLFrameBuffer.cpp" />
+    <ClCompile Include="GLProgram.cpp" />
+    <ClCompile Include="GLRenderBuffer.cpp" />
+    <ClCompile Include="GLShader.cpp" />
+    <ClCompile Include="GLTexture.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InstancedMeshRenderer.cpp" />
+    <ClCompile Include="ManagerBase.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -224,20 +257,16 @@ xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Comm
     <ClCompile Include="PointLightShadowMap.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="SharedComponentStorage.cpp" />
     <ClCompile Include="SpotLightComponent.cpp" />
     <ClCompile Include="stb.cpp" />
+    <ClCompile Include="SystemBase.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
     <ClCompile Include="UniEngine.cpp" />
     <ClCompile Include="WindowManager.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.vcxproj">
-      <Project>{105d0cec-d794-48fc-aed7-b4c911a6ff4e}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Entities\Entities.vcxproj">
-      <Project>{6eefcfb9-6499-4a25-8b47-497ad00822bd}</Project>
-    </ProjectReference>
+    <ClCompile Include="World.cpp" />
+    <ClCompile Include="WorldTime.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

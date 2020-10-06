@@ -1,4 +1,5 @@
 #pragma once
+#include "Core.h"
 #include "UniEngineAPI.h"
 #include "Texture2D.h"
 #include "Cubemap.h"

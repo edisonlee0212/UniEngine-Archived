@@ -1,4 +1,5 @@
 #pragma once
+#include "Core.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
     enum class UNIENGINE_API TextureType {

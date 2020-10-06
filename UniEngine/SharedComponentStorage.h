@@ -1,7 +1,8 @@
 #pragma once
 #include "Entity.h"
+#include "Debug.h"
 namespace UniEngine {
-	ENTITIES_API bool ComponentTypeComparator(ComponentType a, ComponentType b);
+	UNIENGINE_API bool ComponentTypeComparator(ComponentType a, ComponentType b);
 #pragma region SharedComponentStorage
 	typedef std::size_t Index;
 

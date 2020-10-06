@@ -1,8 +1,7 @@
-
 #pragma once
-#include "CoreAPI.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	class CORE_API Debug
+	class UNIENGINE_API Debug
 	{
 		static std::vector<std::string*> _Logs;
 		static std::vector<std::string*> _Errors;

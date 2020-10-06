@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "GLObject.h"
 namespace UniEngine {
-	class CORE_API GLRenderBuffer : public GLObject
+	class UNIENGINE_API GLRenderBuffer : public GLObject
 	{
 	public:
 		void Bind();

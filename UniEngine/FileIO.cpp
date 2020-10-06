@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "FileIO.h"
+
+#include "Debug.h"
 std::string* UniEngine::FileIO::_ResourceRootPath = nullptr;
 
 void UniEngine::FileIO::SetResourcePath(std::string path)

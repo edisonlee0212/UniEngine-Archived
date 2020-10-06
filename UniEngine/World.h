@@ -1,22 +1,21 @@
 #pragma once
-#include "EntitiesAPI.h"
+#include "UniEngineAPI.h"
 #include "SystemBase.h"
 #include "WorldTime.h"
-#include "Entity.h"
 namespace UniEngine {
-	struct ENTITIES_API Bound {
+	struct UNIENGINE_API Bound {
 		glm::vec3 Center;
 		glm::vec3 Size;
 		float Radius;
 		Bound();
 	};
 
-	enum class ENTITIES_API SystemGroup {
+	enum class UNIENGINE_API SystemGroup {
 		PreparationSystemGroup,
 		SimulationSystemGroup,
 		PresentationSystemGroup
 	};
-	class ENTITIES_API World
+	class UNIENGINE_API World
 	{
 		WorldTime* _Time;
 		std::vector<SystemBase*> _PreparationSystems;

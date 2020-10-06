@@ -1,7 +1,7 @@
 #pragma once
 #include "GLObject.h"
 namespace UniEngine {
-	class CORE_API GLBuffer : public GLObject
+	class UNIENGINE_API GLBuffer : public GLObject
 	{
 		GLenum _Target;
 	public:
@@ -25,7 +25,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLPPBO : public GLBuffer {
+	class UNIENGINE_API GLPPBO : public GLBuffer {
 	public:
 		GLPPBO() : GLBuffer(GL_PIXEL_PACK_BUFFER) {}
 		static void BindDefault() {
@@ -33,7 +33,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLPUBO : public GLBuffer {
+	class UNIENGINE_API GLPUBO : public GLBuffer {
 	public:
 		GLPUBO() : GLBuffer(GL_PIXEL_UNPACK_BUFFER) {}
 		static void BindDefault() {
@@ -41,7 +41,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLEBO : public GLBuffer {
+	class UNIENGINE_API GLEBO : public GLBuffer {
 	public:
 		GLEBO() : GLBuffer(GL_ELEMENT_ARRAY_BUFFER) {}
 		static void BindDefault() {
@@ -49,7 +49,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLVBO : public GLBuffer {
+	class UNIENGINE_API GLVBO : public GLBuffer {
 	public:
 		GLVBO() : GLBuffer(GL_ARRAY_BUFFER) {}
 		static void BindDefault() {
@@ -57,7 +57,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLUBO : public GLBuffer {
+	class UNIENGINE_API GLUBO : public GLBuffer {
 	public:
 		GLUBO() : GLBuffer(GL_UNIFORM_BUFFER){}
 		static void BindDefault() {
@@ -73,7 +73,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLVAO : public GLObject {
+	class UNIENGINE_API GLVAO : public GLObject {
 	protected:
 		GLVBO* _VBO;
 		GLEBO* _EBO;

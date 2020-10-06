@@ -1,4 +1,5 @@
 #pragma once
+#include "Core.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "UniEngineAPI.h"

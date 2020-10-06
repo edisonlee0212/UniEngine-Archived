@@ -2,7 +2,7 @@
 #include "GLObject.h"
 #include "GLShader.h"
 namespace UniEngine {
-	class CORE_API GLProgram : public GLObject
+	class UNIENGINE_API GLProgram : public GLObject
 	{
         GLShader* _VertexShader;
         GLShader* _FragmentShader;

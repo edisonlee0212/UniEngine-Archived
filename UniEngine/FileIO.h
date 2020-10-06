@@ -1,8 +1,7 @@
 #pragma once
-#include "CoreAPI.h"
-#include "Debug.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	class CORE_API FileIO {
+	class UNIENGINE_API FileIO {
 		static std::string* _ResourceRootPath;
 	public:
 		static void SetResourcePath(std::string path);

@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "EntityManager.h"
+#include "Debug.h"
+#include "World.h"
 using namespace UniEngine;
 std::vector<WorldEntityStorage*> UniEngine::EntityManager::_WorldEntityStorage;
 WorldEntityStorage* UniEngine::EntityManager::_CurrentActivatedWorldEntityStorage;

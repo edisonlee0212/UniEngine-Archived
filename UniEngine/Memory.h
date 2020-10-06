@@ -1,7 +1,7 @@
 #pragma once
-#include "CoreAPI.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	class CORE_API Memory
+	class UNIENGINE_API Memory
 	{	
 	public:
 		static size_t _TotalSize;

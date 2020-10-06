@@ -1,6 +1,9 @@
 #pragma once
+#include "Core.h"
 #include "UniEngineAPI.h"
 #include "RenderManager.h"
+#include "SystemBase.h"
+
 namespace UniEngine {
 	class UNIENGINE_API RenderSystem : public SystemBase
 	{

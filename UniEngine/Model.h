@@ -1,4 +1,5 @@
 #pragma once
+#include "Core.h"
 #include "UniEngineAPI.h"
 #include "MeshRenderer.h"
 namespace UniEngine {

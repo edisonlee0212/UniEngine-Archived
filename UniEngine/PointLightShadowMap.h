@@ -1,4 +1,5 @@
 #pragma once
+#include "Core.h"
 #include "RenderTarget.h"
 #include "UniEngineAPI.h"
 

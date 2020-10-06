@@ -1,9 +1,9 @@
 #pragma once
-#include "EntitiesAPI.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
 #pragma region EntityManager
 #pragma region Entity
-	struct ENTITIES_API ComponentType {
+	struct UNIENGINE_API ComponentType {
 		const char* Name;
 		size_t TypeID;
 		//Size of component
@@ -18,18 +18,18 @@ namespace UniEngine {
 		}
 	};
 
-	struct ENTITIES_API ComponentBase {
+	struct UNIENGINE_API ComponentBase {
 	};
 
 
-	class ENTITIES_API SharedComponentBase {
+	class UNIENGINE_API SharedComponentBase {
 		
 	public:
 		virtual size_t GetHashCode() = 0;
 		virtual void OnGui() {}
 	};
 
-	struct ENTITIES_API Entity {
+	struct UNIENGINE_API Entity {
 		//Position in _Entity Array
 		unsigned Index = 0;
 		unsigned Version = 0;
@@ -123,7 +123,7 @@ namespace UniEngine {
 		std::vector<ComponentDataChunk> Chunks;
 	};
 
-	struct ENTITIES_API EntityArchetype {
+	struct UNIENGINE_API EntityArchetype {
 		size_t Index;
 		bool IsNull() {
 			return Index == 0;
@@ -154,7 +154,7 @@ namespace UniEngine {
 		size_t ChunkArrayIndex;
 	};
 
-	struct ENTITIES_API EntityArchetypeInfo {
+	struct UNIENGINE_API EntityArchetypeInfo {
 		std::string Name;
 		size_t Index;
 		//std::map<size_t, ComponentType> ComponentTypes;
@@ -172,7 +172,7 @@ namespace UniEngine {
 		bool HasType(size_t typeID);
 	};
 
-	struct ENTITIES_API EntityQuery {
+	struct UNIENGINE_API EntityQuery {
 		size_t Index = 0;
 		size_t Version = 0;
 
@@ -214,7 +214,7 @@ namespace UniEngine {
 
 
 
-	struct ENTITIES_API EntityComponentStorage {
+	struct UNIENGINE_API EntityComponentStorage {
 		EntityArchetypeInfo* ArchetypeInfo;
 		ComponentDataChunkArray* ChunkArray;
 		EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array);

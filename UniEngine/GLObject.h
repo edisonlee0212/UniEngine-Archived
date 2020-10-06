@@ -1,8 +1,7 @@
 #pragma once
-#include "CoreAPI.h"
-#include "Debug.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
-	class CORE_API GLObject
+	class UNIENGINE_API GLObject
 	{
 	protected:
 		GLuint _ID;

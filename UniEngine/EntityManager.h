@@ -1,9 +1,12 @@
 #pragma once
+#include "UniEngineAPI.h"
 #include "ManagerBase.h"
 #include "Entity.h"
 #include "SharedComponentStorage.h"
-#include "World.h"
+#include "ThreadPool.h"
+#include "Debug.h"
 namespace UniEngine {
+	class ThreadPool;
 #pragma region EntityManager
 	struct WorldEntityStorage {
 		size_t Index;
@@ -18,7 +21,7 @@ namespace UniEngine {
 		std::vector<EntityQueryInfo> EntityQueryInfos;
 		std::queue<EntityQuery> EntityQueryPools;
 	};
-	class ENTITIES_API EntityManager : public ManagerBase {
+	class UNIENGINE_API EntityManager : public ManagerBase {
 #pragma region Data Storage
 		static std::vector<WorldEntityStorage*> _WorldEntityStorage;
 		static WorldEntityStorage* _CurrentActivatedWorldEntityStorage;

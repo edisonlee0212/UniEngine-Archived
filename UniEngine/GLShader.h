@@ -1,12 +1,12 @@
 #pragma once
 #include "GLObject.h"
 namespace UniEngine {
-	enum class CORE_API ShaderType {
+	enum class UNIENGINE_API ShaderType {
 		Vertex,
 		Geometry,
 		Fragment
 	};
-	class CORE_API GLShader : public GLObject
+	class UNIENGINE_API GLShader : public GLObject
 	{
 		std::string* _Code;
 		ShaderType _Type;

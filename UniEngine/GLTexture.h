@@ -1,7 +1,8 @@
 #pragma once
+#include "Debug.h"
 #include "GLObject.h"
 namespace UniEngine {
-	enum class CORE_API CubeMapIndex {
+	enum class UNIENGINE_API CubeMapIndex {
 		PositiveX,
 		NegativeX,
 		PositiveY,
@@ -10,7 +11,7 @@ namespace UniEngine {
 		NegativeZ,
 	};
 
-	struct CORE_API TextureBinding {
+	struct UNIENGINE_API TextureBinding {
 		GLuint _1D;
 		GLuint _2D;
 		GLuint _3D;
@@ -37,7 +38,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLTexture : public GLObject
+	class UNIENGINE_API GLTexture : public GLObject
 	{
 		friend class GLCore;
 		static GLint _MaxAllowedTexture;
@@ -91,7 +92,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLTexture1D : public GLTexture {
+	class UNIENGINE_API GLTexture1D : public GLTexture {
 		GLsizei _Width = 0;
 	public:
 		GLTexture1D(GLsizei levels,
@@ -122,7 +123,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLTexture2D : public GLTexture {
+	class UNIENGINE_API GLTexture2D : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
 		bool _Immutable;
@@ -198,7 +199,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLTexture3D : public GLTexture {
+	class UNIENGINE_API GLTexture3D : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
 		GLsizei _Depth = 0;
@@ -241,15 +242,15 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLTextureRectangle : public GLTexture {
+	class UNIENGINE_API GLTextureRectangle : public GLTexture {
 	public:
 	};
 
-	class CORE_API GLTextureBuffer : public GLTexture {
+	class UNIENGINE_API GLTextureBuffer : public GLTexture {
 	public:
 	};
 
-	class CORE_API GLTextureCubeMap : public GLTexture {
+	class UNIENGINE_API GLTextureCubeMap : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
 	public:
@@ -305,7 +306,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLTexture1DArray : public GLTexture {
+	class UNIENGINE_API GLTexture1DArray : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Layers = 0;
 	public:
@@ -339,7 +340,7 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLTexture2DArray : public GLTexture {
+	class UNIENGINE_API GLTexture2DArray : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
 		GLsizei _Layers = 0;
@@ -382,7 +383,7 @@ namespace UniEngine {
 
 	};
 
-	class CORE_API GLTextureCubeMapArray : public GLTexture {
+	class UNIENGINE_API GLTextureCubeMapArray : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
 		GLsizei _Layers = 0;
@@ -429,11 +430,11 @@ namespace UniEngine {
 		}
 	};
 
-	class CORE_API GLTexture2DMultiSample : public GLTexture {
+	class UNIENGINE_API GLTexture2DMultiSample : public GLTexture {
 	public:
 	};
 
-	class CORE_API GLTexture2DMultiSampleArray : public GLTexture {
+	class UNIENGINE_API GLTexture2DMultiSampleArray : public GLTexture {
 	public:
 	};
 

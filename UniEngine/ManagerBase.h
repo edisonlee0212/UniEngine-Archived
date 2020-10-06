@@ -1,8 +1,8 @@
 #pragma once
-#include "EntitiesAPI.h"
+#include "UniEngineAPI.h"
 namespace UniEngine {
 	class World;
-	class ENTITIES_API ManagerBase
+	class UNIENGINE_API ManagerBase
 	{
 	protected:
 		friend class World;

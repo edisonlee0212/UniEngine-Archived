@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "SharedComponentStorage.h"
 
+#include "Debug.h"
+
 bool UniEngine::ComponentTypeComparator(ComponentType a, ComponentType b)
 {
 	return a.TypeID < b.TypeID;

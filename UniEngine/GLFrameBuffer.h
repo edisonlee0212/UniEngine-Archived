@@ -4,7 +4,7 @@
 #include "GLTexture.h"
 
 namespace UniEngine {
-	class CORE_API GLFrameBuffer : public GLObject
+	class UNIENGINE_API GLFrameBuffer : public GLObject
 	{
 		bool _Color;
 		bool _Depth;
