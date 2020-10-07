@@ -10,6 +10,10 @@ struct DirectionalLight {
     vec4 lightFrustumWidth;
     vec4 lightFrustumDistance;
     vec4 ReservedParameters;
+	int viewPortXStart;
+	int viewPortYStart;
+	int viewPortXSize;
+	int viewPortYSize;
 };
 
 layout (std140, binding = 1) uniform DirectionalLightBlock

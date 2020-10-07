@@ -19,7 +19,7 @@ GLUBO* RenderManager::_ShadowCascadeInfoBlock;
 ShadowSettings RenderManager::_ShadowSettings;
 float RenderManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
 float RenderManager::_MaxShadowDistance = 500;
-size_t RenderManager::_DirectionalShadowMapResolution = 1024;
+size_t RenderManager::_DirectionalShadowMapResolution = 2048;
 bool RenderManager::_StableFit = true;
 #pragma endregion
 

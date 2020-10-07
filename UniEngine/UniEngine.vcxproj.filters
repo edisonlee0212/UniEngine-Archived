@@ -22,15 +22,6 @@
     <Filter Include="Header Files\Resource\Manager">
       <UniqueIdentifier>{5f364dd2-ef88-4cb5-b742-359d46d2ccc7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resource\Manager\Model">
-      <UniqueIdentifier>{3260ec06-616a-49f7-90db-fb9f72c57f61}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\Manager\Rendering">
-      <UniqueIdentifier>{7ab163c2-3e06-42f1-bac1-c119e0b1d8e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\Manager\Window">
-      <UniqueIdentifier>{e7e12a2a-5caf-4caf-b428-7994e60aa507}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Resource">
       <UniqueIdentifier>{1c8b910f-251b-446e-a0f5-22ae0ff94f9b}</UniqueIdentifier>
     </Filter>
@@ -40,17 +31,8 @@
     <Filter Include="Source Files\Resource\Manager">
       <UniqueIdentifier>{a5deae8c-3e4f-4595-822d-d86fd9a44f03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Resource\Manager\Input">
-      <UniqueIdentifier>{f1ccd168-af9c-4c5d-956f-74be91a22133}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\Manager\Window">
-      <UniqueIdentifier>{24212c05-bf3d-4918-b0c1-87e4e105353a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Resource\SharedComponent">
       <UniqueIdentifier>{38693c77-a117-47b3-ade0-8f4fa54bf0bd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\Manager\Model">
-      <UniqueIdentifier>{0d2b0169-09a9-4d40-ada6-d6fd594d9344}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Resource\SharedComponent">
       <UniqueIdentifier>{a71b4075-ed8f-43ee-986e-edf3c93ebd04}</UniqueIdentifier>
@@ -67,14 +49,8 @@
     <Filter Include="Source Files\External">
       <UniqueIdentifier>{10d94e26-7228-417a-a4f0-1e081e421a3d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resource\Manager\Input">
-      <UniqueIdentifier>{a9f840bf-14fd-417a-a501-3ca615605c08}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Resource\Rendering">
       <UniqueIdentifier>{a84dcb55-783b-484d-9b67-316f019967c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\Manager\Render">
-      <UniqueIdentifier>{381e113b-2cd0-42e3-b73f-24ed202d65c8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Resource\Component">
       <UniqueIdentifier>{3d72652e-0113-4c97-aa32-c390abf10261}</UniqueIdentifier>
@@ -88,6 +64,9 @@
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{de175eab-21b9-4063-a163-e1d8fc6e62ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Resource\Rendering">
+      <UniqueIdentifier>{7ab163c2-3e06-42f1-bac1-c119e0b1d8e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -99,44 +78,32 @@
     <ClInclude Include="UniEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputManager.h">
-      <Filter>Header Files\Resource\Manager\Input</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+      <Filter>Header Files\Resource\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Cubemap.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+      <Filter>Header Files\Resource\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="DirectionalLightShadowMap.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+      <Filter>Header Files\Resource\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+      <Filter>Header Files\Resource\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+      <Filter>Header Files\Resource\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="PointLightShadowMap.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderManager.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+      <Filter>Header Files\Resource\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
+      <Filter>Header Files\Resource\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Texture2D.h">
-      <Filter>Header Files\Resource\Manager\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowManager.h">
-      <Filter>Header Files\Resource\Manager\Window</Filter>
+      <Filter>Header Files\Resource\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Default.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelManager.h">
-      <Filter>Header Files\Resource\Manager\Model</Filter>
     </ClInclude>
     <ClInclude Include="UniEngineAPI.h">
       <Filter>Header Files</Filter>
@@ -267,6 +234,18 @@
     <ClInclude Include="WorldTime.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files\Resource\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelManager.h">
+      <Filter>Header Files\Resource\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderManager.h">
+      <Filter>Header Files\Resource\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowManager.h">
+      <Filter>Header Files\Resource\Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -280,9 +259,6 @@
     </ClCompile>
     <ClCompile Include="UniEngine.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InputManager.cpp">
-      <Filter>Source Files\Resource\Manager\Input</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Resource\Rendering</Filter>
@@ -308,9 +284,6 @@
     <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files\Resource\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="WindowManager.cpp">
-      <Filter>Source Files\Resource\Manager\Window</Filter>
-    </ClCompile>
     <ClCompile Include="CameraComponent.cpp">
       <Filter>Source Files\Resource\SharedComponent</Filter>
     </ClCompile>
@@ -322,9 +295,6 @@
     </ClCompile>
     <ClCompile Include="SpotLightComponent.cpp">
       <Filter>Source Files\Resource\SharedComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelManager.cpp">
-      <Filter>Source Files\Resource\Manager\Model</Filter>
     </ClCompile>
     <ClCompile Include="Default.cpp">
       <Filter>Source Files\Resource</Filter>
@@ -340,9 +310,6 @@
     </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
-      <Filter>Source Files\Resource\Manager\Render</Filter>
     </ClCompile>
     <ClCompile Include="CameraControlSystem.cpp">
       <Filter>Source Files\Systems</Filter>
@@ -430,6 +397,18 @@
     </ClCompile>
     <ClCompile Include="WorldTime.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files\Resource\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelManager.cpp">
+      <Filter>Source Files\Resource\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>Source Files\Resource\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

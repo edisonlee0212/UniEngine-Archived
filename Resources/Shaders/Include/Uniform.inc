@@ -17,6 +17,10 @@ struct DirectionalLight {
     vec4 lightFrustumWidth;
     vec4 lightFrustumDistance;
     vec4 ReservedParameters;
+	int viewPortXStart;
+	int viewPortYStart;
+	int viewPortXSize;
+	int viewPortYSize;
 };
 
 struct PointLight {

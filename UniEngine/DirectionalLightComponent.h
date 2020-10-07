@@ -12,6 +12,7 @@ namespace UniEngine {
 		glm::vec4 lightFrustumWidth;
 		glm::vec4 lightFrustumDistance;
 		glm::vec4 ReservedParameters;
+		glm::ivec4 viewPort;
 	};
 	class UNIENGINE_API DirectionalLightComponent :
 		public SharedComponentBase
