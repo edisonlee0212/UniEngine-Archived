@@ -1,19 +1,5 @@
 in vec4 FragPos;
 
-struct PointLight {
-    vec3 position;
-    vec4 constantLinearQuadFarPlane;
-    vec3 diffuse;
-    vec3 specular;
-    mat4 lightSpaceMatrix[6];
-    vec4 ReservedParameters;
-};
-
-layout (std140, binding = 2) uniform PointsLightBlock
-{
-    int PointLightCount;
-    PointLight PointLights[POINT_LIGHTS_AMOUNT];
-};
 
 uniform int index;
 

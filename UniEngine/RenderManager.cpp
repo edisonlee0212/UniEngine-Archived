@@ -66,12 +66,12 @@ void RenderManager::Init()
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
-	std::string fragShaderCode = std::string("#version 460 core\n") +
-		"\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(Default::ShaderIncludes::MaxDirectionalLightAmount) +
+	std::string fragShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
 		FileIO::LoadFileAsString("Shaders/Fragment/DirectionalLightShadowMap.frag");
-	std::string geomShaderCode = std::string("#version 460 core\n") +
-		"\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(Default::ShaderIncludes::MaxDirectionalLightAmount) +
+	std::string geomShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
 		FileIO::LoadFileAsString("Shaders/Geometry/DirectionalLightShadowMap.geom");
 	_DirectionalLightProgram = new GLProgram(
@@ -131,13 +131,13 @@ void RenderManager::Init()
 	_PointLightShadowMap = new PointLightShadowMap(Default::ShaderIncludes::MaxPointLightAmount);
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMap.vert");
-	fragShaderCode = std::string("#version 460 core\n") +
-		"\n#define POINT_LIGHTS_AMOUNT " + std::to_string(Default::ShaderIncludes::MaxPointLightAmount) +
-		"\n" +
+	fragShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" + 
 		FileIO::LoadFileAsString("Shaders/Fragment/PointLightShadowMap.frag");
-	geomShaderCode = std::string("#version 460 core\n") +
-		"\n#define POINT_LIGHTS_AMOUNT " + std::to_string(Default::ShaderIncludes::MaxPointLightAmount) +
-		"\n" +
+	geomShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" + 
 		FileIO::LoadFileAsString("Shaders/Geometry/PointLightShadowMap.geom");
 
 	_PointLightProgram = new GLProgram(

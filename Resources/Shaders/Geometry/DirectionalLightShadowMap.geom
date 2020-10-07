@@ -1,27 +1,6 @@
 layout (triangles) in;
 layout (triangle_strip, max_vertices = 12) out;
 
-//Lights
-struct DirectionalLight {
-    vec3 position;
-    vec3 direction;
-    vec3 diffuse;
-    vec3 specular;
-    mat4 lightSpaceMatrix[4];
-    vec4 lightFrustumWidth;
-    vec4 lightFrustumDistance;
-    vec4 ReservedParameters;
-    int viewPortXStart;
-	int viewPortYStart;
-	int viewPortXSize;
-	int viewPortYSize;
-};
-
-layout (std140, binding = 1) uniform DirectionalLightBlock
-{
-    int DirectionalLightCount;
-    DirectionalLight DirectionalLights[DIRECTIONAL_LIGHTS_AMOUNT];
-};
 out vec4 FragPos; // FragPos from GS (output per emitvertex)
 uniform int index;
 void main()
