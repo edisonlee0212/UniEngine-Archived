@@ -27,14 +27,7 @@ UniEngine::Mesh::~Mesh()
 
 void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store)
 {
-	_LocalStored = store;
-	if(store)
-	{
-		_Vertices.resize(vertices.size());
-		_Indices.resize(indices.size());
-		memcpy(_Vertices.data(), vertices.data(), vertices.size() * sizeof(Vertex));
-		memcpy(_Indices.data(), indices.data(), indices.size() * sizeof(unsigned));
-	}
+	
 	
 	_Mask = mask;
 	_IndicesSize = indices.size();
@@ -248,6 +241,15 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, 
 	}
 #pragma endregion
 	_VAO->EBO()->SetData((GLsizei)_IndicesSize * sizeof(unsigned), &indices.at(0), GL_STATIC_DRAW);
+
+	_LocalStored = store;
+	if (store)
+	{
+		_Vertices.resize(vertices.size());
+		_Indices.resize(indices.size());
+		memcpy(_Vertices.data(), vertices.data(), vertices.size() * sizeof(Vertex));
+		memcpy(_Indices.data(), indices.data(), indices.size() * sizeof(unsigned));
+	}
 }
 
 
