@@ -240,13 +240,19 @@ vec2 poissonDisk[16] = {
  vec2( 0.19984126, 0.78641367 ),
  vec2( 0.14383161, -0.14100790 )
 };
-float DirectionalLightBlockerSearch(int index, vec3 shadowCoords, float searchWidth, int sampleAmount){
+float DirectionalLightBlockerSearch(int i, int splitIndex, vec3 shadowCoords, float searchWidth, int sampleAmount){
 	int blockers = 0;
 	float avgDistance = 0;
-	float step = searchWidth / sampleAmount / DirectionalLights[index / 4].lightFrustumWidth[index % 4];
+	float step = searchWidth / sampleAmount / DirectionalLights[i].lightFrustumWidth[splitIndex];
+
+	float texScale = float(DirectionalLights[i].viewPortXSize) / float(textureSize(directionalShadowMap, 0).x);
+	vec2 texBase = vec2(float(DirectionalLights[i].viewPortXStart) / float(textureSize(directionalShadowMap, 0).y), float(DirectionalLights[i].viewPortYStart) / float(textureSize(directionalShadowMap, 0).y));
+	
+
 	for(int x = -sampleAmount; x < sampleAmount; x++){
 		for(int y = -sampleAmount; y < sampleAmount; y++){
-			float closestDepth = texture(directionalShadowMap, vec3(shadowCoords.xy + vec2(x, y) * step, index)).r;
+			vec2 texCoord = shadowCoords.xy + vec2(x, y) * step;
+			float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
 			int tf = int(closestDepth != 0.0 && shadowCoords.z > closestDepth);
 			avgDistance += closestDepth * tf;
 			blockers += tf;
@@ -273,18 +279,21 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	projCoords = vec3(projCoords.xy, projCoords.z - bias);
 	float shadow = 0.0;
 	float lightSize = light.ReservedParameters.x;
-	float blockerDistance = DirectionalLightBlockerSearch(i * 4 + splitIndex, projCoords, lightSize, 2);
+	float blockerDistance = DirectionalLightBlockerSearch(i, splitIndex, projCoords, lightSize, 2);
 	if(blockerDistance < 0.1) return 1.0;
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
 	int sampleWidth = 2;
 	float texelSize = penumbraWidth / sampleWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex] * DirectionalLights[i].lightFrustumDistance[splitIndex] / 100;
 	int sampleAmount = 0;
-	
+
+	float texScale = float(DirectionalLights[i].viewPortXSize) / float(textureSize(directionalShadowMap, 0).x);
+	vec2 texBase = vec2(float(DirectionalLights[i].viewPortXStart) / float(textureSize(directionalShadowMap, 0).y), float(DirectionalLights[i].viewPortYStart) / float(textureSize(directionalShadowMap, 0).y));
 	for(int x = -sampleWidth; x <= sampleWidth; ++x)
 	{
 		for(int y = -sampleWidth; y <= sampleWidth; ++y)
 		{
-			float cloestDepth = texture(directionalShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, i * 4 + splitIndex)).r;
+			vec2 texCoord = projCoords.xy + vec2(x, y) * texelSize;
+			float cloestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
 			//if(cloestDepth < 0.01) shadow += 1;
 			shadow += projCoords.z < cloestDepth ? 1.0 : 0.0;
 			sampleAmount++;

@@ -29,7 +29,7 @@ int main()
 	FileIO::SetResourcePath("../Resources/");
 #pragma region Lighting and Shadow settings
 	RenderManager::SetEnableShadow(true);
-	RenderManager::SetDirectionalLightResolution(512);
+	RenderManager::SetDirectionalLightResolution(4096);
 	RenderManager::SetStableFit(false);
 	RenderManager::SetSeamFixRatio(0.05f);
 	RenderManager::SetMaxShadowDistance(500);

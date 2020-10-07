@@ -8,14 +8,12 @@ namespace UniEngine {
 	{
 		GLTexture2DArray* _DepthMapArray;
 		GLTexture2DArray* _DepthMapDepthArray;
-		bool _EnableVSM;
-		size_t _LightAmount;
 		void Allocate();
 	public:
-		DirectionalLightShadowMap(size_t amount, size_t resolutionX, size_t resolutionY, bool enableVSM = false);
-		void SetVSM(bool enabled);
-		void SetLightAmount(size_t value);
-		GLTexture2DArray* DepthMapArray();
+		DirectionalLightShadowMap(size_t resolution);
+		void SetResolution(size_t resolution);
+		GLTexture2DArray* DepthMapArray() const;
+		GLTexture2DArray* DepthMapDepthArray() const;
 		void Bind();
 	};
 }

@@ -62,7 +62,7 @@ void RenderManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(1, _DirectionalShadowMapResolution, _DirectionalShadowMapResolution, _ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM);
+	_DirectionalLightShadowMap = new DirectionalLightShadowMap(_DirectionalShadowMapResolution);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
@@ -249,17 +249,32 @@ void UniEngine::RenderManager::Start()
 					lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 0.0, 1.0));
 				}
 				lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance * 2.0f);
-
+				switch (i)
+				{
+				case 0:
+					_DirectionalLights[i].viewPort = glm::ivec4(0, 0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+					break;
+				case 1:
+					_DirectionalLights[i].viewPort = glm::ivec4(_DirectionalShadowMapResolution / 2, 0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+					break;
+				case 2:
+					_DirectionalLights[i].viewPort = glm::ivec4(0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+					break;
+				case 3:
+					_DirectionalLights[i].viewPort = glm::ivec4(_DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+					break;
+				}
+				
 #pragma region Fix Shimmering due to the movement of the camera
 
 				glm::mat4 shadowMatrix = lightProjection * lightView;
 				glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 				shadowOrigin = shadowMatrix * shadowOrigin;
 				GLfloat storedW = shadowOrigin.w;
-				shadowOrigin = shadowOrigin * (float)_DirectionalShadowMapResolution / 2.0f;
+				shadowOrigin = shadowOrigin * (float)_DirectionalLights[i].viewPort.z / 2.0f;
 				glm::vec4 roundedOrigin = glm::round(shadowOrigin);
 				glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
-				roundOffset = roundOffset * 2.0f / (float)_DirectionalShadowMapResolution;
+				roundOffset = roundOffset * 2.0f / (float)_DirectionalLights[i].viewPort.z;
 				roundOffset.z = 0.0f;
 				roundOffset.w = 0.0f;
 				glm::mat4 shadowProj = lightProjection;
@@ -270,7 +285,7 @@ void UniEngine::RenderManager::Start()
 				_DirectionalLights[i].lightFrustumWidth[split] = max;
 				_DirectionalLights[i].lightFrustumDistance[split] = planeDistance;
 				if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, 0, dlc->depthBias, dlc->normalOffset);
-
+				
 			}
 		}
 		_DirectionalLightBlock->SubData(0, 4, &size);
@@ -279,20 +294,16 @@ void UniEngine::RenderManager::Start()
 		}
 		if (_EnableShadow) {
 			_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-			_DirectionalLightShadowMap->SetLightAmount(size);
-			_DirectionalLightShadowMap->SetVSM(_ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM);
 			_DirectionalLightShadowMap->Bind();
 			glEnable(GL_DEPTH_TEST);
-			if (_ShadowSettings.SoftShadowMode == (int)ShadowMode::VSM) {
-				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)size * 4, GL_RG, GL_FLOAT, NULL);
-			}
-			else {
-				GLfloat clearColor[4] = { 1.0f };
-				glClearBufferfv(GL_COLOR, 0, clearColor);
-				//glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 0, 0, 0, 0, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)size * 4, GL_RED, GL_FLOAT, NULL);
-			}
+			glClear(GL_DEPTH_BUFFER_BIT);
 			for (int i = 0; i < size; i++) {
-				glClear(GL_DEPTH_BUFFER_BIT);
+				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 
+					0, _DirectionalLights[i].viewPort.x, _DirectionalLights[i].viewPort.y, 
+					0, (GLsizei)_DirectionalLights[i].viewPort.z, (GLsizei)_DirectionalLights[i].viewPort.w, (GLsizei)4, GL_RED, GL_FLOAT, nullptr);
+				
+				glViewport(_DirectionalLights[i].viewPort.x, _DirectionalLights[i].viewPort.y, _DirectionalLights[i].viewPort.z, _DirectionalLights[i].viewPort.w);
+				
 				_DirectionalLightProgram->Bind();
 				_DirectionalLightProgram->SetInt("index", i);
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
@@ -307,17 +318,6 @@ void UniEngine::RenderManager::Start()
 								if (!j.Enabled()) continue;
 								auto mesh = mmc->Mesh;
 								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
-								/*
-								#pragma region Sphere test 1. discard useless meshes. 2. Calculate scene boundary for lightFrustum;
-													auto bound = mesh->GetBound();
-													glm::vec3 center = ltw * glm::vec4(bound.Center, 1.0f);
-													float radius = glm::length(bound.Size * scale);
-
-													if (glm::distance(center, ClosestPointOnLine(center, cameraPos, cameraPos - glm::vec3(_DirectionalLights[imm].direction))) - radius > _DirectionalLights[imm].ReservedParameters.y) {
-														continue;
-													}
-								#pragma endregion
-								*/
 								_DirectionalLightProgram->SetFloat4x4("model", ltw);
 								mesh->Enable();
 								mesh->VAO()->DisableAttributeArray(12);
@@ -368,13 +368,13 @@ void UniEngine::RenderManager::Start()
 					}
 				}
 			}
+			/*
 			_DirectionalLightShadowMapFilter->Bind();
 			_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
 			_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
 			glDisable(GL_DEPTH_TEST);
 			Default::GLPrograms::ScreenVAO->Bind();
 			for (int i = 0; i < size; i++) {
-				//if (_DirectionalLights[i].ReservedParameters.y != 0) {
 				glDrawBuffer(GL_COLOR_ATTACHMENT0);
 				_DirectionalLightVFilterProgram->Bind();
 				_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
@@ -386,9 +386,9 @@ void UniEngine::RenderManager::Start()
 				_DirectionalLightHFilterProgram->SetInt("textureMapArray", 1);
 				_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
 				glDrawArrays(GL_TRIANGLES, 0, 6);
-				//}
 			}
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+			*/
 		}
 	}
 
@@ -520,6 +520,7 @@ void UniEngine::RenderManager::SetSplitRatio(float r1, float r2, float r3, float
 void UniEngine::RenderManager::SetDirectionalLightResolution(size_t value)
 {
 	_DirectionalShadowMapResolution = value;
+	if(_DirectionalLightShadowMap != nullptr)_DirectionalLightShadowMap->SetResolution(value);
 }
 
 void UniEngine::RenderManager::SetShadowMode(ShadowMode value)

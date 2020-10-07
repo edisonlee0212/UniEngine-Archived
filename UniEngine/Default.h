@@ -28,14 +28,11 @@ namespace UniEngine {
 			static std::string* Uniform;
 
 			const static size_t MaxMaterialsAmount = 1;
-			static std::string* Shadow;
-
-
+			
 			const static size_t MaxDirectionalLightAmount = 4;
 			const static size_t MaxPointLightAmount = 16;
 			const static size_t MaxSpotLightAmount = 16;
 			const static size_t ShadowCascadeAmount = 4;
-			static std::string* Lights;
 		};
 
 		class UNIENGINE_API Textures {

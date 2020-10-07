@@ -20,8 +20,6 @@
 namespace UniEngine {
 	enum class UNIENGINE_API ShadowMode {
 		PCF,
-		VSM,
-		ESM,
 		PCSS,
 		HARD
 	};
