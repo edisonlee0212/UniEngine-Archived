@@ -4,7 +4,6 @@
 #include "RenderManager.h"
 #include "SystemBase.h"
 
-//#define DEFERRED_RENDERING
 namespace UniEngine {
 	class UNIENGINE_API RenderSystem : public SystemBase
 	{

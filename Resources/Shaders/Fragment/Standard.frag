@@ -110,7 +110,7 @@ vec3 CalcDirectionalLight(vec3 albedo, float specular, DirectionalLight light, v
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
 	// combine results
 	vec3 diffuseOutput = light.diffuse * diff * albedo;
-	vec3 specularOutput = light.specular * spec * specular;
+	vec3 specularOutput = light.specular * spec * albedo * specular;
 	return (diffuseOutput + specularOutput);
 }
 
@@ -128,7 +128,7 @@ vec3 CalcPointLight(vec3 albedo, float specular, PointLight light, vec3 normal, 
 	float attenuation = 1.0 / (light.constantLinearQuadFarPlane.x + light.constantLinearQuadFarPlane.y * distance + light.constantLinearQuadFarPlane.z * (distance * distance));	
 	// combine results
 	vec3 diffuseOutput = light.diffuse * diff * albedo;
-	vec3 specularOutput = light.specular * spec * specular;
+	vec3 specularOutput = light.specular * spec * albedo * specular;
 	diffuseOutput *= attenuation;
 	specularOutput *= attenuation;
 	return (diffuseOutput + specularOutput);
@@ -152,7 +152,7 @@ vec3 CalcSpotLight(vec3 albedo, float specular, SpotLight light, vec3 normal, ve
 	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 	// combine results
 	vec3 diffuseOutput = light.diffuse * diff * albedo;
-	vec3 specularOutput = light.specular * spec * specular;
+	vec3 specularOutput = light.specular * spec * albedo * specular;
 	diffuseOutput *= attenuation * intensity;
 	specularOutput *= attenuation * intensity;
 	return (diffuseOutput + specularOutput);

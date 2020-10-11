@@ -10,4 +10,3 @@
 #define UNIENGINE_API __declspec(dllimport)
 #endif
 
-#define DEFERRED_RENDERING

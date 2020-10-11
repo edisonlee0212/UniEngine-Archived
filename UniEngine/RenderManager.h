@@ -39,20 +39,18 @@ namespace UniEngine {
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
 		friend class RenderSystem;
-#ifdef DEFERRED_RENDERING
 		static std::shared_ptr<GLProgram> _GBufferLightingPass;
 		static std::shared_ptr<RenderTarget> _GBuffer;
 		static std::shared_ptr<GLRenderBuffer> _GDepthBuffer;
 		static std::shared_ptr<Texture2D> _GPositionBuffer;
 		static std::shared_ptr<Texture2D> _GNormalBuffer;
 		static std::shared_ptr<Texture2D> _GColorSpecularBuffer;
-#endif
 		
 #pragma region Render
 		friend class RenderTarget;
 		static size_t _Triangles;
 		static size_t _DrawCall;
-		static void MaterialTextureBindHelper(Material* material);
+		static void MaterialTextureBindHelper(Material* material, std::shared_ptr<GLProgram> program);
 		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
 		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
 		
@@ -60,7 +58,7 @@ namespace UniEngine {
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow);
 
 		static void DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix);
-		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 matrix, glm::mat4 scaleMatrix);
+		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix);
 		
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow = true);
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow = true);
@@ -102,10 +100,8 @@ namespace UniEngine {
 #pragma endregion
 	public:
 
-#ifdef DEFERRED_RENDERING
 		static void ResizeGBuffer(int x, int y);
 		static void RenderToMainCamera();
-#endif
 		static void Init();
 		static void Start();
 #pragma region Shadow

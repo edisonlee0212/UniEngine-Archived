@@ -55,14 +55,12 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 					glm::max(maxBound.x, center.x + size.x),
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
-#ifndef DEFERRED_RENDERING
 				RenderManager::DrawMesh(
 					mmc->Mesh.get(),
 					mmc->Material.get(),
 					ltw,
 					camera.get(),
 					mmc->ReceiveShadow);
-#endif
 
 			}
 		}
@@ -89,7 +87,6 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 					glm::max(maxBound.x, center.x + size.x),
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
-#ifndef DEFERRED_RENDERING
 				RenderManager::DrawMeshInstanced(
 					immc->Mesh.get(),
 					immc->Material.get(),
@@ -98,8 +95,6 @@ void UniEngine::RenderSystem::RenderToMainCamera(CameraComponent* cameraComponen
 					immc->Matrices.size(),
 					camera.get(),
 					immc->ReceiveShadow);
-#endif
-
 			}
 		}
 	}

@@ -70,7 +70,7 @@ int main()
 	cylinder->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = BACKPACK;
+	TestScene testScene = SPONZA_TEST;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);

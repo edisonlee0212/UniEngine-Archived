@@ -41,7 +41,6 @@ size_t RenderManager::_Triangles;
 #pragma endregion
 
 
-#ifdef DEFERRED_RENDERING
 
 std::shared_ptr<GLProgram> RenderManager::_GBufferLightingPass;
 std::shared_ptr<RenderTarget> RenderManager::_GBuffer;
@@ -81,18 +80,23 @@ void RenderManager::RenderToMainCamera()
 	glm::vec3 minBound = glm::vec3((int)INT_MAX);
 	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
 	_GBuffer->Bind();
+	glEnable(GL_DEPTH_TEST);
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, attachments);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
 	if (meshMaterials != nullptr) {
+		auto& program = Default::GLPrograms::DeferredPrepass;
+		program->Bind();
+		program->SetInt("directionalShadowMap", 0);
+		program->SetInt("pointShadowMap", 1);
+		program->SetBool("enableShadow", _EnableShadow);
 		for (const auto& mmc : *meshMaterials) {
-			auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc);
 			if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
-			for (auto& j : *entities) {
+			for (auto& j : *EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc)) {
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
@@ -108,23 +112,28 @@ void RenderManager::RenderToMainCamera()
 					glm::max(maxBound.x, center.x + size.x),
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
-				DrawMesh(
+				DeferredPrepass(
 					mmc->Mesh.get(),
 					mmc->Material.get(),
-					ltw,
-					_GBuffer.get(),
-					mmc->ReceiveShadow);
+					ltw
+					);
 			}
 		}
 	}
+	
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 	if (instancedMeshMaterials != nullptr) {
+		auto& program = Default::GLPrograms::DeferredPrepassInstanced;
+		program->Bind();
+		program->SetInt("directionalShadowMap", 0);
+		program->SetInt("pointShadowMap", 1);
+		program->SetBool("enableShadow", _EnableShadow);
+		
 		for (const auto& immc : *instancedMeshMaterials) {
 			if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
 			if (immc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
-			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(immc);
-			for (auto& j : *entities) {
+			for (auto& j : *EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(immc)) {
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
@@ -140,14 +149,13 @@ void RenderManager::RenderToMainCamera()
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 
-				DrawMeshInstanced(
+				DeferredPrepassInstanced(
 					immc->Mesh.get(),
 					immc->Material.get(),
 					ltw,
 					immc->Matrices.data(),
-					immc->Matrices.size(),
-					_GBuffer.get(),
-					immc->ReceiveShadow);	
+					immc->Matrices.size()
+					);	
 			}
 		}
 	}
@@ -182,7 +190,6 @@ void RenderManager::RenderToMainCamera()
 	worldBound.Radius = glm::length(worldBound.Size);
 	_World->SetBound(worldBound);
 }
-#endif
 
 void RenderManager::Init()
 {
@@ -299,7 +306,6 @@ void RenderManager::Init()
 	);
 #pragma endregion
 #pragma endregion
-#ifdef DEFERRED_RENDERING
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
 	fragShaderCode = std::string("#version 460 core\n") +
@@ -336,7 +342,6 @@ void RenderManager::Init()
 
 	auto camera = Application::GetMainCameraComponent()->Value;
 	ResizeGBuffer(camera->GetResolution().x, camera->GetResolution().y);
-#endif
 }
 
 void UniEngine::RenderManager::Start()
@@ -688,12 +693,7 @@ void UniEngine::RenderManager::Start()
 	*/
 #pragma endregion
 
-#ifdef DEFERRED_RENDERING
-	
-	RenderToMainCamera();
-	
-#endif
-	
+	RenderToMainCamera();	
 }
 
 #pragma region Shadow
@@ -784,9 +784,8 @@ glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(glm::vec3 point, glm::vec
 
 #pragma region Render
 #pragma region Internal
-void RenderManager::MaterialTextureBindHelper(Material* material)
+void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_ptr<GLProgram> program)
 {
-	auto program = material->_Program;
 	if (material->_DiffuseMap)
 	{
 		material->_DiffuseMap->Texture()->Bind(3);
@@ -827,12 +826,67 @@ void RenderManager::MaterialTextureBindHelper(Material* material)
 
 void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
 {
-	
+	mesh->Enable();
+	mesh->VAO()->DisableAttributeArray(12);
+	mesh->VAO()->DisableAttributeArray(13);
+	mesh->VAO()->DisableAttributeArray(14);
+	mesh->VAO()->DisableAttributeArray(15);
+
+	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
+	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+
+	_DrawCall++;
+	_Triangles += mesh->Size() / 3;
+	auto& program = Default::GLPrograms::DeferredPrepass;
+	program->SetFloat("material.shininess", material->_Shininess);
+	program->SetFloat4x4("model", model);
+	for (auto j : material->_FloatPropertyList) {
+		program->SetFloat(j.Name, j.Value);
+	}
+	for (auto j : material->_Float4x4PropertyList) {
+		program->SetFloat4x4(j.Name, j.Value);
+	}
+	MaterialTextureBindHelper(material, program);
+	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	GLVAO::BindDefault();
 }
 
 void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices,
 	size_t count)
 {
+	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
+	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	mesh->Enable();
+	mesh->VAO()->EnableAttributeArray(12);
+	mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	mesh->VAO()->EnableAttributeArray(13);
+	mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	mesh->VAO()->EnableAttributeArray(14);
+	mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	mesh->VAO()->EnableAttributeArray(15);
+	mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	mesh->VAO()->SetAttributeDivisor(12, 1);
+	mesh->VAO()->SetAttributeDivisor(13, 1);
+	mesh->VAO()->SetAttributeDivisor(14, 1);
+	mesh->VAO()->SetAttributeDivisor(15, 1);
+
+	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
+	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+
+	_DrawCall++;
+	_Triangles += mesh->Size() * count / 3;
+	auto& program = Default::GLPrograms::DeferredPrepassInstanced;
+	program->SetFloat("material.shininess", material->_Shininess);
+	program->SetFloat4x4("model", model);
+	for (auto j : material->_FloatPropertyList) {
+		program->SetFloat(j.Name, j.Value);
+	}
+	for (auto j : material->_Float4x4PropertyList) {
+		program->SetFloat4x4(j.Name, j.Value);
+	}
+	MaterialTextureBindHelper(material, program);
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	GLVAO::BindDefault();
 }
 
 void UniEngine::RenderManager::DrawMeshInstanced(
@@ -860,7 +914,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 
 	_DrawCall++;
 	_Triangles += mesh->Size() * count / 3;
-	auto program = material->_Program.get();
+	auto program = material->_Program;
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
 	program->SetFloat("material.shininess", material->_Shininess);
@@ -874,7 +928,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	for (auto j : material->_Float4x4PropertyList) {
 		program->SetFloat4x4(j.Name, j.Value);
 	}
-	MaterialTextureBindHelper(material);
+	MaterialTextureBindHelper(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 }
@@ -894,7 +948,7 @@ void UniEngine::RenderManager::DrawMesh(
 
 	_DrawCall++;
 	_Triangles += mesh->Size() / 3;
-	auto program = material->_Program.get();
+	auto program = material->_Program;
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
 	program->SetFloat("material.shininess", material->_Shininess);
@@ -908,7 +962,7 @@ void UniEngine::RenderManager::DrawMesh(
 	for (auto j : material->_Float4x4PropertyList) {
 		program->SetFloat4x4(j.Name, j.Value);
 	}
-	MaterialTextureBindHelper(material);
+	MaterialTextureBindHelper(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
