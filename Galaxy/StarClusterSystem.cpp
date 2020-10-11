@@ -96,7 +96,7 @@ void Galaxy::StarClusterSystem::Update()
 	_StarQuery.ToComponentDataArray(matrices);
 	
 	
-	RenderManager::DrawMeshInstanced(Default::Primitives::Sphere.get(), _StarMaterial, glm::mat4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), Application::GetMainCameraComponent()->Value.get());
+	RenderManager::DrawGizmoPointInstanced(glm::vec4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), Application::GetMainCameraComponent()->Value.get());
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

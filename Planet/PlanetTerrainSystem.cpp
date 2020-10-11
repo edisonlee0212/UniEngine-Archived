@@ -70,7 +70,7 @@ void Planet::PlanetTerrainSystem::Update()
 		auto planetInfo = _PlanetTerrainList[i]->_Info;
 		glm::mat4 matrix = glm::scale(glm::translate(glm::mat4_cast(planetInfo.Rotation), glm::vec3(planetInfo.Position)), glm::vec3(1.0f));
 		for (auto j = 0; j < planetChunks.size(); j++) {
-			RenderManager::DrawMesh(planetChunks[j]->_Mesh, _PlanetTerrainList[i]->_SurfaceMaterial.get(), matrix, camera.get());
+			RenderManager::DrawGizmoMesh(planetChunks[j]->_Mesh, glm::vec4(1.0f), camera.get(), matrix);
 		}
 	}
 
