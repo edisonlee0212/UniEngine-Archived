@@ -177,7 +177,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     auto material = std::make_shared<Material>();
     float shininess;
     pointMaterial->Get(AI_MATKEY_SHININESS, shininess);
-    material->SetMaterialProperty("material.shininess", shininess);
+    material->SetShininess(shininess);
     if(program != nullptr) material->Programs()->push_back(program);
     std::vector<Texture2D*>* Texture2Ds = material->Textures2Ds();
     std::vector<Texture2D*> diffuseMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_DIFFUSE, TextureType::DIFFUSE);

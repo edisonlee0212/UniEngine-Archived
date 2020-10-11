@@ -54,9 +54,13 @@ int main()
 #pragma endregion
 
 #pragma region Lights
+	auto sharedMat = std::make_shared<Material>();
+	sharedMat->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	sharedMat->Textures2Ds()->push_back(Default::Textures::StandardTexture);
+	
 	MeshRenderer* dlmmc = new MeshRenderer();
 	dlmmc->Mesh = Default::Primitives::Cylinder;
-	dlmmc->Material = Default::Materials::StandardMaterial;
+	dlmmc->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
 
@@ -70,7 +74,7 @@ int main()
 
 	MeshRenderer* plmmc = new MeshRenderer();
 	plmmc->Mesh = Default::Primitives::Sphere;
-	plmmc->Material = Default::Materials::StandardMaterial;
+	plmmc->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
 	PointLightComponent* plc = new PointLightComponent();

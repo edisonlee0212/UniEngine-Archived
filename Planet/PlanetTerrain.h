@@ -30,7 +30,6 @@ namespace Planet {
 		//Used for fast mesh generation;
 		std::vector<Vertex> _SharedVertices;
 		std::vector<unsigned> _SharedTriangles;
-
 	public:
 		
 		size_t GetHashCode();

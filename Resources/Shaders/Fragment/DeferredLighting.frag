@@ -8,12 +8,12 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 
-vec3 CalculateLights(vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos);
+vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos);
 
 
-vec3 CalcDirectionalLight(vec3 albedo, float specular, DirectionalLight light, vec3 normal, vec3 viewDir);
-vec3 CalcPointLight(vec3 albedo, float specular, PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
-vec3 CalcSpotLight(vec3 albedo, float specular, SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, DirectionalLight light, vec3 normal, vec3 viewDir);
+vec3 CalcPointLight(float shininess, vec3 albedo, float specular, PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec4 fragPosLightSpace, vec3 normal);
 float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 normal);
@@ -22,17 +22,17 @@ void main()
 {	
 	vec3 fragPos = texture(gPosition, fs_in.TexCoords).rgb;
     vec3 normal = texture(gNormal, fs_in.TexCoords).rgb;
+	float shininess = texture(gNormal, fs_in.TexCoords).a;
 	vec3 albedo = texture(gAlbedoSpec, fs_in.TexCoords).rgb;
     float specular = texture(gAlbedoSpec, fs_in.TexCoords).a;
 	vec3 viewDir = normalize(CameraPosition - fragPos);
 	float dist = distance(fragPos, CameraPosition);
-	vec3 result = CalculateLights(albedo, specular, dist, normal, viewDir, fragPos);
+	vec3 result = CalculateLights(shininess, albedo, specular, dist, normal, viewDir, fragPos);
 	FragColor = vec4(result + AmbientLight * albedo, 1.0);
-
 }
 
 
-vec3 CalculateLights(vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos){
+vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos){
 	vec3 result = vec3(0.0, 0.0, 0.0);
 
 	// phase 1: directional lighting
@@ -67,7 +67,7 @@ vec3 CalculateLights(vec3 albedo, float specular, float dist, vec3 normal, vec3 
 				shadow = 1.0;
 			}
 		}
-		result += CalcDirectionalLight(albedo, specular, DirectionalLights[i], normal, viewDir) * shadow;
+		result += CalcDirectionalLight(shininess, albedo, specular, DirectionalLights[i], normal, viewDir) * shadow;
 	}
 	// phase 2: point lights
 	for(int i = 0; i < PointLightCount; i++){
@@ -75,24 +75,24 @@ vec3 CalculateLights(vec3 albedo, float specular, float dist, vec3 normal, vec3 
 		if(enableShadow){
 			shadow = PointLightShadowCalculation(i, PointLights[i], fragPos, normal);
 		}
-		result += CalcPointLight(albedo, specular, PointLights[i], normal, fragPos, viewDir) * (1.0 - shadow);
+		result += CalcPointLight(shininess, albedo, specular, PointLights[i], normal, fragPos, viewDir) * (1.0 - shadow);
 	}
 	// phase 3: spot light
 	for(int i = 0; i < SpotLightCount; i++){
-		result += CalcSpotLight(albedo, specular, SpotLights[i], normal, fragPos, viewDir);
+		result += CalcSpotLight(shininess, albedo, specular, SpotLights[i], normal, fragPos, viewDir);
 	}
 	return result;
 }
 
 // calculates the color when using a directional light.
-vec3 CalcDirectionalLight(vec3 albedo, float specular, DirectionalLight light, vec3 normal, vec3 viewDir)
+vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, DirectionalLight light, vec3 normal, vec3 viewDir)
 {
 	vec3 lightDir = normalize(-light.direction);
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
 	// specular shading
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
 	// combine results
 	vec3 diffuseOutput = light.diffuse * diff * albedo;
 	vec3 specularOutput = light.specular * spec * specular;
@@ -100,14 +100,14 @@ vec3 CalcDirectionalLight(vec3 albedo, float specular, DirectionalLight light, v
 }
 
 // calculates the color when using a point light.
-vec3 CalcPointLight(vec3 albedo, float specular, PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcPointLight(float shininess, vec3 albedo, float specular, PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
 	vec3 lightDir = normalize(light.position - fragPos);
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
 	// specular shading
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
 	// attenuation
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constantLinearQuadFarPlane.x + light.constantLinearQuadFarPlane.y * distance + light.constantLinearQuadFarPlane.z * (distance * distance));	
@@ -120,14 +120,14 @@ vec3 CalcPointLight(vec3 albedo, float specular, PointLight light, vec3 normal, 
 }
 
 // calculates the color when using a spot light.
-vec3 CalcSpotLight(vec3 albedo, float specular, SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
 	vec3 lightDir = normalize(light.position - fragPos);
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
 	// specular shading
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
 	// attenuation
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));	

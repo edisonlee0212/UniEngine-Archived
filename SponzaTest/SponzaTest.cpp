@@ -39,7 +39,7 @@ int main()
 	RenderManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 #pragma endregion
 	Application::Init();
-	Application::SetEnableSkybox(false);
+	Application::SetEnableSkybox(true);
 #pragma region Preparations
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();
@@ -61,9 +61,13 @@ int main()
 
 
 #pragma endregion
+	auto sharedMat = std::make_shared<Material>();
+	sharedMat->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	sharedMat->Textures2Ds()->push_back(Default::Textures::StandardTexture);
+	
 	MeshRenderer* cylinder = new MeshRenderer();
 	cylinder->Mesh = Default::Primitives::Cylinder;
-	cylinder->Material = Default::Materials::StandardMaterial;
+	cylinder->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
 	TestScene testScene = BACKPACK;
@@ -107,7 +111,7 @@ int main()
 	else if (testScene == PCSS) {
 		MeshRenderer* cmmc = new MeshRenderer();
 		cmmc->Mesh = Default::Primitives::Cube;
-		cmmc->Material = Default::Materials::StandardMaterial;
+		cmmc->Material = sharedMat;
 		Translation pos;
 
 		Entity model1 = EntityManager::CreateEntity(archetype);
@@ -121,7 +125,7 @@ int main()
 
 		MeshRenderer* mmmc = new MeshRenderer();
 		mmmc->Mesh = Default::Primitives::Sphere;
-		mmmc->Material = Default::Materials::StandardMaterial;
+		mmmc->Material = sharedMat;
 
 		Entity model2 = EntityManager::CreateEntity(archetype);
 		pos.Value = glm::vec3(6.0f, 7.0f, 0.0f);
@@ -136,7 +140,7 @@ int main()
 
 	MeshRenderer* dlmmc = new MeshRenderer();
 	cylinder->Mesh = Default::Primitives::Ring;
-	cylinder->Material = Default::Materials::StandardMaterial;
+	cylinder->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
 	DirectionalLightComponent* dlc = new DirectionalLightComponent();
@@ -154,7 +158,7 @@ int main()
 
 	MeshRenderer* plmmc = new MeshRenderer();
 	plmmc->Mesh = Default::Primitives::Sphere;
-	plmmc->Material = Default::Materials::StandardMaterial;
+	plmmc->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
 	PointLightComponent* plc = new PointLightComponent();
@@ -316,7 +320,7 @@ void InitGround() {
 	auto texture = new Texture2D(TextureType::DIFFUSE);
 	texture->LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), "");
 	mat->Textures2Ds()->push_back(texture);
-	mat->SetMaterialProperty("material.shininess", 32.0f);
+	mat->SetShininess(32.0f);
 	MeshRenderer* meshMaterial = new MeshRenderer();
 	meshMaterial->Mesh = Default::Primitives::Quad;
 	meshMaterial->Material = mat;

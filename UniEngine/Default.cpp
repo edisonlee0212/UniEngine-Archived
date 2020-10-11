@@ -33,10 +33,6 @@ std::shared_ptr<Mesh> Default::Primitives::Ring;
 std::shared_ptr<Mesh> Default::Primitives::Cylinder;
 std::shared_ptr<Mesh> Default::Primitives::Monkey;
 
-std::shared_ptr<Material> Default::Materials::StandardMaterial;
-std::shared_ptr<Material> Default::Materials::StandardInstancedMaterial;
-
-
 void UniEngine::Default::Load(World* world)
 {
 #pragma region Shader Includes
@@ -255,17 +251,7 @@ void UniEngine::Default::Load(World* world)
 	delete standardvert;
 	delete standardfrag;
 #pragma endregion
-#pragma region Standard Material
-	Materials::StandardMaterial = std::make_shared<Material>();
-	Materials::StandardMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
-	Materials::StandardMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
-	Materials::StandardMaterial->SetMaterialProperty("material.shininess", 32.0f);
 
-	Materials::StandardInstancedMaterial = std::make_shared<Material>();
-	Materials::StandardInstancedMaterial->Programs()->push_back(Default::GLPrograms::StandardInstancedProgram);
-	Materials::StandardInstancedMaterial->Textures2Ds()->push_back(Textures::StandardTexture);
-	Materials::StandardInstancedMaterial->SetMaterialProperty("material.shininess", 32.0f);
-#pragma endregion
 #pragma region Models & Primitives
 	Model* model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"));
 	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;

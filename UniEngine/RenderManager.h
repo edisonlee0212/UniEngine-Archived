@@ -39,6 +39,15 @@ namespace UniEngine {
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
 		friend class RenderSystem;
+#ifdef DEFERRED_RENDERING
+		static std::shared_ptr<GLProgram> _GBufferLightingPass;
+		static std::shared_ptr<RenderTarget> _GBuffer;
+		static std::shared_ptr<GLRenderBuffer> _GDepthBuffer;
+		static std::shared_ptr<Texture2D> _GPositionBuffer;
+		static std::shared_ptr<Texture2D> _GNormalBuffer;
+		static std::shared_ptr<Texture2D> _GColorSpecularBuffer;
+#endif
+		
 #pragma region Render
 		friend class RenderTarget;
 		static size_t _Triangles;
@@ -85,6 +94,11 @@ namespace UniEngine {
 		static float _MaxShadowDistance;
 #pragma endregion
 	public:
+
+#ifdef DEFERRED_RENDERING
+		static void ResizeGBuffer(int x, int y);
+		static void RenderToMainCamera();
+#endif
 		static void Init();
 		static void Start();
 #pragma region Shadow

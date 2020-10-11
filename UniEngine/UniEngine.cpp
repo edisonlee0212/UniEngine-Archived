@@ -274,7 +274,7 @@ void UniEngine::Application::LoopStart_Internal()
 	ImGui::PopStyleVar();
 	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
 #ifdef DEFERRED_RENDERING
-	_World->GetSystem<RenderSystem>()->ResizeGBuffer(viewPortSize.x, viewPortSize.y);
+	RenderManager::ResizeGBuffer(viewPortSize.x, viewPortSize.y);
 
 #endif
 #pragma endregion

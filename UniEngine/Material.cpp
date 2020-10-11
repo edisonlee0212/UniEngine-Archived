@@ -2,6 +2,11 @@
 #include "Material.h"
 using namespace UniEngine;
 
+void Material::SetShininess(float value)
+{
+	_Shininess = value;
+}
+
 void UniEngine::Material::SetMaterialProperty(std::string name, float value)
 {
 	for(auto& property : _FloatPropertyList)

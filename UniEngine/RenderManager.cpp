@@ -41,8 +41,152 @@ size_t RenderManager::_Triangles;
 #pragma endregion
 
 
+#ifdef DEFERRED_RENDERING
+
+std::shared_ptr<GLProgram> RenderManager::_GBufferLightingPass;
+std::shared_ptr<RenderTarget> RenderManager::_GBuffer;
+std::shared_ptr<GLRenderBuffer> RenderManager::_GDepthBuffer;
+std::shared_ptr<Texture2D> RenderManager::_GPositionBuffer;
+std::shared_ptr<Texture2D> RenderManager::_GNormalBuffer;
+std::shared_ptr<Texture2D> RenderManager::_GColorSpecularBuffer;
+
+void RenderManager::ResizeGBuffer(int x, int y)
+{
+	const auto originalResolution = _GBuffer->GetResolution();
+	if (static_cast<int>(originalResolution.x) == x && static_cast<int>(originalResolution.y) == y) return;
+	_GBuffer->SetResolution(x, y);
+	_GPositionBuffer->Texture()->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
+	_GNormalBuffer->Texture()->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
+	_GColorSpecularBuffer->Texture()->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
+	_GDepthBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, x, y);
+
+	_GBuffer->AttachRenderBuffer(_GDepthBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
+	_GBuffer->AttachTexture(_GPositionBuffer->Texture(), GL_COLOR_ATTACHMENT0);
+	_GBuffer->AttachTexture(_GNormalBuffer->Texture(), GL_COLOR_ATTACHMENT1);
+	_GBuffer->AttachTexture(_GColorSpecularBuffer->Texture(), GL_COLOR_ATTACHMENT2);
+}
+
+void RenderManager::RenderToMainCamera()
+{
+	auto camera = Application::GetMainCameraComponent()->Value;
+
+	auto cameraEntity = Application::GetMainCameraEntity();
+	camera->Bind();
+	Camera::_MainCameraInfoBlock.UpdateMatrices(camera.get(),
+		EntityManager::GetComponentData<Translation>(cameraEntity).Value,
+		EntityManager::GetComponentData<Rotation>(cameraEntity).Value
+	);
+	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
+	auto worldBound = _World->GetBound();
+	glm::vec3 minBound = glm::vec3((int)INT_MAX);
+	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
+	_GBuffer->Bind();
+	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
+	if (meshMaterials != nullptr) {
+		for (const auto& mmc : *meshMaterials) {
+			auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc);
+			if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
+			else glDisable(GL_CULL_FACE);
+			for (auto& j : *entities) {
+				if (!j.Enabled()) continue;
+				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
+				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
+				auto meshBound = mmc->Mesh->GetBound();
+				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
+				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
+				minBound = glm::vec3(
+					glm::min(minBound.x, center.x - size.x),
+					glm::min(minBound.y, center.y - size.y),
+					glm::min(minBound.z, center.z - size.z));
+
+				maxBound = glm::vec3(
+					glm::max(maxBound.x, center.x + size.x),
+					glm::max(maxBound.y, center.y + size.y),
+					glm::max(maxBound.z, center.z + size.z));
+				RenderManager::DrawMesh(
+					mmc->Mesh.get(),
+					mmc->Material.get(),
+					ltw,
+					_GBuffer.get(),
+					mmc->ReceiveShadow);
+			}
+		}
+	}
+	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
+	if (instancedMeshMaterials != nullptr) {
+		for (const auto& immc : *instancedMeshMaterials) {
+			if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
+			if (immc->BackCulling)glEnable(GL_CULL_FACE);
+			else glDisable(GL_CULL_FACE);
+			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(immc);
+			for (auto& j : *entities) {
+				if (!j.Enabled()) continue;
+				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
+				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
+				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
+				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
+				minBound = glm::vec3(
+					glm::min(minBound.x, center.x - size.x),
+					glm::min(minBound.y, center.y - size.y),
+					glm::min(minBound.z, center.z - size.z));
+
+				maxBound = glm::vec3(
+					glm::max(maxBound.x, center.x + size.x),
+					glm::max(maxBound.y, center.y + size.y),
+					glm::max(maxBound.z, center.z + size.z));
+
+				RenderManager::DrawMeshInstanced(
+					immc->Mesh.get(),
+					immc->Material.get(),
+					ltw,
+					immc->Matrices.data(),
+					immc->Matrices.size(),
+					_GBuffer.get(),
+					immc->ReceiveShadow);	
+			}
+		}
+	}
+	camera->Bind();
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	_GBufferLightingPass->Bind();
+	_GPositionBuffer->Texture()->Bind(3);
+	_GNormalBuffer->Texture()->Bind(4);
+	_GColorSpecularBuffer->Texture()->Bind(5);
+	_GBufferLightingPass->SetBool("receiveShadow", true);
+	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
+	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+	_GBufferLightingPass->SetInt("directionalShadowMap", 0);
+	_GBufferLightingPass->SetInt("pointShadowMap", 1);
+	_GBufferLightingPass->SetBool("enableShadow", RenderManager::_EnableShadow);
+	_GBufferLightingPass->SetInt("gPosition", 3);
+	_GBufferLightingPass->SetInt("gNormal", 4);
+	_GBufferLightingPass->SetInt("gAlbedoSpec", 5);
+
+	Default::GLPrograms::ScreenVAO->Bind();
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	auto res = camera->GetResolution();
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, _GBuffer->GetFrameBuffer()->ID());
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, camera->GetFrameBuffer()->ID()); // write to default framebuffer
+	glBlitFramebuffer(
+		0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST
+	);
+	RenderTarget::BindDefault();
+	worldBound.Size = (maxBound - minBound) / 2.0f;
+	worldBound.Center = (maxBound + minBound) / 2.0f;
+	worldBound.Radius = glm::length(worldBound.Size);
+	_World->SetBound(worldBound);
+}
+#endif
+
 void RenderManager::Init()
 {
+#pragma region Shadow
 	_ShadowCascadeInfoBlock = new GLUBO();
 	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowSettings), NULL, GL_DYNAMIC_DRAW);
 	_ShadowCascadeInfoBlock->SetBase(4);
@@ -133,11 +277,11 @@ void RenderManager::Init()
 		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMap.vert");
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
-		"\n" + 
+		"\n" +
 		FileIO::LoadFileAsString("Shaders/Fragment/PointLightShadowMap.frag");
 	geomShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
-		"\n" + 
+		"\n" +
 		FileIO::LoadFileAsString("Shaders/Geometry/PointLightShadowMap.geom");
 
 	_PointLightProgram = new GLProgram(
@@ -154,6 +298,45 @@ void RenderManager::Init()
 		new GLShader(ShaderType::Geometry, &geomShaderCode)
 	);
 #pragma endregion
+#pragma endregion
+#ifdef DEFERRED_RENDERING
+	vertShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
+	fragShaderCode = std::string("#version 460 core\n") +
+		*Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString("Shaders/Fragment/DeferredLighting.frag");
+
+	_GBufferLightingPass = std::make_shared<GLProgram>(
+		new GLShader(ShaderType::Vertex, &vertShaderCode),
+		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		);
+
+	_GBuffer = std::make_shared<RenderTarget>(0, 0);
+
+	_GDepthBuffer = std::make_shared<GLRenderBuffer>();
+
+	_GPositionBuffer = std::make_shared<Texture2D>(TextureType::NONE);
+	auto gPositionTex = new GLTexture2D(0, GL_RGBA32F, 0, 0, false);
+	gPositionTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	gPositionTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_GPositionBuffer->SetTexture(gPositionTex);
+
+	_GNormalBuffer = std::make_shared<Texture2D>(TextureType::NONE);
+	auto gNormalTex = new GLTexture2D(0, GL_RGBA32F, 0, 0, false);
+	gNormalTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	gNormalTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_GNormalBuffer->SetTexture(gNormalTex);
+
+	_GColorSpecularBuffer = std::make_shared<Texture2D>(TextureType::NONE);
+	auto gColSpecTex = new GLTexture2D(0, GL_RGBA32F, 0, 0, false);
+	gColSpecTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	gColSpecTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_GColorSpecularBuffer->SetTexture(gColSpecTex);
+
+	auto camera = Application::GetMainCameraComponent()->Value;
+	ResizeGBuffer(camera->GetResolution().x, camera->GetResolution().y);
+#endif
 }
 
 void UniEngine::RenderManager::Start()
@@ -164,12 +347,7 @@ void UniEngine::RenderManager::Start()
 	for (auto cc : *cameras) {
 		cc->Value->Clear();
 	}
-#ifdef DEFERRED_RENDERING
-	_World->GetSystem<RenderSystem>()->_GBuffer->Bind();
-	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-	glDrawBuffers(3, attachments);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-#endif
+
 #pragma region Shadow
 	auto camera = Application::GetMainCameraComponent()->Value;
 	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity()).Value;
@@ -510,6 +688,12 @@ void UniEngine::RenderManager::Start()
 	*/
 #pragma endregion
 
+#ifdef DEFERRED_RENDERING
+	
+	RenderToMainCamera();
+	
+#endif
+	
 }
 
 #pragma region Shadow
@@ -647,7 +831,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		auto program = programs->at(i);
 		program->Bind();
 		program->SetBool("receiveShadow", receiveShadow);
-
+		program->SetFloat("material.shininess", material->_Shininess);
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);
 		textureStartIndex += 2;
@@ -663,18 +847,19 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
-			unsigned diffuseNr = 0;
-			unsigned ambientNr = 0;
-			unsigned emissiveNr = 0;
-			unsigned heightNr = 0;
-			unsigned specularNr = 0;
-			unsigned normalNr = 0;
+			int diffuseNr = 0;
+			int ambientNr = 0;
+			int emissiveNr = 0;
+			int heightNr = 0;
+			int specularNr = 0;
+			int normalNr = 0;
 
 			for (auto j = 0; j < tsize; j++)
 			{
 				std::string name = "";
 				int size = -1;
 				auto texture = textures->at(j);
+
 				switch (texture->Type())
 				{
 				case TextureType::DIFFUSE:
@@ -711,22 +896,27 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 					break;
 				}
 				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
-					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)(j + textureStartIndex));
+					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)textureStartIndex);
+					textureStartIndex++;
 				}
-				if (normalNr == 0) {
-					program->SetInt("TEXTURE_NORMAL0", (int)textureStartIndex);
-					program->SetBool("enableNormalMapping", false);
-				}
-				else {
-					program->SetBool("enableNormalMapping", true);
-				}
-				if (specularNr == 0) {
-					program->SetInt("TEXTURE_SPECULAR0", (int)textureStartIndex);
-					program->SetBool("enableSpecularMapping", false);
-				}
-				else {
-					program->SetBool("enableSpecularMapping", true);
-				}
+			}
+			if (diffuseNr == 0)
+			{
+				auto tex = Default::Textures::StandardTexture->Texture();
+				tex->Bind(textureStartIndex);
+				program->SetInt("TEXTURE_DIFFUSE0", textureStartIndex);
+			}
+			if (normalNr == 0) {
+				program->SetBool("enableNormalMapping", false);
+			}
+			else {
+				program->SetBool("enableNormalMapping", true);
+			}
+			if (specularNr == 0) {
+				program->SetBool("enableSpecularMapping", false);
+			}
+			else {
+				program->SetBool("enableSpecularMapping", true);
 			}
 		}
 		glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
@@ -763,14 +953,15 @@ void UniEngine::RenderManager::DrawMesh(
 	}
 
 	auto programs = material->Programs();
-	textureStartIndex = 0;
+	
 	for (auto i = 0; i < programs->size(); i++) {
+		textureStartIndex = 0;
 		RenderManager::_DrawCall++;
 		RenderManager::_Triangles += mesh->Size() / 3;
 		auto program = programs->at(i);
 		program->Bind();
 		program->SetBool("receiveShadow", receiveShadow);
-
+		program->SetFloat("material.shininess", material->_Shininess);
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);
 		textureStartIndex += 2;
@@ -786,12 +977,12 @@ void UniEngine::RenderManager::DrawMesh(
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
 			auto tsize = textures->size();
-			unsigned diffuseNr = 0;
-			unsigned ambientNr = 0;
-			unsigned emissiveNr = 0;
-			unsigned heightNr = 0;
-			unsigned specularNr = 0;
-			unsigned normalNr = 0;
+			int diffuseNr = 0;
+			int ambientNr = 0;
+			int emissiveNr = 0;
+			int heightNr = 0;
+			int specularNr = 0;
+			int normalNr = 0;
 
 			for (auto j = 0; j < tsize; j++)
 			{
@@ -835,22 +1026,27 @@ void UniEngine::RenderManager::DrawMesh(
 					break;
 				}
 				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
-					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)(j + textureStartIndex));
+					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)textureStartIndex);
+					textureStartIndex++;
 				}
-				if (normalNr == 0) {
-					program->SetInt("TEXTURE_NORMAL0", (int)textureStartIndex);
-					program->SetBool("enableNormalMapping", false);
-				}
-				else {
-					program->SetBool("enableNormalMapping", true);
-				}
-				if (specularNr == 0) {
-					program->SetInt("TEXTURE_SPECULAR0", (int)textureStartIndex);
-					program->SetBool("enableSpecularMapping", false);
-				}
-				else {
-					program->SetBool("enableSpecularMapping", true);
-				}
+			}
+			if (diffuseNr == 0)
+			{
+				auto tex = Default::Textures::StandardTexture->Texture();
+				tex->Bind(textureStartIndex);
+				program->SetInt("TEXTURE_DIFFUSE0", textureStartIndex);
+			}
+			if (normalNr == 0) {
+				program->SetBool("enableNormalMapping", false);
+			}
+			else {
+				program->SetBool("enableNormalMapping", true);
+			}
+			if (specularNr == 0) {
+				program->SetBool("enableSpecularMapping", false);
+			}
+			else {
+				program->SetBool("enableSpecularMapping", true);
 			}
 		}
 		glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);

@@ -37,7 +37,7 @@ void Planet::PlanetTerrainSystem::SetMaxMeshAmount(unsigned amount)
 
 void Planet::PlanetTerrainSystem::CreatePlanet(PlanetInfo info)
 {
-	PlanetTerrain* terrain = new PlanetTerrain(info, Default::Materials::StandardMaterial, &_GenerationQueue);
+	PlanetTerrain* terrain = new PlanetTerrain(info, _DefaultSurfaceMaterial, &_GenerationQueue);
 	_PlanetTerrainList.push_back(terrain);
 	while (!_GenerationQueue.empty()) {
 		auto chunk = _GenerationQueue.front();
@@ -57,6 +57,9 @@ void Planet::PlanetTerrainSystem::OnCreate()
 	_GenerationQueue = std::queue<TerrainChunk*>();
 	_PlanetTerrainList = std::vector<PlanetTerrain*>();
 	_MaxRecycledMeshAmount = 50;
+	_DefaultSurfaceMaterial = std::make_shared<Material>();
+	_DefaultSurfaceMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
+	_DefaultSurfaceMaterial->Textures2Ds()->push_back(Default::Textures::StandardTexture);
 }
 
 void Planet::PlanetTerrainSystem::Update()
@@ -67,7 +70,7 @@ void Planet::PlanetTerrainSystem::Update()
 		auto planetInfo = _PlanetTerrainList[i]->_Info;
 		glm::mat4 matrix = glm::scale(glm::translate(glm::mat4_cast(planetInfo.Rotation), glm::vec3(planetInfo.Position)), glm::vec3(1.0f));
 		for (auto j = 0; j < planetChunks.size(); j++) {
-			RenderManager::DrawMesh(planetChunks[j]->_Mesh, Default::Materials::StandardMaterial.get(), matrix, camera.get());
+			RenderManager::DrawMesh(planetChunks[j]->_Mesh, _PlanetTerrainList[i]->_SurfaceMaterial.get(), matrix, camera.get());
 		}
 	}
 

@@ -55,12 +55,6 @@ namespace UniEngine {
 			static std::shared_ptr<Mesh> Monkey;
 		};
 
-		class UNIENGINE_API Materials {
-		public:
-			static std::shared_ptr<Material> StandardMaterial;
-			static std::shared_ptr<Material> StandardInstancedMaterial;
-		};
-
 		static void Load(World* world);
 	};
 
