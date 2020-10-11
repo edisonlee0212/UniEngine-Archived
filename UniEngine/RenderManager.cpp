@@ -108,7 +108,7 @@ void RenderManager::RenderToMainCamera()
 					glm::max(maxBound.x, center.x + size.x),
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
-				RenderManager::DrawMesh(
+				DrawMesh(
 					mmc->Mesh.get(),
 					mmc->Material.get(),
 					ltw,
@@ -140,7 +140,7 @@ void RenderManager::RenderToMainCamera()
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 
-				RenderManager::DrawMeshInstanced(
+				DrawMeshInstanced(
 					immc->Mesh.get(),
 					immc->Material.get(),
 					ltw,
@@ -784,11 +784,62 @@ glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(glm::vec3 point, glm::vec
 
 #pragma region Render
 #pragma region Internal
+void RenderManager::MaterialTextureBindHelper(Material* material)
+{
+	auto program = material->_Program;
+	if (material->_DiffuseMap)
+	{
+		material->_DiffuseMap->Texture()->Bind(3);
+	}else
+	{
+		Default::Textures::StandardTexture->Texture()->Bind(3);
+	}
+	program->SetInt("TEXTURE_DIFFUSE0", 3);
+	if (material->_SpecularMap)
+	{
+		material->_SpecularMap->Texture()->Bind(4);
+		program->SetInt("TEXTURE_SPECULAR0", 4);
+		program->SetBool("enableSpecularMapping", true);
+	}else
+	{
+		program->SetBool("enableSpecularMapping", false);
+	}
+	if (material->_NormalMap)
+	{
+		material->_NormalMap->Texture()->Bind(5);
+		program->SetInt("TEXTURE_NORMAL0", 5);
+		program->SetBool("enableNormalMapping", true);
+	}else
+	{
+		program->SetBool("enableNormalMapping", false);
+	}
+	
+	if (material->_HeightMap)
+	{
+		material->_HeightMap->Texture()->Bind(6);
+		program->SetInt("TEXTURE_HEIGHT0", 6);
+		program->SetBool("enableNormalMapping", true);
+	}else
+	{
+		program->SetBool("enableHeightMapping", false);
+	}
+}
+
+void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
+{
+	
+}
+
+void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices,
+	size_t count)
+{
+}
+
 void UniEngine::RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow)
 {
 	glEnable(GL_DEPTH_TEST);
-	GLVBO* matricesBuffer = new GLVBO();
+	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
 	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
 	mesh->VAO()->EnableAttributeArray(12);
@@ -804,125 +855,28 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	mesh->VAO()->SetAttributeDivisor(14, 1);
 	mesh->VAO()->SetAttributeDivisor(15, 1);
 
-
-
-	size_t textureStartIndex = 0;
 	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
-	textureStartIndex += 2;
 
-	GLint max = GLTexture::GetMaxAllowedTexture();
-	if (material->Textures2Ds()->size() != 0) {
-		for (auto texture : *material->Textures2Ds()) {
-			if (textureStartIndex >= max) {
-				Debug::Error("Max allowed texture exceeded!");
-				break;
-			}
-			texture->Texture()->Bind((GLenum)textureStartIndex);
-			textureStartIndex++;
-		}
+	_DrawCall++;
+	_Triangles += mesh->Size() * count / 3;
+	auto program = material->_Program.get();
+	program->Bind();
+	program->SetBool("receiveShadow", receiveShadow);
+	program->SetFloat("material.shininess", material->_Shininess);
+	program->SetInt("directionalShadowMap", 0);
+	program->SetInt("pointShadowMap", 1);
+	program->SetBool("enableShadow", _EnableShadow);
+	program->SetFloat4x4("model", model);
+	for (auto j : material->_FloatPropertyList) {
+		program->SetFloat(j.Name, j.Value);
 	}
-
-	auto programs = material->Programs();
-	textureStartIndex = 0;
-	for (auto i = 0; i < programs->size(); i++) {
-		_DrawCall++;
-		_Triangles += mesh->Size() * count / 3;
-		auto program = programs->at(i);
-		program->Bind();
-		program->SetBool("receiveShadow", receiveShadow);
-		program->SetFloat("material.shininess", material->_Shininess);
-		program->SetInt("directionalShadowMap", 0);
-		program->SetInt("pointShadowMap", 1);
-		textureStartIndex += 2;
-
-		program->SetBool("enableShadow", _EnableShadow);
-		program->SetFloat4x4("model", model);
-		for (auto j : material->_FloatPropertyList) {
-			program->SetFloat(j.Name, j.Value);
-		}
-		for (auto j : material->_Float4x4PropertyList) {
-			program->SetFloat4x4(j.Name, j.Value);
-		}
-		if (material->Textures2Ds()->size() != 0) {
-			auto textures = material->Textures2Ds();
-			auto tsize = textures->size();
-			int diffuseNr = 0;
-			int ambientNr = 0;
-			int emissiveNr = 0;
-			int heightNr = 0;
-			int specularNr = 0;
-			int normalNr = 0;
-
-			for (auto j = 0; j < tsize; j++)
-			{
-				std::string name = "";
-				int size = -1;
-				auto texture = textures->at(j);
-
-				switch (texture->Type())
-				{
-				case TextureType::DIFFUSE:
-					size = diffuseNr;
-					name = "DIFFUSE";
-					diffuseNr++;
-					break;
-				case TextureType::SPECULAR:
-					size = specularNr;
-					name = "SPECULAR";
-					specularNr++;
-					break;
-				case TextureType::AMBIENT:
-					size = ambientNr;
-					name = "AMBIENT";
-					ambientNr++;
-					break;
-				case TextureType::EMISSIVE:
-					size = emissiveNr;
-					name = "EMISSIVE";
-					emissiveNr++;
-					break;
-				case TextureType::HEIGHT:
-					size = heightNr;
-					name = "HEIGHT";
-					heightNr++;
-					break;
-				case TextureType::NORMAL:
-					size = normalNr;
-					name = "NORMAL";
-					normalNr++;
-					break;
-				default:
-					break;
-				}
-				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
-					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)textureStartIndex);
-					textureStartIndex++;
-				}
-			}
-			if (diffuseNr == 0)
-			{
-				auto tex = Default::Textures::StandardTexture->Texture();
-				tex->Bind(textureStartIndex);
-				program->SetInt("TEXTURE_DIFFUSE0", textureStartIndex);
-			}
-			if (normalNr == 0) {
-				program->SetBool("enableNormalMapping", false);
-			}
-			else {
-				program->SetBool("enableNormalMapping", true);
-			}
-			if (specularNr == 0) {
-				program->SetBool("enableSpecularMapping", false);
-			}
-			else {
-				program->SetBool("enableSpecularMapping", true);
-			}
-		}
-		glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	for (auto j : material->_Float4x4PropertyList) {
+		program->SetFloat4x4(j.Name, j.Value);
 	}
+	MaterialTextureBindHelper(material);
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
-	delete matricesBuffer;
 }
 
 void UniEngine::RenderManager::DrawMesh(
@@ -935,122 +889,27 @@ void UniEngine::RenderManager::DrawMesh(
 	mesh->VAO()->DisableAttributeArray(14);
 	mesh->VAO()->DisableAttributeArray(15);
 
-	size_t textureStartIndex = 0;
 	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
-	textureStartIndex += 2;
 
-	GLint max = GLTexture::GetMaxAllowedTexture();
-	if (material->Textures2Ds()->size() != 0) {
-		for (auto texture : *material->Textures2Ds()) {
-			if (textureStartIndex >= max) {
-				Debug::Error("Max allowed texture exceeded!");
-				break;
-			}
-			texture->Texture()->Bind((GLenum)textureStartIndex);
-			textureStartIndex++;
-		}
+	_DrawCall++;
+	_Triangles += mesh->Size() / 3;
+	auto program = material->_Program.get();
+	program->Bind();
+	program->SetBool("receiveShadow", receiveShadow);
+	program->SetFloat("material.shininess", material->_Shininess);
+	program->SetInt("directionalShadowMap", 0);
+	program->SetInt("pointShadowMap", 1);
+	program->SetBool("enableShadow", _EnableShadow);
+	program->SetFloat4x4("model", model);
+	for (auto j : material->_FloatPropertyList) {
+		program->SetFloat(j.Name, j.Value);
 	}
-
-	auto programs = material->Programs();
-	
-	for (auto i = 0; i < programs->size(); i++) {
-		textureStartIndex = 0;
-		RenderManager::_DrawCall++;
-		RenderManager::_Triangles += mesh->Size() / 3;
-		auto program = programs->at(i);
-		program->Bind();
-		program->SetBool("receiveShadow", receiveShadow);
-		program->SetFloat("material.shininess", material->_Shininess);
-		program->SetInt("directionalShadowMap", 0);
-		program->SetInt("pointShadowMap", 1);
-		textureStartIndex += 2;
-
-		program->SetBool("enableShadow", _EnableShadow);
-		program->SetFloat4x4("model", model);
-		for (auto j : material->_FloatPropertyList) {
-			program->SetFloat(j.Name, j.Value);
-		}
-		for (auto j : material->_Float4x4PropertyList) {
-			program->SetFloat4x4(j.Name, j.Value);
-		}
-		if (material->Textures2Ds()->size() != 0) {
-			auto textures = material->Textures2Ds();
-			auto tsize = textures->size();
-			int diffuseNr = 0;
-			int ambientNr = 0;
-			int emissiveNr = 0;
-			int heightNr = 0;
-			int specularNr = 0;
-			int normalNr = 0;
-
-			for (auto j = 0; j < tsize; j++)
-			{
-				std::string name = "";
-				int size = -1;
-				auto texture = textures->at(j);
-
-				switch (texture->Type())
-				{
-				case TextureType::DIFFUSE:
-					size = diffuseNr;
-					name = "DIFFUSE";
-					diffuseNr++;
-					break;
-				case TextureType::SPECULAR:
-					size = specularNr;
-					name = "SPECULAR";
-					specularNr++;
-					break;
-				case TextureType::AMBIENT:
-					size = ambientNr;
-					name = "AMBIENT";
-					ambientNr++;
-					break;
-				case TextureType::EMISSIVE:
-					size = emissiveNr;
-					name = "EMISSIVE";
-					emissiveNr++;
-					break;
-				case TextureType::HEIGHT:
-					size = heightNr;
-					name = "HEIGHT";
-					heightNr++;
-					break;
-				case TextureType::NORMAL:
-					size = normalNr;
-					name = "NORMAL";
-					normalNr++;
-					break;
-				default:
-					break;
-				}
-				if (size != -1 && size < Default::ShaderIncludes::MaxMaterialsAmount) {
-					program->SetInt("TEXTURE_" + name + std::to_string(size), (int)textureStartIndex);
-					textureStartIndex++;
-				}
-			}
-			if (diffuseNr == 0)
-			{
-				auto tex = Default::Textures::StandardTexture->Texture();
-				tex->Bind(textureStartIndex);
-				program->SetInt("TEXTURE_DIFFUSE0", textureStartIndex);
-			}
-			if (normalNr == 0) {
-				program->SetBool("enableNormalMapping", false);
-			}
-			else {
-				program->SetBool("enableNormalMapping", true);
-			}
-			if (specularNr == 0) {
-				program->SetBool("enableSpecularMapping", false);
-			}
-			else {
-				program->SetBool("enableSpecularMapping", true);
-			}
-		}
-		glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	for (auto j : material->_Float4x4PropertyList) {
+		program->SetFloat4x4(j.Name, j.Value);
 	}
+	MaterialTextureBindHelper(material);
+	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
 

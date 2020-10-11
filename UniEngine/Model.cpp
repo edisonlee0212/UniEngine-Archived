@@ -16,6 +16,5 @@ ModelNode* UniEngine::Model::RootNode()
 
 UniEngine::ModelNode::~ModelNode()
 {
-    for (auto i : _MeshMaterialComponents) delete i;
     for (auto i : Children) delete i;
 }

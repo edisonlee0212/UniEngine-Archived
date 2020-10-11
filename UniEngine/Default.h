@@ -10,17 +10,20 @@ namespace UniEngine {
 	public:
 		class UNIENGINE_API GLPrograms {
 		public:
-			static GLProgram* ScreenProgram;
+			static std::shared_ptr<GLProgram> ScreenProgram;
 			static GLVAO* ScreenVAO;
 
 			static std::shared_ptr<GLVAO> SkyboxVAO;
 
 			static std::shared_ptr<GLProgram> SkyboxProgram;
-			static GLProgram* StandardProgram;
-			static GLProgram* StandardInstancedProgram;
+			static std::shared_ptr<GLProgram> DeferredPrepass;
+			static std::shared_ptr<GLProgram> DeferredPrepassInstanced;
 
-			static GLProgram* GizmoProgram;
-			static GLProgram* GizmoInstancedProgram;
+			static std::shared_ptr<GLProgram> StandardProgram;
+			static std::shared_ptr<GLProgram> StandardInstancedProgram;
+			
+			static std::shared_ptr<GLProgram> GizmoProgram;
+			static std::shared_ptr<GLProgram> GizmoInstancedProgram;
 		};
 
 		class UNIENGINE_API ShaderIncludes {
@@ -37,9 +40,9 @@ namespace UniEngine {
 
 		class UNIENGINE_API Textures {
 		public:
-			static Texture2D* MissingTexture;
-			static Texture2D* UV;
-			static Texture2D* StandardTexture;
+			static std::shared_ptr<Texture2D> MissingTexture;
+			static std::shared_ptr<Texture2D> UV;
+			static std::shared_ptr<Texture2D> StandardTexture;
 			static std::shared_ptr<Cubemap> DefaultSkybox;
 		};
 

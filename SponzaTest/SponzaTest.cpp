@@ -62,8 +62,8 @@ int main()
 
 #pragma endregion
 	auto sharedMat = std::make_shared<Material>();
-	sharedMat->Programs()->push_back(Default::GLPrograms::StandardProgram);
-	sharedMat->Textures2Ds()->push_back(Default::Textures::StandardTexture);
+	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
+	sharedMat->SetTexture(Default::Textures::StandardTexture);
 	
 	MeshRenderer* cylinder = new MeshRenderer();
 	cylinder->Mesh = Default::Primitives::Cylinder;
@@ -73,7 +73,7 @@ int main()
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
-		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::StandardProgram);
+		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Nanosuit");
 		Translation bpp;
@@ -84,7 +84,7 @@ int main()
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == BACKPACK) {
-		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
+		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::DeferredPrepass);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Backpack");
 		Translation bpp;
@@ -96,7 +96,7 @@ int main()
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
-		Model* backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
+		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::DeferredPrepass);
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
@@ -316,15 +316,15 @@ void InitGround() {
 
 	*/
 	auto mat = std::make_shared<Material>();
-	mat->Programs()->push_back(Default::GLPrograms::StandardProgram);
-	auto texture = new Texture2D(TextureType::DIFFUSE);
+	mat->SetProgram(Default::GLPrograms::DeferredPrepass);
+	auto texture = std::make_shared<Texture2D>(TextureType::DIFFUSE);
 	texture->LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), "");
-	mat->Textures2Ds()->push_back(texture);
+	mat->SetTexture(texture);
 	mat->SetShininess(32.0f);
-	MeshRenderer* meshMaterial = new MeshRenderer();
+	auto meshMaterial = std::make_shared<MeshRenderer>();
 	meshMaterial->Mesh = Default::Primitives::Quad;
 	meshMaterial->Material = mat;
-	EntityManager::SetSharedComponent<MeshRenderer>(entity, std::shared_ptr<MeshRenderer>(meshMaterial));
+	EntityManager::SetSharedComponent<MeshRenderer>(entity, meshMaterial);
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity1, std::shared_ptr<MeshRenderer>(meshMaterial));
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity2, std::shared_ptr<MeshRenderer>(meshMaterial));
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity3, std::shared_ptr<MeshRenderer>(meshMaterial));

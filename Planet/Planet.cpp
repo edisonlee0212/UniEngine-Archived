@@ -55,8 +55,8 @@ int main()
 
 #pragma region Lights
 	auto sharedMat = std::make_shared<Material>();
-	sharedMat->Programs()->push_back(Default::GLPrograms::StandardProgram);
-	sharedMat->Textures2Ds()->push_back(Default::Textures::StandardTexture);
+	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
+	sharedMat->SetTexture(Default::Textures::StandardTexture);
 	
 	MeshRenderer* dlmmc = new MeshRenderer();
 	dlmmc->Mesh = Default::Primitives::Cylinder;

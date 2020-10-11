@@ -7,7 +7,7 @@
 using namespace UniEngine;
 std::vector<Entity> ModelManager::entities = std::vector<Entity>();
 
-Model* UniEngine::ModelManager::LoadModel(std::string const& path, GLProgram* shader, bool gamma)
+std::shared_ptr<Model> UniEngine::ModelManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma)
 {
     stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
@@ -21,13 +21,13 @@ Model* UniEngine::ModelManager::LoadModel(std::string const& path, GLProgram* sh
     }
     // retrieve the directory path of the filepath
     std::string directory = path.substr(0, path.find_last_of('/'));
-    std::vector<Texture2D*>* Texture2DsLoaded = new std::vector<Texture2D*>();
-    Model* retVal = new Model();
+    std::vector<std::shared_ptr<Texture2D>> Texture2DsLoaded;
+    auto retVal = std::make_shared<Model>();
     ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
     return retVal;
 }
 
-Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, Model* model)
+Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
 {
     Entity entity = EntityManager::CreateEntity(archetype);
     LocalToWorld ltw;
@@ -35,7 +35,7 @@ Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, Model* model
     ltw.Value = modelNode->_LocalToParent;
     EntityManager::SetComponentData<LocalToWorld>(entity, ltw);
     for (auto i : modelNode->_MeshMaterialComponents) {
-        EntityManager::SetSharedComponent<MeshRenderer>(entity, std::shared_ptr<MeshRenderer>(i));
+        EntityManager::SetSharedComponent<MeshRenderer>(entity, i);
     }
     for (auto i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
@@ -43,14 +43,14 @@ Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, Model* model
     return entity;
 }
 
-void ModelManager::ProcessNode(std::string directory, GLProgram* program, ModelNode* modelNode, std::vector<Texture2D*>* Texture2DsLoaded, aiNode* node, const aiScene* scene)
+void ModelManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram> shader, ModelNode* modelNode, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiNode* node, const aiScene* scene)
 {
     for (unsigned i = 0; i < node->mNumMeshes; i++)
     {
         // the modelNode object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, modelNode is just to keep stuff organized (like relations between nodes).
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        ReadMesh(i, modelNode, directory, program, Texture2DsLoaded, mesh, scene);
+        ReadMesh(i, modelNode, directory, shader, Texture2DsLoaded, mesh, scene);
         modelNode->_LocalToParent = glm::mat4(
             node->mTransformation.a1, node->mTransformation.a2, node->mTransformation.a3, node->mTransformation.a4,
             node->mTransformation.b1, node->mTransformation.b2, node->mTransformation.b3, node->mTransformation.b4,
@@ -63,11 +63,11 @@ void ModelManager::ProcessNode(std::string directory, GLProgram* program, ModelN
         ModelNode* childNode = new ModelNode();
         childNode->Parent = modelNode;
         modelNode->Children.push_back(childNode);
-        ProcessNode(directory, program, childNode, Texture2DsLoaded, node->mChildren[i], scene);
+        ProcessNode(directory, shader, childNode, Texture2DsLoaded, node->mChildren[i], scene);
     }
 }
 
-void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string directory, GLProgram* program, std::vector<Texture2D*>* Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
+void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
     unsigned mask = 1;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
@@ -178,52 +178,101 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     float shininess;
     pointMaterial->Get(AI_MATKEY_SHININESS, shininess);
     material->SetShininess(shininess);
-    if(program != nullptr) material->Programs()->push_back(program);
-    std::vector<Texture2D*>* Texture2Ds = material->Textures2Ds();
-    std::vector<Texture2D*> diffuseMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_DIFFUSE, TextureType::DIFFUSE);
-    Texture2Ds->insert(Texture2Ds->end(), diffuseMaps.begin(), diffuseMaps.end());
-    // 2. specular maps
-    std::vector<Texture2D*> specularMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_SPECULAR, TextureType::SPECULAR);
-    Texture2Ds->insert(Texture2Ds->end(), specularMaps.begin(), specularMaps.end());
-    // 3. normal maps
-    std::vector<Texture2D*> normalMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_HEIGHT, TextureType::NORMAL);
-    Texture2Ds->insert(Texture2Ds->end(), normalMaps.begin(), normalMaps.end());
-    // 4. height maps
-    //std::vector<Texture2D*> heightMaps = LoadMaterialTextures(directory, Texture2DsLoaded, pointMaterial, aiTextureType_HEIGHT, TextureType::HEIGHT);
-    //Texture2Ds->insert(Texture2Ds->end(), heightMaps.begin(), heightMaps.end());
-    MeshRenderer* mmc = new MeshRenderer();
-    mmc->Mesh = mesh;
-    mmc->Material = material;
-    modelNode->_MeshMaterialComponents.push_back(mmc);
-}
-std::vector<Texture2D*> ModelManager::LoadMaterialTextures(std::string directory, std::vector<Texture2D*>* Texture2DsLoaded, aiMaterial* mat, aiTextureType type, TextureType typeName)
-{
-    std::vector<Texture2D*> Texture2Ds;
-    for (unsigned i = 0; i < mat->GetTextureCount(type); i++)
-    {
+    material->SetProgram(shader);
+	if(pointMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+	{
         aiString str;
-        mat->GetTexture(type, i, &str);
-        // check if Texture2D was loaded before and if so, continue to next iteration: skip loading a new Texture2D
+        pointMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded->size(); j++)
+        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
         {
-            if (std::strcmp(Texture2DsLoaded->at(j)->Path().c_str(), str.C_Str()) == 0)
+            if (std::strcmp(Texture2DsLoaded.at(j)->Path().c_str(), str.C_Str()) == 0)
             {
-                Texture2Ds.push_back(Texture2DsLoaded->at(j));
+                material->SetTexture(Texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
                 break;
             }
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            Texture2D* texture2D = new Texture2D(typeName);
+            std::shared_ptr<Texture2D> texture2D = std::make_shared<Texture2D>(TextureType::DIFFUSE);
             texture2D->LoadTexture(str.C_Str(), directory);
-            Texture2Ds.push_back(texture2D);
-            Texture2DsLoaded->push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+            material->SetTexture(texture2D);
+            Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+        }
+	}
+    if (pointMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
+    {
+        aiString str;
+        pointMaterial->GetTexture(aiTextureType_SPECULAR, 0, &str);
+        bool skip = false;
+        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        {
+            if (std::strcmp(Texture2DsLoaded.at(j)->Path().c_str(), str.C_Str()) == 0)
+            {
+                material->SetTexture(Texture2DsLoaded.at(j));
+                skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+                break;
+            }
+        }
+        if (!skip)
+        {   // if Texture2D hasn't been loaded already, load it
+            std::shared_ptr<Texture2D> texture2D = std::make_shared<Texture2D>(TextureType::SPECULAR);
+            texture2D->LoadTexture(str.C_Str(), directory);
+            material->SetTexture(texture2D);
+            Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
     }
-    return Texture2Ds;
+    if (pointMaterial->GetTextureCount(aiTextureType_HEIGHT) > 0)
+    {
+        aiString str;
+        pointMaterial->GetTexture(aiTextureType_HEIGHT, 0, &str);
+        bool skip = false;
+        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        {
+            if (std::strcmp(Texture2DsLoaded.at(j)->Path().c_str(), str.C_Str()) == 0)
+            {
+                material->SetTexture(Texture2DsLoaded.at(j));
+                skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+                break;
+            }
+        }
+        if (!skip)
+        {   // if Texture2D hasn't been loaded already, load it
+            std::shared_ptr<Texture2D> texture2D = std::make_shared<Texture2D>(TextureType::NORMAL);
+            texture2D->LoadTexture(str.C_Str(), directory);
+            material->SetTexture(texture2D);
+            Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+        }
+    }
+    if (pointMaterial->GetTextureCount(aiTextureType_HEIGHT) > 1)
+    {
+        aiString str;
+        pointMaterial->GetTexture(aiTextureType_HEIGHT, 1, &str);
+        bool skip = false;
+        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        {
+            if (std::strcmp(Texture2DsLoaded.at(j)->Path().c_str(), str.C_Str()) == 0)
+            {
+                material->SetTexture(Texture2DsLoaded.at(j));
+                skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+                break;
+            }
+        }
+        if (!skip)
+        {   // if Texture2D hasn't been loaded already, load it
+            std::shared_ptr<Texture2D> texture2D = std::make_shared<Texture2D>(TextureType::HEIGHT);
+            texture2D->LoadTexture(str.C_Str(), directory);
+            material->SetTexture(texture2D);
+            Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+        }
+    }
+    auto mmc = std::make_shared<MeshRenderer>();
+    mmc->Mesh = mesh;
+    mmc->Material = material;
+    modelNode->_MeshMaterialComponents.push_back(mmc);
 }
+
 
 void UniEngine::ModelManager::AttachChildren(EntityArchetype archetype, ModelNode* modelNode, Entity parentEntity)
 {

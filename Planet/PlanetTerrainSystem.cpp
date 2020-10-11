@@ -58,8 +58,8 @@ void Planet::PlanetTerrainSystem::OnCreate()
 	_PlanetTerrainList = std::vector<PlanetTerrain*>();
 	_MaxRecycledMeshAmount = 50;
 	_DefaultSurfaceMaterial = std::make_shared<Material>();
-	_DefaultSurfaceMaterial->Programs()->push_back(Default::GLPrograms::StandardProgram);
-	_DefaultSurfaceMaterial->Textures2Ds()->push_back(Default::Textures::StandardTexture);
+	_DefaultSurfaceMaterial->SetProgram(Default::GLPrograms::DeferredPrepass);
+	_DefaultSurfaceMaterial->SetTexture(Default::Textures::StandardTexture);
 }
 
 void Planet::PlanetTerrainSystem::Update()

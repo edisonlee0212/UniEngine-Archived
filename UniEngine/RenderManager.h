@@ -52,6 +52,10 @@ namespace UniEngine {
 		friend class RenderTarget;
 		static size_t _Triangles;
 		static size_t _DrawCall;
+		static void MaterialTextureBindHelper(Material* material);
+		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
+		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
+		
 		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow);
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow);
 

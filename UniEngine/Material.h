@@ -28,9 +28,14 @@ namespace UniEngine {
 	{
 		friend class RenderManager;
 		float _Shininess = 32.0f;
-		std::vector<Texture2D*> _Texture2Ds;
-		std::vector<Cubemap*> _Cubemaps;
-		std::vector<GLProgram*> _Programs;
+
+		std::shared_ptr<Texture2D> _DiffuseMap;
+		std::shared_ptr<Texture2D> _SpecularMap; 
+		std::shared_ptr<Texture2D> _NormalMap;
+		std::shared_ptr<Texture2D> _HeightMap;
+		
+		
+		std::shared_ptr<GLProgram> _Program;
 		std::vector<MaterialFloatProperty> _FloatPropertyList;
 		std::vector<MaterialMat4Property> _Float4x4PropertyList;
 	public:
@@ -39,11 +44,11 @@ namespace UniEngine {
 			_Shininess = 32.0f;
 		}
 		void SetShininess(float value);
-		void SetMaterialProperty(std::string name, float value);
-		void SetMaterialProperty(std::string name, glm::mat4 value);
-		std::vector<Texture2D*>* Textures2Ds();
-		std::vector<Cubemap*>* Cubemaps();
-		std::vector<GLProgram*>* Programs();
+		void SetMaterialProperty(const std::string& name, float value);
+		void SetMaterialProperty(const std::string& name, glm::mat4 value);
+		void SetTexture(std::shared_ptr<Texture2D> texture);
+		void RemoveTexture(TextureType type);
+		void SetProgram(std::shared_ptr<GLProgram> program);
 	};
 }
 

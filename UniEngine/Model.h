@@ -5,7 +5,7 @@
 namespace UniEngine {
 	struct ModelNode {
 		glm::mat4 _LocalToParent;
-		std::vector<MeshRenderer*> _MeshMaterialComponents;
+		std::vector<std::shared_ptr<MeshRenderer>> _MeshMaterialComponents;
 		ModelNode* Parent;
 		std::vector<ModelNode*> Children;
 		~ModelNode();

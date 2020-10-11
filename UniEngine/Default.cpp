@@ -8,20 +8,22 @@ using namespace UniEngine;
 
 std::shared_ptr<GLProgram> Default::GLPrograms::SkyboxProgram;
 
-GLProgram* Default::GLPrograms::ScreenProgram;
-GLProgram* Default::GLPrograms::StandardProgram;
-GLProgram* Default::GLPrograms::StandardInstancedProgram;
-GLProgram* Default::GLPrograms::GizmoProgram;
-GLProgram* Default::GLPrograms::GizmoInstancedProgram;
+std::shared_ptr<GLProgram> Default::GLPrograms::ScreenProgram;
+std::shared_ptr<GLProgram> Default::GLPrograms::DeferredPrepass;
+std::shared_ptr<GLProgram> Default::GLPrograms::DeferredPrepassInstanced;
+std::shared_ptr<GLProgram> Default::GLPrograms::StandardProgram;
+std::shared_ptr<GLProgram> Default::GLPrograms::StandardInstancedProgram;
+std::shared_ptr<GLProgram> Default::GLPrograms::GizmoProgram;
+std::shared_ptr<GLProgram> Default::GLPrograms::GizmoInstancedProgram;
 
 GLVAO* Default::GLPrograms::ScreenVAO;
 std::shared_ptr<GLVAO> Default::GLPrograms::SkyboxVAO;
 std::string* Default::ShaderIncludes::Uniform;
 
 
-Texture2D* Default::Textures::MissingTexture;
-Texture2D* Default::Textures::UV;
-Texture2D* Default::Textures::StandardTexture;
+std::shared_ptr<Texture2D> Default::Textures::MissingTexture;
+std::shared_ptr<Texture2D> Default::Textures::UV;
+std::shared_ptr<Texture2D> Default::Textures::StandardTexture;
 std::shared_ptr<Cubemap> Default::Textures::DefaultSkybox;
 
 std::shared_ptr<Mesh> Default::Primitives::Sphere;
@@ -152,7 +154,7 @@ void UniEngine::Default::Load(World* world)
 	GLShader* screenfrag = new GLShader(ShaderType::Fragment);
 	fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Fragment/Screen.frag"));
 	screenfrag->SetCode(&fragShaderCode);
-	GLPrograms::ScreenProgram = new GLProgram();
+	GLPrograms::ScreenProgram = std::make_shared<GLProgram>();
 	GLPrograms::ScreenProgram->Attach(ShaderType::Vertex, screenvert);
 	GLPrograms::ScreenProgram->Attach(ShaderType::Fragment, screenfrag);
 	GLPrograms::ScreenProgram->Link();
@@ -161,11 +163,11 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 
 #pragma region Textures
-	Textures::MissingTexture = new Texture2D(TextureType::DIFFUSE);
+	Textures::MissingTexture = std::make_shared<Texture2D>(TextureType::DIFFUSE);
 	Textures::MissingTexture->LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"), "");
-	Textures::UV = new Texture2D(TextureType::DIFFUSE);
+	Textures::UV = std::make_shared<Texture2D>(TextureType::DIFFUSE);
 	Textures::UV->LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"), "");
-	Textures::StandardTexture = new Texture2D(TextureType::DIFFUSE);
+	Textures::StandardTexture = std::make_shared<Texture2D>(TextureType::DIFFUSE);
 	Textures::StandardTexture->LoadTexture(FileIO::GetResourcePath("Textures/white.png"), "");
 #pragma endregion
 #pragma region Standard Shader
@@ -178,17 +180,44 @@ void UniEngine::Default::Load(World* world)
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform
 		+ "\n"
-#ifndef DEFERRED_RENDERING
+		+ FileIO::LoadFileAsString("Shaders/Fragment/DeferredPrepass.frag");
+	GLShader* deferredVert = new GLShader(ShaderType::Vertex);
+	deferredVert->SetCode(&vertShaderCode);
+	GLShader* deferredFrag = new GLShader(ShaderType::Fragment);
+	deferredFrag->SetCode(&fragShaderCode);
+	GLPrograms::DeferredPrepass = std::make_shared<GLProgram>();
+	GLPrograms::DeferredPrepass->Attach(ShaderType::Vertex, deferredVert);
+	GLPrograms::DeferredPrepass->Attach(ShaderType::Fragment, deferredFrag);
+	GLPrograms::DeferredPrepass->Link();
+	delete deferredVert;
+	delete deferredFrag;
+
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString("Shaders/Vertex/StandardInstanced.vert");
+
+	deferredVert = new GLShader(ShaderType::Vertex);
+	deferredVert->SetCode(&vertShaderCode);
+	deferredFrag = new GLShader(ShaderType::Fragment);
+	deferredFrag->SetCode(&fragShaderCode);
+	GLPrograms::DeferredPrepassInstanced = std::make_shared<GLProgram>();
+	GLPrograms::DeferredPrepassInstanced->Attach(ShaderType::Vertex, deferredVert);
+	GLPrograms::DeferredPrepassInstanced->Attach(ShaderType::Fragment, deferredFrag);
+	GLPrograms::DeferredPrepassInstanced->Link();
+	delete deferredVert;
+	delete deferredFrag;
+
+	fragShaderCode = std::string("#version 460 core\n")
+		+ *ShaderIncludes::Uniform
+		+ "\n"
 		+ FileIO::LoadFileAsString("Shaders/Fragment/Standard.frag");
-#endif
-#ifdef DEFERRED_RENDERING
-		+ FileIO::LoadFileAsString("Shaders/Fragment/StandardDeferred.frag");
-#endif
+
 	GLShader* standardvert = new GLShader(ShaderType::Vertex);
 	standardvert->SetCode(&vertShaderCode);
 	GLShader* standardfrag = new GLShader(ShaderType::Fragment);
 	standardfrag->SetCode(&fragShaderCode);
-	GLPrograms::StandardProgram = new GLProgram();
+	GLPrograms::StandardProgram = std::make_shared<GLProgram>();
 	GLPrograms::StandardProgram->Attach(ShaderType::Vertex, standardvert);
 	GLPrograms::StandardProgram->Attach(ShaderType::Fragment, standardfrag);
 	GLPrograms::StandardProgram->Link();
@@ -204,7 +233,7 @@ void UniEngine::Default::Load(World* world)
 	standardvert->SetCode(&vertShaderCode);
 	standardfrag = new GLShader(ShaderType::Fragment);
 	standardfrag->SetCode(&fragShaderCode);
-	GLPrograms::StandardInstancedProgram = new GLProgram();
+	GLPrograms::StandardInstancedProgram = std::make_shared<GLProgram>();
 	GLPrograms::StandardInstancedProgram->Attach(ShaderType::Vertex, standardvert);
 	GLPrograms::StandardInstancedProgram->Attach(ShaderType::Fragment, standardfrag);
 	GLPrograms::StandardInstancedProgram->Link();
@@ -223,16 +252,16 @@ void UniEngine::Default::Load(World* world)
 		+"\n"
 		+ FileIO::LoadFileAsString("Shaders/Vertex/Gizmo.vert");
 
-	standardvert = new GLShader(ShaderType::Vertex);
-	standardvert->SetCode(&vertShaderCode);
-	standardfrag = new GLShader(ShaderType::Fragment);
-	standardfrag->SetCode(&fragShaderCode);
-	GLPrograms::GizmoProgram = new GLProgram();
-	GLPrograms::GizmoProgram->Attach(ShaderType::Vertex, standardvert);
-	GLPrograms::GizmoProgram->Attach(ShaderType::Fragment, standardfrag);
+	deferredVert = new GLShader(ShaderType::Vertex);
+	deferredVert->SetCode(&vertShaderCode);
+	deferredFrag = new GLShader(ShaderType::Fragment);
+	deferredFrag->SetCode(&fragShaderCode);
+	GLPrograms::GizmoProgram = std::make_shared<GLProgram>();
+	GLPrograms::GizmoProgram->Attach(ShaderType::Vertex, deferredVert);
+	GLPrograms::GizmoProgram->Attach(ShaderType::Fragment, deferredFrag);
 	GLPrograms::GizmoProgram->Link();
-	delete standardvert;
-	delete standardfrag;
+	delete deferredVert;
+	delete deferredFrag;
 
 
 	vertShaderCode = std::string("#version 460 core\n")
@@ -240,49 +269,41 @@ void UniEngine::Default::Load(World* world)
 		+"\n"
 		+ FileIO::LoadFileAsString("Shaders/Vertex/GizmoInstanced.vert");
 
-	standardvert = new GLShader(ShaderType::Vertex);
-	standardvert->SetCode(&vertShaderCode);
-	standardfrag = new GLShader(ShaderType::Fragment);
-	standardfrag->SetCode(&fragShaderCode);
-	GLPrograms::GizmoInstancedProgram = new GLProgram();
-	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Vertex, standardvert);
-	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Fragment, standardfrag);
+	deferredVert = new GLShader(ShaderType::Vertex);
+	deferredVert->SetCode(&vertShaderCode);
+	deferredFrag = new GLShader(ShaderType::Fragment);
+	deferredFrag->SetCode(&fragShaderCode);
+	GLPrograms::GizmoInstancedProgram = std::make_shared<GLProgram>();
+	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Vertex, deferredVert);
+	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Fragment, deferredFrag);
 	GLPrograms::GizmoInstancedProgram->Link();
-	delete standardvert;
-	delete standardfrag;
+	delete deferredVert;
+	delete deferredFrag;
 #pragma endregion
 
 #pragma region Models & Primitives
-	Model* model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"));
+	auto model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram);
 	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/frontbackquad.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/frontbackquad.obj"), GLPrograms::StandardProgram);
 	Primitives::FrontBackQuad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	//delete model;
 	
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram);
 	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram);
 	Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram);
 	Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram);
 	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
 	Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	//delete model;
 
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"));
+	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
 	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	//delete model;
 #pragma endregion
 }
