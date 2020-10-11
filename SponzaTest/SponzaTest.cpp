@@ -14,6 +14,7 @@ float lightAngle4 = 0.8f;
 float lightAngle5 = 0.0f;
 float lightAngle6 = 0;
 float lightAngle7 = 0;
+float lightAngle8 = 0;
 float lightSize = 0.5;
 float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
@@ -200,11 +201,12 @@ int main()
 			, glm::vec3(0, 1, 0));
 		EntityManager::SetComponentData<Rotation>(dle2, r);
 
-		dlc->specular = glm::vec3(lightAngle4);
+		dlc->specular = glm::vec3(lightAngle8);
 		dlc->diffuse = glm::vec3(lightAngle4);
-		dlc2->specular = glm::vec3(lightAngle5);
+		dlc2->specular = glm::vec3(lightAngle8);
 		dlc2->diffuse = glm::vec3(lightAngle5);
-
+		plc->specular = glm::vec3(lightAngle8);
+		
 		Translation p;
 		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple, p);
@@ -245,6 +247,7 @@ void LightSettingMenu() {
 	ImGui::SliderFloat("Hard light brightness", &lightAngle5, 0.0f, 2.0f);
 	ImGui::SliderFloat("Point Light", &lightAngle6, 0.0f, 180.0f);
 	ImGui::SliderFloat("Point Light brightness", &lightAngle7, 0.0f, 10.0f);
+	ImGui::SliderFloat("Specular light brightness", &lightAngle8, 0.0f, 2.0f);
 	ImGui::End();
 }
 

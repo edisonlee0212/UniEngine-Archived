@@ -100,7 +100,7 @@ Camera::Camera(int resolutionX, int resolutionY, float nearPlane, float farPlane
 	_LayerMask = layerMask;
 	_ResolutionX = resolutionX;
 	_ResolutionY = resolutionY;
-	_ColorTexture = new GLTexture2D(1, GL_RGB32F, resolutionX, resolutionY, false);
+	_ColorTexture = new GLTexture2D(0, GL_RGB32F, resolutionX, resolutionY, false);
 	_ColorTexture->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
 	_ColorTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_ColorTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);

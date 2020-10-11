@@ -22,8 +22,9 @@ void main()
 	}else{
 		normal = fs_in.Normal;
 	}
+	//normal = fs_in.Normal;
     // also store the per-fragment normals into the gbuffer
-    gNormal = normal;
+    gNormal = normalize(normal);
 
     // store specular intensity in gAlbedoSpec's alpha component
     float specular = 1.0;

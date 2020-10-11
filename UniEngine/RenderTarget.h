@@ -20,6 +20,12 @@ namespace UniEngine {
 		float GetResolutionRatio();
 		void Bind();
 		void Clear();
+
+		GLFrameBuffer* GetFrameBuffer() const
+		{
+			return _FrameBuffer;
+		}
+
 		static void BindDefault();
 	};
 
