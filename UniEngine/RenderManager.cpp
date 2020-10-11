@@ -164,7 +164,12 @@ void UniEngine::RenderManager::Start()
 	for (auto cc : *cameras) {
 		cc->Value->Clear();
 	}
-
+#ifdef DEFERRED_RENDERING
+	_World->GetSystem<RenderSystem>()->_GBuffer->Bind();
+	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+#endif
 #pragma region Shadow
 	auto camera = Application::GetMainCameraComponent()->Value;
 	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity()).Value;
@@ -650,10 +655,10 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		program->SetBool("enableShadow", _EnableShadow);
 		program->SetFloat4x4("model", model);
 		for (auto j : material->_FloatPropertyList) {
-			program->SetFloat(j.first, j.second);
+			program->SetFloat(j.Name, j.Value);
 		}
 		for (auto j : material->_Float4x4PropertyList) {
-			program->SetFloat4x4(j.first, j.second);
+			program->SetFloat4x4(j.Name, j.Value);
 		}
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();
@@ -773,10 +778,10 @@ void UniEngine::RenderManager::DrawMesh(
 		program->SetBool("enableShadow", _EnableShadow);
 		program->SetFloat4x4("model", model);
 		for (auto j : material->_FloatPropertyList) {
-			program->SetFloat(j.first, j.second);
+			program->SetFloat(j.Name, j.Value);
 		}
 		for (auto j : material->_Float4x4PropertyList) {
-			program->SetFloat4x4(j.first, j.second);
+			program->SetFloat4x4(j.Name, j.Value);
 		}
 		if (material->Textures2Ds()->size() != 0) {
 			auto textures = material->Textures2Ds();

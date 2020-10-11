@@ -165,20 +165,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	_MainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
 	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, std::shared_ptr<CameraComponent>(_MainCameraComponent));
 #pragma endregion
-#pragma region Internal Systems
-	_World->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
-	
-	//Initialization System Group
-	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
 
-	//Simulation System Group
-	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
-
-
-	//Presentation System Group
-	_World->CreateSystem<RenderSystem>(SystemGroup::PresentationSystemGroup);
-
-#pragma endregion
 #pragma region ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -200,7 +187,21 @@ void UniEngine::Application::Init(bool fullScreen)
 	_Skybox = Default::Textures::DefaultSkybox;
 	RenderManager::Init();
 	_Loopable = true;
+	
+#pragma region Internal Systems
+	_World->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
 
+	//Initialization System Group
+	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
+
+	//Simulation System Group
+	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
+
+
+	//Presentation System Group
+	_World->CreateSystem<RenderSystem>(SystemGroup::PresentationSystemGroup);
+
+#pragma endregion
 }
 
 void UniEngine::Application::LoopStart_Internal()
@@ -272,6 +273,10 @@ void UniEngine::Application::LoopStart_Internal()
 	ImGui::End();
 	ImGui::PopStyleVar();
 	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
+#ifdef DEFERRED_RENDERING
+	_World->GetSystem<RenderSystem>()->ResizeGBuffer(viewPortSize.x, viewPortSize.y);
+
+#endif
 #pragma endregion
 	WindowManager::Start();
 	

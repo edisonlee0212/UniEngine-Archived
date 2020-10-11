@@ -33,6 +33,7 @@ namespace UniEngine {
     public:
         Texture2D(TextureType type);
         ~Texture2D();
+        void SetTexture(GLTexture2D* value);
         GLTexture2D* Texture();
         TextureType Type();
         void LoadTexture(std::string path, const std::string& directory);

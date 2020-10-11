@@ -24,6 +24,12 @@ glm::vec2 UniEngine::RenderTarget::GetResolution()
 	return glm::vec2(_ResolutionX, _ResolutionY);
 }
 
+void RenderTarget::SetResolution(size_t width, size_t height)
+{
+	_ResolutionX = width;
+	_ResolutionY = height;
+}
+
 float UniEngine::RenderTarget::GetResolutionRatio()
 {
 	if (_ResolutionX == 0 || _ResolutionY == 0) return 0;

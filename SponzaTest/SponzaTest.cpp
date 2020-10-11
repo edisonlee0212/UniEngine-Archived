@@ -38,6 +38,7 @@ int main()
 	RenderManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 #pragma endregion
 	Application::Init();
+	Application::SetEnableSkybox(false);
 #pragma region Preparations
 	World* world = Application::GetWorld();
 	WorldTime* time = world->Time();

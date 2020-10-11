@@ -38,7 +38,7 @@ namespace UniEngine {
 	
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
-		
+		friend class RenderSystem;
 #pragma region Render
 		friend class RenderTarget;
 		static size_t _Triangles;

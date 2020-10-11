@@ -1,4 +1,5 @@
 #pragma once
+
 #include "pch.h"
 
 #include <GLFW/glfw3.h>
@@ -8,3 +9,5 @@
 #else
 #define UNIENGINE_API __declspec(dllimport)
 #endif
+
+#define DEFERRED_RENDERING

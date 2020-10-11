@@ -107,5 +107,5 @@ inline void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLe
 void UniEngine::GLFrameBuffer::Clear()
 {
 	Bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear((_Color ? GL_COLOR_BUFFER_BIT : 0) | (_Depth ? GL_DEPTH_BUFFER_BIT : 0) | (_Stencil ? GL_STENCIL_BUFFER_BIT : 0));
 }

@@ -16,6 +16,7 @@ namespace UniEngine {
 		RenderTarget();
 		RenderTarget(size_t width, size_t height);
 		glm::vec2 GetResolution();
+		void SetResolution(size_t width, size_t height);
 		float GetResolutionRatio();
 		void Bind();
 		void Clear();

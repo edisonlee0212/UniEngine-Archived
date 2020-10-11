@@ -4,12 +4,28 @@ using namespace UniEngine;
 
 void UniEngine::Material::SetMaterialProperty(std::string name, float value)
 {
-	_FloatPropertyList[name] = value;
+	for(auto& property : _FloatPropertyList)
+	{
+		if(property.Name._Equal(name))
+		{
+			property.Value = value;
+			return;
+		}
+	}
+	_FloatPropertyList.emplace_back(name, value);
 }
 
 void UniEngine::Material::SetMaterialProperty(std::string name, glm::mat4 value)
 {
-	_Float4x4PropertyList[name] = value;
+	for (auto& property : _Float4x4PropertyList)
+	{
+		if (property.Name._Equal(name))
+		{
+			property.Value = value;
+			return;
+		}
+	}
+	_Float4x4PropertyList.emplace_back(name, value);
 }
 
 std::vector<Texture2D*>* UniEngine::Material::Textures2Ds()

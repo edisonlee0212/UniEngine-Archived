@@ -13,6 +13,11 @@ UniEngine::Texture2D::~Texture2D()
     if(_Texture != nullptr) delete _Texture;
 }
 
+void Texture2D::SetTexture(GLTexture2D* value)
+{
+    _Texture = value;
+}
+
 GLTexture2D* UniEngine::Texture2D::Texture()
 {
 	return _Texture;

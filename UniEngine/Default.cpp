@@ -182,8 +182,12 @@ void UniEngine::Default::Load(World* world)
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform
 		+ "\n"
+#ifndef DEFERRED_RENDERING
 		+ FileIO::LoadFileAsString("Shaders/Fragment/Standard.frag");
-
+#endif
+#ifdef DEFERRED_RENDERING
+		+ FileIO::LoadFileAsString("Shaders/Fragment/StandardDeferred.frag");
+#endif
 	GLShader* standardvert = new GLShader(ShaderType::Vertex);
 	standardvert->SetCode(&vertShaderCode);
 	GLShader* standardfrag = new GLShader(ShaderType::Fragment);
