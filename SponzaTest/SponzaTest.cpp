@@ -22,7 +22,8 @@ bool enableNormalMapping = true;
 
 float ssaobias = 0.025f;
 float ssaoradius = 3.0f;
-float ssaoscale = 3.0f;
+float ssaoscale = 4.0f;
+float ssaofactor = 1.0f;
 
 enum TestScene {
 	NANOSUIT,
@@ -242,10 +243,12 @@ int main()
 		ImGui::SliderFloat("Radius", &ssaoradius, 0.1f, 5.0f);
 		ImGui::SliderFloat("Bias", &ssaobias, 0.0f, 1.0f);
 		ImGui::SliderFloat("Scale", &ssaoscale, 1.0f, 10.0f);
+		ImGui::SliderFloat("Factor", &ssaofactor, 1.0f, 10.0f);
 		ImGui::End();
 		RenderManager::SetSSAOKernelRadius(ssaoradius);
 		RenderManager::SetSSAOKernelBias(ssaobias);
 		RenderManager::SetSSAOScale(ssaoscale);
+		RenderManager::SetSSAOFactor(ssaofactor);
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}

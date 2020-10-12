@@ -49,9 +49,10 @@ std::shared_ptr<Texture2D> RenderManager::_SSAOColor;
 std::shared_ptr<Texture2D> RenderManager::_SSAOBlur;
 std::shared_ptr<RenderTarget> RenderManager::_SSAOBlurFilter;
 std::shared_ptr<Texture2D> RenderManager::_SSAONoise;
-float RenderManager::_KernelRadius;
-float RenderManager::_KernelBias;
+float RenderManager::_SSAOKernelRadius;
+float RenderManager::_SSAOKernelBias;
 float RenderManager::_SSAOScale;
+float RenderManager::_SSAOFactor;
 #pragma endregion
 
 std::shared_ptr<GLProgram> RenderManager::_GBufferLightingPass;
@@ -68,17 +69,22 @@ float RenderManager::Lerp(float a, float b, float f)
 
 void RenderManager::SetSSAOKernelRadius(float value)
 {
-	_KernelRadius = value;
+	_SSAOKernelRadius = value;
 }
 
 void RenderManager::SetSSAOKernelBias(float value)
 {
-	_KernelBias = value;
+	_SSAOKernelBias = value;
 }
 
 void RenderManager::SetSSAOScale(float value)
 {
 	_SSAOScale = value;
+}
+
+void RenderManager::SetSSAOFactor(float value)
+{
+	_SSAOFactor = value;
 }
 
 void RenderManager::SetEnableSSAO(bool value)
@@ -215,8 +221,9 @@ void RenderManager::RenderToMainCamera()
 		_GPositionBuffer->Texture()->Bind(3);
 		_GNormalBuffer->Texture()->Bind(4);
 		_SSAONoise->Texture()->Bind(5);
-		_SSAOGeometryPass->SetFloat("radius", _KernelRadius);
-		_SSAOGeometryPass->SetFloat("bias", _KernelBias);
+		_SSAOGeometryPass->SetFloat("radius", _SSAOKernelRadius);
+		_SSAOGeometryPass->SetFloat("bias", _SSAOKernelBias);
+		_SSAOGeometryPass->SetFloat("factor", _SSAOFactor);
 		_SSAOGeometryPass->SetInt("gPosition", 3);
 		_SSAOGeometryPass->SetInt("gNormal", 4);
 		_SSAOGeometryPass->SetInt("texNoise", 5);
@@ -421,9 +428,10 @@ void RenderManager::Init()
 	
 #pragma endregion
 #pragma region SSAO
-	_KernelBias = 0.025f;
-	_KernelRadius = 3.0f;
+	_SSAOKernelBias = 0.025f;
+	_SSAOKernelRadius = 3.0f;
 	_SSAOScale = 4.0f;
+	_SSAOFactor = 1.0f;
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
 	fragShaderCode = std::string("#version 460 core\n") +

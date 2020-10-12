@@ -54,9 +54,10 @@ namespace UniEngine {
 		static std::shared_ptr<Texture2D> _SSAOBlur;
 		static std::shared_ptr<RenderTarget> _SSAOBlurFilter;
 		static std::shared_ptr<Texture2D> _SSAONoise;
-		static float _KernelRadius;
-		static float _KernelBias;
+		static float _SSAOKernelRadius;
+		static float _SSAOKernelBias;
 		static float _SSAOScale;
+		static float _SSAOFactor;
 #pragma endregion
 
 #pragma region Render
@@ -116,6 +117,7 @@ namespace UniEngine {
 		static void SetSSAOKernelRadius(float value);
 		static void SetSSAOKernelBias(float value);
 		static void SetSSAOScale(float value);
+		static void SetSSAOFactor(float value);
 		static void SetEnableSSAO(bool value);
 		static void ResizeResolution(int x, int y);
 		static void RenderToMainCamera();

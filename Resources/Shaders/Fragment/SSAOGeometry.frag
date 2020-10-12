@@ -14,7 +14,7 @@ uniform vec3 samples[64];
 int kernelSize = 64;
 uniform float radius;
 uniform float bias;
-
+uniform float factor;
 // tile noise texture over screen based on screen dimensions divided by noise size
 uniform vec2 noiseScale; 
 
@@ -52,6 +52,6 @@ void main()
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
     }
     occlusion = 1.0 - (occlusion / kernelSize);
-    
+    occlusion = pow(occlusion, factor);
     FragColor = occlusion;
 }
