@@ -10,12 +10,16 @@ in VS_OUT {
 } fs_in;
 
 void main()
-{    
+{
+	
+	vec4 albedo = texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgba;
+	if(albedo.a < 0.5)
+        discard;
     // store the fragment position vector in the first gbuffer texture
     gPosition.rgb = fs_in.FragPos;
 	gPosition.a = 1.0;
 
-	vec3 albedo = texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgb;
+	
     vec3 normal;
 	if(enableNormalMapping){
 		normal = texture(TEXTURE_NORMAL0, fs_in.TexCoords).rgb;
@@ -33,6 +37,6 @@ void main()
 		specular = texture(TEXTURE_SPECULAR0, fs_in.TexCoords).r;
 	}
 
-	gAlbedoSpec.rgb = albedo;
+	gAlbedoSpec.rgb = albedo.rgb;
 	gAlbedoSpec.a = specular;
 }
