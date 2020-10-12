@@ -273,7 +273,7 @@ void UniEngine::Application::LoopStart_Internal()
 	ImGui::End();
 	ImGui::PopStyleVar();
 	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
-	RenderManager::ResizeGBuffer(viewPortSize.x, viewPortSize.y);
+	RenderManager::ResizeResolution(viewPortSize.x, viewPortSize.y);
 #pragma endregion
 	WindowManager::Start();
 	

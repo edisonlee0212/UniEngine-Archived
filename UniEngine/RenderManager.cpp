@@ -40,7 +40,19 @@ size_t RenderManager::_DrawCall;
 size_t RenderManager::_Triangles;
 #pragma endregion
 
-
+#pragma region SSAO
+bool RenderManager::_EnableSSAO;
+std::shared_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
+std::shared_ptr<GLProgram> RenderManager::_SSAOBlurPass;
+std::shared_ptr<RenderTarget> RenderManager::_SSAO;
+std::shared_ptr<Texture2D> RenderManager::_SSAOColor;
+std::shared_ptr<Texture2D> RenderManager::_SSAOBlur;
+std::shared_ptr<RenderTarget> RenderManager::_SSAOBlurFilter;
+std::shared_ptr<Texture2D> RenderManager::_SSAONoise;
+float RenderManager::_KernelRadius;
+float RenderManager::_KernelBias;
+float RenderManager::_SSAOScale;
+#pragma endregion
 
 std::shared_ptr<GLProgram> RenderManager::_GBufferLightingPass;
 std::shared_ptr<RenderTarget> RenderManager::_GBuffer;
@@ -49,7 +61,34 @@ std::shared_ptr<Texture2D> RenderManager::_GPositionBuffer;
 std::shared_ptr<Texture2D> RenderManager::_GNormalBuffer;
 std::shared_ptr<Texture2D> RenderManager::_GColorSpecularBuffer;
 
-void RenderManager::ResizeGBuffer(int x, int y)
+float RenderManager::Lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
+}
+
+void RenderManager::SetSSAOKernelRadius(float value)
+{
+	_KernelRadius = value;
+}
+
+void RenderManager::SetSSAOKernelBias(float value)
+{
+	_KernelBias = value;
+}
+
+void RenderManager::SetSSAOScale(float value)
+{
+	_SSAOScale = value;
+}
+
+void RenderManager::SetEnableSSAO(bool value)
+{
+	_EnableSSAO = value;
+}
+
+
+
+void RenderManager::ResizeResolution(int x, int y)
 {
 	const auto originalResolution = _GBuffer->GetResolution();
 	if (static_cast<int>(originalResolution.x) == x && static_cast<int>(originalResolution.y) == y) return;
@@ -63,6 +102,13 @@ void RenderManager::ResizeGBuffer(int x, int y)
 	_GBuffer->AttachTexture(_GPositionBuffer->Texture(), GL_COLOR_ATTACHMENT0);
 	_GBuffer->AttachTexture(_GNormalBuffer->Texture(), GL_COLOR_ATTACHMENT1);
 	_GBuffer->AttachTexture(_GColorSpecularBuffer->Texture(), GL_COLOR_ATTACHMENT2);
+
+	_SSAO->SetResolution(x, y);
+	_SSAOBlurFilter->SetResolution(x, y);
+	_SSAOColor->Texture()->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+	_SSAOBlur->Texture()->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+	_SSAO->AttachTexture(_SSAOColor->Texture(), GL_COLOR_ATTACHMENT0);
+	_SSAOBlurFilter->AttachTexture(_SSAOBlur->Texture(), GL_COLOR_ATTACHMENT0);
 }
 
 void RenderManager::RenderToMainCamera()
@@ -159,6 +205,32 @@ void RenderManager::RenderToMainCamera()
 			}
 		}
 	}
+
+	Default::GLPrograms::ScreenVAO->Bind();
+	if (_EnableSSAO) {
+		_SSAO->Bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		_SSAOGeometryPass->Bind();
+		_GPositionBuffer->Texture()->Bind(3);
+		_GNormalBuffer->Texture()->Bind(4);
+		_SSAONoise->Texture()->Bind(5);
+		_SSAOGeometryPass->SetFloat("radius", _KernelRadius);
+		_SSAOGeometryPass->SetFloat("bias", _KernelBias);
+		_SSAOGeometryPass->SetInt("gPosition", 3);
+		_SSAOGeometryPass->SetInt("gNormal", 4);
+		_SSAOGeometryPass->SetInt("texNoise", 5);
+		_SSAOGeometryPass->SetFloat2("noiseScale", camera->GetResolution() / _SSAOScale);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		_SSAOBlurFilter->Bind();
+		glClear(GL_COLOR_BUFFER_BIT);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		_SSAOColor->Texture()->Bind(0);
+		_SSAOBlurPass->SetInt("ssaoInput", 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_GBufferLightingPass->Bind();
@@ -168,14 +240,18 @@ void RenderManager::RenderToMainCamera()
 	_GBufferLightingPass->SetBool("receiveShadow", true);
 	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+	_GBufferLightingPass->SetBool("enableSSAO", _EnableSSAO);
+	if(_EnableSSAO)
+	{
+		_SSAOBlur->Texture()->Bind(6);
+		_GBufferLightingPass->SetInt("ssao", 6);
+	}
 	_GBufferLightingPass->SetInt("directionalShadowMap", 0);
 	_GBufferLightingPass->SetInt("pointShadowMap", 1);
 	_GBufferLightingPass->SetBool("enableShadow", RenderManager::_EnableShadow);
 	_GBufferLightingPass->SetInt("gPosition", 3);
 	_GBufferLightingPass->SetInt("gNormal", 4);
 	_GBufferLightingPass->SetInt("gAlbedoSpec", 5);
-
-	Default::GLPrograms::ScreenVAO->Bind();
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	auto res = camera->GetResolution();
@@ -195,7 +271,7 @@ void RenderManager::Init()
 {
 #pragma region Shadow
 	_ShadowCascadeInfoBlock = new GLUBO();
-	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowSettings), NULL, GL_DYNAMIC_DRAW);
+	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowSettings), nullptr, GL_DYNAMIC_DRAW);
 	_ShadowCascadeInfoBlock->SetBase(4);
 
 #pragma region LightInfoBlocks
@@ -203,13 +279,13 @@ void RenderManager::Init()
 	_PointLightBlock = new GLUBO();
 	_SpotLightBlock = new GLUBO();
 	size_t size = 16 + Default::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLight);
-	_DirectionalLightBlock->SetData((GLsizei)size, NULL, (GLsizei)GL_DYNAMIC_DRAW);
+	_DirectionalLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
 	_DirectionalLightBlock->SetBase(1);
 	size = 16 + Default::ShaderIncludes::MaxPointLightAmount * sizeof(PointLight);
-	_PointLightBlock->SetData((GLsizei)size, NULL, (GLsizei)GL_DYNAMIC_DRAW);
+	_PointLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
 	_PointLightBlock->SetBase(2);
 	size = 16 + Default::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLight);
-	_SpotLightBlock->SetData((GLsizei)size, NULL, (GLsizei)GL_DYNAMIC_DRAW);
+	_SpotLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
@@ -306,6 +382,7 @@ void RenderManager::Init()
 	);
 #pragma endregion
 #pragma endregion
+#pragma region GBuffer
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
 	fragShaderCode = std::string("#version 460 core\n") +
@@ -340,8 +417,91 @@ void RenderManager::Init()
 	gColSpecTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_GColorSpecularBuffer->SetTexture(gColSpecTex);
 
+	
+	
+#pragma endregion
+#pragma region SSAO
+	_KernelBias = 0.025f;
+	_KernelRadius = 3.0f;
+	_SSAOScale = 4.0f;
+	vertShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
+	fragShaderCode = std::string("#version 460 core\n") +
+		*Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString("Shaders/Fragment/SSAOGeometry.frag");
+
+	_SSAOGeometryPass = std::make_shared<GLProgram>(
+		new GLShader(ShaderType::Vertex, &vertShaderCode),
+		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		);
+
+	fragShaderCode = std::string("#version 460 core\n") +
+		*Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString("Shaders/Fragment/SSAOBlur.frag");
+
+	_SSAOBlurPass = std::make_shared<GLProgram>(
+		new GLShader(ShaderType::Vertex, &vertShaderCode),
+		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		);
+	
+	_SSAO = std::make_shared<RenderTarget>(0, 0);
+	_SSAOColor = std::make_shared<Texture2D>(TextureType::NONE);
+	auto ssaoColorTex = new GLTexture2D(0, GL_R32F, 0, 0, false);
+	ssaoColorTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	ssaoColorTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_SSAOColor->SetTexture(ssaoColorTex);
+	
+	_SSAOBlurFilter = std::make_shared<RenderTarget>();
+	_SSAOBlur = std::make_shared<Texture2D>(TextureType::NONE);
+	auto ssaoBlurTex = new GLTexture2D(0, GL_R32F, 0, 0, false);
+	ssaoBlurTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	ssaoBlurTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_SSAOBlur->SetTexture(ssaoBlurTex);
+
+	_SSAOGeometryPass->Bind();
+	// generate sample kernel
+	// ----------------------
+	std::vector<glm::vec3> ssaoKernel;
+	for (unsigned int i = 0; i < 64; ++i)
+	{
+		glm::vec3 sample(
+			glm::linearRand(-1.0f, 1.0f),
+			glm::linearRand(-1.0f, 1.0f),
+			glm::linearRand(0.0f, 1.0f)
+		);
+		sample = glm::normalize(sample);
+		sample *= glm::linearRand(0.0f, 1.0f);
+		float scale = float(i) / 64.0;
+
+		// scale samples s.t. they're more aligned to center of kernel
+		scale = Lerp(0.1f, 1.0f, scale * scale);
+		sample *= scale;
+		ssaoKernel.push_back(sample);
+		_SSAOGeometryPass->SetFloat3("samples[" + std::to_string(i) + "]", sample);
+	}
+	
+	// generate noise texture
+	// ----------------------
+	std::vector<glm::vec3> ssaoNoise;
+	for (unsigned int i = 0; i < 16; i++)
+	{
+		glm::vec3 noise(glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f), 0.0f); // rotate around z-axis (in tangent space)
+		ssaoNoise.push_back(noise);
+	}
+	_SSAONoise = std::make_shared<Texture2D>(TextureType::NONE);
+	auto ssaoNoiseTex = new GLTexture2D(0, GL_RGBA32F, 0, 0, false);
+	ssaoNoiseTex->ReSize(0, GL_RGBA32F, GL_RGB, GL_FLOAT, ssaoNoise.data(), 4, 4);
+	ssaoNoiseTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	ssaoNoiseTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_SSAONoise->SetTexture(ssaoNoiseTex);
+	
+	_EnableSSAO = true;
+	
+#pragma endregion
 	auto camera = Application::GetMainCameraComponent()->Value;
-	ResizeGBuffer(camera->GetResolution().x, camera->GetResolution().y);
+	ResizeResolution(camera->GetResolution().x, camera->GetResolution().y);
 }
 
 void UniEngine::RenderManager::Start()

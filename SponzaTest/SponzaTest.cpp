@@ -19,6 +19,11 @@ float lightSize = 0.5;
 float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
 bool enableNormalMapping = true;
+
+float ssaobias = 0.025f;
+float ssaoradius = 3.0f;
+float ssaoscale = 3.0f;
+
 enum TestScene {
 	NANOSUIT,
 	BACKPACK,
@@ -70,7 +75,7 @@ int main()
 	cylinder->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = SPONZA_TEST;
+	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
@@ -232,7 +237,15 @@ int main()
 		dlc->lightSize = lightSize;
 
 #pragma endregion
-		
+
+		ImGui::Begin("SSAO");
+		ImGui::SliderFloat("Radius", &ssaoradius, 0.1f, 5.0f);
+		ImGui::SliderFloat("Bias", &ssaobias, 0.0f, 1.0f);
+		ImGui::SliderFloat("Scale", &ssaoscale, 1.0f, 10.0f);
+		ImGui::End();
+		RenderManager::SetSSAOKernelRadius(ssaoradius);
+		RenderManager::SetSSAOKernelBias(ssaobias);
+		RenderManager::SetSSAOScale(ssaoscale);
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}

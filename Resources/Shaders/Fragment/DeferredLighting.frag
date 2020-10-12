@@ -7,6 +7,8 @@ in VS_OUT {
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
+uniform bool enableSSAO;
+uniform sampler2D ssao;
 
 vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos);
 
@@ -27,8 +29,11 @@ void main()
     float specular = texture(gAlbedoSpec, fs_in.TexCoords).a;
 	vec3 viewDir = normalize(CameraPosition - fragPos);
 	float dist = distance(fragPos, CameraPosition);
+
+	float AmbientOcclusion = texture(ssao, fs_in.TexCoords).r;
+
 	vec3 result = CalculateLights(shininess, albedo, specular, dist, normal, viewDir, fragPos);
-	FragColor = vec4(result + AmbientLight * albedo, 1.0);
+	FragColor = vec4(result * AmbientOcclusion + AmbientLight * albedo * AmbientOcclusion, 1.0);
 }
 
 

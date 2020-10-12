@@ -45,7 +45,20 @@ namespace UniEngine {
 		static std::shared_ptr<Texture2D> _GPositionBuffer;
 		static std::shared_ptr<Texture2D> _GNormalBuffer;
 		static std::shared_ptr<Texture2D> _GColorSpecularBuffer;
-		
+#pragma region SSAO
+		static bool _EnableSSAO;
+		static std::shared_ptr<GLProgram> _SSAOGeometryPass;
+		static std::shared_ptr<GLProgram> _SSAOBlurPass;
+		static std::shared_ptr<RenderTarget> _SSAO;
+		static std::shared_ptr<Texture2D> _SSAOColor;
+		static std::shared_ptr<Texture2D> _SSAOBlur;
+		static std::shared_ptr<RenderTarget> _SSAOBlurFilter;
+		static std::shared_ptr<Texture2D> _SSAONoise;
+		static float _KernelRadius;
+		static float _KernelBias;
+		static float _SSAOScale;
+#pragma endregion
+
 #pragma region Render
 		friend class RenderTarget;
 		static size_t _Triangles;
@@ -98,9 +111,13 @@ namespace UniEngine {
 		static bool _StableFit;
 		static float _MaxShadowDistance;
 #pragma endregion
+		static float Lerp(float a, float b, float f);
 	public:
-
-		static void ResizeGBuffer(int x, int y);
+		static void SetSSAOKernelRadius(float value);
+		static void SetSSAOKernelBias(float value);
+		static void SetSSAOScale(float value);
+		static void SetEnableSSAO(bool value);
+		static void ResizeResolution(int x, int y);
 		static void RenderToMainCamera();
 		static void Init();
 		static void Start();
