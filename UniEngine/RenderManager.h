@@ -58,6 +58,7 @@ namespace UniEngine {
 		static float _SSAOKernelBias;
 		static float _SSAOScale;
 		static float _SSAOFactor;
+		static int _SSAOSampleSize;
 #pragma endregion
 
 #pragma region Render
@@ -119,6 +120,7 @@ namespace UniEngine {
 		static void SetSSAOScale(float value);
 		static void SetSSAOFactor(float value);
 		static void SetEnableSSAO(bool value);
+		static void SetSSAOSampleSize(int value);
 		static void ResizeResolution(int x, int y);
 		static void RenderToMainCamera();
 		static void Init();

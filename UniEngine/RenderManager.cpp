@@ -49,10 +49,11 @@ std::shared_ptr<Texture2D> RenderManager::_SSAOColor;
 std::shared_ptr<Texture2D> RenderManager::_SSAOBlur;
 std::shared_ptr<RenderTarget> RenderManager::_SSAOBlurFilter;
 std::shared_ptr<Texture2D> RenderManager::_SSAONoise;
-float RenderManager::_SSAOKernelRadius;
-float RenderManager::_SSAOKernelBias;
-float RenderManager::_SSAOScale;
-float RenderManager::_SSAOFactor;
+float RenderManager::_SSAOKernelRadius = 3.0f;
+float RenderManager::_SSAOKernelBias = 0.1;
+float RenderManager::_SSAOScale = 4.0;
+float RenderManager::_SSAOFactor = 1.0f;
+int RenderManager::_SSAOSampleSize = 64;
 #pragma endregion
 
 std::shared_ptr<GLProgram> RenderManager::_GBufferLightingPass;
@@ -92,6 +93,10 @@ void RenderManager::SetEnableSSAO(bool value)
 	_EnableSSAO = value;
 }
 
+void RenderManager::SetSSAOSampleSize(int value)
+{
+	_SSAOSampleSize = glm::clamp(value, 0, 64);
+}
 
 
 void RenderManager::ResizeResolution(int x, int y)
@@ -224,6 +229,7 @@ void RenderManager::RenderToMainCamera()
 		_SSAOGeometryPass->SetFloat("radius", _SSAOKernelRadius);
 		_SSAOGeometryPass->SetFloat("bias", _SSAOKernelBias);
 		_SSAOGeometryPass->SetFloat("factor", _SSAOFactor);
+		_SSAOGeometryPass->SetInt("kernelSize", _SSAOSampleSize);
 		_SSAOGeometryPass->SetInt("gPosition", 3);
 		_SSAOGeometryPass->SetInt("gNormal", 4);
 		_SSAOGeometryPass->SetInt("texNoise", 5);
@@ -428,10 +434,6 @@ void RenderManager::Init()
 	
 #pragma endregion
 #pragma region SSAO
-	_SSAOKernelBias = 0.025f;
-	_SSAOKernelRadius = 3.0f;
-	_SSAOScale = 4.0f;
-	_SSAOFactor = 1.0f;
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
 	fragShaderCode = std::string("#version 460 core\n") +

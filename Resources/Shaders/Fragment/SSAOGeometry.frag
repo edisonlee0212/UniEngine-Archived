@@ -11,7 +11,7 @@ uniform sampler2D texNoise;
 uniform vec3 samples[64];
 
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
-int kernelSize = 64;
+uniform int kernelSize;
 uniform float radius;
 uniform float bias;
 uniform float factor;
@@ -32,6 +32,7 @@ void main()
     mat3 TBN = mat3(tangent, bitangent, normal);
     // iterate over the sample kernel and calculate occlusion factor
     float occlusion = 0.0;
+    int validAmount = 0;
     for(int i = 0; i < kernelSize; ++i)
     {
         // get sample position
@@ -43,7 +44,8 @@ void main()
         offset = CameraProjection * offset; // from view to clip-space
         offset.xyz /= offset.w; // perspective divide
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
-        
+        if(texture(gNormal, offset.xy).xyz == vec3(0.0)) continue;
+        validAmount = validAmount + 1;
         // get sample depth
         float sampleDepth = vec3(CameraView * texture(gPosition, offset.xy)).z; // get depth value of kernel sample
         
@@ -51,7 +53,9 @@ void main()
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
     }
-    occlusion = 1.0 - (occlusion / kernelSize);
-    occlusion = pow(occlusion, factor);
-    FragColor = occlusion;
+    if(validAmount == 0){
+        FragColor = 1.0;
+    }else{
+        FragColor = pow(1.0 - (occlusion / validAmount), factor);
+    }
 }

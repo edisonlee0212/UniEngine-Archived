@@ -24,7 +24,7 @@ float ssaobias = 0.025f;
 float ssaoradius = 3.0f;
 float ssaoscale = 4.0f;
 float ssaofactor = 1.0f;
-
+int ssaoSampleSize = 64;
 enum TestScene {
 	NANOSUIT,
 	BACKPACK,
@@ -34,6 +34,7 @@ enum TestScene {
 int main()
 {
 	FileIO::SetResourcePath("../Resources/");
+	RenderManager::SetEnableSSAO(true);
 #pragma region Lighting and Shadow settings
 	RenderManager::SetEnableShadow(true);
 	RenderManager::SetDirectionalLightResolution(4096);
@@ -244,11 +245,13 @@ int main()
 		ImGui::SliderFloat("Bias", &ssaobias, 0.0f, 1.0f);
 		ImGui::SliderFloat("Scale", &ssaoscale, 1.0f, 10.0f);
 		ImGui::SliderFloat("Factor", &ssaofactor, 1.0f, 10.0f);
+		ImGui::SliderInt("Sample Size", &ssaoSampleSize, 0, 64);
 		ImGui::End();
 		RenderManager::SetSSAOKernelRadius(ssaoradius);
 		RenderManager::SetSSAOKernelBias(ssaobias);
 		RenderManager::SetSSAOScale(ssaoscale);
 		RenderManager::SetSSAOFactor(ssaofactor);
+		RenderManager::SetSSAOSampleSize(ssaoSampleSize);
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}

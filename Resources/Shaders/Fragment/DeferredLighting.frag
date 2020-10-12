@@ -30,7 +30,7 @@ void main()
 	vec3 viewDir = normalize(CameraPosition - fragPos);
 	float dist = distance(fragPos, CameraPosition);
 
-	float AmbientOcclusion = texture(ssao, fs_in.TexCoords).r;
+	float AmbientOcclusion = (enableSSAO ? texture(ssao, fs_in.TexCoords).r : 1.0);
 
 	vec3 result = CalculateLights(shininess, albedo, specular, dist, normal, viewDir, fragPos);
 	FragColor = vec4(result * AmbientOcclusion + AmbientLight * albedo * AmbientOcclusion, 1.0);

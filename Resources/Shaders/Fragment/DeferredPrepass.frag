@@ -29,7 +29,7 @@ void main()
 		normal = fs_in.Normal;
 	}
     // also store the per-fragment normals into the gbuffer
-    gNormal.rgb = normalize(normal);
+    gNormal.rgb = (gl_FrontFacing ? 1.0 : -1.0) * normalize(normal);
 	gNormal.a = material.shininess;
     // store specular intensity in gAlbedoSpec's alpha component
     float specular = 1.0;
