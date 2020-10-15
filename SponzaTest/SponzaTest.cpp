@@ -39,7 +39,7 @@ int main()
 	RenderManager::SetDirectionalLightResolution(4096);
 	RenderManager::SetStableFit(false);
 	RenderManager::SetSeamFixRatio(0.05f);
-	RenderManager::SetMaxShadowDistance(500);
+	RenderManager::SetMaxShadowDistance(300);
 	RenderManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 #pragma endregion
 	Application::Init();
@@ -74,7 +74,7 @@ int main()
 	cylinder->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = BACKPACK;
+	TestScene testScene = SPONZA_TEST;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
@@ -149,7 +149,7 @@ int main()
 	scale.Value = glm::vec3(0.5f);
 
 	DirectionalLightComponent dlc;
-
+	dlc.lightSize = 1.0f;
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
@@ -223,7 +223,7 @@ int main()
 		RenderManager::SetLightBleedControlFactor(lightBleedControl);
 
 		ImGui::Begin("PCSS Scale factor");
-		ImGui::SliderFloat("Factor", &pcssScale, 0.0f, 2.0f);
+		ImGui::SliderFloat("Factor", &pcssScale, 0.0f, 8.0f);
 		ImGui::End();
 		RenderManager::SetPCSSScaleFactor(pcssScale);
 
