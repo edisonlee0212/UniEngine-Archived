@@ -54,6 +54,8 @@ int main()
 #pragma endregion
 
 #pragma region Lights
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Translation(), Rotation(), Scale(), LocalToWorld(), DirectionalLightComponent());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Translation(), Rotation(), Scale(), LocalToWorld(), PointLightComponent());
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
 	sharedMat->SetTexture(Default::Textures::StandardTexture);
@@ -64,11 +66,11 @@ int main()
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
 
-	DirectionalLightComponent* dlc = new DirectionalLightComponent();
-	dlc->diffuse = glm::vec3(1.0f);
-	dlc->specular = glm::vec3(0.5f);
-	Entity dle = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, std::shared_ptr<DirectionalLightComponent>(dlc));
+	DirectionalLightComponent dlc;
+	dlc.diffuse = glm::vec3(1.0f);
+	dlc.specular = glm::vec3(0.5f);
+	Entity dle = EntityManager::CreateEntity(dlarc);
+	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
 	EntityManager::SetSharedComponent<MeshRenderer>(dle, std::shared_ptr<MeshRenderer>(dlmmc));
 
@@ -77,27 +79,26 @@ int main()
 	plmmc->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
-	PointLightComponent* plc = new PointLightComponent();
-	plc->constant = 1.0f;
-	plc->linear = 0.09f;
-	plc->quadratic = 0.032f;
-	plc->farPlane = 70.0f;
-	plc->diffuse = glm::vec3(2.0f);
-	plc->specular = glm::vec3(5.0f);
-	Entity ple = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<PointLightComponent>(ple, std::shared_ptr<PointLightComponent>(plc));
+	PointLightComponent plc;
+	plc.constant = 1.0f;
+	plc.linear = 0.09f;
+	plc.quadratic = 0.032f;
+	plc.farPlane = 70.0f;
+	plc.diffuse = glm::vec3(2.0f);
+	plc.specular = glm::vec3(5.0f);
+	Entity ple = EntityManager::CreateEntity(plarc);
+	EntityManager::SetComponentData<PointLightComponent>(ple, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetSharedComponent<MeshRenderer>(ple, std::shared_ptr<MeshRenderer>(plmmc));
 
-	plc = new PointLightComponent();
-	plc->constant = 1.0f;
-	plc->linear = 0.09f;
-	plc->quadratic = 0.032f;
-	plc->farPlane = 70.0f;
-	plc->diffuse = glm::vec3(2.0f);
-	plc->specular = glm::vec3(5.0f);
-	Entity ple2 = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<PointLightComponent>(ple2, std::shared_ptr<PointLightComponent>(plc));
+	plc.constant = 1.0f;
+	plc.linear = 0.09f;
+	plc.quadratic = 0.032f;
+	plc.farPlane = 70.0f;
+	plc.diffuse = glm::vec3(2.0f);
+	plc.specular = glm::vec3(5.0f);
+	Entity ple2 = EntityManager::CreateEntity(plarc);
+	EntityManager::SetComponentData<PointLightComponent>(ple2, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetSharedComponent<MeshRenderer>(ple2, std::shared_ptr<MeshRenderer>(plmmc));
 #pragma endregion

@@ -12,18 +12,17 @@ namespace UniEngine {
 		glm::vec4 ReservedParameters;
 	};
 
-	class UNIENGINE_API PointLightComponent :
-		public SharedComponentBase
+	struct UNIENGINE_API PointLightComponent :
+		ComponentBase
 	{
-	public:
-		float constant;
-		float linear;
-		float quadratic;
-		float farPlane;
+		float constant = 1.0f;
+		float linear = 0.07f;
+		float quadratic = 0.0015f;
+		float farPlane = 200.0f;
 		float bias = 0.3f;
-		glm::vec3 diffuse;
-		glm::vec3 specular;
-		size_t GetHashCode() override;
-		void OnGui() override;
+		glm::vec3 diffuse = glm::vec3(1.0f);
+		float diffuseBrightness = 0.8f;
+		glm::vec3 specular = glm::vec3(1.0f);
+		float specularBrightness = 0.2f;
 	};
 }

@@ -108,16 +108,7 @@
     <ClInclude Include="UniEngineAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PointLightComponent.h">
-      <Filter>Header Files\Resource\SharedComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="SpotLightComponent.h">
-      <Filter>Header Files\Resource\SharedComponent</Filter>
-    </ClInclude>
     <ClInclude Include="CameraComponent.h">
-      <Filter>Header Files\Resource\SharedComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectionalLightComponent.h">
       <Filter>Header Files\Resource\SharedComponent</Filter>
     </ClInclude>
     <ClInclude Include="TransformSystem.h">
@@ -134,15 +125,6 @@
     </ClInclude>
     <ClInclude Include="CameraControlSystem.h">
       <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_opengl3.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_win32.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\examples\imgui_impl_glfw.h">
-      <Filter>Header Files\External</Filter>
     </ClInclude>
     <ClInclude Include="..\Submodules\ImGui\imgui.h">
       <Filter>Header Files\External</Filter>
@@ -246,6 +228,24 @@
     <ClInclude Include="WindowManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_glfw.h">
+      <Filter>Header Files\External</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_opengl3.h">
+      <Filter>Header Files\External</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_win32.h">
+      <Filter>Header Files\External</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLightComponent.h">
+      <Filter>Header Files\Resource\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLightComponent.h">
+      <Filter>Header Files\Resource\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLightComponent.h">
+      <Filter>Header Files\Resource\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -287,15 +287,6 @@
     <ClCompile Include="CameraComponent.cpp">
       <Filter>Source Files\Resource\SharedComponent</Filter>
     </ClCompile>
-    <ClCompile Include="DirectionalLightComponent.cpp">
-      <Filter>Source Files\Resource\SharedComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="PointLightComponent.cpp">
-      <Filter>Source Files\Resource\SharedComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="SpotLightComponent.cpp">
-      <Filter>Source Files\Resource\SharedComponent</Filter>
-    </ClCompile>
     <ClCompile Include="Default.cpp">
       <Filter>Source Files\Resource</Filter>
     </ClCompile>
@@ -324,15 +315,6 @@
       <Filter>Source Files\External</Filter>
     </ClCompile>
     <ClCompile Include="..\Submodules\ImGui\imgui_draw.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_glfw.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_opengl3.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\examples\imgui_impl_win32.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
     <ClCompile Include="EntityEditorSystem.cpp">
@@ -409,6 +391,24 @@
     </ClCompile>
     <ClCompile Include="WindowManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_win32.cpp">
+      <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_glfw.cpp">
+      <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLightComponent.cpp">
+      <Filter>Source Files\Resource\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLightComponent.cpp">
+      <Filter>Source Files\Resource\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLightComponent.cpp">
+      <Filter>Source Files\Resource\Component</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

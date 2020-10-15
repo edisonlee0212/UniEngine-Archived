@@ -16,12 +16,9 @@ namespace UniEngine {
 		glm::vec4 diffuse;
 		glm::vec4 specular;
 	};
-	class UNIENGINE_API SpotLightComponent :
-		public SharedComponentBase
+	struct UNIENGINE_API SpotLightComponent :
+		ComponentBase
 	{
-	public:
 		SpotLight value;
-		size_t GetHashCode() override;
-		void OnGui() override;
 	};
 }

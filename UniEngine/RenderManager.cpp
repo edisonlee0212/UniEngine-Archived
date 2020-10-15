@@ -36,6 +36,9 @@ GLProgram* RenderManager::_PointLightInstancedProgram;
 
 #pragma endregion
 #pragma region Render
+EntityQuery RenderManager::_DirectionalLightQuery;
+EntityQuery RenderManager::_PointLightQuery;
+EntityQuery RenderManager::_SpotLightQuery;
 size_t RenderManager::_DrawCall;
 size_t RenderManager::_Triangles;
 #pragma endregion
@@ -284,6 +287,13 @@ void RenderManager::RenderToMainCamera()
 
 void RenderManager::Init()
 {
+	_DirectionalLightQuery = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAllFilters(_DirectionalLightQuery, DirectionalLightComponent());
+	_PointLightQuery = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAllFilters(_PointLightQuery, PointLightComponent());
+	_SpotLightQuery = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAllFilters(_SpotLightQuery, SpotLightComponent());
+	
 #pragma region Kernel Setup
 	std::vector<glm::vec4> uniformKernel;
 	std::vector<glm::vec4> gaussianKernel;
@@ -530,21 +540,23 @@ void UniEngine::RenderManager::Start()
 
 	_ShadowCascadeInfoBlock->SubData(0, sizeof(LightSettings), &_ShadowSettings);
 
-
+	std::vector<DirectionalLightComponent> directionLightsList;
+	std::vector<Entity> directionalLightEntities;
+	_DirectionalLightQuery.ToComponentDataArray(directionLightsList);
+	_DirectionalLightQuery.ToEntityArray(directionalLightEntities);
 	//1.	利用EntityManager找到场景内所有Light instance。
-	auto directionLightsList = EntityManager::GetSharedComponentDataArray<DirectionalLightComponent>();
-	if (directionLightsList != nullptr) {
-		size_t size = directionLightsList->size();
+	if (!directionLightsList.empty()) {
+		size_t size = directionLightsList.size();
 		for (int i = 0; i < size; i++) {
-			DirectionalLightComponent* dlc = directionLightsList->at(i).get();
-			Entity lightEntity = EntityManager::GetSharedComponentEntities<DirectionalLightComponent>(directionLightsList->at(i))->at(0);
+			const auto& dlc = directionLightsList[i];
+			Entity lightEntity = directionalLightEntities[i];
 			glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).Value;
 			glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 			float planeDistance = 0;
 			glm::vec3 center;
 			_DirectionalLights[i].direction = glm::vec4(lightDir, 0.0f);
-			_DirectionalLights[i].diffuse = glm::vec4(dlc->diffuse, 1);
-			_DirectionalLights[i].specular = glm::vec4(dlc->specular, 1);
+			_DirectionalLights[i].diffuse = glm::vec4(dlc.diffuse * dlc.diffuseBrightness, 1);
+			_DirectionalLights[i].specular = glm::vec4(dlc.specular * dlc.specularBrightness, 1);
 			for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
 				//2.	计算Cascade Split所需信息
 				float splitStart = 0;
@@ -639,7 +651,7 @@ void UniEngine::RenderManager::Start()
 				_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
 				_DirectionalLights[i].lightFrustumWidth[split] = max;
 				_DirectionalLights[i].lightFrustumDistance[split] = planeDistance;
-				if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc->lightSize, 0, dlc->depthBias, dlc->normalOffset);
+				if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc.lightSize, 0, dlc.depthBias, dlc.normalOffset);
 				
 			}
 		}
@@ -746,23 +758,24 @@ void UniEngine::RenderManager::Start()
 			*/
 		}
 	}
-
-
-	auto pointLightsList = EntityManager::GetSharedComponentDataArray<PointLightComponent>();
-	if (pointLightsList != nullptr) {
-		size_t size = pointLightsList->size();
+	std::vector<Entity> pointLightEntities;
+	std::vector<PointLightComponent> pointLightsList;
+	_PointLightQuery.ToEntityArray(pointLightEntities);
+	_PointLightQuery.ToComponentDataArray(pointLightsList);
+	if (!pointLightsList.empty()) {
+		size_t size = pointLightsList.size();
 		for (int i = 0; i < size; i++) {
-			PointLightComponent* plc = pointLightsList->at(i).get();
-			Entity lightEntity = EntityManager::GetSharedComponentEntities<PointLightComponent>(pointLightsList->at(i))->at(0);
+			const auto& plc = pointLightsList[i];
+			Entity lightEntity = pointLightEntities[i];
 			glm::vec3 position = EntityManager::GetComponentData<LocalToWorld>(lightEntity).Value[3];
 			_PointLights[i].position = glm::vec4(position, 0);
 
-			_PointLights[i].constantLinearQuadFarPlane.x = plc->constant;
-			_PointLights[i].constantLinearQuadFarPlane.y = plc->linear;
-			_PointLights[i].constantLinearQuadFarPlane.z = plc->quadratic;
-			_PointLights[i].diffuse = glm::vec4(plc->diffuse, 0);
-			_PointLights[i].specular = glm::vec4(plc->specular, 0);
-			_PointLights[i].constantLinearQuadFarPlane.w = plc->farPlane;
+			_PointLights[i].constantLinearQuadFarPlane.x = plc.constant;
+			_PointLights[i].constantLinearQuadFarPlane.y = plc.linear;
+			_PointLights[i].constantLinearQuadFarPlane.z = plc.quadratic;
+			_PointLights[i].diffuse = glm::vec4(plc.diffuse * plc.diffuseBrightness, 0);
+			_PointLights[i].specular = glm::vec4(plc.specular * plc.diffuseBrightness, 0);
+			_PointLights[i].constantLinearQuadFarPlane.w = plc.farPlane;
 
 			glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), _PointLightShadowMap->GetResolutionRatio(), 1.0f, _PointLights[i].constantLinearQuadFarPlane.w);
 			_PointLights[i].lightSpaceMatrix[0] = shadowProj * glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
@@ -771,7 +784,7 @@ void UniEngine::RenderManager::Start()
 			_PointLights[i].lightSpaceMatrix[3] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 			_PointLights[i].lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 			_PointLights[i].lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-			_PointLights[i].ReservedParameters = glm::vec4(plc->bias, 0, 0, 0);
+			_PointLights[i].ReservedParameters = glm::vec4(plc.bias, 0, 0, 0);
 		}
 		_PointLightBlock->SubData(0, 4, &size);
 		if (size != 0)_PointLightBlock->SubData(16, size * sizeof(PointLight), &_PointLights[0]);

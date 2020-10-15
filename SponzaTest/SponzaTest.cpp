@@ -10,12 +10,11 @@ float lightAngle0 = 25;
 float lightAngle1 = 0;
 float lightAngle2 = 0;
 float lightAngle3 = 0;
-float lightAngle4 = 0.8f;
-float lightAngle5 = 0.0f;
+
+
 float lightAngle6 = 0;
-float lightAngle7 = 0;
-float lightAngle8 = 0;
-float lightSize = 0.5;
+
+
 float lightBleedControl = 0.0;
 float pcssScale = 1.0f;
 bool enableNormalMapping = true;
@@ -75,7 +74,7 @@ int main()
 	cylinder->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = SPONZA_TEST;
+	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
@@ -142,22 +141,23 @@ int main()
 	}
 #pragma endregion
 #pragma region Lights
-
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Translation(), Rotation(), Scale(), LocalToWorld(), DirectionalLightComponent());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Translation(), Rotation(), Scale(), LocalToWorld(), PointLightComponent());
 	MeshRenderer* dlmmc = new MeshRenderer();
 	cylinder->Mesh = Default::Primitives::Ring;
 	cylinder->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
-	DirectionalLightComponent* dlc = new DirectionalLightComponent();
+	DirectionalLightComponent dlc;
 
-	Entity dle = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle, std::shared_ptr<DirectionalLightComponent>(dlc));
+	Entity dle = EntityManager::CreateEntity(dlarc);
+	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
 	EntityManager::SetComponentData<Scale>(dle, scale);
 
 
-	DirectionalLightComponent* dlc2 = new DirectionalLightComponent();
-	Entity dle2 = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<DirectionalLightComponent>(dle2, std::shared_ptr<DirectionalLightComponent>(dlc2));
+	DirectionalLightComponent dlc2;
+	Entity dle2 = EntityManager::CreateEntity(dlarc);
+	EntityManager::SetComponentData<DirectionalLightComponent>(dle2, dlc2);
 	EntityManager::SetComponentData<Scale>(dle2, scale);
 
 
@@ -166,15 +166,15 @@ int main()
 	plmmc->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
-	PointLightComponent* plc = new PointLightComponent();
-	plc->constant = 1.0f;
-	plc->linear = 0.09f;
-	plc->quadratic = 0.032f;
-	plc->farPlane = 200.0f;
-	plc->diffuse = glm::vec3(3.0f);
-	plc->specular = glm::vec3(5.0f);
-	Entity ple = EntityManager::CreateEntity(archetype);
-	EntityManager::SetSharedComponent<PointLightComponent>(ple, std::shared_ptr<PointLightComponent>(plc));
+	PointLightComponent plc;
+	plc.constant = 1.0f;
+	plc.linear = 0.09f;
+	plc.quadratic = 0.032f;
+	plc.farPlane = 200.0f;
+	plc.diffuse = glm::vec3(3.0f);
+	plc.specular = glm::vec3(5.0f);
+	Entity ple = EntityManager::CreateEntity(plarc);
+	EntityManager::SetComponentData<PointLightComponent>(ple, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetSharedComponent<MeshRenderer>(ple, std::shared_ptr<MeshRenderer>(plmmc));
 
@@ -210,16 +210,12 @@ int main()
 			, glm::vec3(0, 1, 0));
 		EntityManager::SetComponentData<Rotation>(dle2, r);
 
-		dlc->specular = glm::vec3(lightAngle8);
-		dlc->diffuse = glm::vec3(lightAngle4);
-		dlc2->specular = glm::vec3(lightAngle8);
-		dlc2->diffuse = glm::vec3(lightAngle5);
-		plc->specular = glm::vec3(lightAngle8);
+		
 		
 		Translation p;
 		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple, p);
-		plc->diffuse = glm::vec3(lightAngle7);
+		
 
 		ImGui::Begin("Light Bleed Control");
 		ImGui::SliderFloat("Factor", &lightBleedControl, 0.0f, 1.0f);
@@ -231,10 +227,6 @@ int main()
 		ImGui::End();
 		RenderManager::SetPCSSScaleFactor(pcssScale);
 
-		ImGui::Begin("Directional Light Size");
-		ImGui::SliderFloat("Size", &lightSize, 0.0f, 1.0f);
-		ImGui::End();
-		dlc->lightSize = lightSize;
 
 #pragma endregion
 
@@ -264,11 +256,7 @@ void LightSettingMenu() {
 	ImGui::SliderFloat("Soft light circle", &lightAngle1, 0.0f, 360.0f);
 	ImGui::SliderFloat("Hard light angle", &lightAngle2, 0.0f, 89.0f);
 	ImGui::SliderFloat("Hard light circle", &lightAngle3, 0.0f, 360.0f);
-	ImGui::SliderFloat("Soft Light brightness", &lightAngle4, 0.0f, 2.0f);
-	ImGui::SliderFloat("Hard light brightness", &lightAngle5, 0.0f, 2.0f);
 	ImGui::SliderFloat("Point Light", &lightAngle6, 0.0f, 180.0f);
-	ImGui::SliderFloat("Point Light brightness", &lightAngle7, 0.0f, 10.0f);
-	ImGui::SliderFloat("Specular light brightness", &lightAngle8, 0.0f, 2.0f);
 	ImGui::End();
 }
 

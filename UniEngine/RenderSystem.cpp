@@ -11,7 +11,37 @@ bool RenderSystem::_EnableWireFrame;
 void UniEngine::RenderSystem::OnCreate()
 {
 	_EnableWireFrame = false;
+	EntityEditorSystem::AddComponentInspector<DirectionalLightComponent>([](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			auto* dl = static_cast<DirectionalLightComponent*>((void*)data);
+			ImGui::ColorEdit3("Diffuse", &dl->diffuse[0]);
+			ImGui::DragFloat("Diffuse Brightness", &dl->diffuseBrightness, 0.1f);
+			ImGui::ColorEdit3("Specular", &dl->specular[0]);
+			ImGui::DragFloat("Specular Brightness", &dl->specularBrightness, 0.1f);
+			ImGui::DragFloat("Bias", &dl->depthBias, 0.001f);
+			ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
+			ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
+		});
 
+	EntityEditorSystem::AddComponentInspector<PointLightComponent>([](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			auto* dl = static_cast<PointLightComponent*>((void*)data);
+			ImGui::ColorEdit3("Diffuse", &dl->diffuse[0]);
+			ImGui::DragFloat("Diffuse Brightness", &dl->diffuseBrightness, 0.1f);
+			ImGui::ColorEdit3("Specular", &dl->specular[0]);
+			ImGui::DragFloat("Specular Brightness", &dl->specularBrightness, 0.1f);
+			ImGui::DragFloat("Bias", &dl->bias, 0.001f);
+
+			ImGui::DragFloat("Constant", &dl->constant, 0.1f);
+			ImGui::DragFloat("Linear", &dl->quadratic, 0.1f);
+			
+			//ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
+			//ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
+		});
 	Enable();
 }
 

@@ -14,17 +14,16 @@ namespace UniEngine {
 		glm::vec4 ReservedParameters;
 		glm::ivec4 viewPort;
 	};
-	class UNIENGINE_API DirectionalLightComponent :
-		public SharedComponentBase
+	struct UNIENGINE_API DirectionalLightComponent :
+		ComponentBase
 	{
-	public:
-		glm::vec3 diffuse;
-		glm::vec3 specular;
+		glm::vec3 diffuse = glm::vec3(1.0f);
+		float diffuseBrightness = 0.8f;
+		glm::vec3 specular = glm::vec3(1.0f);
+		float specularBrightness = 0.1f;
 		float depthBias = 0.007f;
 		float normalOffset = 0.001f;
 		float lightSize = 0.01f;
-		size_t GetHashCode() override;
-		void OnGui() override;
 	};
 
 }

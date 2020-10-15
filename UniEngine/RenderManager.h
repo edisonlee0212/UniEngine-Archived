@@ -58,6 +58,9 @@ namespace UniEngine {
 #pragma endregion
 
 #pragma region Render
+		static EntityQuery _DirectionalLightQuery;
+		static EntityQuery _PointLightQuery;
+		static EntityQuery _SpotLightQuery;
 		friend class RenderTarget;
 		static size_t _Triangles;
 		static size_t _DrawCall;

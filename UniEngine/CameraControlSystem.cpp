@@ -68,7 +68,7 @@ void CameraControlSystem::Update()
 	}
 	if (_EnableWindowControl) {
 		ImGui::Begin("Camera Controller");
-		ImGui::InputFloat3("Position", &_P[0], 1);
+		ImGui::InputFloat3("Position", &_P[0]);
 		//ImGui::InputFloat4("Rotation", &_R[0], 1);
 		ImGui::End();
 		_CameraPosition.Value = glm::vec3(_P[0], _P[1], _P[2]);
