@@ -223,7 +223,6 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 		blockers += tf;
 	}
 
-	if(blockers == PCSSBSAmount) return 0.0;
 	if(blockers == 0) return 1.0;
 
 	float blockerDistance = blockers == 0 ? 0.0 : (avgDistance / blockers);
