@@ -4,6 +4,20 @@
 namespace UniEngine {
 
 #pragma region Predefined Componenets
+	struct UNIENGINE_API EulerRotation : ComponentBase {
+		glm::vec3 Value;
+		bool operator ==(const EulerRotation& other) const {
+			return other.Value == Value;
+		}
+	};
+	
+	struct UNIENGINE_API LocalEulerRotation : ComponentBase {
+		glm::vec3 Value;
+		bool operator ==(const LocalEulerRotation& other) const {
+			return other.Value == Value;
+		}
+	};
+	
 	struct UNIENGINE_API Translation : ComponentBase {
 		glm::vec3 Value;
 		bool operator ==(const Translation& other) const {
@@ -66,6 +80,9 @@ namespace UniEngine {
 		public SystemBase
 	{
 		bool _AddCheck;
+		EntityQuery _ERR;
+		EntityQuery _LERR;
+		
 		EntityQuery _P;
 		EntityQuery _PR;
 		EntityQuery _PS;

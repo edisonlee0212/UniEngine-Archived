@@ -8,6 +8,11 @@ void UniEngine::TransformSystem::OnCreate()
 {
 	_CachedParentHierarchies = std::vector<std::pair<Entity, ChildInfo>>();
 
+	_ERR = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAnyFilters(_ERR, EulerRotation(), Rotation());
+	_LERR = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAnyFilters(_LERR, LocalEulerRotation(), LocalRotation());
+	
 	_LP = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_LP, LocalToParent(), LocalTranslation());
 	EntityManager::SetEntityQueryNoneFilters(_LP, LocalRotation(), LocalScale());
@@ -50,6 +55,20 @@ void UniEngine::TransformSystem::OnCreate()
 	EntityManager::SetEntityQueryAllFilters(_S, LocalToWorld(), Scale());
 	EntityManager::SetEntityQueryNoneFilters(_S, Translation(), Rotation());
 
+	EntityEditorSystem::AddComponentInspector<EulerRotation>([](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1);
+		});
+	
+	EntityEditorSystem::AddComponentInspector<LocalEulerRotation>([](ComponentBase* data)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1);
+		});
+	
 	EntityEditorSystem::AddComponentInspector<Translation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
@@ -134,6 +153,17 @@ void UniEngine::TransformSystem::OnDestroy()
 
 void UniEngine::TransformSystem::Update()
 {
+	EntityManager::ForEach<LocalEulerRotation, LocalRotation>(_LERR, [](int i, Entity entity, LocalEulerRotation* lerr, LocalRotation* lr)
+	{
+			lr->Value = glm::quat(glm::radians(lerr->Value));
+	});
+
+	EntityManager::ForEach<EulerRotation, Rotation>(_ERR, [](int i, Entity entity, EulerRotation* err, Rotation* r)
+		{
+			r->Value = glm::quat(glm::radians(err->Value));
+		});
+
+	
 	EntityManager::ForEach<LocalToParent, LocalTranslation>(_LP, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp) {
 		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value);
 		});

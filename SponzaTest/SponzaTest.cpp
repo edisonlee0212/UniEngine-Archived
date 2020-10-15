@@ -6,10 +6,6 @@ using namespace UniEngine;
 void LightSettingMenu();
 void InitGround();
 void SplitDisplay();
-float lightAngle0 = 25;
-float lightAngle1 = 0;
-float lightAngle2 = 25;
-float lightAngle3 = 0;
 
 
 float lightAngle6 = 0;
@@ -21,7 +17,6 @@ bool enableNormalMapping = true;
 
 float ssaobias = 0.025f;
 float ssaoradius = 3.0f;
-float ssaoscale = 4.0f;
 float ssaofactor = 1.0f;
 int ssaoSampleSize = 4;
 enum TestScene {
@@ -141,8 +136,8 @@ int main()
 	}
 #pragma endregion
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Translation(), Rotation(), Scale(), LocalToWorld(), DirectionalLightComponent());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Translation(), Rotation(), Scale(), LocalToWorld(), PointLightComponent());
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", EulerRotation(), Rotation(), DirectionalLightComponent());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", EulerRotation(), Translation(), Rotation(), Scale(), LocalToWorld(), PointLightComponent());
 	MeshRenderer* dlmmc = new MeshRenderer();
 	cylinder->Mesh = Default::Primitives::Ring;
 	cylinder->Material = sharedMat;
@@ -152,14 +147,14 @@ int main()
 	dlc.lightSize = 1.0f;
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
-	EntityManager::SetComponentData<Scale>(dle, scale);
+	//EntityManager::SetComponentData<Scale>(dle, scale);
 
 
 	DirectionalLightComponent dlc2;
 	dlc2.lightSize = 1.0f;
 	Entity dle2 = EntityManager::CreateEntity(dlarc);
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle2, dlc2);
-	EntityManager::SetComponentData<Scale>(dle2, scale);
+	//EntityManager::SetComponentData<Scale>(dle2, scale);
 
 
 	MeshRenderer* plmmc = new MeshRenderer();
@@ -193,16 +188,7 @@ int main()
 		LightSettingMenu();
 		SplitDisplay();
 		//ImGui::ShowDemoWindow();
-#pragma region LightsPosition
-		Rotation r;
-		r.Value = glm::quat(glm::vec3(glm::radians(lightAngle0), glm::radians(lightAngle1), 0));
-		EntityManager::SetComponentData<Rotation>(dle, r);
-
-		r.Value = glm::quat(glm::vec3(glm::radians(lightAngle2), glm::radians(lightAngle3), 0));
-		EntityManager::SetComponentData<Rotation>(dle2, r);
-
-		
-		
+#pragma region LightsPosition		
 		Translation p;
 		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple, p);
@@ -224,13 +210,11 @@ int main()
 		ImGui::Begin("SSAO");
 		ImGui::SliderFloat("Radius", &ssaoradius, 0.1f, 5.0f);
 		ImGui::SliderFloat("Bias", &ssaobias, 0.0f, 1.0f);
-		ImGui::SliderFloat("Scale", &ssaoscale, 1.0f, 10.0f);
 		ImGui::SliderFloat("Factor", &ssaofactor, 1.0f, 10.0f);
 		ImGui::SliderInt("Sample Size", &ssaoSampleSize, 0, 64);
 		ImGui::End();
 		RenderManager::SetSSAOKernelRadius(ssaoradius);
 		RenderManager::SetSSAOKernelBias(ssaobias);
-		RenderManager::SetSSAOScale(ssaoscale);
 		RenderManager::SetSSAOFactor(ssaofactor);
 		RenderManager::SetSSAOSampleSize(ssaoSampleSize);
 		Application::Update();
@@ -243,10 +227,6 @@ int main()
 
 void LightSettingMenu() {
 	ImGui::Begin("Light Angle Controller");
-	ImGui::SliderFloat("Soft light angle", &lightAngle0, 0.0f, 90.0f);
-	ImGui::SliderFloat("Soft light circle", &lightAngle1, 0.0f, 360.0f);
-	ImGui::SliderFloat("Hard light angle", &lightAngle2, 0.0f, 89.0f);
-	ImGui::SliderFloat("Hard light circle", &lightAngle3, 0.0f, 360.0f);
 	ImGui::SliderFloat("Point Light", &lightAngle6, 0.0f, 180.0f);
 	ImGui::End();
 }

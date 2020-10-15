@@ -175,8 +175,9 @@ float InterleavedGradientNoise(vec3 fragCoords){
 
 float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec3 fragPos, vec3 normal)
 {
-	vec4 fragPosLightSpace = light.lightSpaceMatrix[splitIndex] * vec4(fragPos, 1.0);
 	vec3 lightDir = light.direction;
+	if(dot(lightDir, normal) > -0.02) return 1.0;
+	vec4 fragPosLightSpace = light.lightSpaceMatrix[splitIndex] * vec4(fragPos, 1.0);
 	float bias = light.ReservedParameters.z;
 	float normalOffset = light.ReservedParameters.w;
 	// perform perspective divide

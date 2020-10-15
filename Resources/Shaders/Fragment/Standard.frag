@@ -190,6 +190,7 @@ vec2 poissonDisk[16] = {
 float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec4 fragPosLightSpace, vec3 normal)
 {
 	vec3 lightDir = light.direction;
+	if(dot(lightDir, normal) < 0.1) return 1.0;
 	float bias = light.ReservedParameters.z;
 	float normalOffset = light.ReservedParameters.w;
 	// perform perspective divide
