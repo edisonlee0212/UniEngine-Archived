@@ -8,7 +8,7 @@ void InitGround();
 void SplitDisplay();
 float lightAngle0 = 25;
 float lightAngle1 = 0;
-float lightAngle2 = 0;
+float lightAngle2 = 25;
 float lightAngle3 = 0;
 
 
@@ -74,7 +74,7 @@ int main()
 	cylinder->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = SPONZA_TEST;
+	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
@@ -156,6 +156,7 @@ int main()
 
 
 	DirectionalLightComponent dlc2;
+	dlc2.lightSize = 1.0f;
 	Entity dle2 = EntityManager::CreateEntity(dlarc);
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle2, dlc2);
 	EntityManager::SetComponentData<Scale>(dle2, scale);
@@ -194,20 +195,10 @@ int main()
 		//ImGui::ShowDemoWindow();
 #pragma region LightsPosition
 		Rotation r;
-		r.Value = glm::quatLookAt(
-			glm::normalize(glm::vec3(
-				glm::cos(glm::radians(lightAngle0)) * glm::sin(glm::radians(lightAngle1)),
-				glm::sin(glm::radians(lightAngle0)),
-				glm::cos(glm::radians(lightAngle0)) * glm::cos(glm::radians(lightAngle1))))
-			, glm::vec3(0, 1, 0));
+		r.Value = glm::quat(glm::vec3(glm::radians(lightAngle0), glm::radians(lightAngle1), 0));
 		EntityManager::SetComponentData<Rotation>(dle, r);
 
-		r.Value = glm::quatLookAt(
-			glm::normalize(glm::vec3(
-				glm::cos(glm::radians(lightAngle2)) * glm::sin(glm::radians(lightAngle3)),
-				glm::sin(glm::radians(lightAngle2)),
-				glm::cos(glm::radians(lightAngle2)) * glm::cos(glm::radians(lightAngle3))))
-			, glm::vec3(0, 1, 0));
+		r.Value = glm::quat(glm::vec3(glm::radians(lightAngle2), glm::radians(lightAngle3), 0));
 		EntityManager::SetComponentData<Rotation>(dle2, r);
 
 		
@@ -252,7 +243,7 @@ int main()
 
 void LightSettingMenu() {
 	ImGui::Begin("Light Angle Controller");
-	ImGui::SliderFloat("Soft light angle", &lightAngle0, 0.0f, 89.0f);
+	ImGui::SliderFloat("Soft light angle", &lightAngle0, 0.0f, 90.0f);
 	ImGui::SliderFloat("Soft light circle", &lightAngle1, 0.0f, 360.0f);
 	ImGui::SliderFloat("Hard light angle", &lightAngle2, 0.0f, 89.0f);
 	ImGui::SliderFloat("Hard light circle", &lightAngle3, 0.0f, 360.0f);

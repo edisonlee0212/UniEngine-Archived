@@ -19,7 +19,7 @@ void main()
     
     for(int split = 0; split < 4; ++split)
     {
-        gl_Layer = lightIndex * 4 + split; // built-in variable that specifies to which face we render.
+        gl_Layer = split; // built-in variable that specifies to which face we render.
         for(int i = 0; i < 3; ++i) // for each triangle's vertices
         {
             gl_Position = gl_in[i].gl_Position;

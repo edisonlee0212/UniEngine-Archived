@@ -611,10 +611,7 @@ void UniEngine::RenderManager::Start()
 				center = ClosestPointOnLine(worldBound.Center, cameraFrustumCenter, cameraFrustumCenter + lightDir);
 				planeDistance = glm::max(glm::max(d0, d1), glm::max(d2, d3));
 				lightPos = center - lightDir * planeDistance;
-				lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 1.0, 0.0));
-				if (glm::any(glm::isnan(lightView[3]))) {
-					lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::vec3(0.0, 0.0, 1.0));
-				}
+				lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::normalize(rotation * glm::vec3(0, 1, 0)));
 				lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance * 2.0f);
 				switch (i)
 				{
