@@ -8,8 +8,6 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D texNoise;
 
-uniform vec3 samples[64];
-
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
 uniform int kernelSize;
 uniform float radius;
@@ -35,8 +33,10 @@ void main()
     int validAmount = 0;
     for(int i = 0; i < kernelSize; ++i)
     {
+        vec3 point = GaussianKernel[i].xyz;
+        point.z = abs(point.z);
         // get sample position
-        vec3 samplePos = TBN * samples[i]; // from tangent to view-space
+        vec3 samplePos = TBN * point; // from tangent to view-space
         samplePos = fragPos + samplePos * radius; 
         
         // project sample position (to sample texture) (to get position on screen/texture)

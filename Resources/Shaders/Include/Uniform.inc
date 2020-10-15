@@ -64,20 +64,26 @@ layout (std140, binding = 3) uniform SpotLightBlock
     SpotLight SpotLights[SPOT_LIGHTS_AMOUNT];
 };
 
-layout (std140, binding = 4) uniform ShadowSettings
+layout (std140, binding = 4) uniform LightSettingsBlock
 {
     float SplitDistance0;
     float SplitDistance1;
     float SplitDistance2;
     float SplitDistance3;
-    int SoftShadowMode;
+    int PCSSPCFSampleAmount;
 	float PCSSScaleFactor;
-	float DisplaySplit;
+	int PCSSBSAmount;
 	float SeamFixRatio;
     float VSMMaxVariance;
     float LightBleedFactor;
     float EVSMExponent;
     float AmbientLight;
+};
+
+layout (std140, binding = 5) uniform KernelBlock
+{
+    vec4 UniformKernel[MAX_KERNEL_AMOUNT];
+    vec4 GaussianKernel[MAX_KERNEL_AMOUNT];
 };
 
 //Material

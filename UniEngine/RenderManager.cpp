@@ -16,7 +16,7 @@ GLProgram* RenderManager::_DirectionalLightInstancedProgram;
 GLProgram* RenderManager::_DirectionalLightVFilterProgram;
 GLProgram* RenderManager::_DirectionalLightHFilterProgram;
 GLUBO* RenderManager::_ShadowCascadeInfoBlock;
-ShadowSettings RenderManager::_ShadowSettings;
+LightSettings RenderManager::_ShadowSettings;
 float RenderManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
 float RenderManager::_MaxShadowDistance = 500;
 size_t RenderManager::_DirectionalShadowMapResolution = 2048;
@@ -53,8 +53,10 @@ float RenderManager::_SSAOKernelRadius = 3.0f;
 float RenderManager::_SSAOKernelBias = 0.1;
 float RenderManager::_SSAOScale = 4.0;
 float RenderManager::_SSAOFactor = 1.0f;
-int RenderManager::_SSAOSampleSize = 64;
+int RenderManager::_SSAOSampleSize = 9;
 #pragma endregion
+
+std::unique_ptr<GLUBO> RenderManager::_KernelBlock;
 
 std::shared_ptr<GLProgram> RenderManager::_GBufferLightingPass;
 std::shared_ptr<RenderTarget> RenderManager::_GBuffer;
@@ -282,9 +284,25 @@ void RenderManager::RenderToMainCamera()
 
 void RenderManager::Init()
 {
+#pragma region Kernel Setup
+	std::vector<glm::vec4> uniformKernel;
+	std::vector<glm::vec4> gaussianKernel;
+	for (unsigned int i = 0; i < Default::ShaderIncludes::MaxKernelAmount; i++)
+	{
+		uniformKernel.emplace_back(glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f));
+		gaussianKernel.emplace_back(glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f));
+	}
+	_KernelBlock = std::make_unique<GLUBO>();
+	_KernelBlock->SetBase(5);
+	_KernelBlock->SetData(sizeof(glm::vec4) * uniformKernel.size() + sizeof(glm::vec4) * gaussianKernel.size(), NULL, GL_STATIC_DRAW);
+	_KernelBlock->SubData(0, sizeof(glm::vec4) * uniformKernel.size(), uniformKernel.data());
+	_KernelBlock->SubData(sizeof(glm::vec4) * uniformKernel.size(), sizeof(glm::vec4) * gaussianKernel.size(), gaussianKernel.data());
+
+#pragma endregion
+
 #pragma region Shadow
 	_ShadowCascadeInfoBlock = new GLUBO();
-	_ShadowCascadeInfoBlock->SetData(sizeof(ShadowSettings), nullptr, GL_DYNAMIC_DRAW);
+	_ShadowCascadeInfoBlock->SetData(sizeof(LightSettings), nullptr, GL_DYNAMIC_DRAW);
 	_ShadowCascadeInfoBlock->SetBase(4);
 
 #pragma region LightInfoBlocks
@@ -470,27 +488,6 @@ void RenderManager::Init()
 	ssaoBlurTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_SSAOBlur->SetTexture(ssaoBlurTex);
 
-	_SSAOGeometryPass->Bind();
-	// generate sample kernel
-	// ----------------------
-	std::vector<glm::vec3> ssaoKernel;
-	for (unsigned int i = 0; i < 64; ++i)
-	{
-		glm::vec3 sample(
-			glm::linearRand(-1.0f, 1.0f),
-			glm::linearRand(-1.0f, 1.0f),
-			glm::linearRand(0.0f, 1.0f)
-		);
-		sample = glm::normalize(sample);
-		sample *= glm::linearRand(0.0f, 1.0f);
-		float scale = float(i) / 64.0;
-
-		// scale samples s.t. they're more aligned to center of kernel
-		scale = Lerp(0.1f, 1.0f, scale * scale);
-		sample *= scale;
-		ssaoKernel.push_back(sample);
-		_SSAOGeometryPass->SetFloat3("samples[" + std::to_string(i) + "]", sample);
-	}
 	
 	// generate noise texture
 	// ----------------------
@@ -531,7 +528,7 @@ void UniEngine::RenderManager::Start()
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;
 
-	_ShadowCascadeInfoBlock->SubData(0, sizeof(ShadowSettings), &_ShadowSettings);
+	_ShadowCascadeInfoBlock->SubData(0, sizeof(LightSettings), &_ShadowSettings);
 
 
 	//1.	利用EntityManager找到场景内所有Light instance。
@@ -882,15 +879,15 @@ void UniEngine::RenderManager::SetDirectionalLightResolution(size_t value)
 	if(_DirectionalLightShadowMap != nullptr)_DirectionalLightShadowMap->SetResolution(value);
 }
 
-void UniEngine::RenderManager::SetShadowMode(ShadowMode value)
+void UniEngine::RenderManager::SetPCSSPCFSampleAmount(int value)
 {
-	_ShadowSettings.SoftShadowMode = (int)value;
+	_ShadowSettings.PCSSPCFSampleAmount = glm::clamp(value, 0, 16);
 }
 
 
-void UniEngine::RenderManager::SetEnableSplitDisplay(bool value)
+void UniEngine::RenderManager::SetPCSSBSAmount(int value)
 {
-	_ShadowSettings.DisplaySplit = value ? 1.0f : 0.0f;
+	_ShadowSettings.PCSSBSAmount = glm::clamp(value, 0, 16);
 }
 
 void UniEngine::RenderManager::SetStableFit(bool value)

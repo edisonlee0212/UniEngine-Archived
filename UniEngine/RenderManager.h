@@ -18,17 +18,11 @@
 
 
 namespace UniEngine {
-	enum class UNIENGINE_API ShadowMode {
-		PCF,
-		PCSS,
-		HARD
-	};
-
-	struct UNIENGINE_API ShadowSettings {
+	struct UNIENGINE_API LightSettings {
 		float SplitDistance[4];
-		int SoftShadowMode = (int)ShadowMode::PCSS;
+		int PCSSPCFSampleAmount = 16;
 		float PCSSScaleFactor = 0.0f;
-		float DisplaySplit = 0.0f;
+		int PCSSBSAmount = 9;
 		float SeamFixRatio = 0.05f;
 		float VSMMaxVariance = 0.001f;
 		float LightBleedFactor = 0.5f;
@@ -38,6 +32,8 @@ namespace UniEngine {
 	
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
+		static std::unique_ptr<GLUBO> _KernelBlock;
+		
 		friend class RenderSystem;
 		static std::shared_ptr<GLProgram> _GBufferLightingPass;
 		static std::shared_ptr<RenderTarget> _GBuffer;
@@ -88,7 +84,7 @@ namespace UniEngine {
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
 		static size_t _DirectionalShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
-		static ShadowSettings _ShadowSettings;
+		static LightSettings _ShadowSettings;
 
 		static DirectionalLight _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 		static PointLight _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
@@ -128,8 +124,8 @@ namespace UniEngine {
 #pragma region Shadow
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetDirectionalLightResolution(size_t value);
-		static void SetShadowMode(ShadowMode value);
-		static void SetEnableSplitDisplay(bool value);
+		static void SetPCSSPCFSampleAmount(int value);
+		static void SetPCSSBSAmount(int value);
 		static void SetStableFit(bool value);
 		static void SetSeamFixRatio(float value);
 		static void SetMaxShadowDistance(float value);

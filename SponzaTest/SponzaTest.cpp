@@ -24,7 +24,7 @@ float ssaobias = 0.025f;
 float ssaoradius = 3.0f;
 float ssaoscale = 4.0f;
 float ssaofactor = 1.0f;
-int ssaoSampleSize = 64;
+int ssaoSampleSize = 4;
 enum TestScene {
 	NANOSUIT,
 	BACKPACK,
@@ -41,8 +41,6 @@ int main()
 	RenderManager::SetStableFit(false);
 	RenderManager::SetSeamFixRatio(0.05f);
 	RenderManager::SetMaxShadowDistance(500);
-	RenderManager::SetVSMMaxVariance(0.001f);
-	RenderManager::SetEVSMExponent(80.0f);
 	RenderManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 #pragma endregion
 	Application::Init();
@@ -281,7 +279,7 @@ void SplitDisplay() {
 	std::string text = std::string(_DisplaySplit ? "Disable" : "Enable");
 	if (ImGui::Button(text.c_str())) {
 		_DisplaySplit = !_DisplaySplit;
-		RenderManager::SetEnableSplitDisplay(_DisplaySplit);
+		RenderManager::SetPCSSBSAmount(_DisplaySplit);
 	}
 	ImGui::End();
 }
