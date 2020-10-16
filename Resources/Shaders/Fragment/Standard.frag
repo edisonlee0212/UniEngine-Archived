@@ -14,7 +14,7 @@ vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, Directio
 vec3 CalcPointLight(float shininess, vec3 albedo, float specular, PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
-float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec4 fragPosLightSpace, vec3 normal);
+float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight light, vec3 fragPos, vec3 normal);
 float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 normal);
 
 void main()
