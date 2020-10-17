@@ -43,6 +43,7 @@ namespace UniEngine {
 		{
 			_Shininess = 32.0f;
 		}
+		void OnGui();
 		void SetShininess(float value);
 		void SetMaterialProperty(const std::string& name, float value);
 		void SetMaterialProperty(const std::string& name, glm::mat4 value);

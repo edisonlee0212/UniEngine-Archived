@@ -2,16 +2,6 @@
 #include "Cubemap.h"
 #include <stb_image.h>
 
-UniEngine::Cubemap::Cubemap()
-{
-	_Texture = nullptr;
-}
-
-UniEngine::Cubemap::~Cubemap()
-{
-    if (_Texture != nullptr) delete _Texture;
-}
-
 void UniEngine::Cubemap::LoadCubeMap(std::vector<std::string> paths)
 {
 	_Paths = paths;
@@ -21,10 +11,9 @@ void UniEngine::Cubemap::LoadCubeMap(std::vector<std::string> paths)
         Debug::Error("Texture::LoadCubeMap: Size error.");
         return;
     }
-    delete _Texture;
     unsigned char* temp = stbi_load(_Paths[0].c_str(), &width, &height, &nrComponents, 0);
     stbi_image_free(temp);
-    _Texture = new GLTextureCubeMap(1, GL_RGB, width, height, false);
+    _Texture = std::make_unique<GLTextureCubeMap>(1, GL_RGB, width, height, false);
     for (int i = 0; i < size; i++)
     {
         unsigned char* data = stbi_load(_Paths[i].c_str(), &width, &height, &nrComponents, 0);

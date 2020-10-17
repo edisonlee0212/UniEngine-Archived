@@ -6,7 +6,7 @@ namespace UniEngine {
 	{
 		bool _Bound;
 	protected:
-		GLFrameBuffer* _FrameBuffer;
+		std::unique_ptr<GLFrameBuffer> _FrameBuffer;
 		size_t _ResolutionX;
 		size_t _ResolutionY;
 	public:
@@ -21,7 +21,7 @@ namespace UniEngine {
 		void Bind();
 		void Clear();
 
-		GLFrameBuffer* GetFrameBuffer() const
+		std::unique_ptr<GLFrameBuffer>& GetFrameBuffer()
 		{
 			return _FrameBuffer;
 		}

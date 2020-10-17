@@ -8,10 +8,10 @@ namespace UniEngine {
 	class UNIENGINE_API PointLightShadowMap :
 		public RenderTarget
 	{
-		GLTextureCubeMapArray* _DepthCubeMapArray;
+		std::unique_ptr<GLTextureCubeMapArray> _DepthCubeMapArray;
 	public:
 		PointLightShadowMap(size_t amount, size_t resolutionX = 2048, size_t resolutionY = 2048);
-		GLTextureCubeMapArray* DepthCubeMapArray();
+		std::unique_ptr<GLTextureCubeMapArray>& DepthCubeMapArray();
 		void Bind();
 	};
 

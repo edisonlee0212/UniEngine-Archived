@@ -45,13 +45,13 @@ size_t RenderManager::_Triangles;
 
 #pragma region SSAO
 bool RenderManager::_EnableSSAO;
-std::shared_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
-std::shared_ptr<GLProgram> RenderManager::_SSAOBlurPass;
-std::shared_ptr<RenderTarget> RenderManager::_SSAO;
-std::shared_ptr<Texture2D> RenderManager::_SSAOColor;
-std::shared_ptr<Texture2D> RenderManager::_SSAOBlur;
-std::shared_ptr<RenderTarget> RenderManager::_SSAOBlurFilter;
-std::shared_ptr<Texture2D> RenderManager::_SSAONoise;
+std::unique_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
+std::unique_ptr<GLProgram> RenderManager::_SSAOBlurPass;
+std::unique_ptr<RenderTarget> RenderManager::_SSAO;
+std::unique_ptr<GLTexture2D> RenderManager::_SSAOColor;
+std::unique_ptr<GLTexture2D> RenderManager::_SSAOBlur;
+std::unique_ptr<RenderTarget> RenderManager::_SSAOBlurFilter;
+std::unique_ptr<GLTexture2D> RenderManager::_SSAONoise;
 float RenderManager::_SSAOKernelRadius = 3.0f;
 float RenderManager::_SSAOKernelBias = 0.1;
 float RenderManager::_SSAOScale = 4.0;
@@ -61,12 +61,12 @@ int RenderManager::_SSAOSampleSize = 9;
 
 std::unique_ptr<GLUBO> RenderManager::_KernelBlock;
 
-std::shared_ptr<GLProgram> RenderManager::_GBufferLightingPass;
-std::shared_ptr<RenderTarget> RenderManager::_GBuffer;
-std::shared_ptr<GLRenderBuffer> RenderManager::_GDepthBuffer;
-std::shared_ptr<Texture2D> RenderManager::_GPositionBuffer;
-std::shared_ptr<Texture2D> RenderManager::_GNormalBuffer;
-std::shared_ptr<Texture2D> RenderManager::_GColorSpecularBuffer;
+std::unique_ptr<GLProgram> RenderManager::_GBufferLightingPass;
+std::unique_ptr<RenderTarget> RenderManager::_GBuffer;
+std::unique_ptr<GLRenderBuffer> RenderManager::_GDepthBuffer;
+std::unique_ptr<GLTexture2D> RenderManager::_GPositionBuffer;
+std::unique_ptr<GLTexture2D> RenderManager::_GNormalBuffer;
+std::unique_ptr<GLTexture2D> RenderManager::_GColorSpecularBuffer;
 
 float RenderManager::Lerp(float a, float b, float f)
 {
@@ -109,22 +109,22 @@ void RenderManager::ResizeResolution(int x, int y)
 	const auto originalResolution = _GBuffer->GetResolution();
 	if (static_cast<int>(originalResolution.x) == x && static_cast<int>(originalResolution.y) == y) return;
 	_GBuffer->SetResolution(x, y);
-	_GPositionBuffer->Texture()->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
-	_GNormalBuffer->Texture()->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
-	_GColorSpecularBuffer->Texture()->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
+	_GPositionBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
+	_GNormalBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
+	_GColorSpecularBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
 	_GDepthBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, x, y);
 
 	_GBuffer->AttachRenderBuffer(_GDepthBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
-	_GBuffer->AttachTexture(_GPositionBuffer->Texture(), GL_COLOR_ATTACHMENT0);
-	_GBuffer->AttachTexture(_GNormalBuffer->Texture(), GL_COLOR_ATTACHMENT1);
-	_GBuffer->AttachTexture(_GColorSpecularBuffer->Texture(), GL_COLOR_ATTACHMENT2);
+	_GBuffer->AttachTexture(_GPositionBuffer.get(), GL_COLOR_ATTACHMENT0);
+	_GBuffer->AttachTexture(_GNormalBuffer.get(), GL_COLOR_ATTACHMENT1);
+	_GBuffer->AttachTexture(_GColorSpecularBuffer.get(), GL_COLOR_ATTACHMENT2);
 
 	_SSAO->SetResolution(x, y);
 	_SSAOBlurFilter->SetResolution(x, y);
-	_SSAOColor->Texture()->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
-	_SSAOBlur->Texture()->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
-	_SSAO->AttachTexture(_SSAOColor->Texture(), GL_COLOR_ATTACHMENT0);
-	_SSAOBlurFilter->AttachTexture(_SSAOBlur->Texture(), GL_COLOR_ATTACHMENT0);
+	_SSAOColor->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+	_SSAOBlur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+	_SSAO->AttachTexture(_SSAOColor.get(), GL_COLOR_ATTACHMENT0);
+	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
 }
 
 void RenderManager::RenderToMainCamera()
@@ -228,9 +228,9 @@ void RenderManager::RenderToMainCamera()
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		_SSAOGeometryPass->Bind();
-		_GPositionBuffer->Texture()->Bind(3);
-		_GNormalBuffer->Texture()->Bind(4);
-		_SSAONoise->Texture()->Bind(5);
+		_GPositionBuffer->Bind(3);
+		_GNormalBuffer->Bind(4);
+		_SSAONoise->Bind(5);
 		_SSAOGeometryPass->SetFloat("radius", _SSAOKernelRadius);
 		_SSAOGeometryPass->SetFloat("bias", _SSAOKernelBias);
 		_SSAOGeometryPass->SetFloat("factor", _SSAOFactor);
@@ -244,7 +244,7 @@ void RenderManager::RenderToMainCamera()
 		_SSAOBlurFilter->Bind();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		_SSAOColor->Texture()->Bind(0);
+		_SSAOColor->Bind(0);
 		_SSAOBlurPass->SetInt("ssaoInput", 0);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
@@ -252,16 +252,16 @@ void RenderManager::RenderToMainCamera()
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_GBufferLightingPass->Bind();
-	_GPositionBuffer->Texture()->Bind(3);
-	_GNormalBuffer->Texture()->Bind(4);
-	_GColorSpecularBuffer->Texture()->Bind(5);
+	_GPositionBuffer->Bind(3);
+	_GNormalBuffer->Bind(4);
+	_GColorSpecularBuffer->Bind(5);
 	_GBufferLightingPass->SetBool("receiveShadow", true);
 	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
 	_GBufferLightingPass->SetBool("enableSSAO", _EnableSSAO);
 	if(_EnableSSAO)
 	{
-		_SSAOBlur->Texture()->Bind(6);
+		_SSAOBlur->Bind(6);
 		_GBufferLightingPass->SetInt("ssao", 6);
 	}
 	_GBufferLightingPass->SetInt("directionalShadowMap", 0);
@@ -393,7 +393,7 @@ void RenderManager::Init()
 	_DLVSMVFilter->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	_DLVSMVFilter->SetFloat4(GL_TEXTURE_BORDER_COLOR, borderColor);
 	_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-	_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
+	_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray().get(), GL_COLOR_ATTACHMENT1);
 #pragma endregion
 #pragma region PointLight
 	_PointLightShadowMap = new PointLightShadowMap(Default::ShaderIncludes::MaxPointLightAmount);
@@ -431,32 +431,26 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString("Shaders/Fragment/DeferredLighting.frag");
 
-	_GBufferLightingPass = std::make_shared<GLProgram>(
+	_GBufferLightingPass = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
 		);
 
-	_GBuffer = std::make_shared<RenderTarget>(0, 0);
+	_GBuffer = std::make_unique<RenderTarget>(0, 0);
 
-	_GDepthBuffer = std::make_shared<GLRenderBuffer>();
+	_GDepthBuffer = std::make_unique<GLRenderBuffer>();
 
-	_GPositionBuffer = std::make_shared<Texture2D>(TextureType::NONE);
-	auto gPositionTex = new GLTexture2D(0, GL_RGBA32F, 0, 0, false);
-	gPositionTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	gPositionTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_GPositionBuffer->SetTexture(gPositionTex);
+	_GPositionBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
+	_GPositionBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_GPositionBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	_GNormalBuffer = std::make_shared<Texture2D>(TextureType::NONE);
-	auto gNormalTex = new GLTexture2D(0, GL_RGBA32F, 0, 0, false);
-	gNormalTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	gNormalTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_GNormalBuffer->SetTexture(gNormalTex);
+	_GNormalBuffer = std::make_unique <GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
+	_GNormalBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_GNormalBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	_GColorSpecularBuffer = std::make_shared<Texture2D>(TextureType::NONE);
-	auto gColSpecTex = new GLTexture2D(0, GL_RGBA32F, 0, 0, false);
-	gColSpecTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	gColSpecTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_GColorSpecularBuffer->SetTexture(gColSpecTex);
+	_GColorSpecularBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
+	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	
 	
@@ -469,7 +463,7 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString("Shaders/Fragment/SSAOGeometry.frag");
 
-	_SSAOGeometryPass = std::make_shared<GLProgram>(
+	_SSAOGeometryPass = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
 		);
@@ -479,24 +473,20 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString("Shaders/Fragment/SSAOBlur.frag");
 
-	_SSAOBlurPass = std::make_shared<GLProgram>(
+	_SSAOBlurPass = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
 		);
 	
-	_SSAO = std::make_shared<RenderTarget>(0, 0);
-	_SSAOColor = std::make_shared<Texture2D>(TextureType::NONE);
-	auto ssaoColorTex = new GLTexture2D(0, GL_R32F, 0, 0, false);
-	ssaoColorTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	ssaoColorTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_SSAOColor->SetTexture(ssaoColorTex);
+	_SSAO = std::make_unique<RenderTarget>(0, 0);
+	_SSAOColor = std::make_unique<GLTexture2D>(0, GL_R32F, 0, 0, false);
+	_SSAOColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_SSAOColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
-	_SSAOBlurFilter = std::make_shared<RenderTarget>();
-	_SSAOBlur = std::make_shared<Texture2D>(TextureType::NONE);
-	auto ssaoBlurTex = new GLTexture2D(0, GL_R32F, 0, 0, false);
-	ssaoBlurTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	ssaoBlurTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_SSAOBlur->SetTexture(ssaoBlurTex);
+	_SSAOBlurFilter = std::make_unique<RenderTarget>();
+	_SSAOBlur = std::make_unique<GLTexture2D>(0, GL_R32F, 0, 0, false);
+	_SSAOBlur->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_SSAOBlur->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	
 	// generate noise texture
@@ -507,12 +497,10 @@ void RenderManager::Init()
 		glm::vec3 noise(glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f), 0.0f); // rotate around z-axis (in tangent space)
 		ssaoNoise.push_back(noise);
 	}
-	_SSAONoise = std::make_shared<Texture2D>(TextureType::NONE);
-	auto ssaoNoiseTex = new GLTexture2D(0, GL_RGBA32F, 0, 0, false);
-	ssaoNoiseTex->ReSize(0, GL_RGBA32F, GL_RGB, GL_FLOAT, ssaoNoise.data(), 4, 4);
-	ssaoNoiseTex->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	ssaoNoiseTex->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_SSAONoise->SetTexture(ssaoNoiseTex);
+	_SSAONoise = std::make_unique<GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
+	_SSAONoise->ReSize(0, GL_RGBA32F, GL_RGB, GL_FLOAT, ssaoNoise.data(), 4, 4);
+	_SSAONoise->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_SSAONoise->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
 	_EnableSSAO = true;
 	
@@ -1252,7 +1240,7 @@ void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, fl
 void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
 {
 	target->Bind();
-	DrawTexture2D(texture->Texture(), depth, center, size);
+	DrawTexture2D(texture->Texture().get(), depth, center, size);
 }
 #pragma endregion
 #pragma region Gizmo

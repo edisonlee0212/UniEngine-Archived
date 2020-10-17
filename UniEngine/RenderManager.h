@@ -35,21 +35,21 @@ namespace UniEngine {
 		static std::unique_ptr<GLUBO> _KernelBlock;
 		
 		friend class RenderSystem;
-		static std::shared_ptr<GLProgram> _GBufferLightingPass;
-		static std::shared_ptr<RenderTarget> _GBuffer;
-		static std::shared_ptr<GLRenderBuffer> _GDepthBuffer;
-		static std::shared_ptr<Texture2D> _GPositionBuffer;
-		static std::shared_ptr<Texture2D> _GNormalBuffer;
-		static std::shared_ptr<Texture2D> _GColorSpecularBuffer;
+		static std::unique_ptr<GLProgram> _GBufferLightingPass;
+		static std::unique_ptr<RenderTarget> _GBuffer;
+		static std::unique_ptr<GLRenderBuffer> _GDepthBuffer;
+		static std::unique_ptr<GLTexture2D> _GPositionBuffer;
+		static std::unique_ptr<GLTexture2D> _GNormalBuffer;
+		static std::unique_ptr<GLTexture2D> _GColorSpecularBuffer;
 #pragma region SSAO
 		static bool _EnableSSAO;
-		static std::shared_ptr<GLProgram> _SSAOGeometryPass;
-		static std::shared_ptr<GLProgram> _SSAOBlurPass;
-		static std::shared_ptr<RenderTarget> _SSAO;
-		static std::shared_ptr<Texture2D> _SSAOColor;
-		static std::shared_ptr<Texture2D> _SSAOBlur;
-		static std::shared_ptr<RenderTarget> _SSAOBlurFilter;
-		static std::shared_ptr<Texture2D> _SSAONoise;
+		static std::unique_ptr<GLProgram> _SSAOGeometryPass;
+		static std::unique_ptr<GLProgram> _SSAOBlurPass;
+		static std::unique_ptr<RenderTarget> _SSAO;
+		static std::unique_ptr<GLTexture2D> _SSAOColor;
+		static std::unique_ptr<GLTexture2D> _SSAOBlur;
+		static std::unique_ptr<RenderTarget> _SSAOBlurFilter;
+		static std::unique_ptr<GLTexture2D> _SSAONoise;
 		static float _SSAOKernelRadius;
 		static float _SSAOKernelBias;
 		static float _SSAOScale;

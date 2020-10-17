@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "Mesh.h"
 using namespace UniEngine;
+
+void Mesh::OnGui()
+{
+	ImGui::Text(("Name" + _Name).c_str());
+}
+
 glm::vec3 UniEngine::Mesh::GetCenter()
 {
 	return _Bound.Center;
@@ -15,14 +21,10 @@ float UniEngine::Mesh::GetRadius()
 }
 UniEngine::Mesh::Mesh()
 {
-	_VAO = new GLVAO();
+	_VAO = std::make_shared<GLVAO>();
 	_IndicesSize = 0;
 	_Bound = Bound();
-}
-
-UniEngine::Mesh::~Mesh()
-{
-	delete _VAO;
+	_Name = "Unnamed";
 }
 
 void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store)
@@ -332,8 +334,7 @@ void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vec
 }
 
 
-
-GLVAO* UniEngine::Mesh::VAO()
+std::shared_ptr<GLVAO> UniEngine::Mesh::VAO()
 {
 	return _VAO;
 }
@@ -343,16 +344,14 @@ void UniEngine::Mesh::Enable()
 	_VAO->Bind();
 }
 
-std::vector<Vertex>* Mesh::GetVerticesUnsafe()
+std::vector<Vertex>& Mesh::GetVerticesUnsafe()
 {
-	if (_LocalStored) return &_Vertices;
-	else return nullptr;
+	return _Vertices;
 }
 
-std::vector<unsigned>* Mesh::GetIndicesUnsafe()
+std::vector<unsigned>& Mesh::GetIndicesUnsafe()
 {
-	if (_LocalStored) return &_Indices;
-	else return nullptr;
+	return _Indices;
 }
 
 void Mesh::LoadBin(std::string& fileName)

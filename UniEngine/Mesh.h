@@ -34,7 +34,7 @@ namespace UniEngine {
 
 	class UNIENGINE_API Mesh
 	{
-		GLVAO* _VAO;
+		std::shared_ptr<GLVAO> _VAO;
 		size_t _VerticesSize;
 		size_t _IndicesSize;
 		unsigned _Mask;
@@ -43,21 +43,22 @@ namespace UniEngine {
 		bool _LocalStored;
 		std::vector<Vertex> _Vertices;
 		std::vector<unsigned> _Indices;
+		std::string _Name;
 	public:
+		void OnGui();
 		glm::vec3 GetCenter();
 		Bound GetBound();
 		float GetRadius();
 		Mesh();
-		~Mesh();
 		void SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store = false);
 		size_t GetVerticesAmount();
 		size_t Size();
 		void RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
 		void RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
-		GLVAO* VAO();
+		std::shared_ptr<GLVAO> VAO();
 		void Enable();
-		std::vector<Vertex>* GetVerticesUnsafe();
-		std::vector<unsigned>* GetIndicesUnsafe();
+		std::vector<Vertex>& GetVerticesUnsafe();
+		std::vector<unsigned>& GetIndicesUnsafe();
 		void LoadBin(std::string& fileName);
 	};
 }

@@ -6,7 +6,7 @@ using namespace UniEngine;
 UniEngine::RenderTarget::RenderTarget()
 {
 	_Bound = false;
-	_FrameBuffer = new GLFrameBuffer();
+	_FrameBuffer = std::make_unique<GLFrameBuffer>();
 	_ResolutionX = 0;
 	_ResolutionY = 0;
 }
@@ -14,7 +14,7 @@ UniEngine::RenderTarget::RenderTarget()
 UniEngine::RenderTarget::RenderTarget(size_t width, size_t height)
 {
 	_Bound = false;
-	_FrameBuffer = new GLFrameBuffer();
+	_FrameBuffer = std::make_unique<GLFrameBuffer>();
 	_ResolutionX = width;
 	_ResolutionY = height;
 }

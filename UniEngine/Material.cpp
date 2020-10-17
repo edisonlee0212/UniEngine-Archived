@@ -2,6 +2,11 @@
 #include "Material.h"
 using namespace UniEngine;
 
+void Material::OnGui()
+{
+	if(_DiffuseMap) ImGui::Image((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(500, 500));
+}
+
 void Material::SetShininess(float value)
 {
 	_Shininess = value;

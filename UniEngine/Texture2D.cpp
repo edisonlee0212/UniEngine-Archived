@@ -5,20 +5,9 @@
 using namespace UniEngine;
 UniEngine::Texture2D::Texture2D(TextureType type) : _Type(type)
 {
-    _Texture = nullptr;
 }
 
-UniEngine::Texture2D::~Texture2D()
-{
-    if(_Texture != nullptr) delete _Texture;
-}
-
-void Texture2D::SetTexture(GLTexture2D* value)
-{
-    _Texture = value;
-}
-
-GLTexture2D* UniEngine::Texture2D::Texture()
+std::unique_ptr<GLTexture2D>& UniEngine::Texture2D::Texture()
 {
 	return _Texture;
 }
@@ -53,7 +42,7 @@ void UniEngine::Texture2D::LoadTexture(std::string path, const std::string& dire
             format = GL_RGBA;
             iformat = GL_RGBA8;
         }
-        _Texture = new GLTexture2D(1, iformat, width, height, false);
+        _Texture = std::make_unique<GLTexture2D>(1, iformat, width, height, false);
         _Texture->SetData(0, iformat, format, GL_UNSIGNED_BYTE, data);
         _Texture->GenerateMipMap();
 
