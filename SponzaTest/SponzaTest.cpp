@@ -293,9 +293,22 @@ void InitGround() {
 	*/
 	auto mat = std::make_shared<Material>();
 	mat->SetProgram(Default::GLPrograms::DeferredPrepass);
+	/*
 	auto texture = std::make_shared<Texture2D>(TextureType::DIFFUSE);
 	texture->LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), "");
 	mat->SetTexture(texture);
+	*/
+	auto textureD = std::make_shared<Texture2D>(TextureType::DIFFUSE);
+	textureD->LoadTexture(FileIO::GetResourcePath("Textures/bricks2.jpg"), "");
+	mat->SetTexture(textureD);
+	auto textureN = std::make_shared<Texture2D>(TextureType::NORMAL);
+	textureN->LoadTexture(FileIO::GetResourcePath("Textures/bricks2_normal.jpg"), "");
+	mat->SetTexture(textureN);
+	auto textureH = std::make_shared<Texture2D>(TextureType::HEIGHT);
+	textureH->LoadTexture(FileIO::GetResourcePath("Textures/bricks2_disp.jpg"), "");
+	mat->SetTexture(textureH);
+
+	
 	mat->SetShininess(32.0f);
 	auto meshMaterial = std::make_shared<MeshRenderer>();
 	meshMaterial->Mesh = Default::Primitives::Quad;

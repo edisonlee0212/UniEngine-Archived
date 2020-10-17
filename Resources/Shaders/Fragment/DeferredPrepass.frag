@@ -9,9 +9,9 @@ in VS_OUT {
 	vec2 TexCoords;
 } fs_in;
 
-uniform float heightScale;
+float heightScale = 0.05;
 
-vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
+vec3 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
     // number of depth layers
     const float minLayers = 8;
@@ -50,7 +50,7 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
     float weight = afterDepth / (afterDepth - beforeDepth);
     vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
 
-    return finalTexCoords;
+    return vec3(finalTexCoords, currentLayerDepth * 10);
 }
 
 void main()
@@ -59,23 +59,30 @@ void main()
 	mat3 TBN = mat3(fs_in.Tangent, B, fs_in.Normal);
 
     vec2 texCoords = fs_in.TexCoords;
-    if(enableParallaxMapping){
-        texCoords = ParallaxMapping(fs_in.TexCoords, (TBN * CameraPosition - TBN * fs_in.FragPos));
-    }
+    float depth = 0.0;
+
+    //if(enableParallaxMapping){
+    //    vec3 viewDir = reflect(normalize(CameraPosition - fs_in.FragPos), fs_in.Normal);
+    //    vec3 result = ParallaxMapping(texCoords, normalize(TBN * viewDir));
+    //    depth = result.z / heightScale;
+    //    texCoords = result.xy;
+    //}
+
+    vec3 normal = fs_in.Normal;
+	if(enableNormalMapping){
+		normal = texture(TEXTURE_NORMAL0, fs_in.TexCoords).rgb;
+		normal = normal * 2.0 - 1.0;   
+		normal = normalize(TBN * normal); 
+	}
 
 	vec4 albedo = texture(TEXTURE_DIFFUSE0, texCoords).rgba;
 	if(albedo.a < 0.5)
         discard;
     // store the fragment position vector in the first gbuffer texture
-    gPosition.rgb = fs_in.FragPos;
+    gPosition.rgb = fs_in.FragPos - (depth * fs_in.Normal);
 	gPosition.a = 1.0;
 
-    vec3 normal = fs_in.Normal;
-	if(enableNormalMapping){
-		normal = texture(TEXTURE_NORMAL0, texCoords).rgb;
-		normal = normal * 2.0 - 1.0;   
-		normal = normalize(TBN * normal); 
-	}
+    
     
     // also store the per-fragment normals into the gbuffer
     gNormal.rgb = (gl_FrontFacing ? 1.0 : -1.0) * normalize(normal);
