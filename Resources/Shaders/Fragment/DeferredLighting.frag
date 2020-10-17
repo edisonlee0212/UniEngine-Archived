@@ -225,12 +225,10 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	{
 		//vec2 texCoord = projCoords.xy + UniformKernel[i % MAX_KERNEL_AMOUNT].xy * texelSize;
 		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * texelSize;
-		float cloestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
-		if(cloestDepth == 0) continue;
-		shadow += projCoords.z < cloestDepth ? 1.0 : 0.0;
-		shadowCount++;
+		float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
+		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
 	}
-	shadow /= shadowCount;
+	shadow /= sampleAmount;
 	return shadow;
 }
 

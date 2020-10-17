@@ -994,10 +994,10 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 	{
 		material->_HeightMap->Texture()->Bind(6);
 		program->SetInt("TEXTURE_HEIGHT0", 6);
-		program->SetBool("enableNormalMapping", true);
+		program->SetBool("enableParallaxMapping", true);
 	}else
 	{
-		program->SetBool("enableHeightMapping", false);
+		program->SetBool("enableParallaxMapping", false);
 	}
 }
 

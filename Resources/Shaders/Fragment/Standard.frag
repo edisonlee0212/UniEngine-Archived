@@ -3,7 +3,7 @@ out vec4 FragColor;
 in VS_OUT {
 	vec3 FragPos;
 	vec3 Normal;
-	mat3 TBN;
+	vec3 Tangent;
 	vec2 TexCoords;
 } fs_in;
 
@@ -27,13 +27,13 @@ void main()
 		specular *= texture(TEXTURE_SPECULAR0, fs_in.TexCoords).r;
 	}
 	// properties
-	vec3 normal;
+	vec3 normal = fs_in.Normal;
 	if(enableNormalMapping){
+		vec3 B = cross(fs_in.Normal, fs_in.Tangent);
+		mat3 TBN = mat3(fs_in.Tangent, B, fs_in.Normal);
 		normal = texture(TEXTURE_NORMAL0, fs_in.TexCoords).rgb;
 		normal = normal * 2.0 - 1.0;   
-		normal = normalize(fs_in.TBN * normal); 
-	}else{
-		normal = fs_in.Normal;
+		normal = normalize(TBN * normal); 
 	}
 	
 	vec3 viewDir = normalize(CameraPosition - fs_in.FragPos);

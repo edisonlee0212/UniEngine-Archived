@@ -94,6 +94,7 @@ struct Material{
 uniform Material material;
 uniform bool enableSpecularMapping;
 uniform bool enableNormalMapping;
+uniform bool enableParallaxMapping;
 //Textures
 uniform sampler2D TEXTURE_DIFFUSE0;
 uniform sampler2D TEXTURE_SPECULAR0;
