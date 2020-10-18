@@ -63,9 +63,9 @@ int main()
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
-		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
+		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
 		backpack->Name = "Nanosuit";
-		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		Entity backpackEntity = AssetManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Nanosuit");
 		Translation bpp;
 		bpp.Value = glm::vec3(0, 5, 0);
@@ -75,9 +75,9 @@ int main()
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == BACKPACK) {
-		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::DeferredPrepass);
+		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::DeferredPrepass);
 		backpack->Name = "Backpack";
-		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		Entity backpackEntity = AssetManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Backpack");
 		Translation bpp;
 		bpp.Value = glm::vec3(0, 10, 0);
@@ -88,9 +88,9 @@ int main()
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
-		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::DeferredPrepass);
+		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::DeferredPrepass);
 		backpack->Name = "Sponza Scene";
-		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
+		Entity backpackEntity = AssetManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformSystem & ParentSystem
@@ -183,7 +183,7 @@ int main()
 	while (loopable) {
 		Application::PreUpdate();
 		LightSettingMenu();
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 
 #pragma region LightsPosition		
 		Translation p;
@@ -256,8 +256,7 @@ void InitGround() {
 	auto mat = std::make_shared<Material>();
 	mat->SetProgram(Default::GLPrograms::DeferredPrepass);
 	
-	auto texture = std::make_shared<Texture2D>(TextureType::DIFFUSE);
-	texture->LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), "");
+	auto texture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), TextureType::DIFFUSE);
 	mat->SetTexture(texture);
 	/*
 	auto textureD = std::make_shared<Texture2D>(TextureType::DIFFUSE);

@@ -30,11 +30,12 @@ namespace UniEngine {
         TextureType _Type;
         std::unique_ptr<GLTexture2D> _Texture;
         std::string _Path;
+        friend class AssetManager;
     public:
+        std::string Name;
         Texture2D(TextureType type);
         std::unique_ptr<GLTexture2D>& Texture();
         TextureType Type();
-        void LoadTexture(std::string path, const std::string& directory);
         std::string Path();
 	};
 }

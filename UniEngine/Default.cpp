@@ -2,7 +2,7 @@
 #include "Default.h"
 #include "World.h"
 #include "MeshRenderer.h"
-#include "ModelManager.h"
+#include "AssetManager.h"
 #include "RenderManager.h"
 using namespace UniEngine;
 
@@ -23,6 +23,7 @@ std::string* Default::ShaderIncludes::Uniform;
 
 std::shared_ptr<Texture2D> Default::Textures::MissingTexture;
 std::shared_ptr<Texture2D> Default::Textures::UV;
+std::shared_ptr<Texture2D> Default::Textures::ObjectIcon;
 std::shared_ptr<Texture2D> Default::Textures::StandardTexture;
 std::shared_ptr<Cubemap> Default::Textures::DefaultSkybox;
 
@@ -163,12 +164,10 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 
 #pragma region Textures
-	Textures::MissingTexture = std::make_shared<Texture2D>(TextureType::DIFFUSE);
-	Textures::MissingTexture->LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"), "");
-	Textures::UV = std::make_shared<Texture2D>(TextureType::DIFFUSE);
-	Textures::UV->LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"), "");
-	Textures::StandardTexture = std::make_shared<Texture2D>(TextureType::DIFFUSE);
-	Textures::StandardTexture->LoadTexture(FileIO::GetResourcePath("Textures/white.png"), "");
+	Textures::MissingTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"), TextureType::DIFFUSE);
+	Textures::UV = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"), TextureType::DIFFUSE);
+	Textures::StandardTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/white.png"), TextureType::DIFFUSE);
+	Textures::ObjectIcon = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/object.png"), TextureType::DIFFUSE);
 #pragma endregion
 #pragma region Standard Shader
 	vertShaderCode = std::string("#version 460 core\n")
@@ -282,26 +281,26 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 
 #pragma region Models & Primitives
-	auto model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram);
+	auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram);
 	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	ModelManager::RemoveModel(0);
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram);
+	AssetManager::RemoveModel(0);
+	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram);
 	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	ModelManager::RemoveModel(0);
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram);
+	AssetManager::RemoveModel(0);
+	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram);
 	Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	ModelManager::RemoveModel(0);
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram);
+	AssetManager::RemoveModel(0);
+	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram);
 	Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	ModelManager::RemoveModel(0);
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram);
+	AssetManager::RemoveModel(0);
+	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram);
 	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	ModelManager::RemoveModel(0);
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
+	AssetManager::RemoveModel(0);
+	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
 	Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	ModelManager::RemoveModel(0);
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
+	AssetManager::RemoveModel(0);
+	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
 	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	ModelManager::RemoveModel(0);
+	AssetManager::RemoveModel(0);
 #pragma endregion
 }

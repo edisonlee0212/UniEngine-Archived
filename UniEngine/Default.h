@@ -42,6 +42,7 @@ namespace UniEngine {
 		public:
 			static std::shared_ptr<Texture2D> MissingTexture;
 			static std::shared_ptr<Texture2D> UV;
+			static std::shared_ptr<Texture2D> ObjectIcon;
 			static std::shared_ptr<Texture2D> StandardTexture;
 			static std::shared_ptr<Cubemap> DefaultSkybox;
 		};

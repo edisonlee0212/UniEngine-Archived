@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "TransformSystem.h"
-#include "ModelManager.h"
+#include "AssetManager.h"
 #include "MeshRenderer.h"
 #include <stb_image.h>
 
@@ -9,10 +9,13 @@
 #include "FileBrowser.h"
 
 using namespace UniEngine;
-bool ModelManager::_EnableListMenu;
-std::vector<std::shared_ptr<Model>> ModelManager::_Models;
-FileBrowser ModelManager::_FileBrowser;
-std::shared_ptr<Model> UniEngine::ModelManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma)
+bool AssetManager::_EnableAssetMenu = true;
+std::vector<std::shared_ptr<Model>> AssetManager::_Models;
+std::vector<std::shared_ptr<Texture2D>> AssetManager::_Texture2Ds;
+std::vector<std::shared_ptr<Cubemap>> AssetManager::_Cubemaps;
+
+FileBrowser AssetManager::_FileBrowser;
+std::shared_ptr<Model> UniEngine::AssetManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma)
 {
     stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
@@ -33,7 +36,7 @@ std::shared_ptr<Model> UniEngine::ModelManager::LoadModel(std::string const& pat
 	return retVal;
 }
 
-Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
+Entity UniEngine::AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
 {
     Entity entity = EntityManager::CreateEntity(archetype);
     LocalToWorld ltw;
@@ -49,7 +52,7 @@ Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, std::shared_
     return entity;
 }
 
-void ModelManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram> shader, ModelNode* modelNode, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiNode* node, const aiScene* scene)
+void AssetManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram> shader, ModelNode* modelNode, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiNode* node, const aiScene* scene)
 {
     for (unsigned i = 0; i < node->mNumMeshes; i++)
     {
@@ -73,7 +76,7 @@ void ModelManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram>
     }
 }
 
-void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
+void AssetManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
     unsigned mask = 1;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
@@ -183,6 +186,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     auto material = std::make_shared<Material>();
     float shininess;
     pointMaterial->Get(AI_MATKEY_SHININESS, shininess);
+    if (shininess == 0.0f) shininess = 32.0f;
     material->SetShininess(shininess);
     material->SetProgram(shader);
 	if(pointMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
@@ -192,7 +196,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         bool skip = false;
         for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
         {
-            if (std::strcmp(Texture2DsLoaded.at(j)->Path().c_str(), str.C_Str()) == 0)
+            if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
             {
                 material->SetTexture(Texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
@@ -201,11 +205,13 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            std::shared_ptr<Texture2D> texture2D = std::make_shared<Texture2D>(TextureType::DIFFUSE);
-            texture2D->LoadTexture(str.C_Str(), directory);
+            auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DIFFUSE);
             material->SetTexture(texture2D);
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
+	}else
+	{
+        material->SetTexture(Default::Textures::StandardTexture);
 	}
     if (pointMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
     {
@@ -214,7 +220,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         bool skip = false;
         for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
         {
-            if (std::strcmp(Texture2DsLoaded.at(j)->Path().c_str(), str.C_Str()) == 0)
+            if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
             {
                 material->SetTexture(Texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
@@ -223,8 +229,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            std::shared_ptr<Texture2D> texture2D = std::make_shared<Texture2D>(TextureType::SPECULAR);
-            texture2D->LoadTexture(str.C_Str(), directory);
+            auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::SPECULAR);
             material->SetTexture(texture2D);
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
@@ -236,7 +241,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         bool skip = false;
         for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
         {
-            if (std::strcmp(Texture2DsLoaded.at(j)->Path().c_str(), str.C_Str()) == 0)
+            if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
             {
                 material->SetTexture(Texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
@@ -245,20 +250,19 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            std::shared_ptr<Texture2D> texture2D = std::make_shared<Texture2D>(TextureType::NORMAL);
-            texture2D->LoadTexture(str.C_Str(), directory);
+            auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::NORMAL);
             material->SetTexture(texture2D);
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
     }
-    if (pointMaterial->GetTextureCount(aiTextureType_HEIGHT) > 1)
+    if (pointMaterial->GetTextureCount(aiTextureType_DISPLACEMENT) > 0)
     {
         aiString str;
-        pointMaterial->GetTexture(aiTextureType_HEIGHT, 1, &str);
+        pointMaterial->GetTexture(aiTextureType_DISPLACEMENT, 0, &str);
         bool skip = false;
         for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
         {
-            if (std::strcmp(Texture2DsLoaded.at(j)->Path().c_str(), str.C_Str()) == 0)
+            if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
             {
                 material->SetTexture(Texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
@@ -267,8 +271,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            std::shared_ptr<Texture2D> texture2D = std::make_shared<Texture2D>(TextureType::HEIGHT);
-            texture2D->LoadTexture(str.C_Str(), directory);
+            auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DISPLACEMENT);
             material->SetTexture(texture2D);
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
@@ -279,7 +282,7 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     modelNode->_MeshMaterialComponents.push_back(mmc);
 }
 
-void UniEngine::ModelManager::AttachChildren(EntityArchetype archetype, ModelNode* modelNode, Entity parentEntity)
+void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, ModelNode* modelNode, Entity parentEntity)
 {
     Entity entity = EntityManager::CreateEntity(archetype);
     EntityManager::SetParent(entity, parentEntity);
@@ -294,67 +297,233 @@ void UniEngine::ModelManager::AttachChildren(EntityArchetype archetype, ModelNod
     }
 }
 
-void ModelManager::RemoveModel(int index)
+void AssetManager::ModelGuiNode(int i)
+{
+    ImGui::ImageButton(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
+    
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+    {
+        // Set payload to carry the index of our item (could be anything)
+        ImGui::SetDragDropPayload("ASSET_MODEL", &i, sizeof(int));
+        ImGui::Image(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
+        ImGui::EndDragDropSource();
+    }
+    ImGui::SameLine();
+    ImGui::TextWrapped(_Models[i]->Name.c_str(), ImVec2(30, 30));
+	/*
+    ImGui::Text("[%d] %s", i + 1, _Models[i]->Name.c_str());
+    ImGui::SameLine();
+    if (ImGui::Button(("Add to scene##" + std::to_string(i)).c_str()))
+    {
+        EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
+            EulerRotation(),
+            LocalToParent(),
+            Translation(),
+            Rotation(),
+            Scale(),
+            LocalToWorld());
+        Scale t;
+        t.Value = glm::vec3(1.0f);
+        ToEntity(archetype, _Models[i]).SetComponentData(t);
+
+    }*/
+}
+
+void AssetManager::TextureGuiNode(int i)
+{
+    ImGui::ImageButton((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
+
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+    {
+        // Set payload to carry the index of our item (could be anything)
+        switch (_Texture2Ds[i]->Type())
+        {
+        case TextureType::DIFFUSE:
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_DIFFUSE", &i, sizeof(int));
+            break;
+        case TextureType::SPECULAR:
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_SPECULAR", &i, sizeof(int));
+            break;
+        case TextureType::NORMAL:
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_NORMAL", &i, sizeof(int));
+            break;
+        case TextureType::DISPLACEMENT:
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_DISPLACEMENT", &i, sizeof(int));
+            break;
+        case TextureType::NONE:
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_NONE", &i, sizeof(int));
+            break;
+        }
+
+        ImGui::Image((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
+        ImGui::EndDragDropSource();
+    }
+    ImGui::SameLine();
+    std::string typeStr;
+    switch (_Texture2Ds[i]->Type())
+    {
+    case TextureType::DIFFUSE:
+        typeStr = "Diffuse";
+        break;
+    case TextureType::SPECULAR:
+        typeStr = "Specular";
+        break;
+    case TextureType::NORMAL:
+        typeStr = "Normal";
+        break;
+    case TextureType::DISPLACEMENT:
+        typeStr = "Displacement";
+        break;
+    case TextureType::NONE:
+        typeStr = "None";
+        break;
+    }
+    ImGui::TextWrapped((_Texture2Ds[i]->Name + " Type: " + typeStr).c_str());
+}
+
+std::shared_ptr<Model> AssetManager::GetModel(int i)
+{
+    return _Models[i];
+}
+
+std::shared_ptr<Texture2D> AssetManager::GetTexture2D(int i)
+{
+    return _Texture2Ds[i];
+}
+
+std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::string path, TextureType type)
+{
+    auto retVal = std::make_shared<Texture2D>(type);
+    std::string filename = path;
+    retVal->_Path = filename;
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format = GL_RED;
+        GLenum iformat = GL_R8;
+        if (nrComponents == 2) {
+            format = GL_RG;
+            iformat = GL_RG8;
+        }
+        else if (nrComponents == 3) {
+            format = GL_RGB;
+            iformat = GL_RGB8;
+        }
+        else if (nrComponents == 4) {
+            format = GL_RGBA;
+            iformat = GL_RGBA8;
+        }
+        retVal->Texture() = std::make_unique<GLTexture2D>(1, iformat, width, height, false);
+        retVal->Texture()->SetData(0, iformat, format, GL_UNSIGNED_BYTE, data);
+        retVal->Texture()->GenerateMipMap();
+
+        retVal->Texture()->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+        retVal->Texture()->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+        retVal->Texture()->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        retVal->Texture()->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        Debug::Log("Texture failed to load at path: " + filename);
+        stbi_image_free(data);
+    }
+    _Texture2Ds.push_back(retVal);
+    return retVal;
+}
+
+void AssetManager::RemoveModel(int index)
 {
     _Models.erase(_Models.begin() + index);
 }
 
-void ModelManager::OnGui()
+void AssetManager::OnGui()
 {
-    bool openLoader = false;
+    bool openModelLoader = false;
+    bool openTextureLoader = false;
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::BeginMenu("New"))
+            if (ImGui::BeginMenu("Load"))
             {
                 if(ImGui::Button("Model"))
                 {
-                    openLoader = true;
+                    openModelLoader = true;
                 }
-                
+                if (ImGui::Button("Texture"))
+                {
+                    openTextureLoader = true;
+                }
                 ImGui::EndMenu();
             }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Model Manager", &_EnableListMenu);
+            ImGui::Checkbox("Asset Manager", &_EnableAssetMenu);
             ImGui::EndMenu();
         }
         
         ImGui::EndMainMenuBar();
     }
-    if (_EnableListMenu)
+    if (_EnableAssetMenu)
     {
-        ImGui::Begin("Model Manager");
-    	if(ImGui::TreeNode("Loaded models"))
-    	{
-    		for(int i = 0; i < _Models.size(); i++)
-    		{
-                ImGui::Text("[%d] %s", i + 1, _Models[i]->Name);
-                ImGui::SameLine();
-                if(ImGui::Button(("Add to scene##" + std::to_string(i)).c_str()))
+        ImGui::Begin("Asset Manager");
+        if (ImGui::BeginTabBar("##AssetTabs", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
+            if (ImGui::BeginTabItem("Model"))
+            {
+                for (int i = 0; i < _Models.size(); i++)
                 {
-                    EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
-                        LocalToParent(),
-                        Translation(),
-                        Scale(),
-                        LocalToWorld());
-                    ToEntity(archetype, _Models[i]);
+                    ModelGuiNode(i);
                 }
-    		}
-            ImGui::TreePop();
-    	}
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Texture"))
+            {
+                for (int i = 0; i < _Texture2Ds.size(); i++)
+                {
+                    TextureGuiNode(i);
+                }
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Cubemap"))
+            {
+                for (int i = 0; i < _Cubemaps.size(); i++)
+                {
+                    ImGui::Image((ImTextureID)_Cubemaps[i]->Texture()->ID(), ImVec2(50, 50));
+                    ImGui::SameLine();
+                    ImGui::Text("[%d] %s", i + 1, _Cubemaps[i]->Name.c_str());
+                }
+                ImGui::EndTabItem();
+            }
+        }
+        ImGui::EndTabBar();
         ImGui::End();
     }
-    if(openLoader)
+    if(openModelLoader)
     {
         ImGui::OpenPopup("Model Loader");
+    }
+
+    if (openTextureLoader)
+    {
+        ImGui::OpenPopup("Texture Loader");
     }
     if (_FileBrowser.showFileDialog("Model Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".obj"))
     {
         LoadModel(_FileBrowser.selected_path, Default::GLPrograms::DeferredPrepass);
         Debug::Log("Loaded model from \"" + _FileBrowser.selected_path);
+        //std::cout << _FileBrowser.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
+        //std::cout << _FileBrowser.selected_path << std::endl;    // The absolute path to the selected file
+
+    }
+
+    if (_FileBrowser.showFileDialog("Texture Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".png,.jpg,.jpeg"))
+    {
+        LoadTexture(_FileBrowser.selected_path);
+        Debug::Log("Loaded texture from \"" + _FileBrowser.selected_path);
         //std::cout << _FileBrowser.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
         //std::cout << _FileBrowser.selected_path << std::endl;    // The absolute path to the selected file
 

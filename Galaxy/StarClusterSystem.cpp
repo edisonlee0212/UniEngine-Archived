@@ -4,9 +4,6 @@ void Galaxy::StarClusterSystem::OnCreate()
 {
 	_StarMaterial = new Material();
 	_StarMaterial->SetProgram(Default::GLPrograms::DeferredPrepassInstanced);
-	auto starTex =std::make_shared<Texture2D>(TextureType::DIFFUSE);
-	starTex->LoadTexture(FileIO::GetResourcePath("Textures/white.png"), "");
-	_StarMaterial->SetTexture(starTex);
 
 
 	auto pattern = new StarClusterPattern();

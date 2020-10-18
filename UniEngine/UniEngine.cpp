@@ -265,7 +265,7 @@ bool UniEngine::Application::LoopEnd_Internal()
 	}
 	InputManager::Update();
 	InputManager::OnGui();
-	ModelManager::OnGui();
+	AssetManager::OnGui();
 	WindowManager::OnGui();
 	RenderManager::OnGui();
 #pragma region Logs and errors

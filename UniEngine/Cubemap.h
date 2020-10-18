@@ -7,6 +7,7 @@ namespace UniEngine {
 		std::unique_ptr<GLTextureCubeMap> _Texture;
 		std::vector<std::string> _Paths;
 	public:
+		std::string Name = "New Texture";
 		std::unique_ptr<GLTextureCubeMap>& Texture() { return _Texture; }
 		void LoadCubeMap(std::vector<std::string> paths);
 		std::vector<std::string> Paths();

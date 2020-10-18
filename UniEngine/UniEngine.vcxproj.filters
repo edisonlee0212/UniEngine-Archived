@@ -219,9 +219,6 @@
     <ClInclude Include="InputManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
-    <ClInclude Include="ModelManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
     <ClInclude Include="RenderManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
@@ -248,6 +245,9 @@
     </ClInclude>
     <ClInclude Include="FileBrowser.h">
       <Filter>Header Files\External</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -386,9 +386,6 @@
     <ClCompile Include="InputManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="ModelManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
     <ClCompile Include="RenderManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
@@ -415,6 +412,9 @@
     </ClCompile>
     <ClCompile Include="FileBrowser.cpp">
       <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetManager.cpp">
+      <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

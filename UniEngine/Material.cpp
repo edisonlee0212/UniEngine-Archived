@@ -1,37 +1,95 @@
 #include "pch.h"
 #include "Material.h"
+#include "AssetManager.h"
+#include "Default.h"
 using namespace UniEngine;
 
 void Material::OnGui()
 {
 	ImGui::Text("Name: %s", Name.c_str());
 	ImGui::DragFloat("Shininess", &_Shininess, 1.0f);
+	
+	ImGui::Spacing();
+	ImGui::Text("Diffuse: ");
+	ImGui::Spacing();
 	if (_DiffuseMap) {
-		ImGui::Spacing();
-		ImGui::Text("Diffuse: ");
-		ImGui::Spacing();
-		ImGui::Image((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(100, 100));
+		ImGui::Image((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+	}else
+	{
+		ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 	}
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_DIFFUSE"))
+		{
+			IM_ASSERT(payload->DataSize == sizeof(int));
+			int payload_n = *(const int*)payload->Data;
+			_DiffuseMap.reset();
+			_DiffuseMap = std::shared_ptr<Texture2D>(AssetManager::GetTexture2D(payload_n));
+		}
+		ImGui::EndDragDropTarget();
+	}
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Text("Specular: ");
+	ImGui::Spacing();
 	if (_SpecularMap) {
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Text("Specular: ");
-		ImGui::Spacing();
-		ImGui::Image((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(100, 100));
+		ImGui::Image((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+	}else
+	{
+		ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 	}
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_SPECULAR"))
+		{
+			IM_ASSERT(payload->DataSize == sizeof(int));
+			int payload_n = *(const int*)payload->Data;
+			_SpecularMap = std::shared_ptr<Texture2D>(AssetManager::GetTexture2D(payload_n));
+		}
+		ImGui::EndDragDropTarget();
+	}
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Text("Normal: ");
+	ImGui::Spacing();
 	if (_NormalMap) {
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Text("Normal: ");
-		ImGui::Spacing();
-		ImGui::Image((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(100, 100));
+		ImGui::Image((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+	}else
+	{
+		ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 	}
-	if (_HeightMap) {
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Text("Height: ");
-		ImGui::Spacing();
-		ImGui::Image((ImTextureID)_HeightMap->Texture()->ID(), ImVec2(100, 100));
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_NORMAL"))
+		{
+			IM_ASSERT(payload->DataSize == sizeof(int));
+			int payload_n = *(const int*)payload->Data;
+			_NormalMap = std::shared_ptr<Texture2D>(AssetManager::GetTexture2D(payload_n));
+		}
+		ImGui::EndDragDropTarget();
+	}
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Text("Displacement: ");
+	ImGui::Spacing();
+	if (_DisplacementMap) {
+		
+		ImGui::Image((ImTextureID)_DisplacementMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+		
+	}else
+	{
+		ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+	}
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_DISPLACEMENT"))
+		{
+			IM_ASSERT(payload->DataSize == sizeof(int));
+			int payload_n = *(const int*)payload->Data;
+			_DisplacementMap = std::shared_ptr<Texture2D>(AssetManager::GetTexture2D(payload_n));
+		}
+		ImGui::EndDragDropTarget();
 	}
 }
 
@@ -79,8 +137,8 @@ void Material::SetTexture(std::shared_ptr<Texture2D> texture)
 	case TextureType::SPECULAR:
 		_SpecularMap = std::move(texture);
 		break;
-	case TextureType::HEIGHT:
-		_HeightMap = std::move(texture);
+	case TextureType::DISPLACEMENT:
+		_DisplacementMap = std::move(texture);
 		break;
 	default:
 		break;
@@ -100,8 +158,8 @@ void Material::RemoveTexture(TextureType type)
 	case TextureType::SPECULAR:
 		_SpecularMap.reset();
 		break;
-	case TextureType::HEIGHT:
-		_HeightMap.reset();
+	case TextureType::DISPLACEMENT:
+		_DisplacementMap.reset();
 		break;
 	}
 }

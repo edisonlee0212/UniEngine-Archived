@@ -32,7 +32,7 @@ namespace UniEngine {
 		std::shared_ptr<Texture2D> _DiffuseMap;
 		std::shared_ptr<Texture2D> _SpecularMap; 
 		std::shared_ptr<Texture2D> _NormalMap;
-		std::shared_ptr<Texture2D> _HeightMap;
+		std::shared_ptr<Texture2D> _DisplacementMap;
 		
 		
 		std::shared_ptr<GLProgram> _Program;

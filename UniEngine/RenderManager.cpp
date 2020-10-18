@@ -22,7 +22,7 @@ float RenderManager::_MaxShadowDistance = 500;
 size_t RenderManager::_DirectionalShadowMapResolution = 4096;
 bool RenderManager::_StableFit = true;
 #pragma endregion
-bool RenderManager::_EnableLightMenu = false;
+bool RenderManager::_EnableLightMenu = true;
 bool RenderManager::_EnableRenderMenu = false;
 bool RenderManager::_EnableInfoWindow = true;
 GLUBO* RenderManager::_PointLightBlock;
@@ -1045,7 +1045,7 @@ void RenderManager::OnGui()
 
 		InputManager::SetFocused(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows));
 		// Using a Child allow to fill all the space of the window.
-		// It also alows customization
+		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
 			ImGuiViewport* viewPort = ImGui::GetWindowViewport();
@@ -1054,6 +1054,26 @@ void RenderManager::OnGui()
 			overlayPos = ImGui::GetWindowPos();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			ImGui::Image((ImTextureID)Application::GetMainCameraComponent()->Value->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(int));
+					int payload_n = *(const int*)payload->Data;
+					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
+						EulerRotation(),
+						LocalToParent(),
+						Translation(),
+						Rotation(),
+						Scale(),
+						LocalToWorld());
+					Scale t;
+					t.Value = glm::vec3(1.0f);
+					AssetManager::ToEntity(archetype, AssetManager::GetModel(payload_n)).SetComponentData(t);
+				}
+				ImGui::EndDragDropTarget();
+			}
+
 			if (_EnableInfoWindow)
 			{
 				ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
@@ -1130,9 +1150,9 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 		program->SetBool("enableNormalMapping", false);
 	}
 
-	if (material->_HeightMap)
+	if (material->_DisplacementMap)
 	{
-		material->_HeightMap->Texture()->Bind(6);
+		material->_DisplacementMap->Texture()->Bind(6);
 		program->SetInt("TEXTURE_HEIGHT0", 6);
 		program->SetBool("enableParallaxMapping", true);
 	}
