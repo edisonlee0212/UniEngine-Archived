@@ -20,10 +20,9 @@ namespace UniEngine {
 		static float _TimeStep;
 		static bool _Running;
 		static bool _DrawSkybox;
+		static bool _DisplayLog;
+		static bool _DisplayError;
 		static ThreadPool _ThreadPool;
-
-		static void SceneWindowHelper();
-
 		static void GLInit();
 		static void LoopStart_Internal();
 		static void LoopMain_Internal();

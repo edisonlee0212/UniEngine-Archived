@@ -21,7 +21,7 @@ namespace UniEngine {
 	struct UNIENGINE_API LightSettings {
 		float SplitDistance[4];
 		int PCSSPCFSampleAmount = 16;
-		float PCSSScaleFactor = 0.0f;
+		float PCSSScaleFactor = 1.0f;
 		int PCSSBSAmount = 9;
 		float SeamFixRatio = 0.05f;
 		float VSMMaxVariance = 0.001f;
@@ -32,6 +32,13 @@ namespace UniEngine {
 	
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
+#pragma region GUI
+		static bool _EnableLightMenu;
+		static bool _EnableRenderMenu;
+		static bool _EnableInfoWindow;
+#pragma endregion
+
+		
 		static std::unique_ptr<GLUBO> _KernelBlock;
 		
 		friend class RenderSystem;
@@ -58,6 +65,8 @@ namespace UniEngine {
 #pragma endregion
 
 #pragma region Render
+		static int _ResolutionX;
+		static int _ResolutionY;
 		static EntityQuery _DirectionalLightQuery;
 		static EntityQuery _PointLightQuery;
 		static EntityQuery _SpotLightQuery;
@@ -87,7 +96,7 @@ namespace UniEngine {
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
 		static size_t _DirectionalShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
-		static LightSettings _ShadowSettings;
+		static LightSettings _LightSettings;
 
 		static DirectionalLight _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 		static PointLight _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
@@ -143,7 +152,7 @@ namespace UniEngine {
 
 		
 #pragma region Render
-		
+		static void OnGui();
 		static size_t Triangles();
 		static size_t DrawCall();
 

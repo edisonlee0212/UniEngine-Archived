@@ -4,7 +4,7 @@
 #include "RenderTarget.h"
 #include "Default.h"
 using namespace UniEngine;
-
+bool WindowManager::_EnableMenu;
 std::vector<GLFWmonitor*> WindowManager::_Monitors;
 GLFWmonitor* WindowManager::_PrimaryMonitor;
 GLFWwindow* WindowManager::_Window;
@@ -35,6 +35,23 @@ void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int even
 		}
 	}
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
+}
+
+void WindowManager::OnGui()
+{
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::Checkbox("Window Manager", &_EnableMenu);
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+	if (_EnableMenu)
+	{
+		ImGui::Begin("Window Manager");
+		ImGui::End();
+	}
 }
 
 void UniEngine::WindowManager::Init(std::string name, bool fullScreen)

@@ -16,11 +16,15 @@ namespace UniEngine {
         static bool GetMouseScrolled();
         static bool GetMouseMoved();
         static void Update();
-        
+        static void SetMouseScreenPosition(glm::vec2 value);
     private:
+        
+        static void OnGui();
+        static bool _EnableInputMenu;
         static GLFWwindow* _Window;
         friend class Application;
         friend class WindowManager;
+        friend class RenderManager;
         static void SetWindow(GLFWwindow* window);
         static void SetFocused(bool value);
         static bool _Focused;

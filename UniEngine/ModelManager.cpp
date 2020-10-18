@@ -5,8 +5,8 @@
 #include <stb_image.h>
 
 using namespace UniEngine;
-std::vector<Entity> ModelManager::entities = std::vector<Entity>();
-
+bool ModelManager::_EnableListMenu;
+std::vector<std::shared_ptr<Model>> ModelManager::_Models;
 std::shared_ptr<Model> UniEngine::ModelManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma)
 {
     stbi_set_flip_vertically_on_load(true);
@@ -24,7 +24,8 @@ std::shared_ptr<Model> UniEngine::ModelManager::LoadModel(std::string const& pat
     std::vector<std::shared_ptr<Texture2D>> Texture2DsLoaded;
     auto retVal = std::make_shared<Model>();
     ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
-    return retVal;
+    _Models.push_back(retVal);
+	return retVal;
 }
 
 Entity UniEngine::ModelManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
@@ -273,7 +274,6 @@ void ModelManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     modelNode->_MeshMaterialComponents.push_back(mmc);
 }
 
-
 void UniEngine::ModelManager::AttachChildren(EntityArchetype archetype, ModelNode* modelNode, Entity parentEntity)
 {
     Entity entity = EntityManager::CreateEntity(archetype);
@@ -286,5 +286,49 @@ void UniEngine::ModelManager::AttachChildren(EntityArchetype archetype, ModelNod
     }
     for (auto i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
+    }
+}
+
+void ModelManager::RemoveModel(int index)
+{
+    _Models.erase(_Models.begin() + index);
+}
+
+void ModelManager::OnGui()
+{
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::BeginMenu("New"))
+            {
+                if(ImGui::Button("Model"))
+                {
+	                
+                }
+                
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::Checkbox("Model Manager", &_EnableListMenu);
+            ImGui::EndMenu();
+        }
+        
+        ImGui::EndMainMenuBar();
+    }
+    if (_EnableListMenu)
+    {
+        ImGui::Begin("Model Manager");
+    	if(ImGui::TreeNode("Loaded models"))
+    	{
+    		for(int i = 0; i < _Models.size(); i++)
+    		{
+                ImGui::Text("[%d] %s", i + 1, _Models[i]->Name);
+    		}
+            ImGui::TreePop();
+    	}
+        ImGui::End();
     }
 }

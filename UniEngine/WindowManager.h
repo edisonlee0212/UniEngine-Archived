@@ -7,6 +7,7 @@ namespace UniEngine {
 	class UNIENGINE_API WindowManager : public ManagerBase
 	{
 	public:
+		static void OnGui();
 		static void Init(std::string name, bool fullScreen = false);
 		static GLFWwindow* GetWindow();
 		static GLFWmonitor* PrimaryMonitor();
@@ -16,6 +17,7 @@ namespace UniEngine {
 		static void ResizeCallback(GLFWwindow*, int, int);
 		static void SetMonitorCallback(GLFWmonitor* monitor, int event);
 	private:
+		static bool _EnableMenu;
 		static std::vector<GLFWmonitor*> _Monitors;
 		static GLFWmonitor* _PrimaryMonitor;
 		static GLFWwindow* _Window;

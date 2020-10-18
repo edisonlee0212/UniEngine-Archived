@@ -16,18 +16,20 @@ GLProgram* RenderManager::_DirectionalLightInstancedProgram;
 GLProgram* RenderManager::_DirectionalLightVFilterProgram;
 GLProgram* RenderManager::_DirectionalLightHFilterProgram;
 GLUBO* RenderManager::_ShadowCascadeInfoBlock;
-LightSettings RenderManager::_ShadowSettings;
+LightSettings RenderManager::_LightSettings;
 float RenderManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
 float RenderManager::_MaxShadowDistance = 500;
-size_t RenderManager::_DirectionalShadowMapResolution = 2048;
+size_t RenderManager::_DirectionalShadowMapResolution = 4096;
 bool RenderManager::_StableFit = true;
 #pragma endregion
-
+bool RenderManager::_EnableLightMenu = false;
+bool RenderManager::_EnableRenderMenu = false;
+bool RenderManager::_EnableInfoWindow = true;
 GLUBO* RenderManager::_PointLightBlock;
 GLUBO* RenderManager::_SpotLightBlock;
 PointLight RenderManager::_PointLights[Default::ShaderIncludes::MaxPointLightAmount];
 SpotLight RenderManager::_SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
-bool RenderManager::_EnableShadow = false;
+bool RenderManager::_EnableShadow = true;
 
 PointLightShadowMap* RenderManager::_PointLightShadowMap;
 
@@ -36,6 +38,8 @@ GLProgram* RenderManager::_PointLightInstancedProgram;
 
 #pragma endregion
 #pragma region Render
+int RenderManager::_ResolutionX;
+int RenderManager::_ResolutionY;
 EntityQuery RenderManager::_DirectionalLightQuery;
 EntityQuery RenderManager::_PointLightQuery;
 EntityQuery RenderManager::_SpotLightQuery;
@@ -44,7 +48,7 @@ size_t RenderManager::_Triangles;
 #pragma endregion
 
 #pragma region SSAO
-bool RenderManager::_EnableSSAO;
+bool RenderManager::_EnableSSAO = true;
 std::unique_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
 std::unique_ptr<GLProgram> RenderManager::_SSAOBlurPass;
 std::unique_ptr<RenderTarget> RenderManager::_SSAO;
@@ -178,11 +182,11 @@ void RenderManager::RenderToMainCamera()
 					mmc->Mesh.get(),
 					mmc->Material.get(),
 					ltw
-					);
+				);
 			}
 		}
 	}
-	
+
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 	if (instancedMeshMaterials != nullptr) {
 		auto& program = Default::GLPrograms::DeferredPrepassInstanced;
@@ -190,7 +194,7 @@ void RenderManager::RenderToMainCamera()
 		program->SetInt("directionalShadowMap", 0);
 		program->SetInt("pointShadowMap", 1);
 		program->SetBool("enableShadow", _EnableShadow);
-		
+
 		for (const auto& immc : *instancedMeshMaterials) {
 			if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
 			if (immc->BackCulling)glEnable(GL_CULL_FACE);
@@ -217,7 +221,7 @@ void RenderManager::RenderToMainCamera()
 					ltw,
 					immc->Matrices.data(),
 					immc->Matrices.size()
-					);	
+				);
 			}
 		}
 	}
@@ -248,7 +252,7 @@ void RenderManager::RenderToMainCamera()
 		_SSAOBlurPass->SetInt("ssaoInput", 0);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
-	
+
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_GBufferLightingPass->Bind();
@@ -259,7 +263,7 @@ void RenderManager::RenderToMainCamera()
 	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
 	_GBufferLightingPass->SetBool("enableSSAO", _EnableSSAO);
-	if(_EnableSSAO)
+	if (_EnableSSAO)
 	{
 		_SSAOBlur->Bind(6);
 		_GBufferLightingPass->SetInt("ssao", 6);
@@ -287,13 +291,15 @@ void RenderManager::RenderToMainCamera()
 
 void RenderManager::Init()
 {
+	_ResolutionX = 100;
+	_ResolutionY = 100;
 	_DirectionalLightQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_DirectionalLightQuery, DirectionalLightComponent());
 	_PointLightQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_PointLightQuery, PointLightComponent());
 	_SpotLightQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_SpotLightQuery, SpotLightComponent());
-	
+
 #pragma region Kernel Setup
 	std::vector<glm::vec4> uniformKernel;
 	std::vector<glm::vec4> gaussianKernel;
@@ -452,8 +458,8 @@ void RenderManager::Init()
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	
-	
+
+
 #pragma endregion
 #pragma region SSAO
 	vertShaderCode = std::string("#version 460 core\n") +
@@ -477,18 +483,18 @@ void RenderManager::Init()
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
 		);
-	
+
 	_SSAO = std::make_unique<RenderTarget>(0, 0);
 	_SSAOColor = std::make_unique<GLTexture2D>(0, GL_R32F, 0, 0, false);
 	_SSAOColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_SSAOColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	
+
 	_SSAOBlurFilter = std::make_unique<RenderTarget>();
 	_SSAOBlur = std::make_unique<GLTexture2D>(0, GL_R32F, 0, 0, false);
 	_SSAOBlur->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_SSAOBlur->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	
+
 	// generate noise texture
 	// ----------------------
 	std::vector<glm::vec3> ssaoNoise;
@@ -501,16 +507,16 @@ void RenderManager::Init()
 	_SSAONoise->ReSize(0, GL_RGBA32F, GL_RGB, GL_FLOAT, ssaoNoise.data(), 4, 4);
 	_SSAONoise->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_SSAONoise->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	
-	_EnableSSAO = true;
-	
+
 #pragma endregion
-	auto camera = Application::GetMainCameraComponent()->Value;
-	ResizeResolution(camera->GetResolution().x, camera->GetResolution().y);
+	ResizeResolution(_ResolutionX, _ResolutionY);
 }
 
 void UniEngine::RenderManager::Start()
 {
+	Application::GetMainCameraComponent()->Value->SetResolution(_ResolutionX, _ResolutionY);
+	ResizeResolution(_ResolutionX, _ResolutionY);
+	
 	_Triangles = 0;
 	_DrawCall = 0;
 	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
@@ -526,32 +532,34 @@ void UniEngine::RenderManager::Start()
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;
 
-	_ShadowCascadeInfoBlock->SubData(0, sizeof(LightSettings), &_ShadowSettings);
+	_ShadowCascadeInfoBlock->SubData(0, sizeof(LightSettings), &_LightSettings);
 
 	std::vector<DirectionalLightComponent> directionLightsList;
 	std::vector<Entity> directionalLightEntities;
 	_DirectionalLightQuery.ToComponentDataArray(directionLightsList);
 	_DirectionalLightQuery.ToEntityArray(directionalLightEntities);
+	size_t size = directionLightsList.size();
 	//1.	利用EntityManager找到场景内所有Light instance。
 	if (!directionLightsList.empty()) {
-		size_t size = directionLightsList.size();
+		size_t enabledSize = 0;
 		for (int i = 0; i < size; i++) {
 			const auto& dlc = directionLightsList[i];
 			Entity lightEntity = directionalLightEntities[i];
+			if (!lightEntity.Enabled()) continue;
 			glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).Value;
 			glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 			float planeDistance = 0;
 			glm::vec3 center;
-			_DirectionalLights[i].direction = glm::vec4(lightDir, 0.0f);
-			_DirectionalLights[i].diffuse = glm::vec4(dlc.diffuse * dlc.diffuseBrightness, 1);
-			_DirectionalLights[i].specular = glm::vec4(dlc.specular * dlc.specularBrightness, 1);
+			_DirectionalLights[enabledSize].direction = glm::vec4(lightDir, 0.0f);
+			_DirectionalLights[enabledSize].diffuse = glm::vec4(dlc.diffuse * dlc.diffuseBrightness, 1);
+			_DirectionalLights[enabledSize].specular = glm::vec4(dlc.specular * dlc.specularBrightness, 1);
 			for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
 				//2.	计算Cascade Split所需信息
 				float splitStart = 0;
 				float splitEnd = _MaxShadowDistance;
 				if (split != 0) splitStart = _MaxShadowDistance * _ShadowCascadeSplit[split - 1];
 				if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = _MaxShadowDistance * _ShadowCascadeSplit[split];
-				_ShadowSettings.SplitDistance[split] = splitEnd;
+				_LightSettings.SplitDistance[split] = splitEnd;
 				glm::mat4 lightProjection, lightView;
 				float max = 0;
 				glm::vec3 lightPos;
@@ -601,63 +609,67 @@ void UniEngine::RenderManager::Start()
 				lightPos = center - lightDir * planeDistance;
 				lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::normalize(rotation * glm::vec3(0, 1, 0)));
 				lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance * 2.0f);
-				switch (i)
+				switch (enabledSize)
 				{
 				case 0:
-					_DirectionalLights[i].viewPort = glm::ivec4(0, 0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+					_DirectionalLights[enabledSize].viewPort = glm::ivec4(0, 0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
 					break;
 				case 1:
-					_DirectionalLights[i].viewPort = glm::ivec4(_DirectionalShadowMapResolution / 2, 0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+					_DirectionalLights[enabledSize].viewPort = glm::ivec4(_DirectionalShadowMapResolution / 2, 0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
 					break;
 				case 2:
-					_DirectionalLights[i].viewPort = glm::ivec4(0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+					_DirectionalLights[enabledSize].viewPort = glm::ivec4(0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
 					break;
 				case 3:
-					_DirectionalLights[i].viewPort = glm::ivec4(_DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+					_DirectionalLights[enabledSize].viewPort = glm::ivec4(_DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
 					break;
 				}
-				
+
 #pragma region Fix Shimmering due to the movement of the camera
 
 				glm::mat4 shadowMatrix = lightProjection * lightView;
 				glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 				shadowOrigin = shadowMatrix * shadowOrigin;
 				GLfloat storedW = shadowOrigin.w;
-				shadowOrigin = shadowOrigin * (float)_DirectionalLights[i].viewPort.z / 2.0f;
+				shadowOrigin = shadowOrigin * (float)_DirectionalLights[enabledSize].viewPort.z / 2.0f;
 				glm::vec4 roundedOrigin = glm::round(shadowOrigin);
 				glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
-				roundOffset = roundOffset * 2.0f / (float)_DirectionalLights[i].viewPort.z;
+				roundOffset = roundOffset * 2.0f / (float)_DirectionalLights[enabledSize].viewPort.z;
 				roundOffset.z = 0.0f;
 				roundOffset.w = 0.0f;
 				glm::mat4 shadowProj = lightProjection;
 				shadowProj[3] += roundOffset;
 				lightProjection = shadowProj;
 #pragma endregion
-				_DirectionalLights[i].lightSpaceMatrix[split] = lightProjection * lightView;
-				_DirectionalLights[i].lightFrustumWidth[split] = max;
-				_DirectionalLights[i].lightFrustumDistance[split] = planeDistance;
-				if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[i].ReservedParameters = glm::vec4(dlc.lightSize, 0, dlc.depthBias, dlc.normalOffset);
-				
+				_DirectionalLights[enabledSize].lightSpaceMatrix[split] = lightProjection * lightView;
+				_DirectionalLights[enabledSize].lightFrustumWidth[split] = max;
+				_DirectionalLights[enabledSize].lightFrustumDistance[split] = planeDistance;
+				if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[enabledSize].ReservedParameters = glm::vec4(dlc.lightSize, 0, dlc.depthBias, dlc.normalOffset);
+
 			}
+			enabledSize++;
 		}
-		_DirectionalLightBlock->SubData(0, 4, &size);
-		if (size != 0) {
-			_DirectionalLightBlock->SubData(16, size * sizeof(DirectionalLight), &_DirectionalLights[0]);
+		_DirectionalLightBlock->SubData(0, 4, &enabledSize);
+		if (enabledSize != 0) {
+			_DirectionalLightBlock->SubData(16, enabledSize * sizeof(DirectionalLight), &_DirectionalLights[0]);
 		}
 		if (_EnableShadow) {
 			_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 			_DirectionalLightShadowMap->Bind();
 			glEnable(GL_DEPTH_TEST);
 			glClear(GL_DEPTH_BUFFER_BIT);
+			enabledSize = 0;
 			for (int i = 0; i < size; i++) {
-				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(), 
-					0, _DirectionalLights[i].viewPort.x, _DirectionalLights[i].viewPort.y, 
-					0, (GLsizei)_DirectionalLights[i].viewPort.z, (GLsizei)_DirectionalLights[i].viewPort.w, (GLsizei)4, GL_RED, GL_FLOAT, nullptr);
-				
-				glViewport(_DirectionalLights[i].viewPort.x, _DirectionalLights[i].viewPort.y, _DirectionalLights[i].viewPort.z, _DirectionalLights[i].viewPort.w);
-				
+				Entity lightEntity = directionalLightEntities[i];
+				if (!lightEntity.Enabled()) continue;
+				glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(),
+					0, _DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y,
+					0, (GLsizei)_DirectionalLights[enabledSize].viewPort.z, (GLsizei)_DirectionalLights[enabledSize].viewPort.w, (GLsizei)4, GL_RED, GL_FLOAT, nullptr);
+
+				glViewport(_DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y, _DirectionalLights[enabledSize].viewPort.z, _DirectionalLights[enabledSize].viewPort.w);
+
 				_DirectionalLightProgram->Bind();
-				_DirectionalLightProgram->SetInt("index", i);
+				_DirectionalLightProgram->SetInt("index", enabledSize);
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
@@ -683,7 +695,7 @@ void UniEngine::RenderManager::Start()
 				}
 
 				_DirectionalLightInstancedProgram->Bind();
-				_DirectionalLightInstancedProgram->SetInt("index", i);
+				_DirectionalLightInstancedProgram->SetInt("index", enabledSize);
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
@@ -719,6 +731,7 @@ void UniEngine::RenderManager::Start()
 						}
 					}
 				}
+				enabledSize++;
 			}
 			/*
 			_DirectionalLightShadowMapFilter->Bind();
@@ -741,45 +754,56 @@ void UniEngine::RenderManager::Start()
 			}
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			*/
+			
 		}
+	}
+	else
+	{
+		_DirectionalLightBlock->SubData(0, 4, &size);
 	}
 	std::vector<Entity> pointLightEntities;
 	std::vector<PointLightComponent> pointLightsList;
 	_PointLightQuery.ToEntityArray(pointLightEntities);
 	_PointLightQuery.ToComponentDataArray(pointLightsList);
+	size = pointLightsList.size();
 	if (!pointLightsList.empty()) {
-		size_t size = pointLightsList.size();
+		size_t enabledSize = 0;
 		for (int i = 0; i < size; i++) {
 			const auto& plc = pointLightsList[i];
 			Entity lightEntity = pointLightEntities[i];
+			if (!lightEntity.Enabled()) continue;
 			glm::vec3 position = EntityManager::GetComponentData<LocalToWorld>(lightEntity).Value[3];
-			_PointLights[i].position = glm::vec4(position, 0);
+			_PointLights[enabledSize].position = glm::vec4(position, 0);
 
-			_PointLights[i].constantLinearQuadFarPlane.x = plc.constant;
-			_PointLights[i].constantLinearQuadFarPlane.y = plc.linear;
-			_PointLights[i].constantLinearQuadFarPlane.z = plc.quadratic;
-			_PointLights[i].diffuse = glm::vec4(plc.diffuse * plc.diffuseBrightness, 0);
-			_PointLights[i].specular = glm::vec4(plc.specular * plc.diffuseBrightness, 0);
-			_PointLights[i].constantLinearQuadFarPlane.w = plc.farPlane;
+			_PointLights[enabledSize].constantLinearQuadFarPlane.x = plc.constant;
+			_PointLights[enabledSize].constantLinearQuadFarPlane.y = plc.linear;
+			_PointLights[enabledSize].constantLinearQuadFarPlane.z = plc.quadratic;
+			_PointLights[enabledSize].diffuse = glm::vec4(plc.diffuse * plc.diffuseBrightness, 0);
+			_PointLights[enabledSize].specular = glm::vec4(plc.specular * plc.diffuseBrightness, 0);
+			_PointLights[enabledSize].constantLinearQuadFarPlane.w = plc.farPlane;
 
-			glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), _PointLightShadowMap->GetResolutionRatio(), 1.0f, _PointLights[i].constantLinearQuadFarPlane.w);
-			_PointLights[i].lightSpaceMatrix[0] = shadowProj * glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-			_PointLights[i].lightSpaceMatrix[1] = shadowProj * glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-			_PointLights[i].lightSpaceMatrix[2] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-			_PointLights[i].lightSpaceMatrix[3] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-			_PointLights[i].lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-			_PointLights[i].lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-			_PointLights[i].ReservedParameters = glm::vec4(plc.bias, 0, 0, 0);
+			glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), _PointLightShadowMap->GetResolutionRatio(), 1.0f, _PointLights[enabledSize].constantLinearQuadFarPlane.w);
+			_PointLights[enabledSize].lightSpaceMatrix[0] = shadowProj * glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+			_PointLights[enabledSize].lightSpaceMatrix[1] = shadowProj * glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+			_PointLights[enabledSize].lightSpaceMatrix[2] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			_PointLights[enabledSize].lightSpaceMatrix[3] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+			_PointLights[enabledSize].lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+			_PointLights[enabledSize].lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+			_PointLights[enabledSize].ReservedParameters = glm::vec4(plc.bias, 0, 0, 0);
+			enabledSize++;
 		}
-		_PointLightBlock->SubData(0, 4, &size);
-		if (size != 0)_PointLightBlock->SubData(16, size * sizeof(PointLight), &_PointLights[0]);
+		_PointLightBlock->SubData(0, 4, &enabledSize);
+		if (enabledSize != 0)_PointLightBlock->SubData(16, enabledSize * sizeof(PointLight), &_PointLights[0]);
 		if (_EnableShadow) {
 #pragma region PointLight Shadowmap Pass
 			_PointLightShadowMap->DepthCubeMapArray()->Bind(0);
 			_PointLightShadowMap->Bind();
 			glCullFace(GL_FRONT);
 			glEnable(GL_DEPTH_TEST);
+			enabledSize = 0;
 			for (int i = 0; i < size; i++) {
+				Entity lightEntity = pointLightEntities[i];
+				if (!lightEntity.Enabled()) continue;
 				glClear(GL_DEPTH_BUFFER_BIT);
 				_PointLightProgram->Bind();
 				_PointLightProgram->SetInt("index", i);
@@ -840,10 +864,14 @@ void UniEngine::RenderManager::Start()
 						}
 					}
 				}
+				enabledSize++;
 			}
 			glCullFace(GL_BACK);
 #pragma endregion
 		}
+	}else
+	{
+		_PointLightBlock->SubData(0, 4, &size);
 	}
 
 
@@ -858,7 +886,7 @@ void UniEngine::RenderManager::Start()
 	*/
 #pragma endregion
 
-	RenderToMainCamera();	
+	RenderToMainCamera();
 }
 
 #pragma region Shadow
@@ -874,18 +902,18 @@ void UniEngine::RenderManager::SetSplitRatio(float r1, float r2, float r3, float
 void UniEngine::RenderManager::SetDirectionalLightResolution(size_t value)
 {
 	_DirectionalShadowMapResolution = value;
-	if(_DirectionalLightShadowMap != nullptr)_DirectionalLightShadowMap->SetResolution(value);
+	if (_DirectionalLightShadowMap != nullptr)_DirectionalLightShadowMap->SetResolution(value);
 }
 
 void UniEngine::RenderManager::SetPCSSPCFSampleAmount(int value)
 {
-	_ShadowSettings.PCSSPCFSampleAmount = glm::clamp(value, 0, 16);
+	_LightSettings.PCSSPCFSampleAmount = glm::clamp(value, 0, 16);
 }
 
 
 void UniEngine::RenderManager::SetPCSSBSAmount(int value)
 {
-	_ShadowSettings.PCSSBSAmount = glm::clamp(value, 0, 16);
+	_LightSettings.PCSSBSAmount = glm::clamp(value, 0, 16);
 }
 
 void UniEngine::RenderManager::SetStableFit(bool value)
@@ -895,7 +923,7 @@ void UniEngine::RenderManager::SetStableFit(bool value)
 
 void UniEngine::RenderManager::SetSeamFixRatio(float value)
 {
-	_ShadowSettings.SeamFixRatio = value;
+	_LightSettings.SeamFixRatio = value;
 }
 
 void UniEngine::RenderManager::SetMaxShadowDistance(float value)
@@ -905,27 +933,27 @@ void UniEngine::RenderManager::SetMaxShadowDistance(float value)
 
 void UniEngine::RenderManager::SetVSMMaxVariance(float value)
 {
-	_ShadowSettings.VSMMaxVariance = value;
+	_LightSettings.VSMMaxVariance = value;
 }
 
 void UniEngine::RenderManager::SetLightBleedControlFactor(float value)
 {
-	_ShadowSettings.LightBleedFactor = value;
+	_LightSettings.LightBleedFactor = value;
 }
 
 void UniEngine::RenderManager::SetPCSSScaleFactor(float value)
 {
-	_ShadowSettings.PCSSScaleFactor = value;
+	_LightSettings.PCSSScaleFactor = value;
 }
 
 void UniEngine::RenderManager::SetEVSMExponent(float value)
 {
-	_ShadowSettings.EVSMExponent = value;
+	_LightSettings.EVSMExponent = value;
 }
 
 void UniEngine::RenderManager::SetAmbientLight(float value)
 {
-	_ShadowSettings.AmbientLight = value;
+	_LightSettings.AmbientLight = value;
 }
 
 void RenderManager::SetEnableShadow(bool value)
@@ -944,6 +972,127 @@ glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(glm::vec3 point, glm::vec
 	return a + LineDirection * Distance;
 }
 
+void RenderManager::OnGui()
+{
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("View"))
+		{
+			if (ImGui::BeginMenu("Rendering"))
+			{
+				ImGui::Checkbox("Lighting Manager", &_EnableLightMenu);
+				ImGui::Checkbox("Render Manager", &_EnableRenderMenu);
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+
+	if (_EnableLightMenu)
+	{
+		ImGui::Begin("Light Manager");
+		if (ImGui::TreeNode("Environment Lighting")) {
+			ImGui::DragFloat("Brightness", &_LightSettings.AmbientLight, 0.01f, 0.0f, 2.0f);
+			ImGui::TreePop();
+		}
+		ImGui::Checkbox("Enable shadow", &_EnableShadow);
+		if (_EnableShadow && ImGui::TreeNode("Shadow")) {
+			if(ImGui::TreeNode("Distance"))
+			{
+				ImGui::DragFloat("Max shadow distance", &_MaxShadowDistance, _MaxShadowDistance / 10.0f, 0.1f);
+				ImGui::DragFloat("Split 1", &_ShadowCascadeSplit[0], 0.01f, 0.0f, _ShadowCascadeSplit[1]);
+				ImGui::DragFloat("Split 2", &_ShadowCascadeSplit[1], 0.01f, _ShadowCascadeSplit[0], _ShadowCascadeSplit[2]);
+				ImGui::DragFloat("Split 3", &_ShadowCascadeSplit[2], 0.01f, _ShadowCascadeSplit[1], _ShadowCascadeSplit[3]);
+				ImGui::DragFloat("Split 4", &_ShadowCascadeSplit[3], 0.01f, _ShadowCascadeSplit[2], 1.0f);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("PCSS")) {
+				ImGui::DragFloat("PCSS Factor", &_LightSettings.PCSSScaleFactor, 0.1f, 0.0f);
+				ImGui::DragInt("Blocker search amount", &_LightSettings.PCSSBSAmount, 1, 1, 64);
+				ImGui::DragInt("PCF Sample Size", &_LightSettings.PCSSPCFSampleAmount, 1, 1, 64);
+				ImGui::TreePop();
+			}
+			ImGui::DragFloat("Seam fix ratio", &_LightSettings.SeamFixRatio, 0.01f, 0.0f, 0.1f);
+			ImGui::Checkbox("Stable fit", &_StableFit);
+			ImGui::TreePop();
+		}
+		ImGui::Checkbox("Enable SSAO", &_EnableSSAO);
+		if (_EnableSSAO && ImGui::TreeNode("SSAO")) {
+			ImGui::DragFloat("Radius", &_SSAOKernelRadius, 0.1f, 0.1f, 5.0f);
+			ImGui::DragFloat("Bias", &_SSAOKernelBias, 0.1f, 0.0f, 1.0f);
+			ImGui::DragFloat("Factor", &_SSAOFactor, 0.1f, 1.0f, 10.0f);
+			ImGui::DragInt("Sample Size", &_SSAOSampleSize, 1, 0, 64);
+			ImGui::TreePop();
+		}
+		ImGui::End();
+	}
+	if (_EnableRenderMenu)
+	{
+		ImGui::Begin("Render Manager");
+		ImGui::Checkbox("Display info", &_EnableInfoWindow);
+		ImGui::End();
+	}
+
+	ImVec2 viewPortSize;
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+
+	ImGui::Begin("Scene");
+	{
+		viewPortSize = ImGui::GetWindowSize();
+		ImVec2 overlayPos;
+		static int corner = 1;
+		ImGuiIO& io = ImGui::GetIO();
+
+		InputManager::SetFocused(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows));
+		// Using a Child allow to fill all the space of the window.
+		// It also alows customization
+		if (ImGui::BeginChild("CameraRenderer")) {
+			viewPortSize = ImGui::GetWindowSize();
+			ImGuiViewport* viewPort = ImGui::GetWindowViewport();
+			InputManager::SetWindow((GLFWwindow*)viewPort->PlatformHandle);
+			// Get the size of the child (i.e. the whole draw size of the windows).
+			overlayPos = ImGui::GetWindowPos();
+			// Because I use the texture from OpenGL, I need to invert the V from the UV.
+			ImGui::Image((ImTextureID)Application::GetMainCameraComponent()->Value->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			if (_EnableInfoWindow)
+			{
+				ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+				ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+				ImGui::SetNextWindowBgAlpha(0.35f);
+				ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+				ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
+				ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+				std::string trisstr = "";
+				if (_Triangles < 999) trisstr += std::to_string(_Triangles);
+				else if (_Triangles < 999999) trisstr += std::to_string((int)(_Triangles / 1000)) + "K";
+				else trisstr += std::to_string((int)(_Triangles / 1000000)) + "M";
+				trisstr += " tris";
+				ImGui::Text(trisstr.c_str());
+				ImGui::Text("%d drawcall", _DrawCall);
+				ImGui::Separator();
+				if (ImGui::IsMousePosValid()) {
+					float x = io.MousePos.x - window_pos.x;
+					float y = io.MousePos.y - window_pos.y;
+					InputManager::SetMouseScreenPosition(glm::vec2(x, y));
+					ImGui::Text("Mouse Position: (%.1f,%.1f)", x, y);
+				}
+				else {
+					InputManager::SetMouseScreenPosition(glm::vec2(FLT_MAX, FLT_MAX));
+					ImGui::Text("Mouse Position: <invalid>");
+				}
+				ImGui::EndChild();
+			}
+		}
+		ImGui::EndChild();
+		
+	}
+	ImGui::End();
+	ImGui::PopStyleVar();
+	_ResolutionX = viewPortSize.x;
+	_ResolutionY = viewPortSize.y;
+}
+
 #pragma endregion
 
 
@@ -954,7 +1103,8 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 	if (material->_DiffuseMap)
 	{
 		material->_DiffuseMap->Texture()->Bind(3);
-	}else
+	}
+	else
 	{
 		Default::Textures::StandardTexture->Texture()->Bind(3);
 	}
@@ -964,7 +1114,8 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 		material->_SpecularMap->Texture()->Bind(4);
 		program->SetInt("TEXTURE_SPECULAR0", 4);
 		program->SetBool("enableSpecularMapping", true);
-	}else
+	}
+	else
 	{
 		program->SetBool("enableSpecularMapping", false);
 	}
@@ -973,17 +1124,19 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 		material->_NormalMap->Texture()->Bind(5);
 		program->SetInt("TEXTURE_NORMAL0", 5);
 		program->SetBool("enableNormalMapping", true);
-	}else
+	}
+	else
 	{
 		program->SetBool("enableNormalMapping", false);
 	}
-	
+
 	if (material->_HeightMap)
 	{
 		material->_HeightMap->Texture()->Bind(6);
 		program->SetInt("TEXTURE_HEIGHT0", 6);
 		program->SetBool("enableParallaxMapping", true);
-	}else
+	}
+	else
 	{
 		program->SetBool("enableParallaxMapping", false);
 	}

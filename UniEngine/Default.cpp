@@ -29,7 +29,6 @@ std::shared_ptr<Cubemap> Default::Textures::DefaultSkybox;
 std::shared_ptr<Mesh> Default::Primitives::Sphere;
 std::shared_ptr<Mesh> Default::Primitives::Cube;
 std::shared_ptr<Mesh> Default::Primitives::Quad;
-std::shared_ptr<Mesh> Default::Primitives::FrontBackQuad;
 std::shared_ptr<Mesh> Default::Primitives::Cone;
 std::shared_ptr<Mesh> Default::Primitives::Ring;
 std::shared_ptr<Mesh> Default::Primitives::Cylinder;
@@ -285,26 +284,24 @@ void UniEngine::Default::Load(World* world)
 #pragma region Models & Primitives
 	auto model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram);
 	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-
-	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/frontbackquad.obj"), GLPrograms::StandardProgram);
-	Primitives::FrontBackQuad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	
+	ModelManager::RemoveModel(0);
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram);
 	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-
+	ModelManager::RemoveModel(0);
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram);
 	Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-
+	ModelManager::RemoveModel(0);
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram);
 	Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-
+	ModelManager::RemoveModel(0);
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram);
 	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-
+	ModelManager::RemoveModel(0);
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
 	Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-
+	ModelManager::RemoveModel(0);
 	model = ModelManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
 	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+	ModelManager::RemoveModel(0);
 #pragma endregion
 }

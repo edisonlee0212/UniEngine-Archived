@@ -14,6 +14,7 @@ namespace UniEngine {
 	{
 		ModelNode* _RootNode;
 	public:
+		std::string Name;
 		Model();
 		~Model();
 		ModelNode* RootNode();

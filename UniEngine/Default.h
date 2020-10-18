@@ -51,7 +51,6 @@ namespace UniEngine {
 			static std::shared_ptr<Mesh> Sphere;
 			static std::shared_ptr<Mesh> Cube;
 			static std::shared_ptr<Mesh> Quad;
-			static std::shared_ptr<Mesh> FrontBackQuad;
 			static std::shared_ptr<Mesh> Cylinder;
 			static std::shared_ptr<Mesh> Cone;
 			static std::shared_ptr<Mesh> Ring;

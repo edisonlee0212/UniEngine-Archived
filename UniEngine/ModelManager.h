@@ -10,11 +10,14 @@
 namespace UniEngine {
     class UNIENGINE_API ModelManager : public ManagerBase
     {
-        static std::vector<Entity> entities;
+        static bool _EnableListMenu;
+        static std::vector<std::shared_ptr<Model>> _Models;
         static void ProcessNode(std::string, std::shared_ptr<GLProgram> shader, ModelNode* modelNode, std::vector<std::shared_ptr<Texture2D>>&, aiNode*, const aiScene*);
-        static void ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& texturesLoaded, aiMesh* mesh, const aiScene* scene);
+        static void ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene);
         static void AttachChildren(EntityArchetype archetype, ModelNode* modelNode, Entity parentEntity);
     public:
+        static void RemoveModel(int index);
+        static void OnGui();
         static std::shared_ptr<Model> LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma = false);
         static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model);
     };

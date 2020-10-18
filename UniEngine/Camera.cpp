@@ -11,9 +11,9 @@ CameraInfoBlock Camera::_MainCameraInfoBlock;
 
 void Camera::OnGui()
 {
-	ImGui::DragFloat("Near", &NearDistance);
-	ImGui::DragFloat("Far", &FarDistance);
-	ImGui::DragFloat("FieldOfView", &FieldOfView);
+	ImGui::DragFloat("Near", &NearDistance, NearDistance / 10.0f, 0, FarDistance);
+	ImGui::DragFloat("Far", &FarDistance, FarDistance / 10.0f, NearDistance);
+	ImGui::DragFloat("FieldOfView", &FieldOfView, 1.0f, 1, 359);
 	if(ImGui::TreeNode("Content"))
 	{
 		ImGui::Image((ImTextureID)_ColorTexture->ID(), ImVec2(_ResolutionX / 5.0f, _ResolutionY / 5.0f), ImVec2(0, 1), ImVec2(1, 0));

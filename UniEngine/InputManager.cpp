@@ -8,6 +8,7 @@ double InputManager::_CursorY;
 double InputManager::_CursorScrollX;
 double InputManager::_CursorScrollY;
 bool InputManager::_CursorMoved;
+bool InputManager::_EnableInputMenu;
 bool InputManager::_CursorScrolled;
 GLFWwindow* InputManager::_Window;
 bool InputManager::_Focused;
@@ -67,6 +68,28 @@ inline void UniEngine::InputManager::Update()
 {
 	InputManager::_CursorMoved = false;
 	InputManager::_CursorScrolled = false;
+}
+
+void InputManager::SetMouseScreenPosition(glm::vec2 value)
+{
+	_MouseScreenPosition = value;
+}
+
+void InputManager::OnGui()
+{
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::Checkbox("Input Manager", &_EnableInputMenu);
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+	if (_EnableInputMenu)
+	{
+		ImGui::Begin("Input Manager");
+		ImGui::End();
+	}
 }
 
 void UniEngine::InputManager::SetWindow(GLFWwindow* window)

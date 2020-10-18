@@ -5,20 +5,10 @@
 using namespace UniEngine;
 void LightSettingMenu();
 void InitGround();
-void SplitDisplay();
 
 
 float lightAngle6 = 0;
 
-
-float lightBleedControl = 0.0;
-float pcssScale = 1.0f;
-bool enableNormalMapping = true;
-
-float ssaobias = 0.025f;
-float ssaoradius = 3.0f;
-float ssaofactor = 1.0f;
-int ssaoSampleSize = 4;
 enum TestScene {
 	NANOSUIT,
 	BACKPACK,
@@ -74,6 +64,7 @@ int main()
 #pragma region PCSS test
 	if (testScene == NANOSUIT) {
 		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
+		backpack->Name = "Nanosuit";
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Nanosuit");
 		Translation bpp;
@@ -85,6 +76,7 @@ int main()
 	}
 	else if (testScene == BACKPACK) {
 		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::DeferredPrepass);
+		backpack->Name = "Backpack";
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Backpack");
 		Translation bpp;
@@ -97,6 +89,7 @@ int main()
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
 		auto backpack = ModelManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::DeferredPrepass);
+		backpack->Name = "Sponza Scene";
 		Entity backpackEntity = ModelManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
@@ -147,6 +140,7 @@ int main()
 	DirectionalLightComponent dlc;
 	dlc.lightSize = 1.0f;
 	Entity dle = EntityManager::CreateEntity(dlarc);
+	dle.SetName("Dir Light");
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
 	//EntityManager::SetComponentData<Scale>(dle, scale);
 
@@ -154,6 +148,7 @@ int main()
 	DirectionalLightComponent dlc2;
 	dlc2.lightSize = 1.0f;
 	Entity dle2 = EntityManager::CreateEntity(dlarc);
+	dle2.SetName("Dir Light");
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle2, dlc2);
 	//EntityManager::SetComponentData<Scale>(dle2, scale);
 
@@ -171,6 +166,7 @@ int main()
 	plc.diffuse = glm::vec3(3.0f);
 	plc.specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(plarc);
+	ple.SetName("Point Light");
 	EntityManager::SetComponentData<PointLightComponent>(ple, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetSharedComponent<MeshRenderer>(ple, std::shared_ptr<MeshRenderer>(plmmc));
@@ -187,37 +183,12 @@ int main()
 	while (loopable) {
 		Application::PreUpdate();
 		LightSettingMenu();
-		SplitDisplay();
 		//ImGui::ShowDemoWindow();
 #pragma region LightsPosition		
 		Translation p;
 		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
 		EntityManager::SetComponentData<Translation>(ple, p);
-		
-
-		ImGui::Begin("Light Bleed Control");
-		ImGui::SliderFloat("Factor", &lightBleedControl, 0.0f, 1.0f);
-		ImGui::End();
-		RenderManager::SetLightBleedControlFactor(lightBleedControl);
-
-		ImGui::Begin("PCSS Scale factor");
-		ImGui::SliderFloat("Factor", &pcssScale, 0.0f, 8.0f);
-		ImGui::End();
-		RenderManager::SetPCSSScaleFactor(pcssScale);
-
-
 #pragma endregion
-
-		ImGui::Begin("SSAO");
-		ImGui::SliderFloat("Radius", &ssaoradius, 0.1f, 5.0f);
-		ImGui::SliderFloat("Bias", &ssaobias, 0.0f, 1.0f);
-		ImGui::SliderFloat("Factor", &ssaofactor, 1.0f, 10.0f);
-		ImGui::SliderInt("Sample Size", &ssaoSampleSize, 0, 64);
-		ImGui::End();
-		RenderManager::SetSSAOKernelRadius(ssaoradius);
-		RenderManager::SetSSAOKernelBias(ssaobias);
-		RenderManager::SetSSAOFactor(ssaofactor);
-		RenderManager::SetSSAOSampleSize(ssaoSampleSize);
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}
@@ -232,21 +203,10 @@ void LightSettingMenu() {
 	ImGui::End();
 }
 
-bool _DisplaySplit = false;
-
-void SplitDisplay() {
-	ImGui::Begin("Cascades Shadow Map");
-	std::string text = std::string(_DisplaySplit ? "Disable" : "Enable");
-	if (ImGui::Button(text.c_str())) {
-		_DisplaySplit = !_DisplaySplit;
-		RenderManager::SetPCSSBSAmount(_DisplaySplit);
-	}
-	ImGui::End();
-}
-
 void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
+	entity.SetName("Ground");
 	Translation translation = Translation();
 	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
 	Scale scale = Scale();

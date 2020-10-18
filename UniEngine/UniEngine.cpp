@@ -23,7 +23,8 @@ bool Application::_Running = false;
 double Application::_RealWorldTime;
 float Application::_TimeStep = 0.016f;
 ThreadPool Application::_ThreadPool;
-
+bool Application::_DisplayLog = true;
+bool Application::_DisplayError;
 #pragma region Utilities
 
 void UniEngine::Application::SetTimeStep(float value) {
@@ -57,61 +58,6 @@ bool UniEngine::Application::LateUpdate()
 	return LoopEnd_Internal();
 }
 
-inline void UniEngine::Application::SceneWindowHelper()
-{
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImVec2 overlayPos;
-	ImVec2 work_area_size;
-	bool p_open = true;
-	static int corner = 1;
-	ImGuiIO& io = ImGui::GetIO();
-
-	ImGui::Begin("Scene");
-	{
-		InputManager::SetFocused(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows));
-		// Using a Child allow to fill all the space of the window.
-		// It also alows customization
-		ImGui::BeginChild("CameraRenderer");
-		viewport = ImGui::GetWindowViewport();
-		// Get the size of the child (i.e. the whole draw size of the windows).
-		work_area_size = ImGui::GetWindowSize();
-		overlayPos = ImGui::GetWindowPos();
-		// Because I use the texture from OpenGL, I need to invert the V from the UV.
-		ImGui::Image((ImTextureID)_MainCameraComponent->Value->GetTexture()->ID(), work_area_size, ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::EndChild();
-
-		ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + work_area_size.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + work_area_size.y) : (overlayPos.y));
-		ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
-		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-		ImGui::SetNextWindowBgAlpha(0.35f);
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-
-		ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
-		ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-		size_t tris = RenderManager::Triangles();
-		std::string trisstr = "";
-		if (tris < 999) trisstr += std::to_string(tris);
-		else if (tris < 999999) trisstr += std::to_string((int)(tris / 1000)) + "K";
-		else trisstr += std::to_string((int)(tris / 1000000)) + "M";
-		trisstr += " tris";
-		ImGui::Text(trisstr.c_str());
-		ImGui::Text("%d drawcall", RenderManager::DrawCall());
-		ImGui::Separator();
-		if (ImGui::IsMousePosValid()) {
-			float x = io.MousePos.x - window_pos.x;
-			float y = io.MousePos.y - window_pos.y;
-			InputManager::_MouseScreenPosition = glm::vec2(x, y);
-			ImGui::Text("Mouse Position: (%.1f,%.1f)", x, y);
-		}
-		else {
-			InputManager::_MouseScreenPosition = glm::vec2(FLT_MAX, FLT_MAX);
-			ImGui::Text("Mouse Position: <invalid>");
-		}
-		ImGui::EndChild();
-	}
-	ImGui::End();
-
-}
 
 void UniEngine::Application::GLInit()
 {
@@ -258,22 +204,32 @@ void UniEngine::Application::LoopStart_Internal()
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	ImGui::End();
 
-	ImVec2 viewPortSize;
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-	ImGui::Begin("Scene", NULL);
-	{
-		//viewPortSize = ImGui::GetContentRegionAvail();
-		ImGui::BeginChild("CameraRenderer");
-		// Get the size of the child (i.e. the whole draw size of the windows).
-		viewPortSize = ImGui::GetWindowSize();
-		ImGuiViewport* viewPort = ImGui::GetWindowViewport();
-		InputManager::SetWindow((GLFWwindow*)viewPort->PlatformHandle);
-		ImGui::EndChild();
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File"))
+		{
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::Checkbox("Log", &_DisplayLog);
+			ImGui::Checkbox("Error", &_DisplayError);
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Window"))
+		{
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Help"))
+		{
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
 	}
-	ImGui::End();
-	ImGui::PopStyleVar();
-	_MainCameraComponent->Value->SetResolution(viewPortSize.x, viewPortSize.y);
-	RenderManager::ResizeResolution(viewPortSize.x, viewPortSize.y);
+	
 #pragma endregion
 	WindowManager::Start();
 	
@@ -308,16 +264,32 @@ bool UniEngine::Application::LoopEnd_Internal()
 		return false;
 	}
 	InputManager::Update();
-	SceneWindowHelper();
-#pragma region Logs
-	ImGui::Begin("Logs");
-	size_t size = Debug::GetLogs()->size();
-	std::string logs = "";
-	for (int i = (int)size - 1; i >= 0; i--) {
-		logs += Debug::GetLogs()->at(i)->c_str();
+	InputManager::OnGui();
+	ModelManager::OnGui();
+	WindowManager::OnGui();
+	RenderManager::OnGui();
+#pragma region Logs and errors
+	if (_DisplayLog) {
+		ImGui::Begin("Log");
+		size_t size = Debug::GetLogs()->size();
+		std::string logs = "";
+		for (int i = (int)size - 1; i >= 0; i--) {
+			logs += Debug::GetLogs()->at(i)->c_str();
+		}
+		ImGui::Text(logs.c_str());
+		ImGui::End();
 	}
-	ImGui::Text(logs.c_str());
-	ImGui::End();
+	if(_DisplayError)
+	{
+		ImGui::Begin("Error");
+		size_t size = Debug::GetErrors()->size();
+		std::string logs = "";
+		for (int i = (int)size - 1; i >= 0; i--) {
+			logs += Debug::GetErrors()->at(i)->c_str();
+		}
+		ImGui::Text(logs.c_str());
+		ImGui::End();
+	}
 #pragma endregion
 #pragma region ImGui
 	RenderTarget::BindDefault();

@@ -4,6 +4,7 @@ using namespace UniEngine;
 UniEngine::Model::Model()
 {
     _RootNode = new ModelNode();
+    Name = "New model";
 }
 UniEngine::Model::~Model()
 {

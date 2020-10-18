@@ -11,5 +11,6 @@ namespace UniEngine {
 		ManagerBase(ManagerBase& other) = delete;
 		void operator=(const ManagerBase&) = delete;
 		ManagerBase() = delete;
+		~ManagerBase() = delete;
 	};
 }
