@@ -45,6 +45,7 @@ void UniEngine::InstancedMeshRenderer::OnGui()
 	if (Mesh) {
 		if (ImGui::TreeNode("Mesh")) {
 			Mesh->OnGui();
+			ImGui::TreePop();
 		}
 	}
 }

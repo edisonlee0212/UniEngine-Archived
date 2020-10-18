@@ -20,6 +20,7 @@ void UniEngine::MeshRenderer::OnGui()
 	if (Mesh) {
 		if (ImGui::TreeNode("Mesh")) {
 			Mesh->OnGui();
+			ImGui::TreePop();
 		}
 	}
 }
