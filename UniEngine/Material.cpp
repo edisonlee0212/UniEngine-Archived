@@ -4,7 +4,35 @@ using namespace UniEngine;
 
 void Material::OnGui()
 {
-	if(_DiffuseMap) ImGui::Image((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(500, 500));
+	ImGui::Text("Name: %s", Name.c_str());
+	ImGui::DragFloat("Shininess", &_Shininess, 1.0f);
+	if (_DiffuseMap) {
+		ImGui::Spacing();
+		ImGui::Text("Diffuse: ");
+		ImGui::Spacing();
+		ImGui::Image((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(100, 100));
+	}
+	if (_SpecularMap) {
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Text("Specular: ");
+		ImGui::Spacing();
+		ImGui::Image((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(100, 100));
+	}
+	if (_NormalMap) {
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Text("Normal: ");
+		ImGui::Spacing();
+		ImGui::Image((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(100, 100));
+	}
+	if (_HeightMap) {
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Text("Height: ");
+		ImGui::Spacing();
+		ImGui::Image((ImTextureID)_HeightMap->Texture()->ID(), ImVec2(100, 100));
+	}
 }
 
 void Material::SetShininess(float value)

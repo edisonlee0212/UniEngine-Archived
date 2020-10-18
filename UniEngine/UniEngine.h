@@ -12,9 +12,9 @@
 namespace UniEngine {
 	class UNIENGINE_API Application {
 		static std::shared_ptr<Cubemap> _Skybox;
-		static World* _World;
+		static std::shared_ptr<World> _World;
 		static Entity _MainCameraEntity;
-		static CameraComponent* _MainCameraComponent;
+		static std::shared_ptr<CameraComponent> _MainCameraComponent;
 		static bool _Loopable;
 		static double _RealWorldTime;
 		static float _TimeStep;

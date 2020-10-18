@@ -50,6 +50,7 @@ namespace UniEngine {
 		float YawAngle;
 		float PitchAngle;
 	public:
+		void OnGui();
 		size_t GetLayerMask();
 		static GLUBO* _CameraData;
 		static CameraInfoBlock _MainCameraInfoBlock;

@@ -15,9 +15,9 @@ void APIENTRY glDebugOutput(GLenum source,
 using namespace UniEngine;
 bool Application::_DrawSkybox = true;
 std::shared_ptr<Cubemap>  Application::_Skybox;
-World* Application::_World = nullptr;
+std::shared_ptr<World> Application::_World;
 Entity Application::_MainCameraEntity;
-CameraComponent* Application::_MainCameraComponent = nullptr;
+std::shared_ptr<CameraComponent> Application::_MainCameraComponent;
 bool Application::_Loopable = false;
 bool Application::_Running = false;
 double Application::_RealWorldTime;
@@ -150,8 +150,8 @@ void UniEngine::Application::Init(bool fullScreen)
 	EntityManager::Init(&_ThreadPool);
 
 	GLInit();
-	_World = new World(0, &_ThreadPool);
-	EntityManager::SetWorld(_World);
+	_World = std::make_shared<World>(0, &_ThreadPool);
+	EntityManager::SetWorld(_World.get());
 	_World->Init();
 	_World->SetTimeStep(_TimeStep);
 #pragma region Main Camera
@@ -161,9 +161,9 @@ void UniEngine::Application::Init(bool fullScreen)
 	Translation pos;
 	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
 	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
-	_MainCameraComponent = new CameraComponent();
+	_MainCameraComponent = std::make_shared<CameraComponent>();
 	_MainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
-	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, std::shared_ptr<CameraComponent>(_MainCameraComponent));
+	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
 #pragma endregion
 
 #pragma region ImGUI
@@ -183,7 +183,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460 core");
 #pragma endregion
-	Default::Load(_World);
+	Default::Load(_World.get());
 	_Skybox = Default::Textures::DefaultSkybox;
 	RenderManager::Init();
 	_Loopable = true;
@@ -354,7 +354,6 @@ void Application::SetEnableSkybox(bool value)
 
 void UniEngine::Application::End()
 {
-	delete _World;
 	glfwTerminate();
 }
 
@@ -371,7 +370,7 @@ void UniEngine::Application::Run()
 
 World* UniEngine::Application::GetWorld()
 {
-	return _World;
+	return _World.get();
 }
 
 Entity UniEngine::Application::GetMainCameraEntity()
@@ -381,7 +380,7 @@ Entity UniEngine::Application::GetMainCameraEntity()
 
 CameraComponent* UniEngine::Application::GetMainCameraComponent()
 {
-	return _MainCameraComponent;
+	return _MainCameraComponent.get();
 }
 
 #pragma region OpenGL Debugging

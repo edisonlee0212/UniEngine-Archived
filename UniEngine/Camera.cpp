@@ -9,6 +9,18 @@ using namespace UniEngine;
 GLUBO* Camera::_CameraData;
 CameraInfoBlock Camera::_MainCameraInfoBlock;
 
+void Camera::OnGui()
+{
+	ImGui::DragFloat("Near", &NearDistance);
+	ImGui::DragFloat("Far", &FarDistance);
+	ImGui::DragFloat("FieldOfView", &FieldOfView);
+	if(ImGui::TreeNode("Content"))
+	{
+		ImGui::Image((ImTextureID)_ColorTexture->ID(), ImVec2(_ResolutionX / 5.0f, _ResolutionY / 5.0f), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::TreePop();
+	}
+}
+
 size_t UniEngine::Camera::GetLayerMask()
 {
 	return _LayerMask;

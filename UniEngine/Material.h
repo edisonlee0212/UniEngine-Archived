@@ -39,8 +39,10 @@ namespace UniEngine {
 		std::vector<MaterialFloatProperty> _FloatPropertyList;
 		std::vector<MaterialMat4Property> _Float4x4PropertyList;
 	public:
+		std::string Name;
 		Material()
 		{
+			Name = "New material";
 			_Shininess = 32.0f;
 		}
 		void OnGui();

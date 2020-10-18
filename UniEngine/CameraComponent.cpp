@@ -8,7 +8,5 @@ std::size_t UniEngine::CameraComponent::GetHashCode()
 
 void UniEngine::CameraComponent::OnGui()
 {
-	ImGui::DragFloat("Near", &Value->NearDistance);
-	ImGui::DragFloat("Far", &Value->FarDistance);
-	ImGui::DragFloat("FieldOfView", &Value->FieldOfView);
+	Value->OnGui();
 }

@@ -43,8 +43,8 @@ namespace UniEngine {
 		bool _LocalStored;
 		std::vector<Vertex> _Vertices;
 		std::vector<unsigned> _Indices;
-		std::string _Name;
 	public:
+		std::string Name;
 		void OnGui();
 		glm::vec3 GetCenter();
 		Bound GetBound();

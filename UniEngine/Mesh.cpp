@@ -4,7 +4,7 @@ using namespace UniEngine;
 
 void Mesh::OnGui()
 {
-	ImGui::Text(("Name" + _Name).c_str());
+	ImGui::Text(("Name: " + Name).c_str());
 }
 
 glm::vec3 UniEngine::Mesh::GetCenter()
@@ -24,13 +24,11 @@ UniEngine::Mesh::Mesh()
 	_VAO = std::make_shared<GLVAO>();
 	_IndicesSize = 0;
 	_Bound = Bound();
-	_Name = "Unnamed";
+	Name = "New mesh";
 }
 
 void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store)
 {
-	
-	
 	_Mask = mask;
 	_IndicesSize = indices.size();
 	_VerticesSize = vertices.size();
