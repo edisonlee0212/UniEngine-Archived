@@ -49,8 +49,9 @@ int main()
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();
-	ccs->EnableWindowControl(true);
-	ccs->SetPosition(glm::vec3(-40, 25, 3));
+	Translation t;
+	t.Value = glm::vec3(-40, 25, 3);
+	Application::GetMainCameraEntity().SetComponentData(t);
 	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype("Model",
 		LocalToParent(),
 		Translation(),
