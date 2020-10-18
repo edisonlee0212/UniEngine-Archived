@@ -173,7 +173,7 @@ int main()
 
 
 #pragma endregion
-
+	FileBrowser file_dialog;
 	InitGround();
 #pragma region EngineLoop
 	bool loopable = true;
@@ -184,6 +184,7 @@ int main()
 		Application::PreUpdate();
 		LightSettingMenu();
 		//ImGui::ShowDemoWindow();
+
 #pragma region LightsPosition		
 		Translation p;
 		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);

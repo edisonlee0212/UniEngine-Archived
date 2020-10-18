@@ -246,6 +246,9 @@
     <ClInclude Include="SpotLightComponent.h">
       <Filter>Header Files\Resource\Component</Filter>
     </ClInclude>
+    <ClInclude Include="FileBrowser.h">
+      <Filter>Header Files\External</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -409,6 +412,9 @@
     </ClCompile>
     <ClCompile Include="PointLightComponent.cpp">
       <Filter>Source Files\Resource\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="FileBrowser.cpp">
+      <Filter>Source Files\External</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

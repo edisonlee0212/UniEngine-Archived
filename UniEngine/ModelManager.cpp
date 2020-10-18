@@ -4,9 +4,14 @@
 #include "MeshRenderer.h"
 #include <stb_image.h>
 
+
+#include "Default.h"
+#include "FileBrowser.h"
+
 using namespace UniEngine;
 bool ModelManager::_EnableListMenu;
 std::vector<std::shared_ptr<Model>> ModelManager::_Models;
+FileBrowser ModelManager::_FileBrowser;
 std::shared_ptr<Model> UniEngine::ModelManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma)
 {
     stbi_set_flip_vertically_on_load(true);
@@ -16,7 +21,7 @@ std::shared_ptr<Model> UniEngine::ModelManager::LoadModel(std::string const& pat
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
-        Debug::Error("ERROR::ASSIMP::" + std::string(importer.GetErrorString()));
+        Debug::Log("ERROR::ASSIMP::" + std::string(importer.GetErrorString()));
         return nullptr;
     }
     // retrieve the directory path of the filepath
@@ -296,6 +301,7 @@ void ModelManager::RemoveModel(int index)
 
 void ModelManager::OnGui()
 {
+    bool openLoader = false;
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File"))
         {
@@ -303,7 +309,7 @@ void ModelManager::OnGui()
             {
                 if(ImGui::Button("Model"))
                 {
-	                
+                    openLoader = true;
                 }
                 
                 ImGui::EndMenu();
@@ -326,9 +332,31 @@ void ModelManager::OnGui()
     		for(int i = 0; i < _Models.size(); i++)
     		{
                 ImGui::Text("[%d] %s", i + 1, _Models[i]->Name);
+                ImGui::SameLine();
+                if(ImGui::Button(("Add to scene##" + std::to_string(i)).c_str()))
+                {
+                    EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
+                        LocalToParent(),
+                        Translation(),
+                        Scale(),
+                        LocalToWorld());
+                    ToEntity(archetype, _Models[i]);
+                }
     		}
             ImGui::TreePop();
     	}
         ImGui::End();
+    }
+    if(openLoader)
+    {
+        ImGui::OpenPopup("Model Loader");
+    }
+    if (_FileBrowser.showFileDialog("Model Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".obj"))
+    {
+        LoadModel(_FileBrowser.selected_path, Default::GLPrograms::DeferredPrepass);
+        Debug::Log("Loaded model from \"" + _FileBrowser.selected_path);
+        //std::cout << _FileBrowser.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
+        //std::cout << _FileBrowser.selected_path << std::endl;    // The absolute path to the selected file
+
     }
 }
