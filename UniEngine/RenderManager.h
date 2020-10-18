@@ -22,7 +22,7 @@ namespace UniEngine {
 		float SplitDistance[4];
 		int PCSSPCFSampleAmount = 16;
 		float PCSSScaleFactor = 1.0f;
-		int PCSSBSAmount = 9;
+		int PCSSBSAmount = 2;
 		float SeamFixRatio = 0.05f;
 		float VSMMaxVariance = 0.001f;
 		float LightBleedFactor = 0.5f;

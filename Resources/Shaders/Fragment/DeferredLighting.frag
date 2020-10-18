@@ -197,37 +197,23 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	int blockers = 0;
 	float avgDistance = 0;
 
-	float sampleWidth = lightSize / light.lightFrustumWidth[splitIndex];
+	int sampleAmount = PCSSBSAmount;
+	float sampleWidth = lightSize / light.lightFrustumWidth[splitIndex] / sampleAmount;
 
 	float texScale = float(light.viewPortXSize) / float(textureSize(directionalShadowMap, 0).x);
 	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(directionalShadowMap, 0).y), float(light.viewPortYStart) / float(textureSize(directionalShadowMap, 0).y));
 
-	int sampleAmount = PCSSBSAmount;
-	for(int i = 0; i < sampleAmount; i++)
+	
+	for(int i = -sampleAmount; i <= sampleAmount; i++)
 	{
-		//vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
-		//float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
-		//int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
-		//avgDistance += closestDepth * tf;
-		//blockers += tf;
-		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * sampleWidth;
-		float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
-		if(closestDepth == 0.0) continue;
-		int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
-		avgDistance += closestDepth * tf;
-		blockers += tf;
+		for(int j = -sampleAmount; j <= sampleAmount; j++){
+			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
+			float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
+			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
+			avgDistance += closestDepth * tf;
+			blockers += tf;
+		}
 	}
-
-	//for(int i = -2; i <= 2; i++)
-	//{
-	//	for(int j = -2; j <= 2; j++){
-	//		vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
-	//		float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
-	//		int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
-	//		avgDistance += closestDepth * tf;
-	//		blockers += tf;
-	//	}
-	//}
 
 	if(blockers == 0) return 1.0;
 

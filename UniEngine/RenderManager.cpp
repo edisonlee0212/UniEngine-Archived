@@ -1008,7 +1008,7 @@ void RenderManager::OnGui()
 			}
 			if (ImGui::TreeNode("PCSS")) {
 				ImGui::DragFloat("PCSS Factor", &_LightSettings.PCSSScaleFactor, 0.1f, 0.0f);
-				ImGui::DragInt("Blocker search amount", &_LightSettings.PCSSBSAmount, 1, 1, 64);
+				ImGui::DragInt("Blocker search side amount", &_LightSettings.PCSSBSAmount, 1, 1, 8);
 				ImGui::DragInt("PCF Sample Size", &_LightSettings.PCSSPCFSampleAmount, 1, 1, 64);
 				ImGui::TreePop();
 			}
