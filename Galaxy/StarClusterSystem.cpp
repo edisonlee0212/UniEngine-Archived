@@ -2,6 +2,22 @@
 
 void Galaxy::StarClusterSystem::OnCreate()
 {
+	_StarClusterArchetype = EntityManager::CreateEntityArchetype("Star Cluster",
+		Translation(), Rotation(), Scale(), LocalToWorld(),
+		StarClusterIndex()
+	);
+	_StarCluster = EntityManager::CreateEntity(_StarClusterArchetype);
+	Scale s;
+	s.Value = glm::vec3(1.0f);
+	auto imr = std::make_shared<InstancedMeshRenderer>();
+	imr->Material = std::make_shared<Material>();
+	imr->CastShadow = false;
+	imr->ReceiveShadow = false;
+	imr->Mesh = Default::Primitives::Sphere;
+	imr->Material->SetProgram(Default::GLPrograms::DeferredPrepassInstanced);
+	imr->Material->SetTexture(Default::Textures::StandardTexture);
+	_StarCluster.SetSharedComponent(imr);
+	_StarCluster.SetComponentData(s);
 	_StarMaterial = new Material();
 	_StarMaterial->SetProgram(Default::GLPrograms::DeferredPrepassInstanced);
 
@@ -91,9 +107,10 @@ void Galaxy::StarClusterSystem::Update()
 	//Render from last update.
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	_StarQuery.ToComponentDataArray(matrices);
-	
-	
-	RenderManager::DrawGizmoPointInstanced(glm::vec4(1.0f), (glm::mat4*)matrices.data(), matrices.size(), Application::GetMainCameraComponent()->Value.get());
+
+	auto imr = _StarCluster.GetSharedComponent<InstancedMeshRenderer>();
+	imr->Matrices.resize(matrices.size());
+	memcpy(imr->Matrices.data(), matrices.data(), sizeof(glm::mat4) * matrices.size());
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

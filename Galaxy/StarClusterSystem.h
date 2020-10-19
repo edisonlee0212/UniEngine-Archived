@@ -264,6 +264,8 @@ namespace Galaxy {
 	class StarClusterSystem :
 		public SystemBase
 	{
+		EntityArchetype _StarClusterArchetype;
+		Entity _StarCluster;
 		Material* _StarMaterial;
 		std::vector<StarClusterPattern*> _Patterns;
 		EntityQuery _StarQuery;

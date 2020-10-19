@@ -123,13 +123,16 @@ int main()
 	cylinder->Mesh = Default::Primitives::Ring;
 	cylinder->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
-
+	EulerRotation er;
+	er.Value = glm::vec3(70, 0, 0);
+	
 	DirectionalLightComponent dlc;
+	dlc.diffuseBrightness = 0.4f;
 	dlc.lightSize = 1.0f;
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	dle.SetName("Dir Light");
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
-	//EntityManager::SetComponentData<Scale>(dle, scale);
+	EntityManager::SetComponentData(dle, er);
 
 
 	DirectionalLightComponent dlc2;
@@ -137,7 +140,8 @@ int main()
 	Entity dle2 = EntityManager::CreateEntity(dlarc);
 	dle2.SetName("Dir Light");
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle2, dlc2);
-	//EntityManager::SetComponentData<Scale>(dle2, scale);
+	er.Value = glm::vec3(30, 60, 0);
+	EntityManager::SetComponentData(dle2, er);
 
 
 	MeshRenderer* plmmc = new MeshRenderer();
