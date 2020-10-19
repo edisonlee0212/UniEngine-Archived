@@ -197,21 +197,21 @@ void AssetManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& mode
         {
             if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(Texture2DsLoaded.at(j), TextureType::DIFFUSE);
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
                 break;
             }
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DIFFUSE);
-            material->SetTexture(texture2D);
+            auto texture2D = LoadTexture(directory + "/" + str.C_Str());
+            material->SetTexture(texture2D, TextureType::DIFFUSE);
             _Texture2Ds.pop_back();
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
 	}else
 	{
-        material->SetTexture(Default::Textures::StandardTexture);
+        material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	}
     if (pointMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
     {
@@ -222,15 +222,15 @@ void AssetManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& mode
         {
             if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(Texture2DsLoaded.at(j), TextureType::SPECULAR);
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
                 break;
             }
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::SPECULAR);
-            material->SetTexture(texture2D);
+            auto texture2D = LoadTexture(directory + "/" + str.C_Str());
+            material->SetTexture(texture2D, TextureType::SPECULAR);
             _Texture2Ds.pop_back();
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
@@ -244,15 +244,15 @@ void AssetManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& mode
         {
             if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(Texture2DsLoaded.at(j), TextureType::NORMAL);
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
                 break;
             }
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::NORMAL);
-            material->SetTexture(texture2D);
+            auto texture2D = LoadTexture(directory + "/" + str.C_Str());
+            material->SetTexture(texture2D, TextureType::NORMAL);
             _Texture2Ds.pop_back();
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
@@ -266,15 +266,15 @@ void AssetManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& mode
         {
             if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(Texture2DsLoaded.at(j), TextureType::DISPLACEMENT);
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
                 break;
             }
         }
         if (!skip)
         {   // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DISPLACEMENT);
-            material->SetTexture(texture2D);
+            auto texture2D = LoadTexture(directory + "/" + str.C_Str());
+            material->SetTexture(texture2D, TextureType::DISPLACEMENT);
             _Texture2Ds.pop_back();
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
@@ -323,51 +323,13 @@ void AssetManager::TextureGuiNode(int i)
     ImGui::ImageButton((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
     {
-        // Set payload to carry the index of our item (could be anything)
-        switch (_Texture2Ds[i]->Type())
-        {
-        case TextureType::DIFFUSE:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_DIFFUSE", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
-            break;
-        case TextureType::SPECULAR:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_SPECULAR", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
-            break;
-        case TextureType::NORMAL:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_NORMAL", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
-            break;
-        case TextureType::DISPLACEMENT:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_DISPLACEMENT", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
-            break;
-        case TextureType::NONE:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_NONE", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
-            break;
-        }
-
+        ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
         ImGui::Image((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
         ImGui::EndDragDropSource();
     }
     ImGui::PopID();
     ImGui::SameLine();
-    std::string typeStr;
-    switch (_Texture2Ds[i]->Type())
-    {
-    case TextureType::DIFFUSE:
-        typeStr = "Diffuse";
-        break;
-    case TextureType::SPECULAR:
-        typeStr = "Specular";
-        break;
-    case TextureType::NORMAL:
-        typeStr = "Normal";
-        break;
-    case TextureType::DISPLACEMENT:
-        typeStr = "Displacement";
-        break;
-    case TextureType::NONE:
-        typeStr = "None";
-        break;
-    }
-    ImGui::TextWrapped((_Texture2Ds[i]->Name + " Type: " + typeStr).c_str());
+    ImGui::TextWrapped(_Texture2Ds[i]->Name.c_str());
     
 }
 
@@ -381,9 +343,9 @@ std::shared_ptr<Texture2D> AssetManager::GetTexture2D(int i)
     return _Texture2Ds[i];
 }
 
-std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::string path, TextureType type)
+std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::string path)
 {
-    auto retVal = std::make_shared<Texture2D>(type);
+    auto retVal = std::make_shared<Texture2D>();
     std::string filename = path;
     retVal->_Path = filename;
     int width, height, nrComponents;
@@ -474,61 +436,7 @@ void AssetManager::OnGui()
             {
                 if (ImGui::BeginDragDropTarget())
                 {
-                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_DIFFUSE"))
-                    {
-                        IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-                        std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
-                        bool missing = true;
-                        for (auto i : _Texture2Ds)
-                        {
-                            if (i.get() == payload_n.get())
-                            {
-                                missing = false;
-                                break;
-                            }
-                        }
-                        if (missing)
-                        {
-                            _Texture2Ds.push_back(payload_n);
-                        }
-                    }
-                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_NORMAL"))
-                    {
-                        IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-                        std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
-                        bool missing = true;
-                        for (auto i : _Texture2Ds)
-                        {
-                            if (i.get() == payload_n.get())
-                            {
-                                missing = false;
-                                break;
-                            }
-                        }
-                        if (missing)
-                        {
-                            _Texture2Ds.push_back(payload_n);
-                        }
-                    }
-                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_SPECULAR"))
-                    {
-                        IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-                        std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
-                        bool missing = true;
-                        for (auto i : _Texture2Ds)
-                        {
-                            if (i.get() == payload_n.get())
-                            {
-                                missing = false;
-                                break;
-                            }
-                        }
-                        if (missing)
-                        {
-                            _Texture2Ds.push_back(payload_n);
-                        }
-                    }
-                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_DISPLACEMENT"))
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
                     {
                         IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
                         std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;

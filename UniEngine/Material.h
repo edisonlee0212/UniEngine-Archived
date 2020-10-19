@@ -49,7 +49,7 @@ namespace UniEngine {
 		void SetShininess(float value);
 		void SetMaterialProperty(const std::string& name, float value);
 		void SetMaterialProperty(const std::string& name, glm::mat4 value);
-		void SetTexture(std::shared_ptr<Texture2D> texture);
+		void SetTexture(std::shared_ptr<Texture2D> texture, TextureType type);
 		void RemoveTexture(TextureType type);
 		void SetProgram(std::shared_ptr<GLProgram> program);
 	};

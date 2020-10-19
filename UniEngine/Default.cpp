@@ -164,10 +164,10 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 
 #pragma region Textures
-	Textures::MissingTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"), TextureType::DIFFUSE);
-	Textures::UV = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"), TextureType::DIFFUSE);
-	Textures::StandardTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/white.png"), TextureType::DIFFUSE);
-	Textures::ObjectIcon = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/object.png"), TextureType::DIFFUSE);
+	Textures::MissingTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"));
+	Textures::UV = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"));
+	Textures::StandardTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/white.png"));
+	Textures::ObjectIcon = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/object.png"));
 #pragma endregion
 #pragma region Standard Shader
 	vertShaderCode = std::string("#version 460 core\n")

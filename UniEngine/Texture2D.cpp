@@ -5,7 +5,7 @@
 using namespace UniEngine;
 
 
-UniEngine::Texture2D::Texture2D(TextureType type) : _Type(type)
+UniEngine::Texture2D::Texture2D()
 {
 	Name = "New Texture";
 }
@@ -13,11 +13,6 @@ UniEngine::Texture2D::Texture2D(TextureType type) : _Type(type)
 std::unique_ptr<GLTexture2D>& UniEngine::Texture2D::Texture()
 {
 	return _Texture;
-}
-
-TextureType UniEngine::Texture2D::Type()
-{
-	return _Type;
 }
 
 std::string UniEngine::Texture2D::Path()

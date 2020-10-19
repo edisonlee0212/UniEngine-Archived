@@ -52,7 +52,7 @@ int main()
 #pragma endregion
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
-	sharedMat->SetTexture(Default::Textures::StandardTexture);
+	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
 	MeshRenderer* cylinder = new MeshRenderer();
 	cylinder->Mesh = Default::Primitives::Cylinder;
@@ -247,8 +247,8 @@ void InitGround() {
 	auto mat = std::make_shared<Material>();
 	mat->SetProgram(Default::GLPrograms::DeferredPrepass);
 	
-	auto texture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"), TextureType::DIFFUSE);
-	mat->SetTexture(texture);
+	auto texture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"));
+	mat->SetTexture(texture, TextureType::DIFFUSE);
 	/*
 	auto textureD = std::make_shared<Texture2D>(TextureType::DIFFUSE);
 	textureD->LoadTexture(FileIO::GetResourcePath("Textures/bricks2.jpg"), "");

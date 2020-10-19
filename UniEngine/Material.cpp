@@ -19,7 +19,7 @@ void Material::OnGui()
 			ImGui::ImageButton((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 			{
-				ImGui::SetDragDropPayload("ASSET_TEXTURE_DIFFUSE", &_DiffuseMap, sizeof(std::shared_ptr<Texture2D>));
+				ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_DiffuseMap, sizeof(std::shared_ptr<Texture2D>));
 				ImGui::Image((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(30, 30));
 				ImGui::EndDragDropSource();
 			}
@@ -31,7 +31,7 @@ void Material::OnGui()
 		}
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_DIFFUSE"))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
 			{
 				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
 				std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
@@ -52,7 +52,7 @@ void Material::OnGui()
 			ImGui::ImageButton((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 			{
-				ImGui::SetDragDropPayload("ASSET_TEXTURE_SPECULAR", &_SpecularMap, sizeof(std::shared_ptr<Texture2D>));
+				ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_SpecularMap, sizeof(std::shared_ptr<Texture2D>));
 				ImGui::Image((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(30, 30));
 				ImGui::EndDragDropSource();
 			}
@@ -63,7 +63,7 @@ void Material::OnGui()
 		}
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_SPECULAR"))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
 			{
 				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
 				std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
@@ -84,7 +84,7 @@ void Material::OnGui()
 			ImGui::ImageButton((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 			{
-				ImGui::SetDragDropPayload("ASSET_TEXTURE_NORMAL", &_NormalMap, sizeof(std::shared_ptr<Texture2D>));
+				ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_NormalMap, sizeof(std::shared_ptr<Texture2D>));
 				ImGui::Image((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(30, 30));
 				ImGui::EndDragDropSource();
 			}
@@ -95,7 +95,7 @@ void Material::OnGui()
 		}
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_NORMAL"))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
 			{
 				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
 				std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
@@ -116,7 +116,7 @@ void Material::OnGui()
 			ImGui::ImageButton((ImTextureID)_DisplacementMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 			{
-				ImGui::SetDragDropPayload("ASSET_TEXTURE_DISPLACEMENT", &_DisplacementMap, sizeof(std::shared_ptr<Texture2D>));
+				ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_DisplacementMap, sizeof(std::shared_ptr<Texture2D>));
 				ImGui::Image((ImTextureID)_DisplacementMap->Texture()->ID(), ImVec2(30, 30));
 				ImGui::EndDragDropSource();
 			}
@@ -127,7 +127,7 @@ void Material::OnGui()
 		}
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_DISPLACEMENT"))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
 			{
 				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
 				std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
@@ -170,9 +170,9 @@ void UniEngine::Material::SetMaterialProperty(const std::string& name, glm::mat4
 	_Float4x4PropertyList.emplace_back(name, value);
 }
 
-void Material::SetTexture(std::shared_ptr<Texture2D> texture)
+void Material::SetTexture(std::shared_ptr<Texture2D> texture, TextureType type)
 {
-	switch (texture->Type())
+	switch (type)
 	{
 	case TextureType::DIFFUSE:
 		_DiffuseMap = std::move(texture);

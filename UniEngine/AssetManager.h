@@ -27,7 +27,7 @@ namespace UniEngine {
     public:
         static std::shared_ptr<Model> GetModel(int i);
         static std::shared_ptr<Texture2D> GetTexture2D(int i);
-    	static std::shared_ptr<Texture2D> LoadTexture(std::string path, TextureType type = TextureType::NONE);
+    	static std::shared_ptr<Texture2D> LoadTexture(std::string path);
         static void RemoveModel(int index);
         static void OnGui();
         static std::shared_ptr<Model> LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma = false);
