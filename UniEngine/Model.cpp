@@ -3,19 +3,11 @@
 using namespace UniEngine;
 UniEngine::Model::Model()
 {
-    _RootNode = new ModelNode();
+    _RootNode = std::make_unique<ModelNode>();
     Name = "New model";
 }
-UniEngine::Model::~Model()
-{
-    delete _RootNode;
-}
-ModelNode* UniEngine::Model::RootNode()
+
+std::unique_ptr<ModelNode>& UniEngine::Model::RootNode()
 {
     return _RootNode;
-}
-
-UniEngine::ModelNode::~ModelNode()
-{
-    for (auto i : Children) delete i;
 }

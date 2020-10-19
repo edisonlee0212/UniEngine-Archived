@@ -281,32 +281,40 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 
 #pragma region Models & Primitives
-	auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram);
-	Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	model->Name = "Quad";
-	
-	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram);
-	Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	model->Name = "Sphere";
-
-	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram);
-	Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	model->Name = "Cube";
-	
-	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram);
-	Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	model->Name = "Cone";
-	
-	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram);
-	Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	model->Name = "Cylinder";
-	
-	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
-	Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	model->Name = "Ring";
-	
-	model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
-	Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
-	model->Name = "Monkey";
+	{
+		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram);
+		Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+		model->Name = "Quad";
+	}
+	{
+		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram);
+		Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+		model->Name = "Sphere";
+	}
+	{
+		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram);
+		Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+		model->Name = "Cube";
+	}
+	{
+		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram);
+		Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+		model->Name = "Cone";
+	}
+	{
+		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram);
+		Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+		model->Name = "Cylinder";
+	}
+	{
+		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
+		Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+		model->Name = "Ring";
+	}
+	{
+		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
+		Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterialComponents[0]->Mesh;
+		model->Name = "Monkey";
+	}
 #pragma endregion
 }

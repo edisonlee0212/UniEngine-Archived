@@ -18,9 +18,9 @@ namespace UniEngine {
         static std::vector<std::shared_ptr<Model>> _Models;
         static std::vector<std::shared_ptr<Texture2D>> _Texture2Ds;
         static std::vector<std::shared_ptr<Cubemap>> _Cubemaps;
-        static void ProcessNode(std::string, std::shared_ptr<GLProgram> shader, ModelNode* modelNode, std::vector<std::shared_ptr<Texture2D>>&, aiNode*, const aiScene*);
-        static void ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene);
-        static void AttachChildren(EntityArchetype archetype, ModelNode* modelNode, Entity parentEntity);
+        static void ProcessNode(std::string, std::shared_ptr<GLProgram> shader, std::unique_ptr<ModelNode>&, std::vector<std::shared_ptr<Texture2D>>&, aiNode*, const aiScene*);
+        static void ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>&, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene);
+        static void AttachChildren(EntityArchetype archetype, std::unique_ptr<ModelNode>& modelNode, Entity parentEntity);
 
         static void ModelGuiNode(int i);
         static void TextureGuiNode(int i);

@@ -59,7 +59,7 @@ int main()
 	cylinder->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = PCSS;
+	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == BACKPACK) {
 		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::DeferredPrepass);

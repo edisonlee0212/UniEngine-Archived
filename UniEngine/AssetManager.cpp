@@ -40,19 +40,19 @@ Entity UniEngine::AssetManager::ToEntity(EntityArchetype archetype, std::shared_
 {
     Entity entity = EntityManager::CreateEntity(archetype);
     LocalToWorld ltw;
-    ModelNode* modelNode = model->RootNode();
+    std::unique_ptr<ModelNode>& modelNode = model->RootNode();
     ltw.Value = modelNode->_LocalToParent;
     EntityManager::SetComponentData<LocalToWorld>(entity, ltw);
-    for (auto i : modelNode->_MeshMaterialComponents) {
+    for (const auto& i : modelNode->_MeshMaterialComponents) {
         EntityManager::SetSharedComponent<MeshRenderer>(entity, i);
     }
-    for (auto i : modelNode->Children) {
+    for (auto& i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
     }
     return entity;
 }
 
-void AssetManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram> shader, ModelNode* modelNode, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiNode* node, const aiScene* scene)
+void AssetManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram> shader, std::unique_ptr<ModelNode>& modelNode, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiNode* node, const aiScene* scene)
 {
     for (unsigned i = 0; i < node->mNumMeshes; i++)
     {
@@ -69,14 +69,13 @@ void AssetManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram>
     }
     for (unsigned i = 0; i < node->mNumChildren; i++)
     {
-        ModelNode* childNode = new ModelNode();
-        childNode->Parent = modelNode;
-        modelNode->Children.push_back(childNode);
+        std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
         ProcessNode(directory, shader, childNode, Texture2DsLoaded, node->mChildren[i], scene);
+        modelNode->Children.push_back(std::move(childNode));
     }
 }
 
-void AssetManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
+void AssetManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
     unsigned mask = 1;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
@@ -286,7 +285,7 @@ void AssetManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
     modelNode->_MeshMaterialComponents.push_back(mmc);
 }
 
-void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, ModelNode* modelNode, Entity parentEntity)
+void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, std::unique_ptr<ModelNode>& modelNode, Entity parentEntity)
 {
     Entity entity = EntityManager::CreateEntity(archetype);
     EntityManager::SetParent(entity, parentEntity);
@@ -296,22 +295,23 @@ void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, ModelNod
     for (auto i : modelNode->_MeshMaterialComponents) {
         EntityManager::SetSharedComponent<MeshRenderer>(entity, std::shared_ptr<MeshRenderer>(i));
     }
-    for (auto i : modelNode->Children) {
+    for (auto& i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
     }
 }
 
 void AssetManager::ModelGuiNode(int i)
 {
+    ImGui::PushID(i);
     ImGui::ImageButton(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
     {
-        std::shared_ptr<Model> model = _Models[i];
         // Set payload to carry the index of our item (could be anything)
-        ImGui::SetDragDropPayload("ASSET_MODEL", &model, sizeof(std::shared_ptr<Model>));
+        ImGui::SetDragDropPayload("ASSET_MODEL", &_Models[i], sizeof(std::shared_ptr<Model>));
         ImGui::Image(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
         ImGui::EndDragDropSource();
     }
+    ImGui::PopID();
     ImGui::SameLine();
     ImGui::TextWrapped(_Models[i]->Name.c_str(), ImVec2(30, 30));
     
@@ -319,33 +319,34 @@ void AssetManager::ModelGuiNode(int i)
 
 void AssetManager::TextureGuiNode(int i)
 {
+    ImGui::PushID(i);
     ImGui::ImageButton((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
     {
-        std::shared_ptr<Texture2D> texture = _Texture2Ds[i];
         // Set payload to carry the index of our item (could be anything)
         switch (_Texture2Ds[i]->Type())
         {
         case TextureType::DIFFUSE:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_DIFFUSE", &texture, sizeof(std::shared_ptr<Texture2D>));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_DIFFUSE", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
             break;
         case TextureType::SPECULAR:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_SPECULAR", &texture, sizeof(std::shared_ptr<Texture2D>));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_SPECULAR", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
             break;
         case TextureType::NORMAL:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_NORMAL", &texture, sizeof(std::shared_ptr<Texture2D>));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_NORMAL", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
             break;
         case TextureType::DISPLACEMENT:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_DISPLACEMENT", &texture, sizeof(std::shared_ptr<Texture2D>));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_DISPLACEMENT", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
             break;
         case TextureType::NONE:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_NONE", &texture, sizeof(std::shared_ptr<Texture2D>));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_NONE", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
             break;
         }
 
         ImGui::Image((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
         ImGui::EndDragDropSource();
     }
+    ImGui::PopID();
     ImGui::SameLine();
     std::string typeStr;
     switch (_Texture2Ds[i]->Type())
