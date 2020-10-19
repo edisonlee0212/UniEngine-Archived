@@ -207,6 +207,7 @@ void AssetManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         {   // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DIFFUSE);
             material->SetTexture(texture2D);
+            _Texture2Ds.pop_back();
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
 	}else
@@ -231,6 +232,7 @@ void AssetManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         {   // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::SPECULAR);
             material->SetTexture(texture2D);
+            _Texture2Ds.pop_back();
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
     }
@@ -252,6 +254,7 @@ void AssetManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         {   // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::NORMAL);
             material->SetTexture(texture2D);
+            _Texture2Ds.pop_back();
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
     }
@@ -273,6 +276,7 @@ void AssetManager::ReadMesh(unsigned meshIndex, ModelNode* modelNode, std::strin
         {   // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DISPLACEMENT);
             material->SetTexture(texture2D);
+            _Texture2Ds.pop_back();
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
     }
@@ -300,58 +304,42 @@ void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, ModelNod
 void AssetManager::ModelGuiNode(int i)
 {
     ImGui::ImageButton(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
-    
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
     {
+        std::shared_ptr<Model> model = _Models[i];
         // Set payload to carry the index of our item (could be anything)
-        ImGui::SetDragDropPayload("ASSET_MODEL", &i, sizeof(int));
+        ImGui::SetDragDropPayload("ASSET_MODEL", &model, sizeof(std::shared_ptr<Model>));
         ImGui::Image(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
         ImGui::EndDragDropSource();
     }
     ImGui::SameLine();
     ImGui::TextWrapped(_Models[i]->Name.c_str(), ImVec2(30, 30));
-	/*
-    ImGui::Text("[%d] %s", i + 1, _Models[i]->Name.c_str());
-    ImGui::SameLine();
-    if (ImGui::Button(("Add to scene##" + std::to_string(i)).c_str()))
-    {
-        EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
-            EulerRotation(),
-            LocalToParent(),
-            Translation(),
-            Rotation(),
-            Scale(),
-            LocalToWorld());
-        Scale t;
-        t.Value = glm::vec3(1.0f);
-        ToEntity(archetype, _Models[i]).SetComponentData(t);
-
-    }*/
+    
 }
 
 void AssetManager::TextureGuiNode(int i)
 {
     ImGui::ImageButton((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
-
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
     {
+        std::shared_ptr<Texture2D> texture = _Texture2Ds[i];
         // Set payload to carry the index of our item (could be anything)
         switch (_Texture2Ds[i]->Type())
         {
         case TextureType::DIFFUSE:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_DIFFUSE", &i, sizeof(int));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_DIFFUSE", &texture, sizeof(std::shared_ptr<Texture2D>));
             break;
         case TextureType::SPECULAR:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_SPECULAR", &i, sizeof(int));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_SPECULAR", &texture, sizeof(std::shared_ptr<Texture2D>));
             break;
         case TextureType::NORMAL:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_NORMAL", &i, sizeof(int));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_NORMAL", &texture, sizeof(std::shared_ptr<Texture2D>));
             break;
         case TextureType::DISPLACEMENT:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_DISPLACEMENT", &i, sizeof(int));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_DISPLACEMENT", &texture, sizeof(std::shared_ptr<Texture2D>));
             break;
         case TextureType::NONE:
-            ImGui::SetDragDropPayload("ASSET_TEXTURE_NONE", &i, sizeof(int));
+            ImGui::SetDragDropPayload("ASSET_TEXTURE_NONE", &texture, sizeof(std::shared_ptr<Texture2D>));
             break;
         }
 
@@ -379,6 +367,7 @@ void AssetManager::TextureGuiNode(int i)
         break;
     }
     ImGui::TextWrapped((_Texture2Ds[i]->Name + " Type: " + typeStr).c_str());
+    
 }
 
 std::shared_ptr<Model> AssetManager::GetModel(int i)
@@ -482,12 +471,90 @@ void AssetManager::OnGui()
             }
             if (ImGui::BeginTabItem("Texture"))
             {
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_DIFFUSE"))
+                    {
+                        IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+                        std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+                        bool missing = true;
+                        for (auto i : _Texture2Ds)
+                        {
+                            if (i.get() == payload_n.get())
+                            {
+                                missing = false;
+                                break;
+                            }
+                        }
+                        if (missing)
+                        {
+                            _Texture2Ds.push_back(payload_n);
+                        }
+                    }
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_NORMAL"))
+                    {
+                        IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+                        std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+                        bool missing = true;
+                        for (auto i : _Texture2Ds)
+                        {
+                            if (i.get() == payload_n.get())
+                            {
+                                missing = false;
+                                break;
+                            }
+                        }
+                        if (missing)
+                        {
+                            _Texture2Ds.push_back(payload_n);
+                        }
+                    }
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_SPECULAR"))
+                    {
+                        IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+                        std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+                        bool missing = true;
+                        for (auto i : _Texture2Ds)
+                        {
+                            if (i.get() == payload_n.get())
+                            {
+                                missing = false;
+                                break;
+                            }
+                        }
+                        if (missing)
+                        {
+                            _Texture2Ds.push_back(payload_n);
+                        }
+                    }
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE_DISPLACEMENT"))
+                    {
+                        IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+                        std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+                        bool missing = true;
+                        for (auto i : _Texture2Ds)
+                        {
+                            if (i.get() == payload_n.get())
+                            {
+                                missing = false;
+                                break;
+                            }
+                        }
+                        if (missing)
+                        {
+                            _Texture2Ds.push_back(payload_n);
+                        }
+                    }
+                    ImGui::EndDragDropTarget();
+                }
                 for (int i = 0; i < _Texture2Ds.size(); i++)
                 {
                     TextureGuiNode(i);
                 }
+            	
                 ImGui::EndTabItem();
             }
+            
             if (ImGui::BeginTabItem("Cubemap"))
             {
                 for (int i = 0; i < _Cubemaps.size(); i++)

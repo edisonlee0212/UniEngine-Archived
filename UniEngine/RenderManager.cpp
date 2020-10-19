@@ -1058,8 +1058,8 @@ void RenderManager::OnGui()
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
 				{
-					IM_ASSERT(payload->DataSize == sizeof(int));
-					int payload_n = *(const int*)payload->Data;
+					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
+					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
 					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
 						EulerRotation(),
 						LocalToParent(),
@@ -1069,7 +1069,7 @@ void RenderManager::OnGui()
 						LocalToWorld());
 					Scale t;
 					t.Value = glm::vec3(1.0f);
-					AssetManager::ToEntity(archetype, AssetManager::GetModel(payload_n)).SetComponentData(t);
+					AssetManager::ToEntity(archetype, payload_n).SetComponentData(t);
 				}
 				ImGui::EndDragDropTarget();
 			}

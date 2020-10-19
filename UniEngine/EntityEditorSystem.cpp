@@ -48,7 +48,7 @@ void UniEngine::EntityEditorSystem::DrawEntityNode(Entity& entity)
 	if (enabled) {
 		ImGui::PopStyleColor();
 	}
-	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+	if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
 		_SelectedEntity = entity;
 	}
 	const bool deleted = DrawEntityMenu(enabled, entity);
@@ -111,7 +111,7 @@ void UniEngine::EntityEditorSystem::Update()
 							ImGui::PopStyleColor();
 						}
 						DrawEntityMenu(enabled, entity);
-						if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+						if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
 							_SelectedEntity = entity;
 						}
 					}

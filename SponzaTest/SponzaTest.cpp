@@ -10,7 +10,6 @@ void InitGround();
 float lightAngle6 = 0;
 
 enum TestScene {
-	NANOSUIT,
 	BACKPACK,
 	SPONZA_TEST,
 	PCSS,
@@ -60,21 +59,9 @@ int main()
 	cylinder->Material = sharedMat;
 	Scale scale;
 	scale.Value = glm::vec3(0.5f);
-	TestScene testScene = BACKPACK;
+	TestScene testScene = PCSS;
 #pragma region PCSS test
-	if (testScene == NANOSUIT) {
-		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/nanosuit/nanosuit.obj"), Default::GLPrograms::DeferredPrepass);
-		backpack->Name = "Nanosuit";
-		Entity backpackEntity = AssetManager::ToEntity(backpackArchetype, backpack);
-		backpackEntity.SetName("Nanosuit");
-		Translation bpp;
-		bpp.Value = glm::vec3(0, 5, 0);
-		Scale bps;
-		bps.Value = glm::vec3(2.0f);
-		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
-		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
-	}
-	else if (testScene == BACKPACK) {
+	if (testScene == BACKPACK) {
 		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::DeferredPrepass);
 		backpack->Name = "Backpack";
 		Entity backpackEntity = AssetManager::ToEntity(backpackArchetype, backpack);
