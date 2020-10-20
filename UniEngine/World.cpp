@@ -48,14 +48,17 @@ UniEngine::World::World(size_t index, ThreadPool* threadPool) {
 
 void UniEngine::World::Init()
 {
-	_Time->_WorldTime = 0;
-	_Time->_DeltaTime = 0;
-	_Time->_LastFrameTime = 0;
-	_Time->_FixedDeltaTime = 0;
+	
 	ManagerBase::_World = this;
 	
 }
 
+void World::ResetTime()
+{
+	_Time->_DeltaTime = 0;
+	_Time->_LastFrameTime = _Time->_WorldTime;
+	_Time->_FixedDeltaTime = 0;
+}
 
 
 UniEngine::World::~World() {
@@ -76,10 +79,9 @@ UniEngine::World::~World() {
 void UniEngine::World::Update() {
 	_Time->_DeltaTime = _Time->_WorldTime - _Time->_LastFrameTime;
 	_Time->_LastFrameTime = _Time->_WorldTime;
-	_Time->AddFixedDeltaTime(_Time->_DeltaTime);
+	_Time->_FixedDeltaTime += _Time->_DeltaTime;
 	bool fixedUpdate = false;
 	if (_Time->_FixedDeltaTime >= _Time->_TimeStep) {
-		_Time->_FixedDeltaTime = 0;
 		fixedUpdate = true;
 	}
 	for (auto i : _PreparationSystems) {
@@ -105,6 +107,10 @@ void UniEngine::World::Update() {
 		for (auto i : _PresentationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
+	}
+	if(fixedUpdate)
+	{
+		_Time->_FixedDeltaTime = 0;
 	}
 }
 

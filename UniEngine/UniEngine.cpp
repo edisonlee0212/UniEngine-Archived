@@ -89,6 +89,7 @@ void UniEngine::Application::GLInit()
 
 void UniEngine::Application::Init(bool fullScreen)
 {
+	
 	_Loopable = false;
 	WindowManager::Init("UniEngine", fullScreen);
 	InputManager::Init();
@@ -148,6 +149,11 @@ void UniEngine::Application::Init(bool fullScreen)
 	_World->CreateSystem<RenderSystem>(SystemGroup::PresentationSystemGroup);
 
 #pragma endregion
+	
+	glfwPollEvents();
+	_RealWorldTime = glfwGetTime();
+	_World->SetWorldTime(_RealWorldTime);
+	_World->ResetTime();
 }
 
 void UniEngine::Application::LoopStart_Internal()

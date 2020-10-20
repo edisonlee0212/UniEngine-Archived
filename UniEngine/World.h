@@ -33,6 +33,7 @@ namespace UniEngine {
 		size_t GetIndex();
 		World(size_t index, ThreadPool* threadPool);
 		void Init();
+		void ResetTime();
 		WorldTime* Time();
 		template <class T>
 		T* CreateSystem(SystemGroup group);

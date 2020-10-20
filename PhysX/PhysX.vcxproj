@@ -141,6 +141,9 @@ xcopy /y /d "..\includes\PhysX\d\*.dll" "$(OutDir)" </Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLAD_GLAPI_EXPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

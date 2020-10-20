@@ -15,7 +15,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	imr->ReceiveShadow = false;
 	imr->Mesh = Default::Primitives::Sphere;
 	imr->Material->SetProgram(Default::GLPrograms::DeferredPrepassInstanced);
-	imr->Material->SetTexture(Default::Textures::StandardTexture);
+	imr->Material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	_StarCluster.SetSharedComponent(imr);
 	_StarCluster.SetComponentData(s);
 	_StarMaterial = new Material();

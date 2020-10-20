@@ -58,7 +58,7 @@ int main()
 	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Translation(), Rotation(), Scale(), LocalToWorld(), PointLightComponent());
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
-	sharedMat->SetTexture(Default::Textures::StandardTexture);
+	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
 	MeshRenderer* dlmmc = new MeshRenderer();
 	dlmmc->Mesh = Default::Primitives::Cylinder;
