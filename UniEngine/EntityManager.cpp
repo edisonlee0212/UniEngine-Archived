@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "EntityManager.h"
 #include "Debug.h"
+#include "UniEngine.h"
 #include "World.h"
 using namespace UniEngine;
 std::vector<WorldEntityStorage*> UniEngine::EntityManager::_WorldEntityStorage;
@@ -239,6 +240,11 @@ void UniEngine::EntityManager::SetWorld(World* world)
 
 Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::string name)
 {
+	if(!Application::_Initialized)
+	{
+		Debug::Error("CreateEntity: Initialize Engine first!");
+		return Entity();
+	}
 	if (archetype.Index == 0) return Entity();
 	Entity retVal;
 	EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
@@ -315,6 +321,11 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 
 void UniEngine::EntityManager::DeleteEntity(Entity entity)
 {
+	if (!Application::_Initialized)
+	{
+		Debug::Error("DeleteEntity: Initialize Engine first!");
+		return;
+	}
 	if (entity.IsNull()) return;
 	size_t entityIndex = entity.Index;
 	if (entity != _Entities->at(entityIndex)) {

@@ -12,11 +12,12 @@
 #include "EntityEditorSystem.h"
 namespace UniEngine {
 	class UNIENGINE_API Application {
+		friend class EntityManager;
 		static std::shared_ptr<Cubemap> _Skybox;
 		static std::shared_ptr<World> _World;
 		static Entity _MainCameraEntity;
 		static std::shared_ptr<CameraComponent> _MainCameraComponent;
-		static bool _Loopable;
+		static bool _Initialized;
 		static double _RealWorldTime;
 		static float _TimeStep;
 		static bool _Running;
@@ -29,6 +30,8 @@ namespace UniEngine {
 		static void LoopMain_Internal();
 		static bool LoopEnd_Internal();
 	public:
+		//You are only allowed to create entity after this.
+		static bool IsInitialized();
 		static void ResetSkybox(std::shared_ptr<Cubemap> cubemap);
 		static void SetEnableSkybox(bool value);
 		static void SetTimeStep(float value);

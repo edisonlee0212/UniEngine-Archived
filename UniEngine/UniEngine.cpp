@@ -18,7 +18,7 @@ std::shared_ptr<Cubemap>  Application::_Skybox;
 std::shared_ptr<World> Application::_World;
 Entity Application::_MainCameraEntity;
 std::shared_ptr<CameraComponent> Application::_MainCameraComponent;
-bool Application::_Loopable = false;
+bool Application::_Initialized = false;
 bool Application::_Running = false;
 double Application::_RealWorldTime;
 float Application::_TimeStep = 0.016f;
@@ -90,7 +90,7 @@ void UniEngine::Application::GLInit()
 void UniEngine::Application::Init(bool fullScreen)
 {
 	
-	_Loopable = false;
+	_Initialized = false;
 	WindowManager::Init("UniEngine", fullScreen);
 	InputManager::Init();
 	_ThreadPool.Resize(std::thread::hardware_concurrency());
@@ -101,17 +101,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	EntityManager::SetWorld(_World.get());
 	_World->Init();
 	_World->SetTimeStep(_TimeStep);
-#pragma region Main Camera
-	Camera::GenerateMatrices();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", Translation(), Rotation(), Scale(), LocalToWorld(), CameraLayerMask());
-	_MainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
-	Translation pos;
-	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
-	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
-	_MainCameraComponent = std::make_shared<CameraComponent>();
-	_MainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
-	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
-#pragma endregion
+
 
 #pragma region ImGUI
 	IMGUI_CHECKVERSION();
@@ -133,22 +123,34 @@ void UniEngine::Application::Init(bool fullScreen)
 	Default::Load(_World.get());
 	_Skybox = Default::Textures::DefaultSkybox;
 	RenderManager::Init();
-	_Loopable = true;
-	
+
 #pragma region Internal Systems
 	_World->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
-
 	//Initialization System Group
 	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
-
 	//Simulation System Group
 	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
-
-
 	//Presentation System Group
 	_World->CreateSystem<RenderSystem>(SystemGroup::PresentationSystemGroup);
-
 #pragma endregion
+	_Initialized = true;
+#pragma region Main Camera
+	Camera::GenerateMatrices();
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", Translation(), Rotation(), Scale(), LocalToWorld(), CameraLayerMask());
+	_MainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
+	Translation pos;
+	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
+	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
+	_MainCameraComponent = std::make_shared<CameraComponent>();
+	_MainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
+	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
+#pragma endregion
+	
+
+
+
+
+
 	
 	glfwPollEvents();
 	_RealWorldTime = glfwGetTime();
@@ -158,7 +160,7 @@ void UniEngine::Application::Init(bool fullScreen)
 
 void UniEngine::Application::LoopStart_Internal()
 {
-	if (!_Loopable) {
+	if (!_Initialized) {
 		return;
 	}
 	glfwPollEvents();
@@ -257,7 +259,7 @@ void UniEngine::Application::LoopStart_Internal()
 
 void UniEngine::Application::LoopMain_Internal()
 {
-	if (!_Loopable) {
+	if (!_Initialized) {
 		return;
 	}
 	_World->Update();
@@ -265,8 +267,8 @@ void UniEngine::Application::LoopMain_Internal()
 
 bool UniEngine::Application::LoopEnd_Internal()
 {
-	_Loopable = !glfwWindowShouldClose(WindowManager::GetWindow());
-	if (!_Loopable) {
+	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
+	if (!_Initialized) {
 		return false;
 	}
 	InputManager::Update();
@@ -317,7 +319,12 @@ bool UniEngine::Application::LoopEnd_Internal()
 	//Swap Window's framebuffer
 	WindowManager::Update();
 
-	return _Loopable;
+	return _Initialized;
+}
+
+bool Application::IsInitialized()
+{
+	return _Initialized;
 }
 
 void Application::ResetSkybox(std::shared_ptr<Cubemap> cubemap)
@@ -338,10 +345,10 @@ void UniEngine::Application::End()
 void UniEngine::Application::Run()
 {
 	_Running = true;
-	while (_Loopable) {
+	while (_Initialized) {
 		LoopStart_Internal();
 		LoopMain_Internal();
-		_Loopable = LoopEnd_Internal();
+		_Initialized = LoopEnd_Internal();
 	}
 	_Running = false;
 }

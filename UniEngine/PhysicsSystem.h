@@ -6,6 +6,11 @@ using namespace physx;
 
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
 namespace UniEngine {
+	struct UNIENGINE_API RigidBody : ComponentBase
+	{
+		PxRigidDynamic* Body;
+	};
+	
 	class UNIENGINE_API PhysicsSystem :
 		public SystemBase
 	{
