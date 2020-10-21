@@ -98,25 +98,28 @@ namespace UniEngine {
 		//16k raw data
 		void* Data;
 		template<typename T>
-		T GetData(size_t offset);
+		T GetData(size_t offset)
+		{
+			return T(*reinterpret_cast<T*>(static_cast<char*>(Data) + offset));
+		}
+		ComponentBase* GetDataPointer(size_t offset) const
+		{
+			return reinterpret_cast<ComponentBase*>(static_cast<char*>(Data) + offset);
+		}
 		template<typename T>
-		void SetData(size_t offset, T data);
-		void ClearData(size_t offset, size_t size) {
-			memset((void*)((char*)Data + offset), 0, size);
+		void SetData(size_t offset, T data)
+		{
+			*reinterpret_cast<T*>(static_cast<char*>(Data) + offset) = data;
+		}
+		void SetData(size_t offset, size_t size, ComponentBase* data) const
+		{
+			memcpy(static_cast<void*>(static_cast<char*>(Data) + offset), data, size);
+		}
+		void ClearData(size_t offset, size_t size) const
+		{
+			memset(static_cast<void*>(static_cast<char*>(Data) + offset), 0, size);
 		}
 	};
-
-	template<typename T>
-	inline T ComponentDataChunk::GetData(size_t offset)
-	{
-		return T(*(T*)((char*)Data + offset));
-	}
-	template<typename T>
-	inline void ComponentDataChunk::SetData(size_t offset, T data)
-	{
-		*(T*)((char*)Data + offset) = data;
-	}
-
 
 	struct ComponentDataChunkArray {
 		std::vector<Entity> Entities;
@@ -157,7 +160,6 @@ namespace UniEngine {
 	struct UNIENGINE_API EntityArchetypeInfo {
 		std::string Name;
 		size_t Index;
-		//std::map<size_t, ComponentType> ComponentTypes;
 		std::vector<ComponentType> ComponentTypes;
 		//The size of a single entity
 		size_t EntitySize;

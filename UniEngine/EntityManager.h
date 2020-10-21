@@ -21,6 +21,16 @@ namespace UniEngine {
 		std::vector<EntityQueryInfo> EntityQueryInfos;
 		std::queue<EntityQuery> EntityQueryPools;
 	};
+	struct ComponentCreateFunction
+	{
+		size_t ComponentSize;
+		std::function<void(ComponentBase*)> Function;
+	};
+	struct ComponentDestroyFunction
+	{
+		size_t ComponentSize;
+		std::function<void(ComponentBase*)> Function;
+	};
 	class UNIENGINE_API EntityManager : public ManagerBase {
 #pragma region Data Storage
 		static std::vector<WorldEntityStorage*> _WorldEntityStorage;
@@ -34,7 +44,8 @@ namespace UniEngine {
 		static std::vector<EntityQueryInfo>* _EntityQueryInfos;
 		static std::queue<EntityQuery>* _EntityQueryPools;
 #pragma endregion
-
+		static std::map<size_t, ComponentCreateFunction> _ComponentCreationFunctionMap;
+		static std::map<size_t, ComponentDestroyFunction> _ComponentDestructionFunctionMap;
 		static ThreadPool* _ThreadPool;
 		template<typename T = ComponentBase>
 		static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
@@ -100,7 +111,15 @@ namespace UniEngine {
 		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
 		static std::vector<Entity>* GetAllEntitiesUnsafe();
 		static std::vector<Entity>* GetParentRootsUnsafe();
+		
+		static void SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data);
+		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
 	public:
+		template<typename T1 = ComponentBase>
+		static void AddComponentCreateCallback(const std::function<void(ComponentBase*)>& func);
+		template<typename T1 = ComponentBase>
+		static void AddComponentDeleteCallback(const std::function<void(ComponentBase*)>& func);
+		
 		static void ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func);
 		static void ForEachSharedComponent(Entity entity, const std::function<void(SharedComponentElement data)>& func);
 		static void ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func);
@@ -135,11 +154,13 @@ namespace UniEngine {
 
 		template<typename T = ComponentBase>
 		static void SetComponentData(Entity entity, T value);
+		
 		template<typename T = ComponentBase>
 		static void SetComponentData(size_t index, T value);
 
 		template<typename T = ComponentBase>
 		static T GetComponentData(Entity entity);
+		
 		template<typename T = ComponentBase>
 		static bool HasComponentData(Entity entity);
 
@@ -1699,6 +1720,24 @@ namespace UniEngine {
 				container.push_back(allEntities[size - remainder + i]);
 			}
 		}
+	}
+
+	template <typename T1>
+	void EntityManager::AddComponentCreateCallback(const std::function<void(ComponentBase*)>& func)
+	{
+		ComponentCreateFunction ins;
+		ins.ComponentSize = sizeof(T1);
+		ins.Function = func;
+		_ComponentCreationFunctionMap.insert_or_assign(typeid(T1).hash_code(), ins);
+	}
+
+	template <typename T1>
+	void EntityManager::AddComponentDeleteCallback(const std::function<void(ComponentBase*)>& func)
+	{
+		ComponentDestroyFunction ins;
+		ins.ComponentSize = sizeof(T1);
+		ins.Function = func;
+		_ComponentDestructionFunctionMap.insert_or_assign(typeid(T1).hash_code(), ins);
 	}
 
 	template <typename T>

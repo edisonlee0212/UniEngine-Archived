@@ -13,7 +13,8 @@ SharedComponentStorage* UniEngine::EntityManager::_EntitySharedComponentStorage;
 std::vector<EntityQuery>* UniEngine::EntityManager::_EntityQueries;
 std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos;
 std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
-
+std::map<size_t, ComponentCreateFunction> UniEngine::EntityManager::_ComponentCreationFunctionMap;
+std::map<size_t, ComponentDestroyFunction> UniEngine::EntityManager::_ComponentDestructionFunctionMap;
 UniEngine::ThreadPool* UniEngine::EntityManager::_ThreadPool;
 #pragma region EntityManager
 
@@ -58,7 +59,18 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 {
 	EntityInfo info = _EntityInfos->at(entity.Index);
 	Entity actualEntity = _Entities->at(entity.Index);
+
+	EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
+	EntityArchetypeInfo* archetypeInfoinfo = storage.ArchetypeInfo;
 	if (actualEntity == entity) {
+		for (auto& type : archetypeInfoinfo->ComponentTypes)
+		{
+			auto search = _ComponentDestructionFunctionMap.find(type.TypeID);
+			if (search != _ComponentDestructionFunctionMap.end())
+			{
+				search->second.Function(GetComponentDataPointer(entity, type.TypeID));
+			}
+		}
 		_EntitySharedComponentStorage->DeleteEntity(actualEntity);
 		info.Version = actualEntity.Version + 1;
 		//Set to version 0, marks it as deleted.
@@ -290,6 +302,14 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 			chunk.ClearData(offset, i.Size);
 		}
 	}
+	for(auto& type : info->ComponentTypes)
+	{
+		auto search = _ComponentCreationFunctionMap.find(type.TypeID);
+		if(search != _ComponentCreationFunctionMap.end())
+		{
+			search->second.Function(GetComponentDataPointer(retVal, type.TypeID));
+		}
+	}
 	return retVal;
 }
 
@@ -468,6 +488,58 @@ void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>* container)
 size_t UniEngine::EntityManager::GetParentHierarchyVersion()
 {
 	return _CurrentActivatedWorldEntityStorage->ParentHierarchyVersion;
+}
+
+void EntityManager::SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data)
+{
+	if (entity.IsNull()) return;
+	EntityInfo info;
+	info = _EntityInfos->at(entity.Index);
+
+	if (_Entities->at(entity.Index) == entity) {
+		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+		size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+		size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+		ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+		bool found = false;
+		for (const auto& type : chunkInfo->ComponentTypes)
+		{
+			if (type.TypeID == id)
+			{
+				chunk.SetData(static_cast<size_t>(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size), size, data);
+				return;
+			}
+		}
+		Debug::Log("ComponentData doesn't exist");
+	}
+	else {
+		Debug::Error("Entity already deleted!");
+	}
+}
+
+ComponentBase* EntityManager::GetComponentDataPointer(Entity entity, size_t id)
+{
+	if (entity.IsNull()) return nullptr;
+	EntityInfo info = _EntityInfos->at(entity.Index);
+	if (_Entities->at(entity.Index) == entity) {
+		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
+		size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
+		size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+		ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+		for (const auto& type : chunkInfo->ComponentTypes)
+		{
+			if (type.TypeID == id)
+			{
+				return chunk.GetDataPointer(static_cast<size_t>(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size));
+			}
+		}
+		Debug::Log("ComponentData doesn't exist");
+		return nullptr;
+	}
+	else {
+		Debug::Error("Entity already deleted!");
+		return nullptr;
+	}
 }
 
 EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)
