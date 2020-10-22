@@ -154,11 +154,16 @@ void UniEngine::EntityEditorSystem::Update()
 						});
 				}
 				if (ImGui::CollapsingHeader("Shared components", ImGuiTreeNodeFlags_DefaultOpen)) {
-					EntityManager::ForEachSharedComponent(_SelectedEntity, [](SharedComponentElement data)
+					int i = 0;
+					EntityManager::ForEachSharedComponent(_SelectedEntity, [&i](SharedComponentElement data)
 						{
 							ImGui::Checkbox((data.Name + 6), &data.SharedComponentData->Enabled);
-							data.SharedComponentData->OnGui();
+							if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
+								data.SharedComponentData->OnGui();
+								ImGui::TreePop();
+							}
 							ImGui::Separator();
+							i++;
 						});
 				}
 			}

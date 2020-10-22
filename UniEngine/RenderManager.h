@@ -130,8 +130,9 @@ namespace UniEngine {
 		static void SetSSAOSampleSize(int value);
 		static void ResizeResolution(int x, int y);
 #pragma endregion
-		static void RenderToCameraDeferred(CameraComponent* cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound);
-		static void RenderToCameraForward(CameraComponent* cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound);
+		static void RenderToCameraDeferred(std::shared_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound);
+		static void RenderSkyBox(std::shared_ptr<CameraComponent>& cameraComponent);
+		static void RenderToCameraForward(std::shared_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound);
 		static void Init();
 		//Main rendering happens here.
 		static void Start();

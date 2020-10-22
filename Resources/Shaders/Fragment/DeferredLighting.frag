@@ -77,7 +77,7 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 	// phase 2: point lights
 	for(int i = 0; i < PointLightCount; i++){
 		float shadow = 0.0;
-		if(enableShadow){
+		if(enableShadow && receiveShadow){
 			shadow = PointLightShadowCalculation(i, PointLights[i], fragPos, normal);
 		}
 		result += CalcPointLight(shininess, albedo, specular, PointLights[i], normal, fragPos, viewDir) * (1.0 - shadow);

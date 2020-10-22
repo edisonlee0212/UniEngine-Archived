@@ -33,18 +33,21 @@ size_t UniEngine::InstancedMeshRenderer::GetHashCode()
 void UniEngine::InstancedMeshRenderer::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
+	if (ForwardRendering) {
+		//Disable shadow receiving only allowed in forward rendering.
+		ImGui::Checkbox("Receive shadow", &ReceiveShadow);
+	}
 	ImGui::Checkbox("Cast shadow", &CastShadow);
-	ImGui::Checkbox("Receive shadow", &ReceiveShadow);
 	ImGui::Checkbox("Back Culling", &BackCulling);
 	ImGui::Text(("Instance count: " + std::to_string(Matrices.size())).c_str());
 	if (Material) {
-		if (ImGui::TreeNode("Material")) {
+		if (ImGui::TreeNode("Material##2")) {
 			Material->OnGui();
 			ImGui::TreePop();
 		}
 	}
 	if (Mesh) {
-		if (ImGui::TreeNode("Mesh")) {
+		if (ImGui::TreeNode("Mesh##2")) {
 			Mesh->OnGui();
 			ImGui::TreePop();
 		}

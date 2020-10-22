@@ -8,5 +8,6 @@ std::size_t UniEngine::CameraComponent::GetHashCode()
 
 void UniEngine::CameraComponent::OnGui()
 {
+	ImGui::Checkbox("Skybox", &DrawSkyBox);
 	Value->OnGui();
 }

@@ -94,7 +94,7 @@ void RenderManager::ResizeResolution(int x, int y)
 	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
 }
 
-void RenderManager::RenderToCameraDeferred(CameraComponent* cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
+void RenderManager::RenderToCameraDeferred(std::shared_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
 {
 	auto camera = cameraComponent->Value;
 	_GBuffer->Bind();
@@ -208,7 +208,6 @@ void RenderManager::RenderToCameraDeferred(CameraComponent* cameraComponent, Ent
 	_GNormalBuffer->Bind(4);
 	_GColorSpecularBuffer->Bind(5);
 	_GBufferLightingPass->SetBool("receiveShadow", true);
-
 	_GBufferLightingPass->SetBool("enableSSAO", _EnableSSAO);
 	if (_EnableSSAO)
 	{
@@ -233,7 +232,22 @@ void RenderManager::RenderToCameraDeferred(CameraComponent* cameraComponent, Ent
 
 }
 
-void RenderManager::RenderToCameraForward(CameraComponent* cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
+void RenderManager::RenderSkyBox(std::shared_ptr<CameraComponent>& cameraComponent)
+{
+	if (!cameraComponent->DrawSkyBox) return;
+	cameraComponent->Value->Bind();
+	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+	Default::GLPrograms::SkyboxProgram->Bind();
+	// skybox cube
+	Default::GLPrograms::SkyboxVAO->Bind();
+	cameraComponent->SkyBox->Texture()->Bind(3);
+	Default::GLPrograms::SkyboxProgram->SetInt("skybox", 3);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	GLVAO::BindDefault();
+	glDepthFunc(GL_LESS); // set depth function back to default
+}
+
+void RenderManager::RenderToCameraForward(std::shared_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
 {
 	auto camera = cameraComponent->Value;
 	camera->Bind();
@@ -261,7 +275,7 @@ void RenderManager::RenderToCameraForward(CameraComponent* cameraComponent, Enti
 					glm::max(maxBound.x, center.x + size.x),
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
-				RenderManager::DrawMesh(
+				DrawMesh(
 					mmc->Mesh.get(),
 					mmc->Material.get(),
 					ltw,
@@ -293,7 +307,7 @@ void RenderManager::RenderToCameraForward(CameraComponent* cameraComponent, Enti
 					glm::max(maxBound.x, center.x + size.x),
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
-				RenderManager::DrawMeshInstanced(
+				DrawMeshInstanced(
 					immc->Mesh.get(),
 					immc->Material.get(),
 					ltw,
@@ -531,7 +545,10 @@ void RenderManager::Init()
 
 void UniEngine::RenderManager::Start()
 {
-	Application::GetMainCameraComponent()->Value->SetResolution(_ResolutionX, _ResolutionY);
+	auto mainCameraComponent = Application::GetMainCameraComponent();
+	auto mainCamera = mainCameraComponent->Value;
+	auto mainCameraEntity = Application::GetMainCameraEntity();
+	mainCameraComponent->Value->SetResolution(_ResolutionX, _ResolutionY);
 	ResizeResolution(_ResolutionX, _ResolutionY);
 
 	_Triangles = 0;
@@ -542,9 +559,9 @@ void UniEngine::RenderManager::Start()
 	}
 
 #pragma region Shadow
-	auto mainCameraComponent = Application::GetMainCameraComponent()->Value;
-	glm::vec3 mainCameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity()).Value;
-	glm::quat mainCameraRot = EntityManager::GetComponentData<Rotation>(Application::GetMainCameraEntity()).Value;
+	
+	glm::vec3 mainCameraPos = EntityManager::GetComponentData<Translation>(mainCameraEntity).Value;
+	glm::quat mainCameraRot = EntityManager::GetComponentData<Rotation>(mainCameraEntity).Value;
 	auto worldBound = _World->GetBound();
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;
@@ -581,7 +598,7 @@ void UniEngine::RenderManager::Start()
 				float max = 0;
 				glm::vec3 lightPos;
 				glm::vec3 cornerPoints[8];
-				mainCameraComponent->CalculateFrustumPoints(splitStart, splitEnd, mainCameraPos, mainCameraRot, cornerPoints);
+				mainCamera->CalculateFrustumPoints(splitStart, splitEnd, mainCameraPos, mainCameraRot, cornerPoints);
 				glm::vec3 cameraFrustumCenter = (mainCameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) + mainCameraPos;
 				if (_StableFit) {
 					//Less detail but no shimmering when rotating the camera.
@@ -903,16 +920,16 @@ void UniEngine::RenderManager::Start()
 #pragma endregion
 	minBound = glm::vec3((int)INT_MAX);
 	maxBound = glm::vec3((int)INT_MIN);
-	auto cC = Application::GetMainCameraComponent();
-	auto cE = Application::GetMainCameraEntity();
+	
 
-	Camera::_MainCameraInfoBlock.UpdateMatrices(cC->Value.get(),
-		EntityManager::GetComponentData<Translation>(cE).Value,
-		EntityManager::GetComponentData<Rotation>(cE).Value
+	Camera::_MainCameraInfoBlock.UpdateMatrices(mainCamera.get(),
+		EntityManager::GetComponentData<Translation>(mainCameraEntity).Value,
+		EntityManager::GetComponentData<Rotation>(mainCameraEntity).Value
 	);
-	Camera::_MainCameraInfoBlock.UploadMatrices(mainCameraComponent->_CameraData);
-	RenderToCameraDeferred(cC, cE, minBound, maxBound);
-	RenderToCameraForward(cC, cE, minBound, maxBound);
+	Camera::_MainCameraInfoBlock.UploadMatrices(mainCamera->_CameraData);
+	RenderToCameraDeferred(mainCameraComponent, mainCameraEntity, minBound, maxBound);
+	RenderSkyBox(mainCameraComponent);
+	RenderToCameraForward(mainCameraComponent, mainCameraEntity, minBound, maxBound);
 	worldBound.Size = (maxBound - minBound) / 2.0f;
 	worldBound.Center = (maxBound + minBound) / 2.0f;
 	worldBound.Radius = glm::length(worldBound.Size);

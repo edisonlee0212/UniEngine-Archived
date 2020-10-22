@@ -7,135 +7,137 @@ using namespace UniEngine;
 void Material::OnGui()
 {
 	ImGui::Text("Name: %s", Name.c_str());
-	ImGui::DragFloat("Shininess", &_Shininess, 1.0f);
-	
-	{
-		ImGui::Spacing();
-		ImGui::Text("Diffuse: ");
-		ImGui::Spacing();
-		ImGui::PushID(0);
-		if (_DiffuseMap) {
-			
-			ImGui::ImageButton((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-			{
-				ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_DiffuseMap, sizeof(std::shared_ptr<Texture2D>));
-				ImGui::Image((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(30, 30));
-				ImGui::EndDragDropSource();
-			}
-			
-		}
-		else
+	ImGui::DragFloat("Shininess", &_Shininess, 1.0f, 0.0f);
+	if (ImGui::TreeNode(("Textures##" + std::to_string(std::hash<std::string>{}(Name))).c_str())) {
 		{
-			ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-		}
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
-			{
-				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-				std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
-				_DiffuseMap = payload_n;
-			}
-			ImGui::EndDragDropTarget();
-		}
-		ImGui::PopID();
-	}
+			ImGui::Spacing();
+			ImGui::Text("Diffuse: ");
+			ImGui::Spacing();
+			ImGui::PushID(0);
+			if (_DiffuseMap) {
 
-	{
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Text("Specular: ");
-		ImGui::Spacing();
-		ImGui::PushID(1);
-		if (_SpecularMap) {
-			ImGui::ImageButton((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-			{
-				ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_SpecularMap, sizeof(std::shared_ptr<Texture2D>));
-				ImGui::Image((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(30, 30));
-				ImGui::EndDragDropSource();
+				ImGui::ImageButton((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_DiffuseMap, sizeof(std::shared_ptr<Texture2D>));
+					ImGui::Image((ImTextureID)_DiffuseMap->Texture()->ID(), ImVec2(30, 30));
+					ImGui::EndDragDropSource();
+				}
+
 			}
-		}
-		else
-		{
-			ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-		}
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
+			else
 			{
-				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-				std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
-				_SpecularMap = payload_n;
+				ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 			}
-			ImGui::EndDragDropTarget();
-		}
-		ImGui::PopID();
-	}
-	
-	{
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Text("Normal: ");
-		ImGui::Spacing();
-		ImGui::PushID(2);
-		if (_NormalMap) {
-			ImGui::ImageButton((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			if (ImGui::BeginDragDropTarget())
 			{
-				ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_NormalMap, sizeof(std::shared_ptr<Texture2D>));
-				ImGui::Image((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(30, 30));
-				ImGui::EndDragDropSource();
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+					std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+					_DiffuseMap = payload_n;
+				}
+				ImGui::EndDragDropTarget();
 			}
+			ImGui::PopID();
 		}
-		else
+
 		{
-			ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-		}
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Text("Specular: ");
+			ImGui::Spacing();
+			ImGui::PushID(1);
+			if (_SpecularMap) {
+				ImGui::ImageButton((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_SpecularMap, sizeof(std::shared_ptr<Texture2D>));
+					ImGui::Image((ImTextureID)_SpecularMap->Texture()->ID(), ImVec2(30, 30));
+					ImGui::EndDragDropSource();
+				}
+			}
+			else
 			{
-				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-				std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
-				_NormalMap = payload_n;
+				ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 			}
-			ImGui::EndDragDropTarget();
-		}
-		ImGui::PopID();
-	}
-	
-	{
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Text("Displacement: ");
-		ImGui::Spacing();
-		ImGui::PushID(3);
-		if (_DisplacementMap) {
-			ImGui::ImageButton((ImTextureID)_DisplacementMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			if (ImGui::BeginDragDropTarget())
 			{
-				ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_DisplacementMap, sizeof(std::shared_ptr<Texture2D>));
-				ImGui::Image((ImTextureID)_DisplacementMap->Texture()->ID(), ImVec2(30, 30));
-				ImGui::EndDragDropSource();
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+					std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+					_SpecularMap = payload_n;
+				}
+				ImGui::EndDragDropTarget();
 			}
+			ImGui::PopID();
 		}
-		else
+
 		{
-			ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-		}
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Text("Normal: ");
+			ImGui::Spacing();
+			ImGui::PushID(2);
+			if (_NormalMap) {
+				ImGui::ImageButton((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_NormalMap, sizeof(std::shared_ptr<Texture2D>));
+					ImGui::Image((ImTextureID)_NormalMap->Texture()->ID(), ImVec2(30, 30));
+					ImGui::EndDragDropSource();
+				}
+			}
+			else
 			{
-				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-				std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
-				_DisplacementMap = payload_n;
+				ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 			}
-			ImGui::EndDragDropTarget();
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+					std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+					_NormalMap = payload_n;
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
 		}
-		ImGui::PopID();
+
+		{
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Text("Displacement: ");
+			ImGui::Spacing();
+			ImGui::PushID(3);
+			if (_DisplacementMap) {
+				ImGui::ImageButton((ImTextureID)_DisplacementMap->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+				{
+					ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_DisplacementMap, sizeof(std::shared_ptr<Texture2D>));
+					ImGui::Image((ImTextureID)_DisplacementMap->Texture()->ID(), ImVec2(30, 30));
+					ImGui::EndDragDropSource();
+				}
+			}
+			else
+			{
+				ImGui::Image((ImTextureID)Default::Textures::MissingTexture->Texture()->ID(), ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+					std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+					_DisplacementMap = payload_n;
+				}
+				ImGui::EndDragDropTarget();
+			}
+			ImGui::PopID();
+		}
+		ImGui::TreePop();
 	}
 }
 

@@ -9,17 +9,20 @@ size_t UniEngine::MeshRenderer::GetHashCode()
 void UniEngine::MeshRenderer::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
+	if(ForwardRendering){
+		//Disable shadow receiving only allowed in forward rendering.
+		ImGui::Checkbox("Receive shadow", &ReceiveShadow);
+	}
 	ImGui::Checkbox("Cast shadow", &CastShadow);
-	ImGui::Checkbox("Receive shadow", &ReceiveShadow);
 	ImGui::Checkbox("Back Culling", &BackCulling);
 	if (Material) {
-		if (ImGui::TreeNode("Material")) {
+		if (ImGui::TreeNode("Material##1")) {
 			Material->OnGui();
 			ImGui::TreePop();
 		}
 	}
 	if (Mesh) {
-		if (ImGui::TreeNode("Mesh")) {
+		if (ImGui::TreeNode("Mesh##1")) {
 			Mesh->OnGui();
 			ImGui::TreePop();
 		}

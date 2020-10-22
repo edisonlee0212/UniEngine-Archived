@@ -13,8 +13,6 @@ void APIENTRY glDebugOutput(GLenum source,
 	const void* userParam);
 
 using namespace UniEngine;
-bool Application::_DrawSkybox = true;
-std::shared_ptr<Cubemap>  Application::_Skybox;
 std::shared_ptr<World> Application::_World;
 Entity Application::_MainCameraEntity;
 std::shared_ptr<CameraComponent> Application::_MainCameraComponent;
@@ -121,7 +119,6 @@ void UniEngine::Application::Init(bool fullScreen)
 	ImGui_ImplOpenGL3_Init("#version 460 core");
 #pragma endregion
 	Default::Load(_World.get());
-	_Skybox = Default::Textures::DefaultSkybox;
 	RenderManager::Init();
 
 #pragma region Internal Systems
@@ -140,6 +137,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
 	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
 	_MainCameraComponent = std::make_shared<CameraComponent>();
+	_MainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
 	_MainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
 	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
 #pragma endregion
@@ -238,22 +236,7 @@ void UniEngine::Application::LoopStart_Internal()
 	
 #pragma endregion
 	WindowManager::Start();
-	
 	RenderManager::Start();
-#pragma region Render skybox
-	if (_DrawSkybox) {
-		_MainCameraComponent->Value->Bind();
-		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-		Default::GLPrograms::SkyboxProgram->Bind();
-		// skybox cube
-		Default::GLPrograms::SkyboxVAO->Bind();
-		_Skybox->Texture()->Bind(3);
-		Default::GLPrograms::SkyboxProgram->SetInt("skybox", 3);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		GLVAO::BindDefault();
-		glDepthFunc(GL_LESS); // set depth function back to default
-	}
-#pragma endregion
 }
 
 void UniEngine::Application::LoopMain_Internal()
@@ -266,6 +249,7 @@ void UniEngine::Application::LoopMain_Internal()
 
 bool UniEngine::Application::LoopEnd_Internal()
 {
+	RenderManager::End();
 	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
 	if (!_Initialized) {
 		return false;
@@ -326,16 +310,6 @@ bool Application::IsInitialized()
 	return _Initialized;
 }
 
-void Application::ResetSkybox(std::shared_ptr<Cubemap> cubemap)
-{
-	_Skybox = std::move(cubemap);
-}
-
-void Application::SetEnableSkybox(bool value)
-{
-	_DrawSkybox = value;
-}
-
 void UniEngine::Application::End()
 {
 	glfwTerminate();
@@ -352,9 +326,9 @@ void UniEngine::Application::Run()
 	_Running = false;
 }
 
-World* UniEngine::Application::GetWorld()
+std::shared_ptr<World>& UniEngine::Application::GetWorld()
 {
-	return _World.get();
+	return _World;
 }
 
 Entity UniEngine::Application::GetMainCameraEntity()
@@ -362,9 +336,9 @@ Entity UniEngine::Application::GetMainCameraEntity()
 	return _MainCameraEntity;
 }
 
-CameraComponent* UniEngine::Application::GetMainCameraComponent()
+std::shared_ptr<CameraComponent>& UniEngine::Application::GetMainCameraComponent()
 {
-	return _MainCameraComponent.get();
+	return _MainCameraComponent;
 }
 
 #pragma region OpenGL Debugging

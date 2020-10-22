@@ -13,7 +13,7 @@ int main()
 	Application::Init();
 
 #pragma region Preparations
-	World* world = Application::GetWorld();
+	auto world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
 
