@@ -245,7 +245,7 @@ void InitGround() {
 
 	*/
 	auto mat = std::make_shared<Material>();
-	mat->SetProgram(Default::GLPrograms::DeferredPrepass);
+	mat->SetProgram(Default::GLPrograms::StandardProgram);
 	
 	auto texture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"));
 	mat->SetTexture(texture, TextureType::DIFFUSE);

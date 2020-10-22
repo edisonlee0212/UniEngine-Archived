@@ -13,6 +13,7 @@ namespace UniEngine {
 			BoundingBox = Bound();
 		}
 		Bound BoundingBox;
+		bool ForwardRendering = false;
 		bool CastShadow = true;
 		bool ReceiveShadow = true;
 		bool BackCulling = true;

@@ -3,6 +3,7 @@
 #include "TransformSystem.h"
 #include "UniEngine.h"
 using namespace UniEngine;
+#pragma region Global Var
 #pragma region Shadow
 #pragma region DirectionalMap
 GLUBO* RenderManager::_DirectionalLightBlock;
@@ -45,8 +46,14 @@ EntityQuery RenderManager::_PointLightQuery;
 EntityQuery RenderManager::_SpotLightQuery;
 size_t RenderManager::_DrawCall;
 size_t RenderManager::_Triangles;
+std::unique_ptr<GLUBO> RenderManager::_KernelBlock;
+std::unique_ptr<GLProgram> RenderManager::_GBufferLightingPass;
+std::unique_ptr<RenderTarget> RenderManager::_GBuffer;
+std::unique_ptr<GLRenderBuffer> RenderManager::_GDepthBuffer;
+std::unique_ptr<GLTexture2D> RenderManager::_GPositionBuffer;
+std::unique_ptr<GLTexture2D> RenderManager::_GNormalBuffer;
+std::unique_ptr<GLTexture2D> RenderManager::_GColorSpecularBuffer;
 #pragma endregion
-
 #pragma region SSAO
 bool RenderManager::_EnableSSAO = true;
 std::unique_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
@@ -62,51 +69,7 @@ float RenderManager::_SSAOScale = 4.0;
 float RenderManager::_SSAOFactor = 1.0f;
 int RenderManager::_SSAOSampleSize = 9;
 #pragma endregion
-
-std::unique_ptr<GLUBO> RenderManager::_KernelBlock;
-
-std::unique_ptr<GLProgram> RenderManager::_GBufferLightingPass;
-std::unique_ptr<RenderTarget> RenderManager::_GBuffer;
-std::unique_ptr<GLRenderBuffer> RenderManager::_GDepthBuffer;
-std::unique_ptr<GLTexture2D> RenderManager::_GPositionBuffer;
-std::unique_ptr<GLTexture2D> RenderManager::_GNormalBuffer;
-std::unique_ptr<GLTexture2D> RenderManager::_GColorSpecularBuffer;
-
-float RenderManager::Lerp(float a, float b, float f)
-{
-	return a + f * (b - a);
-}
-
-void RenderManager::SetSSAOKernelRadius(float value)
-{
-	_SSAOKernelRadius = value;
-}
-
-void RenderManager::SetSSAOKernelBias(float value)
-{
-	_SSAOKernelBias = value;
-}
-
-void RenderManager::SetSSAOScale(float value)
-{
-	_SSAOScale = value;
-}
-
-void RenderManager::SetSSAOFactor(float value)
-{
-	_SSAOFactor = value;
-}
-
-void RenderManager::SetEnableSSAO(bool value)
-{
-	_EnableSSAO = value;
-}
-
-void RenderManager::SetSSAOSampleSize(int value)
-{
-	_SSAOSampleSize = glm::clamp(value, 0, 64);
-}
-
+#pragma endregion
 
 void RenderManager::ResizeResolution(int x, int y)
 {
@@ -131,20 +94,9 @@ void RenderManager::ResizeResolution(int x, int y)
 	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
 }
 
-void RenderManager::RenderToMainCamera()
+void RenderManager::RenderToCameraDeferred(CameraComponent* cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
 {
-	auto camera = Application::GetMainCameraComponent()->Value;
-
-	auto cameraEntity = Application::GetMainCameraEntity();
-	camera->Bind();
-	Camera::_MainCameraInfoBlock.UpdateMatrices(camera.get(),
-		EntityManager::GetComponentData<Translation>(cameraEntity).Value,
-		EntityManager::GetComponentData<Rotation>(cameraEntity).Value
-	);
-	Camera::_MainCameraInfoBlock.UploadMatrices(camera->_CameraData);
-	auto worldBound = _World->GetBound();
-	glm::vec3 minBound = glm::vec3((int)INT_MAX);
-	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
+	auto camera = cameraComponent->Value;
 	_GBuffer->Bind();
 	glEnable(GL_DEPTH_TEST);
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
@@ -155,11 +107,8 @@ void RenderManager::RenderToMainCamera()
 	if (meshMaterials != nullptr) {
 		auto& program = Default::GLPrograms::DeferredPrepass;
 		program->Bind();
-		program->SetInt("directionalShadowMap", 0);
-		program->SetInt("pointShadowMap", 1);
-		program->SetBool("enableShadow", _EnableShadow);
 		for (const auto& mmc : *meshMaterials) {
-			if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+			if (!mmc->Enabled || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
 			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
 			for (auto& j : *EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc)) {
@@ -191,12 +140,8 @@ void RenderManager::RenderToMainCamera()
 	if (instancedMeshMaterials != nullptr) {
 		auto& program = Default::GLPrograms::DeferredPrepassInstanced;
 		program->Bind();
-		program->SetInt("directionalShadowMap", 0);
-		program->SetInt("pointShadowMap", 1);
-		program->SetBool("enableShadow", _EnableShadow);
-
 		for (const auto& immc : *instancedMeshMaterials) {
-			if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
+			if (!immc->Enabled || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
 			if (immc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
 			for (auto& j : *EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(immc)) {
@@ -248,10 +193,13 @@ void RenderManager::RenderToMainCamera()
 		_SSAOBlurFilter->Bind();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		_SSAOColor->Bind(0);
-		_SSAOBlurPass->SetInt("ssaoInput", 0);
+		_SSAOColor->Bind(3);
+		_SSAOBlurPass->SetInt("ssaoInput", 3);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
+
+	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
+	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
 
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -260,8 +208,7 @@ void RenderManager::RenderToMainCamera()
 	_GNormalBuffer->Bind(4);
 	_GColorSpecularBuffer->Bind(5);
 	_GBufferLightingPass->SetBool("receiveShadow", true);
-	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
+
 	_GBufferLightingPass->SetBool("enableSSAO", _EnableSSAO);
 	if (_EnableSSAO)
 	{
@@ -270,7 +217,7 @@ void RenderManager::RenderToMainCamera()
 	}
 	_GBufferLightingPass->SetInt("directionalShadowMap", 0);
 	_GBufferLightingPass->SetInt("pointShadowMap", 1);
-	_GBufferLightingPass->SetBool("enableShadow", RenderManager::_EnableShadow);
+	_GBufferLightingPass->SetBool("enableShadow", _EnableShadow);
 	_GBufferLightingPass->SetInt("gPosition", 3);
 	_GBufferLightingPass->SetInt("gNormal", 4);
 	_GBufferLightingPass->SetInt("gAlbedoSpec", 5);
@@ -283,10 +230,80 @@ void RenderManager::RenderToMainCamera()
 		0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST
 	);
 	RenderTarget::BindDefault();
-	worldBound.Size = (maxBound - minBound) / 2.0f;
-	worldBound.Center = (maxBound + minBound) / 2.0f;
-	worldBound.Radius = glm::length(worldBound.Size);
-	_World->SetBound(worldBound);
+
+}
+
+void RenderManager::RenderToCameraForward(CameraComponent* cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
+{
+	auto camera = cameraComponent->Value;
+	camera->Bind();
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
+	if (meshMaterials != nullptr) {
+		for (const auto& mmc : *meshMaterials) {
+			auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc);
+			if (!mmc->Enabled || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering) continue;
+			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
+			else glDisable(GL_CULL_FACE);
+			for (auto& j : *entities) {
+				if (!j.Enabled()) continue;
+				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
+				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
+				auto meshBound = mmc->Mesh->GetBound();
+				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
+				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
+				minBound = glm::vec3(
+					glm::min(minBound.x, center.x - size.x),
+					glm::min(minBound.y, center.y - size.y),
+					glm::min(minBound.z, center.z - size.z));
+
+				maxBound = glm::vec3(
+					glm::max(maxBound.x, center.x + size.x),
+					glm::max(maxBound.y, center.y + size.y),
+					glm::max(maxBound.z, center.z + size.z));
+				RenderManager::DrawMesh(
+					mmc->Mesh.get(),
+					mmc->Material.get(),
+					ltw,
+					camera.get(),
+					mmc->ReceiveShadow);
+
+			}
+		}
+	}
+	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
+	if (instancedMeshMaterials != nullptr) {
+		for (const auto& immc : *instancedMeshMaterials) {
+			if (!immc->Enabled || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering) continue;
+			if (immc->BackCulling)glEnable(GL_CULL_FACE);
+			else glDisable(GL_CULL_FACE);
+			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(immc);
+			for (auto& j : *entities) {
+				if (!j.Enabled()) continue;
+				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
+				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
+				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
+				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
+				minBound = glm::vec3(
+					glm::min(minBound.x, center.x - size.x),
+					glm::min(minBound.y, center.y - size.y),
+					glm::min(minBound.z, center.z - size.z));
+
+				maxBound = glm::vec3(
+					glm::max(maxBound.x, center.x + size.x),
+					glm::max(maxBound.y, center.y + size.y),
+					glm::max(maxBound.z, center.z + size.z));
+				RenderManager::DrawMeshInstanced(
+					immc->Mesh.get(),
+					immc->Material.get(),
+					ltw,
+					immc->Matrices.data(),
+					immc->Matrices.size(),
+					camera.get(),
+					immc->ReceiveShadow);
+			}
+		}
+	}
 }
 
 void RenderManager::Init()
@@ -516,7 +533,7 @@ void UniEngine::RenderManager::Start()
 {
 	Application::GetMainCameraComponent()->Value->SetResolution(_ResolutionX, _ResolutionY);
 	ResizeResolution(_ResolutionX, _ResolutionY);
-	
+
 	_Triangles = 0;
 	_DrawCall = 0;
 	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
@@ -525,9 +542,9 @@ void UniEngine::RenderManager::Start()
 	}
 
 #pragma region Shadow
-	auto camera = Application::GetMainCameraComponent()->Value;
-	glm::vec3 cameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity()).Value;
-	glm::quat cameraRot = EntityManager::GetComponentData<Rotation>(Application::GetMainCameraEntity()).Value;
+	auto mainCameraComponent = Application::GetMainCameraComponent()->Value;
+	glm::vec3 mainCameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity()).Value;
+	glm::quat mainCameraRot = EntityManager::GetComponentData<Rotation>(Application::GetMainCameraEntity()).Value;
 	auto worldBound = _World->GetBound();
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
 	glm::vec3 minBound = worldBound.Center - worldBound.Size;
@@ -564,8 +581,8 @@ void UniEngine::RenderManager::Start()
 				float max = 0;
 				glm::vec3 lightPos;
 				glm::vec3 cornerPoints[8];
-				camera->CalculateFrustumPoints(splitStart, splitEnd, cameraPos, cameraRot, cornerPoints);
-				glm::vec3 cameraFrustumCenter = (cameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) + cameraPos;
+				mainCameraComponent->CalculateFrustumPoints(splitStart, splitEnd, mainCameraPos, mainCameraRot, cornerPoints);
+				glm::vec3 cameraFrustumCenter = (mainCameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) + mainCameraPos;
 				if (_StableFit) {
 					//Less detail but no shimmering when rotating the camera.
 					//max = glm::distance(cornerPoints[4], cameraFrustumCenter);
@@ -673,23 +690,22 @@ void UniEngine::RenderManager::Start()
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
-						if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+						if (!mmc->Enabled || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 						if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 						else glDisable(GL_CULL_FACE);
-						if (mmc->CastShadow) {
-							auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(std::shared_ptr<MeshRenderer>(mmc));
-							for (auto& j : *entities) {
-								if (!j.Enabled()) continue;
-								auto mesh = mmc->Mesh;
-								auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
-								_DirectionalLightProgram->SetFloat4x4("model", ltw);
-								mesh->Enable();
-								mesh->VAO()->DisableAttributeArray(12);
-								mesh->VAO()->DisableAttributeArray(13);
-								mesh->VAO()->DisableAttributeArray(14);
-								mesh->VAO()->DisableAttributeArray(15);
-								glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
-							}
+						auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(std::shared_ptr<MeshRenderer>(mmc));
+						for (auto& j : *entities) {
+							if (!j.Enabled()) continue;
+							auto mesh = mmc->Mesh;
+							auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
+							_DirectionalLightProgram->SetFloat4x4("model", ltw);
+							mesh->Enable();
+							mesh->VAO()->DisableAttributeArray(12);
+							mesh->VAO()->DisableAttributeArray(13);
+							mesh->VAO()->DisableAttributeArray(14);
+							mesh->VAO()->DisableAttributeArray(15);
+							glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+
 						}
 					}
 				}
@@ -699,36 +715,36 @@ void UniEngine::RenderManager::Start()
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
-						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
+						if (!immc->Enabled || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->BackCulling)glEnable(GL_CULL_FACE);
 						else glDisable(GL_CULL_FACE);
-						if (immc->CastShadow) {
-							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(std::shared_ptr<InstancedMeshRenderer>(immc));
-							size_t count = immc->Matrices.size();
-							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
-							for (auto& entity : *entities) {
-								if (!entity.Enabled()) continue;
-								auto mesh = immc->Mesh;
-								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
-								mesh->Enable();
-								mesh->VAO()->EnableAttributeArray(12);
-								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-								mesh->VAO()->EnableAttributeArray(13);
-								mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-								mesh->VAO()->EnableAttributeArray(14);
-								mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-								mesh->VAO()->EnableAttributeArray(15);
-								mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-								mesh->VAO()->SetAttributeDivisor(12, 1);
-								mesh->VAO()->SetAttributeDivisor(13, 1);
-								mesh->VAO()->SetAttributeDivisor(14, 1);
-								mesh->VAO()->SetAttributeDivisor(15, 1);
-								glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
-								GLVAO::BindDefault();
-							}
-							delete matricesBuffer;
+
+						auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(std::shared_ptr<InstancedMeshRenderer>(immc));
+						size_t count = immc->Matrices.size();
+						GLVBO* matricesBuffer = new GLVBO();
+						matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+						for (auto& entity : *entities) {
+							if (!entity.Enabled()) continue;
+							auto mesh = immc->Mesh;
+							_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
+							mesh->Enable();
+							mesh->VAO()->EnableAttributeArray(12);
+							mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+							mesh->VAO()->EnableAttributeArray(13);
+							mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+							mesh->VAO()->EnableAttributeArray(14);
+							mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+							mesh->VAO()->EnableAttributeArray(15);
+							mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+							mesh->VAO()->SetAttributeDivisor(12, 1);
+							mesh->VAO()->SetAttributeDivisor(13, 1);
+							mesh->VAO()->SetAttributeDivisor(14, 1);
+							mesh->VAO()->SetAttributeDivisor(15, 1);
+							glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+							GLVAO::BindDefault();
 						}
+						delete matricesBuffer;
+
 					}
 				}
 				enabledSize++;
@@ -754,7 +770,7 @@ void UniEngine::RenderManager::Start()
 			}
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			*/
-			
+
 		}
 	}
 	else
@@ -808,60 +824,59 @@ void UniEngine::RenderManager::Start()
 				_PointLightProgram->Bind();
 				_PointLightProgram->SetInt("index", i);
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
-				for (auto mmc : *meshMaterials) {
-					if (mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+				for (const auto& mmc : *meshMaterials) {
+					if (!mmc->Enabled || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 					if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 					else glDisable(GL_CULL_FACE);
-					if (mmc->CastShadow) {
-						auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(std::shared_ptr<MeshRenderer>(mmc));
-						for (auto& entity : *entities) {
-							if (!entity.Enabled()) continue;
-							auto mesh = mmc->Mesh;
-							_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
-							mesh->Enable();
-							mesh->VAO()->DisableAttributeArray(12);
-							mesh->VAO()->DisableAttributeArray(13);
-							mesh->VAO()->DisableAttributeArray(14);
-							mesh->VAO()->DisableAttributeArray(15);
-							glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
-						}
+
+					auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(std::shared_ptr<MeshRenderer>(mmc));
+					for (auto& entity : *entities) {
+						if (!entity.Enabled()) continue;
+						auto mesh = mmc->Mesh;
+						_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
+						mesh->Enable();
+						mesh->VAO()->DisableAttributeArray(12);
+						mesh->VAO()->DisableAttributeArray(13);
+						mesh->VAO()->DisableAttributeArray(14);
+						mesh->VAO()->DisableAttributeArray(15);
+						glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 					}
+
 				}
 				_PointLightInstancedProgram->Bind();
 				_PointLightInstancedProgram->SetInt("index", i);
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 				if (instancedMeshMaterials != nullptr) {
-					for (auto immc : *instancedMeshMaterials) {
-						if (immc->Material == nullptr || immc->Mesh == nullptr) continue;
+					for (const auto& immc : *instancedMeshMaterials) {
+						if (!immc->Enabled || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->BackCulling)glEnable(GL_CULL_FACE);
 						else glDisable(GL_CULL_FACE);
-						if (immc->CastShadow) {
-							auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(std::shared_ptr<InstancedMeshRenderer>(immc));
-							size_t count = immc->Matrices.size();
-							GLVBO* matricesBuffer = new GLVBO();
-							matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
-							for (auto& entity : *entities) {
-								if (!entity.Enabled()) continue;
-								auto mesh = immc->Mesh;
-								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
-								mesh->Enable();
-								mesh->VAO()->EnableAttributeArray(12);
-								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-								mesh->VAO()->EnableAttributeArray(13);
-								mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-								mesh->VAO()->EnableAttributeArray(14);
-								mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-								mesh->VAO()->EnableAttributeArray(15);
-								mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-								mesh->VAO()->SetAttributeDivisor(12, 1);
-								mesh->VAO()->SetAttributeDivisor(13, 1);
-								mesh->VAO()->SetAttributeDivisor(14, 1);
-								mesh->VAO()->SetAttributeDivisor(15, 1);
-								glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
-								GLVAO::BindDefault();
-							}
-							delete matricesBuffer;
+						auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(std::shared_ptr<InstancedMeshRenderer>(immc));
+						size_t count = immc->Matrices.size();
+						GLVBO* matricesBuffer = new GLVBO();
+						matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+						for (auto& entity : *entities) {
+							if (!entity.Enabled()) continue;
+							auto mesh = immc->Mesh;
+							_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
+							mesh->Enable();
+							mesh->VAO()->EnableAttributeArray(12);
+							mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+							mesh->VAO()->EnableAttributeArray(13);
+							mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+							mesh->VAO()->EnableAttributeArray(14);
+							mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+							mesh->VAO()->EnableAttributeArray(15);
+							mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+							mesh->VAO()->SetAttributeDivisor(12, 1);
+							mesh->VAO()->SetAttributeDivisor(13, 1);
+							mesh->VAO()->SetAttributeDivisor(14, 1);
+							mesh->VAO()->SetAttributeDivisor(15, 1);
+							glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+							GLVAO::BindDefault();
 						}
+						delete matricesBuffer;
+
 					}
 				}
 				enabledSize++;
@@ -869,7 +884,8 @@ void UniEngine::RenderManager::Start()
 			glCullFace(GL_BACK);
 #pragma endregion
 		}
-	}else
+	}
+	else
 	{
 		_PointLightBlock->SubData(0, 4, &size);
 	}
@@ -885,10 +901,64 @@ void UniEngine::RenderManager::Start()
 
 	*/
 #pragma endregion
+	minBound = glm::vec3((int)INT_MAX);
+	maxBound = glm::vec3((int)INT_MIN);
+	auto cC = Application::GetMainCameraComponent();
+	auto cE = Application::GetMainCameraEntity();
 
-	RenderToMainCamera();
+	Camera::_MainCameraInfoBlock.UpdateMatrices(cC->Value.get(),
+		EntityManager::GetComponentData<Translation>(cE).Value,
+		EntityManager::GetComponentData<Rotation>(cE).Value
+	);
+	Camera::_MainCameraInfoBlock.UploadMatrices(mainCameraComponent->_CameraData);
+	RenderToCameraDeferred(cC, cE, minBound, maxBound);
+	RenderToCameraForward(cC, cE, minBound, maxBound);
+	worldBound.Size = (maxBound - minBound) / 2.0f;
+	worldBound.Center = (maxBound + minBound) / 2.0f;
+	worldBound.Radius = glm::length(worldBound.Size);
+	_World->SetBound(worldBound);
 }
 
+void RenderManager::End()
+{
+	
+}
+
+inline float RenderManager::Lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
+}
+#pragma region Settings
+void RenderManager::SetSSAOKernelRadius(float value)
+{
+	_SSAOKernelRadius = value;
+}
+
+void RenderManager::SetSSAOKernelBias(float value)
+{
+	_SSAOKernelBias = value;
+}
+
+void RenderManager::SetSSAOScale(float value)
+{
+	_SSAOScale = value;
+}
+
+void RenderManager::SetSSAOFactor(float value)
+{
+	_SSAOFactor = value;
+}
+
+void RenderManager::SetEnableSSAO(bool value)
+{
+	_EnableSSAO = value;
+}
+
+void RenderManager::SetSSAOSampleSize(int value)
+{
+	_SSAOSampleSize = glm::clamp(value, 0, 64);
+}
+#pragma endregion
 #pragma region Shadow
 
 void UniEngine::RenderManager::SetSplitRatio(float r1, float r2, float r3, float r4)
@@ -997,7 +1067,7 @@ void RenderManager::OnGui()
 		}
 		ImGui::Checkbox("Enable shadow", &_EnableShadow);
 		if (_EnableShadow && ImGui::TreeNode("Shadow")) {
-			if(ImGui::TreeNode("Distance"))
+			if (ImGui::TreeNode("Distance"))
 			{
 				ImGui::DragFloat("Max shadow distance", &_MaxShadowDistance, _MaxShadowDistance / 10.0f, 0.1f);
 				ImGui::DragFloat("Split 1", &_ShadowCascadeSplit[0], 0.01f, 0.0f, _ShadowCascadeSplit[1]);
@@ -1105,7 +1175,7 @@ void RenderManager::OnGui()
 			}
 		}
 		ImGui::EndChild();
-		
+
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
@@ -1114,9 +1184,7 @@ void RenderManager::OnGui()
 }
 
 #pragma endregion
-
-
-#pragma region Render
+#pragma region RenderAPI
 #pragma region Internal
 void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_ptr<GLProgram> program)
 {
@@ -1170,9 +1238,6 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	mesh->VAO()->DisableAttributeArray(14);
 	mesh->VAO()->DisableAttributeArray(15);
 
-	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
-
 	_DrawCall++;
 	_Triangles += mesh->Size() / 3;
 	auto& program = Default::GLPrograms::DeferredPrepass;
@@ -1207,9 +1272,6 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 	mesh->VAO()->SetAttributeDivisor(13, 1);
 	mesh->VAO()->SetAttributeDivisor(14, 1);
 	mesh->VAO()->SetAttributeDivisor(15, 1);
-
-	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
 
 	_DrawCall++;
 	_Triangles += mesh->Size() * count / 3;
@@ -1256,6 +1318,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
 	program->SetFloat("material.shininess", material->_Shininess);
+	
 	program->SetInt("directionalShadowMap", 0);
 	program->SetInt("pointShadowMap", 1);
 	program->SetBool("enableShadow", _EnableShadow);
@@ -1290,6 +1353,7 @@ void UniEngine::RenderManager::DrawMesh(
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
 	program->SetFloat("material.shininess", material->_Shininess);
+	
 	program->SetInt("directionalShadowMap", 0);
 	program->SetInt("pointShadowMap", 1);
 	program->SetBool("enableShadow", _EnableShadow);

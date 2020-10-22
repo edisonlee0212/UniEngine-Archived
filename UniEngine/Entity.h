@@ -23,8 +23,8 @@ namespace UniEngine {
 
 
 	class UNIENGINE_API SharedComponentBase {
-		
 	public:
+		bool Enabled = true;
 		virtual size_t GetHashCode() = 0;
 		virtual void OnGui() {}
 	};

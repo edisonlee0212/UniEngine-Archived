@@ -6,7 +6,6 @@
 #include "AssetManager.h"
 #include "WindowManager.h"
 #include "InputManager.h"
-#include "RenderSystem.h"
 #include "TransformSystem.h"
 #include "PhysicsSystem.h"
 #include "EntityEditorSystem.h"

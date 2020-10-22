@@ -156,7 +156,7 @@ void UniEngine::EntityEditorSystem::Update()
 				if (ImGui::CollapsingHeader("Shared components", ImGuiTreeNodeFlags_DefaultOpen)) {
 					EntityManager::ForEachSharedComponent(_SelectedEntity, [](SharedComponentElement data)
 						{
-							ImGui::Text(data.Name + 6);
+							ImGui::Checkbox((data.Name + 6), &data.SharedComponentData->Enabled);
 							data.SharedComponentData->OnGui();
 							ImGui::Separator();
 						});

@@ -32,22 +32,12 @@ namespace UniEngine {
 	
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
+#pragma region Global Var
 #pragma region GUI
 		static bool _EnableLightMenu;
 		static bool _EnableRenderMenu;
 		static bool _EnableInfoWindow;
 #pragma endregion
-
-		
-		static std::unique_ptr<GLUBO> _KernelBlock;
-		
-		friend class RenderSystem;
-		static std::unique_ptr<GLProgram> _GBufferLightingPass;
-		static std::unique_ptr<RenderTarget> _GBuffer;
-		static std::unique_ptr<GLRenderBuffer> _GDepthBuffer;
-		static std::unique_ptr<GLTexture2D> _GPositionBuffer;
-		static std::unique_ptr<GLTexture2D> _GNormalBuffer;
-		static std::unique_ptr<GLTexture2D> _GColorSpecularBuffer;
 #pragma region SSAO
 		static bool _EnableSSAO;
 		static std::unique_ptr<GLProgram> _SSAOGeometryPass;
@@ -63,8 +53,14 @@ namespace UniEngine {
 		static float _SSAOFactor;
 		static int _SSAOSampleSize;
 #pragma endregion
-
 #pragma region Render
+		static std::unique_ptr<GLUBO> _KernelBlock;
+		static std::unique_ptr<GLProgram> _GBufferLightingPass;
+		static std::unique_ptr<RenderTarget> _GBuffer;
+		static std::unique_ptr<GLRenderBuffer> _GDepthBuffer;
+		static std::unique_ptr<GLTexture2D> _GPositionBuffer;
+		static std::unique_ptr<GLTexture2D> _GNormalBuffer;
+		static std::unique_ptr<GLTexture2D> _GColorSpecularBuffer;
 		static int _ResolutionX;
 		static int _ResolutionY;
 		static EntityQuery _DirectionalLightQuery;
@@ -73,20 +69,7 @@ namespace UniEngine {
 		friend class RenderTarget;
 		static size_t _Triangles;
 		static size_t _DrawCall;
-		static void MaterialTextureBindHelper(Material* material, std::shared_ptr<GLProgram> program);
-		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
-		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
-		
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow);
-		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow);
 
-		static void DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix);
-		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix);
-		
-		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow = true);
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow = true);
-		
-		static void DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size);
 #pragma endregion
 #pragma region Shadow
 		static GLUBO* _DirectionalLightBlock;
@@ -121,8 +104,24 @@ namespace UniEngine {
 		static bool _StableFit;
 		static float _MaxShadowDistance;
 #pragma endregion
+#pragma endregion
+		static void MaterialTextureBindHelper(Material* material, std::shared_ptr<GLProgram> program);
+		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
+		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
+
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow);
+		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow);
+
+		static void DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix);
+		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix);
+
+		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow = true);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow = true);
+
+		static void DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size);
 		static float Lerp(float a, float b, float f);
 	public:
+#pragma region Settings
 		static void SetSSAOKernelRadius(float value);
 		static void SetSSAOKernelBias(float value);
 		static void SetSSAOScale(float value);
@@ -130,9 +129,14 @@ namespace UniEngine {
 		static void SetEnableSSAO(bool value);
 		static void SetSSAOSampleSize(int value);
 		static void ResizeResolution(int x, int y);
-		static void RenderToMainCamera();
+#pragma endregion
+		static void RenderToCameraDeferred(CameraComponent* cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound);
+		static void RenderToCameraForward(CameraComponent* cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound);
 		static void Init();
+		//Main rendering happens here.
 		static void Start();
+		//PostProcessing happens here. 
+		static void End();
 #pragma region Shadow
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetDirectionalLightResolution(size_t value);
@@ -149,9 +153,7 @@ namespace UniEngine {
 		static void SetEnableShadow(bool value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 #pragma endregion
-
-		
-#pragma region Render
+#pragma region RenderAPI
 		static void OnGui();
 		static size_t Triangles();
 		static size_t DrawCall();

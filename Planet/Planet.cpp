@@ -2,7 +2,6 @@
 //
 
 #include "UniEngine.h"
-#include "RenderSystem.h"
 #include "CameraControlSystem.h"
 #include "PlanetTerrainSystem.h"
 
@@ -106,7 +105,7 @@ int main()
 #pragma region EngineLoop
 	bool loopable = true;
 	
-	//RenderSystem::SetWireFrameMode(true);
+
 	bool wireFrame = false;
 	while (loopable) {
 		Application::PreUpdate();
@@ -121,13 +120,6 @@ int main()
 		EntityManager::SetComponentData<Translation>(ple2, p);
 #pragma endregion
 
-		ImGui::Begin("Wire Frame");
-		std::string text = std::string(wireFrame ? "Disable" : "Enable");
-		if (ImGui::Button(text.c_str())) {
-			wireFrame = !wireFrame;
-			RenderSystem::SetWireFrameMode(wireFrame);
-		}
-		ImGui::End();
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}

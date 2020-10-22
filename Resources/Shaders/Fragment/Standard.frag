@@ -23,12 +23,12 @@ void main()
 	if(textureColor.a < 0.5)
         discard;
 	float specular = 1.0;
-	if(enableSpecularMapping){
+	if(false){
 		specular *= texture(TEXTURE_SPECULAR0, fs_in.TexCoords).r;
 	}
 	// properties
 	vec3 normal = fs_in.Normal;
-	if(enableNormalMapping){
+	if(false){
 		vec3 B = cross(fs_in.Normal, fs_in.Tangent);
 		mat3 TBN = mat3(fs_in.Tangent, B, fs_in.Normal);
 		normal = texture(TEXTURE_NORMAL0, fs_in.TexCoords).rgb;
@@ -40,7 +40,6 @@ void main()
 	float dist = distance(fs_in.FragPos, CameraPosition);
 
 	vec3 result = CalculateLights(material.shininess, textureColor.rgb, specular, dist, normal, viewDir, fs_in.FragPos);
-	//FragColor = vec4(dist, dist, dist, 1.0);
 	FragColor = vec4(result + AmbientLight * textureColor.rgb, textureColor.a);
 }
 
@@ -204,14 +203,16 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	int blockers = 0;
 	float avgDistance = 0;
 
-	float sampleWidth = lightSize / light.lightFrustumWidth[splitIndex];
+	int sampleAmount = PCSSBSAmount;
+	float sampleWidth = lightSize / light.lightFrustumWidth[splitIndex] / sampleAmount;
 
 	float texScale = float(light.viewPortXSize) / float(textureSize(directionalShadowMap, 0).x);
 	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(directionalShadowMap, 0).y), float(light.viewPortYStart) / float(textureSize(directionalShadowMap, 0).y));
 
-	for(int i = -2; i <= 2; i++)
+	
+	for(int i = -sampleAmount; i <= sampleAmount; i++)
 	{
-		for(int j = -2; j <= 2; j++){
+		for(int j = -sampleAmount; j <= sampleAmount; j++){
 			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
 			float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
 			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
@@ -227,17 +228,16 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	float texelSize = penumbraWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex] * DirectionalLights[i].lightFrustumDistance[splitIndex] / 100.0;
 	
 	int shadowCount = 0;
-	int sampleAmount = int(float(PCSSPCFSampleAmount) * blockers / PCSSBSAmount);
+	sampleAmount = PCSSPCFSampleAmount;
 	for(int i = 0; i < sampleAmount; i++)
 	{
 		//vec2 texCoord = projCoords.xy + UniformKernel[i % MAX_KERNEL_AMOUNT].xy * texelSize;
 		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * texelSize;
-		float cloestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
-		if(cloestDepth == 0) continue;
-		shadow += projCoords.z < cloestDepth ? 1.0 : 0.0;
-		shadowCount++;
+		float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
+		if(closestDepth == 0.0) continue;
+		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
 	}
-	shadow /= shadowCount;
+	shadow /= sampleAmount;
 	return shadow;
 }
 

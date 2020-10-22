@@ -8,6 +8,7 @@ namespace UniEngine {
 		public SharedComponentBase
 	{
 	public:
+		bool ForwardRendering = false;
 		bool CastShadow = true;
 		bool ReceiveShadow = true;
 		bool BackCulling = true;

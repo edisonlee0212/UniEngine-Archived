@@ -8,6 +8,7 @@ size_t UniEngine::MeshRenderer::GetHashCode()
 
 void UniEngine::MeshRenderer::OnGui()
 {
+	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
 	ImGui::Checkbox("Cast shadow", &CastShadow);
 	ImGui::Checkbox("Receive shadow", &ReceiveShadow);
 	ImGui::Checkbox("Back Culling", &BackCulling);

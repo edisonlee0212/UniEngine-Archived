@@ -206,7 +206,11 @@ void UniEngine::Default::Load(World* world)
 	GLPrograms::DeferredPrepassInstanced->Link();
 	delete deferredVert;
 	delete deferredFrag;
-
+	
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString("Shaders/Vertex/Standard.vert");
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform
 		+ "\n"

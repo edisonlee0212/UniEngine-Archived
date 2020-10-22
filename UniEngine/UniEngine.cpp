@@ -130,8 +130,6 @@ void UniEngine::Application::Init(bool fullScreen)
 	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
 	//Simulation System Group
 	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
-	//Presentation System Group
-	_World->CreateSystem<RenderSystem>(SystemGroup::PresentationSystemGroup);
 #pragma endregion
 	_Initialized = true;
 #pragma region Main Camera
@@ -249,7 +247,8 @@ void UniEngine::Application::LoopStart_Internal()
 		Default::GLPrograms::SkyboxProgram->Bind();
 		// skybox cube
 		Default::GLPrograms::SkyboxVAO->Bind();
-		_Skybox->Texture()->Bind(0);
+		_Skybox->Texture()->Bind(3);
+		Default::GLPrograms::SkyboxProgram->SetInt("skybox", 3);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		GLVAO::BindDefault();
 		glDepthFunc(GL_LESS); // set depth function back to default
