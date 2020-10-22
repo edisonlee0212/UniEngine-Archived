@@ -114,9 +114,6 @@
     <ClInclude Include="TransformSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -195,9 +192,6 @@
     <ClInclude Include="Entity.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="EntityManager.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="ManagerBase.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -246,6 +240,15 @@
     <ClInclude Include="AssetManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="RigidBody.h">
+      <Filter>Header Files\Resource\SharedComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsSimulationManager.h">
+      <Filter>Header Files\Resource\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityManager.h">
+      <Filter>Header Files\Resource\Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -289,9 +292,6 @@
     </ClCompile>
     <ClCompile Include="Default.cpp">
       <Filter>Source Files\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="TransformSystem.cpp">
       <Filter>Source Files\Systems</Filter>
@@ -359,9 +359,6 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="EntityManager.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="ManagerBase.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -408,6 +405,15 @@
       <Filter>Source Files\External</Filter>
     </ClCompile>
     <ClCompile Include="AssetManager.cpp">
+      <Filter>Source Files\Resource\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="RigidBody.cpp">
+      <Filter>Source Files\Resource\SharedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSimulationManager.cpp">
+      <Filter>Source Files\Resource\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
   </ItemGroup>

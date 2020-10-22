@@ -157,7 +157,7 @@ void UniEngine::EntityEditorSystem::Update()
 					int i = 0;
 					EntityManager::ForEachSharedComponent(_SelectedEntity, [&i](SharedComponentElement data)
 						{
-							ImGui::Checkbox((data.Name + 6), &data.SharedComponentData->Enabled);
+							ImGui::Checkbox((data.Name + 6), &data.SharedComponentData->_Enabled);
 							if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
 								data.SharedComponentData->OnGui();
 								ImGui::TreePop();

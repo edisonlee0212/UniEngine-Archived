@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "World.h"
 #include "ManagerBase.h"
+#include "PhysicsSimulationManager.h"
 using namespace UniEngine;
 
 
@@ -44,13 +45,6 @@ UniEngine::World::World(size_t index, ThreadPool* threadPool) {
 	_Index = index;
 	_ThreadPool = threadPool;
 	_Time = new WorldTime();
-}
-
-void UniEngine::World::Init()
-{
-	
-	ManagerBase::_World = this;
-	
 }
 
 void World::ResetTime()
@@ -99,6 +93,7 @@ void UniEngine::World::Update() {
 		for (auto i : _SimulationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
+		if(PhysicsSimulationManager::Enabled) PhysicsSimulationManager::Simulate(_Time->_FixedDeltaTime);
 	}
 	for (auto i : _PresentationSystems) {
 		if (i->Enabled()) i->Update();

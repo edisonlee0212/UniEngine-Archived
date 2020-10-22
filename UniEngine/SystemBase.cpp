@@ -18,11 +18,11 @@ void UniEngine::SystemBase::Disable()
 {
 	if (_Enabled) {
 		_Enabled = false;
-		OnStopRuning();
+		OnStopRunning();
 	}
 }
 
-bool UniEngine::SystemBase::Enabled()
+bool UniEngine::SystemBase::Enabled() const
 {
 	return _Enabled;
 }

@@ -13,12 +13,12 @@ namespace UniEngine {
 		World* _World;
 		ThreadPool* _ThreadPool;
 		virtual void OnStartRunning() {}
-		virtual void OnStopRuning() {}
+		virtual void OnStopRunning() {}
 		SystemBase();
 	public:
 		void Enable();
 		void Disable();
-		bool Enabled();
+		bool Enabled() const;
 
 		virtual void OnCreate() {};
 		virtual void OnDestroy() {};

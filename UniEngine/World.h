@@ -32,14 +32,13 @@ namespace UniEngine {
 		void SetTimeStep(float timeStep);
 		size_t GetIndex();
 		World(size_t index, ThreadPool* threadPool);
-		void Init();
 		void ResetTime();
 		WorldTime* Time();
-		template <class T>
+		template <class T = SystemBase>
 		T* CreateSystem(SystemGroup group);
-		template <class T>
+		template <class T = SystemBase>
 		void DestroySystem();
-		template <class T>
+		template <class T = SystemBase>
 		T* GetSystem();
 		~World();
 		void Update();
@@ -55,7 +54,6 @@ namespace UniEngine {
 		system->_World = this;
 		system->_Time = _Time;
 		system->_ThreadPool = _ThreadPool;
-		system->OnCreate();
 		switch (group)
 		{
 		case UniEngine::SystemGroup::PreparationSystemGroup:
@@ -70,7 +68,7 @@ namespace UniEngine {
 		default:
 			break;
 		}
-
+		system->OnCreate();
 		return system;
 	}
 	template <class T>

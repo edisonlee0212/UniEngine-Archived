@@ -23,8 +23,26 @@ namespace UniEngine {
 
 
 	class UNIENGINE_API SharedComponentBase {
+		friend class EntityEditorSystem;
+		bool _Enabled = true;
 	public:
-		bool Enabled = true;
+		void SetEnabled(bool value)
+		{
+			if(_Enabled != value)
+			{
+				_Enabled = value;
+				if(_Enabled)
+				{
+					OnEnable();
+				}else
+				{
+					OnDisable();
+				}
+			}
+		}
+		bool IsEnabled() const { return _Enabled; }
+		virtual void OnEnable(){}
+		virtual void OnDisable(){}
 		virtual size_t GetHashCode() = 0;
 		virtual void OnGui() {}
 	};

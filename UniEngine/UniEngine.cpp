@@ -87,20 +87,18 @@ void UniEngine::Application::GLInit()
 
 void UniEngine::Application::Init(bool fullScreen)
 {
-	
 	_Initialized = false;
 	WindowManager::Init("UniEngine", fullScreen);
 	InputManager::Init();
 	_ThreadPool.Resize(std::thread::hardware_concurrency());
-	EntityManager::Init(&_ThreadPool);
-
+	ManagerBase::_ThreadPool = &_ThreadPool;
 	GLInit();
 	_World = std::make_shared<World>(0, &_ThreadPool);
 	EntityManager::SetWorld(_World.get());
-	_World->Init();
+	ManagerBase::SetWorld(_World.get());
 	_World->SetTimeStep(_TimeStep);
 
-
+	PhysicsSimulationManager::Init();
 #pragma region ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -125,8 +123,6 @@ void UniEngine::Application::Init(bool fullScreen)
 	_World->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
 	//Initialization System Group
 	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
-	//Simulation System Group
-	_World->CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
 	_Initialized = true;
 #pragma region Main Camera
@@ -141,13 +137,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	_MainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
 	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
 #pragma endregion
-	
 
-
-
-
-
-	
 	glfwPollEvents();
 	_RealWorldTime = glfwGetTime();
 	_World->SetWorldTime(_RealWorldTime);

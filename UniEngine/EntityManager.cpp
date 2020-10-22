@@ -16,7 +16,6 @@ std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos;
 std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
 std::map<size_t, ComponentCreateFunction> UniEngine::EntityManager::_ComponentCreationFunctionMap;
 std::map<size_t, ComponentDestroyFunction> UniEngine::EntityManager::_ComponentDestructionFunctionMap;
-UniEngine::ThreadPool* UniEngine::EntityManager::_ThreadPool;
 #pragma region EntityManager
 
 void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func)
@@ -191,11 +190,6 @@ std::vector<Entity>* UniEngine::EntityManager::GetParentRootsUnsafe()
 	return _ParentRoots;
 }
 
-void UniEngine::EntityManager::Init(ThreadPool* threadPool)
-{
-	SetThreadPool(threadPool);
-}
-
 void UniEngine::EntityManager::GetAllEntities(std::vector<Entity>& target) {
 	target.insert(target.end(), _Entities->begin() + 1, _Entities->end());
 }
@@ -205,10 +199,6 @@ std::vector<Entity>* UniEngine::EntityManager::GetAllEntitiesUnsafe()
 	return _Entities;
 }
 
-void UniEngine::EntityManager::SetThreadPool(ThreadPool* pool)
-{
-	_ThreadPool = pool;
-}
 
 void UniEngine::EntityManager::SetWorld(World* world)
 {

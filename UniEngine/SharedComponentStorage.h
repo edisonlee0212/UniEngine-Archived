@@ -31,7 +31,6 @@ namespace UniEngine {
 	{
 		std::unordered_map<std::size_t, Index> _SCCollectionsMap;
 		std::vector<std::unique_ptr<SCCollection>> _SCCollectionsList;
-
 	public:
 		SharedComponentStorage();
 

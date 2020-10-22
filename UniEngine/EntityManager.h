@@ -46,7 +46,6 @@ namespace UniEngine {
 #pragma endregion
 		static std::map<size_t, ComponentCreateFunction> _ComponentCreationFunctionMap;
 		static std::map<size_t, ComponentDestroyFunction> _ComponentDestructionFunctionMap;
-		static ThreadPool* _ThreadPool;
 		template<typename T = ComponentBase>
 		static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
 		template<typename T = ComponentBase, typename... Ts>
@@ -124,12 +123,8 @@ namespace UniEngine {
 		static void ForEachSharedComponent(Entity entity, const std::function<void(SharedComponentElement data)>& func);
 		static void ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func);
 
-
-		static void Init(ThreadPool* threadPool);
-
 		static void GetAllEntities(std::vector<Entity>& target);
 
-		static void SetThreadPool(ThreadPool* pool);
 		static void SetWorld(World* world);
 		template<typename T = ComponentBase, typename... Ts>
 		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);

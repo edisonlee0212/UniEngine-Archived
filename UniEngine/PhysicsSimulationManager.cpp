@@ -1,8 +1,20 @@
 #include "pch.h"
-#include "PhysicsSystem.h"
+#include "PhysicsSimulationManager.h"
 using namespace physx;
 
-PxRigidDynamic* UniEngine::PhysicsSystem::createDynamic(const PxTransform& t, const PxGeometry& geometry,
+PxDefaultAllocator		UniEngine::PhysicsSimulationManager::_Allocator;
+PxDefaultErrorCallback	UniEngine::PhysicsSimulationManager::_ErrorCallback;
+PxFoundation* UniEngine::PhysicsSimulationManager::_PhysicsFoundation = NULL;
+PxPhysics* UniEngine::PhysicsSimulationManager::_Physics = NULL;
+PxDefaultCpuDispatcher* UniEngine::PhysicsSimulationManager::_Dispatcher = NULL;
+PxScene* UniEngine::PhysicsSimulationManager::_PhysicsScene = NULL;
+PxPvd* UniEngine::PhysicsSimulationManager::_PhysVisDebugger = NULL;
+
+PxMaterial* UniEngine::PhysicsSimulationManager::gMaterial = NULL;
+PxReal UniEngine::PhysicsSimulationManager::stackZ = 10.0f;
+bool UniEngine::PhysicsSimulationManager::Enabled = true;
+
+PxRigidDynamic* UniEngine::PhysicsSimulationManager::createDynamic(const PxTransform& t, const PxGeometry& geometry,
 	const PxVec3& velocity)
 {
 	PxRigidDynamic* dynamic = PxCreateDynamic(*_Physics, t, geometry, *gMaterial, 10.0f);
@@ -12,7 +24,7 @@ PxRigidDynamic* UniEngine::PhysicsSystem::createDynamic(const PxTransform& t, co
 	return dynamic;
 }
 
-void UniEngine::PhysicsSystem::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
+void UniEngine::PhysicsSimulationManager::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
 {
 	PxShape* shape = _Physics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
 	for (PxU32 i = 0; i < size; i++)
@@ -29,7 +41,7 @@ void UniEngine::PhysicsSystem::createStack(const PxTransform& t, PxU32 size, PxR
 	shape->release();
 }
 
-void UniEngine::PhysicsSystem::OnCreate()
+void UniEngine::PhysicsSimulationManager::Init()
 {
 	_PhysicsFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, _Allocator, _ErrorCallback);
 
@@ -63,10 +75,9 @@ void UniEngine::PhysicsSystem::OnCreate()
 
 	if (true)
 		createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
-	Enable();
 }
 
-void UniEngine::PhysicsSystem::OnDestroy()
+void UniEngine::PhysicsSimulationManager::Destroy()
 {
 	PX_RELEASE(_PhysicsScene);
 	PX_RELEASE(_Dispatcher);
@@ -80,8 +91,8 @@ void UniEngine::PhysicsSystem::OnDestroy()
 	PX_RELEASE(_PhysicsFoundation);
 }
 
-void UniEngine::PhysicsSystem::FixedUpdate()
+void UniEngine::PhysicsSimulationManager::Simulate(float time)
 {
-	_PhysicsScene->simulate(_Time->FixedDeltaTime());
+	_PhysicsScene->simulate(time);
 	_PhysicsScene->fetchResults(true);
 }

@@ -108,7 +108,7 @@ void RenderManager::RenderToCameraDeferred(std::shared_ptr<CameraComponent>& cam
 		auto& program = Default::GLPrograms::DeferredPrepass;
 		program->Bind();
 		for (const auto& mmc : *meshMaterials) {
-			if (!mmc->Enabled || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
+			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
 			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
 			for (auto& j : *EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc)) {
@@ -141,7 +141,7 @@ void RenderManager::RenderToCameraDeferred(std::shared_ptr<CameraComponent>& cam
 		auto& program = Default::GLPrograms::DeferredPrepassInstanced;
 		program->Bind();
 		for (const auto& immc : *instancedMeshMaterials) {
-			if (!immc->Enabled || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
+			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
 			if (immc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
 			for (auto& j : *EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(immc)) {
@@ -256,7 +256,7 @@ void RenderManager::RenderToCameraForward(std::shared_ptr<CameraComponent>& came
 	if (meshMaterials != nullptr) {
 		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc);
-			if (!mmc->Enabled || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering) continue;
+			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering) continue;
 			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
 			for (auto& j : *entities) {
@@ -288,7 +288,7 @@ void RenderManager::RenderToCameraForward(std::shared_ptr<CameraComponent>& came
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 	if (instancedMeshMaterials != nullptr) {
 		for (const auto& immc : *instancedMeshMaterials) {
-			if (!immc->Enabled || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering) continue;
+			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering) continue;
 			if (immc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
 			auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(immc);
@@ -707,7 +707,7 @@ void UniEngine::RenderManager::Start()
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
 				if (meshMaterials != nullptr) {
 					for (auto mmc : *meshMaterials) {
-						if (!mmc->Enabled || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+						if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 						if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 						else glDisable(GL_CULL_FACE);
 						auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(std::shared_ptr<MeshRenderer>(mmc));
@@ -732,7 +732,7 @@ void UniEngine::RenderManager::Start()
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 				if (instancedMeshMaterials != nullptr) {
 					for (auto immc : *instancedMeshMaterials) {
-						if (!immc->Enabled || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
+						if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->BackCulling)glEnable(GL_CULL_FACE);
 						else glDisable(GL_CULL_FACE);
 
@@ -842,7 +842,7 @@ void UniEngine::RenderManager::Start()
 				_PointLightProgram->SetInt("index", i);
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
 				for (const auto& mmc : *meshMaterials) {
-					if (!mmc->Enabled || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+					if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 					if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 					else glDisable(GL_CULL_FACE);
 
@@ -865,7 +865,7 @@ void UniEngine::RenderManager::Start()
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
 				if (instancedMeshMaterials != nullptr) {
 					for (const auto& immc : *instancedMeshMaterials) {
-						if (!immc->Enabled || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
+						if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->BackCulling)glEnable(GL_CULL_FACE);
 						else glDisable(GL_CULL_FACE);
 						auto entities = EntityManager::GetSharedComponentEntities<InstancedMeshRenderer>(std::shared_ptr<InstancedMeshRenderer>(immc));
