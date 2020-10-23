@@ -104,7 +104,7 @@ void RenderManager::RenderToCameraDeferred(std::shared_ptr<CameraComponent>& cam
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
-	if (meshMaterials != nullptr) {
+	if (meshMaterials) {
 		auto& program = Default::GLPrograms::DeferredPrepass;
 		program->Bind();
 		for (const auto& mmc : *meshMaterials) {
@@ -137,7 +137,7 @@ void RenderManager::RenderToCameraDeferred(std::shared_ptr<CameraComponent>& cam
 	}
 
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
-	if (instancedMeshMaterials != nullptr) {
+	if (instancedMeshMaterials) {
 		auto& program = Default::GLPrograms::DeferredPrepassInstanced;
 		program->Bind();
 		for (const auto& immc : *instancedMeshMaterials) {
@@ -253,7 +253,7 @@ void RenderManager::RenderToCameraForward(std::shared_ptr<CameraComponent>& came
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
-	if (meshMaterials != nullptr) {
+	if (meshMaterials) {
 		for (const auto& mmc : *meshMaterials) {
 			auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(mmc);
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering) continue;
@@ -286,7 +286,7 @@ void RenderManager::RenderToCameraForward(std::shared_ptr<CameraComponent>& came
 		}
 	}
 	auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
-	if (instancedMeshMaterials != nullptr) {
+	if (instancedMeshMaterials) {
 		for (const auto& immc : *instancedMeshMaterials) {
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering) continue;
 			if (immc->BackCulling)glEnable(GL_CULL_FACE);
@@ -554,7 +554,7 @@ void UniEngine::RenderManager::Start()
 	_Triangles = 0;
 	_DrawCall = 0;
 	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
-	for (auto cc : *cameras) {
+	for (const auto& cc : *cameras) {
 		cc->Value->Clear();
 	}
 
@@ -705,8 +705,8 @@ void UniEngine::RenderManager::Start()
 				_DirectionalLightProgram->Bind();
 				_DirectionalLightProgram->SetInt("index", enabledSize);
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
-				if (meshMaterials != nullptr) {
-					for (auto mmc : *meshMaterials) {
+				if (meshMaterials) {
+					for (const auto& mmc : *meshMaterials) {
 						if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 						if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 						else glDisable(GL_CULL_FACE);
@@ -730,8 +730,8 @@ void UniEngine::RenderManager::Start()
 				_DirectionalLightInstancedProgram->Bind();
 				_DirectionalLightInstancedProgram->SetInt("index", enabledSize);
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
-				if (instancedMeshMaterials != nullptr) {
-					for (auto immc : *instancedMeshMaterials) {
+				if(instancedMeshMaterials){
+					for (const auto& immc : *instancedMeshMaterials) {
 						if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->BackCulling)glEnable(GL_CULL_FACE);
 						else glDisable(GL_CULL_FACE);
@@ -761,7 +761,6 @@ void UniEngine::RenderManager::Start()
 							GLVAO::BindDefault();
 						}
 						delete matricesBuffer;
-
 					}
 				}
 				enabledSize++;
@@ -841,29 +840,30 @@ void UniEngine::RenderManager::Start()
 				_PointLightProgram->Bind();
 				_PointLightProgram->SetInt("index", i);
 				auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
-				for (const auto& mmc : *meshMaterials) {
-					if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
-					if (mmc->BackCulling)glEnable(GL_CULL_FACE);
-					else glDisable(GL_CULL_FACE);
+				if(meshMaterials != nullptr){
+					for (const auto& mmc : *meshMaterials) {
+						if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+						if (mmc->BackCulling)glEnable(GL_CULL_FACE);
+						else glDisable(GL_CULL_FACE);
 
-					auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(std::shared_ptr<MeshRenderer>(mmc));
-					for (auto& entity : *entities) {
-						if (!entity.Enabled()) continue;
-						auto mesh = mmc->Mesh;
-						_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
-						mesh->Enable();
-						mesh->VAO()->DisableAttributeArray(12);
-						mesh->VAO()->DisableAttributeArray(13);
-						mesh->VAO()->DisableAttributeArray(14);
-						mesh->VAO()->DisableAttributeArray(15);
-						glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+						auto entities = EntityManager::GetSharedComponentEntities<MeshRenderer>(std::shared_ptr<MeshRenderer>(mmc));
+						for (auto& entity : *entities) {
+							if (!entity.Enabled()) continue;
+							auto mesh = mmc->Mesh;
+							_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(entity).Value);
+							mesh->Enable();
+							mesh->VAO()->DisableAttributeArray(12);
+							mesh->VAO()->DisableAttributeArray(13);
+							mesh->VAO()->DisableAttributeArray(14);
+							mesh->VAO()->DisableAttributeArray(15);
+							glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+						}
 					}
-
 				}
 				_PointLightInstancedProgram->Bind();
 				_PointLightInstancedProgram->SetInt("index", i);
 				auto instancedMeshMaterials = EntityManager::GetSharedComponentDataArray<InstancedMeshRenderer>();
-				if (instancedMeshMaterials != nullptr) {
+				if(instancedMeshMaterials != nullptr){
 					for (const auto& immc : *instancedMeshMaterials) {
 						if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 						if (immc->BackCulling)glEnable(GL_CULL_FACE);
@@ -893,7 +893,6 @@ void UniEngine::RenderManager::Start()
 							GLVAO::BindDefault();
 						}
 						delete matricesBuffer;
-
 					}
 				}
 				enabledSize++;

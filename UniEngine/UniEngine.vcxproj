@@ -141,6 +141,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="PhysicsSimulationManager.h" />
     <ClInclude Include="PointLightComponent.h" />
+    <ClInclude Include="PrivateComponentStorage.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="SharedComponentStorage.h" />
@@ -249,6 +250,7 @@
     </ClCompile>
     <ClCompile Include="PointLightComponent.cpp" />
     <ClCompile Include="PointLightShadowMap.cpp" />
+    <ClCompile Include="PrivateComponentStorage.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="RigidBody.cpp" />

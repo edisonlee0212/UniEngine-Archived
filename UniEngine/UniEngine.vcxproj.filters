@@ -249,6 +249,9 @@
     <ClInclude Include="EntityManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="PrivateComponentStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -415,6 +418,9 @@
     </ClCompile>
     <ClCompile Include="EntityManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="PrivateComponentStorage.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -21,7 +21,9 @@ namespace UniEngine {
 	struct UNIENGINE_API ComponentBase {
 	};
 
+	
 
+	
 	class UNIENGINE_API SharedComponentBase {
 		friend class EntityEditorSystem;
 		bool _Enabled = true;
@@ -46,7 +48,7 @@ namespace UniEngine {
 		virtual size_t GetHashCode() = 0;
 		virtual void OnGui() {}
 	};
-
+	class PrivateComponentBase;
 	struct UNIENGINE_API Entity {
 		//Position in _Entity Array
 		unsigned Index = 0;
@@ -92,13 +94,49 @@ namespace UniEngine {
 		bool RemoveSharedComponent();
 		template <typename T = SharedComponentBase>
 		bool HasSharedComponent();
-
+		
+		template <typename T = PrivateComponentBase>
+		std::unique_ptr<T>& GetPrivateComponent();
+		template <typename T = PrivateComponentBase>
+		void SetPrivateComponent(std::unique_ptr<T> value);
+		template <typename T = PrivateComponentBase>
+		bool RemovePrivateComponent();
+		template <typename T = PrivateComponentBase>
+		bool HasPrivateComponent() const;
+		
 		inline std::string GetName();
 		inline bool SetName(std::string name);
 	};
 #pragma region Storage
 
-
+	class UNIENGINE_API PrivateComponentBase {
+		friend class EntityManager;
+		friend class EntityEditorSystem;
+		
+		Entity _Owner;
+		bool _Enabled = true;
+	public:
+		Entity GetOwner() const { return _Owner; }
+		void SetEnabled(bool value)
+		{
+			if (_Enabled != value)
+			{
+				_Enabled = value;
+				if (_Enabled)
+				{
+					OnEnable();
+				}
+				else
+				{
+					OnDisable();
+				}
+			}
+		}
+		bool IsEnabled() const { return _Enabled; }
+		virtual void OnEnable() {}
+		virtual void OnDisable() {}
+		virtual void OnGui() {}
+	};
 
 	template<typename T>
 	ComponentType typeof() {
@@ -163,13 +201,29 @@ namespace UniEngine {
 			SharedComponentData = std::move(data);
 		}
 	};
+
+	struct PrivateComponentElement
+	{
+		const char* Name;
+		size_t TypeID;
+		std::unique_ptr<PrivateComponentBase> PrivateComponentData;
+		PrivateComponentElement(const char* name, size_t id, std::unique_ptr<PrivateComponentBase> data)
+		{
+			Name = name;
+			TypeID = id;
+			PrivateComponentData = std::move(data);
+		}
+	};
 	
 	struct EntityInfo {
+		friend class PrivateComponentStorage;
+		friend class SharedComponentStorage;
 		std::string Name;
 		size_t Version;
 		bool Enabled = true;
 		Entity Parent;
 		std::vector<SharedComponentElement> SharedComponentElements;
+		std::vector<PrivateComponentElement> PrivateComponentElements;
 		std::vector<Entity> Children;
 		size_t ArchetypeInfoIndex;
 		size_t ChunkArrayIndex;

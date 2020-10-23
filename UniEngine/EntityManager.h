@@ -2,6 +2,7 @@
 #include "UniEngineAPI.h"
 #include "ManagerBase.h"
 #include "Entity.h"
+#include "PrivateComponentStorage.h"
 #include "SharedComponentStorage.h"
 #include "ThreadPool.h"
 #include "Debug.h"
@@ -16,7 +17,7 @@ namespace UniEngine {
 		std::vector<EntityInfo> EntityInfos;
 		std::vector<EntityComponentStorage> EntityComponentStorage;
 		SharedComponentStorage EntitySharedComponentStorage;
-
+		PrivateComponentStorage EntityPrivateComponentStorage;
 		std::vector<EntityQuery> EntityQueries;
 		std::vector<EntityQueryInfo> EntityQueryInfos;
 		std::queue<EntityQuery> EntityQueryPools;
@@ -32,6 +33,9 @@ namespace UniEngine {
 		std::function<void(ComponentBase*)> Function;
 	};
 	class UNIENGINE_API EntityManager : public ManagerBase {
+		friend class PrivateComponentStorage;
+		friend class SharedComponentStorage;
+		
 #pragma region Data Storage
 		static std::vector<WorldEntityStorage*> _WorldEntityStorage;
 		static WorldEntityStorage* _CurrentActivatedWorldEntityStorage;
@@ -40,6 +44,7 @@ namespace UniEngine {
 		static std::vector<EntityInfo>* _EntityInfos;
 		static std::vector<EntityComponentStorage>* _EntityComponentStorage;
 		static SharedComponentStorage* _EntitySharedComponentStorage;
+		static PrivateComponentStorage* _EntityPrivateComponentStorage;
 		static std::vector<EntityQuery>* _EntityQueries;
 		static std::vector<EntityQueryInfo>* _EntityQueryInfos;
 		static std::queue<EntityQuery>* _EntityQueryPools;
@@ -114,6 +119,9 @@ namespace UniEngine {
 		static void SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data);
 		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
 	public:
+		template <typename T>
+		static const std::vector<Entity>& GetPrivateComponentOwnersList();
+		
 		template<typename T1 = ComponentBase>
 		static void AddComponentCreateCallback(const std::function<void(ComponentBase*)>& func);
 		template<typename T1 = ComponentBase>
@@ -173,7 +181,15 @@ namespace UniEngine {
 		template <typename T = SharedComponentBase>
 		static bool HasSharedComponent(Entity entity);
 
-
+		template <typename T = PrivateComponentBase>
+		static std::unique_ptr<T>& GetPrivateComponent(Entity entity);
+		template <typename T = PrivateComponentBase>
+		static void SetPrivateComponent(Entity entity, std::unique_ptr<T> value);
+		template <typename T = PrivateComponentBase>
+		static bool RemovePrivateComponent(Entity entity);
+		template <typename T = PrivateComponentBase>
+		static bool HasPrivateComponent(Entity entity);
+		
 		template <typename T = SharedComponentBase>
 		static std::vector<Entity>* GetSharedComponentEntities(std::shared_ptr<T> value);
 		template <typename T = SharedComponentBase>
@@ -1038,8 +1054,7 @@ namespace UniEngine {
 	void EntityManager::SetComponentData(Entity entity, T value)
 	{
 		if (entity.IsNull()) return;
-		EntityInfo info;
-		info = _EntityInfos->at(entity.Index);
+		EntityInfo& info = _EntityInfos->at(entity.Index);
 
 		if (_Entities->at(entity.Index) == entity) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
@@ -1066,8 +1081,7 @@ namespace UniEngine {
 	void EntityManager::SetComponentData(size_t index, T value)
 	{
 		if (index > _EntityInfos->size()) return;
-		EntityInfo info;
-		info = _EntityInfos->at(index);
+		EntityInfo& info = _EntityInfos->at(index);
 
 		if (_Entities->at(index).Version != 0) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
@@ -1094,7 +1108,7 @@ namespace UniEngine {
 	T EntityManager::GetComponentData(Entity entity)
 	{
 		if (entity.IsNull()) return T();
-		EntityInfo info = _EntityInfos->at(entity.Index);
+		EntityInfo& info = _EntityInfos->at(entity.Index);
 		if (_Entities->at(entity.Index) == entity) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
@@ -1120,7 +1134,7 @@ namespace UniEngine {
 	bool EntityManager::HasComponentData(Entity entity)
 	{
 		if (entity.IsNull()) return false;
-		EntityInfo info = _EntityInfos->at(entity.Index);
+		EntityInfo& info = _EntityInfos->at(entity.Index);
 		if (_Entities->at(entity.Index) == entity) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
@@ -1143,7 +1157,7 @@ namespace UniEngine {
 	T EntityManager::GetComponentData(size_t index)
 	{
 		if (index > _EntityInfos->size()) return T();
-		EntityInfo info = _EntityInfos->at(index);
+		EntityInfo& info = _EntityInfos->at(index);
 		if (_Entities->at(index).Version != 0) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
@@ -1169,7 +1183,7 @@ namespace UniEngine {
 	bool EntityManager::HasComponentData(size_t index)
 	{
 		if (index > _EntityInfos->size()) return false;
-		EntityInfo info = _EntityInfos->at(index);
+		EntityInfo& info = _EntityInfos->at(index);
 		if (_Entities->at(index).Version != 0) {
 			EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 			size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
@@ -1250,6 +1264,75 @@ namespace UniEngine {
 		}
 		return false;
 	}
+	
+	template <typename T>
+	std::unique_ptr<T>& EntityManager::GetPrivateComponent(Entity entity)
+	{	
+		if (entity.IsNull()) return nullptr;
+		int i = 0;
+		for (auto& element : _EntityInfos->at(entity.Index).PrivateComponentElements)
+		{
+			if (element.TypeID == typeid(T).hash_code())
+			{
+				return dynamic_cast<std::unique_ptr<T>&>(element.PrivateComponentData);
+			}
+			i++;
+		}
+		return nullptr;
+	}
+	template <typename T>
+	void EntityManager::SetPrivateComponent(Entity entity, std::unique_ptr<T> value)
+	{
+		if (entity.IsNull()) return;
+		bool found = false;
+		size_t i = 0;
+		for (auto& element : _EntityInfos->at(entity.Index).PrivateComponentElements)
+		{
+			if (element.TypeID == typeid(T).hash_code())
+			{
+				found = true;
+				element.PrivateComponentData = std::move(value);
+			}
+			i++;
+		}
+		if (!found)
+		{
+			_EntityInfos->at(entity.Index).PrivateComponentElements.push_back(PrivateComponentElement(typeid(T).name(), typeid(T).hash_code(), std::move(value)));
+		}
+		_EntityPrivateComponentStorage->SetPrivateComponent<T>(entity);
+	}
+	template <typename T>
+	bool EntityManager::RemovePrivateComponent(Entity entity)
+	{
+		if (entity.IsNull()) return false;
+		bool found = false;
+		for (auto i = 0; i < _EntityInfos->at(entity.Index).PrivateComponentElements.size(); i++)
+		{
+			if (_EntityInfos->at(entity.Index).PrivateComponentElements[i].TypeID == typeid(T).hash_code())
+			{
+				found = true;
+				_EntityInfos->at(entity.Index).PrivateComponentElements.erase(_EntityInfos->at(entity.Index).PrivateComponentElements.begin() + i);
+			}
+		}
+		_EntityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
+		return found;
+	}
+	template <typename T>
+	bool EntityManager::HasPrivateComponent(Entity entity)
+	{
+		
+		if (entity.IsNull()) return false;
+		for (auto& element : _EntityInfos->at(entity.Index).PrivateComponentElements)
+		{
+			if (element.TypeID == typeid(T).hash_code())
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
 	template<typename T>
 	std::vector<Entity>* EntityManager::GetSharedComponentEntities(std::shared_ptr<T> value)
 	{
@@ -1717,6 +1800,12 @@ namespace UniEngine {
 		}
 	}
 
+	template <typename T>
+	const std::vector<Entity>& EntityManager::GetPrivateComponentOwnersList()
+	{
+		return _EntityPrivateComponentStorage->GetOwnersList<T>();
+	}
+
 	template <typename T1>
 	void EntityManager::AddComponentCreateCallback(const std::function<void(ComponentBase*)>& func)
 	{
@@ -1776,11 +1865,35 @@ namespace UniEngine {
 	{
 		return EntityManager::HasSharedComponent<T>();
 	}
+	
+	template <typename T>
+	void Entity::SetPrivateComponent(std::unique_ptr<T> value)
+	{
+		EntityManager::SetPrivateComponent(*this, std::move(value));
+	}
 
+	template <typename T>
+	bool Entity::RemovePrivateComponent()
+	{
+		return EntityManager::RemovePrivateComponent<T>();
+	}
+
+	template <typename T>
+	bool Entity::HasPrivateComponent() const
+	{
+		return EntityManager::HasPrivateComponent(*this);
+	}
+
+	template <typename T>
+	std::unique_ptr<T>& Entity::GetPrivateComponent()
+	{
+		return EntityManager::GetPrivateComponent(*this);
+	}
+	
 	template<typename T1>
 	void EntityQuery::ToComponentDataArray(std::vector<T1>& container)
 	{
-		EntityManager::GetComponentDataArray(*this, container);
+		EntityManager::GetComponentDataArray<T1>(*this, container);
 	}
 
 	template <typename T1, typename T2>

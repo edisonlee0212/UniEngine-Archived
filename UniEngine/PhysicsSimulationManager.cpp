@@ -10,14 +10,14 @@ PxDefaultCpuDispatcher* UniEngine::PhysicsSimulationManager::_Dispatcher = NULL;
 PxScene* UniEngine::PhysicsSimulationManager::_PhysicsScene = NULL;
 PxPvd* UniEngine::PhysicsSimulationManager::_PhysVisDebugger = NULL;
 
-PxMaterial* UniEngine::PhysicsSimulationManager::gMaterial = NULL;
+PxMaterial* UniEngine::PhysicsSimulationManager::_DefaultMaterial = NULL;
 PxReal UniEngine::PhysicsSimulationManager::stackZ = 10.0f;
 bool UniEngine::PhysicsSimulationManager::Enabled = true;
 
 PxRigidDynamic* UniEngine::PhysicsSimulationManager::createDynamic(const PxTransform& t, const PxGeometry& geometry,
 	const PxVec3& velocity)
 {
-	PxRigidDynamic* dynamic = PxCreateDynamic(*_Physics, t, geometry, *gMaterial, 10.0f);
+	PxRigidDynamic* dynamic = PxCreateDynamic(*_Physics, t, geometry, *_DefaultMaterial, 10.0f);
 	dynamic->setAngularDamping(0.5f);
 	dynamic->setLinearVelocity(velocity);
 	_PhysicsScene->addActor(*dynamic);
@@ -26,7 +26,7 @@ PxRigidDynamic* UniEngine::PhysicsSimulationManager::createDynamic(const PxTrans
 
 void UniEngine::PhysicsSimulationManager::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
 {
-	PxShape* shape = _Physics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
+	PxShape* shape = _Physics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *_DefaultMaterial);
 	for (PxU32 i = 0; i < size; i++)
 	{
 		for (PxU32 j = 0; j < size - i; j++)
@@ -65,9 +65,9 @@ void UniEngine::PhysicsSimulationManager::Init()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
-	gMaterial = _Physics->createMaterial(0.5f, 0.5f, 0.6f);
+	_DefaultMaterial = _Physics->createMaterial(0.5f, 0.5f, 0.6f);
 
-	PxRigidStatic* groundPlane = PxCreatePlane(*_Physics, PxPlane(0, 1, 0, 0), *gMaterial);
+	PxRigidStatic* groundPlane = PxCreatePlane(*_Physics, PxPlane(0, 1, 0, 0), *_DefaultMaterial);
 	_PhysicsScene->addActor(*groundPlane);
 
 	for (PxU32 i = 0; i < 5; i++)

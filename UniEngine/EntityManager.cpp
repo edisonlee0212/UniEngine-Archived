@@ -11,6 +11,7 @@ std::vector<Entity>* UniEngine::EntityManager::_Entities;
 std::vector<Entity>* UniEngine::EntityManager::_ParentRoots;
 std::vector<EntityComponentStorage>* UniEngine::EntityManager::_EntityComponentStorage;
 SharedComponentStorage* UniEngine::EntityManager::_EntitySharedComponentStorage;
+PrivateComponentStorage* UniEngine::EntityManager::_EntityPrivateComponentStorage;
 std::vector<EntityQuery>* UniEngine::EntityManager::_EntityQueries;
 std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos;
 std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
@@ -21,7 +22,7 @@ std::map<size_t, ComponentDestroyFunction> UniEngine::EntityManager::_ComponentD
 void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func)
 {
 	if (entity.IsNull()) return;
-	EntityInfo info = _EntityInfos->at(entity.Index);
+	EntityInfo& info = _EntityInfos->at(entity.Index);
 	if (_Entities->at(entity.Index) == entity) {
 		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 		size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
@@ -36,7 +37,7 @@ void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::
 void EntityManager::ForEachSharedComponent(Entity entity, const std::function<void(SharedComponentElement data)>& func)
 {
 	if (entity.IsNull()) return;
-	EntityInfo info = _EntityInfos->at(entity.Index);
+	EntityInfo& info = _EntityInfos->at(entity.Index);
 	if (_Entities->at(entity.Index) == entity)
 	{
 		for (auto& component : info.SharedComponentElements)
@@ -57,7 +58,7 @@ void UniEngine::EntityManager::ForEachEntityStorageUnsafe(const std::function<vo
 
 void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 {
-	EntityInfo info = _EntityInfos->at(entity.Index);
+	EntityInfo& info = _EntityInfos->at(entity.Index);
 	Entity actualEntity = _Entities->at(entity.Index);
 
 	EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
@@ -218,13 +219,11 @@ void UniEngine::EntityManager::SetWorld(World* world)
 	_ParentRoots = &targetStorage->ParentRoots;
 	_EntityInfos = &targetStorage->EntityInfos;
 	_EntityComponentStorage = &targetStorage->EntityComponentStorage;
-	//_EntityPool = &targetStorage->EntityPool;
 	_EntitySharedComponentStorage = &targetStorage->EntitySharedComponentStorage;
+	_EntityPrivateComponentStorage = &targetStorage->EntityPrivateComponentStorage;
 	_EntityQueries = &targetStorage->EntityQueries;
 	_EntityQueryInfos = &targetStorage->EntityQueryInfos;
 	_EntityQueryPools = &targetStorage->EntityQueryPools;
-
-
 }
 
 
@@ -265,7 +264,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
 		entityInfo.ChunkArrayIndex = info->EntityCount;
 		storage.ChunkArray->Entities.push_back(retVal);
-		_EntityInfos->push_back(entityInfo);
+		_EntityInfos->push_back(std::move(entityInfo));
 		_Entities->push_back(retVal);
 		info->EntityCount++;
 		info->EntityAliveCount++;
@@ -273,7 +272,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 	else {
 		//TODO: Update version when we delete entity.
 		retVal = storage.ChunkArray->Entities.at(info->EntityAliveCount);
-		EntityInfo entityInfo = _EntityInfos->at(retVal.Index);
+		EntityInfo& entityInfo = _EntityInfos->at(retVal.Index);
 		if (name.length() == 0)
 		{
 			entityInfo.Name = "Unnamed";
@@ -494,8 +493,7 @@ size_t UniEngine::EntityManager::GetParentHierarchyVersion()
 void EntityManager::SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data)
 {
 	if (entity.IsNull()) return;
-	EntityInfo info;
-	info = _EntityInfos->at(entity.Index);
+	EntityInfo& info = _EntityInfos->at(entity.Index);
 
 	if (_Entities->at(entity.Index) == entity) {
 		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
@@ -521,7 +519,7 @@ void EntityManager::SetComponentData(Entity entity, size_t id, size_t size, Comp
 ComponentBase* EntityManager::GetComponentDataPointer(Entity entity, size_t id)
 {
 	if (entity.IsNull()) return nullptr;
-	EntityInfo info = _EntityInfos->at(entity.Index);
+	EntityInfo& info = _EntityInfos->at(entity.Index);
 	if (_Entities->at(entity.Index) == entity) {
 		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
 		size_t chunkIndex = info.ChunkArrayIndex / chunkInfo->ChunkCapacity;
@@ -547,7 +545,7 @@ EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)
 {
 	EntityArchetype retVal = EntityArchetype();
 	if (entity.IsNull()) return retVal;
-	EntityInfo info = _EntityInfos->at(entity.Index);
+	EntityInfo& info = _EntityInfos->at(entity.Index);
 	retVal.Index = info.ArchetypeInfoIndex;
 	return retVal;
 }

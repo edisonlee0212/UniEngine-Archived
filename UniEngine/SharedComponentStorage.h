@@ -63,10 +63,7 @@ namespace UniEngine {
 		template <typename T>
 		bool RemoveSharedComponent(Entity entity);
 
-		template <typename T>
-		std::shared_ptr<T> GetSharedComponent(Entity entity);
-
-
+		
 	};
 
 	template<typename T>
@@ -214,22 +211,6 @@ namespace UniEngine {
 			}
 		}
 		return false;
-	}
-
-	template<typename T>
-	std::shared_ptr<T> SharedComponentStorage::GetSharedComponent(Entity entity)
-	{
-		SCCollection* scc = GetSCCollection<T>();
-		if (scc == nullptr) return nullptr;
-		const auto ocSize = scc->_OwnersCollectionsList.size();
-		for (size_t i = 0; i < ocSize; i++) {
-			std::unique_ptr<OwnersCollection>* oc = &scc->get()->_OwnersCollectionsList[i];
-			auto entitySearch = oc->get()->_OwnersMap.find(entity);
-			if (entitySearch != oc->get()->_OwnersMap.end()) {
-				return std::dynamic_pointer_cast<T>(scc->_SCList[i]);
-			}
-		}
-		return nullptr;
 	}
 #pragma endregion
 }
