@@ -716,6 +716,7 @@ void UniEngine::RenderManager::Start()
 			_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 			_DirectionalLightShadowMap->Bind();
 			glEnable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			enabledSize = 0;
 			for (int i = 0; i < size; i++) {
@@ -857,6 +858,7 @@ void UniEngine::RenderManager::Start()
 			_PointLightShadowMap->Bind();
 			glCullFace(GL_FRONT);
 			glEnable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
 			enabledSize = 0;
 			for (int i = 0; i < size; i++) {
 				Entity lightEntity = pointLightEntities[i];
