@@ -97,10 +97,11 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 		EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
 		storage.ChunkArray->Entities[info.ChunkArrayIndex] = actualEntity;
 		//TODO: Swap entity data in storage, reset entityinfo for both entity
+		auto originalIndex = info.ChunkArrayIndex;
 		if (info.ChunkArrayIndex != storage.ArchetypeInfo->EntityAliveCount - 1) {
 			auto swappedIndex = SwapEntity(storage, info.ChunkArrayIndex, storage.ArchetypeInfo->EntityAliveCount - 1);
 			_EntityInfos->at(entity.Index).ChunkArrayIndex = storage.ArchetypeInfo->EntityAliveCount - 1;
-			_EntityInfos->at(swappedIndex).ChunkArrayIndex = info.ChunkArrayIndex;
+			_EntityInfos->at(swappedIndex).ChunkArrayIndex = originalIndex;
 		}
 		storage.ArchetypeInfo->EntityAliveCount--;
 	}
