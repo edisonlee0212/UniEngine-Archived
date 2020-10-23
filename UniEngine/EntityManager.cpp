@@ -88,7 +88,8 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 		}
 		_EntitySharedComponentStorage->DeleteEntity(actualEntity);
 		_EntityPrivateComponentStorage->DeleteEntity(actualEntity);
-		info.Version = actualEntity.Version + 1;
+		actualEntity.Version += 1;
+		info.Version = actualEntity.Version;
 		info.PrivateComponentElements.clear();
 		info.SharedComponentElements.clear();
 		//Set to version 0, marks it as deleted.
