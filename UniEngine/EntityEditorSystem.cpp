@@ -153,6 +153,19 @@ void UniEngine::EntityEditorSystem::Update()
 						ImGui::Separator();
 						});
 				}
+				if (ImGui::CollapsingHeader("Private components", ImGuiTreeNodeFlags_DefaultOpen)) {
+					int i = 0;
+					EntityManager::ForEachPrivateComponent(_SelectedEntity, [&i](PrivateComponentElement& data)
+						{
+							ImGui::Checkbox((data.Name + 6), &data.PrivateComponentData->_Enabled);
+							if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
+								data.PrivateComponentData->OnGui();
+								ImGui::TreePop();
+							}
+							ImGui::Separator();
+							i++;
+						});
+				}
 				if (ImGui::CollapsingHeader("Shared components", ImGuiTreeNodeFlags_DefaultOpen)) {
 					int i = 0;
 					EntityManager::ForEachSharedComponent(_SelectedEntity, [&i](SharedComponentElement data)
@@ -166,6 +179,7 @@ void UniEngine::EntityEditorSystem::Update()
 							i++;
 						});
 				}
+				
 			}
 		}
 		else {

@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "RigidBody.h"
+#include "RigidBodyComponent.h"
 
 #include "PhysicsSimulationManager.h"
 
-UniEngine::RigidBody::RigidBody()
+UniEngine::RigidBodyComponent::RigidBodyComponent()
 {
 	_Material = PhysicsSimulationManager::_DefaultMaterial;
 	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform());
@@ -11,7 +11,7 @@ UniEngine::RigidBody::RigidBody()
 	OnEnable();
 }
 
-UniEngine::RigidBody::~RigidBody()
+UniEngine::RigidBodyComponent::~RigidBodyComponent()
 {
 	if (_RigidBody) {
 		_RigidBody->release();
@@ -23,7 +23,7 @@ UniEngine::RigidBody::~RigidBody()
 	}
 }
 
-bool UniEngine::RigidBody::GetTransform(glm::mat4& transform)
+bool UniEngine::RigidBodyComponent::GetTransform(glm::mat4& transform)
 {
 	PxTransform t;
 	bool retVal = _RigidBody->getKinematicTarget(t);
@@ -32,7 +32,7 @@ bool UniEngine::RigidBody::GetTransform(glm::mat4& transform)
 	return retVal;
 }
 
-void UniEngine::RigidBody::SetMaterial(PxMaterial* value)
+void UniEngine::RigidBodyComponent::SetMaterial(PxMaterial* value)
 {
 	if(value && _Material != value)
 	{
@@ -44,7 +44,7 @@ void UniEngine::RigidBody::SetMaterial(PxMaterial* value)
 	}
 }
 
-void UniEngine::RigidBody::SetRigidBody(PxRigidDynamic* value)
+void UniEngine::RigidBodyComponent::SetRigidBody(PxRigidDynamic* value)
 {
 	if(value && _RigidBody != value)
 	{
@@ -58,7 +58,7 @@ void UniEngine::RigidBody::SetRigidBody(PxRigidDynamic* value)
 	
 }
 
-void UniEngine::RigidBody::Refresh()
+void UniEngine::RigidBodyComponent::Refresh()
 {
 	auto shape = PhysicsSimulationManager::_Physics->createShape(*_Geometry, *_Material);
 	_RigidBody->attachShape(*shape);
@@ -69,22 +69,17 @@ void UniEngine::RigidBody::Refresh()
 	}
 }
 
-void UniEngine::RigidBody::OnDisable()
+void UniEngine::RigidBodyComponent::OnDisable()
 {
 	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
 }
 
-void UniEngine::RigidBody::OnEnable()
+void UniEngine::RigidBodyComponent::OnEnable()
 {
 	PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
 }
 
-size_t UniEngine::RigidBody::GetHashCode()
-{
-	return (size_t)this;
-}
-
-void UniEngine::RigidBody::OnGui()
+void UniEngine::RigidBodyComponent::OnGui()
 {
 	
 }

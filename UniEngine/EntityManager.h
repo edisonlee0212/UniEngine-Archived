@@ -120,7 +120,7 @@ namespace UniEngine {
 		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
 	public:
 		template <typename T>
-		static const std::vector<Entity>& GetPrivateComponentOwnersList();
+		static const std::vector<Entity>* GetPrivateComponentOwnersList();
 		
 		template<typename T1 = ComponentBase>
 		static void AddComponentCreateCallback(const std::function<void(ComponentBase*)>& func);
@@ -129,8 +129,9 @@ namespace UniEngine {
 		
 		static void ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func);
 		static void ForEachSharedComponent(Entity entity, const std::function<void(SharedComponentElement data)>& func);
-		static void ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func);
+		static void ForEachPrivateComponent(Entity entity, const std::function<void(PrivateComponentElement& data)>& func);
 
+		static void ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func);
 		static void GetAllEntities(std::vector<Entity>& target);
 
 		static void SetWorld(World* world);
@@ -182,7 +183,7 @@ namespace UniEngine {
 		static bool HasSharedComponent(Entity entity);
 
 		template <typename T = PrivateComponentBase>
-		static std::unique_ptr<T>& GetPrivateComponent(Entity entity);
+		static std::unique_ptr<T>* GetPrivateComponent(Entity entity);
 		template <typename T = PrivateComponentBase>
 		static void SetPrivateComponent(Entity entity, std::unique_ptr<T> value);
 		template <typename T = PrivateComponentBase>
@@ -1264,9 +1265,8 @@ namespace UniEngine {
 		}
 		return false;
 	}
-	
 	template <typename T>
-	std::unique_ptr<T>& EntityManager::GetPrivateComponent(Entity entity)
+	std::unique_ptr<T>* EntityManager::GetPrivateComponent(Entity entity)
 	{	
 		if (entity.IsNull()) return nullptr;
 		int i = 0;
@@ -1274,7 +1274,7 @@ namespace UniEngine {
 		{
 			if (element.TypeID == typeid(T).hash_code())
 			{
-				return dynamic_cast<std::unique_ptr<T>&>(element.PrivateComponentData);
+				return reinterpret_cast<std::unique_ptr<T>*>(&element.PrivateComponentData);
 			}
 			i++;
 		}
@@ -1801,7 +1801,7 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	const std::vector<Entity>& EntityManager::GetPrivateComponentOwnersList()
+	const std::vector<Entity>* EntityManager::GetPrivateComponentOwnersList()
 	{
 		return _EntityPrivateComponentStorage->GetOwnersList<T>();
 	}
@@ -1881,13 +1881,13 @@ namespace UniEngine {
 	template <typename T>
 	bool Entity::HasPrivateComponent() const
 	{
-		return EntityManager::HasPrivateComponent(*this);
+		return EntityManager::HasPrivateComponent<T>(*this);
 	}
 
 	template <typename T>
-	std::unique_ptr<T>& Entity::GetPrivateComponent()
+	std::unique_ptr<T>* Entity::GetPrivateComponent()
 	{
-		return EntityManager::GetPrivateComponent(*this);
+		return EntityManager::GetPrivateComponent<T>(*this);
 	}
 	
 	template<typename T1>

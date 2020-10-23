@@ -23,7 +23,7 @@ namespace UniEngine
 		template <typename T = PrivateComponentBase>
 		void RemovePrivateComponent(Entity entity);
 		template <typename T>
-		const std::vector<Entity>& GetOwnersList();
+		const std::vector<Entity>* GetOwnersList();
 	};
 
 	template <typename T>
@@ -52,14 +52,14 @@ namespace UniEngine
 	}
 
 	template <typename T>
-	const std::vector<Entity>& PrivateComponentStorage::GetOwnersList()
+	const std::vector<Entity>* PrivateComponentStorage::GetOwnersList()
 	{
 		auto search = _POwnersCollectionsMap.find(typeid(T).hash_code());
 		if(search != _POwnersCollectionsMap.end())
 		{
-			return _POwnersCollectionsList[search->second].second->_OwnersList;
+			return &_POwnersCollectionsList[search->second].second->_OwnersList;
 		}
-		return std::vector<Entity>();
+		return nullptr;
 	}
 }
 

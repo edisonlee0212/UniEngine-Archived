@@ -52,12 +52,6 @@
     <Filter Include="Source Files\Resource\Rendering">
       <UniqueIdentifier>{a84dcb55-783b-484d-9b67-316f019967c3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Resource\Component">
-      <UniqueIdentifier>{3d72652e-0113-4c97-aa32-c390abf10261}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\Component">
-      <UniqueIdentifier>{98d9d20f-ef8f-48b9-8036-be6a5c011733}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Core">
       <UniqueIdentifier>{5be41011-6f73-4911-aecf-b568f710bb76}</UniqueIdentifier>
     </Filter>
@@ -66,6 +60,18 @@
     </Filter>
     <Filter Include="Header Files\Resource\Rendering">
       <UniqueIdentifier>{7ab163c2-3e06-42f1-bac1-c119e0b1d8e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\ComponentData">
+      <UniqueIdentifier>{98d9d20f-ef8f-48b9-8036-be6a5c011733}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resource\PrivateComponent">
+      <UniqueIdentifier>{75e2d44d-ea1e-45bf-a86a-604102388020}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\ComponentData">
+      <UniqueIdentifier>{3d72652e-0113-4c97-aa32-c390abf10261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resource\PrivateComponent">
+      <UniqueIdentifier>{b6c738f3-3353-4c5d-8037-78f5cecdc252}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -108,9 +114,6 @@
     <ClInclude Include="UniEngineAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CameraComponent.h">
-      <Filter>Header Files\Resource\SharedComponent</Filter>
-    </ClInclude>
     <ClInclude Include="TransformSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -142,7 +145,7 @@
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Ray.h">
-      <Filter>Header Files\Resource\Component</Filter>
+      <Filter>Header Files\Resource\ComponentData</Filter>
     </ClInclude>
     <ClInclude Include="MeshRenderer.h">
       <Filter>Header Files\Resource\SharedComponent</Filter>
@@ -226,22 +229,19 @@
       <Filter>Header Files\External</Filter>
     </ClInclude>
     <ClInclude Include="PointLightComponent.h">
-      <Filter>Header Files\Resource\Component</Filter>
+      <Filter>Header Files\Resource\ComponentData</Filter>
     </ClInclude>
     <ClInclude Include="DirectionalLightComponent.h">
-      <Filter>Header Files\Resource\Component</Filter>
+      <Filter>Header Files\Resource\ComponentData</Filter>
     </ClInclude>
     <ClInclude Include="SpotLightComponent.h">
-      <Filter>Header Files\Resource\Component</Filter>
+      <Filter>Header Files\Resource\ComponentData</Filter>
     </ClInclude>
     <ClInclude Include="FileBrowser.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
     <ClInclude Include="AssetManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="RigidBody.h">
-      <Filter>Header Files\Resource\SharedComponent</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsSimulationManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
@@ -251,6 +251,12 @@
     </ClInclude>
     <ClInclude Include="PrivateComponentStorage.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Header Files\Resource\PrivateComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBodyComponent.h">
+      <Filter>Header Files\Resource\PrivateComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -289,9 +295,6 @@
     </ClCompile>
     <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraComponent.cpp">
-      <Filter>Source Files\Resource\SharedComponent</Filter>
     </ClCompile>
     <ClCompile Include="Default.cpp">
       <Filter>Source Files\Resource</Filter>
@@ -396,22 +399,19 @@
       <Filter>Source Files\External</Filter>
     </ClCompile>
     <ClCompile Include="SpotLightComponent.cpp">
-      <Filter>Source Files\Resource\Component</Filter>
+      <Filter>Source Files\Resource\ComponentData</Filter>
     </ClCompile>
     <ClCompile Include="DirectionalLightComponent.cpp">
-      <Filter>Source Files\Resource\Component</Filter>
+      <Filter>Source Files\Resource\ComponentData</Filter>
     </ClCompile>
     <ClCompile Include="PointLightComponent.cpp">
-      <Filter>Source Files\Resource\Component</Filter>
+      <Filter>Source Files\Resource\ComponentData</Filter>
     </ClCompile>
     <ClCompile Include="FileBrowser.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
     <ClCompile Include="AssetManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="RigidBody.cpp">
-      <Filter>Source Files\Resource\SharedComponent</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsSimulationManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
@@ -421,6 +421,12 @@
     </ClCompile>
     <ClCompile Include="PrivateComponentStorage.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraComponent.cpp">
+      <Filter>Source Files\Resource\PrivateComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="RigidBodyComponent.cpp">
+      <Filter>Source Files\Resource\PrivateComponent</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

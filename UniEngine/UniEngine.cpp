@@ -15,7 +15,6 @@ void APIENTRY glDebugOutput(GLenum source,
 using namespace UniEngine;
 std::shared_ptr<World> Application::_World;
 Entity Application::_MainCameraEntity;
-std::shared_ptr<CameraComponent> Application::_MainCameraComponent;
 bool Application::_Initialized = false;
 bool Application::_Running = false;
 double Application::_RealWorldTime;
@@ -132,10 +131,10 @@ void UniEngine::Application::Init(bool fullScreen)
 	Translation pos;
 	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
 	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
-	_MainCameraComponent = std::make_shared<CameraComponent>();
-	_MainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
-	_MainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
-	EntityManager::SetSharedComponent<CameraComponent>(_MainCameraEntity, _MainCameraComponent);
+	auto mainCameraComponent = std::make_unique<CameraComponent>();
+	mainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
+	mainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
+	EntityManager::SetPrivateComponent<CameraComponent>(_MainCameraEntity, std::move(mainCameraComponent));
 #pragma endregion
 
 	glfwPollEvents();
@@ -326,9 +325,9 @@ Entity UniEngine::Application::GetMainCameraEntity()
 	return _MainCameraEntity;
 }
 
-std::shared_ptr<CameraComponent>& UniEngine::Application::GetMainCameraComponent()
+std::unique_ptr<CameraComponent>* UniEngine::Application::GetMainCameraComponent()
 {
-	return _MainCameraComponent;
+	return _MainCameraEntity.GetPrivateComponent<CameraComponent>();
 }
 
 #pragma region OpenGL Debugging

@@ -94,7 +94,7 @@ void RenderManager::ResizeResolution(int x, int y)
 	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
 }
 
-void RenderManager::RenderToCameraDeferred(std::shared_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
+void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
 {
 	auto camera = cameraComponent->Value;
 	_GBuffer->Bind();
@@ -232,7 +232,7 @@ void RenderManager::RenderToCameraDeferred(std::shared_ptr<CameraComponent>& cam
 
 }
 
-void RenderManager::RenderSkyBox(std::shared_ptr<CameraComponent>& cameraComponent)
+void RenderManager::RenderSkyBox(std::unique_ptr<CameraComponent>& cameraComponent)
 {
 	if (!cameraComponent->DrawSkyBox) return;
 	cameraComponent->Value->Bind();
@@ -247,7 +247,7 @@ void RenderManager::RenderSkyBox(std::shared_ptr<CameraComponent>& cameraCompone
 	glDepthFunc(GL_LESS); // set depth function back to default
 }
 
-void RenderManager::RenderToCameraForward(std::shared_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
+void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
 {
 	auto camera = cameraComponent->Value;
 	camera->Bind();
@@ -545,7 +545,7 @@ void RenderManager::Init()
 
 void UniEngine::RenderManager::Start()
 {
-	auto mainCameraComponent = Application::GetMainCameraComponent();
+	auto& mainCameraComponent = *Application::GetMainCameraComponent();
 	auto mainCamera = mainCameraComponent->Value;
 	auto mainCameraEntity = Application::GetMainCameraEntity();
 	mainCameraComponent->Value->SetResolution(_ResolutionX, _ResolutionY);
@@ -553,9 +553,10 @@ void UniEngine::RenderManager::Start()
 
 	_Triangles = 0;
 	_DrawCall = 0;
-	auto cameras = EntityManager::GetSharedComponentDataArray<CameraComponent>();
-	for (const auto& cc : *cameras) {
-		cc->Value->Clear();
+	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
+	
+	for (auto cameraEntity : *cameraEntities) {
+		cameraEntity.GetPrivateComponent<CameraComponent>()->get()->Value->Clear();
 	}
 
 #pragma region Shadow
@@ -1139,7 +1140,7 @@ void RenderManager::OnGui()
 			// Get the size of the child (i.e. the whole draw size of the windows).
 			overlayPos = ImGui::GetWindowPos();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
-			ImGui::Image((ImTextureID)Application::GetMainCameraComponent()->Value->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)Application::GetMainCameraComponent()->get()->Value->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))

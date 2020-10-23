@@ -143,7 +143,7 @@
     <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="PrivateComponentStorage.h" />
     <ClInclude Include="Ray.h" />
-    <ClInclude Include="RigidBody.h" />
+    <ClInclude Include="RigidBodyComponent.h" />
     <ClInclude Include="SharedComponentStorage.h" />
     <ClInclude Include="SpotLightComponent.h" />
     <ClInclude Include="SystemBase.h" />
@@ -253,7 +253,7 @@
     <ClCompile Include="PrivateComponentStorage.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
-    <ClCompile Include="RigidBody.cpp" />
+    <ClCompile Include="RigidBodyComponent.cpp" />
     <ClCompile Include="SharedComponentStorage.cpp" />
     <ClCompile Include="SpotLightComponent.cpp" />
     <ClCompile Include="stb.cpp" />

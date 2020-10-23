@@ -14,7 +14,6 @@ namespace UniEngine {
 		friend class EntityManager;
 		static std::shared_ptr<World> _World;
 		static Entity _MainCameraEntity;
-		static std::shared_ptr<CameraComponent> _MainCameraComponent;
 		static bool _Initialized;
 		static double _RealWorldTime;
 		static float _TimeStep;
@@ -38,6 +37,6 @@ namespace UniEngine {
 		static void Run();
 		static std::shared_ptr<World>& GetWorld();
 		static Entity GetMainCameraEntity();
-		static std::shared_ptr<CameraComponent>& GetMainCameraComponent();
+		static std::unique_ptr<CameraComponent>* GetMainCameraComponent();
 	};
 }

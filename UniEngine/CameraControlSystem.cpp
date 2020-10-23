@@ -51,7 +51,7 @@ void CameraControlSystem::Update()
 	_LastY = mousePosition.y;
 	if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
 		if (xoffset != 0 || yoffset != 0) {
-			rc.Value = Application::GetMainCameraComponent()->Value->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
+			rc.Value = Application::GetMainCameraComponent()->get()->Value->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
 			EntityManager::SetComponentData<Rotation>(Application::GetMainCameraEntity(), rc);
 		}
 		mousePosition = InputManager::GetMouseScroll();
@@ -61,7 +61,7 @@ void CameraControlSystem::Update()
 		}
 		float yscrolloffset = -mousePosition.y + _LastScrollY;
 		_LastScrollY = mousePosition.y;
-		if (yscrolloffset != 0) Application::GetMainCameraComponent()->Value->ProcessMouseScroll(yscrolloffset);
+		if (yscrolloffset != 0) Application::GetMainCameraComponent()->get()->Value->ProcessMouseScroll(yscrolloffset);
 	}
 }
 
