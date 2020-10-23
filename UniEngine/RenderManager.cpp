@@ -94,11 +94,12 @@ void RenderManager::ResizeResolution(int x, int y)
 	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
 }
 
-void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
+void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound)
 {
 	auto camera = cameraComponent->Value;
 	_GBuffer->Bind();
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, attachments);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -247,11 +248,14 @@ void RenderManager::RenderSkyBox(std::unique_ptr<CameraComponent>& cameraCompone
 	glDepthFunc(GL_LESS); // set depth function back to default
 }
 
-void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, Entity cameraEntity, glm::vec3& minBound, glm::vec3& maxBound)
+void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound)
 {
 	auto camera = cameraComponent->Value;
+	
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glDisable(GL_BLEND);
+	std::map<float, std::pair<MeshRenderer*, glm::mat4>> transparentEntities;
 	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
 	if (meshMaterials) {
 		for (const auto& mmc : *meshMaterials) {
@@ -275,12 +279,17 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.x, center.x + size.x),
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
-				DrawMesh(
-					mmc->Mesh.get(),
-					mmc->Material.get(),
-					ltw,
-					camera.get(),
-					mmc->ReceiveShadow);
+				if (!mmc->Transparency) {
+					DrawMesh(
+						mmc->Mesh.get(),
+						mmc->Material.get(),
+						ltw,
+						camera.get(),
+						mmc->ReceiveShadow);
+				}else
+				{
+					transparentEntities.insert({ glm::distance(cameraTransform.GetPosition(), center), std::make_pair(mmc.get(), ltw) });
+				}
 
 			}
 		}
@@ -317,6 +326,21 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					immc->ReceiveShadow);
 			}
 		}
+	}
+
+	//Draw all transparent objects here:
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	for (auto it = transparentEntities.rbegin(); it != transparentEntities.rend(); ++it)
+	{
+		const auto* mmc = it->second.first;
+		DrawMesh(
+			mmc->Mesh.get(),
+			mmc->Material.get(),
+			it->second.second,
+			camera.get(),
+			mmc->ReceiveShadow
+		);
 	}
 }
 
@@ -927,9 +951,10 @@ void UniEngine::RenderManager::Start()
 		EntityManager::GetComponentData<Rotation>(mainCameraEntity).Value
 	);
 	Camera::_MainCameraInfoBlock.UploadMatrices(mainCamera->_CameraData);
-	RenderToCameraDeferred(mainCameraComponent, mainCameraEntity, minBound, maxBound);
+	LocalToWorld cameraTransform = mainCameraEntity.GetComponentData<LocalToWorld>();
+	RenderToCameraDeferred(mainCameraComponent, cameraTransform, minBound, maxBound);
 	RenderSkyBox(mainCameraComponent);
-	RenderToCameraForward(mainCameraComponent, mainCameraEntity, minBound, maxBound);
+	RenderToCameraForward(mainCameraComponent, cameraTransform, minBound, maxBound);
 	worldBound.Size = (maxBound - minBound) / 2.0f;
 	worldBound.Center = (maxBound + minBound) / 2.0f;
 	worldBound.Radius = glm::length(worldBound.Size);

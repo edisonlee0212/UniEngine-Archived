@@ -20,7 +20,7 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 void main()
 {	
 	vec4 textureColor = texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgba;
-	if(textureColor.a < 0.5)
+	if(textureColor.a < 0.1)
         discard;
 	float specular = 1.0;
 	if(false){

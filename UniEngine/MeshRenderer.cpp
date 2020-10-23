@@ -12,6 +12,7 @@ void UniEngine::MeshRenderer::OnGui()
 	if(ForwardRendering){
 		//Disable shadow receiving only allowed in forward rendering.
 		ImGui::Checkbox("Receive shadow", &ReceiveShadow);
+		ImGui::Checkbox("Enable Transparency", &Transparency);
 	}
 	ImGui::Checkbox("Cast shadow", &CastShadow);
 	ImGui::Checkbox("Back Culling", &BackCulling);

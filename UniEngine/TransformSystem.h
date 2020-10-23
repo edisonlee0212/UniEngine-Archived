@@ -60,6 +60,10 @@ namespace UniEngine {
 		bool operator ==(const LocalToWorld& other) const {
 			return other.Value == Value;
 		}
+		glm::vec3 GetPosition() const
+		{
+			return Value[3];
+		}
 	};
 	struct UNIENGINE_API LocalToParent : ComponentBase {
 		glm::mat4 Value;
