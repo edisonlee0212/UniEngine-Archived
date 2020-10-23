@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TransformSystem.h"
 
-#include "EntityEditorSystem.h"
+#include "EditorManager.h"
 using namespace UniEngine;
 
 void UniEngine::TransformSystem::OnCreate()
@@ -55,92 +55,92 @@ void UniEngine::TransformSystem::OnCreate()
 	EntityManager::SetEntityQueryAllFilters(_S, LocalToWorld(), Scale());
 	EntityManager::SetEntityQueryNoneFilters(_S, Translation(), Rotation());
 
-	EntityEditorSystem::AddComponentInspector<EulerRotation>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<EulerRotation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
 		});
 	
-	EntityEditorSystem::AddComponentInspector<LocalEulerRotation>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<LocalEulerRotation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
 		});
 	
-	EntityEditorSystem::AddComponentInspector<Translation>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<Translation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
 		});
 
-	EntityEditorSystem::AddComponentInspector<Rotation>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<Rotation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.1f);
 		});
 
-	EntityEditorSystem::AddComponentInspector<Scale>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<Scale>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
 		});
 
-	EntityEditorSystem::AddComponentInspector<LocalToWorld>( [](ComponentBase* data)
+	EditorManager::AddComponentInspector<LocalToWorld>( [](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.01);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.1f);
 			stream.str(std::string());
 			stream << std::hex << "0x" << (size_t)data + 16;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 16), 0.01);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 16), 0.1f);
 			stream.str(std::string());
 			stream << std::hex << "0x" << (size_t)data + 32;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 32), 0.01);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 32), 0.1f);
 			stream.str(std::string());
 			stream << std::hex << "0x" << (size_t)data + 48;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 48), 0.01);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 48), 0.1f);
 		});
 
-	EntityEditorSystem::AddComponentInspector<LocalTranslation>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<LocalTranslation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
 		});
 
-	EntityEditorSystem::AddComponentInspector<LocalRotation>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<LocalRotation>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.1f);
 		});
 
-	EntityEditorSystem::AddComponentInspector<LocalScale>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<LocalScale>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
 		});
 
-	EntityEditorSystem::AddComponentInspector<LocalToParent>( [](ComponentBase* data)
+	EditorManager::AddComponentInspector<LocalToParent>( [](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.01f);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.1f);
 			stream.str(std::string());
 			stream << std::hex << "0x" << (size_t)data + 16;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 16), 0.01f);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 16), 0.1f);
 			stream.str(std::string());
 			stream << std::hex << "0x" << (size_t)data + 32;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 32), 0.01f);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 32), 0.1f);
 			stream.str(std::string());
 			stream << std::hex << "0x" << (size_t)data + 48;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 48), 0.01f);
+			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 48), 0.1f);
 		});
 	
 	Enable();

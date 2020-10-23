@@ -1,14 +1,18 @@
 #include "pch.h"
-#include "EntityEditorSystem.h"
+#include "EditorManager.h"
 
 
 #include "DirectionalLightComponent.h"
 #include "PointLightComponent.h"
 #include "TransformSystem.h"
-
-std::map<size_t, std::function<void(UniEngine::ComponentBase* data)>> UniEngine::EntityEditorSystem::_ComponentGUIMap;
-UniEngine::Entity UniEngine::EntityEditorSystem::_SelectedEntity;
-inline bool UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& entity)
+using namespace UniEngine;
+std::map<size_t, std::function<void(ComponentBase* data)>> EditorManager::_ComponentGUIMap;
+unsigned int EditorManager::_ConfigFlags = 0;
+int EditorManager::_SelectedHierarchyDisplayMode = 1;
+Entity EditorManager::_SelectedEntity;
+bool EditorManager::_DisplayLog = true;
+bool EditorManager::_DisplayError = true;
+inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	bool deleted = false;
 	if (ImGui::BeginPopupContextItem(std::to_string(entity.Index).c_str()))
@@ -39,7 +43,7 @@ inline bool UniEngine::EntityEditorSystem::DrawEntityMenu(bool enabled, Entity& 
 	return deleted;
 }
 
-void UniEngine::EntityEditorSystem::DrawEntityNode(Entity& entity)
+void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
 {
 	std::string title = std::to_string(entity.Index) + ": ";
 	title += entity.GetName();
@@ -58,21 +62,21 @@ void UniEngine::EntityEditorSystem::DrawEntityNode(Entity& entity)
 	const bool deleted = DrawEntityMenu(enabled, entity);
 	if (opened && !deleted) {
 		ImGui::TreePush();
-		EntityManager::ForEachChild(entity, [this](Entity child) {
+		EntityManager::ForEachChild(entity, [](Entity child) {
 			DrawEntityNode(child);
 			});
 		ImGui::TreePop();
 	}
 }
 
-void UniEngine::EntityEditorSystem::InspectComponent(ComponentBase* data, ComponentType type)
+void UniEngine::EditorManager::InspectComponent(ComponentBase* data, ComponentType type)
 {
 	if (_ComponentGUIMap.find(type.TypeID) != _ComponentGUIMap.end()) {
 		_ComponentGUIMap.at(type.TypeID)(data);
 	}
 }
 
-void UniEngine::EntityEditorSystem::OnCreate()
+void UniEngine::EditorManager::Init()
 {
 	AddComponentInspector<DirectionalLightComponent>([](ComponentBase* data)
 		{
@@ -87,7 +91,6 @@ void UniEngine::EntityEditorSystem::OnCreate()
 			ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
 			ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
 		});
-
 	AddComponentInspector<PointLightComponent>([](ComponentBase* data)
 		{
 			std::stringstream stream;
@@ -107,26 +110,103 @@ void UniEngine::EntityEditorSystem::OnCreate()
 		});
 	
 	_SelectedEntity.Index = 0;
-	Enable();
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;
 	_ConfigFlags += EntityEditorSystem_EnableEntityInspector;
 }
 
-void UniEngine::EntityEditorSystem::OnDestroy()
+void UniEngine::EditorManager::Destroy()
 {
+
+}
+
+void EditorManager::Start()
+{
+	
+#pragma region Dock & Main Menu
+	static bool opt_fullscreen_persistant = true;
+	bool opt_fullscreen = opt_fullscreen_persistant;
+	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+	// because it would be confusing to have two docking targets within each others.
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+	if (opt_fullscreen)
+	{
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->GetWorkPos());
+		ImGui::SetNextWindowSize(viewport->GetWorkSize());
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	}
+
+	// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+	// and handle the pass-thru hole, so we ask Begin() to not render a background.
+	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+		window_flags |= ImGuiWindowFlags_NoBackground;
+
+	// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+	// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+	// all active windows docked into it will lose their parent and become undocked.
+	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	static bool openDock = true;
+	ImGui::Begin("Root DockSpace", &openDock, window_flags);
+	ImGui::PopStyleVar();
+	if (opt_fullscreen)
+		ImGui::PopStyleVar(2);
+	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+	ImGui::End();
+
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File"))
+		{
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::Checkbox("Log", &_DisplayLog);
+			ImGui::Checkbox("Error", &_DisplayError);
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Window"))
+		{
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Help"))
+		{
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+
+#pragma endregion
+
+#pragma region Select entity here
+
+#pragma endregion
 
 }
 
 static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
 
-void UniEngine::EntityEditorSystem::Update()
+void UniEngine::EditorManager::Update()
 {
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Explorer");
 		ImGui::Combo("Display mode", &_SelectedHierarchyDisplayMode, HierarchyDisplayMode, IM_ARRAYSIZE(HierarchyDisplayMode));
 
 		if (_SelectedHierarchyDisplayMode == 0) {
-			EntityManager::ForEachEntityStorageUnsafe([this](int i, EntityComponentStorage storage) {
+			EntityManager::ForEachEntityStorageUnsafe([](int i, EntityComponentStorage storage) {
 				ImGui::Separator();
 
 				std::string title = std::to_string(i) + ". " + storage.ArchetypeInfo->Name;
@@ -161,7 +241,7 @@ void UniEngine::EntityEditorSystem::Update()
 			ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
 			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
 			ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
-			EntityManager::ForAllEntities([this](int i, Entity entity) {
+			EntityManager::ForAllEntities([](int i, Entity entity) {
 				if (EntityManager::GetParent(entity).IsNull()) DrawEntityNode(entity);
 				});
 			ImGui::PopStyleColor();
@@ -181,7 +261,7 @@ void UniEngine::EntityEditorSystem::Update()
 			ImGui::Separator();
 			if (!deleted) {
 				if (ImGui::CollapsingHeader("Local components", ImGuiTreeNodeFlags_DefaultOpen)) {
-					EntityManager::ForEachComponentUnsafe(_SelectedEntity, [this](ComponentType type, void* data) {
+					EntityManager::ForEachComponentUnsafe(_SelectedEntity, [](ComponentType type, void* data) {
 						std::string info = std::string(type.Name + 7);
 						info += " Size: " + std::to_string(type.Size);
 						ImGui::Text(info.c_str());
@@ -225,11 +305,35 @@ void UniEngine::EntityEditorSystem::Update()
 	}
 }
 
-void UniEngine::EntityEditorSystem::FixedUpdate()
+void EditorManager::LateUpdate()
 {
+#pragma region Logs and errors
+	if (_DisplayLog) {
+		ImGui::Begin("Log");
+		size_t size = Debug::GetLogs()->size();
+		std::string logs = "";
+		for (int i = (int)size - 1; i >= 0; i--) {
+			logs += Debug::GetLogs()->at(i)->c_str();
+		}
+		ImGui::Text(logs.c_str());
+		ImGui::End();
+	}
+	if (_DisplayError)
+	{
+		ImGui::Begin("Error");
+		size_t size = Debug::GetErrors()->size();
+		std::string logs = "";
+		for (int i = (int)size - 1; i >= 0; i--) {
+			logs += Debug::GetErrors()->at(i)->c_str();
+		}
+		ImGui::Text(logs.c_str());
+		ImGui::End();
+	}
+#pragma endregion
 }
 
-void UniEngine::EntityEditorSystem::SetSelectedEntity(Entity entity)
+
+void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
 {
 	if(entity.IsNull() || entity.IsDeleted()) return;
 	_SelectedEntity = entity;

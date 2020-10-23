@@ -130,14 +130,14 @@ namespace UniEngine {
 		static void SetSSAOSampleSize(int value);
 		static void ResizeResolution(int x, int y);
 #pragma endregion
-		static void RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound);
+		static void RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void RenderSkyBox(std::unique_ptr<CameraComponent>& cameraComponent);
-		static void RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound);
+		static void RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void Init();
 		//Main rendering happens here.
 		static void Start();
 		//PostProcessing happens here. 
-		static void End();
+		static void LateUpdate();
 #pragma region Shadow
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetDirectionalLightResolution(size_t value);

@@ -141,9 +141,6 @@
     <ClInclude Include="..\Submodules\ImGui\imconfig.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="EntityEditorSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="Ray.h">
       <Filter>Header Files\Resource\ComponentData</Filter>
     </ClInclude>
@@ -258,6 +255,9 @@
     <ClInclude Include="RigidBodyComponent.h">
       <Filter>Header Files\Resource\PrivateComponent</Filter>
     </ClInclude>
+    <ClInclude Include="EditorManager.h">
+      <Filter>Header Files\Resource\Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -319,9 +319,6 @@
     </ClCompile>
     <ClCompile Include="..\Submodules\ImGui\imgui_draw.cpp">
       <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityEditorSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="MeshRenderer.cpp">
       <Filter>Source Files\Resource\SharedComponent</Filter>
@@ -427,6 +424,9 @@
     </ClCompile>
     <ClCompile Include="RigidBodyComponent.cpp">
       <Filter>Source Files\Resource\PrivateComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="EditorManager.cpp">
+      <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

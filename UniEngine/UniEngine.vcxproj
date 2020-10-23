@@ -118,7 +118,7 @@
     <ClInclude Include="DirectionalLightComponent.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
     <ClInclude Include="Entity.h" />
-    <ClInclude Include="EntityEditorSystem.h" />
+    <ClInclude Include="EditorManager.h" />
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="framework.h" />
@@ -220,7 +220,7 @@
     <ClCompile Include="DirectionalLightShadowMap.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EntityEditorSystem.cpp" />
+    <ClCompile Include="EditorManager.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="GLBuffer.cpp" />

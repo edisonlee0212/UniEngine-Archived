@@ -25,7 +25,7 @@ namespace UniEngine {
 
 	
 	class UNIENGINE_API SharedComponentBase {
-		friend class EntityEditorSystem;
+		friend class EditorManager;
 		bool _Enabled = true;
 	public:
 		void SetEnabled(bool value)
@@ -111,7 +111,7 @@ namespace UniEngine {
 
 	class UNIENGINE_API PrivateComponentBase {
 		friend class EntityManager;
-		friend class EntityEditorSystem;
+		friend class EditorManager;
 		
 		Entity _Owner;
 		bool _Enabled = true;

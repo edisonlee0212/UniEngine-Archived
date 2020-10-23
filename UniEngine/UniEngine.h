@@ -8,7 +8,7 @@
 #include "InputManager.h"
 #include "TransformSystem.h"
 #include "PhysicsSimulationManager.h"
-#include "EntityEditorSystem.h"
+#include "EditorManager.h"
 namespace UniEngine {
 	class UNIENGINE_API Application {
 		friend class EntityManager;
@@ -18,8 +18,7 @@ namespace UniEngine {
 		static double _RealWorldTime;
 		static float _TimeStep;
 		static bool _Running;
-		static bool _DisplayLog;
-		static bool _DisplayError;
+		
 		static ThreadPool _ThreadPool;
 		static void GLInit();
 		static void LoopStart_Internal();

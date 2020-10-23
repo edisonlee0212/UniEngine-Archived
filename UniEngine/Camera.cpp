@@ -6,8 +6,8 @@
 
 using namespace UniEngine;
 
-GLUBO* Camera::_CameraData;
-CameraInfoBlock Camera::_MainCameraInfoBlock;
+GLUBO* Camera::CameraUniformBufferBlock;
+CameraInfoBlock Camera::CameraInfoBlock;
 
 void Camera::OnGui()
 {
@@ -95,9 +95,9 @@ void UniEngine::Camera::CalculateFrustumPoints(float nearPlane, float farPlane, 
 
 void UniEngine::Camera::GenerateMatrices()
 {
-	_CameraData = new GLUBO();
-	_CameraData->SetData(sizeof(CameraInfoBlock), NULL, GL_STATIC_DRAW);
-	_CameraData->SetBase(0);
+	CameraUniformBufferBlock = new GLUBO();
+	CameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), NULL, GL_STATIC_DRAW);
+	CameraUniformBufferBlock->SetBase(0);
 }
 
 
@@ -177,12 +177,12 @@ GLTexture2D* UniEngine::Camera::GetTexture()
 
 glm::vec3 Camera::Project(LocalToWorld& ltw, glm::vec3 position)
 {
-	return _MainCameraInfoBlock.Projection * _MainCameraInfoBlock.View * glm::vec4(position, 1.0f);
+	return CameraInfoBlock.Projection * CameraInfoBlock.View * glm::vec4(position, 1.0f);
 }
 
 glm::vec3 Camera::UnProject(LocalToWorld& ltw, glm::vec3 position)
 {
-	glm::mat4 inversed = glm::inverse(_MainCameraInfoBlock.Projection * _MainCameraInfoBlock.View);
+	glm::mat4 inversed = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	glm::vec4 start = glm::vec4(
 		position, 1.0f);
 	start = inversed * start;
@@ -191,7 +191,7 @@ glm::vec3 Camera::UnProject(LocalToWorld& ltw, glm::vec3 position)
 
 glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition)
 {
-	glm::mat4 inversed = glm::inverse(_MainCameraInfoBlock.Projection * _MainCameraInfoBlock.View);
+	glm::mat4 inversed = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
 	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
 	const glm::vec4 start = glm::vec4(
@@ -205,7 +205,7 @@ glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition)
 Ray Camera::ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const
 {
 	
-	const glm::mat4 inv = glm::inverse(_MainCameraInfoBlock.Projection * _MainCameraInfoBlock.View);
+	const glm::mat4 inv = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
 	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
 	const auto realX = (mousePosition.x + halfX) / halfX;

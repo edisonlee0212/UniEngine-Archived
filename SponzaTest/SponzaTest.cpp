@@ -42,7 +42,9 @@ int main()
 	Application::GetMainCameraEntity().SetComponentData(t);
 	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype("Model",
 		LocalToParent(),
+		EulerRotation(),
 		Translation(),
+		Rotation(),
 		Scale(),
 		LocalToWorld());
 

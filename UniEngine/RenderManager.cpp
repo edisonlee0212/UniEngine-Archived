@@ -94,7 +94,7 @@ void RenderManager::ResizeResolution(int x, int y)
 	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
 }
 
-void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound)
+void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
 	auto camera = cameraComponent->Value;
 	_GBuffer->Bind();
@@ -116,18 +116,20 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
-				auto meshBound = mmc->Mesh->GetBound();
-				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
-				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
-				minBound = glm::vec3(
-					glm::min(minBound.x, center.x - size.x),
-					glm::min(minBound.y, center.y - size.y),
-					glm::min(minBound.z, center.z - size.z));
+				if (calculateBounds) {
+					auto meshBound = mmc->Mesh->GetBound();
+					glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
+					glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
+					minBound = glm::vec3(
+						glm::min(minBound.x, center.x - size.x),
+						glm::min(minBound.y, center.y - size.y),
+						glm::min(minBound.z, center.z - size.z));
 
-				maxBound = glm::vec3(
-					glm::max(maxBound.x, center.x + size.x),
-					glm::max(maxBound.y, center.y + size.y),
-					glm::max(maxBound.z, center.z + size.z));
+					maxBound = glm::vec3(
+						glm::max(maxBound.x, center.x + size.x),
+						glm::max(maxBound.y, center.y + size.y),
+						glm::max(maxBound.z, center.z + size.z));
+				}
 				DeferredPrepass(
 					mmc->Mesh.get(),
 					mmc->Material.get(),
@@ -149,18 +151,19 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
-				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
-				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
-				minBound = glm::vec3(
-					glm::min(minBound.x, center.x - size.x),
-					glm::min(minBound.y, center.y - size.y),
-					glm::min(minBound.z, center.z - size.z));
+				if (calculateBounds) {
+					glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
+					glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
+					minBound = glm::vec3(
+						glm::min(minBound.x, center.x - size.x),
+						glm::min(minBound.y, center.y - size.y),
+						glm::min(minBound.z, center.z - size.z));
 
-				maxBound = glm::vec3(
-					glm::max(maxBound.x, center.x + size.x),
-					glm::max(maxBound.y, center.y + size.y),
-					glm::max(maxBound.z, center.z + size.z));
-
+					maxBound = glm::vec3(
+						glm::max(maxBound.x, center.x + size.x),
+						glm::max(maxBound.y, center.y + size.y),
+						glm::max(maxBound.z, center.z + size.z));
+				}
 				DeferredPrepassInstanced(
 					immc->Mesh.get(),
 					immc->Material.get(),
@@ -248,7 +251,7 @@ void RenderManager::RenderSkyBox(std::unique_ptr<CameraComponent>& cameraCompone
 	glDepthFunc(GL_LESS); // set depth function back to default
 }
 
-void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound)
+void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
 	auto camera = cameraComponent->Value;
 	
@@ -269,16 +272,18 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
 				auto meshBound = mmc->Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
-				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
-				minBound = glm::vec3(
-					glm::min(minBound.x, center.x - size.x),
-					glm::min(minBound.y, center.y - size.y),
-					glm::min(minBound.z, center.z - size.z));
+				if (calculateBounds) {
+					glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
+					minBound = glm::vec3(
+						glm::min(minBound.x, center.x - size.x),
+						glm::min(minBound.y, center.y - size.y),
+						glm::min(minBound.z, center.z - size.z));
 
-				maxBound = glm::vec3(
-					glm::max(maxBound.x, center.x + size.x),
-					glm::max(maxBound.y, center.y + size.y),
-					glm::max(maxBound.z, center.z + size.z));
+					maxBound = glm::vec3(
+						glm::max(maxBound.x, center.x + size.x),
+						glm::max(maxBound.y, center.y + size.y),
+						glm::max(maxBound.z, center.z + size.z));
+				}
 				if (!mmc->Transparency) {
 					DrawMesh(
 						mmc->Mesh.get(),
@@ -305,17 +310,19 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 				if (!j.Enabled()) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(j) && !(EntityManager::GetComponentData<CameraLayerMask>(j).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<LocalToWorld>(j).Value;
-				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
-				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
-				minBound = glm::vec3(
-					glm::min(minBound.x, center.x - size.x),
-					glm::min(minBound.y, center.y - size.y),
-					glm::min(minBound.z, center.z - size.z));
+				if (calculateBounds) {
+					glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
+					glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
+					minBound = glm::vec3(
+						glm::min(minBound.x, center.x - size.x),
+						glm::min(minBound.y, center.y - size.y),
+						glm::min(minBound.z, center.z - size.z));
 
-				maxBound = glm::vec3(
-					glm::max(maxBound.x, center.x + size.x),
-					glm::max(maxBound.y, center.y + size.y),
-					glm::max(maxBound.z, center.z + size.z));
+					maxBound = glm::vec3(
+						glm::max(maxBound.x, center.x + size.x),
+						glm::max(maxBound.y, center.y + size.y),
+						glm::max(maxBound.z, center.z + size.z));
+				}
 				DrawMeshInstanced(
 					immc->Mesh.get(),
 					immc->Material.get(),
@@ -944,26 +951,45 @@ void UniEngine::RenderManager::Start()
 
 	*/
 #pragma endregion
+
+#pragma region Render to other cameras
+	for (auto cameraEntity : *cameraEntities) {
+		auto& cameraComponent = *cameraEntity.GetPrivateComponent<CameraComponent>();
+		if (cameraComponent != mainCameraComponent)
+		{
+			Camera::CameraInfoBlock.UpdateMatrices(cameraComponent->Value.get(),
+				EntityManager::GetComponentData<Translation>(cameraEntity).Value,
+				EntityManager::GetComponentData<Rotation>(cameraEntity).Value
+			);
+			Camera::CameraInfoBlock.UploadMatrices(cameraComponent->Value->CameraUniformBufferBlock);
+			LocalToWorld cameraTransform = cameraEntity.GetComponentData<LocalToWorld>();
+			RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
+			RenderSkyBox(cameraComponent);
+			RenderToCameraForward(cameraComponent, cameraTransform, minBound, maxBound, false);
+		}
+	}
+#pragma endregion
+
+#pragma region Render to main Camera and calculate bounds.
 	minBound = glm::vec3((int)INT_MAX);
 	maxBound = glm::vec3((int)INT_MIN);
-	
-
-	Camera::_MainCameraInfoBlock.UpdateMatrices(mainCamera.get(),
+	Camera::CameraInfoBlock.UpdateMatrices(mainCamera.get(),
 		EntityManager::GetComponentData<Translation>(mainCameraEntity).Value,
 		EntityManager::GetComponentData<Rotation>(mainCameraEntity).Value
 	);
-	Camera::_MainCameraInfoBlock.UploadMatrices(mainCamera->_CameraData);
+	Camera::CameraInfoBlock.UploadMatrices(mainCamera->CameraUniformBufferBlock);
 	LocalToWorld cameraTransform = mainCameraEntity.GetComponentData<LocalToWorld>();
-	RenderToCameraDeferred(mainCameraComponent, cameraTransform, minBound, maxBound);
+	RenderToCameraDeferred(mainCameraComponent, cameraTransform, minBound, maxBound, true);
 	RenderSkyBox(mainCameraComponent);
-	RenderToCameraForward(mainCameraComponent, cameraTransform, minBound, maxBound);
+	RenderToCameraForward(mainCameraComponent, cameraTransform, minBound, maxBound, true);
 	worldBound.Size = (maxBound - minBound) / 2.0f;
 	worldBound.Center = (maxBound + minBound) / 2.0f;
 	worldBound.Radius = glm::length(worldBound.Size);
 	_World->SetBound(worldBound);
+#pragma endregion
 }
 
-void RenderManager::End()
+void RenderManager::LateUpdate()
 {
 	
 }
@@ -1150,7 +1176,7 @@ void RenderManager::OnGui()
 	ImVec2 viewPortSize;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 
-	ImGui::Begin("Scene");
+	ImGui::Begin("Main Camera");
 	{
 		viewPortSize = ImGui::GetWindowSize();
 		ImVec2 overlayPos;

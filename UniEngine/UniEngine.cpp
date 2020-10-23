@@ -20,8 +20,6 @@ bool Application::_Running = false;
 double Application::_RealWorldTime;
 float Application::_TimeStep = 0.016f;
 ThreadPool Application::_ThreadPool;
-bool Application::_DisplayLog = true;
-bool Application::_DisplayError;
 #pragma region Utilities
 
 void UniEngine::Application::SetTimeStep(float value) {
@@ -117,9 +115,8 @@ void UniEngine::Application::Init(bool fullScreen)
 #pragma endregion
 	Default::Load(_World.get());
 	RenderManager::Init();
-
+	EditorManager::Init();
 #pragma region Internal Systems
-	_World->CreateSystem<EntityEditorSystem>(SystemGroup::PresentationSystemGroup);
 	//Initialization System Group
 	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
 #pragma endregion
@@ -156,74 +153,7 @@ void UniEngine::Application::LoopStart_Internal()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 #pragma endregion	
-#pragma region Dock & Main Menu
-	static bool opt_fullscreen_persistant = true;
-	bool opt_fullscreen = opt_fullscreen_persistant;
-	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-	// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-	// because it would be confusing to have two docking targets within each others.
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-	if (opt_fullscreen)
-	{
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(viewport->GetWorkPos());
-		ImGui::SetNextWindowSize(viewport->GetWorkSize());
-		ImGui::SetNextWindowViewport(viewport->ID);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-	}
-
-	// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-	// and handle the pass-thru hole, so we ask Begin() to not render a background.
-	if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-		window_flags |= ImGuiWindowFlags_NoBackground;
-
-	// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-	// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-	// all active windows docked into it will lose their parent and become undocked.
-	// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-	// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-	
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	static bool openDock = true;
-	ImGui::Begin("Root DockSpace", &openDock, window_flags);
-	ImGui::PopStyleVar();
-	if (opt_fullscreen)
-		ImGui::PopStyleVar(2);
-	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-	ImGui::End();
-
-	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("File"))
-		{
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit"))
-		{
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("View"))
-		{
-			ImGui::Checkbox("Log", &_DisplayLog);
-			ImGui::Checkbox("Error", &_DisplayError);
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Window"))
-		{
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Help"))
-		{
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-	}
-	
-#pragma endregion
+	EditorManager::Start();
 	WindowManager::Start();
 	RenderManager::Start();
 }
@@ -234,43 +164,24 @@ void UniEngine::Application::LoopMain_Internal()
 		return;
 	}
 	_World->Update();
+	EditorManager::Update();
+	InputManager::Update();
 }
 
 bool UniEngine::Application::LoopEnd_Internal()
 {
-	RenderManager::End();
+	
 	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
 	if (!_Initialized) {
 		return false;
 	}
-	InputManager::Update();
+	RenderManager::LateUpdate();
+	EditorManager::LateUpdate();
 	InputManager::OnGui();
 	AssetManager::OnGui();
 	WindowManager::OnGui();
 	RenderManager::OnGui();
-#pragma region Logs and errors
-	if (_DisplayLog) {
-		ImGui::Begin("Log");
-		size_t size = Debug::GetLogs()->size();
-		std::string logs = "";
-		for (int i = (int)size - 1; i >= 0; i--) {
-			logs += Debug::GetLogs()->at(i)->c_str();
-		}
-		ImGui::Text(logs.c_str());
-		ImGui::End();
-	}
-	if(_DisplayError)
-	{
-		ImGui::Begin("Error");
-		size_t size = Debug::GetErrors()->size();
-		std::string logs = "";
-		for (int i = (int)size - 1; i >= 0; i--) {
-			logs += Debug::GetErrors()->at(i)->c_str();
-		}
-		ImGui::Text(logs.c_str());
-		ImGui::End();
-	}
-#pragma endregion
+
 #pragma region ImGui
 	RenderTarget::BindDefault();
 	ImGui::Render();
@@ -301,6 +212,8 @@ bool Application::IsInitialized()
 
 void UniEngine::Application::End()
 {
+	PhysicsSimulationManager::Destroy();
+	EditorManager::Destroy();
 	glfwTerminate();
 }
 

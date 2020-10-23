@@ -52,8 +52,8 @@ namespace UniEngine {
 	public:
 		void OnGui();
 		size_t GetLayerMask();
-		static GLUBO* _CameraData;
-		static CameraInfoBlock _MainCameraInfoBlock;
+		static GLUBO* CameraUniformBufferBlock;
+		static CameraInfoBlock CameraInfoBlock;
 		void CalculatePlanes(Plane* planes, glm::mat4 projection, glm::mat4 view);
 		void CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3* points);
 		static void GenerateMatrices();
