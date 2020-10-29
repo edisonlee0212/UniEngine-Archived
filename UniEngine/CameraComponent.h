@@ -10,6 +10,7 @@ namespace UniEngine {
 	{
 	public:
 		bool DrawSkyBox = true;
+		glm::vec3 ClearColor;
 		std::shared_ptr<Cubemap> SkyBox;
 		std::shared_ptr<Camera> Value;
 		void OnGui() override;

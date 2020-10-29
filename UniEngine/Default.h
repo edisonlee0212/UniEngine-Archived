@@ -11,6 +11,7 @@ namespace UniEngine {
 		class UNIENGINE_API GLPrograms {
 		public:
 			static std::shared_ptr<GLProgram> ScreenProgram;
+			static std::shared_ptr<GLProgram> BackGroundProgram;
 			static GLVAO* ScreenVAO;
 
 			static std::shared_ptr<GLVAO> SkyboxVAO;

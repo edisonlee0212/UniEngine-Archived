@@ -21,7 +21,7 @@ inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entit
 			EntityManager::DeleteEntity(entity);
 			deleted = true;
 		}
-		if (ImGui::Button(enabled ? "Disable" : "Enable")) {
+		if (!deleted && ImGui::Button(enabled ? "Disable" : "Enable")) {
 			if (enabled) {
 				entity.SetEnabled(false);
 			}
@@ -29,9 +29,8 @@ inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entit
 				entity.SetEnabled(true);
 			}
 		}
-		if (ImGui::BeginMenu("Rename"))
+		if (!deleted && ImGui::BeginMenu("Rename"))
 		{
-
 			static char newName[256];
 			ImGui::InputText("New name", newName, 256);
 			if (ImGui::Button("Confirm"))EntityManager::SetEntityName(entity, std::string(newName));

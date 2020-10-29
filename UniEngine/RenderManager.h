@@ -129,7 +129,7 @@ namespace UniEngine {
 		static void ResizeResolution(int x, int y);
 #pragma endregion
 		static void RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
-		static void RenderSkyBox(std::unique_ptr<CameraComponent>& cameraComponent);
+		static void RenderBackGround(std::unique_ptr<CameraComponent>& cameraComponent);
 		static void RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void Init();
 		//Main rendering happens here.

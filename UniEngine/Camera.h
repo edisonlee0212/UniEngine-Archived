@@ -74,7 +74,7 @@ namespace UniEngine {
 		glm::vec3 UnProject(LocalToWorld& ltw, glm::vec3 position);
 
 		glm::vec3 GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition);
-		
+		void ClearColor(glm::vec3 color);
 		Ray ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const;
 	};
 }

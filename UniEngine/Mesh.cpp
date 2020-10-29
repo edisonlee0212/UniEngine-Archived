@@ -5,6 +5,17 @@ using namespace UniEngine;
 void Mesh::OnGui()
 {
 	ImGui::Text(("Name: " + Name).c_str());
+	if (ImGui::BeginPopupContextItem(Name.c_str()))
+	{
+		if (ImGui::BeginMenu("Rename"))
+		{
+			static char newName[256];
+			ImGui::InputText("New name", newName, 256);
+			if (ImGui::Button("Confirm")) Name = std::string(newName);
+			ImGui::EndMenu();
+		}
+		ImGui::EndPopup();
+	}
 }
 
 glm::vec3 UniEngine::Mesh::GetCenter()

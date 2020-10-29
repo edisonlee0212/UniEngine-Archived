@@ -103,7 +103,6 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, attachments);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
 	auto meshMaterials = EntityManager::GetSharedComponentDataArray<MeshRenderer>();
 	if (meshMaterials) {
 		auto& program = Default::GLPrograms::DeferredPrepass;
@@ -236,19 +235,30 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 
 }
 
-void RenderManager::RenderSkyBox(std::unique_ptr<CameraComponent>& cameraComponent)
+void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraComponent)
 {
-	if (!cameraComponent->DrawSkyBox) return;
-	cameraComponent->Value->Bind();
-	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-	Default::GLPrograms::SkyboxProgram->Bind();
-	// skybox cube
-	Default::GLPrograms::SkyboxVAO->Bind();
-	cameraComponent->SkyBox->Texture()->Bind(3);
-	Default::GLPrograms::SkyboxProgram->SetInt("skybox", 3);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	GLVAO::BindDefault();
-	glDepthFunc(GL_LESS); // set depth function back to default
+	if (cameraComponent->DrawSkyBox) {
+		cameraComponent->Value->Bind();
+		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+		Default::GLPrograms::SkyboxProgram->Bind();
+		// skybox cube
+		Default::GLPrograms::SkyboxVAO->Bind();
+		cameraComponent->SkyBox->Texture()->Bind(3);
+		Default::GLPrograms::SkyboxProgram->SetInt("skybox", 3);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		GLVAO::BindDefault();
+		glDepthFunc(GL_LESS); // set depth function back to default
+	}else
+	{
+		cameraComponent->Value->Bind();
+		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+		Default::GLPrograms::BackGroundProgram->Bind();
+		Default::GLPrograms::SkyboxVAO->Bind();
+		Default::GLPrograms::BackGroundProgram->SetFloat3("clearColor", cameraComponent->ClearColor);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		GLVAO::BindDefault();
+		glDepthFunc(GL_LESS); // set depth function back to default
+	}
 }
 
 void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
@@ -587,6 +597,7 @@ void UniEngine::RenderManager::Start()
 	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
 	
 	for (auto cameraEntity : *cameraEntities) {
+		auto cc = cameraEntity.GetPrivateComponent<CameraComponent>()->get();
 		cameraEntity.GetPrivateComponent<CameraComponent>()->get()->Value->Clear();
 	}
 
@@ -964,7 +975,7 @@ void UniEngine::RenderManager::Start()
 			Camera::CameraInfoBlock.UploadMatrices(cameraComponent->Value->CameraUniformBufferBlock);
 			LocalToWorld cameraTransform = cameraEntity.GetComponentData<LocalToWorld>();
 			RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
-			RenderSkyBox(cameraComponent);
+			RenderBackGround(cameraComponent);
 			RenderToCameraForward(cameraComponent, cameraTransform, minBound, maxBound, false);
 		}
 	}
@@ -980,7 +991,7 @@ void UniEngine::RenderManager::Start()
 	Camera::CameraInfoBlock.UploadMatrices(mainCamera->CameraUniformBufferBlock);
 	LocalToWorld cameraTransform = mainCameraEntity.GetComponentData<LocalToWorld>();
 	RenderToCameraDeferred(mainCameraComponent, cameraTransform, minBound, maxBound, true);
-	RenderSkyBox(mainCameraComponent);
+	RenderBackGround(mainCameraComponent);
 	RenderToCameraForward(mainCameraComponent, cameraTransform, minBound, maxBound, true);
 	worldBound.Size = (maxBound - minBound) / 2.0f;
 	worldBound.Center = (maxBound + minBound) / 2.0f;

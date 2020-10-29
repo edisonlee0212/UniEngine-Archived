@@ -7,7 +7,7 @@
 using namespace UniEngine;
 
 std::shared_ptr<GLProgram> Default::GLPrograms::SkyboxProgram;
-
+std::shared_ptr<GLProgram> Default::GLPrograms::BackGroundProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::ScreenProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::DeferredPrepass;
 std::shared_ptr<GLProgram> Default::GLPrograms::DeferredPrepassInstanced;
@@ -102,12 +102,12 @@ void UniEngine::Default::Load(World* world)
 	Textures::DefaultSkybox = std::make_shared<Cubemap>();
 	const std::vector<std::string> facesPath
 	{
-		FileIO::GetResourcePath("Textures/Skyboxes/Default/right.jpg"),
-		FileIO::GetResourcePath("Textures/Skyboxes/Default/left.jpg"),
-		FileIO::GetResourcePath("Textures/Skyboxes/Default/top.jpg"),
-		FileIO::GetResourcePath("Textures/Skyboxes/Default/bottom.jpg"),
-		FileIO::GetResourcePath("Textures/Skyboxes/Default/front.jpg"),
-		FileIO::GetResourcePath("Textures/Skyboxes/Default/back.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/posx.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/negx.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/posy.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/negy.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/posz.jpg"),
+		FileIO::GetResourcePath("Textures/Skyboxes/Default/negz.jpg"),
 	};
 	Textures::DefaultSkybox->LoadCubeMap(facesPath);
 	
@@ -126,6 +126,18 @@ void UniEngine::Default::Load(World* world)
 	GLPrograms::SkyboxProgram->Attach(ShaderType::Fragment, skyboxfrag);
 	GLPrograms::SkyboxProgram->Link();
 	GLPrograms::SkyboxProgram->SetInt("skybox", 0);
+	delete skyboxfrag;
+	
+	skyboxfrag = new GLShader(ShaderType::Fragment);
+	fragShaderCode = std::string("#version 460 core\n")
+		+ *ShaderIncludes::Uniform +
+		+"\n" + std::string(FileIO::LoadFileAsString("Shaders/Fragment/BackGround.frag"));
+	skyboxfrag->SetCode(&fragShaderCode);
+	GLPrograms::BackGroundProgram = std::make_shared<GLProgram>();
+	GLPrograms::BackGroundProgram->Attach(ShaderType::Vertex, skyboxvert);
+	GLPrograms::BackGroundProgram->Attach(ShaderType::Fragment, skyboxfrag);
+	GLPrograms::BackGroundProgram->Link();
+	
 	delete skyboxvert;
 	delete skyboxfrag;
 #pragma endregion
@@ -165,9 +177,13 @@ void UniEngine::Default::Load(World* world)
 
 #pragma region Textures
 	Textures::MissingTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"));
+	Textures::MissingTexture->Name = "Missing";
 	Textures::UV = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"));
+	Textures::UV->Name = "UV";
 	Textures::StandardTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/white.png"));
+	Textures::StandardTexture->Name = "Default";
 	Textures::ObjectIcon = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/object.png"));
+	Textures::ObjectIcon->Name = "Icon";
 #pragma endregion
 #pragma region Standard Shader
 	vertShaderCode = std::string("#version 460 core\n")

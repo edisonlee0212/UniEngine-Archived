@@ -202,6 +202,14 @@ glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition)
 	return start / start.w;
 }
 
+void Camera::ClearColor(glm::vec3 color)
+{
+	_FrameBuffer->Bind();
+	glClearColor(color.x, color.y, color.z, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClearColor(0, 0, 0, 0);
+}
+
 Ray Camera::ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const
 {
 	

@@ -311,10 +311,28 @@ void AssetManager::ModelGuiNode(int i)
         ImGui::Image(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
         ImGui::EndDragDropSource();
     }
+    bool deleted = false;
+    if (ImGui::BeginPopupContextItem(std::to_string(i).c_str()))
+    {
+        if (ImGui::BeginMenu("Rename"))
+        {
+            static char newName[256];
+            ImGui::InputText("New name", newName, 256);
+            if (ImGui::Button("Confirm")) _Models[i]->Name = std::string(newName);
+            ImGui::EndMenu();
+        }
+        if (ImGui::Button("Delete")) {
+            RemoveModel(i);
+            deleted = true;
+        }
+        ImGui::EndPopup();
+    }
+	
     ImGui::PopID();
     ImGui::SameLine();
-    ImGui::TextWrapped(_Models[i]->Name.c_str(), ImVec2(30, 30));
-    
+    if (!deleted) {
+        ImGui::TextWrapped(_Models[i]->Name.c_str(), ImVec2(30, 30));
+    }
 }
 
 void AssetManager::TextureGuiNode(int i)
@@ -327,6 +345,23 @@ void AssetManager::TextureGuiNode(int i)
         ImGui::Image((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
         ImGui::EndDragDropSource();
     }
+    bool deleted = false;
+    if (ImGui::BeginPopupContextItem(std::to_string(i).c_str()))
+    {
+        if (ImGui::BeginMenu("Rename"))
+        {
+            static char newName[256];
+            ImGui::InputText("New name", newName, 256);
+            if (ImGui::Button("Confirm")) _Texture2Ds[i]->Name = std::string(newName);
+            ImGui::EndMenu();
+        }
+        if (ImGui::Button("Delete")) {
+            RemoveTexture(i);
+            deleted = true;
+        }
+        ImGui::EndPopup();
+    }
+	
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::TextWrapped(_Texture2Ds[i]->Name.c_str());
@@ -389,6 +424,11 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::string path)
 void AssetManager::RemoveModel(int index)
 {
     _Models.erase(_Models.begin() + index);
+}
+
+void AssetManager::RemoveTexture(int index)
+{
+    _Texture2Ds.erase(_Texture2Ds.begin() + index);
 }
 
 void AssetManager::OnGui()
