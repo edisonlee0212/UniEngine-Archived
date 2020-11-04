@@ -88,8 +88,7 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 		}
 		_EntitySharedComponentStorage->DeleteEntity(actualEntity);
 		_EntityPrivateComponentStorage->DeleteEntity(actualEntity);
-		actualEntity.Version += 1;
-		info.Version = actualEntity.Version;
+		info.Version = actualEntity.Version + 1;
 		info.PrivateComponentElements.clear();
 		info.SharedComponentElements.clear();
 		//Set to version 0, marks it as deleted.
@@ -248,7 +247,7 @@ void UniEngine::EntityManager::SetWorld(World* world)
 
 Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::string name)
 {
-	if(!Application::_Initialized)
+	if (!Application::_Initialized)
 	{
 		Debug::Error("CreateEntity: Initialize Engine first!");
 		return Entity();
@@ -316,10 +315,10 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 			chunk.ClearData(offset, i.Size);
 		}
 	}
-	for(auto& type : info->ComponentTypes)
+	for (auto& type : info->ComponentTypes)
 	{
 		auto search = _ComponentCreationFunctionMap.find(type.TypeID);
-		if(search != _ComponentCreationFunctionMap.end())
+		if (search != _ComponentCreationFunctionMap.end())
 		{
 			search->second.Function(GetComponentDataPointer(retVal, type.TypeID));
 		}
@@ -335,6 +334,11 @@ void UniEngine::EntityManager::DeleteEntity(Entity entity)
 		return;
 	}
 	if (entity.IsNull()) return;
+	if (entity.IsDeleted())
+	{
+		Debug::Error("DeleteEntity: Entity already deleted!");
+		return;
+	}
 	size_t entityIndex = entity.Index;
 	if (entity != _Entities->at(entityIndex)) {
 		Debug::Error("Entity out of date!");
@@ -460,7 +464,7 @@ inline void UniEngine::EntityManager::ForEachChild(Entity entity, const std::fun
 {
 	auto children = _EntityInfos->at(entity.Index).Children;
 	for (auto i : children) {
-		if(!i.IsDeleted()) func(i);
+		if (!i.IsDeleted()) func(i);
 	}
 }
 
