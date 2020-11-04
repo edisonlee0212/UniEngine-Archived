@@ -458,8 +458,9 @@ size_t UniEngine::EntityManager::GetChildrenAmount(Entity entity)
 
 inline void UniEngine::EntityManager::ForEachChild(Entity entity, const std::function<void(Entity child)>& func)
 {
-	for (auto i : _EntityInfos->at(entity.Index).Children) {
-		func(i);
+	auto children = _EntityInfos->at(entity.Index).Children;
+	for (auto i : children) {
+		if(!i.IsDeleted()) func(i);
 	}
 }
 
