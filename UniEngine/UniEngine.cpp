@@ -205,6 +205,11 @@ bool UniEngine::Application::LoopEnd_Internal()
 	return _Initialized;
 }
 
+double Application::EngineTime()
+{
+	return glfwGetTime();
+}
+
 bool Application::IsInitialized()
 {
 	return _Initialized;

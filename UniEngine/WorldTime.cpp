@@ -11,11 +11,6 @@ float UniEngine::WorldTime::TimeStep()
 	return _TimeStep;
 }
 
-double UniEngine::WorldTime::Time()
-{
-	return _WorldTime;
-}
-
 float UniEngine::WorldTime::FixedDeltaTime()
 {
 	return (float)_FixedDeltaTime;

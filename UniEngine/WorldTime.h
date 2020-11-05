@@ -12,7 +12,6 @@ namespace UniEngine {
 		void AddFixedDeltaTime(double value);
 	public:
 		float TimeStep();
-		double Time();
 		float FixedDeltaTime();
 		float DeltaTime();
 		float LastFrameTime();

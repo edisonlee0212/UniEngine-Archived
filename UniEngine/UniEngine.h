@@ -25,6 +25,8 @@ namespace UniEngine {
 		static void LoopMain_Internal();
 		static bool LoopEnd_Internal();
 	public:
+		static double EngineTime();
+		
 		//You are only allowed to create entity after this.
 		static bool IsInitialized();
 		static void SetTimeStep(float value);
