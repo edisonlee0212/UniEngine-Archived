@@ -279,6 +279,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 		}
 		entityInfo.Version = 1;
 		entityInfo.Parent = Entity();
+		entityInfo.Enabled = true;
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
 		entityInfo.ChunkArrayIndex = info->EntityCount;
 		storage.ChunkArray->Entities.push_back(retVal);
@@ -291,6 +292,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 		//TODO: Update version when we delete entity.
 		retVal = storage.ChunkArray->Entities.at(info->EntityAliveCount);
 		EntityInfo& entityInfo = _EntityInfos->at(retVal.Index);
+		entityInfo.Enabled = true;
 		if (name.length() == 0)
 		{
 			entityInfo.Name = "Unnamed";
@@ -488,6 +490,7 @@ void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
 	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
 	_EntityInfos->at(childIndex).Parent = Entity();
 	size_t childrenCount = _EntityInfos->at(parentIndex).Children.size();
+	
 	for (int i = 0; i < childrenCount; i++) {
 		if (_EntityInfos->at(parentIndex).Children[i].Index == childIndex) {
 			_EntityInfos->at(parentIndex).Children[i] = _EntityInfos->at(parentIndex).Children.back();
@@ -498,6 +501,7 @@ void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
 	if (_EntityInfos->at(parentIndex).Children.empty()) {
 		for (int i = 0; i < _ParentRoots->size(); i++) {
 			if (_ParentRoots->at(i) == _Entities->at(parentIndex)) _ParentRoots->erase(_ParentRoots->begin() + i);
+			break;
 		}
 	}
 }
