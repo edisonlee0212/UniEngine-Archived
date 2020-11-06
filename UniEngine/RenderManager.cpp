@@ -1466,6 +1466,8 @@ void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, 
 void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix)
 {
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	GLVBO* matricesBuffer = new GLVBO();
 	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
@@ -1486,8 +1488,8 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", model);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-	RenderManager::_DrawCall++;
-	RenderManager::_Triangles += mesh->Size() * count / 3;
+	_DrawCall++;
+	_Triangles += mesh->Size() * count / 3;
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 	delete matricesBuffer;
@@ -1496,6 +1498,8 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix)
 {
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	mesh->Enable();
 	mesh->VAO()->DisableAttributeArray(12);
 	mesh->VAO()->DisableAttributeArray(13);
@@ -1507,8 +1511,8 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("model", model);
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
 
-	RenderManager::_DrawCall++;
-	RenderManager::_Triangles += mesh->Size() / 3;
+	_DrawCall++;
+	_Triangles += mesh->Size() / 3;
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
@@ -1523,8 +1527,11 @@ void UniEngine::RenderManager::DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 colo
 
 void RenderManager::DrawGizmoRay(glm::vec4 color, RenderTarget* target, glm::vec3 start, glm::vec3 end, float width)
 {
-
-
+	glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+	glm::mat4 rotationMat = glm::mat4_cast(rotation);
+	auto model = glm::translate((start + end) / 2.0f) * rotationMat * glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
+	DrawGizmoMesh(Default::Primitives::Cylinder.get(), color, target, model);
 }
 
 void RenderManager::DrawGizmoRay(glm::vec4 color, RenderTarget* target, Ray& ray, float width)
