@@ -8,6 +8,13 @@ namespace UniEngine {
 		glm::vec3 Size;
 		float Radius;
 		Bound();
+		bool InBound(glm::vec3 position) const
+		{
+			if (glm::abs(position.x - Center.x) > Size.x) return false;
+			if (glm::abs(position.y - Center.y) > Size.y) return false;
+			if (glm::abs(position.z - Center.z) > Size.z) return false;
+			return true;
+		}
 	};
 
 	enum class UNIENGINE_API SystemGroup {
