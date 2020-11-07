@@ -59,23 +59,20 @@ int main()
 	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
 	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
-	MeshRenderer* dlmmc = new MeshRenderer();
-	dlmmc->Mesh = Default::Primitives::Cylinder;
-	dlmmc->Material = sharedMat;
-	Scale scale;
-	scale.Value = glm::vec3(0.5f);
 
 	DirectionalLightComponent dlc;
 	dlc.diffuse = glm::vec3(1.0f);
 	dlc.specular = glm::vec3(0.5f);
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
-	EntityManager::SetComponentData<Scale>(dle, scale);
-	EntityManager::SetSharedComponent<MeshRenderer>(dle, std::shared_ptr<MeshRenderer>(dlmmc));
-
-	MeshRenderer* plmmc = new MeshRenderer();
+	Scale scale;
+	
+	auto plmmc = std::make_unique<MeshRenderer>();
+	auto plmmc2 = std::make_unique<MeshRenderer>();
 	plmmc->Mesh = Default::Primitives::Sphere;
 	plmmc->Material = sharedMat;
+	plmmc2->Mesh = Default::Primitives::Sphere;
+	plmmc2->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
 	PointLightComponent plc;
@@ -88,7 +85,7 @@ int main()
 	Entity ple = EntityManager::CreateEntity(plarc);
 	EntityManager::SetComponentData<PointLightComponent>(ple, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
-	EntityManager::SetSharedComponent<MeshRenderer>(ple, std::shared_ptr<MeshRenderer>(plmmc));
+	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
 	plc.constant = 1.0f;
 	plc.linear = 0.09f;
@@ -99,7 +96,7 @@ int main()
 	Entity ple2 = EntityManager::CreateEntity(plarc);
 	EntityManager::SetComponentData<PointLightComponent>(ple2, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
-	EntityManager::SetSharedComponent<MeshRenderer>(ple2, std::shared_ptr<MeshRenderer>(plmmc));
+	EntityManager::SetPrivateComponent<MeshRenderer>(ple2, std::move(plmmc2));
 #pragma endregion
 
 #pragma region EngineLoop

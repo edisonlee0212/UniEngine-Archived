@@ -1,11 +1,7 @@
 #include "pch.h"
 #include "MeshRenderer.h"
-
-size_t UniEngine::MeshRenderer::GetHashCode()
-{
-	return (size_t)this;
-}
-
+#include "UniEngine.h"
+#include "RenderManager.h"
 void UniEngine::MeshRenderer::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
@@ -24,6 +20,14 @@ void UniEngine::MeshRenderer::OnGui()
 	}
 	if (Mesh) {
 		if (ImGui::TreeNode("Mesh##1")) {
+			ImGui::Checkbox("Display bounds", &DisplayBound);
+			if (DisplayBound)
+			{
+				ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
+				auto transform = _Owner.GetComponentData<LocalToWorld>().Value;
+				RenderManager::DrawGizmoCube(DisplayBoundColor,
+					Application::GetMainCameraComponent()->get()->Value.get(), transform * (glm::translate(Mesh->_Bound.Center) * glm::scale(Mesh->_Bound.Size)), 1);
+			}
 			Mesh->OnGui();
 			ImGui::TreePop();
 		}

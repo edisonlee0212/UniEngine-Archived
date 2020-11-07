@@ -4,11 +4,13 @@
 #include "Mesh.h"
 #include "Material.h"
 namespace UniEngine {
-	class UNIENGINE_API InstancedMeshRenderer :
-		public SharedComponentBase
+	class UNIENGINE_API ParticleSystem :
+		public PrivateComponentBase
 	{
 	public:
-		InstancedMeshRenderer()
+		glm::vec4 DisplayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
+		bool DisplayBound = true;
+		ParticleSystem()
 		{
 			BoundingBox = Bound();
 		}
@@ -21,7 +23,6 @@ namespace UniEngine {
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
 		void RecalculateBoundingBox();
-		size_t GetHashCode() override;
 		void OnGui() override;
 	};
 }

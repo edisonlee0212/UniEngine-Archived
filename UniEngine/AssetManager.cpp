@@ -43,8 +43,11 @@ Entity UniEngine::AssetManager::ToEntity(EntityArchetype archetype, std::shared_
     std::unique_ptr<ModelNode>& modelNode = model->RootNode();
     ltw.Value = modelNode->_LocalToParent;
     EntityManager::SetComponentData<LocalToWorld>(entity, ltw);
-    for (const auto& i : modelNode->_MeshMaterialComponents) {
-        EntityManager::SetSharedComponent<MeshRenderer>(entity, i);
+    for (auto& i : modelNode->_MeshMaterials) {
+        auto mmc = std::make_unique<MeshRenderer>();
+        mmc->Mesh = i.second;
+        mmc->Material = i.first;
+        EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
     for (auto& i : modelNode->Children) {
         AttachChildren(archetype, i, entity);
@@ -279,10 +282,7 @@ void AssetManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& mode
             Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
         }
     }
-    auto mmc = std::make_shared<MeshRenderer>();
-    mmc->Mesh = mesh;
-    mmc->Material = material;
-    modelNode->_MeshMaterialComponents.push_back(mmc);
+    modelNode->_MeshMaterials.push_back(std::make_pair(material, mesh));
 }
 
 void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, std::unique_ptr<ModelNode>& modelNode, Entity parentEntity)
@@ -292,8 +292,11 @@ void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, std::uni
     LocalToParent ltp;
     ltp.Value = modelNode->_LocalToParent;
     EntityManager::SetComponentData<LocalToParent>(entity, ltp);
-    for (auto i : modelNode->_MeshMaterialComponents) {
-        EntityManager::SetSharedComponent<MeshRenderer>(entity, std::shared_ptr<MeshRenderer>(i));
+    for (auto i : modelNode->_MeshMaterials) {
+        auto mmc = std::make_unique<MeshRenderer>();
+        mmc->Mesh = i.second;
+        mmc->Material = i.first;
+        EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
     for (auto& i : modelNode->Children) {
         AttachChildren(archetype, i, entity);

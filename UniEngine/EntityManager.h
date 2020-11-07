@@ -1292,12 +1292,13 @@ namespace UniEngine {
 			{
 				found = true;
 				element.PrivateComponentData = std::move(value);
+				element.ResetOwner(entity);
 			}
 			i++;
 		}
 		if (!found)
 		{
-			_EntityInfos->at(entity.Index).PrivateComponentElements.push_back(PrivateComponentElement(typeid(T).name(), typeid(T).hash_code(), std::move(value)));
+			_EntityInfos->at(entity.Index).PrivateComponentElements.push_back(PrivateComponentElement(typeid(T).name(), typeid(T).hash_code(), std::move(value), entity));
 		}
 		_EntityPrivateComponentStorage->SetPrivateComponent<T>(entity);
 	}

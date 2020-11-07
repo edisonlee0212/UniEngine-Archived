@@ -9,18 +9,15 @@ void Galaxy::StarClusterSystem::OnCreate()
 	_StarCluster = EntityManager::CreateEntity(_StarClusterArchetype);
 	Scale s;
 	s.Value = glm::vec3(1.0f);
-	auto imr = std::make_shared<InstancedMeshRenderer>();
+	auto imr = std::make_unique<ParticleSystem>();
 	imr->Material = std::make_shared<Material>();
 	imr->CastShadow = false;
 	imr->ReceiveShadow = false;
 	imr->Mesh = Default::Primitives::Sphere;
 	imr->Material->SetProgram(Default::GLPrograms::DeferredPrepassInstanced);
 	imr->Material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
-	_StarCluster.SetSharedComponent(imr);
+	_StarCluster.SetPrivateComponent(std::move(imr));
 	_StarCluster.SetComponentData(s);
-	_StarMaterial = new Material();
-	_StarMaterial->SetProgram(Default::GLPrograms::DeferredPrepassInstanced);
-
 
 	auto pattern = new StarClusterPattern();
 	_StarQuery = EntityManager::CreateEntityQuery();
@@ -108,9 +105,9 @@ void Galaxy::StarClusterSystem::Update()
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	_StarQuery.ToComponentDataArray(matrices);
 
-	auto imr = _StarCluster.GetSharedComponent<InstancedMeshRenderer>();
-	imr->Matrices.resize(matrices.size());
-	memcpy(imr->Matrices.data(), matrices.data(), sizeof(glm::mat4) * matrices.size());
+	auto imr = _StarCluster.GetPrivateComponent<ParticleSystem>();
+	imr->get()->Matrices.resize(matrices.size());
+	memcpy(imr->get()->Matrices.data(), matrices.data(), sizeof(glm::mat4) * matrices.size());
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

@@ -55,7 +55,7 @@ int main()
 	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
 	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
-	MeshRenderer* cylinder = new MeshRenderer();
+	auto cylinder = std::make_unique<MeshRenderer>();
 	cylinder->Mesh = Default::Primitives::Cylinder;
 	cylinder->Material = sharedMat;
 	Scale scale;
@@ -90,7 +90,7 @@ int main()
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
 	}
 	else if (testScene == PCSS) {
-		MeshRenderer* cmmc = new MeshRenderer();
+		auto cmmc = std::make_unique<MeshRenderer>();
 		cmmc->Mesh = Default::Primitives::Cube;
 		cmmc->Material = sharedMat;
 		Translation pos;
@@ -102,9 +102,9 @@ int main()
 		scale.Value = glm::vec3(4.0f, 8.0f, 4.0f);
 		EntityManager::SetComponentData<Translation>(model1, pos);
 		EntityManager::SetComponentData<Scale>(model1, scale);
-		EntityManager::SetSharedComponent<MeshRenderer>(model1, std::shared_ptr<MeshRenderer>(cylinder));
+		EntityManager::SetPrivateComponent<MeshRenderer>(model1, std::move(cylinder));
 
-		MeshRenderer* mmmc = new MeshRenderer();
+		auto mmmc = std::make_unique<MeshRenderer>();
 		mmmc->Mesh = Default::Primitives::Sphere;
 		mmmc->Material = sharedMat;
 
@@ -114,16 +114,12 @@ int main()
 		scale.Value = glm::vec3(5.0f, 5.0f, 5.0f);
 		EntityManager::SetComponentData<Translation>(model2, pos);
 		EntityManager::SetComponentData<Scale>(model2, scale);
-		EntityManager::SetSharedComponent<MeshRenderer>(model2, std::shared_ptr<MeshRenderer>(mmmc));
+		EntityManager::SetPrivateComponent<MeshRenderer>(model2, std::move(mmmc));
 	}
 #pragma endregion
 #pragma region Lights
 	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", EulerRotation(), Rotation(), DirectionalLightComponent());
 	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", EulerRotation(), Translation(), Rotation(), Scale(), LocalToWorld(), PointLightComponent());
-	MeshRenderer* dlmmc = new MeshRenderer();
-	cylinder->Mesh = Default::Primitives::Ring;
-	cylinder->Material = sharedMat;
-	scale.Value = glm::vec3(0.5f);
 	EulerRotation er;
 	er.Value = glm::vec3(70, 0, 0);
 	
@@ -145,7 +141,7 @@ int main()
 	EntityManager::SetComponentData(dle2, er);
 
 
-	MeshRenderer* plmmc = new MeshRenderer();
+	auto plmmc = std::make_unique<MeshRenderer>();
 	plmmc->Mesh = Default::Primitives::Sphere;
 	plmmc->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
@@ -161,7 +157,7 @@ int main()
 	ple.SetName("Point Light");
 	EntityManager::SetComponentData<PointLightComponent>(ple, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
-	EntityManager::SetSharedComponent<MeshRenderer>(ple, std::shared_ptr<MeshRenderer>(plmmc));
+	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
 
 #pragma endregion
@@ -263,10 +259,10 @@ void InitGround() {
 	*/
 	
 	mat->SetShininess(32.0f);
-	auto meshMaterial = std::make_shared<MeshRenderer>();
+	auto meshMaterial = std::make_unique<MeshRenderer>();
 	meshMaterial->Mesh = Default::Primitives::Quad;
 	meshMaterial->Material = mat;
-	EntityManager::SetSharedComponent<MeshRenderer>(entity, meshMaterial);
+	EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(meshMaterial));
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity1, std::shared_ptr<MeshRenderer>(meshMaterial));
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity2, std::shared_ptr<MeshRenderer>(meshMaterial));
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity3, std::shared_ptr<MeshRenderer>(meshMaterial));

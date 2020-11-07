@@ -3,7 +3,7 @@
 #include "UniEngineAPI.h"
 #include "CameraComponent.h"
 #include "MeshRenderer.h"
-#include "InstancedMeshRenderer.h"
+#include "ParticleSystem.h"
 #include "RenderTarget.h"
 
 #include "DirectionalLightComponent.h"

@@ -1,8 +1,16 @@
 #include "pch.h"
-#include "InstancedMeshRenderer.h"
-
-void UniEngine::InstancedMeshRenderer::RecalculateBoundingBox()
+#include "ParticleSystem.h"
+#include "UniEngine.h"
+#include "RenderManager.h"
+void UniEngine::ParticleSystem::RecalculateBoundingBox()
 {
+	if(Matrices.empty())
+	{
+		BoundingBox.Size = glm::vec3(0.0f);
+		BoundingBox.Center = glm::vec3(0.0f);
+		BoundingBox.Radius = 0;
+		return;
+	}
 	glm::vec3 minBound = glm::vec3((int)INT_MAX);
 	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
 	auto meshBound = Mesh->GetBound();
@@ -25,12 +33,8 @@ void UniEngine::InstancedMeshRenderer::RecalculateBoundingBox()
 	BoundingBox.Radius = glm::length(BoundingBox.Size);
 }
 
-size_t UniEngine::InstancedMeshRenderer::GetHashCode()
-{
-	return (size_t)this;
-}
 
-void UniEngine::InstancedMeshRenderer::OnGui()
+void UniEngine::ParticleSystem::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
 	if (ForwardRendering) {
@@ -40,6 +44,19 @@ void UniEngine::InstancedMeshRenderer::OnGui()
 	ImGui::Checkbox("Cast shadow", &CastShadow);
 	ImGui::Checkbox("Back Culling", &BackCulling);
 	ImGui::Text(("Instance count: " + std::to_string(Matrices.size())).c_str());
+	ImGui::Checkbox("Display bounds", &DisplayBound);
+	if(ImGui::Button("Calculate bounds"))
+	{
+		RecalculateBoundingBox();
+	}
+	if (DisplayBound)
+	{
+		RecalculateBoundingBox();
+		ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
+		auto transform = _Owner.GetComponentData<LocalToWorld>().Value;
+		RenderManager::DrawGizmoCube(DisplayBoundColor,
+			Application::GetMainCameraComponent()->get()->Value.get(), transform * glm::translate(BoundingBox.Center) * glm::scale(BoundingBox.Size), 1);
+	}
 	if (Material) {
 		if (ImGui::TreeNode("Material##2")) {
 			Material->OnGui();

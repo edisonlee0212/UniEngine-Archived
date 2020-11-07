@@ -5,9 +5,12 @@
 #include "Material.h"
 namespace UniEngine {
 	class UNIENGINE_API MeshRenderer :
-		public SharedComponentBase
+		public PrivateComponentBase
 	{
+		
 	public:
+		glm::vec4 DisplayBoundColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);;
+		bool DisplayBound = true;
 		bool ForwardRendering = false;
 		bool Transparency = false;
 		bool CastShadow = true;
@@ -15,7 +18,6 @@ namespace UniEngine {
 		bool BackCulling = true;
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
-		size_t GetHashCode() override;
 		void OnGui() override;
 	};
 }

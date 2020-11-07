@@ -39,7 +39,8 @@ namespace UniEngine {
 		size_t _IndicesSize;
 		unsigned _Mask;
 		Bound _Bound;
-
+		friend class MeshRenderer;
+		friend class ParticleSystem;
 		bool _LocalStored;
 		std::vector<Vertex> _Vertices;
 		std::vector<unsigned> _Indices;

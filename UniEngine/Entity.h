@@ -112,9 +112,10 @@ namespace UniEngine {
 	class UNIENGINE_API PrivateComponentBase {
 		friend class EntityManager;
 		friend class EditorManager;
-		
-		Entity _Owner;
+		friend class PrivateComponentElement;
 		bool _Enabled = true;
+	protected:
+		Entity _Owner;
 	public:
 		Entity GetOwner() const { return _Owner; }
 		void SetEnabled(bool value)
@@ -207,12 +208,14 @@ namespace UniEngine {
 		const char* Name;
 		size_t TypeID;
 		std::unique_ptr<PrivateComponentBase> PrivateComponentData;
-		PrivateComponentElement(const char* name, size_t id, std::unique_ptr<PrivateComponentBase> data)
+		PrivateComponentElement(const char* name, size_t id, std::unique_ptr<PrivateComponentBase> data, Entity owner)
 		{
 			Name = name;
 			TypeID = id;
 			PrivateComponentData = std::move(data);
+			PrivateComponentData->_Owner = owner;
 		}
+		void ResetOwner(Entity newOwner) const { PrivateComponentData->_Owner = newOwner; }
 	};
 	
 	struct EntityInfo {

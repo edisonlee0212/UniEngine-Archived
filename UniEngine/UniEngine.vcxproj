@@ -132,7 +132,7 @@
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="InstancedMeshRenderer.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Memory.h" />
@@ -235,7 +235,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="InstancedMeshRenderer.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="ManagerBase.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Memory.cpp" />
