@@ -247,17 +247,14 @@ void InitGround() {
 	
 	auto texture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"));
 	mat->SetTexture(texture, TextureType::DIFFUSE);
-	/*
-	auto textureD = std::make_shared<Texture2D>(TextureType::DIFFUSE);
-	textureD->LoadTexture(FileIO::GetResourcePath("Textures/bricks2.jpg"), "");
-	mat->SetTexture(textureD);
-	auto textureN = std::make_shared<Texture2D>(TextureType::NORMAL);
-	textureN->LoadTexture(FileIO::GetResourcePath("Textures/bricks2_normal.jpg"), "");
-	mat->SetTexture(textureN);
-	auto textureH = std::make_shared<Texture2D>(TextureType::HEIGHT);
-	textureH->LoadTexture(FileIO::GetResourcePath("Textures/bricks2_disp.jpg"), "");
-	mat->SetTexture(textureH);
-	*/
+	
+	auto textureD = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2.jpg"));
+	mat->SetTexture(textureD, TextureType::DIFFUSE);
+	auto textureN = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2_normal.jpg"));
+	mat->SetTexture(textureN, TextureType::NORMAL);
+	auto textureH = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2_disp.jpg"));
+	mat->SetTexture(textureH, TextureType::DISPLACEMENT);
+	
 	
 	mat->SetShininess(32.0f);
 	auto meshMaterial = std::make_unique<MeshRenderer>();

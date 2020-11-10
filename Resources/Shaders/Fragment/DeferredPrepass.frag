@@ -61,16 +61,16 @@ void main()
     vec2 texCoords = fs_in.TexCoords;
     float depth = 0.0;
 
-    //if(enableParallaxMapping){
-    //    vec3 viewDir = reflect(normalize(CameraPosition - fs_in.FragPos), fs_in.Normal);
-    //    vec3 result = ParallaxMapping(texCoords, normalize(TBN * viewDir));
-    //    depth = result.z / heightScale;
-    //    texCoords = result.xy;
-    //}
+    if(enableParallaxMapping){
+        vec3 viewDir = reflect(normalize(CameraPosition - fs_in.FragPos), fs_in.Normal);
+        vec3 result = ParallaxMapping(texCoords, normalize(TBN * viewDir));
+        depth = result.z / heightScale;
+        texCoords = result.xy;
+    }
 
     vec3 normal = fs_in.Normal;
 	if(enableNormalMapping){
-		normal = texture(TEXTURE_NORMAL0, fs_in.TexCoords).rgb;
+		normal = texture(TEXTURE_NORMAL0, texCoords).rgb;
 		normal = normal * 2.0 - 1.0;   
 		normal = normalize(TBN * normal); 
 	}

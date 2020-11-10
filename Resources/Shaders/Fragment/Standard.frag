@@ -23,12 +23,12 @@ void main()
 	if(textureColor.a < 0.1)
         discard;
 	float specular = 1.0;
-	if(false){
-		specular *= texture(TEXTURE_SPECULAR0, fs_in.TexCoords).r;
+	if(enableSpecularMapping){
+		specular = texture(TEXTURE_SPECULAR0, fs_in.TexCoords).r;
 	}
 	// properties
 	vec3 normal = fs_in.Normal;
-	if(false){
+	if(enableNormalMapping){
 		vec3 B = cross(fs_in.Normal, fs_in.Tangent);
 		mat3 TBN = mat3(fs_in.Tangent, B, fs_in.Normal);
 		normal = texture(TEXTURE_NORMAL0, fs_in.TexCoords).rgb;

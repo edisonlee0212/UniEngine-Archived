@@ -1196,6 +1196,7 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 	}
 	else
 	{
+		program->SetInt("TEXTURE_SPECULAR0", 3);
 		program->SetBool("enableSpecularMapping", false);
 	}
 	if (material->_NormalMap)
@@ -1206,6 +1207,7 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 	}
 	else
 	{
+		program->SetInt("TEXTURE_NORMAL0", 3);
 		program->SetBool("enableNormalMapping", false);
 	}
 
@@ -1217,6 +1219,7 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 	}
 	else
 	{
+		program->SetInt("TEXTURE_HEIGHT0", 3);
 		program->SetBool("enableParallaxMapping", false);
 	}
 }
