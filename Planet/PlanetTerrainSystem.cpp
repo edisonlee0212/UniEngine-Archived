@@ -64,7 +64,7 @@ void Planet::PlanetTerrainSystem::OnCreate()
 
 void Planet::PlanetTerrainSystem::Update()
 {
-	//auto camera = EntityManager::GetSharedComponent<CameraComponent>(Application::GetMainCameraEntity())->Value;
+	//auto camera = EntityManager::GetSharedComponent<CameraComponent>(Application::GetMainCameraEntity())->_Camera;
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetChunks = _PlanetTerrainList[i]->_ChunkList;
 		auto planetInfo = _PlanetTerrainList[i]->_Info;
@@ -72,7 +72,7 @@ void Planet::PlanetTerrainSystem::Update()
 		for (auto j = 0; j < planetChunks.size(); j++) {
 			RenderManager::DrawGizmoMesh(planetChunks[j]->_Mesh, glm::vec4(1.0f),
 			                             EntityManager::GetPrivateComponent<CameraComponent>(
-				                             Application::GetMainCameraEntity())->get()->Value.get(), matrix);
+				                             Application::GetMainCameraEntity())->get()->GetCamera().get(), matrix);
 		}
 	}
 

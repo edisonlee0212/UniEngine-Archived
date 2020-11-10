@@ -39,8 +39,8 @@ GLProgram* RenderManager::_PointLightInstancedProgram;
 
 #pragma endregion
 #pragma region Render
-int RenderManager::_ResolutionX;
-int RenderManager::_ResolutionY;
+int RenderManager::_MainCameraResolutionX = 1;
+int RenderManager::_MainCameraResolutionY = 1;
 EntityQuery RenderManager::_DirectionalLightQuery;
 EntityQuery RenderManager::_PointLightQuery;
 EntityQuery RenderManager::_SpotLightQuery;
@@ -48,21 +48,13 @@ size_t RenderManager::_DrawCall;
 size_t RenderManager::_Triangles;
 std::unique_ptr<GLUBO> RenderManager::_KernelBlock;
 std::unique_ptr<GLProgram> RenderManager::_GBufferLightingPass;
-std::unique_ptr<RenderTarget> RenderManager::_GBuffer;
-std::unique_ptr<GLRenderBuffer> RenderManager::_GDepthBuffer;
-std::unique_ptr<GLTexture2D> RenderManager::_GPositionBuffer;
-std::unique_ptr<GLTexture2D> RenderManager::_GNormalBuffer;
-std::unique_ptr<GLTexture2D> RenderManager::_GColorSpecularBuffer;
+
 #pragma endregion
 #pragma region SSAO
 bool RenderManager::_EnableSSAO = true;
 std::unique_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
 std::unique_ptr<GLProgram> RenderManager::_SSAOBlurPass;
-std::unique_ptr<RenderTarget> RenderManager::_SSAO;
-std::unique_ptr<GLTexture2D> RenderManager::_SSAOColor;
-std::unique_ptr<GLTexture2D> RenderManager::_SSAOBlur;
-std::unique_ptr<RenderTarget> RenderManager::_SSAOBlurFilter;
-std::unique_ptr<GLTexture2D> RenderManager::_SSAONoise;
+
 float RenderManager::_SSAOKernelRadius = 3.0f;
 float RenderManager::_SSAOKernelBias = 0.1;
 float RenderManager::_SSAOScale = 4.0;
@@ -71,33 +63,10 @@ int RenderManager::_SSAOSampleSize = 9;
 #pragma endregion
 #pragma endregion
 
-void RenderManager::ResizeResolution(int x, int y)
-{
-	const auto originalResolution = _GBuffer->GetResolution();
-	if (static_cast<int>(originalResolution.x) == x && static_cast<int>(originalResolution.y) == y) return;
-	_GBuffer->SetResolution(x, y);
-	_GPositionBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
-	_GNormalBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
-	_GColorSpecularBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
-	_GDepthBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, x, y);
-
-	_GBuffer->AttachRenderBuffer(_GDepthBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
-	_GBuffer->AttachTexture(_GPositionBuffer.get(), GL_COLOR_ATTACHMENT0);
-	_GBuffer->AttachTexture(_GNormalBuffer.get(), GL_COLOR_ATTACHMENT1);
-	_GBuffer->AttachTexture(_GColorSpecularBuffer.get(), GL_COLOR_ATTACHMENT2);
-
-	_SSAO->SetResolution(x, y);
-	_SSAOBlurFilter->SetResolution(x, y);
-	_SSAOColor->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
-	_SSAOBlur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
-	_SSAO->AttachTexture(_SSAOColor.get(), GL_COLOR_ATTACHMENT0);
-	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
-}
-
 void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
-	auto camera = cameraComponent->Value;
-	_GBuffer->Bind();
+	auto& camera = cameraComponent->GetCamera();
+	cameraComponent->_GBuffer->Bind();
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
@@ -174,13 +143,13 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 
 	Default::GLPrograms::ScreenVAO->Bind();
 	if (_EnableSSAO) {
-		_SSAO->Bind();
+		cameraComponent->_SSAO->Bind();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		_SSAOGeometryPass->Bind();
-		_GPositionBuffer->Bind(3);
-		_GNormalBuffer->Bind(4);
-		_SSAONoise->Bind(5);
+		cameraComponent->_GPositionBuffer->Bind(3);
+		cameraComponent->_GNormalBuffer->Bind(4);
+		cameraComponent->_SSAONoise->Bind(5);
 		_SSAOGeometryPass->SetFloat("radius", _SSAOKernelRadius);
 		_SSAOGeometryPass->SetFloat("bias", _SSAOKernelBias);
 		_SSAOGeometryPass->SetFloat("factor", _SSAOFactor);
@@ -191,10 +160,10 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 		_SSAOGeometryPass->SetFloat2("noiseScale", camera->GetResolution() / _SSAOScale);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		_SSAOBlurFilter->Bind();
+		cameraComponent->_SSAOBlurFilter->Bind();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		_SSAOColor->Bind(3);
+		cameraComponent->_SSAOColor->Bind(3);
 		_SSAOBlurPass->SetInt("ssaoInput", 3);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
@@ -205,14 +174,14 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_GBufferLightingPass->Bind();
-	_GPositionBuffer->Bind(3);
-	_GNormalBuffer->Bind(4);
-	_GColorSpecularBuffer->Bind(5);
+	cameraComponent->_GPositionBuffer->Bind(3);
+	cameraComponent->_GNormalBuffer->Bind(4);
+	cameraComponent->_GColorSpecularBuffer->Bind(5);
 	_GBufferLightingPass->SetBool("receiveShadow", true);
 	_GBufferLightingPass->SetBool("enableSSAO", _EnableSSAO);
 	if (_EnableSSAO)
 	{
-		_SSAOBlur->Bind(6);
+		cameraComponent->_SSAOBlur->Bind(6);
 		_GBufferLightingPass->SetInt("ssao", 6);
 	}
 	_GBufferLightingPass->SetInt("directionalShadowMap", 0);
@@ -224,7 +193,7 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	auto res = camera->GetResolution();
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, _GBuffer->GetFrameBuffer()->ID());
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->_GBuffer->GetFrameBuffer()->ID());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, camera->GetFrameBuffer()->ID()); // write to default framebuffer
 	glBlitFramebuffer(
 		0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST
@@ -235,8 +204,8 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 
 void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraComponent)
 {
-	if (cameraComponent->DrawSkyBox) {
-		cameraComponent->Value->Bind();
+	if (cameraComponent->DrawSkyBox && cameraComponent->SkyBox.get()) {
+		cameraComponent->_Camera->Bind();
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		Default::GLPrograms::SkyboxProgram->Bind();
 		// skybox cube
@@ -249,7 +218,7 @@ void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraCom
 	}
 	else
 	{
-		cameraComponent->Value->Bind();
+		cameraComponent->_Camera->Bind();
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		Default::GLPrograms::BackGroundProgram->Bind();
 		Default::GLPrograms::SkyboxVAO->Bind();
@@ -262,7 +231,7 @@ void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraCom
 
 void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
-	auto camera = cameraComponent->Value;
+	auto& camera = cameraComponent->_Camera;
 
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -360,8 +329,6 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 
 void RenderManager::Init()
 {
-	_ResolutionX = 100;
-	_ResolutionY = 100;
 	_DirectionalLightQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_DirectionalLightQuery, DirectionalLightComponent());
 	_PointLightQuery = EntityManager::CreateEntityQuery();
@@ -511,24 +478,6 @@ void RenderManager::Init()
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
 		);
 
-	_GBuffer = std::make_unique<RenderTarget>(0, 0);
-
-	_GDepthBuffer = std::make_unique<GLRenderBuffer>();
-
-	_GPositionBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
-	_GPositionBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_GPositionBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	_GNormalBuffer = std::make_unique <GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
-	_GNormalBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_GNormalBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	_GColorSpecularBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
-	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-
-
 #pragma endregion
 #pragma region SSAO
 	vertShaderCode = std::string("#version 460 core\n") +
@@ -552,42 +501,16 @@ void RenderManager::Init()
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
 		);
-
-	_SSAO = std::make_unique<RenderTarget>(0, 0);
-	_SSAOColor = std::make_unique<GLTexture2D>(0, GL_R32F, 0, 0, false);
-	_SSAOColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_SSAOColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	_SSAOBlurFilter = std::make_unique<RenderTarget>();
-	_SSAOBlur = std::make_unique<GLTexture2D>(0, GL_R32F, 0, 0, false);
-	_SSAOBlur->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_SSAOBlur->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-
-	// generate noise texture
-	// ----------------------
-	std::vector<glm::vec3> ssaoNoise;
-	for (unsigned int i = 0; i < 16; i++)
-	{
-		glm::vec3 noise(glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f), 0.0f); // rotate around z-axis (in tangent space)
-		ssaoNoise.push_back(noise);
-	}
-	_SSAONoise = std::make_unique<GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
-	_SSAONoise->ReSize(0, GL_RGBA32F, GL_RGB, GL_FLOAT, ssaoNoise.data(), 4, 4);
-	_SSAONoise->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_SSAONoise->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+	
 #pragma endregion
-	ResizeResolution(_ResolutionX, _ResolutionY);
 }
 
 void UniEngine::RenderManager::Start()
 {
 	auto& mainCameraComponent = *Application::GetMainCameraComponent();
-	auto mainCamera = mainCameraComponent->Value;
+	auto& mainCamera = mainCameraComponent->_Camera;
 	auto mainCameraEntity = Application::GetMainCameraEntity();
-	mainCameraComponent->Value->SetResolution(_ResolutionX, _ResolutionY);
-	ResizeResolution(_ResolutionX, _ResolutionY);
+	mainCameraComponent->ResizeResolution(_MainCameraResolutionX, _MainCameraResolutionY);
 
 	_Triangles = 0;
 	_DrawCall = 0;
@@ -595,7 +518,7 @@ void UniEngine::RenderManager::Start()
 
 	for (auto cameraEntity : *cameraEntities) {
 		auto cc = cameraEntity.GetPrivateComponent<CameraComponent>()->get();
-		cameraEntity.GetPrivateComponent<CameraComponent>()->get()->Value->Clear();
+		cameraEntity.GetPrivateComponent<CameraComponent>()->get()->_Camera->Clear();
 	}
 
 #pragma region Shadow
@@ -955,11 +878,11 @@ void UniEngine::RenderManager::Start()
 		auto& cameraComponent = *cameraEntity.GetPrivateComponent<CameraComponent>();
 		if (cameraComponent != mainCameraComponent)
 		{
-			Camera::CameraInfoBlock.UpdateMatrices(cameraComponent->Value.get(),
+			Camera::CameraInfoBlock.UpdateMatrices(cameraComponent->_Camera.get(),
 				EntityManager::GetComponentData<Translation>(cameraEntity).Value,
 				EntityManager::GetComponentData<Rotation>(cameraEntity).Value
 			);
-			Camera::CameraInfoBlock.UploadMatrices(cameraComponent->Value->CameraUniformBufferBlock);
+			Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
 			LocalToWorld cameraTransform = cameraEntity.GetComponentData<LocalToWorld>();
 			RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
 			RenderBackGround(cameraComponent);
@@ -1191,7 +1114,7 @@ void RenderManager::OnGui()
 			// Get the size of the child (i.e. the whole draw size of the windows).
 			overlayPos = ImGui::GetWindowPos();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
-			ImGui::Image((ImTextureID)Application::GetMainCameraComponent()->get()->Value->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)Application::GetMainCameraComponent()->get()->_Camera->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
@@ -1247,8 +1170,8 @@ void RenderManager::OnGui()
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
-	_ResolutionX = viewPortSize.x;
-	_ResolutionY = viewPortSize.y;
+	_MainCameraResolutionX = viewPortSize.x;
+	_MainCameraResolutionY = viewPortSize.y;
 }
 
 #pragma endregion

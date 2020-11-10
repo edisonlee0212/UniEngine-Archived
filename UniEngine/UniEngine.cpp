@@ -130,7 +130,6 @@ void UniEngine::Application::Init(bool fullScreen)
 	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
 	auto mainCameraComponent = std::make_unique<CameraComponent>();
 	mainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
-	mainCameraComponent->Value = std::make_shared<Camera>(1600, 900, 0.1f, 500.0f);
 	EntityManager::SetPrivateComponent<CameraComponent>(_MainCameraEntity, std::move(mainCameraComponent));
 #pragma endregion
 

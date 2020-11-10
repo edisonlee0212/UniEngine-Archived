@@ -42,11 +42,7 @@ namespace UniEngine {
 		static bool _EnableSSAO;
 		static std::unique_ptr<GLProgram> _SSAOGeometryPass;
 		static std::unique_ptr<GLProgram> _SSAOBlurPass;
-		static std::unique_ptr<RenderTarget> _SSAO;
-		static std::unique_ptr<GLTexture2D> _SSAOColor;
-		static std::unique_ptr<GLTexture2D> _SSAOBlur;
-		static std::unique_ptr<RenderTarget> _SSAOBlurFilter;
-		static std::unique_ptr<GLTexture2D> _SSAONoise;
+
 		static float _SSAOKernelRadius;
 		static float _SSAOKernelBias;
 		static float _SSAOScale;
@@ -56,13 +52,9 @@ namespace UniEngine {
 #pragma region Render
 		static std::unique_ptr<GLUBO> _KernelBlock;
 		static std::unique_ptr<GLProgram> _GBufferLightingPass;
-		static std::unique_ptr<RenderTarget> _GBuffer;
-		static std::unique_ptr<GLRenderBuffer> _GDepthBuffer;
-		static std::unique_ptr<GLTexture2D> _GPositionBuffer;
-		static std::unique_ptr<GLTexture2D> _GNormalBuffer;
-		static std::unique_ptr<GLTexture2D> _GColorSpecularBuffer;
-		static int _ResolutionX;
-		static int _ResolutionY;
+
+		static int _MainCameraResolutionX;
+		static int _MainCameraResolutionY;
 		static EntityQuery _DirectionalLightQuery;
 		static EntityQuery _PointLightQuery;
 		static EntityQuery _SpotLightQuery;
@@ -126,7 +118,6 @@ namespace UniEngine {
 		static void SetSSAOFactor(float value);
 		static void SetEnableSSAO(bool value);
 		static void SetSSAOSampleSize(int value);
-		static void ResizeResolution(int x, int y);
 #pragma endregion
 		static void RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void RenderBackGround(std::unique_ptr<CameraComponent>& cameraComponent);

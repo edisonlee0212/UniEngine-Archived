@@ -55,7 +55,7 @@ void UniEngine::ParticleSystem::OnGui()
 		ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
 		auto transform = _Owner.GetComponentData<LocalToWorld>().Value;
 		RenderManager::DrawGizmoCube(DisplayBoundColor,
-			Application::GetMainCameraComponent()->get()->Value.get(), transform * glm::translate(BoundingBox.Center) * glm::scale(BoundingBox.Size), 1);
+			Application::GetMainCameraComponent()->get()->GetCamera().get(), transform * glm::translate(BoundingBox.Center) * glm::scale(BoundingBox.Size), 1);
 	}
 	if (Material) {
 		if (ImGui::TreeNode("Material##2")) {

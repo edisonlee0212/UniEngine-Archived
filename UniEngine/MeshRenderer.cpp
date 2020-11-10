@@ -26,7 +26,7 @@ void UniEngine::MeshRenderer::OnGui()
 				ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
 				auto transform = _Owner.GetComponentData<LocalToWorld>().Value;
 				RenderManager::DrawGizmoCube(DisplayBoundColor,
-					Application::GetMainCameraComponent()->get()->Value.get(), transform * (glm::translate(Mesh->_Bound.Center) * glm::scale(Mesh->_Bound.Size)), 1);
+					Application::GetMainCameraComponent()->get()->GetCamera().get(), transform * (glm::translate(Mesh->_Bound.Center) * glm::scale(Mesh->_Bound.Size)), 1);
 			}
 			Mesh->OnGui();
 			ImGui::TreePop();
