@@ -5,6 +5,7 @@
 #include "UniEngine.h"
 #include "Default.h"
 #include "DirectionalLightComponent.h"
+#include "imgui_internal.h"
 #include "InputManager.h"
 #include "Model.h"
 #include "PointLightComponent.h"
@@ -401,7 +402,7 @@ void EditorManager::OnGui()
 			
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			ImGui::Image((ImTextureID)_SceneCamera->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
-			_SceneCamera->SetEnabled(ImGui::IsItemVisible());
+			
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
@@ -423,7 +424,6 @@ void EditorManager::OnGui()
 			}
 		}
 		ImGui::EndChild();
-
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();

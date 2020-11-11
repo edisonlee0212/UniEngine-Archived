@@ -157,8 +157,9 @@ void UniEngine::Application::LoopStart_Internal()
 	
 	EditorManager::Start();
 	WindowManager::Start();
-	RenderManager::Start();
 	InputManager::Start();
+	RenderManager::Start();
+	
 }
 
 void UniEngine::Application::LoopMain_Internal()

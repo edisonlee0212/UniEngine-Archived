@@ -170,7 +170,7 @@ void UniEngine::Camera::SetResolution(int x, int y)
 	AttachRenderBuffer(_RenderBuffer, GL_DEPTH_STENCIL_ATTACHMENT);
 }
 
-GLTexture2D* UniEngine::Camera::GetTexture()
+GLTexture2D* UniEngine::Camera::GetTexture() const
 {
 	return _ColorTexture;
 }
@@ -180,7 +180,7 @@ glm::vec3 Camera::Project(LocalToWorld& ltw, glm::vec3 position)
 	return CameraInfoBlock.Projection * CameraInfoBlock.View * glm::vec4(position, 1.0f);
 }
 
-glm::vec3 Camera::UnProject(LocalToWorld& ltw, glm::vec3 position)
+glm::vec3 Camera::UnProject(LocalToWorld& ltw, glm::vec3 position) const
 {
 	glm::mat4 inversed = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	glm::vec4 start = glm::vec4(
@@ -189,7 +189,7 @@ glm::vec3 Camera::UnProject(LocalToWorld& ltw, glm::vec3 position)
 	return start / start.w;
 }
 
-glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition)
+glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition) const
 {
 	glm::mat4 inversed = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
@@ -202,7 +202,7 @@ glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition)
 	return start / start.w;
 }
 
-void Camera::ClearColor(glm::vec3 color)
+void Camera::ClearColor(glm::vec3 color) const
 {
 	_FrameBuffer->Bind();
 	glClearColor(color.x, color.y, color.z, 0.0f);

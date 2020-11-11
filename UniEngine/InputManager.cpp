@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "InputManager.h"
+#include "UniEngine.h"
+#include "EditorManager.h"
+#include "imgui_internal.h"
 #include "WindowManager.h"
 using namespace UniEngine;
 
@@ -82,12 +85,14 @@ void InputManager::Start()
 	_MouseScreenPosition = glm::vec2(FLT_MAX, FLT_MAX);
 	ImGui::Begin("Scene");
 	{
-		
+
+		EditorManager::_SceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
+
 		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
 			ImGuiViewport* viewPort = ImGui::GetWindowViewport();
 			SetWindow((GLFWwindow*)viewPort->PlatformHandle);
 			SetFocused(FocusMode::SceneCamera);
-			
+
 			static int corner = 1;
 			ImGuiIO& io = ImGui::GetIO();
 			auto viewPortSize = ImGui::GetWindowSize();
@@ -99,7 +104,7 @@ void InputManager::Start()
 				_MouseScreenPosition = glm::vec2(x, y);
 			}
 		}
-		
+
 	}
 	ImGui::End();
 	ImGui::Begin("Camera");
@@ -123,7 +128,7 @@ void InputManager::Start()
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
-	
+
 }
 
 void InputManager::OnGui()

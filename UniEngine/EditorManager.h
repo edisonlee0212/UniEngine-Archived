@@ -21,6 +21,7 @@ namespace UniEngine {
 
 #pragma region Scene Camera
 		friend class RenderManager;
+		friend class InputManager;
 		static glm::quat _SceneCameraRotation;
 		static glm::vec3 _SceneCameraPosition;
 		static std::unique_ptr<CameraComponent> _SceneCamera;

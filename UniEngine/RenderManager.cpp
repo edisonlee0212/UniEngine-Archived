@@ -514,7 +514,6 @@ void UniEngine::RenderManager::Start()
 	_DrawCall = 0;
 	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
 	for (auto cameraEntity : *cameraEntities) {
-		auto cc = cameraEntity.GetPrivateComponent<CameraComponent>()->get();
 		cameraEntity.GetPrivateComponent<CameraComponent>()->get()->_Camera->Clear();
 	}
 	auto worldBound = _World->GetBound();
@@ -1127,7 +1126,6 @@ void RenderManager::OnGui()
 		viewPortSize = ImGui::GetWindowSize();
 		ImVec2 overlayPos;
 		static int corner = 1;
-		ImGuiIO& io = ImGui::GetIO();
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
@@ -1139,33 +1137,33 @@ void RenderManager::OnGui()
 				auto id = _MainCameraComponent->_Camera->GetTexture()->ID();
 				ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			}
-			if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
-				ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
-				if (_EnableInfoWindow)
-				{
-					ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
-					ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-					ImGui::SetNextWindowBgAlpha(0.35f);
-					ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-					ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
-					ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-					std::string trisstr = "";
-					if (_Triangles < 999) trisstr += std::to_string(_Triangles);
-					else if (_Triangles < 999999) trisstr += std::to_string((int)(_Triangles / 1000)) + "K";
-					else trisstr += std::to_string((int)(_Triangles / 1000000)) + "M";
-					trisstr += " tris";
-					ImGui::Text(trisstr.c_str());
-					ImGui::Text("%d drawcall", _DrawCall);
-					ImGui::Separator();
-					if (ImGui::IsMousePosValid()) {
-						glm::vec2 pos = InputManager::GetMouseScreenPosition();
-						ImGui::Text("Mouse Position: (%.1f,%.1f)", pos.x, pos.y);
-					}
-					else {
-						ImGui::Text("Mouse Position: <invalid>");
-					}
-					ImGui::EndChild();
+
+			ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+			if (_EnableInfoWindow)
+			{
+				ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+				ImGui::SetNextWindowBgAlpha(0.35f);
+				ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+				ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
+				ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+				std::string trisstr = "";
+				if (_Triangles < 999) trisstr += std::to_string(_Triangles);
+				else if (_Triangles < 999999) trisstr += std::to_string((int)(_Triangles / 1000)) + "K";
+				else trisstr += std::to_string((int)(_Triangles / 1000000)) + "M";
+				trisstr += " tris";
+				ImGui::Text(trisstr.c_str());
+				ImGui::Text("%d drawcall", _DrawCall);
+				ImGui::Separator();
+				if (ImGui::IsMousePosValid()) {
+					glm::vec2 pos = InputManager::GetMouseScreenPosition();
+					ImGui::Text("Mouse Position: (%.1f,%.1f)", pos.x, pos.y);
 				}
+				else {
+					ImGui::Text("Mouse Position: <invalid>");
+				}
+				ImGui::EndChild();
 			}
 
 		}
@@ -1543,12 +1541,12 @@ void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, fl
 
 void RenderManager::SetMainCamera(CameraComponent* value)
 {
-	if(_MainCameraComponent)
+	if (_MainCameraComponent)
 	{
 		_MainCameraComponent->_IsMainCamera = false;
 	}
 	_MainCameraComponent = value;
-	if(_MainCameraComponent) _MainCameraComponent->_IsMainCamera = true;
+	if (_MainCameraComponent) _MainCameraComponent->_IsMainCamera = true;
 }
 
 CameraComponent* RenderManager::GetMainCamera()
