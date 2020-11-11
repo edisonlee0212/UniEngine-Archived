@@ -29,9 +29,9 @@ void Camera::StoreToJpg(std::string path)
 	pixels.resize(_ResolutionX * _ResolutionY * 3);
 	for (int i = 0; i < _ResolutionX * _ResolutionY; i++)
 	{
-		pixels[i * 3] = int(255.99f * dst[i * 3]);
-		pixels[i * 3 + 1] = int(255.99f * dst[i * 3 + 1]);
-		pixels[i * 3 + 2] = int(255.99f * dst[i * 3 + 2]);
+		pixels[i * 3] = glm::clamp<int>(int(255.99f * dst[i * 3]), 0, 255);
+		pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * dst[i * 3 + 1]), 0, 255);
+		pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * dst[i * 3 + 2]), 0, 255);
 	}
 	stbi_flip_vertically_on_write(true);
 	stbi_write_jpg(path.c_str(), _ResolutionX, _ResolutionY, 3, pixels.data(), 100);
@@ -57,10 +57,10 @@ void Camera::StoreToPng(std::string path)
 	pixels.resize(_ResolutionX * _ResolutionY * 4);
 	for(int i = 0; i < _ResolutionX * _ResolutionY; i++)
 	{
-		pixels[i * 4] = int(255.99f * dst[i * 4]);
-		pixels[i * 4 + 1] = int(255.99f * dst[i * 4 + 1]);
-		pixels[i * 4 + 2] = int(255.99f * dst[i * 4 + 2]);
-		pixels[i * 4 + 3] = int(255.99f * dst[i * 4 + 3]);
+		pixels[i * 4] = glm::clamp<int>(int(255.99f * dst[i * 4]), 0, 255);
+		pixels[i * 4 + 1] = glm::clamp<int>(int(255.99f * dst[i * 4 + 1]), 0, 255);
+		pixels[i * 4 + 2] = glm::clamp<int>(int(255.99f * dst[i * 4 + 2]), 0, 255);
+		pixels[i * 4 + 3] = glm::clamp<int>(int(255.99f * dst[i * 4 + 3]), 0, 255);
 	}
 	stbi_flip_vertically_on_write(true);
 	stbi_write_png(path.c_str(), _ResolutionX, _ResolutionY, 4, pixels.data(), _ResolutionX * 4);
