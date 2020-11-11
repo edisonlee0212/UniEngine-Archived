@@ -70,14 +70,12 @@ void Planet::PlanetTerrainSystem::Update()
 		auto planetInfo = _PlanetTerrainList[i]->_Info;
 		glm::mat4 matrix = glm::scale(glm::translate(glm::mat4_cast(planetInfo.Rotation), glm::vec3(planetInfo.Position)), glm::vec3(1.0f));
 		for (auto j = 0; j < planetChunks.size(); j++) {
-			RenderManager::DrawGizmoMesh(planetChunks[j]->_Mesh, glm::vec4(1.0f),
-			                             EntityManager::GetPrivateComponent<CameraComponent>(
-				                             Application::GetMainCameraEntity())->get()->GetCamera().get(), matrix);
+			RenderManager::DrawGizmoMesh(planetChunks[j]->_Mesh, glm::vec4(1.0f), matrix);
 		}
 	}
 
 
-	Translation cameraPos = EntityManager::GetComponentData<Translation>(Application::GetMainCameraEntity());
+	Translation cameraPos = EntityManager::GetComponentData<Translation>(RenderManager::GetMainCamera()->GetOwner());
 
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetTerrain = _PlanetTerrainList[i];

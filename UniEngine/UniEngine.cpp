@@ -14,7 +14,6 @@ void APIENTRY glDebugOutput(GLenum source,
 
 using namespace UniEngine;
 std::shared_ptr<World> Application::_World;
-Entity Application::_MainCameraEntity;
 bool Application::_Initialized = false;
 bool Application::_Running = false;
 double Application::_RealWorldTime;
@@ -124,13 +123,15 @@ void UniEngine::Application::Init(bool fullScreen)
 #pragma region Main Camera
 	Camera::GenerateMatrices();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", Translation(), Rotation(), Scale(), LocalToWorld(), CameraLayerMask());
-	_MainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
+	auto mainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
 	Translation pos;
 	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
-	EntityManager::SetComponentData<Translation>(_MainCameraEntity, pos);
+	EntityManager::SetComponentData<Translation>(mainCameraEntity, pos);
 	auto mainCameraComponent = std::make_unique<CameraComponent>();
+	RenderManager::SetMainCamera(mainCameraComponent.get());
 	mainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
-	EntityManager::SetPrivateComponent<CameraComponent>(_MainCameraEntity, std::move(mainCameraComponent));
+	EntityManager::SetPrivateComponent<CameraComponent>(mainCameraEntity, std::move(mainCameraComponent));
+	
 #pragma endregion
 
 	glfwPollEvents();
@@ -237,16 +238,6 @@ void UniEngine::Application::Run()
 std::shared_ptr<World>& UniEngine::Application::GetWorld()
 {
 	return _World;
-}
-
-Entity UniEngine::Application::GetMainCameraEntity()
-{
-	return _MainCameraEntity;
-}
-
-std::unique_ptr<CameraComponent>* UniEngine::Application::GetMainCameraComponent()
-{
-	return _MainCameraEntity.GetPrivateComponent<CameraComponent>();
 }
 
 #pragma region OpenGL Debugging

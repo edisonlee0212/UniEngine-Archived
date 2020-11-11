@@ -32,6 +32,7 @@ namespace UniEngine {
 	
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
+		static CameraComponent* _MainCameraComponent;
 #pragma region Global Var
 #pragma region GUI
 		static bool _EnableLightMenu;
@@ -110,6 +111,11 @@ namespace UniEngine {
 		
 		static void DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size);
 		static float Lerp(float a, float b, float f);
+
+		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow = true);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow = true);
+
+		
 	public:
 #pragma region Settings
 		static void SetSSAOKernelRadius(float value);
@@ -152,23 +158,25 @@ namespace UniEngine {
 		static void DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target);
 		static void DrawTexture2D(Texture2D* texture, float depth, float centerX, float centerY, float sizeX, float sizeY, RenderTarget* target);
 
-		
+		static void SetMainCamera(CameraComponent* value);
+		static CameraComponent* GetMainCamera();
+		static void DrawGizmoPoint(glm::vec4 color, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoCube(glm::vec4 color, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoQuad(glm::vec4 color, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoMesh(Mesh* mesh, glm::vec4 color, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
 
-		static void DrawGizmoPoint(glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
-		static void DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
-		static void DrawGizmoCube(glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
-		static void DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
-		static void DrawGizmoQuad(glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
-		static void DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
-		static void DrawGizmoMesh(Mesh* mesh, glm::vec4 color, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
-		static void DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4* matrices, size_t count, RenderTarget* target, glm::mat4 model = glm::mat4(1.0f), float size = 1.0f);
+		static void DrawGizmoRay(glm::vec4 color, glm::vec3 start, glm::vec3 end, float width = 0.01f);
+		static void DrawGizmoRay(glm::vec4 color, Ray& ray, float width = 0.01f);
 
-		static void DrawGizmoRay(glm::vec4 color, RenderTarget* target, glm::vec3 start, glm::vec3 end, float width = 0.01f);
-		static void DrawGizmoRay(glm::vec4 color, RenderTarget* target, Ray& ray, float width = 0.01f);
-
-		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow = true);
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow = true);
+		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, std::unique_ptr<CameraComponent>& cameraComponent, bool receiveShadow = true);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, std::unique_ptr<CameraComponent>& cameraComponent, bool receiveShadow = true);
 
 #pragma endregion
 	};
+
+	
 }

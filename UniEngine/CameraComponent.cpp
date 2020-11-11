@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CameraComponent.h"
-
+#include "RenderManager.h"
 void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 {
 	const auto originalResolution = _GBuffer->GetResolution();
@@ -78,9 +78,28 @@ UniEngine::CameraComponent::CameraComponent()
 	ResizeResolution(_ResolutionX, _ResolutionY);
 }
 
+UniEngine::CameraComponent::~CameraComponent()
+{
+	if (RenderManager::GetMainCamera() == this) {
+		RenderManager::SetMainCamera(nullptr);
+	}
+}
+
 void UniEngine::CameraComponent::OnGui()
 {
 	ImGui::Checkbox("Skybox", &DrawSkyBox);
+	bool savedState = _IsMainCamera;
+	ImGui::Checkbox("Main Camera", &_IsMainCamera);
+	if(savedState != _IsMainCamera)
+	{
+		if(_IsMainCamera)
+		{
+			RenderManager::SetMainCamera(this);
+		}else
+		{
+			RenderManager::SetMainCamera(nullptr);
+		}
+	}
 	if(!DrawSkyBox)
 	{
 		ImGui::ColorEdit3("Clear Color", (float*)(void*)&ClearColor);

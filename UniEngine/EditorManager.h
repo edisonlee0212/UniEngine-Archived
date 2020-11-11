@@ -11,6 +11,7 @@ namespace UniEngine {
 	class UNIENGINE_API EditorManager :
 		public ManagerBase
 	{
+		static bool _Enabled;
 		static std::map<size_t, std::function<void(ComponentBase* data)>> _ComponentGUIMap;
 		static unsigned int _ConfigFlags;
 		static int _SelectedHierarchyDisplayMode;
@@ -25,6 +26,13 @@ namespace UniEngine {
 		static std::unique_ptr<CameraComponent> _SceneCamera;
 		static int _SceneCameraResolutionX;
 		static int _SceneCameraResolutionY;
+		static float _Velocity;
+		static float _Sensitivity;
+		static float _LastX;
+		static float _LastY;
+		static float _LastScrollY;
+		static bool _StartMouse;
+		static bool _StartScroll;
 #pragma endregion
 
 

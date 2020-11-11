@@ -2,7 +2,7 @@
 #include "EditorManager.h"
 
 #include "AssetManager.h"
-
+#include "UniEngine.h"
 #include "Default.h"
 #include "DirectionalLightComponent.h"
 #include "InputManager.h"
@@ -11,6 +11,7 @@
 #include "RenderManager.h"
 #include "TransformSystem.h"
 using namespace UniEngine;
+bool EditorManager::_Enabled = false;
 std::map<size_t, std::function<void(ComponentBase* data)>> EditorManager::_ComponentGUIMap;
 unsigned int EditorManager::_ConfigFlags = 0;
 int EditorManager::_SelectedHierarchyDisplayMode = 1;
@@ -23,6 +24,14 @@ glm::vec3 EditorManager::_SceneCameraPosition;
 std::unique_ptr<CameraComponent> EditorManager::_SceneCamera;
 int EditorManager::_SceneCameraResolutionX;
 int EditorManager::_SceneCameraResolutionY;
+float EditorManager::_Velocity = 20.0f;
+float EditorManager::_Sensitivity = 0.1f;
+float EditorManager::_LastX = 0;
+float EditorManager::_LastY = 0;
+float EditorManager::_LastScrollY = 0;
+bool EditorManager::_StartMouse = false;
+bool EditorManager::_StartScroll = false;
+
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	bool deleted = false;
@@ -88,6 +97,7 @@ void UniEngine::EditorManager::InspectComponent(ComponentBase* data, ComponentTy
 
 void UniEngine::EditorManager::Init()
 {
+	_Enabled = true;
 	AddComponentInspector<DirectionalLightComponent>([](ComponentBase* data)
 		{
 			std::stringstream stream;
@@ -137,6 +147,7 @@ void UniEngine::EditorManager::Destroy()
 void EditorManager::Start()
 {
 	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
+	_SceneCamera->GetCamera()->Clear();
 #pragma region Dock & Main Menu
 	static bool opt_fullscreen_persistant = true;
 	bool opt_fullscreen = opt_fullscreen_persistant;
@@ -204,6 +215,59 @@ void EditorManager::Start()
 		ImGui::EndMainMenuBar();
 	}
 
+#pragma endregion
+
+#pragma region Scene Camera Controller
+	glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
+	glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
+	bool moved = false;
+	if (InputManager::GetKey(GLFW_KEY_W, FocusMode::SceneCamera)) {
+		_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+		moved = true;
+	}
+	if (InputManager::GetKey(GLFW_KEY_S, FocusMode::SceneCamera)) {
+		_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+		moved = true;
+	}
+	if (InputManager::GetKey(GLFW_KEY_A, FocusMode::SceneCamera)) {
+		_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+		moved = true;
+	}
+	if (InputManager::GetKey(GLFW_KEY_D, FocusMode::SceneCamera)) {
+		_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+		moved = true;
+	}
+	if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT, FocusMode::SceneCamera)) {
+		_SceneCameraPosition.y += _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
+		moved = true;
+	}
+	if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL, FocusMode::SceneCamera)) {
+		_SceneCameraPosition.y -= _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
+		moved = true;
+	}
+	auto mousePosition = InputManager::GetMouseAbsolutePosition(FocusMode::SceneCamera);
+	if (!_StartMouse) {
+		_LastX = mousePosition.x;
+		_LastY = mousePosition.y;
+		_StartMouse = true;
+	}
+	float xoffset = mousePosition.x - _LastX;
+	float yoffset = -mousePosition.y + _LastY;
+	_LastX = mousePosition.x;
+	_LastY = mousePosition.y;
+	if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT, FocusMode::SceneCamera)) {
+		if (xoffset != 0 || yoffset != 0) {
+			_SceneCameraRotation = _SceneCamera.get()->GetCamera()->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
+		}
+		mousePosition = InputManager::GetMouseScroll(FocusMode::SceneCamera);
+		if (!_StartScroll) {
+			_LastScrollY = mousePosition.y;
+			_StartScroll = true;
+		}
+		float yscrolloffset = -mousePosition.y + _LastScrollY;
+		_LastScrollY = mousePosition.y;
+		if (yscrolloffset != 0) _SceneCamera.get()->GetCamera()->ProcessMouseScroll(yscrolloffset);
+	}
 #pragma endregion
 
 
@@ -319,6 +383,7 @@ void UniEngine::EditorManager::Update()
 		}
 		ImGui::End();
 	}
+	
 }
 void EditorManager::OnGui()
 {
@@ -329,18 +394,14 @@ void EditorManager::OnGui()
 	ImGui::Begin("Scene");
 	{
 		viewPortSize = ImGui::GetWindowSize();
-		ImVec2 overlayPos;
-		static int corner = 1;
-		ImGuiIO& io = ImGui::GetIO();
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
 			
-			// Get the size of the child (i.e. the whole draw size of the windows).
-			overlayPos = ImGui::GetWindowPos();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
-			ImGui::Image((ImTextureID)_SceneCamera.get()->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_SceneCamera->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			_SceneCamera->SetEnabled(ImGui::IsItemVisible());
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))

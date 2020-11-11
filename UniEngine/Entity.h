@@ -47,6 +47,7 @@ namespace UniEngine {
 		virtual void OnDisable(){}
 		virtual size_t GetHashCode() = 0;
 		virtual void OnGui() {}
+		virtual ~SharedComponentBase(){}
 	};
 	class PrivateComponentBase;
 	struct UNIENGINE_API Entity {
@@ -137,6 +138,7 @@ namespace UniEngine {
 		virtual void OnEnable() {}
 		virtual void OnDisable() {}
 		virtual void OnGui() {}
+		virtual ~PrivateComponentBase(){}
 	};
 
 	template<typename T>

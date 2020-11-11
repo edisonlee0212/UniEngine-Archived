@@ -39,7 +39,7 @@ int main()
 	ccs->Enable();
 	Translation t;
 	t.Value = glm::vec3(-40, 25, 3);
-	Application::GetMainCameraEntity().SetComponentData(t);
+	RenderManager::GetMainCamera()->GetOwner().SetComponentData(t);
 	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype("Model",
 		LocalToParent(),
 		EulerRotation(),

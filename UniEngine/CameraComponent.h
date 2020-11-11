@@ -24,9 +24,11 @@ namespace UniEngine {
 		std::unique_ptr<GLTexture2D> _GColorSpecularBuffer;
 		int _ResolutionX;
 		int _ResolutionY;
+		bool _IsMainCamera = false;
 	public:
 		void ResizeResolution(int x, int y);
 		CameraComponent();
+		~CameraComponent();
 		bool DrawSkyBox = true;
 		glm::vec3 ClearColor;
 		std::shared_ptr<Cubemap> SkyBox;
