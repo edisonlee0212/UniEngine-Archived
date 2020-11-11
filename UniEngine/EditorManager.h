@@ -1,4 +1,5 @@
 #pragma once
+#include "CameraComponent.h"
 #include "Core.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
@@ -16,17 +17,29 @@ namespace UniEngine {
 		static Entity _SelectedEntity;
 		static bool _DisplayLog;
 		static bool _DisplayError;
+
+#pragma region Scene Camera
+		friend class RenderManager;
+		static glm::quat _SceneCameraRotation;
+		static glm::vec3 _SceneCameraPosition;
+		static std::unique_ptr<CameraComponent> _SceneCamera;
+		static int _SceneCameraResolutionX;
+		static int _SceneCameraResolutionY;
+#pragma endregion
+
+
+		
 		static bool DrawEntityMenu(bool enabled, Entity& entity);
 		static void DrawEntityNode(Entity& entity);
 		static void InspectComponent(ComponentBase* data, ComponentType type);
 	public:
+		static void OnGui();
 		template<typename T1 = ComponentBase>
 		static void AddComponentInspector(const std::function<void(ComponentBase* data)>& func);
 		static void Init();
 		static void Destroy();
 		static void Start();
 		static void Update();
-		static void LateUpdate();
 		static Entity GetSelectedEntity() { return _SelectedEntity; }
 		static void SetSelectedEntity(Entity entity);
 	};

@@ -1,9 +1,14 @@
 #include "pch.h"
 #include "EditorManager.h"
 
+#include "AssetManager.h"
 
+#include "Default.h"
 #include "DirectionalLightComponent.h"
+#include "InputManager.h"
+#include "Model.h"
 #include "PointLightComponent.h"
+#include "RenderManager.h"
 #include "TransformSystem.h"
 using namespace UniEngine;
 std::map<size_t, std::function<void(ComponentBase* data)>> EditorManager::_ComponentGUIMap;
@@ -12,6 +17,12 @@ int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
 bool EditorManager::_DisplayLog = true;
 bool EditorManager::_DisplayError = true;
+
+glm::quat EditorManager::_SceneCameraRotation;
+glm::vec3 EditorManager::_SceneCameraPosition;
+std::unique_ptr<CameraComponent> EditorManager::_SceneCamera;
+int EditorManager::_SceneCameraResolutionX;
+int EditorManager::_SceneCameraResolutionY;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	bool deleted = false;
@@ -111,6 +122,11 @@ void UniEngine::EditorManager::Init()
 	_SelectedEntity.Index = 0;
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;
 	_ConfigFlags += EntityEditorSystem_EnableEntityInspector;
+
+	_SceneCameraPosition = glm::vec3(0.0f);
+	_SceneCameraRotation = glm::quat(glm::vec3(0.0f));
+	_SceneCamera = std::make_unique<CameraComponent>();
+	_SceneCamera->SkyBox = Default::Textures::DefaultSkybox;
 }
 
 void UniEngine::EditorManager::Destroy()
@@ -120,7 +136,7 @@ void UniEngine::EditorManager::Destroy()
 
 void EditorManager::Start()
 {
-	
+	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 #pragma region Dock & Main Menu
 	static bool opt_fullscreen_persistant = true;
 	bool opt_fullscreen = opt_fullscreen_persistant;
@@ -189,6 +205,7 @@ void EditorManager::Start()
 	}
 
 #pragma endregion
+
 
 #pragma region Select entity here
 
@@ -303,9 +320,56 @@ void UniEngine::EditorManager::Update()
 		ImGui::End();
 	}
 }
-
-void EditorManager::LateUpdate()
+void EditorManager::OnGui()
 {
+#pragma region Scene Camera Window
+	ImVec2 viewPortSize;
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+
+	ImGui::Begin("Scene");
+	{
+		viewPortSize = ImGui::GetWindowSize();
+		ImVec2 overlayPos;
+		static int corner = 1;
+		ImGuiIO& io = ImGui::GetIO();
+		// Using a Child allow to fill all the space of the window.
+		// It also allows customization
+		if (ImGui::BeginChild("CameraRenderer")) {
+			viewPortSize = ImGui::GetWindowSize();
+			
+			// Get the size of the child (i.e. the whole draw size of the windows).
+			overlayPos = ImGui::GetWindowPos();
+			// Because I use the texture from OpenGL, I need to invert the V from the UV.
+			ImGui::Image((ImTextureID)_SceneCamera.get()->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
+					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
+					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
+						EulerRotation(),
+						LocalToParent(),
+						Translation(),
+						Rotation(),
+						Scale(),
+						LocalToWorld());
+					Scale t;
+					t.Value = glm::vec3(1.0f);
+					AssetManager::ToEntity(archetype, payload_n).SetComponentData(t);
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+		ImGui::EndChild();
+
+	}
+	ImGui::End();
+	ImGui::PopStyleVar();
+	_SceneCameraResolutionX = viewPortSize.x;
+	_SceneCameraResolutionY = viewPortSize.y;
+
+#pragma endregion
 #pragma region Logs and errors
 	if (_DisplayLog) {
 		ImGui::Begin("Log");
@@ -329,7 +393,9 @@ void EditorManager::LateUpdate()
 		ImGui::End();
 	}
 #pragma endregion
+
 }
+
 
 
 void UniEngine::EditorManager::SetSelectedEntity(Entity entity)

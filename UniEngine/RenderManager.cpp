@@ -890,6 +890,20 @@ void UniEngine::RenderManager::Start()
 		}
 	}
 #pragma endregion
+#pragma region Render to scene camera
+	if (true) {
+		Camera::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get()->_Camera.get(),
+			EditorManager::_SceneCameraPosition,
+			EditorManager::_SceneCameraRotation
+		);
+		Camera::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get()->_Camera->CameraUniformBufferBlock);
+		LocalToWorld cameraTransform;
+		cameraTransform.Value = glm::translate(EditorManager::_SceneCameraPosition) * glm::mat4_cast(EditorManager::_SceneCameraRotation);
+		RenderToCameraDeferred(EditorManager::_SceneCamera, cameraTransform, minBound, maxBound, false);
+		RenderBackGround(EditorManager::_SceneCamera);
+		RenderToCameraForward(EditorManager::_SceneCamera, cameraTransform, minBound, maxBound, false);
+	}
+#pragma endregion
 
 #pragma region Render to main Camera and calculate bounds.
 	minBound = glm::vec3((int)INT_MAX);
@@ -1097,73 +1111,49 @@ void RenderManager::OnGui()
 	ImVec2 viewPortSize;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 
-	ImGui::Begin("Main Camera");
+	ImGui::Begin("Camera");
 	{
 		viewPortSize = ImGui::GetWindowSize();
 		ImVec2 overlayPos;
 		static int corner = 1;
 		ImGuiIO& io = ImGui::GetIO();
-
-		InputManager::SetFocused(ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows));
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
-			ImGuiViewport* viewPort = ImGui::GetWindowViewport();
-			InputManager::SetWindow((GLFWwindow*)viewPort->PlatformHandle);
 			// Get the size of the child (i.e. the whole draw size of the windows).
 			overlayPos = ImGui::GetWindowPos();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			ImGui::Image((ImTextureID)Application::GetMainCameraComponent()->get()->_Camera->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
-				{
-					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
-					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
-					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
-						EulerRotation(),
-						LocalToParent(),
-						Translation(),
-						Rotation(),
-						Scale(),
-						LocalToWorld());
-					Scale t;
-					t.Value = glm::vec3(1.0f);
-					AssetManager::ToEntity(archetype, payload_n).SetComponentData(t);
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			if (_EnableInfoWindow)
-			{
+			if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
 				ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
-				ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
-				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-				ImGui::SetNextWindowBgAlpha(0.35f);
-				ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-				ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
-				ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-				std::string trisstr = "";
-				if (_Triangles < 999) trisstr += std::to_string(_Triangles);
-				else if (_Triangles < 999999) trisstr += std::to_string((int)(_Triangles / 1000)) + "K";
-				else trisstr += std::to_string((int)(_Triangles / 1000000)) + "M";
-				trisstr += " tris";
-				ImGui::Text(trisstr.c_str());
-				ImGui::Text("%d drawcall", _DrawCall);
-				ImGui::Separator();
-				if (ImGui::IsMousePosValid()) {
-					float x = io.MousePos.x - window_pos.x;
-					float y = io.MousePos.y - window_pos.y;
-					InputManager::SetMouseScreenPosition(glm::vec2(x, y));
-					ImGui::Text("Mouse Position: (%.1f,%.1f)", x, y);
+				if (_EnableInfoWindow)
+				{
+					ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+					ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+					ImGui::SetNextWindowBgAlpha(0.35f);
+					ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+					ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
+					ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+					std::string trisstr = "";
+					if (_Triangles < 999) trisstr += std::to_string(_Triangles);
+					else if (_Triangles < 999999) trisstr += std::to_string((int)(_Triangles / 1000)) + "K";
+					else trisstr += std::to_string((int)(_Triangles / 1000000)) + "M";
+					trisstr += " tris";
+					ImGui::Text(trisstr.c_str());
+					ImGui::Text("%d drawcall", _DrawCall);
+					ImGui::Separator();
+					if (ImGui::IsMousePosValid()) {
+						glm::vec2 pos = InputManager::GetMouseScreenPosition();
+						ImGui::Text("Mouse Position: (%.1f,%.1f)", pos.x, pos.y);
+					}
+					else {
+						ImGui::Text("Mouse Position: <invalid>");
+					}
+					ImGui::EndChild();
 				}
-				else {
-					InputManager::SetMouseScreenPosition(glm::vec2(FLT_MAX, FLT_MAX));
-					ImGui::Text("Mouse Position: <invalid>");
-				}
-				ImGui::EndChild();
 			}
+			
 		}
 		ImGui::EndChild();
 

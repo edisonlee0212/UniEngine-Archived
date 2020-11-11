@@ -11,7 +11,7 @@ bool InputManager::_CursorMoved;
 bool InputManager::_EnableInputMenu;
 bool InputManager::_CursorScrolled;
 GLFWwindow* InputManager::_Window;
-bool InputManager::_Focused;
+FocusMode InputManager::_FocusMode;
 glm::vec2 InputManager::_MouseScreenPosition;
 
 inline void InputManager::Init() {
@@ -32,15 +32,15 @@ inline void InputManager::MouseScrollCallback(GLFWwindow* window, double xpos, d
 	_CursorScrollY = ypos;
 }
 
-inline bool InputManager::GetKey(int key) {
-	return _Focused && glfwGetKey(_Window, key) == GLFW_PRESS;
+inline bool InputManager::GetKey(int key, FocusMode mode) {
+	return _FocusMode == mode && glfwGetKey(_Window, key) == GLFW_PRESS;
 }
 
-inline bool InputManager::GetMouse(int button) {
-	return _Focused && glfwGetMouseButton(_Window, button) == GLFW_PRESS;
+inline bool InputManager::GetMouse(int button, FocusMode mode) {
+	return _FocusMode == mode && glfwGetMouseButton(_Window, button) == GLFW_PRESS;
 }
-inline glm::vec2 InputManager::GetMouseAbsolutePosition() {
-	if (!_Focused) return glm::vec2(_CursorX, _CursorY);
+inline glm::vec2 InputManager::GetMouseAbsolutePosition(FocusMode mode) {
+	if (_FocusMode != mode) return glm::vec2(_CursorX, _CursorY);
 
 	double x = 0;
 	double y = 0;
@@ -49,30 +49,81 @@ inline glm::vec2 InputManager::GetMouseAbsolutePosition() {
 
 }
 
-inline glm::vec2 InputManager::GetMouseScreenPosition()
+inline glm::vec2 InputManager::GetMouseScreenPosition(FocusMode mode)
 {
-	return _MouseScreenPosition;
+	return _FocusMode == mode ? _MouseScreenPosition : glm::vec2(FLT_MAX, FLT_MAX);
 }
 
-inline glm::vec2 InputManager::GetMouseScroll() {
+inline glm::vec2 InputManager::GetMouseScroll(FocusMode mode) {
 	return glm::vec2(_CursorScrollX, _CursorScrollY);
 }
-inline bool InputManager::GetMouseScrolled() {
+inline bool InputManager::GetMouseScrolled(FocusMode mode) {
 	return _CursorScrolled;
 }
-inline bool InputManager::GetMouseMoved() {
+inline bool InputManager::GetMouseMoved(FocusMode mode) {
 	return _CursorMoved;
 }
 
-inline void UniEngine::InputManager::Update()
+inline void InputManager::Update()
 {
-	InputManager::_CursorMoved = false;
-	InputManager::_CursorScrolled = false;
+	_CursorMoved = false;
+	_CursorScrolled = false;
 }
 
 void InputManager::SetMouseScreenPosition(glm::vec2 value)
 {
 	_MouseScreenPosition = value;
+}
+
+void InputManager::Start()
+{
+	_FocusMode = FocusMode::None;
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+	_MouseScreenPosition = glm::vec2(FLT_MAX, FLT_MAX);
+	ImGui::Begin("Scene");
+	{
+		
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
+			ImGuiViewport* viewPort = ImGui::GetWindowViewport();
+			SetWindow((GLFWwindow*)viewPort->PlatformHandle);
+			SetFocused(FocusMode::SceneCamera);
+			
+			static int corner = 1;
+			ImGuiIO& io = ImGui::GetIO();
+			auto viewPortSize = ImGui::GetWindowSize();
+			auto overlayPos = ImGui::GetWindowPos();
+			ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+			if (ImGui::IsMousePosValid()) {
+				float x = io.MousePos.x - window_pos.x;
+				float y = io.MousePos.y - window_pos.y;
+				_MouseScreenPosition = glm::vec2(x, y);
+			}
+		}
+		
+	}
+	ImGui::End();
+	ImGui::Begin("Camera");
+	{
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)) {
+			ImGuiViewport* viewPort = ImGui::GetWindowViewport();
+			SetWindow((GLFWwindow*)viewPort->PlatformHandle);
+			SetFocused(FocusMode::MainCamera);
+
+			static int corner = 1;
+			ImGuiIO& io = ImGui::GetIO();
+			auto viewPortSize = ImGui::GetWindowSize();
+			auto overlayPos = ImGui::GetWindowPos();
+			ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+			if (ImGui::IsMousePosValid()) {
+				float x = io.MousePos.x - window_pos.x;
+				float y = io.MousePos.y - window_pos.y;
+				_MouseScreenPosition = glm::vec2(x, y);
+			}
+		}
+	}
+	ImGui::End();
+	ImGui::PopStyleVar();
+	
 }
 
 void InputManager::OnGui()
@@ -100,7 +151,7 @@ void UniEngine::InputManager::SetWindow(GLFWwindow* window)
 	glfwSetScrollCallback(window, MouseScrollCallback);
 }
 
-inline void UniEngine::InputManager::SetFocused(bool value)
+inline void UniEngine::InputManager::SetFocused(FocusMode mode)
 {
-	_Focused = value;
+	_FocusMode = mode;
 }

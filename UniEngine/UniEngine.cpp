@@ -151,10 +151,13 @@ void UniEngine::Application::LoopStart_Internal()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-#pragma endregion	
+#pragma endregion
+	
+	
 	EditorManager::Start();
 	WindowManager::Start();
 	RenderManager::Start();
+	InputManager::Start();
 }
 
 void UniEngine::Application::LoopMain_Internal()
@@ -175,12 +178,11 @@ bool UniEngine::Application::LoopEnd_Internal()
 		return false;
 	}
 	RenderManager::LateUpdate();
-	EditorManager::LateUpdate();
 	InputManager::OnGui();
 	AssetManager::OnGui();
 	WindowManager::OnGui();
 	RenderManager::OnGui();
-
+	EditorManager::OnGui();
 #pragma region ImGui
 	RenderTarget::BindDefault();
 	ImGui::Render();
