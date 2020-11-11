@@ -1333,6 +1333,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 void UniEngine::RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow)
 {
+	if (mesh == nullptr || material == nullptr) return;
 	glEnable(GL_DEPTH_TEST);
 	mesh->Enable();
 	mesh->VAO()->DisableAttributeArray(12);
@@ -1483,9 +1484,9 @@ void RenderManager::DrawGizmoRay(glm::vec4 color, Ray& ray, float width)
 }
 
 void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
-	std::unique_ptr<CameraComponent>& cameraComponent, bool receiveShadow)
+	CameraComponent* cameraComponent, bool receiveShadow)
 {
-	if (!cameraComponent->IsEnabled()) return;
+	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
 	LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(cameraComponent->GetOwner());
 	glm::vec3 scale;
 	glm::vec3 trans;
@@ -1502,9 +1503,9 @@ void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
 }
 
 void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices,
-	size_t count, std::unique_ptr<CameraComponent>& cameraComponent, bool receiveShadow)
+	size_t count, CameraComponent* cameraComponent, bool receiveShadow)
 {
-	if (!cameraComponent->IsEnabled()) return;
+	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
 	LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(cameraComponent->GetOwner());
 	glm::vec3 scale;
 	glm::vec3 trans;

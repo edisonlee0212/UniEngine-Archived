@@ -172,8 +172,8 @@ namespace UniEngine {
 		static void DrawGizmoRay(glm::vec4 color, glm::vec3 start, glm::vec3 end, float width = 0.01f);
 		static void DrawGizmoRay(glm::vec4 color, Ray& ray, float width = 0.01f);
 
-		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, std::unique_ptr<CameraComponent>& cameraComponent, bool receiveShadow = true);
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, std::unique_ptr<CameraComponent>& cameraComponent, bool receiveShadow = true);
+		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, CameraComponent* cameraComponent, bool receiveShadow = true);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, CameraComponent* cameraComponent, bool receiveShadow = true);
 
 #pragma endregion
 	};
