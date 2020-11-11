@@ -272,6 +272,16 @@ void EditorManager::Start()
 	}
 #pragma endregion
 
+
+}
+
+
+void UniEngine::EditorManager::Update()
+{
+	
+}
+void EditorManager::OnGui()
+{
 #pragma region Select entity here
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Explorer");
@@ -375,16 +385,7 @@ void EditorManager::Start()
 		ImGui::End();
 	}
 #pragma endregion
-
-}
-
-
-void UniEngine::EditorManager::Update()
-{
 	
-}
-void EditorManager::OnGui()
-{
 #pragma region Scene Camera Window
 	ImVec2 viewPortSize;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -428,6 +429,9 @@ void EditorManager::OnGui()
 	_SceneCameraResolutionY = viewPortSize.y;
 
 #pragma endregion
+
+
+
 #pragma region Logs and errors
 	if (_DisplayLog) {
 		ImGui::Begin("Log");
