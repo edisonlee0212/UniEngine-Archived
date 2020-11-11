@@ -15,7 +15,7 @@ using namespace UniEngine;
 bool EditorManager::_Enabled = false;
 std::map<size_t, std::function<void(ComponentBase* data)>> EditorManager::_ComponentGUIMap;
 unsigned int EditorManager::_ConfigFlags = 0;
-int EditorManager::_SelectedHierarchyDisplayMode = 1;
+int EditorManager::_SelectedHierarchyDisplayMode = 0;
 Entity EditorManager::_SelectedEntity;
 bool EditorManager::_DisplayLog = true;
 bool EditorManager::_DisplayError = true;
@@ -144,6 +144,7 @@ void UniEngine::EditorManager::Destroy()
 {
 
 }
+static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
 
 void EditorManager::Start()
 {
@@ -271,21 +272,10 @@ void EditorManager::Start()
 	}
 #pragma endregion
 
-
 #pragma region Select entity here
-
-#pragma endregion
-
-}
-
-static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
-
-void UniEngine::EditorManager::Update()
-{
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Explorer");
 		ImGui::Combo("Display mode", &_SelectedHierarchyDisplayMode, HierarchyDisplayMode, IM_ARRAYSIZE(HierarchyDisplayMode));
-
 		if (_SelectedHierarchyDisplayMode == 0) {
 			EntityManager::ForEachEntityStorageUnsafe([](int i, EntityComponentStorage storage) {
 				ImGui::Separator();
@@ -376,7 +366,7 @@ void UniEngine::EditorManager::Update()
 							i++;
 						});
 				}
-				
+
 			}
 		}
 		else {
@@ -384,6 +374,13 @@ void UniEngine::EditorManager::Update()
 		}
 		ImGui::End();
 	}
+#pragma endregion
+
+}
+
+
+void UniEngine::EditorManager::Update()
+{
 	
 }
 void EditorManager::OnGui()

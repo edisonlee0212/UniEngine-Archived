@@ -50,6 +50,8 @@ namespace UniEngine {
 		float YawAngle;
 		float PitchAngle;
 	public:
+		void StoreToJpg(std::string path);
+		void StoreToPng(std::string path);
 		void OnGui();
 		size_t GetLayerMask();
 		static GLUBO* CameraUniformBufferBlock;

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Camera.h"
 
+#include <stb_image_write.h>
 #include "TransformSystem.h"
 #include "WindowManager.h"
 
@@ -8,6 +9,62 @@ using namespace UniEngine;
 
 GLUBO* Camera::CameraUniformBufferBlock;
 CameraInfoBlock Camera::CameraInfoBlock;
+
+void Camera::StoreToJpg(std::string path)
+{
+	auto pppo = GLPPBO();
+	pppo.SetData(_ResolutionX * _ResolutionY * sizeof(float) * 4, nullptr, GL_STREAM_READ);
+	std::vector<float> dst;
+	dst.resize(_ResolutionX * _ResolutionY * 3);
+
+	Bind();
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	pppo.Bind();
+	glReadPixels(0, 0, _ResolutionX, _ResolutionY, GL_RGB, GL_FLOAT, 0);
+	GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+	memcpy(dst.data(), src, _ResolutionX * _ResolutionY * sizeof(float) * 3);
+	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+	std::vector<uint8_t> pixels;
+	pixels.resize(_ResolutionX * _ResolutionY * 3);
+	for (int i = 0; i < _ResolutionX * _ResolutionY; i++)
+	{
+		pixels[i * 3] = int(255.99f * dst[i * 3]);
+		pixels[i * 3 + 1] = int(255.99f * dst[i * 3 + 1]);
+		pixels[i * 3 + 2] = int(255.99f * dst[i * 3 + 2]);
+	}
+	stbi_flip_vertically_on_write(true);
+	stbi_write_jpg(path.c_str(), _ResolutionX, _ResolutionY, 3, pixels.data(), 100);
+}
+
+void Camera::StoreToPng(std::string path)
+{
+	auto pppo = GLPPBO();
+	pppo.SetData(_ResolutionX * _ResolutionY * sizeof(float) * 4, nullptr, GL_STREAM_READ);
+	std::vector<float> dst;
+	dst.resize(_ResolutionX * _ResolutionY * 4);
+
+	Bind();
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	pppo.Bind();
+	glReadPixels(0, 0, _ResolutionX, _ResolutionY, GL_RGBA, GL_FLOAT, 0);
+	GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+	memcpy(dst.data(), src, _ResolutionX * _ResolutionY * sizeof(float) * 4);
+	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+
+	std::vector<uint8_t> pixels;
+	
+	pixels.resize(_ResolutionX * _ResolutionY * 4);
+	for(int i = 0; i < _ResolutionX * _ResolutionY; i++)
+	{
+		pixels[i * 4] = int(255.99f * dst[i * 4]);
+		pixels[i * 4 + 1] = int(255.99f * dst[i * 4 + 1]);
+		pixels[i * 4 + 2] = int(255.99f * dst[i * 4 + 2]);
+		pixels[i * 4 + 3] = int(255.99f * dst[i * 4 + 3]);
+	}
+	stbi_flip_vertically_on_write(true);
+	stbi_write_png(path.c_str(), _ResolutionX, _ResolutionY, 4, pixels.data(), _ResolutionX * 4);
+}
 
 void Camera::OnGui()
 {
@@ -17,8 +74,13 @@ void Camera::OnGui()
 	if(ImGui::TreeNode("Content"))
 	{
 		ImGui::Image((ImTextureID)_ColorTexture->ID(), ImVec2(_ResolutionX / 5.0f, _ResolutionY / 5.0f), ImVec2(0, 1), ImVec2(1, 0));
+		if (ImGui::Button("Take Screenshot"))
+		{
+			StoreToJpg("screenshot.jpg");
+		}
 		ImGui::TreePop();
 	}
+	
 }
 
 size_t UniEngine::Camera::GetLayerMask()

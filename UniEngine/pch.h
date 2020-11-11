@@ -46,6 +46,6 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h"
 
-
+#include "stb_image_write.h"
 
 #endif //PCH_H
