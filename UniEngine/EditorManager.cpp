@@ -10,7 +10,7 @@
 #include "Model.h"
 #include "PointLight.h"
 #include "RenderManager.h"
-#include "TransformSystem.h"
+#include "TransformManager.h"
 using namespace UniEngine;
 bool EditorManager::_Enabled = false;
 std::map<size_t, std::function<void(ComponentBase* data)>> EditorManager::_ComponentGUIMap;

@@ -114,9 +114,6 @@
     <ClInclude Include="UniEngineAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TransformSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -240,9 +237,6 @@
     <ClInclude Include="EditorManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystem.h">
-      <Filter>Header Files\Resource\PrivateComponent</Filter>
-    </ClInclude>
     <ClInclude Include="MeshRenderer.h">
       <Filter>Header Files\Resource\PrivateComponent</Filter>
     </ClInclude>
@@ -260,6 +254,12 @@
     </ClInclude>
     <ClInclude Include="SpotLight.h">
       <Filter>Header Files\Resource\ComponentData</Filter>
+    </ClInclude>
+    <ClInclude Include="Particles.h">
+      <Filter>Header Files\Resource\PrivateComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformManager.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -301,9 +301,6 @@
     </ClCompile>
     <ClCompile Include="Default.cpp">
       <Filter>Source Files\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
@@ -413,9 +410,6 @@
     <ClCompile Include="EditorManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp">
-      <Filter>Source Files\Resource\PrivateComponent</Filter>
-    </ClCompile>
     <ClCompile Include="MeshRenderer.cpp">
       <Filter>Source Files\Resource\PrivateComponent</Filter>
     </ClCompile>
@@ -430,6 +424,12 @@
     </ClCompile>
     <ClCompile Include="SpotLight.cpp">
       <Filter>Source Files\Resource\ComponentData</Filter>
+    </ClCompile>
+    <ClCompile Include="Particles.cpp">
+      <Filter>Source Files\Resource\PrivateComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformManager.cpp">
+      <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

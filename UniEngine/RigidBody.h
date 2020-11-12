@@ -4,21 +4,31 @@
 #include "PxPhysicsAPI.h"
 using namespace physx;
 namespace UniEngine {
-    class RigidBody :
+	enum class UNIENGINE_API ShapeType
+	{
+		Sphere,
+		Box,
+		Capsule
+	};
+    class UNIENGINE_API RigidBody :
         public PrivateComponentBase
     {
-        PxRigidDynamic* _RigidBody;
-        PxMaterial* _Material;
-        PxGeometry* _Geometry;
+        glm::vec3 _ShapeCenter;
+        glm::vec3 _ShapeEulerRotation;
+        bool _DrawBounds;
+        glm::vec3 _ShapeParam;
+        ShapeType _ShapeType;
+        friend class PhysicsSimulationManager;
+        PxRigidDynamic* _RigidBody = nullptr;
+        PxMaterial* _Material = nullptr;
+        PxShape* _Shape = nullptr;
         float _Density;
         PxVec3 _MassCenter;
     public:
         RigidBody();
     	~RigidBody() override;
-        bool GetTransform(glm::mat4& transform);
         void SetMaterial(PxMaterial* value);
-        void SetRigidBody(PxRigidDynamic* value);
-        void Refresh();
+        void UpdateShape();
     	void OnDisable() override;
     	void OnEnable() override;
         void OnGui() override;

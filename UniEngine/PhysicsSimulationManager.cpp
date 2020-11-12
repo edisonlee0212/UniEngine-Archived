@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "PhysicsSimulationManager.h"
+#include "RigidBody.h"
+#include "Transforms.h"
 using namespace physx;
 
 PxDefaultAllocator		UniEngine::PhysicsSimulationManager::_Allocator;
@@ -70,11 +72,13 @@ void UniEngine::PhysicsSimulationManager::Init()
 	PxRigidStatic* groundPlane = PxCreatePlane(*_Physics, PxPlane(0, 1, 0, 0), *_DefaultMaterial);
 	_PhysicsScene->addActor(*groundPlane);
 
+	/*
 	for (PxU32 i = 0; i < 5; i++)
 		createStack(PxTransform(PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f);
 
 	if (true)
 		createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
+	*/
 }
 
 void UniEngine::PhysicsSimulationManager::Destroy()
@@ -93,6 +97,36 @@ void UniEngine::PhysicsSimulationManager::Destroy()
 
 void UniEngine::PhysicsSimulationManager::Simulate(float time)
 {
+#pragma region Send transform to physX
+	const std::vector<Entity>* rigidBodyEntities = EntityManager::GetPrivateComponentOwnersList<RigidBody>();
+	if (rigidBodyEntities != nullptr)
+	{
+		for (auto rigidBodyEntity : *rigidBodyEntities) {
+			auto rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+			auto cltw = glm::translate(rigidBody->get()->_ShapeCenter) *
+				glm::mat4_cast(glm::quat(rigidBody->get()->_ShapeEulerRotation));
+			auto ltw = rigidBodyEntity.GetComponentData<LocalToWorld>().Value * cltw;
+			PxMat44 matrix = *(PxMat44*)(void*)&ltw;
+			rigidBody->get()->_RigidBody->setGlobalPose(PxTransform(matrix));
+		}
+	}
+#pragma endregion
 	_PhysicsScene->simulate(time);
 	_PhysicsScene->fetchResults(true);
+#pragma region Get transforms from physX
+	if (rigidBodyEntities != nullptr)
+	{
+		for (auto rigidBodyEntity : *rigidBodyEntities) {
+			auto rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+			PxTransform transform = rigidBody->get()->_RigidBody->getGlobalPose();
+			auto cltw = glm::translate(rigidBody->get()->_ShapeCenter) *
+				glm::mat4_cast(glm::quat(rigidBody->get()->_ShapeEulerRotation));
+			auto matrix = PxMat44(transform);
+			LocalToWorld ltw = *(LocalToWorld*)(void*)&matrix;
+			ltw.Value *= glm::inverse(cltw);
+			rigidBody->get()->GetOwner().SetComponentData(ltw);
+		}
+	}
+#pragma endregion
+
 }

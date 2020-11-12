@@ -132,7 +132,7 @@
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="ParticleSystem.h" />
+    <ClInclude Include="Particles.h" />
     <ClInclude Include="ManagerBase.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Memory.h" />
@@ -149,7 +149,7 @@
     <ClInclude Include="SystemBase.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Transforms.h" />
-    <ClInclude Include="TransformSystem.h" />
+    <ClInclude Include="TransformManager.h" />
     <ClInclude Include="UniEngineAPI.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="pch.h" />
@@ -236,7 +236,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="Particles.cpp" />
     <ClCompile Include="ManagerBase.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Memory.cpp" />
@@ -260,7 +260,7 @@
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="SystemBase.cpp" />
     <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="TransformSystem.cpp" />
+    <ClCompile Include="TransformManager.cpp" />
     <ClCompile Include="UniEngine.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="World.cpp" />

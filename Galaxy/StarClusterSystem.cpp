@@ -9,7 +9,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	_StarCluster = EntityManager::CreateEntity(_StarClusterArchetype);
 	Scale s;
 	s.Value = glm::vec3(1.0f);
-	auto imr = std::make_unique<ParticleSystem>();
+	auto imr = std::make_unique<Particles>();
 	imr->Material = std::make_shared<Material>();
 	imr->CastShadow = false;
 	imr->ReceiveShadow = false;
@@ -105,7 +105,7 @@ void Galaxy::StarClusterSystem::Update()
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	_StarQuery.ToComponentDataArray(matrices);
 
-	auto imr = _StarCluster.GetPrivateComponent<ParticleSystem>();
+	auto imr = _StarCluster.GetPrivateComponent<Particles>();
 	imr->get()->Matrices.resize(matrices.size());
 	memcpy(imr->get()->Matrices.data(), matrices.data(), sizeof(glm::mat4) * matrices.size());
 }

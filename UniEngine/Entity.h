@@ -32,7 +32,7 @@ namespace UniEngine {
 		{
 			if(_Enabled != value)
 			{
-				if(_Enabled)
+				if(value)
 				{
 					OnEnable();
 				}else
@@ -115,7 +115,6 @@ namespace UniEngine {
 		friend class EditorManager;
 		friend class PrivateComponentElement;
 		bool _Enabled = false;
-	protected:
 		Entity _Owner;
 	public:
 		Entity GetOwner() const { return _Owner; }
@@ -123,7 +122,7 @@ namespace UniEngine {
 		{
 			if (_Enabled != value)
 			{
-				if (_Enabled)
+				if (value)
 				{
 					OnEnable();
 				}

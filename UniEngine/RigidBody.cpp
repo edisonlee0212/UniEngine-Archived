@@ -2,11 +2,23 @@
 #include "RigidBody.h"
 
 #include "PhysicsSimulationManager.h"
+#include "RenderManager.h"
+#include "Transforms.h"
 
 UniEngine::RigidBody::RigidBody()
 {
 	_Material = PhysicsSimulationManager::_DefaultMaterial;
-	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform());
+	_ShapeCenter = glm::vec3(0.0f);
+	_MassCenter = PxVec3(0.0f);
+	_ShapeEulerRotation = glm::vec3(0.0f);
+	_DrawBounds = true;
+	PxTransform localTm(PxVec3(0, 0, 0));
+	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform(localTm));
+	_ShapeParam = glm::vec3(1.0f);
+	_ShapeType = ShapeType::Box;
+	UpdateShape();
+	_Density = 10.0f;
+	PxRigidBodyExt::updateMassAndInertia(*_RigidBody, _Density);
 	SetEnabled(true);
 }
 
@@ -14,21 +26,14 @@ UniEngine::RigidBody::~RigidBody()
 {
 	if (_RigidBody) {
 		_RigidBody->release();
-		_RigidBody = nullptr;
 	}
 	if (_Material && _Material != PhysicsSimulationManager::_DefaultMaterial) {
 		_Material->release();
-		_Material = nullptr;
 	}
-}
-
-bool UniEngine::RigidBody::GetTransform(glm::mat4& transform)
-{
-	PxTransform t;
-	bool retVal = _RigidBody->getKinematicTarget(t);
-	//transform = glm::mat4(t.)
-	//TODO: ?
-	return retVal;
+	if(_Shape)
+	{
+		_Shape->release();
+	}
 }
 
 void UniEngine::RigidBody::SetMaterial(PxMaterial* value)
@@ -39,33 +44,26 @@ void UniEngine::RigidBody::SetMaterial(PxMaterial* value)
 			_Material->release();
 		}
 		_Material = value;
-		Refresh();
+		UpdateShape();
 	}
 }
 
-void UniEngine::RigidBody::SetRigidBody(PxRigidDynamic* value)
+void UniEngine::RigidBody::UpdateShape()
 {
-	if(value && _RigidBody != value)
+	if (_Shape != nullptr) _Shape->release();
+	switch (_ShapeType)
 	{
-		if (_RigidBody) {
-			_RigidBody->release();
-			_RigidBody = nullptr;
-		}
-		_RigidBody = value;
-		Refresh();
+	case ShapeType::Sphere:
+		_Shape = PhysicsSimulationManager::_Physics->createShape(PxSphereGeometry(_ShapeParam.x), *_Material);
+		break;
+	case ShapeType::Box:
+		_Shape = PhysicsSimulationManager::_Physics->createShape(PxBoxGeometry(_ShapeParam.x, _ShapeParam.y, _ShapeParam.z), *_Material);
+		break;
+	case ShapeType::Capsule:
+		_Shape = PhysicsSimulationManager::_Physics->createShape(PxCapsuleGeometry(_ShapeParam.x, _ShapeParam.y), *_Material);
+		break;
 	}
-	
-}
-
-void UniEngine::RigidBody::Refresh()
-{
-	auto shape = PhysicsSimulationManager::_Physics->createShape(*_Geometry, *_Material);
-	_RigidBody->attachShape(*shape);
-	PxRigidBodyExt::updateMassAndInertia(*_RigidBody, _Density, &_MassCenter);
-	if (shape) {
-		shape->release();
-		shape = nullptr;
-	}
+	_RigidBody->attachShape(*_Shape);
 }
 
 void UniEngine::RigidBody::OnDisable()
@@ -80,5 +78,29 @@ void UniEngine::RigidBody::OnEnable()
 
 void UniEngine::RigidBody::OnGui()
 {
+	ImGui::Checkbox("Draw bounds", &_DrawBounds);
+	bool shapeChanged = false;
+
+	ImGui::DragFloat3("Center Position", &_ShapeCenter.x);
+	ImGui::DragFloat3("Rotation", &_ShapeEulerRotation.x);
 	
+	auto ltw = GetOwner().GetComponentData<LocalToWorld>().Value;
+	auto cltw = glm::translate(_ShapeCenter) *
+		glm::mat4_cast(glm::quat(_ShapeEulerRotation));
+	switch (_ShapeType)
+	{
+	case ShapeType::Sphere:
+		if (ImGui::DragFloat("Radius", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;
+		if(_DrawBounds) RenderManager::DrawGizmoPoint(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw * (cltw * glm::scale(glm::vec3(_ShapeParam.x))), 1);
+		break;
+	case ShapeType::Box:
+		if (ImGui::DragFloat3("XYZ Size", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;
+		if (_DrawBounds) RenderManager::DrawGizmoCube(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw * (cltw * glm::scale(glm::vec3(_ShapeParam))), 1);
+		break;
+	case ShapeType::Capsule:
+		if (ImGui::DragFloat2("R/HalfH", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;
+		break;
+	}
+	if (shapeChanged) UpdateShape();
+	if(ImGui::DragFloat("Density", &_Density)) PxRigidBodyExt::updateMassAndInertia(*_RigidBody, _Density);
 }

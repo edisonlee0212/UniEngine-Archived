@@ -10,7 +10,7 @@ namespace UniEngine {
 		LocalToParent LastLTP;
 		LocalToWorld LastPLTW;
 	};
-	class UNIENGINE_API TransformSystem :
+	class UNIENGINE_API TransformManager :
 		public SystemBase
 	{
 		bool _AddCheck;

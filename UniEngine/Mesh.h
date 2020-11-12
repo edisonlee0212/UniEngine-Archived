@@ -40,7 +40,7 @@ namespace UniEngine {
 		unsigned _Mask;
 		Bound _Bound;
 		friend class MeshRenderer;
-		friend class ParticleSystem;
+		friend class Particles;
 		bool _LocalStored;
 		std::vector<Vertex> _Vertices;
 		std::vector<unsigned> _Indices;

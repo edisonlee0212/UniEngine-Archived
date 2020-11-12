@@ -1,15 +1,15 @@
 #include "pch.h"
-#include "ParticleSystem.h"
+#include "Particles.h"
 #include "UniEngine.h"
 #include "RenderManager.h"
 
-UniEngine::ParticleSystem::ParticleSystem()
+UniEngine::Particles::Particles()
 {
 	BoundingBox = Bound();
 	SetEnabled(true);
 }
 
-void UniEngine::ParticleSystem::RecalculateBoundingBox()
+void UniEngine::Particles::RecalculateBoundingBox()
 {
 	if(Matrices.empty())
 	{
@@ -41,7 +41,7 @@ void UniEngine::ParticleSystem::RecalculateBoundingBox()
 }
 
 
-void UniEngine::ParticleSystem::OnGui()
+void UniEngine::Particles::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
 	if (ForwardRendering) {
@@ -60,7 +60,7 @@ void UniEngine::ParticleSystem::OnGui()
 	{
 		RecalculateBoundingBox();
 		ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
-		auto transform = _Owner.GetComponentData<LocalToWorld>().Value;
+		auto transform = GetOwner().GetComponentData<LocalToWorld>().Value;
 		RenderManager::DrawGizmoCube(DisplayBoundColor, transform * glm::translate(BoundingBox.Center) * glm::scale(BoundingBox.Size), 1);
 	}
 	if (Material) {

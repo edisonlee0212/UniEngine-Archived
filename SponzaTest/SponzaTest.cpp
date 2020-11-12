@@ -74,6 +74,7 @@ int main()
 		bps.Value = glm::vec3(5.0f);
 		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
+		backpackEntity.SetPrivateComponent(std::make_unique<RigidBody>());
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
@@ -82,13 +83,14 @@ int main()
 		Entity backpackEntity = AssetManager::ToEntity(backpackArchetype, backpack);
 		backpackEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
-		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformSystem & ParentSystem
+		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformManager & ParentSystem
 		Translation bpp;
 		bpp.Value = glm::vec3(5, 5, 5);
 		Scale bps;
 		bps.Value = glm::vec3(0.05f);
 		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
 		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
+		backpackEntity.SetPrivateComponent(std::make_unique<RigidBody>());
 	}
 	else if (testScene == PCSS) {
 		auto cmmc = std::make_unique<MeshRenderer>();

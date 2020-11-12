@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "UniEngineAPI.h"
 #include "PxPhysicsAPI.h"
+#include "RigidBody.h"
 using namespace physx;
 
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}

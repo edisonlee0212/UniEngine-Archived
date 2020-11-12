@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "RenderManager.h"
-#include "TransformSystem.h"
+#include "TransformManager.h"
 #include <gtx/matrix_decompose.hpp>
 #include "UniEngine.h"
 using namespace UniEngine;
@@ -108,13 +108,13 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 		}
 	}
 
-	owners = EntityManager::GetPrivateComponentOwnersList<ParticleSystem>();
+	owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 	if (owners) {
 		auto& program = Default::GLPrograms::DeferredPrepassInstanced;
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto* immc = owner.GetPrivateComponent<ParticleSystem>();
+			auto* immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->get()->IsEnabled() || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr || immc->get()->ForwardRendering) continue;
 			if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
@@ -280,11 +280,11 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 
 		}
 	}
-	owners = EntityManager::GetPrivateComponentOwnersList<ParticleSystem>();
+	owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 	if (owners) {
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto* immc = owner.GetPrivateComponent<ParticleSystem>();
+			auto* immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->get()->IsEnabled() || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr || !immc->get()->ForwardRendering) continue;
 			if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
@@ -695,11 +695,11 @@ void UniEngine::RenderManager::PreUpdate()
 
 						_DirectionalLightInstancedProgram->Bind();
 						_DirectionalLightInstancedProgram->SetInt("index", enabledSize);
-						owners = EntityManager::GetPrivateComponentOwnersList<ParticleSystem>();
+						owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto* immc = owner.GetPrivateComponent<ParticleSystem>();
+								auto* immc = owner.GetPrivateComponent<Particles>();
 								if (!immc->get()->IsEnabled() || !immc->get()->CastShadow || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr) continue;
 								if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
 								else glDisable(GL_CULL_FACE);
@@ -823,11 +823,11 @@ void UniEngine::RenderManager::PreUpdate()
 						}
 						_PointLightInstancedProgram->Bind();
 						_PointLightInstancedProgram->SetInt("index", i);
-						owners = EntityManager::GetPrivateComponentOwnersList<ParticleSystem>();
+						owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto* immc = owner.GetPrivateComponent<ParticleSystem>();
+								auto* immc = owner.GetPrivateComponent<Particles>();
 								if (!immc->get()->IsEnabled() || !immc->get()->CastShadow || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr) continue;
 								if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
 								else glDisable(GL_CULL_FACE);

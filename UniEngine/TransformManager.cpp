@@ -1,10 +1,10 @@
 #include "pch.h"
-#include "TransformSystem.h"
+#include "TransformManager.h"
 
 #include "EditorManager.h"
 using namespace UniEngine;
 
-void UniEngine::TransformSystem::OnCreate()
+void UniEngine::TransformManager::OnCreate()
 {
 	_CachedParentHierarchies = std::vector<std::pair<Entity, ChildInfo>>();
 
@@ -146,12 +146,12 @@ void UniEngine::TransformSystem::OnCreate()
 	Enable();
 }
 
-void UniEngine::TransformSystem::OnDestroy()
+void UniEngine::TransformManager::OnDestroy()
 {
 	Disable();
 }
 
-void UniEngine::TransformSystem::Update()
+void UniEngine::TransformManager::Update()
 {
 	EntityManager::ForEach<LocalEulerRotation, LocalRotation>(_LERR, [](int i, Entity entity, LocalEulerRotation* lerr, LocalRotation* lr)
 	{
@@ -269,7 +269,7 @@ void UniEngine::TransformSystem::Update()
 	}
 }
 
-void UniEngine::TransformSystem::CalculateLtwRecursive(LocalToWorld pltw, Entity entity)
+void UniEngine::TransformManager::CalculateLtwRecursive(LocalToWorld pltw, Entity entity)
 {
 	/*
 	Here we have 2 ways to deal with children, you can use lambda function or you can get children
@@ -295,7 +295,7 @@ void UniEngine::TransformSystem::CalculateLtwRecursive(LocalToWorld pltw, Entity
 	}
 }
 
-void UniEngine::TransformSystem::CollectHierarchy(std::vector<std::pair<Entity, ChildInfo>>* container, Entity entity)
+void UniEngine::TransformManager::CollectHierarchy(std::vector<std::pair<Entity, ChildInfo>>* container, Entity entity)
 {
 	auto children = EntityManager::GetChildren(entity);
 	auto initialSize = container->size();

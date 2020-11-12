@@ -113,7 +113,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	EditorManager::Init();
 #pragma region Internal Systems
 	//Initialization System Group
-	_World->CreateSystem<TransformSystem>(SystemGroup::PreparationSystemGroup);
+	_World->CreateSystem<TransformManager>(SystemGroup::PreparationSystemGroup);
 #pragma endregion
 	_Initialized = true;
 #pragma region Main Camera

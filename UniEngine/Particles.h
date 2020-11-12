@@ -4,13 +4,13 @@
 #include "Mesh.h"
 #include "Material.h"
 namespace UniEngine {
-	class UNIENGINE_API ParticleSystem :
+	class UNIENGINE_API Particles :
 		public PrivateComponentBase
 	{
 	public:
 		glm::vec4 DisplayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
 		bool DisplayBound = true;
-		ParticleSystem();
+		Particles();
 		Bound BoundingBox;
 		bool ForwardRendering = false;
 		bool CastShadow = true;
