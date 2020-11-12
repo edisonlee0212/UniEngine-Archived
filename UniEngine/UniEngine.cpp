@@ -87,6 +87,7 @@ void UniEngine::Application::Init(bool fullScreen)
 #pragma endregion
 	_World = std::make_shared<World>(0, &_ThreadPool);
 	EntityManager::SetWorld(_World.get());
+	
 	ManagerBase::SetWorld(_World.get());
 	_World->SetTimeStep(_TimeStep);
 
@@ -109,20 +110,19 @@ void UniEngine::Application::Init(bool fullScreen)
 	ImGui_ImplOpenGL3_Init("#version 460 core");
 #pragma endregion
 	Default::Load(_World.get());
+	TransformManager::Init();
 	RenderManager::Init();
 	EditorManager::Init();
 #pragma region Internal Systems
-	//Initialization System Group
-	_World->CreateSystem<TransformManager>(SystemGroup::PreparationSystemGroup);
 #pragma endregion
 	_Initialized = true;
 #pragma region Main Camera
 	Camera::GenerateMatrices();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", Translation(), Rotation(), Scale(), LocalToWorld(), CameraLayerMask());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", LocalToWorld(), LocalToParent(), CameraLayerMask());
 	auto mainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
-	Translation pos;
-	pos.Value = glm::vec3(0.0f, 5.0f, 10.0f);
-	EntityManager::SetComponentData<Translation>(mainCameraEntity, pos);
+	LocalToWorld cameraLtw;
+	cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
+	EntityManager::SetComponentData(mainCameraEntity, cameraLtw);
 	auto mainCameraComponent = std::make_unique<CameraComponent>();
 	RenderManager::SetMainCamera(mainCameraComponent.get());
 	mainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
@@ -183,6 +183,7 @@ bool UniEngine::Application::LaterUpdateInternal()
 	WindowManager::LateUpdate();
 	RenderManager::LateUpdate();
 	EditorManager::LateUpdate();
+	TransformManager::LateUpdate();
 #pragma region ImGui
 	RenderTarget::BindDefault();
 	ImGui::Render();

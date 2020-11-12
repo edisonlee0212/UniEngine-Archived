@@ -259,7 +259,7 @@
       <Filter>Header Files\Resource\PrivateComponent</Filter>
     </ClInclude>
     <ClInclude Include="TransformManager.h">
-      <Filter>Header Files\Systems</Filter>
+      <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -429,7 +429,7 @@
       <Filter>Source Files\Resource\PrivateComponent</Filter>
     </ClCompile>
     <ClCompile Include="TransformManager.cpp">
-      <Filter>Source Files\Systems</Filter>
+      <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

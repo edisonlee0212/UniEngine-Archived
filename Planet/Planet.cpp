@@ -15,7 +15,7 @@ int main()
 #pragma region Preparations
 	auto world = Application::GetWorld();
 	WorldTime* time = world->Time();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToParent(), LocalToWorld());
 
 	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
@@ -53,19 +53,18 @@ int main()
 #pragma endregion
 
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Translation(), Rotation(), Scale(), LocalToWorld(), DirectionalLight());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Translation(), Rotation(), Scale(), LocalToWorld(), PointLight());
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", LocalToParent(), LocalToWorld(), DirectionalLight());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", LocalToParent(), LocalToWorld(), PointLight());
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
 	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
-
+	LocalToWorld ltw;
 	DirectionalLight dlc;
 	dlc.diffuse = glm::vec3(1.0f);
 	dlc.specular = glm::vec3(0.5f);
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	EntityManager::SetComponentData<DirectionalLight>(dle, dlc);
-	Scale scale;
 	
 	auto plmmc = std::make_unique<MeshRenderer>();
 	auto plmmc2 = std::make_unique<MeshRenderer>();
@@ -73,7 +72,7 @@ int main()
 	plmmc->Material = sharedMat;
 	plmmc2->Mesh = Default::Primitives::Sphere;
 	plmmc2->Material = sharedMat;
-	scale.Value = glm::vec3(0.5f);
+	ltw.SetScale(glm::vec3(0.5f));
 
 	PointLight plc;
 	plc.constant = 1.0f;
@@ -84,7 +83,7 @@ int main()
 	plc.specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(plarc);
 	EntityManager::SetComponentData<PointLight>(ple, plc);
-	EntityManager::SetComponentData<Scale>(ple, scale);
+	EntityManager::SetComponentData(ple, ltw);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
 	plc.constant = 1.0f;
@@ -95,7 +94,7 @@ int main()
 	plc.specular = glm::vec3(5.0f);
 	Entity ple2 = EntityManager::CreateEntity(plarc);
 	EntityManager::SetComponentData<PointLight>(ple2, plc);
-	EntityManager::SetComponentData<Scale>(ple, scale);
+	EntityManager::SetComponentData(ple, ltw);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple2, std::move(plmmc2));
 #pragma endregion
 
@@ -108,13 +107,12 @@ int main()
 		Application::PreUpdate();
 		static bool show = true;
 #pragma region LightsPosition
-		Translation p;
-		p.Value = glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f), -20.0f * glm::cos(Application::EngineTime() / 2.0f)), 0.0f);
-		EntityManager::SetComponentData<Translation>(dle, p);
-		p.Value = glm::vec4(glm::vec3(-20.0f * glm::cos(Application::EngineTime() / 2.0f), 20.0f * glm::sin(Application::EngineTime() / 2.0f), 0.0f), 0.0f);
-		EntityManager::SetComponentData<Translation>(ple, p);
-		p.Value = glm::vec4(glm::vec3(20.0f * glm::cos(Application::EngineTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f)), 0.0f);
-		EntityManager::SetComponentData<Translation>(ple2, p);
+		ltw.SetPosition(glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f), -20.0f * glm::cos(Application::EngineTime() / 2.0f)), 0.0f));
+		EntityManager::SetComponentData(dle, ltw);
+		ltw.SetPosition(glm::vec4(glm::vec3(-20.0f * glm::cos(Application::EngineTime() / 2.0f), 20.0f * glm::sin(Application::EngineTime() / 2.0f), 0.0f), 0.0f));
+		EntityManager::SetComponentData(ple, ltw);
+		ltw.SetPosition(glm::vec4(glm::vec3(20.0f * glm::cos(Application::EngineTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f)), 0.0f));
+		EntityManager::SetComponentData(ple2, ltw);
 #pragma endregion
 
 		Application::Update();

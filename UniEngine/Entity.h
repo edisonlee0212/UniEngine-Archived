@@ -75,7 +75,8 @@ namespace UniEngine {
 
 		void SetEnabled(bool value) const;
 
-		bool IsNull() {
+		bool IsNull() const
+		{
 			return Index == 0;
 		}
 

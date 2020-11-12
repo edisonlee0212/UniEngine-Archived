@@ -8,9 +8,8 @@
 UniEngine::RigidBody::RigidBody()
 {
 	_Material = PhysicsSimulationManager::_DefaultMaterial;
-	_ShapeCenter = glm::vec3(0.0f);
+	_ShapeTransform = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
 	_MassCenter = PxVec3(0.0f);
-	_ShapeEulerRotation = glm::vec3(0.0f);
 	_DrawBounds = true;
 	PxTransform localTm(PxVec3(0, 0, 0));
 	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform(localTm));
@@ -81,21 +80,38 @@ void UniEngine::RigidBody::OnGui()
 	ImGui::Checkbox("Draw bounds", &_DrawBounds);
 	bool shapeChanged = false;
 
-	ImGui::DragFloat3("Center Position", &_ShapeCenter.x);
-	ImGui::DragFloat3("Rotation", &_ShapeEulerRotation.x);
+	glm::vec3 scale;
+	glm::vec3 trans;
+	glm::quat rotation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(_ShapeTransform, scale, rotation, trans, skew, perspective);
+	skew = glm::degrees(glm::eulerAngles(rotation));
+	bool shapeTransChanged = false;
+	if (ImGui::DragFloat3("Center Position", &trans.x, 0.01f)) shapeTransChanged = true;
+	if (ImGui::DragFloat3("Rotation", &skew.x, 0.01f)) shapeTransChanged = true;
+	if (shapeTransChanged)_ShapeTransform = glm::translate(trans) * glm::mat4_cast(glm::quat(glm::radians(skew))) * glm::scale(glm::vec3(1.0f));
 	
-	auto ltw = GetOwner().GetComponentData<LocalToWorld>().Value;
-	auto cltw = glm::translate(_ShapeCenter) *
-		glm::mat4_cast(glm::quat(_ShapeEulerRotation));
+	auto ltw = GetOwner().GetComponentData<LocalToWorld>();
+	ltw.SetScale(glm::vec3(1.0f));
 	switch (_ShapeType)
 	{
 	case ShapeType::Sphere:
 		if (ImGui::DragFloat("Radius", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;
-		if(_DrawBounds) RenderManager::DrawGizmoPoint(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw * (cltw * glm::scale(glm::vec3(_ShapeParam.x))), 1);
+		if(_DrawBounds) RenderManager::DrawGizmoPoint(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.Value * (_ShapeTransform * glm::scale(glm::vec3(_ShapeParam.x))), 1);
 		break;
 	case ShapeType::Box:
+		if(ImGui::Button("Apply mesh bound"))
+		{
+			auto meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
+			if(meshRenderer)
+			{
+				auto bound = meshRenderer->get()->Mesh->GetBound();
+				_ShapeParam = bound.Size;
+			}
+		}
 		if (ImGui::DragFloat3("XYZ Size", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;
-		if (_DrawBounds) RenderManager::DrawGizmoCube(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw * (cltw * glm::scale(glm::vec3(_ShapeParam))), 1);
+		if (_DrawBounds) RenderManager::DrawGizmoCube(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.Value * (_ShapeTransform * glm::scale(glm::vec3(_ShapeParam))), 1);
 		break;
 	case ShapeType::Capsule:
 		if (ImGui::DragFloat2("R/HalfH", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;

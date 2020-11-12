@@ -528,10 +528,9 @@ void UniEngine::RenderManager::PreUpdate()
 		_MainCameraComponent->ResizeResolution(_MainCameraResolutionX, _MainCameraResolutionY);
 #pragma region Shadow
 		if (mainCameraEntity.Enabled() && _MainCameraComponent->IsEnabled()) {
-			glm::vec3 mainCameraPos = EntityManager::GetComponentData<Translation>(mainCameraEntity).Value;
-			glm::quat mainCameraRot = EntityManager::GetComponentData<Rotation>(mainCameraEntity).Value;
-
-
+			auto ltw = mainCameraEntity.GetComponentData<LocalToWorld>();
+			glm::vec3 mainCameraPos = ltw.GetPosition();
+			glm::quat mainCameraRot = ltw.GetRotation();
 
 			_ShadowCascadeInfoBlock->SubData(0, sizeof(LightSettings), &_LightSettings);
 
@@ -547,7 +546,7 @@ void UniEngine::RenderManager::PreUpdate()
 					const auto& dlc = directionLightsList[i];
 					Entity lightEntity = directionalLightEntities[i];
 					if (!lightEntity.Enabled()) continue;
-					glm::quat rotation = EntityManager::GetComponentData<Rotation>(lightEntity).Value;
+					glm::quat rotation = lightEntity.GetComponentData<LocalToWorld>().GetRotation();
 					glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 					float planeDistance = 0;
 					glm::vec3 center;
@@ -887,9 +886,10 @@ void UniEngine::RenderManager::PreUpdate()
 			if (_MainCameraComponent && cameraComponent.get() == _MainCameraComponent) continue;
 			if (cameraComponent->IsEnabled())
 			{
+				auto ltw = cameraEntity.GetComponentData<LocalToWorld>();
 				Camera::CameraInfoBlock.UpdateMatrices(cameraComponent->_Camera.get(),
-					EntityManager::GetComponentData<Translation>(cameraEntity).Value,
-					EntityManager::GetComponentData<Rotation>(cameraEntity).Value
+					ltw.GetPosition(),
+					ltw.GetRotation()
 				);
 				Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
 				LocalToWorld cameraTransform = cameraEntity.GetComponentData<LocalToWorld>();
@@ -922,9 +922,10 @@ void UniEngine::RenderManager::PreUpdate()
 		if (mainCameraEntity.Enabled() && _MainCameraComponent->IsEnabled()) {
 			auto minBound = glm::vec3((int)INT_MAX);
 			auto maxBound = glm::vec3((int)INT_MIN);
+			auto ltw = mainCameraEntity.GetComponentData<LocalToWorld>();
 			Camera::CameraInfoBlock.UpdateMatrices(mainCamera.get(),
-				EntityManager::GetComponentData<Translation>(mainCameraEntity).Value,
-				EntityManager::GetComponentData<Rotation>(mainCameraEntity).Value
+				ltw.GetPosition(),
+				ltw.GetRotation()
 			);
 			Camera::CameraInfoBlock.UploadMatrices(mainCamera->CameraUniformBufferBlock);
 			LocalToWorld cameraTransform = mainCameraEntity.GetComponentData<LocalToWorld>();

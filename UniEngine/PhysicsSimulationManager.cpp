@@ -95,7 +95,7 @@ void UniEngine::PhysicsSimulationManager::Destroy()
 	PX_RELEASE(_PhysicsFoundation);
 }
 
-void UniEngine::PhysicsSimulationManager::Simulate(float time)
+void UniEngine::PhysicsSimulationManager::UploadTransforms()
 {
 #pragma region Send transform to physX
 	const std::vector<Entity>* rigidBodyEntities = EntityManager::GetPrivateComponentOwnersList<RigidBody>();
@@ -103,14 +103,21 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 	{
 		for (auto rigidBodyEntity : *rigidBodyEntities) {
 			auto rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
-			auto cltw = glm::translate(rigidBody->get()->_ShapeCenter) *
-				glm::mat4_cast(glm::quat(rigidBody->get()->_ShapeEulerRotation));
-			auto ltw = rigidBodyEntity.GetComponentData<LocalToWorld>().Value * cltw;
-			PxMat44 matrix = *(PxMat44*)(void*)&ltw;
-			rigidBody->get()->_RigidBody->setGlobalPose(PxTransform(matrix));
+			if (rigidBody->get()->IsEnabled()) {
+				auto temp = rigidBodyEntity.GetComponentData<LocalToWorld>();
+				temp.SetScale(glm::vec3(1.0f));
+				auto ltw = temp.Value * rigidBody->get()->_ShapeTransform;
+				PxMat44 matrix = *(PxMat44*)(void*)&ltw;
+				rigidBody->get()->_RigidBody->setGlobalPose(PxTransform(matrix));
+			}
 		}
 	}
 #pragma endregion
+}
+
+void UniEngine::PhysicsSimulationManager::Simulate(float time)
+{
+	const std::vector<Entity>* rigidBodyEntities = EntityManager::GetPrivateComponentOwnersList<RigidBody>();
 	_PhysicsScene->simulate(time);
 	_PhysicsScene->fetchResults(true);
 #pragma region Get transforms from physX
@@ -118,13 +125,19 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 	{
 		for (auto rigidBodyEntity : *rigidBodyEntities) {
 			auto rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
-			PxTransform transform = rigidBody->get()->_RigidBody->getGlobalPose();
-			auto cltw = glm::translate(rigidBody->get()->_ShapeCenter) *
-				glm::mat4_cast(glm::quat(rigidBody->get()->_ShapeEulerRotation));
-			auto matrix = PxMat44(transform);
-			LocalToWorld ltw = *(LocalToWorld*)(void*)&matrix;
-			ltw.Value *= glm::inverse(cltw);
-			rigidBody->get()->GetOwner().SetComponentData(ltw);
+			if (rigidBody->get()->IsEnabled()) {
+				PxTransform transform = rigidBody->get()->_RigidBody->getGlobalPose();
+				auto matrix = PxMat44(transform);
+				LocalToWorld temp = *(LocalToWorld*)(void*)&matrix;
+				temp.Value *= glm::inverse(rigidBody->get()->_ShapeTransform);
+				glm::vec3 scale;
+				glm::vec3 pos;
+				glm::quat rot;
+				temp.GetTRS(pos, rot, scale);
+				scale = rigidBodyEntity.GetComponentData<LocalToWorld>().GetScale();
+				temp.SetValue(pos, rot, scale);
+				rigidBody->get()->GetOwner().SetComponentData(temp);
+			}
 		}
 	}
 #pragma endregion

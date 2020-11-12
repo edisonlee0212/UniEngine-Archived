@@ -7,7 +7,7 @@ int main()
 	FileIO::SetResourcePath("../Resources/");
 	RenderManager::SetEnableSSAO(true);
 	Application::Init();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToParent(), LocalToWorld());
 
 	Entity e1 = EntityManager::CreateEntity(archetype);
 	Entity e2 = EntityManager::CreateEntity(archetype);

@@ -31,22 +31,15 @@ int main()
 	auto world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToWorld(), LocalToParent());
 	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();
-	Translation t;
-	t.Value = glm::vec3(-40, 25, 3);
-	RenderManager::GetMainCamera()->GetOwner().SetComponentData(t);
-	EntityArchetype backpackArchetype = EntityManager::CreateEntityArchetype("Model",
-		LocalToParent(),
-		EulerRotation(),
-		Translation(),
-		Rotation(),
-		Scale(),
-		LocalToWorld());
+	LocalToWorld ltw;
+	ltw.SetPosition(glm::vec3(-40, 25, 3));
+	RenderManager::GetMainCamera()->GetOwner().SetComponentData(ltw);
 
 	Entity newCam = EntityManager::CreateEntity(archetype, "Camera");
 	newCam.SetPrivateComponent(std::make_unique<CameraComponent>());
@@ -59,52 +52,42 @@ int main()
 	auto cylinder = std::make_unique<MeshRenderer>();
 	cylinder->Mesh = Default::Primitives::Cylinder;
 	cylinder->Material = sharedMat;
-	Scale scale;
-	scale.Value = glm::vec3(0.5f);
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == BACKPACK) {
 		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::DeferredPrepass);
 		backpack->Name = "Backpack";
-		Entity backpackEntity = AssetManager::ToEntity(backpackArchetype, backpack);
+		Entity backpackEntity = AssetManager::ToEntity(archetype, backpack);
 		backpackEntity.SetName("Backpack");
-		Translation bpp;
-		bpp.Value = glm::vec3(0, 10, 0);
-		Scale bps;
-		bps.Value = glm::vec3(5.0f);
-		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
-		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
+		ltw.SetPosition(glm::vec3(0, 10, 0));
+		ltw.SetScale(glm::vec3(5.0f));
+		EntityManager::SetComponentData(backpackEntity, ltw);
 		backpackEntity.SetPrivateComponent(std::make_unique<RigidBody>());
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
 		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::DeferredPrepass);
 		backpack->Name = "Sponza Scene";
-		Entity backpackEntity = AssetManager::ToEntity(backpackArchetype, backpack);
+		Entity backpackEntity = AssetManager::ToEntity(archetype, backpack);
 		backpackEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformManager & ParentSystem
-		Translation bpp;
-		bpp.Value = glm::vec3(5, 5, 5);
-		Scale bps;
-		bps.Value = glm::vec3(0.05f);
-		EntityManager::SetComponentData<Translation>(backpackEntity, bpp);
-		EntityManager::SetComponentData<Scale>(backpackEntity, bps);
+		ltw.SetPosition(glm::vec3(5, 5, 5));
+		ltw.SetScale(glm::vec3(0.05f));
+		EntityManager::SetComponentData(backpackEntity, ltw);
 		backpackEntity.SetPrivateComponent(std::make_unique<RigidBody>());
 	}
 	else if (testScene == PCSS) {
 		auto cmmc = std::make_unique<MeshRenderer>();
 		cmmc->Mesh = Default::Primitives::Cube;
 		cmmc->Material = sharedMat;
-		Translation pos;
 
 		Entity model1 = EntityManager::CreateEntity(archetype);
-		pos.Value = glm::vec3(-6.0f, 7.0f, 0.0f);
+		ltw.SetPosition(glm::vec3(-6.0f, 7.0f, 0.0f));
 
 
-		scale.Value = glm::vec3(4.0f, 8.0f, 4.0f);
-		EntityManager::SetComponentData<Translation>(model1, pos);
-		EntityManager::SetComponentData<Scale>(model1, scale);
+		ltw.SetScale(glm::vec3(4.0f, 8.0f, 4.0f));
+		EntityManager::SetComponentData(model1, ltw);
 		EntityManager::SetPrivateComponent<MeshRenderer>(model1, std::move(cylinder));
 
 		auto mmmc = std::make_unique<MeshRenderer>();
@@ -112,27 +95,25 @@ int main()
 		mmmc->Material = sharedMat;
 
 		Entity model2 = EntityManager::CreateEntity(archetype);
-		pos.Value = glm::vec3(6.0f, 7.0f, 0.0f);
+		ltw.SetPosition(glm::vec3(6.0f, 7.0f, 0.0f));
 
-		scale.Value = glm::vec3(5.0f, 5.0f, 5.0f);
-		EntityManager::SetComponentData<Translation>(model2, pos);
-		EntityManager::SetComponentData<Scale>(model2, scale);
+		ltw.SetScale(glm::vec3(5.0f, 5.0f, 5.0f));
+		EntityManager::SetComponentData(model2, ltw);
 		EntityManager::SetPrivateComponent<MeshRenderer>(model2, std::move(mmmc));
 	}
 #pragma endregion
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", EulerRotation(), Rotation(), DirectionalLight());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", EulerRotation(), Translation(), Rotation(), Scale(), LocalToWorld(), PointLight());
-	EulerRotation er;
-	er.Value = glm::vec3(70, 0, 0);
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", LocalToWorld(), LocalToParent(), DirectionalLight());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", LocalToWorld(), LocalToParent(), PointLight());
+	ltw.SetEulerRotation(glm::vec3(70, 0, 0));
 	
 	DirectionalLight dlc;
 	dlc.diffuseBrightness = 0.4f;
 	dlc.lightSize = 1.0f;
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	dle.SetName("Dir Light");
-	EntityManager::SetComponentData<DirectionalLight>(dle, dlc);
-	EntityManager::SetComponentData(dle, er);
+	EntityManager::SetComponentData(dle, dlc);
+	EntityManager::SetComponentData(dle, ltw);
 
 
 	DirectionalLight dlc2;
@@ -140,14 +121,14 @@ int main()
 	Entity dle2 = EntityManager::CreateEntity(dlarc);
 	dle2.SetName("Dir Light");
 	EntityManager::SetComponentData<DirectionalLight>(dle2, dlc2);
-	er.Value = glm::vec3(30, 60, 0);
-	EntityManager::SetComponentData(dle2, er);
+	ltw.SetEulerRotation(glm::vec3(30, 60, 0));
+	EntityManager::SetComponentData(dle2, ltw);
 
 
 	auto plmmc = std::make_unique<MeshRenderer>();
 	plmmc->Mesh = Default::Primitives::Sphere;
 	plmmc->Material = sharedMat;
-	scale.Value = glm::vec3(0.5f);
+	ltw.SetScale(glm::vec3(0.5f));
 
 	PointLight plc;
 	plc.constant = 1.0f;
@@ -159,7 +140,7 @@ int main()
 	Entity ple = EntityManager::CreateEntity(plarc);
 	ple.SetName("Point Light");
 	EntityManager::SetComponentData<PointLight>(ple, plc);
-	EntityManager::SetComponentData<Scale>(ple, scale);
+	EntityManager::SetComponentData(ple, ltw);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
 
@@ -177,9 +158,9 @@ int main()
 		ImGui::ShowDemoWindow();
 
 #pragma region LightsPosition		
-		Translation p;
-		p.Value = glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f);
-		EntityManager::SetComponentData<Translation>(ple, p);
+		auto ltw = ple.GetComponentData<LocalToWorld>();
+		ltw.SetPosition(glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f));
+		EntityManager::SetComponentData(ple, ltw);
 #pragma endregion
 		Application::Update();
 		loopable = Application::LateUpdate();
@@ -196,15 +177,13 @@ void LightSettingMenu() {
 }
 
 void InitGround() {
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Translation(), Rotation(), Scale(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToParent(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
 	entity.SetName("Ground");
-	Translation translation = Translation();
-	translation.Value = glm::vec3(0.0f, 0.0f, 0.0f);
-	Scale scale = Scale();
-	scale.Value = glm::vec3(100.0f);
-	EntityManager::SetComponentData<Translation>(entity, translation);
-	EntityManager::SetComponentData<Scale>(entity, scale);
+	LocalToWorld ltw;
+	ltw.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	ltw.SetScale(glm::vec3(100.0f));
+	EntityManager::SetComponentData(entity, ltw);
 	/*
 	auto entity1 = EntityManager::CreateEntity(archetype);
 	translation.Value = glm::vec3(-100.0f, 0.0f, 0.0f);

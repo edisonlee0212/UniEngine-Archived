@@ -13,8 +13,7 @@ namespace UniEngine {
     class UNIENGINE_API RigidBody :
         public PrivateComponentBase
     {
-        glm::vec3 _ShapeCenter;
-        glm::vec3 _ShapeEulerRotation;
+        glm::mat4 _ShapeTransform;
         bool _DrawBounds;
         glm::vec3 _ShapeParam;
         ShapeType _ShapeType;

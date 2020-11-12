@@ -7,11 +7,12 @@ void CameraControlSystem::Update()
 {
 	auto mainCamera = RenderManager::GetMainCamera();
 	if (mainCamera) {
-		auto rc = EntityManager::GetComponentData<Rotation>(mainCamera->GetOwner());
-		auto pc = EntityManager::GetComponentData<Translation>(RenderManager::GetMainCamera()->GetOwner());
-		glm::vec3 position = pc.Value;
-		glm::vec3 front = rc.Value * glm::vec3(0, 0, -1);
-		glm::vec3 right = rc.Value * glm::vec3(1, 0, 0);
+		auto ltw = mainCamera->GetOwner().GetComponentData<LocalToWorld>();
+		auto rc = ltw.GetRotation();
+		auto pc = ltw.GetPosition();
+		glm::vec3 position = pc;
+		glm::vec3 front = rc * glm::vec3(0, 0, -1);
+		glm::vec3 right = rc * glm::vec3(1, 0, 0);
 		bool moved = false;
 		if (InputManager::GetKey(GLFW_KEY_W)) {
 			position += glm::vec3(front.x, 0.0f, front.z) * (float)_Time->DeltaTime() * _Velocity;
@@ -38,8 +39,8 @@ void CameraControlSystem::Update()
 			moved = true;
 		}
 		if (moved) {
-			pc.Value = position;
-			EntityManager::SetComponentData<Translation>(mainCamera->GetOwner(), pc);
+			ltw.SetPosition(position);
+			EntityManager::SetComponentData(mainCamera->GetOwner(), ltw);
 		}
 		auto mousePosition = InputManager::GetMouseAbsolutePosition();
 		if (!startMouse) {
@@ -53,8 +54,8 @@ void CameraControlSystem::Update()
 		_LastY = mousePosition.y;
 		if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
 			if (xoffset != 0 || yoffset != 0) {
-				rc.Value = mainCamera->GetCamera()->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
-				EntityManager::SetComponentData<Rotation>(mainCamera->GetOwner(), rc);
+				ltw.SetRotation(mainCamera->GetCamera()->ProcessMouseMovement(xoffset, yoffset, _Sensitivity));
+				EntityManager::SetComponentData(mainCamera->GetOwner(), ltw);
 			}
 			mousePosition = InputManager::GetMouseScroll();
 			if (!startScroll) {

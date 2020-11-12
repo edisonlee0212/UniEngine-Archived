@@ -3,12 +3,12 @@
 void Galaxy::StarClusterSystem::OnCreate()
 {
 	_StarClusterArchetype = EntityManager::CreateEntityArchetype("Star Cluster",
-		Translation(), Rotation(), Scale(), LocalToWorld(),
+		LocalToParent(), LocalToWorld(),
 		StarClusterIndex()
 	);
 	_StarCluster = EntityManager::CreateEntity(_StarClusterArchetype);
-	Scale s;
-	s.Value = glm::vec3(1.0f);
+	LocalToWorld ltw;
+	ltw.SetScale(glm::vec3(1.0f));
 	auto imr = std::make_unique<Particles>();
 	imr->Material = std::make_shared<Material>();
 	imr->CastShadow = false;
@@ -17,14 +17,14 @@ void Galaxy::StarClusterSystem::OnCreate()
 	imr->Material->SetProgram(Default::GLPrograms::DeferredPrepassInstanced);
 	imr->Material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	_StarCluster.SetPrivateComponent(std::move(imr));
-	_StarCluster.SetComponentData(s);
+	_StarCluster.SetComponentData(ltw);
 
 	auto pattern = new StarClusterPattern();
 	_StarQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_StarQuery, StarSeed());
 	_Patterns.push_back(pattern);
 	_StarArchetype = EntityManager::CreateEntityArchetype("Star",
-		Translation(), Rotation(), Scale(), LocalToWorld(),
+		LocalToParent(), LocalToWorld(),
 		StarClusterIndex(),
 		StarIndex(),
 		StarSeed(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),
@@ -95,9 +95,9 @@ void Galaxy::StarClusterSystem::Update()
 		position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0 + time, true);
 		}, false);
 	float size = _Size;
-	EntityManager::ForEach<Translation, Scale, StarPosition>(_StarQuery, [size](int i, Entity entity, Translation* translation, Scale* scale, StarPosition* position) {
-		translation->Value = position->Value / 20.0;
-		scale->Value = size * glm::vec3(1.0f);
+	EntityManager::ForEach<StarPosition, LocalToWorld>(_StarQuery, [size](int i, Entity entity, StarPosition* position, LocalToWorld* ltw) {
+		glm::vec3 pos = position->Value;
+		ltw->Value = glm::translate(pos / 20.0f) * glm::scale(size * glm::vec3(1.0f));
 		}, false);
 	std::vector<Entity> entities = std::vector<Entity>();
 	_StarQuery.ToEntityArray(entities);

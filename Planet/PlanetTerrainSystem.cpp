@@ -74,16 +74,14 @@ void Planet::PlanetTerrainSystem::Update()
 		}
 	}
 
-
-	Translation cameraPos = EntityManager::GetComponentData<Translation>(RenderManager::GetMainCamera()->GetOwner());
-
+	auto cameraLtw = RenderManager::GetMainCamera()->GetOwner().GetComponentData<LocalToWorld>();
 	for (auto i = 0; i < _PlanetTerrainList.size(); i++) {
 		auto planetTerrain = _PlanetTerrainList[i];
 		auto planetInfo = planetTerrain->_Info;
 		//1. Scan and expand.
 		for (auto j = 0; j < planetTerrain->_ChunkList.size(); j++) {
 			auto chunk = planetTerrain->_ChunkList[j];
-			if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraPos.Value)
+			if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraLtw.GetPosition())
 				< (planetInfo.LodDistance * planetInfo.Radius / glm::pow(2, chunk->DetailLevel + 1))) {
 				if (chunk->DetailLevel < planetInfo.MaxLodLevel) {
 					if (chunk->C0 != nullptr) {
@@ -127,7 +125,7 @@ void Planet::PlanetTerrainSystem::Update()
 					chunk->ToRecycle = true;
 				}
 			}
-			else if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraPos.Value)
+			else if (glm::distance(glm::vec3(chunk->ChunkCenterPosition(planetInfo.Position, planetInfo.Radius, planetInfo.Rotation)), cameraLtw.GetPosition())
 				> (planetInfo.LodDistance * planetInfo.Radius / glm::pow(2, chunk->DetailLevel)))
 			{
 				if (chunk->Parent != nullptr) {

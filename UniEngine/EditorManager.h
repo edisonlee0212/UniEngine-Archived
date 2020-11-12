@@ -12,7 +12,7 @@ namespace UniEngine {
 		public ManagerBase
 	{
 		static bool _Enabled;
-		static std::map<size_t, std::function<void(ComponentBase* data)>> _ComponentGUIMap;
+		static std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> _ComponentGUIMap;
 		static unsigned int _ConfigFlags;
 		static int _SelectedHierarchyDisplayMode;
 		static Entity _SelectedEntity;
@@ -40,11 +40,11 @@ namespace UniEngine {
 		
 		static bool DrawEntityMenu(bool enabled, Entity& entity);
 		static void DrawEntityNode(Entity& entity);
-		static void InspectComponent(ComponentBase* data, ComponentType type);
+		static void InspectComponent(ComponentBase* data, ComponentType type, bool isRoot);
 	public:
 		static void LateUpdate();
 		template<typename T1 = ComponentBase>
-		static void AddComponentInspector(const std::function<void(ComponentBase* data)>& func);
+		static void AddComponentInspector(const std::function<void(ComponentBase* data, bool isRoot)>& func);
 		static void Init();
 		static void Destroy();
 		static void PreUpdate();
@@ -54,7 +54,7 @@ namespace UniEngine {
 	};
 
 	template <typename T1>
-	void EditorManager::AddComponentInspector(const std::function<void(ComponentBase* data)>& func)
+	void EditorManager::AddComponentInspector(const std::function<void(ComponentBase* data, bool isRoot)>& func)
 	{
 		_ComponentGUIMap.insert_or_assign(typeid(T1).hash_code(), func);
 	}

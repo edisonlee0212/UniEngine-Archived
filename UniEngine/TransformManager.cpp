@@ -1,213 +1,63 @@
 #include "pch.h"
 #include "TransformManager.h"
-
+#include "UniEngine.h"
 #include "EditorManager.h"
 using namespace UniEngine;
-
-void UniEngine::TransformManager::OnCreate()
+bool TransformManager::_AddCheck;
+size_t TransformManager::_CurrentStoredHierarchyVersion = INT_MAX;
+std::vector<std::pair<Entity, ChildInfo>> TransformManager::_CachedParentHierarchies;
+void UniEngine::TransformManager::Init()
 {
 	_CachedParentHierarchies = std::vector<std::pair<Entity, ChildInfo>>();
 
-	_ERR = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAnyFilters(_ERR, EulerRotation(), Rotation());
-	_LERR = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAnyFilters(_LERR, LocalEulerRotation(), LocalRotation());
-	
-	_LP = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LP, LocalToParent(), LocalTranslation());
-	EntityManager::SetEntityQueryNoneFilters(_LP, LocalRotation(), LocalScale());
-	_LPR = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LPR, LocalToParent(), LocalTranslation(), LocalRotation());
-	EntityManager::SetEntityQueryNoneFilters(_LPR, LocalScale());
-	_LPS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LPS, LocalToParent(), LocalTranslation(), LocalScale());
-	EntityManager::SetEntityQueryNoneFilters(_LPS, LocalRotation());
-	_LPRS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LPRS, LocalToParent(), LocalTranslation(), LocalRotation(), LocalScale());
-	_LR = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LR, LocalToParent(), LocalRotation());
-	EntityManager::SetEntityQueryNoneFilters(_LR, LocalTranslation(), LocalScale());
-	_LRS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LRS, LocalToParent(), LocalRotation(), LocalScale());
-	EntityManager::SetEntityQueryNoneFilters(_LRS, LocalTranslation());
-	_LS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_LS, LocalToParent(), LocalScale());
-	EntityManager::SetEntityQueryNoneFilters(_LS, LocalTranslation(), LocalRotation());
 
-	_P = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_P, LocalToWorld(), Translation());
-	EntityManager::SetEntityQueryNoneFilters(_P, Rotation(), Scale());
-	_PR = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_PR, LocalToWorld(), Translation(), Rotation());
-	EntityManager::SetEntityQueryNoneFilters(_PR, Scale());
-	_PS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_PS, LocalToWorld(), Translation(), Scale());
-	EntityManager::SetEntityQueryNoneFilters(_PS, Rotation());
-	_PRS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_PRS, LocalToWorld(), Translation(), Rotation(), Scale());
-	_R = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_R, LocalToWorld(), Rotation());
-	EntityManager::SetEntityQueryNoneFilters(_R, Translation(), Scale());
-	_RS = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_RS, LocalToWorld(), Rotation(), Scale());
-	EntityManager::SetEntityQueryNoneFilters(_RS, Translation());
-	_S = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_S, LocalToWorld(), Scale());
-	EntityManager::SetEntityQueryNoneFilters(_S, Translation(), Rotation());
+	EditorManager::AddComponentInspector<LocalToWorld>( [](ComponentBase* data, bool isRoot)
+		{
+			std::stringstream stream;
+			auto* ltw = reinterpret_cast<LocalToWorld*>(data);
+			bool edited = false;
+			glm::vec3 er;
+			glm::vec3 t;
+			glm::vec3 s;
+			ltw->GetTERS(t, er, s);
+			er = glm::degrees(er);
+			if (ImGui::DragFloat3("Position", &t.x, 0.1f)) edited = true;
+			if (ImGui::DragFloat3("Rotation", &er.x, 1.0f)) edited = true;
+			if (ImGui::DragFloat3("Scale", &s.x, 0.01f)) edited = true;
+			if(edited)
+			{
+				auto nltw = glm::translate(t)* glm::mat4_cast(glm::quat(glm::radians(er)))* glm::scale(s);
+				ltw->Value = nltw;
+			}
+		}
+	);
 
-	EditorManager::AddComponentInspector<EulerRotation>([](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
-		});
-	
-	EditorManager::AddComponentInspector<LocalEulerRotation>([](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
-		});
-	
-	EditorManager::AddComponentInspector<Translation>([](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
-		});
 
-	EditorManager::AddComponentInspector<Rotation>([](ComponentBase* data)
+	EditorManager::AddComponentInspector<LocalToParent>( [](ComponentBase* data, bool isRoot)
 		{
+			if (isRoot) return;
 			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.1f);
+			auto ltp = reinterpret_cast<LocalToParent*>(data);
+			bool edited = false;
+			glm::vec3 er;
+			glm::vec3 t;
+			glm::vec3 s;
+			ltp->GetTERS(t, er, s);
+			er = glm::degrees(er);
+			if (ImGui::DragFloat3("LocalPosition", &t.x, 0.1f)) edited = true;
+			if (ImGui::DragFloat3("LocalRotation", &er.x, 1.0f)) edited = true;
+			if (ImGui::DragFloat3("LocalScale", &s.x, 0.01f)) edited = true;
+			if (edited)
+			{
+				auto nltp = glm::translate(t) * glm::mat4_cast(glm::quat(glm::radians(er))) * glm::scale(s);
+				ltp->Value = nltp;
+			}
 		});
-
-	EditorManager::AddComponentInspector<Scale>([](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
-		});
-
-	EditorManager::AddComponentInspector<LocalToWorld>( [](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.1f);
-			stream.str(std::string());
-			stream << std::hex << "0x" << (size_t)data + 16;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 16), 0.1f);
-			stream.str(std::string());
-			stream << std::hex << "0x" << (size_t)data + 32;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 32), 0.1f);
-			stream.str(std::string());
-			stream << std::hex << "0x" << (size_t)data + 48;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 48), 0.1f);
-		});
-
-	EditorManager::AddComponentInspector<LocalTranslation>([](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
-		});
-
-	EditorManager::AddComponentInspector<LocalRotation>([](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.1f);
-		});
-
-	EditorManager::AddComponentInspector<LocalScale>([](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat3(stream.str().c_str(), (float*)data, 0.1f);
-		});
-
-	EditorManager::AddComponentInspector<LocalToParent>( [](ComponentBase* data)
-		{
-			std::stringstream stream;
-			stream << std::hex << "0x" << (size_t)data;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)data, 0.1f);
-			stream.str(std::string());
-			stream << std::hex << "0x" << (size_t)data + 16;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 16), 0.1f);
-			stream.str(std::string());
-			stream << std::hex << "0x" << (size_t)data + 32;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 32), 0.1f);
-			stream.str(std::string());
-			stream << std::hex << "0x" << (size_t)data + 48;
-			ImGui::DragFloat4(stream.str().c_str(), (float*)((char*)data + 48), 0.1f);
-		});
-	
-	Enable();
 }
 
-void UniEngine::TransformManager::OnDestroy()
+void UniEngine::TransformManager::LateUpdate()
 {
-	Disable();
-}
-
-void UniEngine::TransformManager::Update()
-{
-	EntityManager::ForEach<LocalEulerRotation, LocalRotation>(_LERR, [](int i, Entity entity, LocalEulerRotation* lerr, LocalRotation* lr)
-	{
-			lr->Value = glm::quat(glm::radians(lerr->Value));
-	});
-
-	EntityManager::ForEach<EulerRotation, Rotation>(_ERR, [](int i, Entity entity, EulerRotation* err, Rotation* r)
-		{
-			r->Value = glm::quat(glm::radians(err->Value));
-		});
-
 	
-	EntityManager::ForEach<LocalToParent, LocalTranslation>(_LP, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp) {
-		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value);
-		});
-	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation>(_LPR, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr) {
-		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value);
-		});
-	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalScale>(_LPS, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalScale* ls) {
-		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::scale(ls->Value);
-		});
-	EntityManager::ForEach<LocalToParent, LocalTranslation, LocalRotation, LocalScale>(_LPRS, [](int i, Entity entity, LocalToParent* ltp, LocalTranslation* lp, LocalRotation* lr, LocalScale* ls) {
-		ltp->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
-		});
-	EntityManager::ForEach<LocalToParent, LocalRotation>(_LR, [](int i, Entity entity, LocalToParent* ltp, LocalRotation* lr) {
-		ltp->Value = glm::mat4_cast(lr->Value);
-		});
-	EntityManager::ForEach<LocalToParent, LocalRotation, LocalScale>(_LRS, [](int i, Entity entity, LocalToParent* ltp, LocalRotation* lr, LocalScale* ls) {
-		ltp->Value = glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
-		});
-	EntityManager::ForEach<LocalToParent, LocalScale>(_LS, [](int i, Entity entity, LocalToParent* ltp, LocalScale* ls) {
-		ltp->Value = glm::scale(ls->Value);
-		});
-
-	EntityManager::ForEach<LocalToWorld, Translation>(_P, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp) {
-		ltw->Value = glm::translate(glm::mat4(1.0f), lp->Value);
-		});
-	EntityManager::ForEach<LocalToWorld, Translation, Rotation>(_PR, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Rotation* lr) {
-		ltw->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value);
-		});
-	EntityManager::ForEach<LocalToWorld, Translation, Scale>(_PS, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Scale* ls) {
-		ltw->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::scale(ls->Value);
-		});
-	EntityManager::ForEach<LocalToWorld, Translation, Rotation, Scale>(_PRS, [](int i, Entity entity, LocalToWorld* ltw, Translation* lp, Rotation* lr, Scale* ls) {
-		ltw->Value = glm::translate(glm::mat4(1.0f), lp->Value) * glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
-		});
-	EntityManager::ForEach<LocalToWorld, Rotation>(_R, [](int i, Entity entity, LocalToWorld* ltw, Rotation* lr) {
-		ltw->Value = glm::mat4_cast(lr->Value);
-		});
-	EntityManager::ForEach<LocalToWorld, Rotation, Scale>(_RS, [](int i, Entity entity, LocalToWorld* ltw, Rotation* lr, Scale* ls) {
-		ltw->Value = glm::mat4_cast(lr->Value) * glm::scale(ls->Value);
-		});
-	EntityManager::ForEach<LocalToWorld, Scale>(_S, [](int i, Entity entity, LocalToWorld* ltw, Scale* ls) {
-		ltw->Value = glm::scale(ls->Value);
-		});
-
 	/*
 	std::vector<std::shared_future<void>> futures;
 	auto threadPool = _ThreadPool;
@@ -262,10 +112,15 @@ void UniEngine::TransformManager::Update()
 	}
 	else {
 		_CachedParentHierarchies.clear();
-		EntityManager::ForAllRootParent([this](int i, Entity rootParent) {
+		EntityManager::ForAllRootParent([](int i, Entity rootParent) {
 			CollectHierarchy(&_CachedParentHierarchies, rootParent);
 			});
 		_CurrentStoredHierarchyVersion = EntityManager::GetParentHierarchyVersion();
+	}
+
+	if(!Application::IsPlaying())
+	{
+		PhysicsSimulationManager::UploadTransforms();
 	}
 }
 

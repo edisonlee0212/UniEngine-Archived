@@ -13,7 +13,7 @@
 #include "TransformManager.h"
 using namespace UniEngine;
 bool EditorManager::_Enabled = false;
-std::map<size_t, std::function<void(ComponentBase* data)>> EditorManager::_ComponentGUIMap;
+std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> EditorManager::_ComponentGUIMap;
 unsigned int EditorManager::_ConfigFlags = 0;
 int EditorManager::_SelectedHierarchyDisplayMode = 0;
 Entity EditorManager::_SelectedEntity;
@@ -89,17 +89,17 @@ void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
 	}
 }
 
-void UniEngine::EditorManager::InspectComponent(ComponentBase* data, ComponentType type)
+void UniEngine::EditorManager::InspectComponent(ComponentBase* data, ComponentType type, bool isRoot)
 {
 	if (_ComponentGUIMap.find(type.TypeID) != _ComponentGUIMap.end()) {
-		_ComponentGUIMap.at(type.TypeID)(data);
+		_ComponentGUIMap.at(type.TypeID)(data, isRoot);
 	}
 }
 
 void UniEngine::EditorManager::Init()
 {
 	_Enabled = true;
-	AddComponentInspector<DirectionalLight>([](ComponentBase* data)
+	AddComponentInspector<DirectionalLight>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
@@ -112,7 +112,7 @@ void UniEngine::EditorManager::Init()
 			ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
 			ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
 		});
-	AddComponentInspector<PointLight>([](ComponentBase* data)
+	AddComponentInspector<PointLight>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
@@ -227,30 +227,23 @@ void EditorManager::PreUpdate()
 #pragma region Scene Camera Controller
 	glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
 	glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
-	bool moved = false;
 	if (InputManager::GetKey(GLFW_KEY_W, FocusMode::SceneCamera)) {
 		_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-		moved = true;
 	}
 	if (InputManager::GetKey(GLFW_KEY_S, FocusMode::SceneCamera)) {
 		_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-		moved = true;
 	}
 	if (InputManager::GetKey(GLFW_KEY_A, FocusMode::SceneCamera)) {
 		_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-		moved = true;
 	}
 	if (InputManager::GetKey(GLFW_KEY_D, FocusMode::SceneCamera)) {
 		_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-		moved = true;
 	}
 	if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT, FocusMode::SceneCamera)) {
 		_SceneCameraPosition.y += _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
-		moved = true;
 	}
 	if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL, FocusMode::SceneCamera)) {
 		_SceneCameraPosition.y -= _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
-		moved = true;
 	}
 	auto mousePosition = InputManager::GetMouseAbsolutePosition(FocusMode::SceneCamera);
 	if (!_StartMouse) {
@@ -351,7 +344,7 @@ void EditorManager::LateUpdate()
 						std::string info = std::string(type.Name + 7);
 						info += " Size: " + std::to_string(type.Size);
 						ImGui::Text(info.c_str());
-						InspectComponent(static_cast<ComponentBase*>(data), type);
+						InspectComponent(static_cast<ComponentBase*>(data), type, EntityManager::GetParent(_SelectedEntity).IsNull());
 						ImGui::Separator();
 						});
 				}
@@ -412,16 +405,9 @@ void EditorManager::LateUpdate()
 				{
 					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
 					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
-					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model",
-						EulerRotation(),
-						LocalToParent(),
-						Translation(),
-						Rotation(),
-						Scale(),
-						LocalToWorld());
-					Scale t;
-					t.Value = glm::vec3(1.0f);
-					AssetManager::ToEntity(archetype, payload_n).SetComponentData(t);
+					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model", LocalToParent(), LocalToWorld());
+					LocalToWorld ltw;
+					AssetManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
 				}
 				ImGui::EndDragDropTarget();
 			}

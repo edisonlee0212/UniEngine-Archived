@@ -29,6 +29,7 @@ namespace UniEngine {
 		static bool Enabled;
 		static void Init();
 		static void Destroy();
+		static void UploadTransforms();
 		static void Simulate(float time);
 	};
 }
