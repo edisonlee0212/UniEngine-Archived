@@ -1293,6 +1293,7 @@ namespace UniEngine {
 				found = true;
 				element.PrivateComponentData = std::move(value);
 				element.ResetOwner(entity);
+				element.PrivateComponentData->Init();
 			}
 			i++;
 		}

@@ -579,7 +579,22 @@ EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)
 }
 
 void UniEngine::EntityManager::SetEnable(Entity entity, bool value) {
+	if (_EntityInfos->at(entity.Index).Enabled != value)
+	{
+		for (auto& i : _EntityInfos->at(entity.Index).PrivateComponentElements)
+		{
+			if (value)
+			{
+				i.PrivateComponentData->OnEntityEnable();
+			}
+			else
+			{
+				i.PrivateComponentData->OnEntityDisable();
+			}
+		}
+	}
 	_EntityInfos->at(entity.Index).Enabled = value;
+	
 	for (auto i : _EntityInfos->at(entity.Index).Children) {
 		SetEnable(i, value);
 	}

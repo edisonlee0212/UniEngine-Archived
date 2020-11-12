@@ -24,6 +24,8 @@ namespace UniEngine {
         PxShape* _Shape = nullptr;
         float _Density;
         PxVec3 _MassCenter;
+        bool _CurrentRegistered;
+        void RegisterCheck();
     public:
         RigidBody();
         void SetShapeType(ShapeType type);
@@ -35,6 +37,9 @@ namespace UniEngine {
         void SetMaterial(PxMaterial* value);
         void UpdateShape();
         void UpdateBody();
+    	void Init() override;
+    	void OnEntityDisable() override;
+    	void OnEntityEnable() override;
     	void OnDisable() override;
     	void OnEnable() override;
         void OnGui() override;

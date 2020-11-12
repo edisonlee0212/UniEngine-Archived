@@ -135,8 +135,11 @@ namespace UniEngine {
 			}
 		}
 		bool IsEnabled() const { return _Enabled; }
+		virtual void Init() {}
 		virtual void OnEnable() {}
 		virtual void OnDisable() {}
+		virtual void OnEntityEnable() {}
+		virtual void OnEntityDisable() {}
 		virtual void OnGui() {}
 		virtual ~PrivateComponentBase() = default;
 	};
@@ -216,6 +219,7 @@ namespace UniEngine {
 			TypeID = id;
 			PrivateComponentData = std::move(data);
 			PrivateComponentData->_Owner = owner;
+			PrivateComponentData->Init();
 		}
 		void ResetOwner(Entity newOwner) const { PrivateComponentData->_Owner = newOwner; }
 	};
