@@ -192,6 +192,11 @@ void EditorManager::PreUpdate()
 	ImGui::End();
 
 	if (ImGui::BeginMainMenuBar()) {
+		if(ImGui::Button(Application::_Playing ? "Pause" : "Play"))
+		{
+			Application::_Playing = !Application::_Playing;
+		}
+		ImGui::Separator();
 		if (ImGui::BeginMenu("File"))
 		{
 			ImGui::EndMenu();

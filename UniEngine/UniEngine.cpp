@@ -15,7 +15,8 @@ void APIENTRY glDebugOutput(GLenum source,
 using namespace UniEngine;
 std::shared_ptr<World> Application::_World;
 bool Application::_Initialized = false;
-bool Application::_Running = false;
+bool Application::_InnerLooping = false;
+bool Application::_Playing = false;
 float Application::_TimeStep = 0.016f;
 ThreadPool Application::_ThreadPool;
 #pragma region Utilities
@@ -26,7 +27,7 @@ void UniEngine::Application::SetTimeStep(float value) {
 }
 void UniEngine::Application::PreUpdate()
 {
-	if (_Running) {
+	if (_InnerLooping) {
 		Debug::Error("Application already running!");
 		return;
 	}
@@ -35,7 +36,7 @@ void UniEngine::Application::PreUpdate()
 
 void UniEngine::Application::Update()
 {
-	if (_Running) {
+	if (_InnerLooping) {
 		Debug::Error("Application already running!");
 		return;
 	}
@@ -44,7 +45,7 @@ void UniEngine::Application::Update()
 
 bool UniEngine::Application::LateUpdate()
 {
-	if (_Running) {
+	if (_InnerLooping) {
 		Debug::Error("Application already running!");
 		return false;
 	}
@@ -138,10 +139,13 @@ void UniEngine::Application::PreUpdateInternal()
 	}
 	glfwPollEvents();
 	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
+	
 	_World->_Time->_DeltaTime = _World->_Time->_LastFrameTime - _World->_Time->_FrameStartTime;
-	_World->_Time->_FixedDeltaTime += _World->_Time->_DeltaTime;
 	_World->SetFrameStartTime(glfwGetTime());
-	_World->PreUpdate();
+	if (_Playing) {
+		_World->_Time->_FixedDeltaTime += _World->_Time->_DeltaTime;
+		_World->PreUpdate();
+	}
 #pragma region ImGui
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -159,18 +163,21 @@ void UniEngine::Application::UpdateInternal()
 	if (!_Initialized) {
 		return;
 	}
-	_World->Update();
+	if (_Playing) {
+		_World->Update();
+	}
 	EditorManager::Update();
 	InputManager::Update();
 }
 
 bool UniEngine::Application::LaterUpdateInternal()
 {
-	
 	if (!_Initialized) {
 		return false;
 	}
-	_World->LateUpdate();
+	if (_Playing) {
+		_World->LateUpdate();
+	}
 	InputManager::LateUpdate();
 	AssetManager::LateUpdate();
 	WindowManager::LateUpdate();
@@ -203,6 +210,16 @@ double Application::EngineTime()
 	return glfwGetTime();
 }
 
+void Application::SetPlaying(bool value)
+{
+	_Playing = value;
+}
+
+bool Application::IsPlaying()
+{
+	return _Playing;
+}
+
 bool Application::IsInitialized()
 {
 	return _Initialized;
@@ -217,13 +234,13 @@ void UniEngine::Application::End()
 
 void UniEngine::Application::Run()
 {
-	_Running = true;
+	_InnerLooping = true;
 	while (_Initialized) {
 		PreUpdateInternal();
 		UpdateInternal();
 		_Initialized = LaterUpdateInternal();
 	}
-	_Running = false;
+	_InnerLooping = false;
 }
 
 std::shared_ptr<World>& UniEngine::Application::GetWorld()
