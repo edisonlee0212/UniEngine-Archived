@@ -7,12 +7,12 @@ namespace UniEngine {
 	class UNIENGINE_API WindowManager : public ManagerBase
 	{
 	public:
-		static void OnGui();
+		static void LateUpdate();
 		static void Init(std::string name, bool fullScreen = false);
 		static GLFWwindow* GetWindow();
 		static GLFWmonitor* PrimaryMonitor();
-		static void Start();
-		static void Update();
+		static void PreUpdate();
+		static void Swap();
 		static void DrawTexture(GLTexture2D* texture);
 		static void ResizeCallback(GLFWwindow*, int, int);
 		static void SetMonitorCallback(GLFWmonitor* monitor, int event);

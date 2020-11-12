@@ -219,15 +219,6 @@
     <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_win32.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="PointLightComponent.h">
-      <Filter>Header Files\Resource\ComponentData</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectionalLightComponent.h">
-      <Filter>Header Files\Resource\ComponentData</Filter>
-    </ClInclude>
-    <ClInclude Include="SpotLightComponent.h">
-      <Filter>Header Files\Resource\ComponentData</Filter>
-    </ClInclude>
     <ClInclude Include="FileBrowser.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
@@ -246,9 +237,6 @@
     <ClInclude Include="CameraComponent.h">
       <Filter>Header Files\Resource\PrivateComponent</Filter>
     </ClInclude>
-    <ClInclude Include="RigidBodyComponent.h">
-      <Filter>Header Files\Resource\PrivateComponent</Filter>
-    </ClInclude>
     <ClInclude Include="EditorManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
@@ -257,6 +245,21 @@
     </ClInclude>
     <ClInclude Include="MeshRenderer.h">
       <Filter>Header Files\Resource\PrivateComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Transforms.h">
+      <Filter>Header Files\Resource\ComponentData</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBody.h">
+      <Filter>Header Files\Resource\PrivateComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
+      <Filter>Header Files\Resource\ComponentData</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Header Files\Resource\ComponentData</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLight.h">
+      <Filter>Header Files\Resource\ComponentData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -389,15 +392,6 @@
     <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_glfw.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="SpotLightComponent.cpp">
-      <Filter>Source Files\Resource\ComponentData</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectionalLightComponent.cpp">
-      <Filter>Source Files\Resource\ComponentData</Filter>
-    </ClCompile>
-    <ClCompile Include="PointLightComponent.cpp">
-      <Filter>Source Files\Resource\ComponentData</Filter>
-    </ClCompile>
     <ClCompile Include="FileBrowser.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
@@ -416,9 +410,6 @@
     <ClCompile Include="CameraComponent.cpp">
       <Filter>Source Files\Resource\PrivateComponent</Filter>
     </ClCompile>
-    <ClCompile Include="RigidBodyComponent.cpp">
-      <Filter>Source Files\Resource\PrivateComponent</Filter>
-    </ClCompile>
     <ClCompile Include="EditorManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
     </ClCompile>
@@ -427,6 +418,18 @@
     </ClCompile>
     <ClCompile Include="MeshRenderer.cpp">
       <Filter>Source Files\Resource\PrivateComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="RigidBody.cpp">
+      <Filter>Source Files\Resource\PrivateComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLight.cpp">
+      <Filter>Source Files\Resource\ComponentData</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>Source Files\Resource\ComponentData</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLight.cpp">
+      <Filter>Source Files\Resource\ComponentData</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

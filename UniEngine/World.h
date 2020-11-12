@@ -24,6 +24,7 @@ namespace UniEngine {
 	};
 	class UNIENGINE_API World
 	{
+		friend class Application;
 		WorldTime* _Time;
 		std::vector<SystemBase*> _PreparationSystems;
 		std::vector<SystemBase*> _SimulationSystems;
@@ -31,16 +32,17 @@ namespace UniEngine {
 		size_t _Index;
 		UniEngine::Bound _WorldBound;
 		ThreadPool* _ThreadPool;
+		bool _NeedFixedUpdate = false;
 	public:
 		ThreadPool* GetThreadPool();
 		Bound GetBound();
 		void SetBound(Bound value);
-		void SetWorldTime(double time);
-		void SetTimeStep(float timeStep);
-		size_t GetIndex();
+		void SetFrameStartTime(double time) const;
+		void SetTimeStep(float timeStep) const;
+		size_t GetIndex() const;
 		World(size_t index, ThreadPool* threadPool);
-		void ResetTime();
-		WorldTime* Time();
+		void ResetTime() const;
+		WorldTime* Time() const;
 		template <class T = SystemBase>
 		T* CreateSystem(SystemGroup group);
 		template <class T = SystemBase>
@@ -48,7 +50,9 @@ namespace UniEngine {
 		template <class T = SystemBase>
 		T* GetSystem();
 		~World();
+		void PreUpdate();
 		void Update();
+		void LateUpdate();
 	};
 
 	template <class T>

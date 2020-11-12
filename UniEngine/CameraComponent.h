@@ -28,7 +28,7 @@ namespace UniEngine {
 	public:
 		void ResizeResolution(int x, int y);
 		CameraComponent();
-		~CameraComponent();
+		~CameraComponent() override;
 		bool DrawSkyBox = true;
 		glm::vec3 ClearColor;
 		std::shared_ptr<Cubemap> SkyBox;

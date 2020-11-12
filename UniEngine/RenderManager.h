@@ -6,9 +6,9 @@
 #include "ParticleSystem.h"
 #include "RenderTarget.h"
 
-#include "DirectionalLightComponent.h"
-#include "PointLightComponent.h"
-#include "SpotLightComponent.h"
+#include "DirectionalLight.h"
+#include "PointLight.h"
+#include "SpotLight.h"
 #include "DirectionalLightShadowMap.h"
 #include "PointLightShadowMap.h"
 
@@ -74,9 +74,9 @@ namespace UniEngine {
 		static GLUBO* _ShadowCascadeInfoBlock;
 		static LightSettings _LightSettings;
 
-		static DirectionalLight _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
-		static PointLight _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
-		static SpotLight _SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
+		static DirectionalLightInfo _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
+		static PointLightInfo _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
+		static SpotLightInfo _SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
 
 		static bool _EnableShadow;
 
@@ -130,9 +130,7 @@ namespace UniEngine {
 		static void RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void Init();
 		//Main rendering happens here.
-		static void Start();
-		//PostProcessing happens here. 
-		static void LateUpdate();
+		static void PreUpdate();
 #pragma region Shadow
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetDirectionalLightResolution(size_t value);
@@ -150,7 +148,7 @@ namespace UniEngine {
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 #pragma endregion
 #pragma region RenderAPI
-		static void OnGui();
+		static void LateUpdate();
 		static size_t Triangles();
 		static size_t DrawCall();
 

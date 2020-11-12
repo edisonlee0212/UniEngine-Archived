@@ -2,7 +2,7 @@
 #include "Core.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
-	struct UNIENGINE_API DirectionalLight
+	struct UNIENGINE_API DirectionalLightInfo
 	{
 		glm::vec4 position;
 		glm::vec4 direction;
@@ -14,7 +14,7 @@ namespace UniEngine {
 		glm::vec4 ReservedParameters;
 		glm::ivec4 viewPort;
 	};
-	struct UNIENGINE_API DirectionalLightComponent :
+	struct UNIENGINE_API DirectionalLight :
 		ComponentBase
 	{
 		glm::vec3 diffuse = glm::vec3(1.0f);

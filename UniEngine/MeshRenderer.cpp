@@ -32,3 +32,12 @@ void UniEngine::MeshRenderer::OnGui()
 		}
 	}
 }
+
+UniEngine::MeshRenderer::MeshRenderer()
+{
+	SetEnabled(true);
+}
+
+UniEngine::MeshRenderer::~MeshRenderer()
+{
+}

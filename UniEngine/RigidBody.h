@@ -4,7 +4,7 @@
 #include "PxPhysicsAPI.h"
 using namespace physx;
 namespace UniEngine {
-    class RigidBodyComponent :
+    class RigidBody :
         public PrivateComponentBase
     {
         PxRigidDynamic* _RigidBody;
@@ -13,8 +13,8 @@ namespace UniEngine {
         float _Density;
         PxVec3 _MassCenter;
     public:
-        RigidBodyComponent();
-    	~RigidBodyComponent();
+        RigidBody();
+    	~RigidBody() override;
         bool GetTransform(glm::mat4& transform);
         void SetMaterial(PxMaterial* value);
         void SetRigidBody(PxRigidDynamic* value);

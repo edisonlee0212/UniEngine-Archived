@@ -76,6 +76,7 @@ UniEngine::CameraComponent::CameraComponent()
 
 //#pragma endregion
 	ResizeResolution(_ResolutionX, _ResolutionY);
+	SetEnabled(true);
 }
 
 UniEngine::CameraComponent::~CameraComponent()

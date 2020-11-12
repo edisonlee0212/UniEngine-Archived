@@ -10,7 +10,7 @@ namespace UniEngine {
 	class UNIENGINE_API PhysicsSimulationManager :
 		public ManagerBase
 	{
-		friend class RigidBodyComponent;
+		friend class RigidBody;
 		static PxDefaultAllocator		_Allocator;
 		static PxDefaultErrorCallback	_ErrorCallback;
 		static PxFoundation* _PhysicsFoundation;

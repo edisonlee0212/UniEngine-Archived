@@ -26,13 +26,12 @@ namespace UniEngine {
 	
 	class UNIENGINE_API SharedComponentBase {
 		friend class EditorManager;
-		bool _Enabled = true;
+		bool _Enabled = false;
 	public:
 		void SetEnabled(bool value)
 		{
 			if(_Enabled != value)
 			{
-				_Enabled = value;
 				if(_Enabled)
 				{
 					OnEnable();
@@ -40,6 +39,7 @@ namespace UniEngine {
 				{
 					OnDisable();
 				}
+				_Enabled = value;
 			}
 		}
 		bool IsEnabled() const { return _Enabled; }
@@ -47,7 +47,7 @@ namespace UniEngine {
 		virtual void OnDisable(){}
 		virtual size_t GetHashCode() = 0;
 		virtual void OnGui() {}
-		virtual ~SharedComponentBase(){}
+		virtual ~SharedComponentBase() = default;
 	};
 	class PrivateComponentBase;
 	struct UNIENGINE_API Entity {
@@ -71,15 +71,15 @@ namespace UniEngine {
 			return (size_t)Index;
 		}
 
-		bool Enabled();
+		bool Enabled() const;
 
-		void SetEnabled(bool value);
+		void SetEnabled(bool value) const;
 
 		bool IsNull() {
 			return Index == 0;
 		}
 
-		bool IsDeleted();
+		bool IsDeleted() const;
 
 		template<typename T = ComponentBase>
 		void SetComponentData(T value);
@@ -105,8 +105,8 @@ namespace UniEngine {
 		template <typename T = PrivateComponentBase>
 		bool HasPrivateComponent() const;
 		
-		inline std::string GetName();
-		inline bool SetName(std::string name);
+		inline std::string GetName() const;
+		inline bool SetName(std::string name) const;
 	};
 #pragma region Storage
 
@@ -114,7 +114,7 @@ namespace UniEngine {
 		friend class EntityManager;
 		friend class EditorManager;
 		friend class PrivateComponentElement;
-		bool _Enabled = true;
+		bool _Enabled = false;
 	protected:
 		Entity _Owner;
 	public:
@@ -123,7 +123,6 @@ namespace UniEngine {
 		{
 			if (_Enabled != value)
 			{
-				_Enabled = value;
 				if (_Enabled)
 				{
 					OnEnable();
@@ -132,13 +131,14 @@ namespace UniEngine {
 				{
 					OnDisable();
 				}
+				_Enabled = value;
 			}
 		}
 		bool IsEnabled() const { return _Enabled; }
 		virtual void OnEnable() {}
 		virtual void OnDisable() {}
 		virtual void OnGui() {}
-		virtual ~PrivateComponentBase(){}
+		virtual ~PrivateComponentBase() = default;
 	};
 
 	template<typename T>

@@ -2,6 +2,13 @@
 #include "ParticleSystem.h"
 #include "UniEngine.h"
 #include "RenderManager.h"
+
+UniEngine::ParticleSystem::ParticleSystem()
+{
+	BoundingBox = Bound();
+	SetEnabled(true);
+}
+
 void UniEngine::ParticleSystem::RecalculateBoundingBox()
 {
 	if(Matrices.empty())

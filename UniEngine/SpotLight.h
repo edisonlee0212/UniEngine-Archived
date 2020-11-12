@@ -2,7 +2,7 @@
 #include "Core.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
-	struct UNIENGINE_API SpotLight
+	struct UNIENGINE_API SpotLightInfo
 	{
 		glm::vec4 position;
 		glm::vec4 direction;
@@ -16,9 +16,9 @@ namespace UniEngine {
 		glm::vec4 diffuse;
 		glm::vec4 specular;
 	};
-	struct UNIENGINE_API SpotLightComponent :
+	struct UNIENGINE_API SpotLight :
 		ComponentBase
 	{
-		SpotLight value;
+		SpotLightInfo value;
 	};
 }

@@ -10,10 +10,7 @@ namespace UniEngine {
 	public:
 		glm::vec4 DisplayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
 		bool DisplayBound = true;
-		ParticleSystem()
-		{
-			BoundingBox = Bound();
-		}
+		ParticleSystem();
 		Bound BoundingBox;
 		bool ForwardRendering = false;
 		bool CastShadow = true;

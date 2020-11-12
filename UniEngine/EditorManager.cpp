@@ -4,11 +4,11 @@
 #include "AssetManager.h"
 #include "UniEngine.h"
 #include "Default.h"
-#include "DirectionalLightComponent.h"
+#include "DirectionalLight.h"
 #include "imgui_internal.h"
 #include "InputManager.h"
 #include "Model.h"
-#include "PointLightComponent.h"
+#include "PointLight.h"
 #include "RenderManager.h"
 #include "TransformSystem.h"
 using namespace UniEngine;
@@ -99,11 +99,11 @@ void UniEngine::EditorManager::InspectComponent(ComponentBase* data, ComponentTy
 void UniEngine::EditorManager::Init()
 {
 	_Enabled = true;
-	AddComponentInspector<DirectionalLightComponent>([](ComponentBase* data)
+	AddComponentInspector<DirectionalLight>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			auto* dl = static_cast<DirectionalLightComponent*>((void*)data);
+			auto* dl = static_cast<DirectionalLight*>((void*)data);
 			ImGui::ColorEdit3("Diffuse", &dl->diffuse[0]);
 			ImGui::DragFloat("Diffuse Brightness", &dl->diffuseBrightness, 0.1f);
 			ImGui::ColorEdit3("Specular", &dl->specular[0]);
@@ -112,11 +112,11 @@ void UniEngine::EditorManager::Init()
 			ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
 			ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
 		});
-	AddComponentInspector<PointLightComponent>([](ComponentBase* data)
+	AddComponentInspector<PointLight>([](ComponentBase* data)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			auto* dl = static_cast<PointLightComponent*>((void*)data);
+			auto* dl = static_cast<PointLight*>((void*)data);
 			ImGui::ColorEdit3("Diffuse", &dl->diffuse[0]);
 			ImGui::DragFloat("Diffuse Brightness", &dl->diffuseBrightness, 0.1f);
 			ImGui::ColorEdit3("Specular", &dl->specular[0]);
@@ -146,7 +146,7 @@ void UniEngine::EditorManager::Destroy()
 }
 static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
 
-void EditorManager::Start()
+void EditorManager::PreUpdate()
 {
 	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 	_SceneCamera->GetCamera()->Clear();
@@ -280,7 +280,7 @@ void UniEngine::EditorManager::Update()
 {
 	
 }
-void EditorManager::OnGui()
+void EditorManager::LateUpdate()
 {
 #pragma region Select entity here
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {

@@ -115,7 +115,7 @@
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Default.h" />
-    <ClInclude Include="DirectionalLightComponent.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DirectionalLightShadowMap.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EditorManager.h" />
@@ -140,14 +140,15 @@
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PhysicsSimulationManager.h" />
-    <ClInclude Include="PointLightComponent.h" />
+    <ClInclude Include="PointLight.h" />
     <ClInclude Include="PrivateComponentStorage.h" />
     <ClInclude Include="Ray.h" />
-    <ClInclude Include="RigidBodyComponent.h" />
+    <ClInclude Include="RigidBody.h" />
     <ClInclude Include="SharedComponentStorage.h" />
-    <ClInclude Include="SpotLightComponent.h" />
+    <ClInclude Include="SpotLight.h" />
     <ClInclude Include="SystemBase.h" />
     <ClInclude Include="ThreadPool.h" />
+    <ClInclude Include="Transforms.h" />
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UniEngineAPI.h" />
     <ClInclude Include="AssetManager.h" />
@@ -216,7 +217,7 @@
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Default.cpp" />
-    <ClCompile Include="DirectionalLightComponent.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="DirectionalLightShadowMap.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -248,14 +249,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PointLightComponent.cpp" />
+    <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="PointLightShadowMap.cpp" />
     <ClCompile Include="PrivateComponentStorage.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
-    <ClCompile Include="RigidBodyComponent.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="SharedComponentStorage.cpp" />
-    <ClCompile Include="SpotLightComponent.cpp" />
+    <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="SystemBase.cpp" />
     <ClCompile Include="Texture2D.cpp" />

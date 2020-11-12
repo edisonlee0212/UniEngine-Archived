@@ -2,7 +2,7 @@
 #include "Core.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
-	struct UNIENGINE_API PointLight
+	struct UNIENGINE_API PointLightInfo
 	{
 		glm::vec4 position;
 		glm::vec4 constantLinearQuadFarPlane;
@@ -12,7 +12,7 @@ namespace UniEngine {
 		glm::vec4 ReservedParameters;
 	};
 
-	struct UNIENGINE_API PointLightComponent :
+	struct UNIENGINE_API PointLight :
 		ComponentBase
 	{
 		float constant = 1.0f;

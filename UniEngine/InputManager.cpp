@@ -78,7 +78,7 @@ void InputManager::SetMouseScreenPosition(glm::vec2 value)
 	_MouseScreenPosition = value;
 }
 
-void InputManager::Start()
+void InputManager::PreUpdate()
 {
 	_FocusMode = FocusMode::None;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -131,7 +131,7 @@ void InputManager::Start()
 
 }
 
-void InputManager::OnGui()
+void InputManager::LateUpdate()
 {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("View"))

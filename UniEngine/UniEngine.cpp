@@ -16,7 +16,6 @@ using namespace UniEngine;
 std::shared_ptr<World> Application::_World;
 bool Application::_Initialized = false;
 bool Application::_Running = false;
-double Application::_RealWorldTime;
 float Application::_TimeStep = 0.016f;
 ThreadPool Application::_ThreadPool;
 #pragma region Utilities
@@ -31,7 +30,7 @@ void UniEngine::Application::PreUpdate()
 		Debug::Error("Application already running!");
 		return;
 	}
-	LoopStart_Internal();
+	PreUpdateInternal();
 }
 
 void UniEngine::Application::Update()
@@ -40,7 +39,7 @@ void UniEngine::Application::Update()
 		Debug::Error("Application already running!");
 		return;
 	}
-	LoopMain_Internal();
+	UpdateInternal();
 }
 
 bool UniEngine::Application::LateUpdate()
@@ -49,12 +48,20 @@ bool UniEngine::Application::LateUpdate()
 		Debug::Error("Application already running!");
 		return false;
 	}
-	return LoopEnd_Internal();
+	return LaterUpdateInternal();
 }
 
 
-void UniEngine::Application::GLInit()
+#pragma endregion
+
+void UniEngine::Application::Init(bool fullScreen)
 {
+	_Initialized = false;
+	WindowManager::Init("UniEngine", fullScreen);
+	InputManager::Init();
+	_ThreadPool.Resize(std::thread::hardware_concurrency());
+	ManagerBase::_ThreadPool = &_ThreadPool;
+#pragma region OpenGL
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -76,19 +83,7 @@ void UniEngine::Application::GLInit()
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	}
 
-
-}
-
 #pragma endregion
-
-void UniEngine::Application::Init(bool fullScreen)
-{
-	_Initialized = false;
-	WindowManager::Init("UniEngine", fullScreen);
-	InputManager::Init();
-	_ThreadPool.Resize(std::thread::hardware_concurrency());
-	ManagerBase::_ThreadPool = &_ThreadPool;
-	GLInit();
 	_World = std::make_shared<World>(0, &_ThreadPool);
 	EntityManager::SetWorld(_World.get());
 	ManagerBase::SetWorld(_World.get());
@@ -131,38 +126,35 @@ void UniEngine::Application::Init(bool fullScreen)
 	RenderManager::SetMainCamera(mainCameraComponent.get());
 	mainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
 	EntityManager::SetPrivateComponent<CameraComponent>(mainCameraEntity, std::move(mainCameraComponent));
-	
 #pragma endregion
-
-	glfwPollEvents();
-	_RealWorldTime = glfwGetTime();
-	_World->SetWorldTime(_RealWorldTime);
 	_World->ResetTime();
+	
 }
 
-void UniEngine::Application::LoopStart_Internal()
+void UniEngine::Application::PreUpdateInternal()
 {
 	if (!_Initialized) {
 		return;
 	}
 	glfwPollEvents();
-	_RealWorldTime = glfwGetTime();
-	_World->SetWorldTime(_RealWorldTime);
+	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
+	_World->_Time->_DeltaTime = _World->_Time->_LastFrameTime - _World->_Time->_FrameStartTime;
+	_World->_Time->_FixedDeltaTime += _World->_Time->_DeltaTime;
+	_World->SetFrameStartTime(glfwGetTime());
+	_World->PreUpdate();
 #pragma region ImGui
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 #pragma endregion
-	
-	
-	EditorManager::Start();
-	WindowManager::Start();
-	InputManager::Start();
-	RenderManager::Start();
+	EditorManager::PreUpdate();
+	WindowManager::PreUpdate();
+	InputManager::PreUpdate();
+	RenderManager::PreUpdate();
 	
 }
 
-void UniEngine::Application::LoopMain_Internal()
+void UniEngine::Application::UpdateInternal()
 {
 	if (!_Initialized) {
 		return;
@@ -172,19 +164,18 @@ void UniEngine::Application::LoopMain_Internal()
 	InputManager::Update();
 }
 
-bool UniEngine::Application::LoopEnd_Internal()
+bool UniEngine::Application::LaterUpdateInternal()
 {
 	
-	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
 	if (!_Initialized) {
 		return false;
 	}
+	_World->LateUpdate();
+	InputManager::LateUpdate();
+	AssetManager::LateUpdate();
+	WindowManager::LateUpdate();
 	RenderManager::LateUpdate();
-	InputManager::OnGui();
-	AssetManager::OnGui();
-	WindowManager::OnGui();
-	RenderManager::OnGui();
-	EditorManager::OnGui();
+	EditorManager::LateUpdate();
 #pragma region ImGui
 	RenderTarget::BindDefault();
 	ImGui::Render();
@@ -201,10 +192,9 @@ bool UniEngine::Application::LoopEnd_Internal()
 		glfwMakeContextCurrent(backup_current_context);
 	}
 #pragma endregion
-
 	//Swap Window's framebuffer
-	WindowManager::Update();
-
+	WindowManager::Swap();
+	_World->_Time->_LastFrameTime = glfwGetTime();
 	return _Initialized;
 }
 
@@ -229,9 +219,9 @@ void UniEngine::Application::Run()
 {
 	_Running = true;
 	while (_Initialized) {
-		LoopStart_Internal();
-		LoopMain_Internal();
-		_Initialized = LoopEnd_Internal();
+		PreUpdateInternal();
+		UpdateInternal();
+		_Initialized = LaterUpdateInternal();
 	}
 	_Running = false;
 }

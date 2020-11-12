@@ -8,7 +8,7 @@ using namespace UniEngine;
 #pragma region Shadow
 #pragma region DirectionalMap
 GLUBO* RenderManager::_DirectionalLightBlock;
-DirectionalLight RenderManager::_DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
+DirectionalLightInfo RenderManager::_DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 DirectionalLightShadowMap* RenderManager::_DirectionalLightShadowMap;
 RenderTarget* RenderManager::_DirectionalLightShadowMapFilter;
 GLTexture* RenderManager::_DLVSMVFilter;
@@ -29,8 +29,8 @@ bool RenderManager::_EnableRenderMenu = false;
 bool RenderManager::_EnableInfoWindow = true;
 GLUBO* RenderManager::_PointLightBlock;
 GLUBO* RenderManager::_SpotLightBlock;
-PointLight RenderManager::_PointLights[Default::ShaderIncludes::MaxPointLightAmount];
-SpotLight RenderManager::_SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
+PointLightInfo RenderManager::_PointLights[Default::ShaderIncludes::MaxPointLightAmount];
+SpotLightInfo RenderManager::_SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
 bool RenderManager::_EnableShadow = true;
 
 PointLightShadowMap* RenderManager::_PointLightShadowMap;
@@ -333,11 +333,11 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 void RenderManager::Init()
 {
 	_DirectionalLightQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_DirectionalLightQuery, DirectionalLightComponent());
+	EntityManager::SetEntityQueryAllFilters(_DirectionalLightQuery, DirectionalLight());
 	_PointLightQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_PointLightQuery, PointLightComponent());
+	EntityManager::SetEntityQueryAllFilters(_PointLightQuery, PointLight());
 	_SpotLightQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_SpotLightQuery, SpotLightComponent());
+	EntityManager::SetEntityQueryAllFilters(_SpotLightQuery, SpotLight());
 
 #pragma region Kernel Setup
 	std::vector<glm::vec4> uniformKernel;
@@ -364,13 +364,13 @@ void RenderManager::Init()
 	_DirectionalLightBlock = new GLUBO();
 	_PointLightBlock = new GLUBO();
 	_SpotLightBlock = new GLUBO();
-	size_t size = 16 + Default::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLight);
+	size_t size = 16 + Default::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLightInfo);
 	_DirectionalLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
 	_DirectionalLightBlock->SetBase(1);
-	size = 16 + Default::ShaderIncludes::MaxPointLightAmount * sizeof(PointLight);
+	size = 16 + Default::ShaderIncludes::MaxPointLightAmount * sizeof(PointLightInfo);
 	_PointLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
 	_PointLightBlock->SetBase(2);
-	size = 16 + Default::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLight);
+	size = 16 + Default::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLightInfo);
 	_SpotLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
@@ -508,13 +508,16 @@ void RenderManager::Init()
 #pragma endregion
 }
 
-void UniEngine::RenderManager::Start()
+void UniEngine::RenderManager::PreUpdate()
 {
 	_Triangles = 0;
 	_DrawCall = 0;
 	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
-	for (auto cameraEntity : *cameraEntities) {
-		cameraEntity.GetPrivateComponent<CameraComponent>()->get()->_Camera->Clear();
+	if (cameraEntities != nullptr)
+	{
+		for (auto cameraEntity : *cameraEntities) {
+			cameraEntity.GetPrivateComponent<CameraComponent>()->get()->_Camera->Clear();
+		}
 	}
 	auto worldBound = _World->GetBound();
 	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
@@ -532,7 +535,7 @@ void UniEngine::RenderManager::Start()
 
 			_ShadowCascadeInfoBlock->SubData(0, sizeof(LightSettings), &_LightSettings);
 
-			std::vector<DirectionalLightComponent> directionLightsList;
+			std::vector<DirectionalLight> directionLightsList;
 			std::vector<Entity> directionalLightEntities;
 			_DirectionalLightQuery.ToComponentDataArray(directionLightsList);
 			_DirectionalLightQuery.ToEntityArray(directionalLightEntities);
@@ -649,7 +652,7 @@ void UniEngine::RenderManager::Start()
 				}
 				_DirectionalLightBlock->SubData(0, 4, &enabledSize);
 				if (enabledSize != 0) {
-					_DirectionalLightBlock->SubData(16, enabledSize * sizeof(DirectionalLight), &_DirectionalLights[0]);
+					_DirectionalLightBlock->SubData(16, enabledSize * sizeof(DirectionalLightInfo), &_DirectionalLights[0]);
 				}
 				if (_EnableShadow) {
 					_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
@@ -754,7 +757,7 @@ void UniEngine::RenderManager::Start()
 				_DirectionalLightBlock->SubData(0, 4, &size);
 			}
 			std::vector<Entity> pointLightEntities;
-			std::vector<PointLightComponent> pointLightsList;
+			std::vector<PointLight> pointLightsList;
 			_PointLightQuery.ToEntityArray(pointLightEntities);
 			_PointLightQuery.ToComponentDataArray(pointLightsList);
 			size = pointLightsList.size();
@@ -785,7 +788,7 @@ void UniEngine::RenderManager::Start()
 					enabledSize++;
 				}
 				_PointLightBlock->SubData(0, 4, &enabledSize);
-				if (enabledSize != 0)_PointLightBlock->SubData(16, enabledSize * sizeof(PointLight), &_PointLights[0]);
+				if (enabledSize != 0)_PointLightBlock->SubData(16, enabledSize * sizeof(PointLightInfo), &_PointLights[0]);
 				if (_EnableShadow) {
 #pragma region PointLight Shadowmap Pass
 					_PointLightShadowMap->DepthCubeMapArray()->Bind(0);
@@ -867,7 +870,7 @@ void UniEngine::RenderManager::Start()
 			if (_UpdateSpotLightBlock) {
 				size_t size = _SpotLights.size();
 				_SpotLightBlock->SubData(0, 4, &size);
-				size = size * sizeof(SpotLight);
+				size = size * sizeof(SpotLightInfo);
 				if (size != 0)_SpotLightBlock->SubData(16, size, &_SpotLights[0]);
 			}
 
@@ -876,21 +879,24 @@ void UniEngine::RenderManager::Start()
 #pragma endregion
 	}
 #pragma region Render to other cameras
-	for (auto cameraEntity : *cameraEntities) {
-		if (!cameraEntity.Enabled()) continue;
-		auto& cameraComponent = *cameraEntity.GetPrivateComponent<CameraComponent>();
-		if (_MainCameraComponent && cameraComponent.get() == _MainCameraComponent) continue;
-		if (cameraComponent->IsEnabled())
-		{
-			Camera::CameraInfoBlock.UpdateMatrices(cameraComponent->_Camera.get(),
-				EntityManager::GetComponentData<Translation>(cameraEntity).Value,
-				EntityManager::GetComponentData<Rotation>(cameraEntity).Value
-			);
-			Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
-			LocalToWorld cameraTransform = cameraEntity.GetComponentData<LocalToWorld>();
-			RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
-			RenderBackGround(cameraComponent);
-			RenderToCameraForward(cameraComponent, cameraTransform, minBound, maxBound, false);
+	if (cameraEntities != nullptr)
+	{
+		for (auto cameraEntity : *cameraEntities) {
+			if (!cameraEntity.Enabled()) continue;
+			auto& cameraComponent = *cameraEntity.GetPrivateComponent<CameraComponent>();
+			if (_MainCameraComponent && cameraComponent.get() == _MainCameraComponent) continue;
+			if (cameraComponent->IsEnabled())
+			{
+				Camera::CameraInfoBlock.UpdateMatrices(cameraComponent->_Camera.get(),
+					EntityManager::GetComponentData<Translation>(cameraEntity).Value,
+					EntityManager::GetComponentData<Rotation>(cameraEntity).Value
+				);
+				Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
+				LocalToWorld cameraTransform = cameraEntity.GetComponentData<LocalToWorld>();
+				RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
+				RenderBackGround(cameraComponent);
+				RenderToCameraForward(cameraComponent, cameraTransform, minBound, maxBound, false);
+			}
 		}
 	}
 #pragma endregion
@@ -932,11 +938,6 @@ void UniEngine::RenderManager::Start()
 		}
 	}
 #pragma endregion
-}
-
-void RenderManager::LateUpdate()
-{
-
 }
 
 inline float RenderManager::Lerp(float a, float b, float f)
@@ -1057,7 +1058,7 @@ glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(glm::vec3 point, glm::vec
 	return a + LineDirection * Distance;
 }
 
-void RenderManager::OnGui()
+void RenderManager::LateUpdate()
 {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("View"))

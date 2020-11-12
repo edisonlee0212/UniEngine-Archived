@@ -1,17 +1,16 @@
 #include "pch.h"
-#include "RigidBodyComponent.h"
+#include "RigidBody.h"
 
 #include "PhysicsSimulationManager.h"
 
-UniEngine::RigidBodyComponent::RigidBodyComponent()
+UniEngine::RigidBody::RigidBody()
 {
 	_Material = PhysicsSimulationManager::_DefaultMaterial;
 	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform());
-	
-	OnEnable();
+	SetEnabled(true);
 }
 
-UniEngine::RigidBodyComponent::~RigidBodyComponent()
+UniEngine::RigidBody::~RigidBody()
 {
 	if (_RigidBody) {
 		_RigidBody->release();
@@ -23,7 +22,7 @@ UniEngine::RigidBodyComponent::~RigidBodyComponent()
 	}
 }
 
-bool UniEngine::RigidBodyComponent::GetTransform(glm::mat4& transform)
+bool UniEngine::RigidBody::GetTransform(glm::mat4& transform)
 {
 	PxTransform t;
 	bool retVal = _RigidBody->getKinematicTarget(t);
@@ -32,7 +31,7 @@ bool UniEngine::RigidBodyComponent::GetTransform(glm::mat4& transform)
 	return retVal;
 }
 
-void UniEngine::RigidBodyComponent::SetMaterial(PxMaterial* value)
+void UniEngine::RigidBody::SetMaterial(PxMaterial* value)
 {
 	if(value && _Material != value)
 	{
@@ -44,7 +43,7 @@ void UniEngine::RigidBodyComponent::SetMaterial(PxMaterial* value)
 	}
 }
 
-void UniEngine::RigidBodyComponent::SetRigidBody(PxRigidDynamic* value)
+void UniEngine::RigidBody::SetRigidBody(PxRigidDynamic* value)
 {
 	if(value && _RigidBody != value)
 	{
@@ -58,7 +57,7 @@ void UniEngine::RigidBodyComponent::SetRigidBody(PxRigidDynamic* value)
 	
 }
 
-void UniEngine::RigidBodyComponent::Refresh()
+void UniEngine::RigidBody::Refresh()
 {
 	auto shape = PhysicsSimulationManager::_Physics->createShape(*_Geometry, *_Material);
 	_RigidBody->attachShape(*shape);
@@ -69,17 +68,17 @@ void UniEngine::RigidBodyComponent::Refresh()
 	}
 }
 
-void UniEngine::RigidBodyComponent::OnDisable()
+void UniEngine::RigidBody::OnDisable()
 {
 	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
 }
 
-void UniEngine::RigidBodyComponent::OnEnable()
+void UniEngine::RigidBody::OnEnable()
 {
 	PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
 }
 
-void UniEngine::RigidBodyComponent::OnGui()
+void UniEngine::RigidBody::OnGui()
 {
 	
 }

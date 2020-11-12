@@ -42,12 +42,12 @@ namespace UniEngine {
 		static void DrawEntityNode(Entity& entity);
 		static void InspectComponent(ComponentBase* data, ComponentType type);
 	public:
-		static void OnGui();
+		static void LateUpdate();
 		template<typename T1 = ComponentBase>
 		static void AddComponentInspector(const std::function<void(ComponentBase* data)>& func);
 		static void Init();
 		static void Destroy();
-		static void Start();
+		static void PreUpdate();
 		static void Update();
 		static Entity GetSelectedEntity() { return _SelectedEntity; }
 		static void SetSelectedEntity(Entity entity);

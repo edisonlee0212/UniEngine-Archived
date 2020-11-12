@@ -434,7 +434,7 @@ void AssetManager::RemoveTexture(int index)
     _Texture2Ds.erase(_Texture2Ds.begin() + index);
 }
 
-void AssetManager::OnGui()
+void AssetManager::LateUpdate()
 {
     bool openModelLoader = false;
     bool openTextureLoader = false;

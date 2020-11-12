@@ -27,17 +27,18 @@ UniEngine::Bound::Bound()
 }
 
 
-void UniEngine::World::SetWorldTime(double time)
+void UniEngine::World::SetFrameStartTime(double time) const
 {
-	_Time->_WorldTime = time;
+	_Time->_FrameStartTime = time;
 }
 
-void UniEngine::World::SetTimeStep(float timeStep)
+void UniEngine::World::SetTimeStep(float timeStep) const
 {
 	_Time->_TimeStep = timeStep;
 }
 
-size_t UniEngine::World::GetIndex() {
+size_t UniEngine::World::GetIndex() const
+{
 	return _Index;
 }
 
@@ -47,10 +48,10 @@ UniEngine::World::World(size_t index, ThreadPool* threadPool) {
 	_Time = new WorldTime();
 }
 
-void World::ResetTime()
+void World::ResetTime() const
 {
 	_Time->_DeltaTime = 0;
-	_Time->_LastFrameTime = _Time->_WorldTime;
+	_Time->_LastFrameTime = 0;
 	_Time->_FixedDeltaTime = 0;
 }
 
@@ -70,46 +71,73 @@ UniEngine::World::~World() {
 	}
 	delete _Time;
 }
-void UniEngine::World::Update() {
-	_Time->_DeltaTime = _Time->_WorldTime - _Time->_LastFrameTime;
-	_Time->_LastFrameTime = _Time->_WorldTime;
-	_Time->_FixedDeltaTime += _Time->_DeltaTime;
-	bool fixedUpdate = false;
+
+void World::PreUpdate()
+{
+	_NeedFixedUpdate = false;
 	if (_Time->_FixedDeltaTime >= _Time->_TimeStep) {
-		fixedUpdate = true;
+		_NeedFixedUpdate = true;
 	}
-	for (auto i : _PreparationSystems) {
-		if (i->Enabled()) i->Update();
-	}
-	if (fixedUpdate) {
+	
+	if (_NeedFixedUpdate) {
 		for (auto i : _PreparationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
-	}
-	for (auto i : _SimulationSystems) {
-		if (i->Enabled()) i->Update();
-	}
-	if (fixedUpdate) {
 		for (auto i : _SimulationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
-		if(PhysicsSimulationManager::Enabled) PhysicsSimulationManager::Simulate(_Time->_FixedDeltaTime);
-	}
-	for (auto i : _PresentationSystems) {
-		if (i->Enabled()) i->Update();
-	}
-	if (fixedUpdate) {
+		if (PhysicsSimulationManager::Enabled) PhysicsSimulationManager::Simulate(_Time->_FixedDeltaTime);
 		for (auto i : _PresentationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
 	}
-	if(fixedUpdate)
+	
+	for (auto i : _PreparationSystems) {
+		if (i->Enabled()) i->PreUpdate();
+	}
+	
+	for (auto i : _SimulationSystems) {
+		if (i->Enabled()) i->PreUpdate();
+	}
+	
+	for (auto i : _PresentationSystems) {
+		if (i->Enabled()) i->PreUpdate();
+	}
+}
+
+void UniEngine::World::Update() {
+	
+	for (auto i : _PreparationSystems) {
+		if (i->Enabled()) i->Update();
+	}
+	for (auto i : _SimulationSystems) {
+		if (i->Enabled()) i->Update();
+	}
+	for (auto i : _PresentationSystems) {
+		if (i->Enabled()) i->Update();
+	}
+}
+
+void World::LateUpdate()
+{
+	for (auto i : _PreparationSystems) {
+		if (i->Enabled()) i->LateUpdate();
+	}
+
+	for (auto i : _SimulationSystems) {
+		if (i->Enabled()) i->LateUpdate();
+	}
+
+	for (auto i : _PresentationSystems) {
+		if (i->Enabled()) i->LateUpdate();
+	}
+	if (_NeedFixedUpdate)
 	{
 		_Time->_FixedDeltaTime = 0;
 	}
 }
 
-WorldTime* UniEngine::World::Time()
+WorldTime* UniEngine::World::Time() const
 {
 	return _Time;
 }

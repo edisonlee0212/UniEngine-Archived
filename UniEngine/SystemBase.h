@@ -20,9 +20,11 @@ namespace UniEngine {
 		void Disable();
 		bool Enabled() const;
 
-		virtual void OnCreate() {};
-		virtual void OnDestroy() {};
-		virtual void Update() {};
-		virtual void FixedUpdate() {};
+		virtual void OnCreate() {}
+		virtual void OnDestroy() {}
+		virtual void PreUpdate() {}
+		virtual void Update() {}
+		virtual void FixedUpdate() {}
+		virtual void LateUpdate() {}
 	};
 }

@@ -27,8 +27,8 @@ namespace UniEngine {
         static void Update();
         static void SetMouseScreenPosition(glm::vec2 value);
     private:
-        static void Start();
-        static void OnGui();
+        static void PreUpdate();
+        static void LateUpdate();
         static bool _EnableInputMenu;
         static GLFWwindow* _Window;
         friend class Application;

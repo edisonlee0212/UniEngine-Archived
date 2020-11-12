@@ -4,7 +4,8 @@ namespace UniEngine {
 	class UNIENGINE_API WorldTime {
 	private:
 		friend class World;
-		double _WorldTime;
+		friend class Application;
+		double _FrameStartTime;
 		double _FixedDeltaTime;
 		double _DeltaTime;
 		double _LastFrameTime;

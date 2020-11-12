@@ -53,18 +53,18 @@ int main()
 #pragma endregion
 
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Translation(), Rotation(), Scale(), LocalToWorld(), DirectionalLightComponent());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Translation(), Rotation(), Scale(), LocalToWorld(), PointLightComponent());
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Translation(), Rotation(), Scale(), LocalToWorld(), DirectionalLight());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Translation(), Rotation(), Scale(), LocalToWorld(), PointLight());
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
 	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
 
-	DirectionalLightComponent dlc;
+	DirectionalLight dlc;
 	dlc.diffuse = glm::vec3(1.0f);
 	dlc.specular = glm::vec3(0.5f);
 	Entity dle = EntityManager::CreateEntity(dlarc);
-	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
+	EntityManager::SetComponentData<DirectionalLight>(dle, dlc);
 	Scale scale;
 	
 	auto plmmc = std::make_unique<MeshRenderer>();
@@ -75,7 +75,7 @@ int main()
 	plmmc2->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
-	PointLightComponent plc;
+	PointLight plc;
 	plc.constant = 1.0f;
 	plc.linear = 0.09f;
 	plc.quadratic = 0.032f;
@@ -83,7 +83,7 @@ int main()
 	plc.diffuse = glm::vec3(2.0f);
 	plc.specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(plarc);
-	EntityManager::SetComponentData<PointLightComponent>(ple, plc);
+	EntityManager::SetComponentData<PointLight>(ple, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
@@ -94,7 +94,7 @@ int main()
 	plc.diffuse = glm::vec3(2.0f);
 	plc.specular = glm::vec3(5.0f);
 	Entity ple2 = EntityManager::CreateEntity(plarc);
-	EntityManager::SetComponentData<PointLightComponent>(ple2, plc);
+	EntityManager::SetComponentData<PointLight>(ple2, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple2, std::move(plmmc2));
 #pragma endregion

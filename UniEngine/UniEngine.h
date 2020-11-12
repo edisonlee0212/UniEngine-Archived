@@ -14,15 +14,13 @@ namespace UniEngine {
 		friend class EntityManager;
 		static std::shared_ptr<World> _World;
 		static bool _Initialized;
-		static double _RealWorldTime;
 		static float _TimeStep;
 		static bool _Running;
 		
 		static ThreadPool _ThreadPool;
-		static void GLInit();
-		static void LoopStart_Internal();
-		static void LoopMain_Internal();
-		static bool LoopEnd_Internal();
+		static void PreUpdateInternal();
+		static void UpdateInternal();
+		static bool LaterUpdateInternal();
 	public:
 		static double EngineTime();
 		

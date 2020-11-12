@@ -37,7 +37,7 @@ void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int even
 	_PrimaryMonitor = glfwGetPrimaryMonitor();
 }
 
-void WindowManager::OnGui()
+void WindowManager::LateUpdate()
 {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("View"))
@@ -101,13 +101,13 @@ GLFWmonitor* UniEngine::WindowManager::PrimaryMonitor()
 	return _PrimaryMonitor;
 }
 
-void UniEngine::WindowManager::Start()
+void UniEngine::WindowManager::PreUpdate()
 {
 	RenderTarget::BindDefault();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void UniEngine::WindowManager::Update()
+void UniEngine::WindowManager::Swap()
 {
  	glfwSwapBuffers(_Window);
 }

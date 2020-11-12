@@ -19,6 +19,8 @@ namespace UniEngine {
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
 		void OnGui() override;
+		MeshRenderer();
+		~MeshRenderer() override;
 	};
 }
 

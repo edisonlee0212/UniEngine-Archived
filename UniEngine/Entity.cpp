@@ -1,28 +1,32 @@
 #include "pch.h"
 #include "Entity.h"
+
+#include <utility>
 #include "EntityManager.h"
 using namespace UniEngine;
-inline bool UniEngine::Entity::Enabled() {
+inline bool UniEngine::Entity::Enabled() const
+{
 	return EntityManager::IsEntityEnabled(*this);
 }
 
-inline void UniEngine::Entity::SetEnabled(bool value) {
+inline void UniEngine::Entity::SetEnabled(bool value) const
+{
 	EntityManager::SetEnable(*this, value);
 }
 
-bool UniEngine::Entity::IsDeleted()
+bool UniEngine::Entity::IsDeleted() const
 {
 	return EntityManager::IsEntityDeleted(Index);
 }
 
-inline std::string Entity::GetName()
+inline std::string Entity::GetName() const
 {
 	return EntityManager::GetEntityName(*this);
 }
 
-inline bool Entity::SetName(std::string name)
+inline bool Entity::SetName(std::string name) const
 {
-	return EntityManager::SetEntityName(*this, name);
+	return EntityManager::SetEntityName(*this, std::move(name));
 }
 
 bool EntityArchetypeInfo::HasType(size_t typeID)

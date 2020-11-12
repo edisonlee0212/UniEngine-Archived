@@ -119,25 +119,25 @@ int main()
 	}
 #pragma endregion
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", EulerRotation(), Rotation(), DirectionalLightComponent());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", EulerRotation(), Translation(), Rotation(), Scale(), LocalToWorld(), PointLightComponent());
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", EulerRotation(), Rotation(), DirectionalLight());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", EulerRotation(), Translation(), Rotation(), Scale(), LocalToWorld(), PointLight());
 	EulerRotation er;
 	er.Value = glm::vec3(70, 0, 0);
 	
-	DirectionalLightComponent dlc;
+	DirectionalLight dlc;
 	dlc.diffuseBrightness = 0.4f;
 	dlc.lightSize = 1.0f;
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	dle.SetName("Dir Light");
-	EntityManager::SetComponentData<DirectionalLightComponent>(dle, dlc);
+	EntityManager::SetComponentData<DirectionalLight>(dle, dlc);
 	EntityManager::SetComponentData(dle, er);
 
 
-	DirectionalLightComponent dlc2;
+	DirectionalLight dlc2;
 	dlc2.lightSize = 1.0f;
 	Entity dle2 = EntityManager::CreateEntity(dlarc);
 	dle2.SetName("Dir Light");
-	EntityManager::SetComponentData<DirectionalLightComponent>(dle2, dlc2);
+	EntityManager::SetComponentData<DirectionalLight>(dle2, dlc2);
 	er.Value = glm::vec3(30, 60, 0);
 	EntityManager::SetComponentData(dle2, er);
 
@@ -147,7 +147,7 @@ int main()
 	plmmc->Material = sharedMat;
 	scale.Value = glm::vec3(0.5f);
 
-	PointLightComponent plc;
+	PointLight plc;
 	plc.constant = 1.0f;
 	plc.linear = 0.09f;
 	plc.quadratic = 0.032f;
@@ -156,7 +156,7 @@ int main()
 	plc.specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(plarc);
 	ple.SetName("Point Light");
-	EntityManager::SetComponentData<PointLightComponent>(ple, plc);
+	EntityManager::SetComponentData<PointLight>(ple, plc);
 	EntityManager::SetComponentData<Scale>(ple, scale);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
