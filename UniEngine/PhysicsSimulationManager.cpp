@@ -16,33 +16,6 @@ PxMaterial* UniEngine::PhysicsSimulationManager::_DefaultMaterial = NULL;
 PxReal UniEngine::PhysicsSimulationManager::stackZ = 10.0f;
 bool UniEngine::PhysicsSimulationManager::Enabled = true;
 
-PxRigidDynamic* UniEngine::PhysicsSimulationManager::createDynamic(const PxTransform& t, const PxGeometry& geometry,
-	const PxVec3& velocity)
-{
-	PxRigidDynamic* dynamic = PxCreateDynamic(*_Physics, t, geometry, *_DefaultMaterial, 10.0f);
-	dynamic->setAngularDamping(0.5f);
-	dynamic->setLinearVelocity(velocity);
-	_PhysicsScene->addActor(*dynamic);
-	return dynamic;
-}
-
-void UniEngine::PhysicsSimulationManager::createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
-{
-	PxShape* shape = _Physics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *_DefaultMaterial);
-	for (PxU32 i = 0; i < size; i++)
-	{
-		for (PxU32 j = 0; j < size - i; j++)
-		{
-			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
-			PxRigidDynamic* body = _Physics->createRigidDynamic(t.transform(localTm));
-			body->attachShape(*shape);
-			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-			_PhysicsScene->addActor(*body);
-		}
-	}
-	shape->release();
-}
-
 void UniEngine::PhysicsSimulationManager::Init()
 {
 	_PhysicsFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, _Allocator, _ErrorCallback);
@@ -68,17 +41,6 @@ void UniEngine::PhysicsSimulationManager::Init()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 	_DefaultMaterial = _Physics->createMaterial(0.5f, 0.5f, 0.6f);
-
-	PxRigidStatic* groundPlane = PxCreatePlane(*_Physics, PxPlane(0, 1, 0, 0), *_DefaultMaterial);
-	_PhysicsScene->addActor(*groundPlane);
-
-	/*
-	for (PxU32 i = 0; i < 5; i++)
-		createStack(PxTransform(PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f);
-
-	if (true)
-		createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
-	*/
 }
 
 void UniEngine::PhysicsSimulationManager::Destroy()

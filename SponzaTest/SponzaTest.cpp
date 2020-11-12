@@ -242,6 +242,11 @@ void InitGround() {
 	meshMaterial->Mesh = Default::Primitives::Quad;
 	meshMaterial->Material = mat;
 	EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(meshMaterial));
+	auto rigidBody = std::make_unique<RigidBody>();
+	rigidBody->SetShapeType(ShapeType::Box);
+	rigidBody->SetShapeParam(glm::vec3(50, 1, 50));
+	rigidBody->SetStatic(true);
+	entity.SetPrivateComponent(std::move(rigidBody));
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity1, std::shared_ptr<MeshRenderer>(meshMaterial));
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity2, std::shared_ptr<MeshRenderer>(meshMaterial));
 	//EntityManager::SetSharedComponent<MeshRenderer>(entity3, std::shared_ptr<MeshRenderer>(meshMaterial));

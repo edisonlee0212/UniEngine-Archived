@@ -4,21 +4,91 @@
 #include "PhysicsSimulationManager.h"
 #include "RenderManager.h"
 #include "Transforms.h"
-
+#include "UniEngine.h"
 UniEngine::RigidBody::RigidBody()
 {
 	_Material = PhysicsSimulationManager::_DefaultMaterial;
 	_ShapeTransform = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
 	_MassCenter = PxVec3(0.0f);
 	_DrawBounds = true;
+	_IsStatic = false;
 	PxTransform localTm(PxVec3(0, 0, 0));
 	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform(localTm));
 	_ShapeParam = glm::vec3(1.0f);
 	_ShapeType = ShapeType::Box;
 	UpdateShape();
 	_Density = 10.0f;
-	PxRigidBodyExt::updateMassAndInertia(*_RigidBody, _Density);
+	PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
 	SetEnabled(true);
+}
+
+void UniEngine::RigidBody::SetShapeType(ShapeType type)
+{
+	if (Application::IsPlaying()) {
+		Debug::Log("Failed! Pause game to reset!");
+		return;
+	}
+	_ShapeType = type;
+	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	UpdateShape();
+	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
+	PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+}
+
+void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
+{
+	if (Application::IsPlaying()) {
+		Debug::Log("Failed! Pause game to reset!");
+		return;
+	}
+	_ShapeParam = value;
+	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	UpdateShape();
+	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
+	PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+}
+
+void UniEngine::RigidBody::SetStatic(bool value)
+{
+	if (Application::IsPlaying()) {
+		Debug::Log("Failed! Pause game to reset!");
+		return;
+	}
+	_IsStatic = value;
+	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	UpdateBody();
+	UpdateShape();
+	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
+	PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+}
+
+void UniEngine::RigidBody::SetTransform(glm::mat4 value)
+{
+	if (Application::IsPlaying()) {
+		Debug::Log("Failed! Pause game to reset!");
+		return;
+	}
+	LocalToWorld ltw;
+	ltw.Value = value;
+	ltw.SetScale(glm::vec3(1.0f));
+	_ShapeTransform = ltw.Value;
+	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	UpdateShape();
+	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
+	PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+}
+
+void UniEngine::RigidBody::SetDensity(float value)
+{
+	if (Application::IsPlaying()) {
+		Debug::Log("Failed! Pause game to reset!");
+		return;
+	}
+	_Density = value;
+	if (_Density < 0.0001f) _Density = 0.0001f;
+	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
+	PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
 }
 
 UniEngine::RigidBody::~RigidBody()
@@ -65,6 +135,14 @@ void UniEngine::RigidBody::UpdateShape()
 	_RigidBody->attachShape(*_Shape);
 }
 
+void UniEngine::RigidBody::UpdateBody()
+{
+	if (_RigidBody) _RigidBody->release();
+	PxTransform localTm(PxVec3(0, 0, 0));
+	if(_IsStatic) _RigidBody = PhysicsSimulationManager::_Physics->createRigidStatic(PxTransform(localTm));
+	else _RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform(localTm));
+}
+
 void UniEngine::RigidBody::OnDisable()
 {
 	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
@@ -74,49 +152,74 @@ void UniEngine::RigidBody::OnEnable()
 {
 	PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
 }
-
+static const char* RigidBodyShapeShape[]{ "Sphere", "Box", "Capsule" };
 void UniEngine::RigidBody::OnGui()
 {
 	ImGui::Checkbox("Draw bounds", &_DrawBounds);
-	bool shapeChanged = false;
-
-	glm::vec3 scale;
-	glm::vec3 trans;
-	glm::quat rotation;
-	glm::vec3 skew;
-	glm::vec4 perspective;
-	glm::decompose(_ShapeTransform, scale, rotation, trans, skew, perspective);
-	skew = glm::degrees(glm::eulerAngles(rotation));
-	bool shapeTransChanged = false;
-	if (ImGui::DragFloat3("Center Position", &trans.x, 0.01f)) shapeTransChanged = true;
-	if (ImGui::DragFloat3("Rotation", &skew.x, 0.01f)) shapeTransChanged = true;
-	if (shapeTransChanged)_ShapeTransform = glm::translate(trans) * glm::mat4_cast(glm::quat(glm::radians(skew))) * glm::scale(glm::vec3(1.0f));
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
 	
-	auto ltw = GetOwner().GetComponentData<LocalToWorld>();
-	ltw.SetScale(glm::vec3(1.0f));
-	switch (_ShapeType)
+	if(Application::IsPlaying())
 	{
-	case ShapeType::Sphere:
-		if (ImGui::DragFloat("Radius", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;
-		if(_DrawBounds) RenderManager::DrawGizmoPoint(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.Value * (_ShapeTransform * glm::scale(glm::vec3(_ShapeParam.x))), 1);
-		break;
-	case ShapeType::Box:
-		if(ImGui::Button("Apply mesh bound"))
-		{
-			auto meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
-			if(meshRenderer)
-			{
-				auto bound = meshRenderer->get()->Mesh->GetBound();
-				_ShapeParam = bound.Size;
-			}
-		}
-		if (ImGui::DragFloat3("XYZ Size", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;
-		if (_DrawBounds) RenderManager::DrawGizmoCube(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.Value * (_ShapeTransform * glm::scale(glm::vec3(_ShapeParam))), 1);
-		break;
-	case ShapeType::Capsule:
-		if (ImGui::DragFloat2("R/HalfH", &_ShapeParam.x, 0.01f, 0.0001f)) shapeChanged = true;
-		break;
+		ImGui::Text("Pause Engine to edit shape.");
 	}
-	if (shapeChanged) UpdateShape();
-	if(ImGui::DragFloat("Density", &_Density)) PxRigidBodyExt::updateMassAndInertia(*_RigidBody, _Density);
+	else {
+		bool statusChanged = false;
+		bool staticChanged = false;
+		bool savedVal = _IsStatic;
+		ImGui::Checkbox("Static", &_IsStatic);
+		if (_IsStatic != savedVal) {
+			statusChanged = true;
+			staticChanged = true;
+		}
+		if (ImGui::DragFloat("Density", &_Density, 0.1f)) statusChanged = true;
+		ImGui::Combo("Shape", reinterpret_cast<int*>(&_ShapeType), RigidBodyShapeShape, IM_ARRAYSIZE(RigidBodyShapeShape));
+		glm::vec3 scale;
+		glm::vec3 trans;
+		glm::quat rotation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::decompose(_ShapeTransform, scale, rotation, trans, skew, perspective);
+		skew = glm::degrees(glm::eulerAngles(rotation));
+		bool shapeTransChanged = false;
+		if (ImGui::DragFloat3("Center Position", &trans.x, 0.01f)) shapeTransChanged = true;
+		if (ImGui::DragFloat3("Rotation", &skew.x, 0.01f)) shapeTransChanged = true;
+		if (shapeTransChanged)_ShapeTransform = glm::translate(trans) * glm::mat4_cast(glm::quat(glm::radians(skew))) * glm::scale(glm::vec3(1.0f));
+
+		auto ltw = GetOwner().GetComponentData<LocalToWorld>();
+		ltw.SetScale(glm::vec3(1.0f));
+		switch (_ShapeType)
+		{
+		case ShapeType::Sphere:
+			if (ImGui::DragFloat("Radius", &_ShapeParam.x, 0.01f, 0.0001f)) statusChanged = true;
+			if (_DrawBounds) RenderManager::DrawGizmoPoint(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.Value * (_ShapeTransform * glm::scale(glm::vec3(_ShapeParam.x * 2.0f))), 1);
+			break;
+		case ShapeType::Box:
+			if (ImGui::Button("Apply mesh bound"))
+			{
+				auto meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
+				if (meshRenderer)
+				{
+					auto bound = meshRenderer->get()->Mesh->GetBound();
+					glm::vec3 scale = GetOwner().GetComponentData<LocalToWorld>().GetScale();
+					_ShapeParam = bound.Size * scale;
+				}
+			}
+			if (ImGui::DragFloat3("XYZ Size", &_ShapeParam.x, 0.01f, 0.0001f)) statusChanged = true;
+			if (_DrawBounds) RenderManager::DrawGizmoCube(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.Value * (_ShapeTransform * glm::scale(glm::vec3(_ShapeParam))), 1);
+			break;
+		case ShapeType::Capsule:
+			if (ImGui::DragFloat2("R/HalfH", &_ShapeParam.x, 0.01f, 0.0001f)) statusChanged = true;
+			break;
+		}
+		if (ImGui::DragFloat("Density", &_Density)) statusChanged = true;
+		if (statusChanged) {
+			PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+			if (staticChanged) UpdateBody();
+			UpdateShape();
+			if(!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
+			PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+		}
+	}
 }

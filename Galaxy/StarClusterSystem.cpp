@@ -3,7 +3,7 @@
 void Galaxy::StarClusterSystem::OnCreate()
 {
 	_StarClusterArchetype = EntityManager::CreateEntityArchetype("Star Cluster",
-		LocalToParent(), LocalToWorld(),
+		LocalToWorld(),
 		StarClusterIndex()
 	);
 	_StarCluster = EntityManager::CreateEntity(_StarClusterArchetype);
@@ -24,7 +24,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	EntityManager::SetEntityQueryAllFilters(_StarQuery, StarSeed());
 	_Patterns.push_back(pattern);
 	_StarArchetype = EntityManager::CreateEntityArchetype("Star",
-		LocalToParent(), LocalToWorld(),
+		LocalToWorld(),
 		StarClusterIndex(),
 		StarIndex(),
 		StarSeed(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),

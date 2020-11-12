@@ -17,17 +17,24 @@ namespace UniEngine {
         bool _DrawBounds;
         glm::vec3 _ShapeParam;
         ShapeType _ShapeType;
+        bool _IsStatic;
         friend class PhysicsSimulationManager;
-        PxRigidDynamic* _RigidBody = nullptr;
+        PxRigidActor* _RigidBody = nullptr;
         PxMaterial* _Material = nullptr;
         PxShape* _Shape = nullptr;
         float _Density;
         PxVec3 _MassCenter;
     public:
         RigidBody();
+        void SetShapeType(ShapeType type);
+        void SetShapeParam(glm::vec3 value);
+        void SetStatic(bool value);
+        void SetTransform(glm::mat4 value);
+        void SetDensity(float value);
     	~RigidBody() override;
         void SetMaterial(PxMaterial* value);
         void UpdateShape();
+        void UpdateBody();
     	void OnDisable() override;
     	void OnEnable() override;
         void OnGui() override;
