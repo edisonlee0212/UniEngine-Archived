@@ -14,7 +14,7 @@ void UniEngine::TransformManager::Init()
 	EditorManager::AddComponentInspector<LocalToWorld>( [](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
-			auto* ltw = reinterpret_cast<LocalToWorld*>(data);
+			auto ltw = reinterpret_cast<LocalToParent*>(data);
 			bool edited = false;
 			glm::vec3 er;
 			glm::vec3 t;
@@ -24,9 +24,10 @@ void UniEngine::TransformManager::Init()
 			if (ImGui::DragFloat3("Position", &t.x, 0.1f)) edited = true;
 			if (ImGui::DragFloat3("Rotation", &er.x, 1.0f)) edited = true;
 			if (ImGui::DragFloat3("Scale", &s.x, 0.01f)) edited = true;
-			if(edited)
+			if (edited)
 			{
-				auto nltw = glm::translate(t)* glm::mat4_cast(glm::quat(glm::radians(er)))* glm::scale(s);
+				er.y = glm::clamp(er.y, -89.0f, 89.0f);
+				auto nltw = glm::translate(t) * glm::mat4_cast(glm::quat(glm::radians(er))) * glm::scale(s);
 				ltw->Value = nltw;
 			}
 		}
@@ -44,11 +45,12 @@ void UniEngine::TransformManager::Init()
 			glm::vec3 s;
 			ltp->GetTERS(t, er, s);
 			er = glm::degrees(er);
-			if (ImGui::DragFloat3("LocalPosition", &t.x, 0.1f)) edited = true;
-			if (ImGui::DragFloat3("LocalRotation", &er.x, 1.0f)) edited = true;
-			if (ImGui::DragFloat3("LocalScale", &s.x, 0.01f)) edited = true;
+			if (ImGui::DragFloat3("Position", &t.x, 0.1f)) edited = true;
+			if (ImGui::DragFloat3("Rotation", &er.x, 1.0f)) edited = true;
+			if (ImGui::DragFloat3("Scale", &s.x, 0.01f)) edited = true;
 			if (edited)
 			{
+				er.y = glm::clamp(er.y, -89.0f, 89.0f);
 				auto nltp = glm::translate(t) * glm::mat4_cast(glm::quat(glm::radians(er))) * glm::scale(s);
 				ltp->Value = nltp;
 			}
