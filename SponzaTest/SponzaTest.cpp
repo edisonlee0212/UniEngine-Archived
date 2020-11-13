@@ -105,7 +105,7 @@ int main()
 #pragma region Lights
 	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", LocalToWorld(), LocalToParent(), DirectionalLight());
 	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", LocalToWorld(), LocalToParent(), PointLight());
-	ltw.SetEulerRotation(glm::vec3(70, 0, 0));
+	ltw.SetEulerRotation(glm::radians(glm::vec3(70, 0, 0)));
 	
 	DirectionalLight dlc;
 	dlc.diffuseBrightness = 0.4f;
@@ -121,7 +121,7 @@ int main()
 	Entity dle2 = EntityManager::CreateEntity(dlarc);
 	dle2.SetName("Dir Light");
 	EntityManager::SetComponentData<DirectionalLight>(dle2, dlc2);
-	ltw.SetEulerRotation(glm::vec3(30, 60, 0));
+	ltw.SetEulerRotation(glm::radians(glm::vec3(30, 60, 0)));
 	EntityManager::SetComponentData(dle2, ltw);
 
 
