@@ -33,7 +33,7 @@ void main()
     int validAmount = 0;
     for(int i = 0; i < kernelSize; ++i)
     {
-        vec3 point = GaussianKernel[i].xyz;
+        vec3 point = UniformKernel[i].xyz;
         point.z = abs(point.z);
         // get sample position
         vec3 samplePos = TBN * point; // from tangent to view-space

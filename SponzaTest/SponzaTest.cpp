@@ -142,7 +142,7 @@ int main()
 	EntityManager::SetComponentData<PointLight>(ple, plc);
 	EntityManager::SetComponentData(ple, ltw);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
-
+	ple.SetPrivateComponent(std::make_unique<RigidBody>());
 
 #pragma endregion
 	FileBrowser file_dialog;
@@ -154,6 +154,7 @@ int main()
 	//Application.Run();
 	while (loopable) {
 		Application::PreUpdate();
+		/*
 		LightSettingMenu();
 		ImGui::ShowDemoWindow();
 
@@ -162,6 +163,7 @@ int main()
 		ltw.SetPosition(glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f));
 		EntityManager::SetComponentData(ple, ltw);
 #pragma endregion
+*/
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}

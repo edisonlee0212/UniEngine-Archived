@@ -21,8 +21,8 @@ namespace UniEngine {
 		float diffuseBrightness = 0.8f;
 		glm::vec3 specular = glm::vec3(1.0f);
 		float specularBrightness = 0.1f;
-		float depthBias = 0.01f;
-		float normalOffset = 0.005f;
+		float depthBias = 0.1f;
+		float normalOffset = 0.001f;
 		float lightSize = 0.01f;
 	};
 

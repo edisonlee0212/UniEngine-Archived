@@ -210,7 +210,6 @@ void UniEngine::RigidBody::OnGui()
 			statusChanged = true;
 			staticChanged = true;
 		}
-		if (ImGui::DragFloat("Density", &_Density, 0.1f)) statusChanged = true;
 		ImGui::Combo("Shape", reinterpret_cast<int*>(&_ShapeType), RigidBodyShapeShape, IM_ARRAYSIZE(RigidBodyShapeShape));
 		glm::vec3 scale;
 		glm::vec3 trans;
@@ -235,6 +234,7 @@ void UniEngine::RigidBody::OnGui()
 		case ShapeType::Box:
 			if (ImGui::Button("Apply mesh bound"))
 			{
+				statusChanged = true;
 				auto meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
 				if (meshRenderer)
 				{

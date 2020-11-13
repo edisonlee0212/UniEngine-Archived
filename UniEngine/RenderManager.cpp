@@ -57,8 +57,8 @@ bool RenderManager::_EnableSSAO = true;
 std::unique_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
 std::unique_ptr<GLProgram> RenderManager::_SSAOBlurPass;
 
-float RenderManager::_SSAOKernelRadius = 3.0f;
-float RenderManager::_SSAOKernelBias = 0.1;
+float RenderManager::_SSAOKernelRadius = 0.3f;
+float RenderManager::_SSAOKernelBias = 0.0f;
 float RenderManager::_SSAOScale = 4.0;
 float RenderManager::_SSAOFactor = 1.0f;
 int RenderManager::_SSAOSampleSize = 9;
@@ -344,7 +344,7 @@ void RenderManager::Init()
 	std::vector<glm::vec4> gaussianKernel;
 	for (unsigned int i = 0; i < Default::ShaderIncludes::MaxKernelAmount; i++)
 	{
-		uniformKernel.emplace_back(glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f));
+		uniformKernel.emplace_back(glm::vec4(glm::ballRand(1.0f), 1.0f));
 		gaussianKernel.emplace_back(glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f));
 	}
 	_KernelBlock = std::make_unique<GLUBO>();
