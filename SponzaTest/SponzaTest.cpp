@@ -43,10 +43,11 @@ int main()
 
 	Entity newCam = EntityManager::CreateEntity(archetype, "Camera");
 	newCam.SetPrivateComponent(std::make_unique<CameraComponent>());
+	newCam.SetComponentData(ltw);
 	newCam.GetPrivateComponent<CameraComponent>()->get()->ResizeResolution(300, 300);
 #pragma endregion
 	auto sharedMat = std::make_shared<Material>();
-	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
+	sharedMat->SetProgram(Default::GLPrograms::StandardProgram);
 	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
 	auto cylinder = std::make_unique<MeshRenderer>();
@@ -55,27 +56,25 @@ int main()
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == BACKPACK) {
-		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::DeferredPrepass);
-		backpack->Name = "Backpack";
-		Entity backpackEntity = AssetManager::ToEntity(archetype, backpack);
+		auto backpackModel = AssetManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
+		backpackModel->Name = "Backpack";
+		Entity backpackEntity = AssetManager::ToEntity(archetype, backpackModel);
 		backpackEntity.SetName("Backpack");
 		ltw.SetPosition(glm::vec3(0, 10, 0));
 		ltw.SetScale(glm::vec3(5.0f));
 		EntityManager::SetComponentData(backpackEntity, ltw);
-		backpackEntity.SetPrivateComponent(std::make_unique<RigidBody>());
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
-		auto backpack = AssetManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::DeferredPrepass);
-		backpack->Name = "Sponza Scene";
-		Entity backpackEntity = AssetManager::ToEntity(archetype, backpack);
-		backpackEntity.SetName("Sponza");
+		auto sponzaModel = AssetManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
+		sponzaModel->Name = "Sponza Scene";
+		Entity sponzaEntity = AssetManager::ToEntity(archetype, sponzaModel);
+		sponzaEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformManager & ParentSystem
 		ltw.SetPosition(glm::vec3(5, 5, 5));
 		ltw.SetScale(glm::vec3(0.05f));
-		EntityManager::SetComponentData(backpackEntity, ltw);
-		backpackEntity.SetPrivateComponent(std::make_unique<RigidBody>());
+		EntityManager::SetComponentData(sponzaEntity, ltw);
 	}
 	else if (testScene == PCSS) {
 		auto cmmc = std::make_unique<MeshRenderer>();
@@ -142,7 +141,6 @@ int main()
 	EntityManager::SetComponentData<PointLight>(ple, plc);
 	EntityManager::SetComponentData(ple, ltw);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
-	ple.SetPrivateComponent(std::make_unique<RigidBody>());
 
 #pragma endregion
 	FileBrowser file_dialog;

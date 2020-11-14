@@ -11,7 +11,7 @@ void UniEngine::TransformManager::Init()
 	_CachedParentHierarchies = std::vector<std::pair<Entity, ChildInfo>>();
 
 
-	EditorManager::AddComponentInspector<LocalToWorld>( [](ComponentBase* data, bool isRoot)
+	EditorManager::RegisterComponentDataInspector<LocalToWorld>( [](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
 			auto ltw = reinterpret_cast<LocalToParent*>(data);
@@ -34,7 +34,7 @@ void UniEngine::TransformManager::Init()
 	);
 
 
-	EditorManager::AddComponentInspector<LocalToParent>( [](ComponentBase* data, bool isRoot)
+	EditorManager::RegisterComponentDataInspector<LocalToParent>( [](ComponentBase* data, bool isRoot)
 		{
 			if (isRoot) return;
 			std::stringstream stream;
@@ -54,7 +54,23 @@ void UniEngine::TransformManager::Init()
 				auto nltp = glm::translate(t) * glm::mat4_cast(glm::quat(glm::radians(er))) * glm::scale(s);
 				ltp->Value = nltp;
 			}
-		});
+		}
+	);
+	/*
+	EntityManager::RegisterComponentDataCreator<LocalToWorld>([](ComponentBase* data)
+		{
+			auto ltw = reinterpret_cast<LocalToWorld*>(data);
+			*ltw = LocalToWorld();
+		}
+	);
+
+	EntityManager::RegisterComponentDataCreator<LocalToParent>([](ComponentBase* data)
+		{
+			auto ltw = reinterpret_cast<LocalToParent*>(data);
+			*ltw = LocalToParent();
+		}
+	);
+	*/
 }
 
 void UniEngine::TransformManager::LateUpdate()

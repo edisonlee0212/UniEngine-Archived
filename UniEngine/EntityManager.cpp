@@ -15,8 +15,8 @@ PrivateComponentStorage* UniEngine::EntityManager::_EntityPrivateComponentStorag
 std::vector<EntityQuery>* UniEngine::EntityManager::_EntityQueries;
 std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos;
 std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
-std::map<size_t, ComponentCreateFunction> UniEngine::EntityManager::_ComponentCreationFunctionMap;
-std::map<size_t, ComponentDestroyFunction> UniEngine::EntityManager::_ComponentDestructionFunctionMap;
+//std::map<size_t, ComponentCreateFunction> UniEngine::EntityManager::_ComponentCreationFunctionMap;
+//std::map<size_t, ComponentDestroyFunction> UniEngine::EntityManager::_ComponentDestructionFunctionMap;
 #pragma region EntityManager
 
 void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func)
@@ -76,8 +76,8 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 	Entity actualEntity = _Entities->at(entity.Index);
 
 	EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
-	EntityArchetypeInfo* archetypeInfoinfo = storage.ArchetypeInfo;
 	if (actualEntity == entity) {
+		/*
 		for (auto& type : archetypeInfoinfo->ComponentTypes)
 		{
 			auto search = _ComponentDestructionFunctionMap.find(type.TypeID);
@@ -86,6 +86,7 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 				search->second.Function(GetComponentDataPointer(entity, type.TypeID));
 			}
 		}
+		*/
 		_EntitySharedComponentStorage->DeleteEntity(actualEntity);
 		_EntityPrivateComponentStorage->DeleteEntity(actualEntity);
 		info.Version = actualEntity.Version + 1;
@@ -95,7 +96,6 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 		actualEntity.Version = 0;
 		EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
 		storage.ChunkArray->Entities[info.ChunkArrayIndex] = actualEntity;
-		//TODO: Swap entity data in storage, reset entityinfo for both entity
 		auto originalIndex = info.ChunkArrayIndex;
 		if (info.ChunkArrayIndex != storage.ArchetypeInfo->EntityAliveCount - 1) {
 			auto swappedIndex = SwapEntity(storage, info.ChunkArrayIndex, storage.ArchetypeInfo->EntityAliveCount - 1);
@@ -258,7 +258,6 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 	EntityArchetypeInfo* info = storage.ArchetypeInfo;
 	if (info->EntityCount == info->EntityAliveCount) {
 		size_t chunkIndex = info->EntityCount / info->ChunkCapacity;
-		size_t chunkPointer = info->EntityCount % info->ChunkCapacity;
 		if (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 			//Allocate new chunk;
 			ComponentDataChunk chunk;
@@ -310,13 +309,13 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 		size_t chunkIndex = entityInfo.ChunkArrayIndex / chunkInfo->ChunkCapacity;
 		size_t chunkPointer = entityInfo.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 		ComponentDataChunk chunk = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-		size_t offset = 0;
-		bool found = false;
+		
 		for (const auto& i : chunkInfo->ComponentTypes) {
-			offset = i.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.Size;
+			size_t offset = i.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.Size;
 			chunk.ClearData(offset, i.Size);
 		}
 	}
+	/*
 	for (auto& type : info->ComponentTypes)
 	{
 		auto search = _ComponentCreationFunctionMap.find(type.TypeID);
@@ -325,6 +324,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 			search->second.Function(GetComponentDataPointer(retVal, type.TypeID));
 		}
 	}
+	*/
 	return retVal;
 }
 
@@ -567,6 +567,22 @@ ComponentBase* EntityManager::GetComponentDataPointer(Entity entity, size_t id)
 		Debug::Error("Entity already deleted!");
 		return nullptr;
 	}
+}
+
+bool EntityManager::RemovePrivateComponent(Entity entity, size_t typeId)
+{
+	if (entity.IsNull()) return false;
+	bool found = false;
+	for (auto i = 0; i < _EntityInfos->at(entity.Index).PrivateComponentElements.size(); i++)
+	{
+		if (_EntityInfos->at(entity.Index).PrivateComponentElements[i].TypeID == typeId)
+		{
+			found = true;
+			_EntityInfos->at(entity.Index).PrivateComponentElements.erase(_EntityInfos->at(entity.Index).PrivateComponentElements.begin() + i);
+		}
+	}
+	_EntityPrivateComponentStorage->RemovePrivateComponent(entity, typeId);
+	return found;
 }
 
 EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)

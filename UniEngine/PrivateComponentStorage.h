@@ -15,8 +15,8 @@ namespace UniEngine
 	{
 		std::unordered_map<std::size_t, size_t> _POwnersCollectionsMap;
 		std::vector<std::pair<size_t, std::unique_ptr<POwnersCollection>>> _POwnersCollectionsList;
-		void RemovePrivateComponent(Entity entity, size_t typeID);
 	public:
+		void RemovePrivateComponent(Entity entity, size_t typeID);
 		void DeleteEntity(Entity entity);
 		template <typename T = PrivateComponentBase>
 		void SetPrivateComponent(Entity entity);
@@ -33,8 +33,11 @@ namespace UniEngine
 		auto search = _POwnersCollectionsMap.find(id);
 		if (search != _POwnersCollectionsMap.end())
 		{
-			_POwnersCollectionsList[search->second].second->_OwnersMap.insert({ entity, _POwnersCollectionsList[search->second].second->_OwnersList.size() });
-			_POwnersCollectionsList[search->second].second->_OwnersList.push_back(entity);
+			auto insearch = _POwnersCollectionsList[search->second].second->_OwnersMap.find(entity);
+			if (insearch == _POwnersCollectionsList[search->second].second->_OwnersMap.end()) {
+				_POwnersCollectionsList[search->second].second->_OwnersMap.insert({ entity, _POwnersCollectionsList[search->second].second->_OwnersList.size() });
+				_POwnersCollectionsList[search->second].second->_OwnersList.push_back(entity);
+			}
 		}else
 		{
 			std::unique_ptr<POwnersCollection> collection = std::make_unique<POwnersCollection>();

@@ -181,8 +181,8 @@ bool UniEngine::Application::LaterUpdateInternal()
 	InputManager::LateUpdate();
 	AssetManager::LateUpdate();
 	WindowManager::LateUpdate();
-	RenderManager::LateUpdate();
 	EditorManager::LateUpdate();
+	RenderManager::LateUpdate();
 	TransformManager::LateUpdate();
 #pragma region ImGui
 	RenderTarget::BindDefault();

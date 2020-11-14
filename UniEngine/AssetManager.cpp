@@ -39,6 +39,7 @@ std::shared_ptr<Model> UniEngine::AssetManager::LoadModel(std::string const& pat
 Entity UniEngine::AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
 {
     Entity entity = EntityManager::CreateEntity(archetype);
+    entity.SetName(model->Name);
     LocalToWorld ltw;
     std::unique_ptr<ModelNode>& modelNode = model->RootNode();
     ltw.Value = modelNode->_LocalToParent;
@@ -47,10 +48,13 @@ Entity UniEngine::AssetManager::ToEntity(EntityArchetype archetype, std::shared_
         auto mmc = std::make_unique<MeshRenderer>();
         mmc->Mesh = i.second;
         mmc->Material = i.first;
+        mmc->BackCulling = false;
         EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
+    int index = 0;
     for (auto& i : modelNode->Children) {
-        AttachChildren(archetype, i, entity);
+        AttachChildren(archetype, i, entity, model->Name + "_" + std::to_string(index));
+        index++;
     }
     return entity;
 }
@@ -285,9 +289,10 @@ void AssetManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& mode
     modelNode->_MeshMaterials.push_back(std::make_pair(material, mesh));
 }
 
-void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, std::unique_ptr<ModelNode>& modelNode, Entity parentEntity)
+void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, std::unique_ptr<ModelNode>& modelNode, Entity parentEntity, std::string parentName)
 {
     Entity entity = EntityManager::CreateEntity(archetype);
+    entity.SetName(parentName);
     EntityManager::SetParent(entity, parentEntity);
     LocalToParent ltp;
     ltp.Value = modelNode->_LocalToParent;
@@ -296,10 +301,13 @@ void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, std::uni
         auto mmc = std::make_unique<MeshRenderer>();
         mmc->Mesh = i.second;
         mmc->Material = i.first;
+        mmc->BackCulling = false;
         EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
+    int index = 0;
     for (auto& i : modelNode->Children) {
-        AttachChildren(archetype, i, entity);
+        AttachChildren(archetype, i, entity, (parentName + "_" + std::to_string(index)));
+        index++;
     }
 }
 

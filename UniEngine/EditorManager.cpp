@@ -13,7 +13,8 @@
 #include "TransformManager.h"
 using namespace UniEngine;
 bool EditorManager::_Enabled = false;
-std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> EditorManager::_ComponentGUIMap;
+std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> EditorManager::_ComponentDataInspectorMap;
+std::vector<std::pair<size_t, std::function<void(Entity owner)>>> EditorManager::_PrivateComponentMenuList;
 unsigned int EditorManager::_ConfigFlags = 0;
 int EditorManager::_SelectedHierarchyDisplayMode = 0;
 Entity EditorManager::_SelectedEntity;
@@ -89,17 +90,17 @@ void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
 	}
 }
 
-void UniEngine::EditorManager::InspectComponent(ComponentBase* data, ComponentType type, bool isRoot)
+void UniEngine::EditorManager::InspectComponentData(ComponentBase* data, ComponentType type, bool isRoot)
 {
-	if (_ComponentGUIMap.find(type.TypeID) != _ComponentGUIMap.end()) {
-		_ComponentGUIMap.at(type.TypeID)(data, isRoot);
+	if (_ComponentDataInspectorMap.find(type.TypeID) != _ComponentDataInspectorMap.end()) {
+		_ComponentDataInspectorMap.at(type.TypeID)(data, isRoot);
 	}
 }
 
 void UniEngine::EditorManager::Init()
 {
 	_Enabled = true;
-	AddComponentInspector<DirectionalLight>([](ComponentBase* data, bool isRoot)
+	RegisterComponentDataInspector<DirectionalLight>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
@@ -112,7 +113,7 @@ void UniEngine::EditorManager::Init()
 			ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
 			ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
 		});
-	AddComponentInspector<PointLight>([](ComponentBase* data, bool isRoot)
+	RegisterComponentDataInspector<PointLight>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
@@ -129,7 +130,43 @@ void UniEngine::EditorManager::Init()
 			//ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
 			//ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
 		});
-	
+
+	RegisterPrivateComponentMenu<CameraComponent>([](Entity owner)
+		{
+			if (owner.HasPrivateComponent<CameraComponent>()) return;
+			if(ImGui::SmallButton("CameraComponent"))
+			{
+				owner.SetPrivateComponent(std::make_unique<CameraComponent>());
+			}
+		}
+	);
+	RegisterPrivateComponentMenu<RigidBody>([](Entity owner)
+		{
+			if (owner.HasPrivateComponent<RigidBody>()) return;
+			if (ImGui::SmallButton("RigidBody"))
+			{
+				owner.SetPrivateComponent(std::make_unique<RigidBody>());
+			}
+		}
+	);
+	RegisterPrivateComponentMenu<MeshRenderer>([](Entity owner)
+		{
+			if (owner.HasPrivateComponent<MeshRenderer>()) return;
+			if (ImGui::SmallButton("MeshRenderer"))
+			{
+				owner.SetPrivateComponent(std::make_unique<MeshRenderer>());
+			}
+		}
+	);
+	RegisterPrivateComponentMenu<Particles>([](Entity owner)
+		{
+			if (owner.HasPrivateComponent<Particles>()) return;
+			if (ImGui::SmallButton("Particles"))
+			{
+				owner.SetPrivateComponent(std::make_unique<Particles>());
+			}
+		}
+	);
 	_SelectedEntity.Index = 0;
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;
 	_ConfigFlags += EntityEditorSystem_EnableEntityInspector;
@@ -192,7 +229,7 @@ void EditorManager::PreUpdate()
 	ImGui::End();
 
 	if (ImGui::BeginMainMenuBar()) {
-		if(ImGui::Button(Application::_Playing ? "Pause" : "Play"))
+		if (ImGui::Button(Application::_Playing ? "Pause" : "Play"))
 		{
 			Application::_Playing = !Application::_Playing;
 		}
@@ -276,7 +313,7 @@ void EditorManager::PreUpdate()
 
 void UniEngine::EditorManager::Update()
 {
-	
+
 }
 void EditorManager::LateUpdate()
 {
@@ -344,23 +381,52 @@ void EditorManager::LateUpdate()
 						std::string info = std::string(type.Name + 7);
 						info += " Size: " + std::to_string(type.Size);
 						ImGui::Text(info.c_str());
-						InspectComponent(static_cast<ComponentBase*>(data), type, EntityManager::GetParent(_SelectedEntity).IsNull());
+						InspectComponentData(static_cast<ComponentBase*>(data), type, EntityManager::GetParent(_SelectedEntity).IsNull());
 						ImGui::Separator();
 						});
 				}
+
 				if (ImGui::CollapsingHeader("Private components", ImGuiTreeNodeFlags_DefaultOpen)) {
-					int i = 0;
-					EntityManager::ForEachPrivateComponent(_SelectedEntity, [&i](PrivateComponentElement& data)
+					if (ImGui::BeginPopupContextItem("PrivateComponentInspectorPopup"))
+					{
+						ImGui::Text("Add private component: ");
+						ImGui::Separator();
+						for (auto& i : _PrivateComponentMenuList)
 						{
+							i.second(_SelectedEntity);
+						}
+						ImGui::Separator();
+						ImGui::EndPopup();
+					}
+
+					int i = 0;
+					bool skip = false;
+					EntityManager::ForEachPrivateComponent(_SelectedEntity, [&i, &skip](PrivateComponentElement& data)
+						{
+							if (skip) return;
 							ImGui::Checkbox((data.Name + 6), &data.PrivateComponentData->_Enabled);
-							if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
-								data.PrivateComponentData->OnGui();
-								ImGui::TreePop();
+							
+							if (ImGui::BeginPopupContextItem(("PrivateComponentDeletePopup" + std::to_string(i)).c_str()))
+							{
+								if(ImGui::Button("Remove"))
+								{
+									skip = true;
+									EntityManager::RemovePrivateComponent(_SelectedEntity, data.TypeID);
+								}
+								ImGui::EndPopup();
 							}
-							ImGui::Separator();
-							i++;
-						});
+							if (!skip) {
+								if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
+									data.PrivateComponentData->OnGui();
+									ImGui::TreePop();
+								}
+								ImGui::Separator();
+								i++;
+							}
+						}
+					);
 				}
+
 				if (ImGui::CollapsingHeader("Shared components", ImGuiTreeNodeFlags_DefaultOpen)) {
 					int i = 0;
 					EntityManager::ForEachSharedComponent(_SelectedEntity, [&i](SharedComponentElement data)
@@ -383,7 +449,7 @@ void EditorManager::LateUpdate()
 		ImGui::End();
 	}
 #pragma endregion
-	
+
 #pragma region Scene Camera Window
 	ImVec2 viewPortSize;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -395,10 +461,10 @@ void EditorManager::LateUpdate()
 		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
-			
+
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			ImGui::Image((ImTextureID)_SceneCamera->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
-			
+
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
@@ -453,6 +519,6 @@ void EditorManager::LateUpdate()
 
 void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
 {
-	if(entity.IsNull() || entity.IsDeleted()) return;
+	if (entity.IsNull() || entity.IsDeleted()) return;
 	_SelectedEntity = entity;
 }

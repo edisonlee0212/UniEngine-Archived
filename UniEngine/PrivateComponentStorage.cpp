@@ -12,7 +12,7 @@ void UniEngine::PrivateComponentStorage::RemovePrivateComponent(Entity entity, s
 		if (entitySearch != collection->_OwnersMap.end())
 		{
 			if (entity != entitySearch->first) {
-				Debug::Error("Entity already deleted!");
+				Debug::Error("RemovePrivateComponent: Entity mismatch!");
 				return;
 			}
 			if(collection->_OwnersList.size() == 1)

@@ -49,8 +49,13 @@ namespace UniEngine {
 		static std::vector<EntityQueryInfo>* _EntityQueryInfos;
 		static std::queue<EntityQuery>* _EntityQueryPools;
 #pragma endregion
-		static std::map<size_t, ComponentCreateFunction> _ComponentCreationFunctionMap;
-		static std::map<size_t, ComponentDestroyFunction> _ComponentDestructionFunctionMap;
+		//static std::map<size_t, ComponentCreateFunction> _ComponentCreationFunctionMap;
+		//static std::map<size_t, ComponentDestroyFunction> _ComponentDestructionFunctionMap;
+		template<typename T = ComponentBase>
+		static bool CheckComponentTypes(T arg);
+		template<typename T = ComponentBase, typename... Ts>
+		static bool CheckComponentTypes(T arg, Ts... args);
+		
 		template<typename T = ComponentBase>
 		static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
 		template<typename T = ComponentBase, typename... Ts>
@@ -121,12 +126,12 @@ namespace UniEngine {
 	public:
 		template <typename T>
 		static const std::vector<Entity>* GetPrivateComponentOwnersList();
-
+		/*
 		template<typename T1 = ComponentBase>
-		static void AddComponentCreateCallback(const std::function<void(ComponentBase*)>& func);
+		static void RegisterComponentDataCreator(const std::function<void(ComponentBase*)>& func);
 		template<typename T1 = ComponentBase>
-		static void AddComponentDeleteCallback(const std::function<void(ComponentBase*)>& func);
-
+		static void RegisterComponentDataDestroyer(const std::function<void(ComponentBase*)>& func);
+		*/
 		static void ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func);
 		static void ForEachSharedComponent(Entity entity, const std::function<void(SharedComponentElement data)>& func);
 		static void ForEachPrivateComponent(Entity entity, const std::function<void(PrivateComponentElement& data)>& func);
@@ -191,6 +196,8 @@ namespace UniEngine {
 		template <typename T = PrivateComponentBase>
 		static bool HasPrivateComponent(Entity entity);
 
+		static bool RemovePrivateComponent(Entity entity, size_t typeId);
+		
 		template <typename T = SharedComponentBase>
 		static std::vector<Entity>* GetSharedComponentEntities(std::shared_ptr<T> value);
 		template <typename T = SharedComponentBase>
@@ -231,6 +238,19 @@ namespace UniEngine {
 #pragma endregion
 #pragma region Functions
 #pragma region Collectors
+
+	template <typename T>
+	bool EntityManager::CheckComponentTypes(T arg)
+	{
+		return std::is_standard_layout<T>::value;
+	}
+
+	template <typename T, typename ... Ts>
+	bool EntityManager::CheckComponentTypes(T arg, Ts... args)
+	{
+		return std::is_standard_layout<T>::value && CheckComponentTypes(args...);
+	}
+
 	template<typename T>
 	size_t EntityManager::CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg)
 	{
@@ -1014,6 +1034,11 @@ namespace UniEngine {
 	template<typename T, typename ...Ts>
 	inline EntityArchetype EntityManager::CreateEntityArchetype(std::string name, T arg, Ts ...args)
 	{
+		if(!CheckComponentTypes(arg, args...))
+		{
+			Debug::Error("CreateEntityArchetype failed: Standard Layout");
+			return EntityArchetype();
+		}
 		EntityArchetypeInfo* info = new EntityArchetypeInfo();
 		info->Name = name;
 		info->EntityCount = 0;
@@ -1299,9 +1324,10 @@ namespace UniEngine {
 		}
 		if (!found)
 		{
+			_EntityPrivateComponentStorage->SetPrivateComponent<T>(entity);
 			_EntityInfos->at(entity.Index).PrivateComponentElements.push_back(PrivateComponentElement(typeid(T).name(), typeid(T).hash_code(), std::move(value), entity));
 		}
-		_EntityPrivateComponentStorage->SetPrivateComponent<T>(entity);
+		
 	}
 	template <typename T>
 	bool EntityManager::RemovePrivateComponent(Entity entity)
@@ -1313,10 +1339,11 @@ namespace UniEngine {
 			if (_EntityInfos->at(entity.Index).PrivateComponentElements[i].TypeID == typeid(T).hash_code())
 			{
 				found = true;
+				_EntityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
 				_EntityInfos->at(entity.Index).PrivateComponentElements.erase(_EntityInfos->at(entity.Index).PrivateComponentElements.begin() + i);
 			}
 		}
-		_EntityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
+		
 		return found;
 	}
 	template <typename T>
@@ -1807,9 +1834,9 @@ namespace UniEngine {
 	{
 		return _EntityPrivateComponentStorage->GetOwnersList<T>();
 	}
-
+	/*
 	template <typename T1>
-	void EntityManager::AddComponentCreateCallback(const std::function<void(ComponentBase*)>& func)
+	void EntityManager::RegisterComponentDataCreator(const std::function<void(ComponentBase*)>& func)
 	{
 		ComponentCreateFunction ins;
 		ins.ComponentSize = sizeof(T1);
@@ -1818,14 +1845,14 @@ namespace UniEngine {
 	}
 
 	template <typename T1>
-	void EntityManager::AddComponentDeleteCallback(const std::function<void(ComponentBase*)>& func)
+	void EntityManager::RegisterComponentDataDestroyer(const std::function<void(ComponentBase*)>& func)
 	{
 		ComponentDestroyFunction ins;
 		ins.ComponentSize = sizeof(T1);
 		ins.Function = func;
 		_ComponentDestructionFunctionMap.insert_or_assign(typeid(T1).hash_code(), ins);
 	}
-
+	*/
 	template <typename T>
 	void Entity::SetComponentData(T value)
 	{
