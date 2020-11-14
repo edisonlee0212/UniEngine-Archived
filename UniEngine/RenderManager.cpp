@@ -1183,7 +1183,7 @@ void RenderManager::LateUpdate()
 #pragma region Internal
 void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_ptr<GLProgram> program)
 {
-	if (material->_DiffuseMap)
+	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
 	{
 		material->_DiffuseMap->Texture()->Bind(3);
 	}
@@ -1192,7 +1192,7 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 		Default::Textures::StandardTexture->Texture()->Bind(3);
 	}
 	program->SetInt("TEXTURE_DIFFUSE0", 3);
-	if (material->_SpecularMap)
+	if (material->_SpecularMap && material->_SpecularMap->Texture().get())
 	{
 		material->_SpecularMap->Texture()->Bind(4);
 		program->SetInt("TEXTURE_SPECULAR0", 4);
@@ -1203,7 +1203,7 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 		program->SetInt("TEXTURE_SPECULAR0", 3);
 		program->SetBool("enableSpecularMapping", false);
 	}
-	if (material->_NormalMap)
+	if (material->_NormalMap && material->_NormalMap->Texture().get())
 	{
 		material->_NormalMap->Texture()->Bind(5);
 		program->SetInt("TEXTURE_NORMAL0", 5);
@@ -1214,8 +1214,7 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 		program->SetInt("TEXTURE_NORMAL0", 3);
 		program->SetBool("enableNormalMapping", false);
 	}
-
-	if (material->_DisplacementMap)
+	if (material->_DisplacementMap && material->_DisplacementMap->Texture().get())
 	{
 		material->_DisplacementMap->Texture()->Bind(6);
 		program->SetInt("TEXTURE_HEIGHT0", 6);

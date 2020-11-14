@@ -538,7 +538,7 @@ void AssetManager::LateUpdate()
     {
         ImGui::OpenPopup("Texture Loader");
     }
-    if (_FileBrowser.showFileDialog("Model Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".obj"))
+    if (_FileBrowser.showFileDialog("Model Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 700), ".obj"))
     {
         LoadModel(_FileBrowser.selected_path, Default::GLPrograms::DeferredPrepass);
         Debug::Log("Loaded model from \"" + _FileBrowser.selected_path);
@@ -547,7 +547,7 @@ void AssetManager::LateUpdate()
 
     }
 
-    if (_FileBrowser.showFileDialog("Texture Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".png,.jpg,.jpeg"))
+    if (_FileBrowser.showFileDialog("Texture Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 700), ".png,.jpg,.jpeg"))
     {
         LoadTexture(_FileBrowser.selected_path);
         Debug::Log("Loaded texture from \"" + _FileBrowser.selected_path);
