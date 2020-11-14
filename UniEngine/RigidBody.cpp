@@ -30,6 +30,7 @@ UniEngine::RigidBody::RigidBody()
 	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform(localTm));
 	_ShapeParam = glm::vec3(1.0f);
 	_ShapeType = ShapeType::Box;
+	
 	UpdateShape();
 	_Density = 10.0f;
 	PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
@@ -197,6 +198,20 @@ void UniEngine::RigidBody::OnGui()
 	ImGui::Separator();
 	ImGui::Spacing();
 	
+	if(!_IsStatic)
+	{
+		PxRigidBody* rigidBody = static_cast<PxRigidBody*>(_RigidBody);
+		if (Application::IsPlaying()) {
+			_LinearVelocity = rigidBody->getLinearVelocity();
+			_AngularVelocity = rigidBody->getAngularVelocity();
+		}
+		if (ImGui::DragFloat3("Angular V", &_AngularVelocity.x, 0.01f)){
+			rigidBody->setAngularVelocity(_AngularVelocity);
+		}
+		if (ImGui::DragFloat3("Linear V", &_LinearVelocity.x, 0.01f)) {
+			rigidBody->setLinearVelocity(_LinearVelocity);
+		}
+	}
 	if(Application::IsPlaying())
 	{
 		ImGui::Text("Pause Engine to edit shape.");
@@ -248,9 +263,10 @@ void UniEngine::RigidBody::OnGui()
 			break;
 		case ShapeType::Capsule:
 			if (ImGui::DragFloat2("R/HalfH", &_ShapeParam.x, 0.01f, 0.0001f)) statusChanged = true;
+			if (_DrawBounds) RenderManager::DrawGizmoMesh(Default::Primitives::Cylinder.get(), glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.Value * (_ShapeTransform * glm::scale(glm::vec3(_ShapeParam))), 1);
 			break;
 		}
-		if (ImGui::DragFloat("Density", &_Density)) statusChanged = true;
+		if (ImGui::DragFloat("Density", &_Density, 0.1f, 0.001f)) statusChanged = true;
 		if (statusChanged) {
 			if(_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
 			if (staticChanged) UpdateBody();

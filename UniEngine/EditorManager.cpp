@@ -16,7 +16,7 @@ bool EditorManager::_Enabled = false;
 std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> EditorManager::_ComponentDataInspectorMap;
 std::vector<std::pair<size_t, std::function<void(Entity owner)>>> EditorManager::_PrivateComponentMenuList;
 unsigned int EditorManager::_ConfigFlags = 0;
-int EditorManager::_SelectedHierarchyDisplayMode = 0;
+int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
 bool EditorManager::_DisplayLog = true;
 bool EditorManager::_DisplayError = true;

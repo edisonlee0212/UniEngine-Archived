@@ -330,7 +330,7 @@ void UniEngine::Default::Load(World* world)
 		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
 		Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		model->Name = "Ring";
-	}
+	}	
 	{
 		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
 		Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterials[0].second;

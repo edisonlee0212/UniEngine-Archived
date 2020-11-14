@@ -25,6 +25,8 @@ namespace UniEngine {
         float _Density;
         PxVec3 _MassCenter;
         bool _CurrentRegistered;
+        PxVec3 _LinearVelocity;
+        PxVec3 _AngularVelocity;
         void RegisterCheck();
     public:
         RigidBody();

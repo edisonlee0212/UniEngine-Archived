@@ -773,7 +773,7 @@ void UniEngine::RenderManager::PreUpdate()
 					_PointLights[enabledSize].constantLinearQuadFarPlane.y = plc.linear;
 					_PointLights[enabledSize].constantLinearQuadFarPlane.z = plc.quadratic;
 					_PointLights[enabledSize].diffuse = glm::vec4(plc.diffuse * plc.diffuseBrightness, 0);
-					_PointLights[enabledSize].specular = glm::vec4(plc.specular * plc.diffuseBrightness, 0);
+					_PointLights[enabledSize].specular = glm::vec4(plc.specular * plc.specularBrightness, 0);
 					_PointLights[enabledSize].constantLinearQuadFarPlane.w = plc.farPlane;
 
 					glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), _PointLightShadowMap->GetResolutionRatio(), 1.0f, _PointLights[enabledSize].constantLinearQuadFarPlane.w);
@@ -1094,20 +1094,20 @@ void RenderManager::LateUpdate()
 				ImGui::TreePop();
 			}
 			if (ImGui::TreeNode("PCSS")) {
-				ImGui::DragFloat("PCSS Factor", &_LightSettings.PCSSScaleFactor, 0.1f, 0.0f);
+				ImGui::DragFloat("PCSS Factor", &_LightSettings.PCSSScaleFactor, 0.01f, 0.0f);
 				ImGui::DragInt("Blocker search side amount", &_LightSettings.PCSSBSAmount, 1, 1, 8);
 				ImGui::DragInt("PCF Sample Size", &_LightSettings.PCSSPCFSampleAmount, 1, 1, 64);
 				ImGui::TreePop();
 			}
-			ImGui::DragFloat("Seam fix ratio", &_LightSettings.SeamFixRatio, 0.01f, 0.0f, 0.1f);
+			ImGui::DragFloat("Seam fix ratio", &_LightSettings.SeamFixRatio, 0.001f, 0.0f, 0.1f);
 			ImGui::Checkbox("Stable fit", &_StableFit);
 			ImGui::TreePop();
 		}
 		ImGui::Checkbox("Enable SSAO", &_EnableSSAO);
 		if (_EnableSSAO && ImGui::TreeNode("SSAO")) {
-			ImGui::DragFloat("Radius", &_SSAOKernelRadius, 0.1f, 0.1f, 5.0f);
-			ImGui::DragFloat("Bias", &_SSAOKernelBias, 0.1f, 0.0f, 1.0f);
-			ImGui::DragFloat("Factor", &_SSAOFactor, 0.1f, 1.0f, 10.0f);
+			ImGui::DragFloat("Radius", &_SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
+			ImGui::DragFloat("Bias", &_SSAOKernelBias, 0.001f, 0.0f, 1.0f);
+			ImGui::DragFloat("Factor", &_SSAOFactor, 0.01f, 1.0f, 10.0f);
 			ImGui::DragInt("Sample Size", &_SSAOSampleSize, 1, 0, 64);
 			ImGui::TreePop();
 		}
