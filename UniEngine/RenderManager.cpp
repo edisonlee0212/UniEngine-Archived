@@ -661,16 +661,14 @@ void UniEngine::RenderManager::PreUpdate()
 					glDisable(GL_BLEND);
 					glClear(GL_DEPTH_BUFFER_BIT);
 					enabledSize = 0;
+					_DirectionalLightProgram->Bind();
 					for (int i = 0; i < size; i++) {
 						Entity lightEntity = directionalLightEntities[i];
 						if (!lightEntity.Enabled()) continue;
 						glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(),
 							0, _DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y,
 							0, (GLsizei)_DirectionalLights[enabledSize].viewPort.z, (GLsizei)_DirectionalLights[enabledSize].viewPort.w, (GLsizei)4, GL_RED, GL_FLOAT, nullptr);
-
 						glViewport(_DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y, _DirectionalLights[enabledSize].viewPort.z, _DirectionalLights[enabledSize].viewPort.w);
-
-						_DirectionalLightProgram->Bind();
 						_DirectionalLightProgram->SetInt("index", enabledSize);
 						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 						if (owners) {
@@ -692,10 +690,16 @@ void UniEngine::RenderManager::PreUpdate()
 
 							}
 						}
-
-						_DirectionalLightInstancedProgram->Bind();
+						enabledSize++;
+					}
+					enabledSize = 0;
+					_DirectionalLightInstancedProgram->Bind();
+					for (int i = 0; i < size; i++) {
+						Entity lightEntity = directionalLightEntities[i];
+						if (!lightEntity.Enabled()) continue;
+						glViewport(_DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y, _DirectionalLights[enabledSize].viewPort.z, _DirectionalLights[enabledSize].viewPort.w);
 						_DirectionalLightInstancedProgram->SetInt("index", enabledSize);
-						owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
+						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
@@ -795,13 +799,13 @@ void UniEngine::RenderManager::PreUpdate()
 					_PointLightShadowMap->Bind();
 					glEnable(GL_DEPTH_TEST);
 					glDisable(GL_BLEND);
+					glClear(GL_DEPTH_BUFFER_BIT);
+					_PointLightProgram->Bind();
 					enabledSize = 0;
 					for (int i = 0; i < size; i++) {
 						Entity lightEntity = pointLightEntities[i];
 						if (!lightEntity.Enabled()) continue;
-						glClear(GL_DEPTH_BUFFER_BIT);
-						_PointLightProgram->Bind();
-						_PointLightProgram->SetInt("index", i);
+						_PointLightProgram->SetInt("index", enabledSize);
 						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 						if (owners) {
 							for (auto owner : *owners) {
@@ -820,9 +824,15 @@ void UniEngine::RenderManager::PreUpdate()
 								glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 							}
 						}
-						_PointLightInstancedProgram->Bind();
-						_PointLightInstancedProgram->SetInt("index", i);
-						owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
+						enabledSize++;
+					}
+					enabledSize = 0;
+					_PointLightInstancedProgram->Bind();
+					for (int i = 0; i < size; i++) {
+						Entity lightEntity = pointLightEntities[i];
+						if (!lightEntity.Enabled()) continue;
+						_PointLightInstancedProgram->SetInt("index", enabledSize);
+						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
