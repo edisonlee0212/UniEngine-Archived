@@ -143,7 +143,7 @@ namespace UniEngine {
 		template<typename T = ComponentBase, typename... Ts>
 		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);
 
-		static Entity CreateEntity(EntityArchetype archetype, std::string name = "");
+		static Entity CreateEntity(EntityArchetype archetype, std::string name = "New Entity");
 		static void DeleteEntity(Entity entity);
 
 		static std::string GetEntityName(Entity entity);
@@ -160,7 +160,14 @@ namespace UniEngine {
 		static void GetParentRoots(std::vector<Entity>* container);
 		static size_t GetParentHierarchyVersion();
 
+		template<typename T = ComponentBase>
+		static void AddComponentData(Entity entity, T value);
 
+		template<typename T = ComponentBase>
+		static T RemoveComponentData(Entity entity);
+
+		static void RemoveComponentData(Entity entity, size_t typeID);
+		
 		template<typename T = ComponentBase>
 		static void SetComponentData(Entity entity, T value);
 
@@ -1057,6 +1064,8 @@ namespace UniEngine {
 			}
 			if (typeCheck) {
 				duplicateIndex = compareInfo->Index;
+				delete info;
+				info = compareInfo;
 				break;
 			}
 		}
@@ -1076,6 +1085,223 @@ namespace UniEngine {
 	}
 #pragma endregion
 #pragma region GetSetHas
+	template <typename T>
+	void EntityManager::AddComponentData(Entity entity, T value)
+	{
+		if (entity.IsNull()) return;
+		EntityInfo& entityInfo = _EntityInfos->at(entity.Index);
+#pragma region Check if componentdata already exists. If yes, go to SetComponentData
+		if (_Entities->at(entity.Index) != entity) {
+			Debug::Error("Entity version mismatch!");
+			return;
+		}
+		EntityArchetypeInfo* archetypeInfo = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ArchetypeInfo;
+		size_t chunkIndex = entityInfo.ChunkArrayIndex / archetypeInfo->ChunkCapacity;
+		size_t chunkPointer = entityInfo.ChunkArrayIndex % archetypeInfo->ChunkCapacity;
+		ComponentDataChunk chunk = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+		size_t id = typeid(T).hash_code();
+		for (const auto& type : archetypeInfo->ComponentTypes)
+		{
+			if (type.TypeID == id)
+			{
+				chunk.SetData<T>((size_t)(type.Offset * archetypeInfo->ChunkCapacity + chunkPointer * type.Size), value);
+				return;
+			}
+		}
+#pragma endregion
+#pragma region If not exist, we first need to create a new archetype
+		EntityArchetypeInfo* newArchetypeInfo = new EntityArchetypeInfo();
+		newArchetypeInfo->Name = "New archetype";
+		newArchetypeInfo->EntityCount = 0;
+		newArchetypeInfo->ComponentTypes = archetypeInfo->ComponentTypes;
+		newArchetypeInfo->ComponentTypes.push_back(typeof<T>());
+#pragma region Sort types and check duplicate
+		std::sort(newArchetypeInfo->ComponentTypes.begin(), newArchetypeInfo->ComponentTypes.end(), ComponentTypeComparator);
+		size_t offset = 0;
+		ComponentType prev = newArchetypeInfo->ComponentTypes[0];
+		//Erase duplicates
+		for (size_t i = 1; i < newArchetypeInfo->ComponentTypes.size(); i++) {
+			if (newArchetypeInfo->ComponentTypes[i] == prev) {
+				newArchetypeInfo->ComponentTypes.erase(newArchetypeInfo->ComponentTypes.begin() + i);
+				i--;
+			}
+			else {
+				prev = newArchetypeInfo->ComponentTypes[i];
+			}
+		}
+		for (size_t i = 0; i < newArchetypeInfo->ComponentTypes.size(); i++) {
+			newArchetypeInfo->ComponentTypes[i].Offset = offset;
+			offset += newArchetypeInfo->ComponentTypes[i].Size;
+		}
+
+		newArchetypeInfo->EntitySize = newArchetypeInfo->ComponentTypes.back().Offset + newArchetypeInfo->ComponentTypes.back().Size;
+		newArchetypeInfo->ChunkCapacity = ARCHETYPECHUNK_SIZE / newArchetypeInfo->EntitySize;
+		int duplicateIndex = -1;
+		for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
+			EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
+			if (newArchetypeInfo->ChunkCapacity != compareInfo->ChunkCapacity) continue;
+			if (newArchetypeInfo->EntitySize != compareInfo->EntitySize) continue;
+			bool typeCheck = true;
+			for (size_t j = 0; j < newArchetypeInfo->ComponentTypes.size(); j++) {
+				if (!compareInfo->HasType(newArchetypeInfo->ComponentTypes[j].TypeID)) typeCheck = false;
+			}
+			if (typeCheck) {
+				duplicateIndex = compareInfo->Index;
+				delete newArchetypeInfo;
+				newArchetypeInfo = compareInfo;
+				break;
+			}
+		}
+#pragma endregion
+		EntityArchetype archetype;
+		if (duplicateIndex == -1) {
+			archetype.Index = _EntityComponentStorage->size();
+			newArchetypeInfo->Index = archetype.Index;
+			_EntityComponentStorage->push_back(EntityComponentStorage(newArchetypeInfo, new ComponentDataChunkArray()));
+		}
+		else {
+			archetype.Index = duplicateIndex;
+		}
+#pragma endregion
+#pragma region Create new Entity with new archetype.
+		Entity newEntity = CreateEntity(archetype);
+		//Transfer componentdata
+		for (const auto& type : archetypeInfo->ComponentTypes)
+		{
+			SetComponentData(newEntity, type.TypeID, type.Size, GetComponentDataPointer(entity, type.TypeID));
+		}
+		newEntity.SetComponentData(value);
+		//5. Swap entity.
+		EntityInfo& newEntityInfo = _EntityInfos->at(newEntity.Index);
+		const auto tempArchetypeInfoIndex = newEntityInfo.ArchetypeInfoIndex;
+		const auto tempChunkArrayIndex = newEntityInfo.ChunkArrayIndex;
+		newEntityInfo.ArchetypeInfoIndex = entityInfo.ArchetypeInfoIndex;
+		newEntityInfo.ChunkArrayIndex = entityInfo.ChunkArrayIndex;
+		entityInfo.ArchetypeInfoIndex = tempArchetypeInfoIndex;
+		entityInfo.ChunkArrayIndex = tempChunkArrayIndex;
+		//Apply to chunk.
+		_EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Entities[entityInfo.ChunkArrayIndex] = entity;
+		_EntityComponentStorage->at(newEntityInfo.ArchetypeInfoIndex).ChunkArray->Entities[newEntityInfo.ChunkArrayIndex] = newEntity;
+		DeleteEntity(newEntity);
+#pragma endregion
+		for (size_t i = 0; i < _EntityQueryInfos->size(); i++) {
+			RefreshEntityQueryInfos(i);
+		}
+	}
+
+	template <typename T>
+	T EntityManager::RemoveComponentData(Entity entity)
+	{
+		if (entity.IsNull()) return T();
+		EntityInfo& entityInfo = _EntityInfos->at(entity.Index);
+		if (_Entities->at(entity.Index) != entity) {
+			Debug::Error("Entity version mismatch!");
+			return T();
+		}
+		EntityArchetypeInfo* archetypeInfo = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ArchetypeInfo;
+		if(archetypeInfo->ComponentTypes.size() <= 1)
+		{
+			Debug::Error("Remove Component Data failed: Entity must have at least 1 data component!");
+			return T();
+		}
+#pragma region Create new archetype
+		EntityArchetypeInfo* newArchetypeInfo = new EntityArchetypeInfo();
+		newArchetypeInfo->Name = "New archetype";
+		newArchetypeInfo->EntityCount = 0;
+		newArchetypeInfo->ComponentTypes = archetypeInfo->ComponentTypes;
+		bool found = false;
+		for (int i = 0; i < newArchetypeInfo->ComponentTypes.size(); i++)
+		{
+			if (newArchetypeInfo->ComponentTypes[i].TypeID == typeid(T).hash_code())
+			{
+				newArchetypeInfo->ComponentTypes.erase(newArchetypeInfo->ComponentTypes.begin() + i);
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+		{
+			delete newArchetypeInfo;
+			Debug::Error("Failed to remove component data: Component not found");
+			return T();
+		}
+#pragma region Sort types and check duplicate
+		std::sort(newArchetypeInfo->ComponentTypes.begin(), newArchetypeInfo->ComponentTypes.end(), ComponentTypeComparator);
+		size_t offset = 0;
+		ComponentType prev = newArchetypeInfo->ComponentTypes[0];
+		//Erase duplicates
+		for (size_t i = 1; i < newArchetypeInfo->ComponentTypes.size(); i++) {
+			if (newArchetypeInfo->ComponentTypes[i] == prev) {
+				newArchetypeInfo->ComponentTypes.erase(newArchetypeInfo->ComponentTypes.begin() + i);
+				i--;
+			}
+			else {
+				prev = newArchetypeInfo->ComponentTypes[i];
+			}
+		}
+		for (size_t i = 0; i < newArchetypeInfo->ComponentTypes.size(); i++) {
+			newArchetypeInfo->ComponentTypes[i].Offset = offset;
+			offset += newArchetypeInfo->ComponentTypes[i].Size;
+		}
+
+		newArchetypeInfo->EntitySize = newArchetypeInfo->ComponentTypes.back().Offset + newArchetypeInfo->ComponentTypes.back().Size;
+		newArchetypeInfo->ChunkCapacity = ARCHETYPECHUNK_SIZE / newArchetypeInfo->EntitySize;
+		int duplicateIndex = -1;
+		for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
+			EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
+			if (newArchetypeInfo->ChunkCapacity != compareInfo->ChunkCapacity) continue;
+			if (newArchetypeInfo->EntitySize != compareInfo->EntitySize) continue;
+			bool typeCheck = true;
+			for (size_t j = 0; j < newArchetypeInfo->ComponentTypes.size(); j++) {
+				if (!compareInfo->HasType(newArchetypeInfo->ComponentTypes[j].TypeID)) typeCheck = false;
+			}
+			if (typeCheck) {
+				duplicateIndex = compareInfo->Index;
+				delete newArchetypeInfo;
+				newArchetypeInfo = compareInfo;
+				break;
+			}
+		}
+#pragma endregion
+		EntityArchetype archetype;
+		if (duplicateIndex == -1) {
+			archetype.Index = _EntityComponentStorage->size();
+			newArchetypeInfo->Index = archetype.Index;
+			_EntityComponentStorage->push_back(EntityComponentStorage(newArchetypeInfo, new ComponentDataChunkArray()));
+		}
+		else {
+			archetype.Index = duplicateIndex;
+		}
+#pragma endregion
+#pragma region Create new Entity with new archetype
+		const Entity newEntity = CreateEntity(archetype);
+		//Transfer componentdata
+		for (const auto& type : newArchetypeInfo->ComponentTypes)
+		{
+			SetComponentData(newEntity, type.TypeID, type.Size, GetComponentDataPointer(entity, type.TypeID));
+		}
+		T retVal = entity.GetComponentData<T>();
+		//5. Swap entity.
+		EntityInfo& newEntityInfo = _EntityInfos->at(newEntity.Index);
+		const auto tempArchetypeInfoIndex = newEntityInfo.ArchetypeInfoIndex;
+		const auto tempChunkArrayIndex = newEntityInfo.ChunkArrayIndex;
+		newEntityInfo.ArchetypeInfoIndex = entityInfo.ArchetypeInfoIndex;
+		newEntityInfo.ChunkArrayIndex = entityInfo.ChunkArrayIndex;
+		entityInfo.ArchetypeInfoIndex = tempArchetypeInfoIndex;
+		entityInfo.ChunkArrayIndex = tempChunkArrayIndex;
+		//Apply to chunk.
+		_EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Entities[entityInfo.ChunkArrayIndex] = entity;
+		_EntityComponentStorage->at(newEntityInfo.ArchetypeInfoIndex).ChunkArray->Entities[newEntityInfo.ChunkArrayIndex] = newEntity;
+		DeleteEntity(newEntity);
+#pragma endregion
+		for (size_t i = 0; i < _EntityQueryInfos->size(); i++) {
+			RefreshEntityQueryInfos(i);
+		}
+		return retVal;
+	}
+
+	
+
 	template<typename T>
 	void EntityManager::SetComponentData(Entity entity, T value)
 	{
@@ -1098,10 +1324,9 @@ namespace UniEngine {
 				}
 			}
 			Debug::Log("ComponentData doesn't exist");
+			return;
 		}
-		else {
-			Debug::Error("Entity already deleted!");
-		}
+		Debug::Error("Entity version mismatch!");
 	}
 	template<typename T>
 	void EntityManager::SetComponentData(size_t index, T value)
@@ -1125,10 +1350,9 @@ namespace UniEngine {
 				}
 			}
 			Debug::Log("ComponentData doesn't exist");
+			return;
 		}
-		else {
-			Debug::Error("Entity already deleted!");
-		}
+		Debug::Error("Entity already deleted!");
 	}
 	template<typename T>
 	T EntityManager::GetComponentData(Entity entity)
@@ -1151,10 +1375,8 @@ namespace UniEngine {
 			Debug::Log("ComponentData doesn't exist");
 			return T();
 		}
-		else {
-			Debug::Error("Entity already deleted!");
-			return T();
-		}
+		Debug::Error("Entity version mismatch!");
+		return T();
 	}
 	template<typename T>
 	bool EntityManager::HasComponentData(Entity entity)
@@ -1176,7 +1398,7 @@ namespace UniEngine {
 			}
 			return false;
 		}
-		Debug::Error("Entity already deleted!");
+		Debug::Error("Entity version mismatch!");
 		return false;
 	}
 	template<typename T>

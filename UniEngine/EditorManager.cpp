@@ -13,8 +13,10 @@
 #include "TransformManager.h"
 using namespace UniEngine;
 bool EditorManager::_Enabled = false;
+EntityArchetype EditorManager::_BasicEntityArchetype;
 std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> EditorManager::_ComponentDataInspectorMap;
 std::vector<std::pair<size_t, std::function<void(Entity owner)>>> EditorManager::_PrivateComponentMenuList;
+std::vector<std::pair<size_t, std::function<void(Entity owner)>>> EditorManager::_ComponentDataMenuList;
 unsigned int EditorManager::_ConfigFlags = 0;
 int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
@@ -134,7 +136,7 @@ void UniEngine::EditorManager::Init()
 	RegisterPrivateComponentMenu<CameraComponent>([](Entity owner)
 		{
 			if (owner.HasPrivateComponent<CameraComponent>()) return;
-			if(ImGui::SmallButton("CameraComponent"))
+			if (ImGui::SmallButton("CameraComponent"))
 			{
 				owner.SetPrivateComponent(std::make_unique<CameraComponent>());
 			}
@@ -167,6 +169,37 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
+
+	RegisterComponentDataMenu<LocalToWorld>([](Entity owner)
+		{
+			if (owner.HasComponentData<LocalToWorld>()) return;
+			if (ImGui::SmallButton("LocalToWorld"))
+			{
+				EntityManager::AddComponentData(owner, LocalToWorld());
+			}
+		}
+	);
+
+	RegisterComponentDataMenu<LocalToParent>([](Entity owner)
+		{
+			if (owner.HasComponentData<LocalToParent>()) return;
+			if (ImGui::SmallButton("LocalToParent"))
+			{
+				EntityManager::AddComponentData(owner, LocalToParent());
+			}
+		}
+	);
+
+	RegisterComponentDataMenu<PointLight>([](Entity owner)
+		{
+			if (owner.HasComponentData<PointLight>()) return;
+			if (ImGui::SmallButton("PointLight"))
+			{
+				EntityManager::AddComponentData(owner, PointLight());
+			}
+		}
+	);
+	
 	_SelectedEntity.Index = 0;
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;
 	_ConfigFlags += EntityEditorSystem_EnableEntityInspector;
@@ -185,6 +218,8 @@ static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
 
 void EditorManager::PreUpdate()
 {
+	_BasicEntityArchetype = EntityManager::CreateEntityArchetype("General", LocalToWorld(), LocalToParent());
+	
 	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 	_SceneCamera->GetCamera()->Clear();
 #pragma region Dock & Main Menu
@@ -320,6 +355,16 @@ void EditorManager::LateUpdate()
 #pragma region Select entity here
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Explorer");
+		if (ImGui::BeginPopupContextWindow("DataComponentInspectorPopup"))
+		{
+			if(ImGui::Button("Create new entity"))
+			{
+				auto newEntity = EntityManager::CreateEntity(_BasicEntityArchetype);
+				newEntity.SetComponentData(LocalToParent());
+				newEntity.SetComponentData(LocalToWorld());
+			}
+			ImGui::EndPopup();
+		}
 		ImGui::Combo("Display mode", &_SelectedHierarchyDisplayMode, HierarchyDisplayMode, IM_ARRAYSIZE(HierarchyDisplayMode));
 		if (_SelectedHierarchyDisplayMode == 0) {
 			EntityManager::ForEachEntityStorageUnsafe([](int i, EntityComponentStorage storage) {
@@ -376,14 +421,42 @@ void EditorManager::LateUpdate()
 			bool deleted = DrawEntityMenu(_SelectedEntity.Enabled(), _SelectedEntity);
 			ImGui::Separator();
 			if (!deleted) {
-				if (ImGui::CollapsingHeader("Local components", ImGuiTreeNodeFlags_DefaultOpen)) {
-					EntityManager::ForEachComponentUnsafe(_SelectedEntity, [](ComponentType type, void* data) {
-						std::string info = std::string(type.Name + 7);
-						info += " Size: " + std::to_string(type.Size);
-						ImGui::Text(info.c_str());
-						InspectComponentData(static_cast<ComponentBase*>(data), type, EntityManager::GetParent(_SelectedEntity).IsNull());
+				if (ImGui::CollapsingHeader("Data components", ImGuiTreeNodeFlags_DefaultOpen)) {
+					if (ImGui::BeginPopupContextItem("DataComponentInspectorPopup"))
+					{
+						ImGui::Text("Add data component: ");
 						ImGui::Separator();
-						});
+						for (auto& i : _ComponentDataMenuList)
+						{
+							i.second(_SelectedEntity);
+						}
+						ImGui::Separator();
+						ImGui::EndPopup();
+					}
+					bool skip = false;
+					int i = 0;
+					EntityManager::ForEachComponentUnsafe(_SelectedEntity, [&skip, &i](ComponentType type, void* data)
+						{
+							if (skip) return;
+							std::string info = std::string(type.Name + 7);
+							info += " Size: " + std::to_string(type.Size);
+							ImGui::Text(info.c_str());
+							ImGui::PushID(i);
+							if (ImGui::BeginPopupContextItem(("DataComponentDeletePopup" + std::to_string(i)).c_str()))
+							{
+								if (ImGui::Button("Remove"))
+								{
+									skip = true;
+									EntityManager::RemoveComponentData(_SelectedEntity, type.TypeID);
+								}
+								ImGui::EndPopup();
+							}
+							ImGui::PopID();
+							InspectComponentData(static_cast<ComponentBase*>(data), type, EntityManager::GetParent(_SelectedEntity).IsNull());
+							ImGui::Separator();
+							i++;
+						}
+					);
 				}
 
 				if (ImGui::CollapsingHeader("Private components", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -405,16 +478,17 @@ void EditorManager::LateUpdate()
 						{
 							if (skip) return;
 							ImGui::Checkbox((data.Name + 6), &data.PrivateComponentData->_Enabled);
-							
+							ImGui::PushID(i);
 							if (ImGui::BeginPopupContextItem(("PrivateComponentDeletePopup" + std::to_string(i)).c_str()))
 							{
-								if(ImGui::Button("Remove"))
+								if (ImGui::Button("Remove"))
 								{
 									skip = true;
 									EntityManager::RemovePrivateComponent(_SelectedEntity, data.TypeID);
 								}
 								ImGui::EndPopup();
 							}
+							ImGui::PopID();
 							if (!skip) {
 								if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
 									data.PrivateComponentData->OnGui();

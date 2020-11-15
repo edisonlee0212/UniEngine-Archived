@@ -510,6 +510,7 @@ void RenderManager::Init()
 
 void UniEngine::RenderManager::PreUpdate()
 {
+	glCullFace(GL_BACK);
 	_Triangles = 0;
 	_DrawCall = 0;
 	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
@@ -792,7 +793,6 @@ void UniEngine::RenderManager::PreUpdate()
 #pragma region PointLight Shadowmap Pass
 					_PointLightShadowMap->DepthCubeMapArray()->Bind(0);
 					_PointLightShadowMap->Bind();
-					glCullFace(GL_FRONT);
 					glEnable(GL_DEPTH_TEST);
 					glDisable(GL_BLEND);
 					enabledSize = 0;
@@ -855,7 +855,6 @@ void UniEngine::RenderManager::PreUpdate()
 						}
 						enabledSize++;
 					}
-					glCullFace(GL_BACK);
 #pragma endregion
 				}
 			}
