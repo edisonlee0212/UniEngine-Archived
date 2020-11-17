@@ -729,7 +729,7 @@ void UniEngine::RenderManager::PreUpdate()
 					_PointLights[enabledSize].lightSpaceMatrix[3] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 					_PointLights[enabledSize].lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 					_PointLights[enabledSize].lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-					_PointLights[enabledSize].ReservedParameters = glm::vec4(plc.bias, 0, 0, 0);
+					_PointLights[enabledSize].ReservedParameters = glm::vec4(plc.bias, plc.lightSize, 0, 0);
 					enabledSize++;
 				}
 				_PointLightBlock->SubData(0, 4, &enabledSize);

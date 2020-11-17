@@ -97,7 +97,7 @@ layout (std140, binding = 6) uniform TextureBindings
 	sampler2D TEXTURE_HEIGHT0;
 	sampler2D TEXTURE_NORMAL0;
 	sampler2DArray directionalShadowMap;
-	samplerCubeArrayShadow pointShadowMap;
+	samplerCubeArray pointShadowMap;
 };
 
 //Material

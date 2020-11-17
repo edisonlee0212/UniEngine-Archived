@@ -23,10 +23,10 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 void main()
 {	
 	vec3 fragPos = texture(gPosition, fs_in.TexCoords).rgb;
-    vec3 normal = texture(gNormal, fs_in.TexCoords).rgb;
+	vec3 normal = texture(gNormal, fs_in.TexCoords).rgb;
 	float shininess = texture(gNormal, fs_in.TexCoords).a;
 	vec3 albedo = texture(gAlbedoSpec, fs_in.TexCoords).rgb;
-    float specular = texture(gAlbedoSpec, fs_in.TexCoords).a;
+	float specular = texture(gAlbedoSpec, fs_in.TexCoords).a;
 	vec3 viewDir = normalize(CameraPosition - fragPos);
 	float dist = distance(fragPos, CameraPosition);
 
@@ -76,11 +76,11 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 	}
 	// phase 2: point lights
 	for(int i = 0; i < PointLightCount; i++){
-		float shadow = 0.0;
+		float shadow = 1.0;
 		if(enableShadow && receiveShadow){
 			shadow = PointLightShadowCalculation(i, PointLights[i], fragPos, normal);
 		}
-		result += CalcPointLight(shininess, albedo, specular, PointLights[i], normal, fragPos, viewDir) * (1.0 - shadow);
+		result += CalcPointLight(shininess, albedo, specular, PointLights[i], normal, fragPos, viewDir) * shadow;
 	}
 	// phase 3: spot light
 	for(int i = 0; i < SpotLightCount; i++){
@@ -148,18 +148,6 @@ vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, SpotLight light
 	return (diffuseOutput + specularOutput);
 }
 
-
-
-// array of offset direction for sampling
-vec3 gridSamplingDisk[20] = vec3[]
-(
-   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
-   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
-   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
-   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
-   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
-);
-
 vec2 VogelDiskSample(int sampleIndex, int sampleCount, float phi)
 {
 	float goldenAngle = 2.4;
@@ -214,10 +202,8 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 			blockers += tf;
 		}
 	}
-
 	if(blockers == 0) return 1.0;
-
-	float blockerDistance = blockers == 0 ? 0.0 : (avgDistance / blockers);
+	float blockerDistance = avgDistance / blockers;
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
 	float texelSize = penumbraWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex] * DirectionalLights[i].lightFrustumDistance[splitIndex] / 100.0;
 	
@@ -243,17 +229,45 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 	// get vector between fragment position and light position
 	vec3 fragToLight = fragPos - lightPos;
 	float currentDepth = length(fragToLight);
-	if(currentDepth > far_plane) return 0.0;
 	float shadow = 0.0;
 	float bias = light.ReservedParameters.x;
-	int samples = 20;
-	float viewDistance = length(viewPos - fragPos);
-	float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
-	float compare = 0.0;
-	for(int j = 0; j < samples; ++j)
+	currentDepth = (currentDepth - bias) / far_plane;
+	//Blocker Search
+	int sampleAmount = 64;
+	float lightSize = light.ReservedParameters.y * currentDepth;
+	float blockers = 0;
+	float avgDistance = 0;
+	float sampleWidth = lightSize / sampleAmount;
+	for(int j = -1; j < 1; ++j)
 	{
-		shadow += texture(pointShadowMap, vec4((fragToLight + gridSamplingDisk[j] * diskRadius), i), (currentDepth - bias) / far_plane);
+		for(int k = -1; k < 1; ++k)
+		{
+			for(int l = -1; l < 1; ++l)
+			{
+				float closestDepth = texture(pointShadowMap, vec4((fragToLight + vec3(j, k, l) * sampleWidth), i)).r;
+				int tf = int(closestDepth != 0.0 && currentDepth > closestDepth);
+				avgDistance += closestDepth * tf;
+				blockers += tf;
+			}
+		}
 	}
-	shadow /= float(samples);
+	if(blockers == 0) return 1.0;
+	float blockerDistance = avgDistance / blockers;
+	float penumbraWidth = (currentDepth - blockerDistance) / blockerDistance * lightSize * PCSSScaleFactor;	
+	//End search
+	sampleAmount = 2;//PCSSPCFSampleAmount;
+	for(int j = -sampleAmount; j < sampleAmount; ++j)
+	{
+		for(int k = -sampleAmount; k < sampleAmount; ++k)
+		{
+			for(int l = -sampleAmount; l < sampleAmount; ++l)
+			{
+				float closestDepth = texture(pointShadowMap, vec4((fragToLight + vec3(j, k, l) * penumbraWidth), i)).r;
+				if(closestDepth == 0.0) continue;
+				shadow += currentDepth < closestDepth ? 1.0 : 0.0;
+			}
+		}
+	}
+	shadow /= 125.0;
 	return shadow;
 }

@@ -113,24 +113,24 @@ void UniEngine::EditorManager::Init()
 			ImGui::DragFloat("Specular Brightness", &dl->specularBrightness, 0.1f);
 			ImGui::DragFloat("Bias", &dl->depthBias, 0.001f);
 			ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
-			ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
+			ImGui::DragFloat("Light Size", &dl->lightSize, 0.01f);
 		});
 	RegisterComponentDataInspector<PointLight>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
 			stream << std::hex << "0x" << (size_t)data;
-			auto* dl = static_cast<PointLight*>((void*)data);
-			ImGui::ColorEdit3("Diffuse", &dl->diffuse[0]);
-			ImGui::DragFloat("Diffuse Brightness", &dl->diffuseBrightness, 0.1f);
-			ImGui::ColorEdit3("Specular", &dl->specular[0]);
-			ImGui::DragFloat("Specular Brightness", &dl->specularBrightness, 0.1f);
-			ImGui::DragFloat("Bias", &dl->bias, 0.001f);
+			auto* pl = static_cast<PointLight*>((void*)data);
+			ImGui::ColorEdit3("Diffuse", &pl->diffuse[0]);
+			ImGui::DragFloat("Diffuse Brightness", &pl->diffuseBrightness, 0.1f);
+			ImGui::ColorEdit3("Specular", &pl->specular[0]);
+			ImGui::DragFloat("Specular Brightness", &pl->specularBrightness, 0.1f);
+			ImGui::DragFloat("Bias", &pl->bias, 0.001f);
 
-			ImGui::DragFloat("Constant", &dl->constant, 0.1f);
-			ImGui::DragFloat("Linear", &dl->quadratic, 0.1f);
+			ImGui::DragFloat("Constant", &pl->constant, 0.1f);
+			ImGui::DragFloat("Linear", &pl->quadratic, 0.1f);
 
 			//ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
-			//ImGui::DragFloat("Light Size", &dl->lightSize, 0.1f);
+			ImGui::DragFloat("Light Size", &pl->lightSize, 0.01f);
 		});
 
 	RegisterPrivateComponentMenu<CameraComponent>([](Entity owner)

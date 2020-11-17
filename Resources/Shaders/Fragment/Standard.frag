@@ -184,8 +184,8 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 	vec3 lightDir = light.direction;
 	if(dot(lightDir, normal) > -0.02) return 1.0;
 	vec4 fragPosLightSpace = light.lightSpaceMatrix[splitIndex] * vec4(fragPos, 1.0);
-	float bias = light.ReservedParameters.z;
-	float normalOffset = light.ReservedParameters.w;
+	float bias = light.ReservedParameters.z * light.lightFrustumWidth[splitIndex] / light.viewPortXSize;
+	float normalOffset = light.ReservedParameters.w * light.lightFrustumWidth[splitIndex] / light.viewPortXSize;
 	// perform perspective divide
 	vec3 projCoords = (fragPosLightSpace.xyz + normal * normalOffset) / fragPosLightSpace.w;
 	//
@@ -223,11 +223,10 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, DirectionalLight 
 
 	if(blockers == 0) return 1.0;
 
-	float blockerDistance = blockers == 0 ? 0.0 : (avgDistance / blockers);
+	float blockerDistance = (avgDistance / blockers);
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
 	float texelSize = penumbraWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex] * DirectionalLights[i].lightFrustumDistance[splitIndex] / 100.0;
-	
-	int shadowCount = 0;
+
 	sampleAmount = PCSSPCFSampleAmount;
 	for(int i = 0; i < sampleAmount; i++)
 	{
@@ -258,7 +257,7 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 	float compare = 0.0;
 	for(int j = 0; j < samples; ++j)
 	{
-		shadow += texture(pointShadowMap, vec4((fragToLight + gridSamplingDisk[j] * diskRadius), i), (currentDepth - bias) / far_plane);
+		shadow += texture(pointShadowMap, vec4((fragToLight + gridSamplingDisk[j] * diskRadius), i)).r;
 	}
 	shadow /= float(samples);
 	return shadow;

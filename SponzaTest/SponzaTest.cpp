@@ -53,7 +53,7 @@ int main()
 	auto cylinder = std::make_unique<MeshRenderer>();
 	cylinder->Mesh = Default::Primitives::Cylinder;
 	cylinder->Material = sharedMat;
-	TestScene testScene = SPONZA_TEST;
+	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == BACKPACK) {
 		auto backpackModel = AssetManager::LoadModel(
@@ -142,6 +142,7 @@ int main()
 	plc.specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(plarc);
 	ple.SetName("Point Light");
+	ltw.SetPosition(glm::vec3(0, 20, 0));
 	EntityManager::SetComponentData<PointLight>(ple, plc);
 	EntityManager::SetComponentData(ple, ltw);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
