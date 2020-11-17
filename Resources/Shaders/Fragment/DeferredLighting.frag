@@ -270,6 +270,8 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 	{
 		for(int j = -sampleAmount; j <= sampleAmount; j++){
 			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
+			texCoord.x = clamp(texCoord.x, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
+			texCoord.y = clamp(texCoord.y, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
 			float closestDepth = texture(pointShadowMap, vec3(texCoord * texScale + texBase, slice)).r;
 			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
 			avgDistance += closestDepth * tf;
@@ -285,6 +287,8 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 	for(int i = 0; i < sampleAmount; i++)
 	{
 		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * penumbraWidth;
+		texCoord.x = clamp(texCoord.x, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
+		texCoord.y = clamp(texCoord.y, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
 		float closestDepth = texture(pointShadowMap, vec3(texCoord * texScale + texBase, slice)).r;
 		if(closestDepth == 0.0) continue;
 		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
