@@ -413,15 +413,16 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::string path)
             format = GL_RGBA;
             iformat = GL_RGBA8;
         }
-        GLsizei numMipmaps = ((GLsizei)log2(std::max(width, height)) + 1);
-        retVal->Texture() = std::make_unique<GLTexture2D>(numMipmaps, iformat, width, height, true);
+        GLsizei mipmap = static_cast<GLsizei>(log2(std::max(width, height))) + 1;
+        retVal->Texture() = std::make_unique<GLTexture2D>(mipmap, iformat, width, height, true);
         retVal->Texture()->SetData(0, format, GL_UNSIGNED_BYTE, data);
         retVal->Texture()->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
         retVal->Texture()->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
         retVal->Texture()->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         retVal->Texture()->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         retVal->Texture()->GenerateMipMap();
-        //glGetTextureHandleARB()
+    	
+        retVal->Texture()->MakeResident();
         stbi_image_free(data);
     }
     else

@@ -14,6 +14,7 @@ UniEngine::PointLightShadowMap::PointLightShadowMap(size_t amount, size_t resolu
 	_DepthCubeMapArray->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	_DepthCubeMapArray->SetInt(GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	_DepthCubeMapArray->SetInt(GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
+	_DepthCubeMapArray->MakeResident();
 	AttachTexture(_DepthCubeMapArray.get(), GL_DEPTH_ATTACHMENT);
 }
 

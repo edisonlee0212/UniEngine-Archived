@@ -43,39 +43,78 @@ namespace UniEngine {
 		friend class GLCore;
 		static GLint _MaxAllowedTexture;
 	protected:
+		bool _Resident = false;
 		GLenum _Type;
 		GLenum _Format;
 	public:
 		static GLint GetMaxAllowedTexture() {
 			return _MaxAllowedTexture;
 		}
-
-		void Clear(GLint level) {
+		GLuint64 GetHandle() const
+		{
+			Bind(0);
+			return glGetTextureHandleARB(_ID);
+		}
+		bool IsResident() const
+		{
+			return _Resident;
+		}
+		void MakeResident()
+		{
+			Bind(0);
+			glMakeTextureHandleResidentARB(glGetTextureHandleARB(_ID));
+			_Resident = true;
+		}
+		void MakeNonResident()
+		{
+			Bind(0);
+			glMakeTextureHandleNonResidentARB(glGetTextureHandleARB(_ID));
+			_Resident = false;
+		}
+		void Clear(GLint level) const
+		{
 			Bind(0);
 			glClearTexImage(_ID, level, _Format, _Type, nullptr);
 		}
 
-		void SetInt(GLenum pname, GLint param) {
+		void SetInt(GLenum pname, GLint param) const
+		{
+			if (_Resident) {
+				Debug::Error("Texture is resident!");
+				return;
+			}
 			Bind(0);
 			glTextureParameteri(_ID, pname, param);
 		}
 
-		void SetFloat(GLenum pname, GLfloat param) {
+		void SetFloat(GLenum pname, GLfloat param) const
+		{
+			if (_Resident) {
+				Debug::Error("Texture is resident!");
+				return;
+			}
 			Bind(0);
 			glTextureParameterf(_ID, pname, param);
 		}
 
-		void SetFloat4(GLenum pname, GLfloat* params) {
+		void SetFloat4(GLenum pname, GLfloat* params) const
+		{
+			if (_Resident) {
+				Debug::Error("Texture is resident!");
+				return;
+			}
 			Bind(0);
 			glTextureParameterfv(_ID, pname, params);
 		}
 
-		void GenerateMipMap() {
+		void GenerateMipMap() const
+		{
 			Bind(0);
 			glGenerateTextureMipmap(_ID);
 		}
 
-		void Bind(GLenum activate) {
+		void Bind(GLenum activate) const
+		{
 			if ((GLint)activate >= _MaxAllowedTexture) {
 				Debug::Error("Max allowed texture exceeded!");
 			}
@@ -126,7 +165,6 @@ namespace UniEngine {
 	class UNIENGINE_API GLTexture2D : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
-		//GLuint64 _Handle;
 		bool _Immutable;
 	public:
 		GLTexture2D(GLsizei levels,
@@ -139,8 +177,8 @@ namespace UniEngine {
 			Bind(0);
 			if(immutable) glTextureStorage2D(_ID, levels, internalFormat, width, height);
 			else glTexImage2D(_Type, levels, internalFormat, width, height, 0, GL_RED, GL_FLOAT, 0);
-		};
-
+		}
+		
 		void SetData(GLint level,
 			GLenum format,
 			GLenum type,

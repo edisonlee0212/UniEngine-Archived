@@ -1,22 +1,24 @@
+#extension GL_ARB_bindless_texture : require
+
 //Camera
 layout (std140, binding = 0) uniform MainCameraBlock
 {
-    mat4 CameraProjection;
-    mat4 CameraView;
-    vec4 CameraReservedParameters;
-    vec3 CameraPosition;
+	mat4 CameraProjection;
+	mat4 CameraView;
+	vec4 CameraReservedParameters;
+	vec3 CameraPosition;
 };
 
 //Lights
 struct DirectionalLight {
-    vec3 position;
-    vec3 direction;
-    vec3 diffuse;
-    vec3 specular;
-    mat4 lightSpaceMatrix[4];
-    vec4 lightFrustumWidth;
-    vec4 lightFrustumDistance;
-    vec4 ReservedParameters;
+	vec3 position;
+	vec3 direction;
+	vec3 diffuse;
+	vec3 specular;
+	mat4 lightSpaceMatrix[4];
+	vec4 lightFrustumWidth;
+	vec4 lightFrustumDistance;
+	vec4 ReservedParameters;
 	int viewPortXStart;
 	int viewPortYStart;
 	int viewPortXSize;
@@ -24,66 +26,78 @@ struct DirectionalLight {
 };
 
 struct PointLight {
-    vec3 position;
-    vec4 constantLinearQuadFarPlane;
-    vec3 diffuse;
-    vec3 specular;
-    mat4 lightSpaceMatrix[6];
-    vec4 ReservedParameters;
+	vec3 position;
+	vec4 constantLinearQuadFarPlane;
+	vec3 diffuse;
+	vec3 specular;
+	mat4 lightSpaceMatrix[6];
+	vec4 ReservedParameters;
 };
 
 struct SpotLight {
-    vec3 position;
-    vec3 direction;
-    float cutOff;
-    float outerCutOff;
+	vec3 position;
+	vec3 direction;
+	float cutOff;
+	float outerCutOff;
   
-    float constant;
-    float linear;
-    float quadratic;
+	float constant;
+	float linear;
+	float quadratic;
   
-    vec3 diffuse;
-    vec3 specular;       
+	vec3 diffuse;
+	vec3 specular;       
 };
 
 layout (std140, binding = 1) uniform DirectionalLightBlock
 {
-    int DirectionalLightCount;
-    DirectionalLight DirectionalLights[DIRECTIONAL_LIGHTS_AMOUNT];
+	int DirectionalLightCount;
+	DirectionalLight DirectionalLights[DIRECTIONAL_LIGHTS_AMOUNT];
 };
 
 layout (std140, binding = 2) uniform PointsLightBlock
 {
-    int PointLightCount;
-    PointLight PointLights[POINT_LIGHTS_AMOUNT];
+	int PointLightCount;
+	PointLight PointLights[POINT_LIGHTS_AMOUNT];
 };
 
 layout (std140, binding = 3) uniform SpotLightBlock
 {
-    int SpotLightCount;
-    SpotLight SpotLights[SPOT_LIGHTS_AMOUNT];
+	int SpotLightCount;
+	SpotLight SpotLights[SPOT_LIGHTS_AMOUNT];
 };
 
 layout (std140, binding = 4) uniform LightSettingsBlock
 {
-    float SplitDistance0;
-    float SplitDistance1;
-    float SplitDistance2;
-    float SplitDistance3;
-    int PCSSPCFSampleAmount;
+	float SplitDistance0;
+	float SplitDistance1;
+	float SplitDistance2;
+	float SplitDistance3;
+	int PCSSPCFSampleAmount;
 	float PCSSScaleFactor;
 	int PCSSBSAmount;
 	float SeamFixRatio;
-    float VSMMaxVariance;
-    float LightBleedFactor;
-    float EVSMExponent;
-    float AmbientLight;
+	float VSMMaxVariance;
+	float LightBleedFactor;
+	float EVSMExponent;
+	float AmbientLight;
 };
 
 layout (std140, binding = 5) uniform KernelBlock
 {
-    vec4 UniformKernel[MAX_KERNEL_AMOUNT];
-    vec4 GaussianKernel[MAX_KERNEL_AMOUNT];
+	vec4 UniformKernel[MAX_KERNEL_AMOUNT];
+	vec4 GaussianKernel[MAX_KERNEL_AMOUNT];
+};
+
+layout (std140, binding = 6) uniform TextureBindings
+{
+	sampler2D TEXTURE_DIFFUSE0;
+	sampler2D TEXTURE_SPECULAR0;
+	sampler2D TEXTURE_AMBIENT0;
+	sampler2D TEXTURE_EMISSIVE0;
+	sampler2D TEXTURE_HEIGHT0;
+	sampler2D TEXTURE_NORMAL0;
+	sampler2DArray directionalShadowMap;
+	samplerCubeArrayShadow pointShadowMap;
 };
 
 //Material
@@ -95,17 +109,7 @@ uniform Material material;
 uniform bool enableSpecularMapping;
 uniform bool enableNormalMapping;
 uniform bool enableParallaxMapping;
-//Textures
-uniform sampler2D TEXTURE_DIFFUSE0;
-uniform sampler2D TEXTURE_SPECULAR0;
-uniform sampler2D TEXTURE_AMBIENT0;
-uniform sampler2D TEXTURE_EMISSIVE0;
-uniform sampler2D TEXTURE_HEIGHT0;
-uniform sampler2D TEXTURE_NORMAL0;
 
-//Shadow
-uniform sampler2DArray directionalShadowMap;
-uniform samplerCubeArrayShadow pointShadowMap;
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;
 uniform bool enableShadow;

@@ -40,6 +40,8 @@ GLProgram* RenderManager::_PointLightInstancedProgram;
 
 #pragma endregion
 #pragma region Render
+MaterialTextures RenderManager::_MaterialTextures;
+std::unique_ptr<GLUBO> RenderManager::_MaterialTextureBindings;
 CameraComponent* RenderManager::_MainCameraComponent;
 int RenderManager::_MainCameraResolutionX = 1;
 int RenderManager::_MainCameraResolutionY = 1;
@@ -169,9 +171,6 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 		_SSAOBlurPass->SetInt("ssaoInput", 3);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
-
-	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
 
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -339,6 +338,9 @@ void RenderManager::Init()
 	_SpotLightQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_SpotLightQuery, SpotLight());
 
+	_MaterialTextureBindings = std::make_unique<GLUBO>();
+	_MaterialTextureBindings->SetData(sizeof(MaterialTextures), nullptr, GL_STREAM_DRAW);
+	_MaterialTextureBindings->SetBase(6);
 #pragma region Kernel Setup
 	std::vector<glm::vec4> uniformKernel;
 	std::vector<glm::vec4> gaussianKernel;
@@ -354,7 +356,6 @@ void RenderManager::Init()
 	_KernelBlock->SubData(sizeof(glm::vec4) * uniformKernel.size(), sizeof(glm::vec4) * gaussianKernel.size(), gaussianKernel.data());
 
 #pragma endregion
-
 #pragma region Shadow
 	_ShadowCascadeInfoBlock = new GLUBO();
 	_ShadowCascadeInfoBlock->SetData(sizeof(LightSettings), nullptr, GL_DYNAMIC_DRAW);
@@ -468,6 +469,8 @@ void RenderManager::Init()
 	);
 #pragma endregion
 #pragma endregion
+	_MaterialTextures.directionalShadowMap = _DirectionalLightShadowMap->DepthMapArray()->GetHandle();
+	_MaterialTextures.pointShadowMap = _PointLightShadowMap->DepthCubeMapArray()->GetHandle();
 #pragma region GBuffer
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
@@ -1194,46 +1197,40 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 {
 	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
 	{
-		material->_DiffuseMap->Texture()->Bind(3);
+		_MaterialTextures.diffuse = material->_DiffuseMap->Texture()->GetHandle();
 	}
 	else
 	{
-		Default::Textures::StandardTexture->Texture()->Bind(3);
+		_MaterialTextures.diffuse = Default::Textures::StandardTexture->Texture()->GetHandle();
 	}
-	program->SetInt("TEXTURE_DIFFUSE0", 3);
 	if (material->_SpecularMap && material->_SpecularMap->Texture().get())
 	{
-		material->_SpecularMap->Texture()->Bind(4);
-		program->SetInt("TEXTURE_SPECULAR0", 4);
+		_MaterialTextures.specular = material->_SpecularMap->Texture()->GetHandle();
 		program->SetBool("enableSpecularMapping", true);
 	}
 	else
 	{
-		program->SetInt("TEXTURE_SPECULAR0", 3);
 		program->SetBool("enableSpecularMapping", false);
 	}
 	if (material->_NormalMap && material->_NormalMap->Texture().get())
 	{
-		material->_NormalMap->Texture()->Bind(5);
-		program->SetInt("TEXTURE_NORMAL0", 5);
+		_MaterialTextures.normal = material->_NormalMap->Texture()->GetHandle();
 		program->SetBool("enableNormalMapping", true);
 	}
 	else
 	{
-		program->SetInt("TEXTURE_NORMAL0", 3);
 		program->SetBool("enableNormalMapping", false);
 	}
 	if (material->_DisplacementMap && material->_DisplacementMap->Texture().get())
 	{
-		material->_DisplacementMap->Texture()->Bind(6);
-		program->SetInt("TEXTURE_HEIGHT0", 6);
+		_MaterialTextures.height = material->_DisplacementMap->Texture()->GetHandle();
 		program->SetBool("enableParallaxMapping", true);
 	}
 	else
 	{
-		program->SetInt("TEXTURE_HEIGHT0", 3);
 		program->SetBool("enableParallaxMapping", false);
 	}
+	_MaterialTextureBindings->SubData(0, sizeof(MaterialTextures), &_MaterialTextures);
 }
 
 void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
@@ -1314,10 +1311,6 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	mesh->VAO()->SetAttributeDivisor(13, 1);
 	mesh->VAO()->SetAttributeDivisor(14, 1);
 	mesh->VAO()->SetAttributeDivisor(15, 1);
-
-	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
-
 	_DrawCall++;
 	_Triangles += mesh->Size() * count / 3;
 	auto program = material->_Program;
@@ -1350,10 +1343,6 @@ void UniEngine::RenderManager::DrawMesh(
 	mesh->VAO()->DisableAttributeArray(13);
 	mesh->VAO()->DisableAttributeArray(14);
 	mesh->VAO()->DisableAttributeArray(15);
-
-	_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
-	_PointLightShadowMap->DepthCubeMapArray()->Bind(1);
-
 	_DrawCall++;
 	_Triangles += mesh->Size() / 3;
 	auto program = material->_Program;

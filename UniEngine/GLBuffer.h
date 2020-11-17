@@ -66,12 +66,14 @@ namespace UniEngine {
 		static void BindDefault() {
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}
-		void SetBase(GLuint index) {
+		void SetBase(GLuint index) const
+		{
 			glBindBufferBase(GL_UNIFORM_BUFFER, index, _ID);
 		}
 		void SetRange(GLuint index,
 			GLintptr offset,
-			GLsizeiptr size) {
+			GLsizeiptr size) const
+		{
 			glBindBufferRange(GL_UNIFORM_BUFFER, index, _ID, offset, size);
 		}
 	};

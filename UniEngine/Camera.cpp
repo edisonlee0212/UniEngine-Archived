@@ -158,7 +158,7 @@ void UniEngine::Camera::CalculateFrustumPoints(float nearPlane, float farPlane, 
 void UniEngine::Camera::GenerateMatrices()
 {
 	CameraUniformBufferBlock = new GLUBO();
-	CameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), NULL, GL_STATIC_DRAW);
+	CameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), nullptr, GL_STREAM_DRAW);
 	CameraUniformBufferBlock->SetBase(0);
 }
 

@@ -12,14 +12,15 @@ void UniEngine::DirectionalLightShadowMap::Allocate()
 	_DepthMapArray->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	_DepthMapArray->SetFloat4(GL_TEXTURE_BORDER_COLOR, borderColor);
-
+	_DepthMapArray->MakeResident();
+	
 	_DepthMapDepthArray = std::make_unique<GLTexture2DArray>(1, GL_DEPTH_COMPONENT32, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY, (GLsizei)4);
 	_DepthMapDepthArray->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	_DepthMapDepthArray->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	_DepthMapDepthArray->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	_DepthMapDepthArray->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	_DepthMapDepthArray->SetFloat4(GL_TEXTURE_BORDER_COLOR, borderColor);
-
+	_DepthMapDepthArray->MakeResident();
 	AttachTexture(_DepthMapArray.get(), GL_COLOR_ATTACHMENT0);
 	AttachTexture(_DepthMapDepthArray.get(), GL_DEPTH_ATTACHMENT);
 }

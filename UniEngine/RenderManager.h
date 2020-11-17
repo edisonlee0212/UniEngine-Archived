@@ -29,6 +29,18 @@ namespace UniEngine {
 		float EVSMExponent = 40.0f;
 		float AmbientLight = 0.1f;
 	};
+
+	struct MaterialTextures
+	{
+		GLuint64 diffuse = 0;
+		GLuint64 specular = 0;
+		GLuint64 ambient = 0;
+		GLuint64 emissive = 0;
+		GLuint64 height = 0;
+		GLuint64 normal = 0;
+		GLuint64 directionalShadowMap = 0;
+		GLuint64 pointShadowMap = 0;
+	};
 	
 	class UNIENGINE_API RenderManager : public ManagerBase
 	{
@@ -62,7 +74,8 @@ namespace UniEngine {
 		friend class RenderTarget;
 		static size_t _Triangles;
 		static size_t _DrawCall;
-
+		static MaterialTextures _MaterialTextures;
+		static std::unique_ptr<GLUBO> _MaterialTextureBindings;
 #pragma endregion
 #pragma region Shadow
 		static GLUBO* _DirectionalLightBlock;
