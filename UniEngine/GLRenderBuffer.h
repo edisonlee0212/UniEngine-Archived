@@ -8,8 +8,7 @@ namespace UniEngine {
 		static void BindDefault();
 		GLRenderBuffer();
 		~GLRenderBuffer();
-		void AllocateStorage(GLenum internalformat​, GLsizei width​, GLsizei height);
-		void Attach(GLenum attachment, GLuint frameBufferID);
+		void AllocateStorage(GLenum internalFormat​, GLsizei width​, GLsizei height);
 	};
 }
 

@@ -266,15 +266,13 @@ glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition)
 
 void Camera::ClearColor(glm::vec3 color) const
 {
-	_FrameBuffer->Bind();
-	glClearColor(color.x, color.y, color.z, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glClearColor(0, 0, 0, 0);
+	_FrameBuffer->ClearColor(glm::vec4(color.x, color.y, color.z, 0.0f));
+	_FrameBuffer->Clear();
+	_FrameBuffer->ClearColor(glm::vec4(0.0f));
 }
 
 Ray Camera::ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const
 {
-	
 	const glm::mat4 inv = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
 	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
@@ -288,14 +286,11 @@ Ray Camera::ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const
 	glm::vec4 end = glm::vec4(realX,
 	                                -1 * realY,
 	                                1, 1.0);
-	
-	
 	start = inv * start;
 	end = inv * end;
 	start /= start.w;
 	end /= end.w;
 	const glm::vec3 dir = glm::normalize(glm::vec3(end - start));
-	
 	return {glm::vec3(ltw.Value[3]) + NearDistance * dir, glm::vec3(ltw.Value[3]) + FarDistance * dir};
 }
 

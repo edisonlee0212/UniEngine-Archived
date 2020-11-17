@@ -69,16 +69,9 @@ void UniEngine::RenderTarget::Bind()
 		Debug::Error("Error");
 		return;
 	}
-	
-	if (!_FrameBuffer->Color()) {
-		glNamedFramebufferDrawBuffer(_FrameBuffer->ID(), GL_NONE);
-		glNamedFramebufferDrawBuffer(_FrameBuffer->ID(), GL_NONE);
-	}
 	_FrameBuffer->Bind();
-	auto status = glCheckNamedFramebufferStatus(_FrameBuffer->ID(), GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	glViewport(0, 0, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY);
+	_FrameBuffer->Check();
+	_FrameBuffer->ViewPort(glm::vec4(0, 0, _ResolutionX, _ResolutionY));
 }
 
 void UniEngine::RenderTarget::Clear()

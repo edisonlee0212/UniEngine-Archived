@@ -59,6 +59,7 @@ inline void UniEngine::GLFrameBuffer::AttachRenderBuffer(GLRenderBuffer* buffer,
 		_Color = true;
 		break;
 	}
+	Bind();
 	glNamedFramebufferRenderbuffer(_ID, attachPoint, GL_RENDERBUFFER, buffer->ID());
 }
 
@@ -80,6 +81,7 @@ inline void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLenum a
 		_Color = true;
 		break;
 	}
+	Bind();
 	glNamedFramebufferTexture(_ID, attachPoint, texture->ID(), 0);
 }
 
@@ -101,6 +103,7 @@ inline void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLe
 		_Color = true;
 		break;
 	}
+	Bind();
 	glNamedFramebufferTextureLayer(_ID, attachPoint, texture->ID(), 0, layer);
 }
 

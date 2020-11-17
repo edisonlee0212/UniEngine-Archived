@@ -69,11 +69,11 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 {
 	auto& camera = cameraComponent->GetCamera();
 	cameraComponent->_GBuffer->Bind();
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
+	GLFrameBuffer::Enable(GL_DEPTH_TEST);
+	GLFrameBuffer::Disable(GL_BLEND);
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-	glDrawBuffers(3, attachments);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	cameraComponent->_GBuffer->GetFrameBuffer()->DrawBuffers(3, attachments);
+	cameraComponent->_GBuffer->Clear();
 	const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners) {
 		auto& program = Default::GLPrograms::DeferredPrepass;
@@ -82,8 +82,8 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			if (!owner.Enabled()) continue;
 			auto* mmc = owner.GetPrivateComponent<MeshRenderer>();
 			if (!mmc->get()->IsEnabled() || mmc->get()->Material == nullptr || mmc->get()->Mesh == nullptr || mmc->get()->ForwardRendering) continue;
-			if (mmc->get()->BackCulling)glEnable(GL_CULL_FACE);
-			else glDisable(GL_CULL_FACE);
+			if (mmc->get()->BackCulling) GLFrameBuffer::Enable(GL_CULL_FACE);
+			else GLFrameBuffer::Disable(GL_CULL_FACE);
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -116,8 +116,8 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			if (!owner.Enabled()) continue;
 			auto* immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->get()->IsEnabled() || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr || immc->get()->ForwardRendering) continue;
-			if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
-			else glDisable(GL_CULL_FACE);
+			if (immc->get()->BackCulling)GLFrameBuffer::Enable(GL_CULL_FACE);
+			else GLFrameBuffer::Disable(GL_CULL_FACE);
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {

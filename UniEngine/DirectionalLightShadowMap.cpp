@@ -47,7 +47,6 @@ std::unique_ptr<GLTexture2DArray>& DirectionalLightShadowMap::DepthMapDepthArray
 
 void UniEngine::DirectionalLightShadowMap::Bind()
 {
-
 	RenderTarget::Bind();
 }
 

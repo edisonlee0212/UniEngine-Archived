@@ -9,16 +9,19 @@ namespace UniEngine {
 			glGenBuffers(1, &_ID);
 			_Target = target;
 		}
-		void Bind() {
+		void Bind() const
+		{
 			glBindBuffer(_Target, _ID);
 		}
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
+		void SetData(GLsizei length, GLvoid* data, GLenum usage) const
+		{
 			Bind();
-			glBufferData(_Target, length, data, usage);
+			glNamedBufferData(_ID, length, data, usage);
 		}
-		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
+		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) const
+		{
 			Bind();
-			glBufferSubData(_Target, offset, size, data);
+			glNamedBufferSubData(_ID, offset, size, data);
 		}
 		~GLBuffer() {
 			glDeleteBuffers(1, &_ID);
