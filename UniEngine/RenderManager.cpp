@@ -18,7 +18,7 @@ GLUBO* RenderManager::_ShadowCascadeInfoBlock;
 LightSettings RenderManager::_LightSettings;
 float RenderManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
 float RenderManager::_MaxShadowDistance = 500;
-size_t RenderManager::_DirectionalShadowMapResolution = 4096;
+size_t RenderManager::_ShadowMapResolution = 4096;
 bool RenderManager::_StableFit = true;
 #pragma endregion
 bool RenderManager::_EnableLightMenu = true;
@@ -373,7 +373,7 @@ void RenderManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(_DirectionalShadowMapResolution);
+	_DirectionalLightShadowMap = new DirectionalLightShadowMap(_ShadowMapResolution);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
@@ -400,7 +400,7 @@ void RenderManager::Init()
 	);
 
 #pragma region PointLight
-	_PointLightShadowMap = new PointLightShadowMap(Default::ShaderIncludes::MaxPointLightAmount);
+	_PointLightShadowMap = new PointLightShadowMap(_ShadowMapResolution);
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMap.vert");
 	fragShaderCode = std::string("#version 460 core\n")
@@ -427,8 +427,8 @@ void RenderManager::Init()
 	);
 #pragma endregion
 #pragma endregion
-	_MaterialTextures.directionalShadowMap = _DirectionalLightShadowMap->DepthMapDepthArray()->GetHandle();
-	_MaterialTextures.pointShadowMap = _PointLightShadowMap->DepthCubeMapArray()->GetHandle();
+	_MaterialTextures.directionalShadowMap = _DirectionalLightShadowMap->DepthMapArray()->GetHandle();
+	_MaterialTextures.pointShadowMap = _PointLightShadowMap->DepthMapArray()->GetHandle();
 #pragma region GBuffer
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
@@ -574,16 +574,16 @@ void UniEngine::RenderManager::PreUpdate()
 						switch (enabledSize)
 						{
 						case 0:
-							_DirectionalLights[enabledSize].viewPort = glm::ivec4(0, 0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+							_DirectionalLights[enabledSize].viewPort = glm::ivec4(0, 0, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
 							break;
 						case 1:
-							_DirectionalLights[enabledSize].viewPort = glm::ivec4(_DirectionalShadowMapResolution / 2, 0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+							_DirectionalLights[enabledSize].viewPort = glm::ivec4(_ShadowMapResolution / 2, 0, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
 							break;
 						case 2:
-							_DirectionalLights[enabledSize].viewPort = glm::ivec4(0, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+							_DirectionalLights[enabledSize].viewPort = glm::ivec4(0, _ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
 							break;
 						case 3:
-							_DirectionalLights[enabledSize].viewPort = glm::ivec4(_DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2, _DirectionalShadowMapResolution / 2);
+							_DirectionalLights[enabledSize].viewPort = glm::ivec4(_ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
 							break;
 						}
 
@@ -627,7 +627,7 @@ void UniEngine::RenderManager::PreUpdate()
 						Entity lightEntity = directionalLightEntities[i];
 						if (!lightEntity.Enabled()) continue;
 						/*
-						glClearTexSubImage(_DirectionalLightShadowMap->DepthMapDepthArray()->ID(),
+						glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(),
 							0, _DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y,
 							0, (GLsizei)_DirectionalLights[enabledSize].viewPort.z, (GLsizei)_DirectionalLights[enabledSize].viewPort.w, (GLsizei)4, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 						*/
@@ -730,6 +730,22 @@ void UniEngine::RenderManager::PreUpdate()
 					_PointLights[enabledSize].lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 					_PointLights[enabledSize].lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 					_PointLights[enabledSize].ReservedParameters = glm::vec4(plc.bias, plc.lightSize, 0, 0);
+
+					switch (enabledSize)
+					{
+					case 0:
+						_PointLights[enabledSize].viewPort = glm::ivec4(0, 0, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
+						break;
+					case 1:
+						_PointLights[enabledSize].viewPort = glm::ivec4(_ShadowMapResolution / 2, 0, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
+						break;
+					case 2:
+						_PointLights[enabledSize].viewPort = glm::ivec4(0, _ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
+						break;
+					case 3:
+						_PointLights[enabledSize].viewPort = glm::ivec4(_ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
+						break;
+					}
 					enabledSize++;
 				}
 				_PointLightBlock->SubData(0, 4, &enabledSize);
@@ -746,6 +762,7 @@ void UniEngine::RenderManager::PreUpdate()
 					for (int i = 0; i < size; i++) {
 						Entity lightEntity = pointLightEntities[i];
 						if (!lightEntity.Enabled()) continue;
+						glViewport(_PointLights[enabledSize].viewPort.x, _PointLights[enabledSize].viewPort.y, _PointLights[enabledSize].viewPort.z, _PointLights[enabledSize].viewPort.w);
 						_PointLightProgram->SetInt("index", enabledSize);
 						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 						if (owners) {
@@ -772,6 +789,7 @@ void UniEngine::RenderManager::PreUpdate()
 					for (int i = 0; i < size; i++) {
 						Entity lightEntity = pointLightEntities[i];
 						if (!lightEntity.Enabled()) continue;
+						glViewport(_PointLights[enabledSize].viewPort.x, _PointLights[enabledSize].viewPort.y, _PointLights[enabledSize].viewPort.z, _PointLights[enabledSize].viewPort.w);
 						_PointLightInstancedProgram->SetInt("index", enabledSize);
 						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 						if (owners) {
@@ -936,9 +954,9 @@ void UniEngine::RenderManager::SetSplitRatio(float r1, float r2, float r3, float
 	_ShadowCascadeSplit[3] = r4;
 }
 
-void UniEngine::RenderManager::SetDirectionalLightResolution(size_t value)
+void UniEngine::RenderManager::SetShadowMapResolution(size_t value)
 {
-	_DirectionalShadowMapResolution = value;
+	_ShadowMapResolution = value;
 	if (_DirectionalLightShadowMap != nullptr)_DirectionalLightShadowMap->SetResolution(value);
 }
 

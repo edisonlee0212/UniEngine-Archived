@@ -32,6 +32,10 @@ struct PointLight {
 	vec3 specular;
 	mat4 lightSpaceMatrix[6];
 	vec4 ReservedParameters;
+	int viewPortXStart;
+	int viewPortYStart;
+	int viewPortXSize;
+	int viewPortYSize;
 };
 
 struct SpotLight {
@@ -97,7 +101,7 @@ layout (std140, binding = 6) uniform TextureBindings
 	sampler2D TEXTURE_HEIGHT0;
 	sampler2D TEXTURE_NORMAL0;
 	sampler2DArray directionalShadowMap;
-	samplerCubeArray pointShadowMap;
+	sampler2DArray pointShadowMap;
 };
 
 //Material

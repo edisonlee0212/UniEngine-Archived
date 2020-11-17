@@ -5,7 +5,6 @@ out vec4 FragPos; // FragPos from GS (output per emitvertex)
 uniform int index;
 void main()
 {
-    
     for(int split = 0; split < 4; ++split)
     {
         gl_Layer = split; // built-in variable that specifies to which face we render.

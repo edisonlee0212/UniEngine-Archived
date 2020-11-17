@@ -10,6 +10,7 @@ namespace UniEngine {
 		glm::vec4 specular;
 		glm::mat4 lightSpaceMatrix[6];
 		glm::vec4 ReservedParameters;
+		glm::ivec4 viewPort;
 	};
 
 	struct UNIENGINE_API PointLight :
@@ -19,7 +20,7 @@ namespace UniEngine {
 		float linear = 0.07f;
 		float quadratic = 0.0015f;
 		float farPlane = 200.0f;
-		float bias = 0.3f;
+		float bias = 0.05f;
 		glm::vec3 diffuse = glm::vec3(1.0f);
 		float diffuseBrightness = 0.8f;
 		glm::vec3 specular = glm::vec3(1.0f);

@@ -83,7 +83,7 @@ namespace UniEngine {
 		static GLUBO* _SpotLightBlock;
 
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
-		static size_t _DirectionalShadowMapResolution;
+		static size_t _ShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
 		static LightSettings _LightSettings;
 
@@ -141,7 +141,7 @@ namespace UniEngine {
 		static void PreUpdate();
 #pragma region Shadow
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
-		static void SetDirectionalLightResolution(size_t value);
+		static void SetShadowMapResolution(size_t value);
 		static void SetPCSSPCFSampleAmount(int value);
 		static void SetPCSSBSAmount(int value);
 		static void SetStableFit(bool value);

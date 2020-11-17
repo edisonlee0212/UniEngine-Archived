@@ -2,23 +2,34 @@
 #include "PointLightShadowMap.h"
 using namespace UniEngine;
 
-UniEngine::PointLightShadowMap::PointLightShadowMap(size_t amount, size_t resolutionX, size_t resolutionY)
+
+
+void PointLightShadowMap::Allocate()
 {
-	_ResolutionX = resolutionX;
-	_ResolutionY = resolutionY;
-	_DepthCubeMapArray = std::make_unique<GLTextureCubeMapArray>(1, GL_DEPTH_COMPONENT32, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY, (GLsizei)amount);
-	_DepthCubeMapArray->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_DepthCubeMapArray->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	_DepthCubeMapArray->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	_DepthCubeMapArray->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_DepthCubeMapArray->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	_DepthCubeMapArray->MakeResident();
-	AttachTexture(_DepthCubeMapArray.get(), GL_DEPTH_ATTACHMENT);
+	_DepthMapArray = std::make_unique<GLTexture2DArray>(1, GL_DEPTH_COMPONENT32, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY, (GLsizei)6);
+	_DepthMapArray->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_DepthMapArray->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_DepthMapArray->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_DepthMapArray->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	_DepthMapArray->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	_DepthMapArray->MakeResident();
+	AttachTexture(_DepthMapArray.get(), GL_DEPTH_ATTACHMENT);
 }
 
-std::unique_ptr<GLTextureCubeMapArray>& UniEngine::PointLightShadowMap::DepthCubeMapArray()
+UniEngine::PointLightShadowMap::PointLightShadowMap(size_t resolution)
 {
-	return _DepthCubeMapArray;
+	SetResolution(resolution);
+}
+
+void PointLightShadowMap::SetResolution(size_t resolution)
+{
+	_ResolutionX = _ResolutionY = resolution;
+	Allocate();
+}
+
+std::unique_ptr<GLTexture2DArray>& UniEngine::PointLightShadowMap::DepthMapArray()
+{
+	return _DepthMapArray;
 }
 
 void UniEngine::PointLightShadowMap::Bind()

@@ -225,49 +225,70 @@ float PointLightShadowCalculation(int i, PointLight light, vec3 fragPos, vec3 no
 {
 	vec3 viewPos = CameraPosition;
 	vec3 lightPos = light.position;
-	float far_plane = light.constantLinearQuadFarPlane.w;
 	// get vector between fragment position and light position
 	vec3 fragToLight = fragPos - lightPos;
 	float currentDepth = length(fragToLight);
 	float shadow = 0.0;
 	float bias = light.ReservedParameters.x;
-	currentDepth = (currentDepth - bias) / far_plane;
+	vec3 direction = normalize(fragToLight);
+	int slice = 0;
+	if (abs(direction.x) >= abs(direction.y) && abs(direction.x) >= abs(direction.z))
+	{
+		if(direction.x > 0){
+			slice = 0;
+		}else{
+			slice = 1;
+		}
+	}else if(abs(direction.y) >= abs(direction.z)){
+		if(direction.y > 0){
+			slice = 2;
+		}else{
+			slice = 3;
+		}
+	}else{
+		if(direction.z > 0){
+			slice = 4;
+		}else{
+			slice = 5;
+		}
+	}
+	vec4 fragPosLightSpace = light.lightSpaceMatrix[slice] * vec4(fragPos, 1.0);
+	fragPosLightSpace.z -= bias;
+	vec3 projCoords = (fragPosLightSpace.xyz) / fragPosLightSpace.w;
+	projCoords = projCoords * 0.5 + 0.5;
+	projCoords = vec3(projCoords.xy, projCoords.z);
+	float texScale = float(light.viewPortXSize) / float(textureSize(pointShadowMap, 0).x);
+	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(pointShadowMap, 0).y), float(light.viewPortYStart) / float(textureSize(pointShadowMap, 0).y));
+
 	//Blocker Search
-	int sampleAmount = 64;
-	float lightSize = light.ReservedParameters.y * currentDepth;
+	int sampleAmount = PCSSBSAmount;
+	float lightSize = light.ReservedParameters.y * projCoords.z;
 	float blockers = 0;
 	float avgDistance = 0;
 	float sampleWidth = lightSize / sampleAmount;
-	for(int j = -1; j < 1; ++j)
+	for(int i = -sampleAmount; i <= sampleAmount; i++)
 	{
-		for(int k = -1; k < 1; ++k)
-		{
-			for(int l = -1; l < 1; ++l)
-			{
-				float closestDepth = texture(pointShadowMap, vec4((fragToLight + vec3(j, k, l) * sampleWidth), i)).r;
-				int tf = int(closestDepth != 0.0 && currentDepth > closestDepth);
-				avgDistance += closestDepth * tf;
-				blockers += tf;
-			}
+		for(int j = -sampleAmount; j <= sampleAmount; j++){
+			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
+			float closestDepth = texture(pointShadowMap, vec3(texCoord * texScale + texBase, slice)).r;
+			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
+			avgDistance += closestDepth * tf;
+			blockers += tf;
 		}
 	}
+
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
-	float penumbraWidth = (currentDepth - blockerDistance) / blockerDistance * lightSize * PCSSScaleFactor;	
+	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * PCSSScaleFactor;	
 	//End search
-	sampleAmount = 2;//PCSSPCFSampleAmount;
-	for(int j = -sampleAmount; j < sampleAmount; ++j)
+	sampleAmount = PCSSPCFSampleAmount;
+	for(int i = 0; i < sampleAmount; i++)
 	{
-		for(int k = -sampleAmount; k < sampleAmount; ++k)
-		{
-			for(int l = -sampleAmount; l < sampleAmount; ++l)
-			{
-				float closestDepth = texture(pointShadowMap, vec4((fragToLight + vec3(j, k, l) * penumbraWidth), i)).r;
-				if(closestDepth == 0.0) continue;
-				shadow += currentDepth < closestDepth ? 1.0 : 0.0;
-			}
-		}
+		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * penumbraWidth;
+		float closestDepth = texture(pointShadowMap, vec3(texCoord * texScale + texBase, slice)).r;
+		if(closestDepth == 0.0) continue;
+		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
 	}
-	shadow /= 125.0;
+	shadow /= sampleAmount;
 	return shadow;
 }

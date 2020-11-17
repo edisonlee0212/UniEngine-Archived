@@ -20,7 +20,7 @@ int main()
 	RenderManager::SetEnableSSAO(true);
 #pragma region Lighting and Shadow settings
 	RenderManager::SetEnableShadow(true);
-	RenderManager::SetDirectionalLightResolution(4096);
+	RenderManager::SetShadowMapResolution(4096);
 	RenderManager::SetStableFit(false);
 	RenderManager::SetSeamFixRatio(0.05f);
 	RenderManager::SetMaxShadowDistance(300);
