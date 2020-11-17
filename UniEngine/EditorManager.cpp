@@ -199,6 +199,16 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
+
+	RegisterComponentDataMenu<DirectionalLight>([](Entity owner)
+		{
+			if (owner.HasComponentData<DirectionalLight>()) return;
+			if (ImGui::SmallButton("DirectionalLight"))
+			{
+				EntityManager::AddComponentData(owner, DirectionalLight());
+			}
+		}
+	);
 	
 	_SelectedEntity.Index = 0;
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;

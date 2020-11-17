@@ -87,24 +87,31 @@ void Galaxy::StarClusterSystem::Update()
 	ImGui::SliderFloat("Speed", &_Speed, 1.0f, 3000.0f);
 	ImGui::SliderFloat("Star Size", &_Size, 0.1f, 2.0f);
 	ImGui::End();
-
-
 	_GalaxyTime += _World->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
-	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery, [time](int i, Entity entity, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset) {
-		position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0 + time, true);
-		}, false);
+	//1. Calculate position (double precision) for each star
+	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery,
+		[time](int i, Entity entity, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset)
+		{
+			position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0 + time, true);
+		}, false
+		);
+	//2. Apply position and size to the transform which will later be used for rendering.
 	float size = _Size;
-	EntityManager::ForEach<StarPosition, LocalToWorld>(_StarQuery, [size](int i, Entity entity, StarPosition* position, LocalToWorld* ltw) {
-		glm::vec3 pos = position->Value;
-		ltw->Value = glm::translate(pos / 20.0f) * glm::scale(size * glm::vec3(1.0f));
-		}, false);
+	EntityManager::ForEach<StarPosition, LocalToWorld>(
+		_StarQuery,
+		[size](int i, Entity entity, StarPosition* position, LocalToWorld* ltw)
+		{
+			glm::vec3 pos = position->Value;
+			ltw->Value = glm::translate(pos / 20.0f) * glm::scale(size * glm::vec3(1.0f));
+		}, false
+		);
+	//3. Collect transform data for stars with entity query
 	std::vector<Entity> entities = std::vector<Entity>();
 	_StarQuery.ToEntityArray(entities);
-	//Render from last update.
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	_StarQuery.ToComponentDataArray(matrices);
-
+	//4. Setup transforms for particles component for the entity for actual rendering.
 	auto imr = _StarCluster.GetPrivateComponent<Particles>();
 	imr->get()->Matrices.resize(matrices.size());
 	memcpy(imr->get()->Matrices.data(), matrices.data(), sizeof(glm::mat4) * matrices.size());
