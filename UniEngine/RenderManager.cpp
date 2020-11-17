@@ -10,13 +10,10 @@ using namespace UniEngine;
 GLUBO* RenderManager::_DirectionalLightBlock;
 DirectionalLightInfo RenderManager::_DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 DirectionalLightShadowMap* RenderManager::_DirectionalLightShadowMap;
-RenderTarget* RenderManager::_DirectionalLightShadowMapFilter;
-GLTexture* RenderManager::_DLVSMVFilter;
 
 GLProgram* RenderManager::_DirectionalLightProgram;
 GLProgram* RenderManager::_DirectionalLightInstancedProgram;
-GLProgram* RenderManager::_DirectionalLightVFilterProgram;
-GLProgram* RenderManager::_DirectionalLightHFilterProgram;
+
 GLUBO* RenderManager::_ShadowCascadeInfoBlock;
 LightSettings RenderManager::_LightSettings;
 float RenderManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
@@ -402,45 +399,6 @@ void RenderManager::Init()
 		new GLShader(ShaderType::Geometry, &geomShaderCode)
 	);
 
-
-	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
-	fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Fragment/GaussianVFilter.frag");
-	geomShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Geometry/VSMVFilterHelper.geom");
-
-	_DirectionalLightVFilterProgram = new GLProgram(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode),
-		new GLShader(ShaderType::Geometry, &geomShaderCode)
-	);
-
-	fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Fragment/GaussianHFilter.frag");
-	geomShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Geometry/VSMHFilterHelper.geom");
-
-	_DirectionalLightHFilterProgram = new GLProgram(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode),
-		new GLShader(ShaderType::Geometry, &geomShaderCode)
-	);
-
-
-
-	_DirectionalLightShadowMapFilter = new RenderTarget(_DirectionalShadowMapResolution, _DirectionalShadowMapResolution);
-	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	_DLVSMVFilter = new GLTexture2DArray(1, GL_RG32F, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)_DirectionalShadowMapResolution, (GLsizei)Default::ShaderIncludes::ShadowCascadeAmount);
-
-	_DLVSMVFilter->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_DLVSMVFilter->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	_DLVSMVFilter->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	_DLVSMVFilter->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	_DLVSMVFilter->SetFloat4(GL_TEXTURE_BORDER_COLOR, borderColor);
-	_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-	_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray().get(), GL_COLOR_ATTACHMENT1);
-#pragma endregion
 #pragma region PointLight
 	_PointLightShadowMap = new PointLightShadowMap(Default::ShaderIncludes::MaxPointLightAmount);
 	vertShaderCode = std::string("#version 460 core\n") +
@@ -469,7 +427,7 @@ void RenderManager::Init()
 	);
 #pragma endregion
 #pragma endregion
-	_MaterialTextures.directionalShadowMap = _DirectionalLightShadowMap->DepthMapArray()->GetHandle();
+	_MaterialTextures.directionalShadowMap = _DirectionalLightShadowMap->DepthMapDepthArray()->GetHandle();
 	_MaterialTextures.pointShadowMap = _PointLightShadowMap->DepthCubeMapArray()->GetHandle();
 #pragma region GBuffer
 	vertShaderCode = std::string("#version 460 core\n") +
@@ -735,28 +693,6 @@ void UniEngine::RenderManager::PreUpdate()
 						}
 						enabledSize++;
 					}
-					/*
-					_DirectionalLightShadowMapFilter->Bind();
-					_DirectionalLightShadowMapFilter->AttachTexture(_DLVSMVFilter, GL_COLOR_ATTACHMENT0);
-					_DirectionalLightShadowMapFilter->AttachTexture(_DirectionalLightShadowMap->DepthMapArray(), GL_COLOR_ATTACHMENT1);
-					glDisable(GL_DEPTH_TEST);
-					Default::GLPrograms::ScreenVAO->Bind();
-					for (int i = 0; i < size; i++) {
-						glDrawBuffer(GL_COLOR_ATTACHMENT0);
-						_DirectionalLightVFilterProgram->Bind();
-						_DirectionalLightVFilterProgram->SetInt("textureMapArray", 0);
-						_DirectionalLightVFilterProgram->SetInt("lightIndex", i);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-						_DLVSMVFilter->Bind(1);
-						glDrawBuffer(GL_COLOR_ATTACHMENT1);
-						_DirectionalLightHFilterProgram->Bind();
-						_DirectionalLightHFilterProgram->SetInt("textureMapArray", 1);
-						_DirectionalLightHFilterProgram->SetInt("lightIndex", i);
-						glDrawArrays(GL_TRIANGLES, 0, 6);
-					}
-					glDrawBuffer(GL_COLOR_ATTACHMENT0);
-					*/
-
 				}
 			}
 			else

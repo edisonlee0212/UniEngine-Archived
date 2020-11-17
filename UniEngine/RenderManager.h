@@ -100,13 +100,8 @@ namespace UniEngine {
 
 		friend class RenderManager;
 		static DirectionalLightShadowMap* _DirectionalLightShadowMap;
-		static RenderTarget* _DirectionalLightShadowMapFilter;
 		static PointLightShadowMap* _PointLightShadowMap;
-		static GLProgram* _DirectionalLightVFilterProgram;
-		static GLProgram* _DirectionalLightHFilterProgram;
 
-
-		static GLTexture* _DLVSMVFilter;
 		static bool _StableFit;
 		static float _MaxShadowDistance;
 #pragma endregion
