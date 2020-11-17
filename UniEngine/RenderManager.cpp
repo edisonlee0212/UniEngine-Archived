@@ -616,8 +616,8 @@ void UniEngine::RenderManager::PreUpdate()
 					_DirectionalLightBlock->SubData(16, enabledSize * sizeof(DirectionalLightInfo), &_DirectionalLights[0]);
 				}
 				if (_EnableShadow) {
-					_DirectionalLightShadowMap->DepthMapArray()->Bind(0);
 					_DirectionalLightShadowMap->Bind();
+					_DirectionalLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
 					glEnable(GL_DEPTH_TEST);
 					glDisable(GL_BLEND);
 					glClear(GL_DEPTH_BUFFER_BIT);
@@ -626,9 +626,11 @@ void UniEngine::RenderManager::PreUpdate()
 					for (int i = 0; i < size; i++) {
 						Entity lightEntity = directionalLightEntities[i];
 						if (!lightEntity.Enabled()) continue;
-						glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(),
+						/*
+						glClearTexSubImage(_DirectionalLightShadowMap->DepthMapDepthArray()->ID(),
 							0, _DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y,
-							0, (GLsizei)_DirectionalLights[enabledSize].viewPort.z, (GLsizei)_DirectionalLights[enabledSize].viewPort.w, (GLsizei)4, GL_RED, GL_FLOAT, nullptr);
+							0, (GLsizei)_DirectionalLights[enabledSize].viewPort.z, (GLsizei)_DirectionalLights[enabledSize].viewPort.w, (GLsizei)4, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+						*/
 						glViewport(_DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y, _DirectionalLights[enabledSize].viewPort.z, _DirectionalLights[enabledSize].viewPort.w);
 						_DirectionalLightProgram->SetInt("index", enabledSize);
 						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
@@ -734,8 +736,8 @@ void UniEngine::RenderManager::PreUpdate()
 				if (enabledSize != 0)_PointLightBlock->SubData(16, enabledSize * sizeof(PointLightInfo), &_PointLights[0]);
 				if (_EnableShadow) {
 #pragma region PointLight Shadowmap Pass
-					_PointLightShadowMap->DepthCubeMapArray()->Bind(0);
 					_PointLightShadowMap->Bind();
+					_PointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
 					glEnable(GL_DEPTH_TEST);
 					glDisable(GL_BLEND);
 					glClear(GL_DEPTH_BUFFER_BIT);
