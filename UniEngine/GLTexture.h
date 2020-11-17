@@ -57,22 +57,22 @@ namespace UniEngine {
 
 		void SetInt(GLenum pname, GLint param) {
 			Bind(0);
-			glTexParameteri(_Type, pname, param);
+			glTextureParameteri(_ID, pname, param);
 		}
 
 		void SetFloat(GLenum pname, GLfloat param) {
 			Bind(0);
-			glTexParameterf(_Type, pname, param);
+			glTextureParameterf(_ID, pname, param);
 		}
 
 		void SetFloat4(GLenum pname, GLfloat* params) {
 			Bind(0);
-			glTexParameterfv(_Type, pname, params);
+			glTextureParameterfv(_ID, pname, params);
 		}
 
 		void GenerateMipMap() {
 			Bind(0);
-			glGenerateMipmap(_Type);
+			glGenerateTextureMipmap(_ID);
 		}
 
 		void Bind(GLenum activate) {
@@ -126,6 +126,7 @@ namespace UniEngine {
 	class UNIENGINE_API GLTexture2D : public GLTexture {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
+		//GLuint64 _Handle;
 		bool _Immutable;
 	public:
 		GLTexture2D(GLsizei levels,
@@ -136,7 +137,7 @@ namespace UniEngine {
 			_Height = height;
 			_Immutable = immutable;
 			Bind(0);
-			if(immutable) glTexStorage2D(_Type, levels, internalFormat, width, height);
+			if(immutable) glTextureStorage2D(_ID, levels, internalFormat, width, height);
 			else glTexImage2D(_Type, levels, internalFormat, width, height, 0, GL_RED, GL_FLOAT, 0);
 		};
 
@@ -149,7 +150,7 @@ namespace UniEngine {
 				return;
 			}
 			Bind(0);
-			glTexSubImage2D(_Type, level, 0, 0, _Width, _Height, format, type, pixels);
+			glTextureSubImage2D(_ID, level, 0, 0, _Width, _Height, format, type, pixels);
 		}
 
 		void ReSize(GLint level,

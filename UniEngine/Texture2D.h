@@ -29,6 +29,7 @@ namespace UniEngine {
 	{
         std::unique_ptr<GLTexture2D> _Texture;
         std::string _Path;
+
         friend class AssetManager;
     public:
         std::string Name;

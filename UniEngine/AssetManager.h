@@ -31,7 +31,7 @@ namespace UniEngine {
         static void RemoveModel(int index);
         static void RemoveTexture(int index);
         static void LateUpdate();
-        static std::shared_ptr<Model> LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma = false);
+        static std::shared_ptr<Model> LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma = false, unsigned flags = 0);
         static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model);
     };
 }

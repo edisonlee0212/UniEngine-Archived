@@ -15,12 +15,12 @@ std::vector<std::shared_ptr<Texture2D>> AssetManager::_Texture2Ds;
 std::vector<std::shared_ptr<Cubemap>> AssetManager::_Cubemaps;
 
 FileBrowser AssetManager::_FileBrowser;
-std::shared_ptr<Model> UniEngine::AssetManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma)
+std::shared_ptr<Model> UniEngine::AssetManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
 {
     stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene* scene = importer.ReadFile(path, flags);
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
@@ -391,6 +391,7 @@ std::shared_ptr<Texture2D> AssetManager::GetTexture2D(int i)
 
 std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::string path)
 {
+    stbi_set_flip_vertically_on_load(true);
     auto retVal = std::make_shared<Texture2D>();
     std::string filename = path;
     retVal->_Path = filename;
@@ -412,15 +413,15 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::string path)
             format = GL_RGBA;
             iformat = GL_RGBA8;
         }
-        retVal->Texture() = std::make_unique<GLTexture2D>(1, iformat, width, height, false);
-        retVal->Texture()->SetData(0, iformat, format, GL_UNSIGNED_BYTE, data);
-        retVal->Texture()->GenerateMipMap();
-
+        GLsizei numMipmaps = ((GLsizei)log2(std::max(width, height)) + 1);
+        retVal->Texture() = std::make_unique<GLTexture2D>(numMipmaps, iformat, width, height, true);
+        retVal->Texture()->SetData(0, format, GL_UNSIGNED_BYTE, data);
         retVal->Texture()->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
         retVal->Texture()->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
         retVal->Texture()->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         retVal->Texture()->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+        retVal->Texture()->GenerateMipMap();
+        //glGetTextureHandleARB()
         stbi_image_free(data);
     }
     else

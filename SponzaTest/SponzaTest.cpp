@@ -53,10 +53,13 @@ int main()
 	auto cylinder = std::make_unique<MeshRenderer>();
 	cylinder->Mesh = Default::Primitives::Cylinder;
 	cylinder->Material = sharedMat;
-	TestScene testScene = BACKPACK;
+	TestScene testScene = SPONZA_TEST;
 #pragma region PCSS test
 	if (testScene == BACKPACK) {
-		auto backpackModel = AssetManager::LoadModel(FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram);
+		auto backpackModel = AssetManager::LoadModel(
+			FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram, false,
+			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes
+		);
 		backpackModel->Name = "Backpack";
 		Entity backpackEntity = AssetManager::ToEntity(archetype, backpackModel);
 		backpackEntity.SetName("Backpack");
@@ -66,7 +69,8 @@ int main()
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
-		auto sponzaModel = AssetManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram);
+		auto sponzaModel = AssetManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram, false,
+			aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		sponzaModel->Name = "Sponza Scene";
 		Entity sponzaEntity = AssetManager::ToEntity(archetype, sponzaModel);
 		sponzaEntity.SetName("Sponza");

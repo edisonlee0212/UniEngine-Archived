@@ -20,8 +20,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SponzaTest", "SponzaTest\Sp
 		{324D4482-9924-4F0B-ABA0-E6E9BA51B02F} = {324D4482-9924-4F0B-ABA0-E6E9BA51B02F}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhysX", "PhysX\PhysX.vcxproj", "{A983063F-0EAA-445B-AE05-E546AAD553E2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -54,14 +52,6 @@ Global
 		{70909587-7159-43BF-BDB3-43E091328CE0}.Release|x64.ActiveCfg = Release|x64
 		{70909587-7159-43BF-BDB3-43E091328CE0}.Release|x64.Build.0 = Release|x64
 		{70909587-7159-43BF-BDB3-43E091328CE0}.Release|x86.ActiveCfg = Release|x64
-		{A983063F-0EAA-445B-AE05-E546AAD553E2}.Debug|x64.ActiveCfg = Debug|x64
-		{A983063F-0EAA-445B-AE05-E546AAD553E2}.Debug|x64.Build.0 = Debug|x64
-		{A983063F-0EAA-445B-AE05-E546AAD553E2}.Debug|x86.ActiveCfg = Debug|Win32
-		{A983063F-0EAA-445B-AE05-E546AAD553E2}.Debug|x86.Build.0 = Debug|Win32
-		{A983063F-0EAA-445B-AE05-E546AAD553E2}.Release|x64.ActiveCfg = Release|x64
-		{A983063F-0EAA-445B-AE05-E546AAD553E2}.Release|x64.Build.0 = Release|x64
-		{A983063F-0EAA-445B-AE05-E546AAD553E2}.Release|x86.ActiveCfg = Release|Win32
-		{A983063F-0EAA-445B-AE05-E546AAD553E2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
