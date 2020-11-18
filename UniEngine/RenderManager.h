@@ -11,7 +11,7 @@
 #include "SpotLight.h"
 #include "DirectionalLightShadowMap.h"
 #include "PointLightShadowMap.h"
-
+#include "SpotLightShadowMap.h"
 #include "Cubemap.h"
 #include "Default.h"
 #include "Texture2D.h"
@@ -38,8 +38,10 @@ namespace UniEngine {
 		GLuint64 emissive = 0;
 		GLuint64 height = 0;
 		GLuint64 normal = 0;
+		GLuint64 spotShadowMap = 0;
 		GLuint64 directionalShadowMap = 0;
 		GLuint64 pointShadowMap = 0;
+		
 	};
 	
 	class UNIENGINE_API RenderManager : public ManagerBase
@@ -93,15 +95,19 @@ namespace UniEngine {
 
 		static bool _EnableShadow;
 
-		static GLProgram* _DirectionalLightProgram;
-		static GLProgram* _PointLightProgram;
-		static GLProgram* _DirectionalLightInstancedProgram;
-		static GLProgram* _PointLightInstancedProgram;
+		static std::unique_ptr<GLProgram> _DirectionalLightProgram;
+		static std::unique_ptr<GLProgram> _DirectionalLightInstancedProgram;
+		static std::unique_ptr<GLProgram> _PointLightProgram;
+		static std::unique_ptr<GLProgram> _PointLightInstancedProgram;
+		static std::unique_ptr<GLProgram> _SpotLightProgram;
+		static std::unique_ptr<GLProgram> _SpotLightInstancedProgram;
 
+		
 		friend class RenderManager;
-		static DirectionalLightShadowMap* _DirectionalLightShadowMap;
-		static PointLightShadowMap* _PointLightShadowMap;
-
+		static std::unique_ptr<DirectionalLightShadowMap> _DirectionalLightShadowMap;
+		static std::unique_ptr<PointLightShadowMap> _PointLightShadowMap;
+		static std::unique_ptr<SpotLightShadowMap> _SpotLightShadowMap;
+		
 		static bool _StableFit;
 		static float _MaxShadowDistance;
 #pragma endregion

@@ -126,11 +126,32 @@ void UniEngine::EditorManager::Init()
 			ImGui::DragFloat("Specular Brightness", &pl->specularBrightness, 0.1f);
 			ImGui::DragFloat("Bias", &pl->bias, 0.001f);
 
-			ImGui::DragFloat("Constant", &pl->constant, 0.1f);
-			ImGui::DragFloat("Linear", &pl->quadratic, 0.1f);
-
+			ImGui::DragFloat("Constant", &pl->constant, 0.01f);
+			ImGui::DragFloat("Linear", &pl->linear, 0.0001f, 0, 1, "%.4f");
+			ImGui::DragFloat("Quadratic", &pl->quadratic, 0.00001f, 0, 10, "%.5f");
+		
 			//ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
 			ImGui::DragFloat("Light Size", &pl->lightSize, 0.01f);
+		});
+
+	RegisterComponentDataInspector<SpotLight>([](ComponentBase* data, bool isRoot)
+		{
+			std::stringstream stream;
+			stream << std::hex << "0x" << (size_t)data;
+			auto* sl = static_cast<SpotLight*>((void*)data);
+			ImGui::ColorEdit3("Diffuse", &sl->diffuse[0]);
+			ImGui::DragFloat("Diffuse Brightness", &sl->diffuseBrightness, 0.1f);
+			ImGui::ColorEdit3("Specular", &sl->specular[0]);
+			ImGui::DragFloat("Specular Brightness", &sl->specularBrightness, 0.1f);
+			ImGui::DragFloat("Bias", &sl->bias, 0.001f);
+
+			ImGui::DragFloat("Constant", &sl->constant, 0.01f);
+			ImGui::DragFloat("Linear", &sl->linear, 0.001f, 0, 1, "%.3f");
+			ImGui::DragFloat("Quadratic", &sl->quadratic, 0.001f, 0, 10, "%.4f");
+
+			ImGui::DragFloat("Inner Degrees", &sl->innerDegrees, 0.1f, 0.0f, sl->outerDegrees);
+			ImGui::DragFloat("Outer Degrees", &sl->outerDegrees, 0.1f, sl->innerDegrees, 180.0f);
+			ImGui::DragFloat("Light Size", &sl->lightSize, 0.01f);
 		});
 
 	RegisterPrivateComponentMenu<CameraComponent>([](Entity owner)
@@ -199,7 +220,17 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
-
+	
+	RegisterComponentDataMenu<SpotLight>([](Entity owner)
+		{
+			if (owner.HasComponentData<SpotLight>()) return;
+			if (ImGui::SmallButton("SpotLight"))
+			{
+				EntityManager::AddComponentData(owner, SpotLight());
+			}
+		}
+	);
+	
 	RegisterComponentDataMenu<DirectionalLight>([](Entity owner)
 		{
 			if (owner.HasComponentData<DirectionalLight>()) return;

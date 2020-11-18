@@ -2,8 +2,6 @@
 #include "PointLightShadowMap.h"
 using namespace UniEngine;
 
-
-
 void PointLightShadowMap::Allocate()
 {
 	_DepthMapArray = std::make_unique<GLTexture2DArray>(1, GL_DEPTH_COMPONENT32, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY, (GLsizei)6);

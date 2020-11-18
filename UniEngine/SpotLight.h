@@ -6,19 +6,27 @@ namespace UniEngine {
 	{
 		glm::vec4 position;
 		glm::vec4 direction;
-		float cutOff;
-		float outerCutOff;
-
-		float constant;
-		float linear;
-		float quadratic;
-
+		glm::mat4 lightSpaceMatrix;
+		glm::vec4 cutOffOuterCutOffLightSizeBias;
+		glm::vec4 constantLinearQuadFarPlane;
 		glm::vec4 diffuse;
 		glm::vec4 specular;
+		glm::ivec4 viewPort;
 	};
 	struct UNIENGINE_API SpotLight :
 		ComponentBase
 	{
-		SpotLightInfo value;
+		float innerDegrees = 20;
+		float outerDegrees = 30;
+		float constant = 1.0f;
+		float linear = 0.07f;
+		float quadratic = 0.0015f;
+		float bias = 0.001f;
+		float farPlane = 200.0f;
+		glm::vec3 diffuse = glm::vec3(1.0f);
+		float diffuseBrightness = 0.8f;
+		glm::vec3 specular = glm::vec3(1.0f);
+		float specularBrightness = 0.2f;
+		float lightSize = 0.1f;
 	};
 }

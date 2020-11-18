@@ -5,35 +5,35 @@
 #include "UniEngine.h"
 using namespace UniEngine;
 #pragma region Global Var
+bool RenderManager::_EnableRenderMenu = false;
+bool RenderManager::_EnableInfoWindow = true;
 #pragma region Shadow
 #pragma region DirectionalMap
-GLUBO* RenderManager::_DirectionalLightBlock;
-DirectionalLightInfo RenderManager::_DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
-DirectionalLightShadowMap* RenderManager::_DirectionalLightShadowMap;
-
-GLProgram* RenderManager::_DirectionalLightProgram;
-GLProgram* RenderManager::_DirectionalLightInstancedProgram;
-
 GLUBO* RenderManager::_ShadowCascadeInfoBlock;
 LightSettings RenderManager::_LightSettings;
 float RenderManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
 float RenderManager::_MaxShadowDistance = 500;
-size_t RenderManager::_ShadowMapResolution = 4096;
 bool RenderManager::_StableFit = true;
 #pragma endregion
+size_t RenderManager::_ShadowMapResolution = 4096;
 bool RenderManager::_EnableLightMenu = true;
-bool RenderManager::_EnableRenderMenu = false;
-bool RenderManager::_EnableInfoWindow = true;
 GLUBO* RenderManager::_PointLightBlock;
 GLUBO* RenderManager::_SpotLightBlock;
+GLUBO* RenderManager::_DirectionalLightBlock;
+DirectionalLightInfo RenderManager::_DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 PointLightInfo RenderManager::_PointLights[Default::ShaderIncludes::MaxPointLightAmount];
 SpotLightInfo RenderManager::_SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
 bool RenderManager::_EnableShadow = true;
 
-PointLightShadowMap* RenderManager::_PointLightShadowMap;
-
-GLProgram* RenderManager::_PointLightProgram;
-GLProgram* RenderManager::_PointLightInstancedProgram;
+std::unique_ptr<DirectionalLightShadowMap> RenderManager::_DirectionalLightShadowMap;
+std::unique_ptr<PointLightShadowMap> RenderManager::_PointLightShadowMap;
+std::unique_ptr<SpotLightShadowMap> RenderManager::_SpotLightShadowMap;
+std::unique_ptr<GLProgram> RenderManager::_DirectionalLightProgram;
+std::unique_ptr<GLProgram> RenderManager::_DirectionalLightInstancedProgram;
+std::unique_ptr<GLProgram> RenderManager::_PointLightProgram;
+std::unique_ptr<GLProgram> RenderManager::_PointLightInstancedProgram;
+std::unique_ptr<GLProgram> RenderManager::_SpotLightProgram;
+std::unique_ptr<GLProgram> RenderManager::_SpotLightInstancedProgram;
 
 #pragma endregion
 #pragma region Render
@@ -373,7 +373,7 @@ void RenderManager::Init()
 	_SpotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	_DirectionalLightShadowMap = new DirectionalLightShadowMap(_ShadowMapResolution);
+	_DirectionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(_ShadowMapResolution);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
@@ -385,7 +385,7 @@ void RenderManager::Init()
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
 		FileIO::LoadFileAsString("Shaders/Geometry/DirectionalLightShadowMap.geom");
-	_DirectionalLightProgram = new GLProgram(
+	_DirectionalLightProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode),
 		new GLShader(ShaderType::Geometry, &geomShaderCode)
@@ -393,14 +393,14 @@ void RenderManager::Init()
 
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMapInstanced.vert");
-	_DirectionalLightInstancedProgram = new GLProgram(
+	_DirectionalLightInstancedProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode),
 		new GLShader(ShaderType::Geometry, &geomShaderCode)
 	);
 
 #pragma region PointLight
-	_PointLightShadowMap = new PointLightShadowMap(_ShadowMapResolution);
+	_PointLightShadowMap = std::make_unique<PointLightShadowMap>(_ShadowMapResolution);
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMap.vert");
 	fragShaderCode = std::string("#version 460 core\n")
@@ -412,7 +412,7 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString("Shaders/Geometry/PointLightShadowMap.geom");
 
-	_PointLightProgram = new GLProgram(
+	_PointLightProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode),
 		new GLShader(ShaderType::Geometry, &geomShaderCode)
@@ -420,15 +420,38 @@ void RenderManager::Init()
 
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMapInstanced.vert");
-	_PointLightInstancedProgram = new GLProgram(
+	_PointLightInstancedProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode),
 		new GLShader(ShaderType::Geometry, &geomShaderCode)
 	);
 #pragma endregion
+#pragma region SpotLight
+	_SpotLightShadowMap = std::make_unique<SpotLightShadowMap>(_ShadowMapResolution);
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString("Shaders/Vertex/SpotLightShadowMap.vert");
+	fragShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString("Shaders/Fragment/SpotLightShadowMap.frag");
+	_SpotLightProgram = std::make_unique<GLProgram>(
+		new GLShader(ShaderType::Vertex, &vertShaderCode),
+		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		);
+
+	vertShaderCode = std::string("#version 460 core\n") 
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString("Shaders/Vertex/SpotLightShadowMapInstanced.vert");
+	_SpotLightInstancedProgram = std::make_unique<GLProgram>(
+		new GLShader(ShaderType::Vertex, &vertShaderCode),
+		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		);
+#pragma endregion
 #pragma endregion
 	_MaterialTextures.directionalShadowMap = _DirectionalLightShadowMap->DepthMapArray()->GetHandle();
 	_MaterialTextures.pointShadowMap = _PointLightShadowMap->DepthMapArray()->GetHandle();
+	_MaterialTextures.spotShadowMap = _SpotLightShadowMap->DepthMap()->GetHandle();
 #pragma region GBuffer
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
@@ -831,17 +854,134 @@ void UniEngine::RenderManager::PreUpdate()
 			{
 				_PointLightBlock->SubData(0, 4, &size);
 			}
+			std::vector<Entity> spotLightEntities;
+			std::vector<SpotLight> spotLightsList;
+			_SpotLightQuery.ToEntityArray(spotLightEntities);
+			_SpotLightQuery.ToComponentDataArray(spotLightsList);
+			size = spotLightsList.size();
+			if(!spotLightsList.empty())
+			{
+				size_t enabledSize = 0;
+				for (int i = 0; i < size; i++) {
+					const auto& slc = spotLightsList[i];
+					Entity lightEntity = spotLightEntities[i];
+					if (!lightEntity.Enabled()) continue;
+					auto ltw = EntityManager::GetComponentData<LocalToWorld>(lightEntity);
+					glm::vec3 position = ltw.Value[3];
+					glm::vec3 front = ltw.GetRotation() * glm::vec3(0, 0, -1);
+					glm::vec3 up = ltw.GetRotation() * glm::vec3(0, 1, 0);
+					_SpotLights[enabledSize].position = glm::vec4(position, 0);
+					_SpotLights[enabledSize].direction = glm::vec4(front, 0);
+					_SpotLights[enabledSize].constantLinearQuadFarPlane.x = slc.constant;
+					_SpotLights[enabledSize].constantLinearQuadFarPlane.y = slc.linear;
+					_SpotLights[enabledSize].constantLinearQuadFarPlane.z = slc.quadratic;
+					_SpotLights[enabledSize].constantLinearQuadFarPlane.w = slc.farPlane;
+					_SpotLights[enabledSize].diffuse = glm::vec4(slc.diffuse * slc.diffuseBrightness, 0);
+					_SpotLights[enabledSize].specular = glm::vec4(slc.specular * slc.specularBrightness, 0);
 
+					glm::mat4 shadowProj = glm::perspective(glm::radians(slc.outerDegrees * 2.0f), _SpotLightShadowMap->GetResolutionRatio(), 1.0f, _SpotLights[enabledSize].constantLinearQuadFarPlane.w);
+					_SpotLights[enabledSize].lightSpaceMatrix = shadowProj * glm::lookAt(position, position + front, up);
+					_SpotLights[enabledSize].cutOffOuterCutOffLightSizeBias = glm::vec4(glm::cos(glm::radians(slc.innerDegrees)), glm::cos(glm::radians(slc.outerDegrees)), slc.lightSize, slc.bias);
 
-			/*
-			if (_UpdateSpotLightBlock) {
-				size_t size = _SpotLights.size();
+					switch (enabledSize)
+					{
+					case 0:
+						_SpotLights[enabledSize].viewPort = glm::ivec4(0, 0, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
+						break;
+					case 1:
+						_SpotLights[enabledSize].viewPort = glm::ivec4(_ShadowMapResolution / 2, 0, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
+						break;
+					case 2:
+						_SpotLights[enabledSize].viewPort = glm::ivec4(0, _ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
+						break;
+					case 3:
+						_SpotLights[enabledSize].viewPort = glm::ivec4(_ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2, _ShadowMapResolution / 2);
+						break;
+					}
+					enabledSize++;
+				}
+				_SpotLightBlock->SubData(0, 4, &enabledSize);
+				if (enabledSize != 0)_SpotLightBlock->SubData(16, enabledSize * sizeof(SpotLightInfo), &_SpotLights[0]);
+				if (_EnableShadow) {
+#pragma region SpotLight Shadowmap Pass
+					_SpotLightShadowMap->Bind();
+					_SpotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+					glEnable(GL_DEPTH_TEST);
+					glDisable(GL_BLEND);
+					glClear(GL_DEPTH_BUFFER_BIT);
+					_SpotLightProgram->Bind();
+					enabledSize = 0;
+					for (int i = 0; i < size; i++) {
+						Entity lightEntity = spotLightEntities[i];
+						if (!lightEntity.Enabled()) continue;
+						glViewport(_SpotLights[enabledSize].viewPort.x, _SpotLights[enabledSize].viewPort.y, _SpotLights[enabledSize].viewPort.z, _SpotLights[enabledSize].viewPort.w);
+						_SpotLightProgram->SetInt("index", enabledSize);
+						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
+						if (owners) {
+							for (auto owner : *owners) {
+								if (!owner.Enabled()) continue;
+								auto* mmc = owner.GetPrivateComponent<MeshRenderer>();
+								if (!mmc->get()->IsEnabled() || !mmc->get()->CastShadow || mmc->get()->Material == nullptr || mmc->get()->Mesh == nullptr) continue;
+								if (mmc->get()->BackCulling)glEnable(GL_CULL_FACE);
+								else glDisable(GL_CULL_FACE);
+								auto mesh = mmc->get()->Mesh;
+								_SpotLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
+								mesh->Enable();
+								mesh->VAO()->DisableAttributeArray(12);
+								mesh->VAO()->DisableAttributeArray(13);
+								mesh->VAO()->DisableAttributeArray(14);
+								mesh->VAO()->DisableAttributeArray(15);
+								glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+							}
+						}
+						enabledSize++;
+					}
+					enabledSize = 0;
+					_SpotLightInstancedProgram->Bind();
+					for (int i = 0; i < size; i++) {
+						Entity lightEntity = spotLightEntities[i];
+						if (!lightEntity.Enabled()) continue;
+						glViewport(_SpotLights[enabledSize].viewPort.x, _SpotLights[enabledSize].viewPort.y, _SpotLights[enabledSize].viewPort.z, _SpotLights[enabledSize].viewPort.w);
+						_SpotLightInstancedProgram->SetInt("index", enabledSize);
+						const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
+						if (owners) {
+							for (auto owner : *owners) {
+								if (!owner.Enabled()) continue;
+								auto* immc = owner.GetPrivateComponent<Particles>();
+								if (!immc->get()->IsEnabled() || !immc->get()->CastShadow || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr) continue;
+								if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
+								else glDisable(GL_CULL_FACE);
+								size_t count = immc->get()->Matrices.size();
+								GLVBO* matricesBuffer = new GLVBO();
+								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->get()->Matrices.data(), GL_STATIC_DRAW);
+								auto mesh = immc->get()->Mesh;
+								_SpotLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
+								mesh->Enable();
+								mesh->VAO()->EnableAttributeArray(12);
+								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+								mesh->VAO()->EnableAttributeArray(13);
+								mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+								mesh->VAO()->EnableAttributeArray(14);
+								mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+								mesh->VAO()->EnableAttributeArray(15);
+								mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+								mesh->VAO()->SetAttributeDivisor(12, 1);
+								mesh->VAO()->SetAttributeDivisor(13, 1);
+								mesh->VAO()->SetAttributeDivisor(14, 1);
+								mesh->VAO()->SetAttributeDivisor(15, 1);
+								glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+								GLVAO::BindDefault();
+								delete matricesBuffer;
+							}
+						}
+						enabledSize++;
+					}
+#pragma endregion
+				}
+			}else
+			{
 				_SpotLightBlock->SubData(0, 4, &size);
-				size = size * sizeof(SpotLightInfo);
-				if (size != 0)_SpotLightBlock->SubData(16, size, &_SpotLights[0]);
 			}
-
-			*/
 		}
 #pragma endregion
 	}

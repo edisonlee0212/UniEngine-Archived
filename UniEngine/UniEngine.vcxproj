@@ -146,6 +146,7 @@
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="SharedComponentStorage.h" />
     <ClInclude Include="SpotLight.h" />
+    <ClInclude Include="SpotLightShadowMap.h" />
     <ClInclude Include="SystemBase.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Transforms.h" />
@@ -257,6 +258,7 @@
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="SharedComponentStorage.cpp" />
     <ClCompile Include="SpotLight.cpp" />
+    <ClCompile Include="SpotLightShadowMap.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="SystemBase.cpp" />
     <ClCompile Include="Texture2D.cpp" />

@@ -4,7 +4,6 @@
 namespace UniEngine {
 	struct UNIENGINE_API DirectionalLightInfo
 	{
-		glm::vec4 position;
 		glm::vec4 direction;
 		glm::vec4 diffuse;
 		glm::vec4 specular;

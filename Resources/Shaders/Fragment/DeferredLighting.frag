@@ -16,7 +16,7 @@ vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 no
 vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir);
 float DirectionalLightShadowCalculation(int i, int splitIndex, vec3 fragPos, vec3 normal);
 float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal);
-
+float SpotLightShadowCalculation(int i, vec3 fragPos, vec3 normal);
 void main()
 {	
 	vec3 fragPos = texture(gPosition, fs_in.TexCoords).rgb;
@@ -81,7 +81,11 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 	}
 	// phase 3: spot light
 	for(int i = 0; i < SpotLightCount; i++){
-		result += CalcSpotLight(shininess, albedo, specular, i, normal, fragPos, viewDir);
+		float shadow = 1.0;
+		if(enableShadow && receiveShadow){
+			shadow = SpotLightShadowCalculation(i, fragPos, normal);
+		}
+		result += CalcSpotLight(shininess, albedo, specular, i, normal, fragPos, viewDir) * shadow;
 	}
 	return result;
 }
@@ -135,11 +139,11 @@ vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 nor
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
 	// attenuation
 	float distance = length(light.position - fragPos);
-	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));	
+	float attenuation = 1.0 / (light.constantLinearQuadFarPlane.x + light.constantLinearQuadFarPlane.y * distance + light.constantLinearQuadFarPlane.z * (distance * distance));	
 	// spotlight intensity
 	float theta = dot(lightDir, normalize(-light.direction)); 
-	float epsilon = light.cutOff - light.outerCutOff;
-	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+	float epsilon = light.cutOffOuterCutOffLightSizeBias.x - light.cutOffOuterCutOffLightSizeBias.y;
+	float intensity = clamp((theta - light.cutOffOuterCutOffLightSizeBias.y) / epsilon, 0.0, 1.0);
 	// combine results
 	vec3 diffuseOutput = light.diffuse * diff * albedo;
 	vec3 specularOutput = light.specular * spec * albedo * specular;
@@ -212,7 +216,6 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, vec3 fragPos, vec
 	sampleAmount = PCSSPCFSampleAmount;
 	for(int i = 0; i < sampleAmount; i++)
 	{
-		//vec2 texCoord = projCoords.xy + UniformKernel[i % MAX_KERNEL_AMOUNT].xy * texelSize;
 		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * texelSize;
 		float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
 		if(closestDepth == 0.0) continue;
@@ -225,11 +228,9 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, vec3 fragPos, vec
 float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal)
 {
 	PointLight light = PointLights[i];
-	vec3 viewPos = CameraPosition;
 	vec3 lightPos = light.position;
 	// get vector between fragment position and light position
 	vec3 fragToLight = fragPos - lightPos;
-	float currentDepth = length(fragToLight);
 	float shadow = 0.0;
 	float bias = light.ReservedParameters.x;
 	vec3 direction = normalize(fragToLight);
@@ -258,7 +259,6 @@ float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal)
 	fragPosLightSpace.z -= bias;
 	vec3 projCoords = (fragPosLightSpace.xyz) / fragPosLightSpace.w;
 	projCoords = projCoords * 0.5 + 0.5;
-	projCoords = vec3(projCoords.xy, projCoords.z);
 	float texScale = float(light.viewPortXSize) / float(textureSize(pointShadowMap, 0).x);
 	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(pointShadowMap, 0).y), float(light.viewPortYStart) / float(textureSize(pointShadowMap, 0).y));
 
@@ -292,6 +292,49 @@ float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal)
 		texCoord.x = clamp(texCoord.x, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
 		texCoord.y = clamp(texCoord.y, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
 		float closestDepth = texture(pointShadowMap, vec3(texCoord * texScale + texBase, slice)).r;
+		if(closestDepth == 0.0) continue;
+		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
+	}
+	shadow /= sampleAmount;
+	return shadow;
+}
+
+float SpotLightShadowCalculation(int i, vec3 fragPos, vec3 normal){
+	SpotLight light = SpotLights[i];
+	float bias = light.cutOffOuterCutOffLightSizeBias.w;
+	vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.0);
+	fragPosLightSpace.z -= bias;
+	vec3 projCoords = (fragPosLightSpace.xyz) / fragPosLightSpace.w;
+	projCoords = projCoords * 0.5 + 0.5;
+	float texScale = float(light.viewPortXSize) / float(textureSize(spotShadowMap, 0).x);
+	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(spotShadowMap, 0).y), float(light.viewPortYStart) / float(textureSize(spotShadowMap, 0).y));
+
+	//Blocker Search
+	int sampleAmount = PCSSBSAmount;
+	float lightSize = light.cutOffOuterCutOffLightSizeBias.z * projCoords.z / light.cutOffOuterCutOffLightSizeBias.y;
+	float blockers = 0;
+	float avgDistance = 0;
+	float sampleWidth = lightSize / sampleAmount;
+	for(int i = -sampleAmount; i <= sampleAmount; i++)
+	{
+		for(int j = -sampleAmount; j <= sampleAmount; j++){
+			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
+			float closestDepth = texture(spotShadowMap, vec2(texCoord * texScale + texBase)).r;
+			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
+			avgDistance += closestDepth * tf;
+			blockers += tf;
+		}
+	}
+	if(blockers == 0) return 1.0;
+	float blockerDistance = avgDistance / blockers;
+	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * PCSSScaleFactor;	
+	//End search
+	sampleAmount = PCSSPCFSampleAmount;
+	float shadow = 0.0;
+	for(int i = 0; i < sampleAmount; i++)
+	{
+		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * penumbraWidth;
+		float closestDepth = texture(spotShadowMap, vec2(texCoord * texScale + texBase)).r;
 		if(closestDepth == 0.0) continue;
 		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
 	}

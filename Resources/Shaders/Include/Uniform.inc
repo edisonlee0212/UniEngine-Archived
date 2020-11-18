@@ -11,7 +11,6 @@ layout (std140, binding = 0) uniform MainCameraBlock
 
 //Lights
 struct DirectionalLight {
-	vec3 position;
 	vec3 direction;
 	vec3 diffuse;
 	vec3 specular;
@@ -40,16 +39,20 @@ struct PointLight {
 
 struct SpotLight {
 	vec3 position;
+	float SpotLightPadding0;
 	vec3 direction;
-	float cutOff;
-	float outerCutOff;
-  
-	float constant;
-	float linear;
-	float quadratic;
-  
+	float SpotLightPadding1;
+	mat4 lightSpaceMatrix;
+	vec4 cutOffOuterCutOffLightSizeBias;
+	vec4 constantLinearQuadFarPlane;
 	vec3 diffuse;
-	vec3 specular;       
+	float SpotLightPadding2;
+	vec3 specular;
+	float SpotLightPadding3;
+	int viewPortXStart;
+	int viewPortYStart;
+	int viewPortXSize;
+	int viewPortYSize;
 };
 
 layout (std140, binding = 1) uniform DirectionalLightBlock
@@ -100,8 +103,10 @@ layout (std140, binding = 6) uniform TextureBindings
 	sampler2D TEXTURE_EMISSIVE0;
 	sampler2D TEXTURE_HEIGHT0;
 	sampler2D TEXTURE_NORMAL0;
+	sampler2D spotShadowMap;
 	sampler2DArray directionalShadowMap;
 	sampler2DArray pointShadowMap;
+	
 };
 
 //Material

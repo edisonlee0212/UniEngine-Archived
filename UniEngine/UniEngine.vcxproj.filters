@@ -261,6 +261,9 @@
     <ClInclude Include="TransformManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="SpotLightShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -430,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="TransformManager.cpp">
       <Filter>Source Files\Resource\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLightShadowMap.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
