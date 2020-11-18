@@ -2,6 +2,7 @@
 #include "Camera.h"
 
 #include <stb_image_write.h>
+#include <stb_image_resize.h>
 #include "TransformManager.h"
 #include "WindowManager.h"
 
@@ -10,7 +11,7 @@ using namespace UniEngine;
 GLUBO* Camera::CameraUniformBufferBlock;
 CameraInfoBlock Camera::CameraInfoBlock;
 
-void Camera::StoreToJpg(std::string path)
+void Camera::StoreToJpg(std::string path, int resizeX, int resizeY)
 {
 	auto pppo = GLPPBO();
 	pppo.SetData(_ResolutionX * _ResolutionY * sizeof(float) * 4, nullptr, GL_STREAM_READ);
@@ -24,17 +25,34 @@ void Camera::StoreToJpg(std::string path)
 	GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
 	memcpy(dst.data(), src, _ResolutionX * _ResolutionY * sizeof(float) * 3);
 	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-
 	std::vector<uint8_t> pixels;
-	pixels.resize(_ResolutionX * _ResolutionY * 3);
-	for (int i = 0; i < _ResolutionX * _ResolutionY; i++)
+	if(resizeX > 0 && resizeY > 0)
 	{
-		pixels[i * 3] = glm::clamp<int>(int(255.99f * dst[i * 3]), 0, 255);
-		pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * dst[i * 3 + 1]), 0, 255);
-		pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * dst[i * 3 + 2]), 0, 255);
+		std::vector<float> res;
+		res.resize(resizeX * resizeY * 3);
+		stbir_resize_float(dst.data(), _ResolutionX, _ResolutionY, 0,
+			res.data(), resizeX, resizeY, 0, 3);
+		pixels.resize(resizeX * resizeY * 3);
+		for (int i = 0; i < resizeX * resizeY; i++)
+		{
+			pixels[i * 3] = glm::clamp<int>(int(255.99f * res[i * 3]), 0, 255);
+			pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * res[i * 3 + 1]), 0, 255);
+			pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * res[i * 3 + 2]), 0, 255);
+		}
+		stbi_flip_vertically_on_write(true);
+		stbi_write_jpg(path.c_str(), resizeX, resizeY, 3, pixels.data(), 100);
 	}
-	stbi_flip_vertically_on_write(true);
-	stbi_write_jpg(path.c_str(), _ResolutionX, _ResolutionY, 3, pixels.data(), 100);
+	else {
+		pixels.resize(_ResolutionX * _ResolutionY * 3);
+		for (int i = 0; i < _ResolutionX * _ResolutionY; i++)
+		{
+			pixels[i * 3] = glm::clamp<int>(int(255.99f * dst[i * 3]), 0, 255);
+			pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * dst[i * 3 + 1]), 0, 255);
+			pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * dst[i * 3 + 2]), 0, 255);
+		}
+		stbi_flip_vertically_on_write(true);
+		stbi_write_jpg(path.c_str(), _ResolutionX, _ResolutionY, 3, pixels.data(), 100);
+	}
 }
 
 void Camera::StoreToPng(std::string path)

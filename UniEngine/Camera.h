@@ -50,7 +50,7 @@ namespace UniEngine {
 		float YawAngle;
 		float PitchAngle;
 	public:
-		void StoreToJpg(std::string path);
+		void StoreToJpg(std::string path, int resizeX = -1, int resizeY = -1);
 		void StoreToPng(std::string path);
 		void OnGui();
 		size_t GetLayerMask();
