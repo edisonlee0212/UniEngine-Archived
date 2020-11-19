@@ -1421,7 +1421,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
 	program->SetFloat("material.shininess", material->_Shininess);
-
+	program->SetBool("transparentDiscard", material->_TransparentDiscard);
+	program->SetFloat("transparentDiscardLimit", material->_TransparentDiscardLimit);
 	program->SetInt("directionalShadowMap", 0);
 	program->SetInt("pointShadowMap", 1);
 	program->SetBool("enableShadow", _EnableShadow);
@@ -1453,7 +1454,8 @@ void UniEngine::RenderManager::DrawMesh(
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
 	program->SetFloat("material.shininess", material->_Shininess);
-
+	program->SetBool("transparentDiscard", material->_TransparentDiscard);
+	program->SetFloat("transparentDiscardLimit", material->_TransparentDiscardLimit);
 	program->SetInt("directionalShadowMap", 0);
 	program->SetInt("pointShadowMap", 1);
 	program->SetBool("enableShadow", _EnableShadow);

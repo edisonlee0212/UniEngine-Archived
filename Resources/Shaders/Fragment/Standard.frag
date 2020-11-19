@@ -17,7 +17,7 @@ float SpotLightShadowCalculation(int i, vec3 fragPos, vec3 normal);
 void main()
 {	
 	vec4 textureColor = texture(TEXTURE_DIFFUSE0, fs_in.TexCoords).rgba;
-	if(textureColor.a < 0.1)
+	if(transparentDiscard && textureColor.a < transparentDiscardLimit)
         discard;
 	float specular = 1.0;
 	if(enableSpecularMapping){

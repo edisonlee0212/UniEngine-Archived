@@ -7,7 +7,6 @@ namespace UniEngine {
 	class UNIENGINE_API MeshRenderer :
 		public PrivateComponentBase
 	{
-		
 	public:
 		glm::vec4 DisplayBoundColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);;
 		bool DisplayBound = true;

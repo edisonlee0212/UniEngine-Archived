@@ -28,7 +28,8 @@ namespace UniEngine {
 	{
 		friend class RenderManager;
 		float _Shininess = 32.0f;
-
+		bool _TransparentDiscard = false;
+		float _TransparentDiscardLimit = 0.99f;
 		std::shared_ptr<Texture2D> _DiffuseMap;
 		std::shared_ptr<Texture2D> _SpecularMap; 
 		std::shared_ptr<Texture2D> _NormalMap;

@@ -122,3 +122,5 @@ uniform bool enableParallaxMapping;
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;
 uniform bool enableShadow;
+uniform float transparentDiscardLimit;
+uniform bool transparentDiscard;

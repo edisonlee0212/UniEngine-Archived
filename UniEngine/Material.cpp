@@ -19,6 +19,8 @@ void Material::OnGui()
 		ImGui::EndPopup();
 	}
 	ImGui::DragFloat("Shininess", &_Shininess, 1.0f, 1.0f, 1024.0f);
+	ImGui::Checkbox("Enable Transparent Discard", &_TransparentDiscard);
+	ImGui::DragFloat("Transparent Discard Limit", &_TransparentDiscardLimit, 0.01f, 0.0f, 0.99f);
 	if (ImGui::TreeNode(("Textures##" + std::to_string(std::hash<std::string>{}(Name))).c_str())) {
 		{
 			ImGui::Spacing();
