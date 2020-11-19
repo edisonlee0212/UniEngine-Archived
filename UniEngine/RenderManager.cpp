@@ -284,6 +284,14 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 			if (!immc->get()->IsEnabled() || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr || !immc->get()->ForwardRendering) continue;
 			if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
+			if(immc->get()->Transparency)
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			}else
+			{
+				glDisable(GL_BLEND);
+			}
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
