@@ -48,6 +48,8 @@ namespace UniEngine {
 		}
 		void OnGui();
 		void SetShininess(float value);
+		void SetTransparentDiscardLimit(float value);
+		void SetTransparentDiscard(bool value);
 		void SetMaterialProperty(const std::string& name, float value);
 		void SetMaterialProperty(const std::string& name, glm::mat4 value);
 		void SetTexture(std::shared_ptr<Texture2D> texture, TextureType type);

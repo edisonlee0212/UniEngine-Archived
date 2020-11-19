@@ -186,6 +186,16 @@ void Material::SetShininess(float value)
 	_Shininess = value;
 }
 
+void UniEngine::Material::SetTransparentDiscardLimit(float value)
+{
+	_TransparentDiscardLimit = value;
+}
+
+void UniEngine::Material::SetTransparentDiscard(bool value)
+{
+	_TransparentDiscard = value;
+}
+
 void UniEngine::Material::SetMaterialProperty(const std::string& name, float value)
 {
 	for (auto& property : _FloatPropertyList)
