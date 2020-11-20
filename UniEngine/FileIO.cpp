@@ -17,13 +17,12 @@ std::string UniEngine::FileIO::GetResourcePath(std::string path)
 
 std::string UniEngine::FileIO::LoadFileAsString(std::string path)
 {
-    std::string actualPath = GetResourcePath(path);
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try
     {
         // open files
-        file.open(actualPath);
+        file.open(path);
         std::stringstream stream;
         // read file's buffer contents into streams
         stream << file.rdbuf();

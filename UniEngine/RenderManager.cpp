@@ -384,15 +384,15 @@ void RenderManager::Init()
 	_DirectionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(_ShadowMapResolution);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMap.vert");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMap.vert"));
 	std::string fragShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Fragment/DirectionalLightShadowMap.frag");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/DirectionalLightShadowMap.frag"));
 	std::string geomShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Geometry/DirectionalLightShadowMap.geom");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/DirectionalLightShadowMap.geom"));
 	_DirectionalLightProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode),
@@ -400,7 +400,7 @@ void RenderManager::Init()
 	);
 
 	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Vertex/DirectionalLightShadowMapInstanced.vert");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapInstanced.vert"));
 	_DirectionalLightInstancedProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode),
@@ -410,15 +410,15 @@ void RenderManager::Init()
 #pragma region PointLight
 	_PointLightShadowMap = std::make_unique<PointLightShadowMap>(_ShadowMapResolution);
 	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMap.vert");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMap.vert"));
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Fragment/PointLightShadowMap.frag");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PointLightShadowMap.frag"));
 	geomShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Geometry/PointLightShadowMap.geom");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/PointLightShadowMap.geom"));
 
 	_PointLightProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
@@ -427,7 +427,7 @@ void RenderManager::Init()
 	);
 
 	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Vertex/PointLightShadowMapInstanced.vert");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapInstanced.vert"));
 	_PointLightInstancedProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode),
@@ -439,9 +439,9 @@ void RenderManager::Init()
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Vertex/SpotLightShadowMap.vert");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMap.vert"));
 	fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Fragment/SpotLightShadowMap.frag");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SpotLightShadowMap.frag"));
 	_SpotLightProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
@@ -450,7 +450,7 @@ void RenderManager::Init()
 	vertShaderCode = std::string("#version 460 core\n") 
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Vertex/SpotLightShadowMapInstanced.vert");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapInstanced.vert"));
 	_SpotLightInstancedProgram = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
 		new GLShader(ShaderType::Fragment, &fragShaderCode)
@@ -462,11 +462,11 @@ void RenderManager::Init()
 	_MaterialTextures.spotShadowMap = _SpotLightShadowMap->DepthMap()->GetHandle();
 #pragma region GBuffer
 	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
 	fragShaderCode = std::string("#version 460 core\n") +
 		*Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Fragment/DeferredLighting.frag");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/DeferredLighting.frag"));
 
 	_GBufferLightingPass = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
@@ -476,11 +476,11 @@ void RenderManager::Init()
 #pragma endregion
 #pragma region SSAO
 	vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString("Shaders/Vertex/TexturePassThrough.vert");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
 	fragShaderCode = std::string("#version 460 core\n") +
 		*Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Fragment/SSAOGeometry.frag");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
 
 	_SSAOGeometryPass = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),
@@ -490,7 +490,7 @@ void RenderManager::Init()
 	fragShaderCode = std::string("#version 460 core\n") +
 		*Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString("Shaders/Fragment/SSAOBlur.frag");
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOBlur.frag"));
 
 	_SSAOBlurPass = std::make_unique<GLProgram>(
 		new GLShader(ShaderType::Vertex, &vertShaderCode),

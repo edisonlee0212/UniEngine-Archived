@@ -46,7 +46,7 @@ void UniEngine::Default::Load(World* world)
 		"\n#define MAX_KERNEL_AMOUNT " + std::to_string(ShaderIncludes::MaxKernelAmount) +
 		"\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
 
-	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString("Shaders/Include/Uniform.inc"));
+	ShaderIncludes::Uniform = new std::string(add + FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform.inc")));
 
 #pragma endregion
 #pragma region Skybox
@@ -114,12 +114,12 @@ void UniEngine::Default::Load(World* world)
 	GLShader* skyboxvert = new GLShader(ShaderType::Vertex);
 	std::string vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
-		+"\n" + std::string(FileIO::LoadFileAsString("Shaders/Vertex/Skybox.vert"));
+		+"\n" + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Skybox.vert")));
 	skyboxvert->SetCode(&vertShaderCode);
 	GLShader* skyboxfrag = new GLShader(ShaderType::Fragment);
 	std::string fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
-		+"\n" + std::string(FileIO::LoadFileAsString("Shaders/Fragment/Skybox.frag"));
+		+"\n" + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Skybox.frag")));
 	skyboxfrag->SetCode(&fragShaderCode);
 	GLPrograms::SkyboxProgram = std::make_shared<GLProgram>();
 	GLPrograms::SkyboxProgram->Attach(ShaderType::Vertex, skyboxvert);
@@ -131,7 +131,7 @@ void UniEngine::Default::Load(World* world)
 	skyboxfrag = new GLShader(ShaderType::Fragment);
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
-		+"\n" + std::string(FileIO::LoadFileAsString("Shaders/Fragment/BackGround.frag"));
+		+"\n" + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BackGround.frag")));
 	skyboxfrag->SetCode(&fragShaderCode);
 	GLPrograms::BackGroundProgram = std::make_shared<GLProgram>();
 	GLPrograms::BackGroundProgram->Attach(ShaderType::Vertex, skyboxvert);
@@ -162,10 +162,10 @@ void UniEngine::Default::Load(World* world)
 	GLPrograms::ScreenVAO->SetAttributePointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	GLShader* screenvert = new GLShader(ShaderType::Vertex);
-	vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Vertex/Screen.vert"));
+	vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Screen.vert")));
 	screenvert->SetCode(&vertShaderCode);
 	GLShader* screenfrag = new GLShader(ShaderType::Fragment);
-	fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString("Shaders/Fragment/Screen.frag"));
+	fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Screen.frag")));
 	screenfrag->SetCode(&fragShaderCode);
 	GLPrograms::ScreenProgram = std::make_shared<GLProgram>();
 	GLPrograms::ScreenProgram->Attach(ShaderType::Vertex, screenvert);
@@ -189,13 +189,13 @@ void UniEngine::Default::Load(World* world)
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Shaders/Vertex/Standard.vert");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Standard.vert"));
 
 
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform
 		+ "\n"
-		+ FileIO::LoadFileAsString("Shaders/Fragment/DeferredPrepass.frag");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/DeferredPrepass.frag"));
 	GLShader* deferredVert = new GLShader(ShaderType::Vertex);
 	deferredVert->SetCode(&vertShaderCode);
 	GLShader* deferredFrag = new GLShader(ShaderType::Fragment);
@@ -210,7 +210,7 @@ void UniEngine::Default::Load(World* world)
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Shaders/Vertex/StandardInstanced.vert");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
 
 	deferredVert = new GLShader(ShaderType::Vertex);
 	deferredVert->SetCode(&vertShaderCode);
@@ -226,11 +226,11 @@ void UniEngine::Default::Load(World* world)
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Shaders/Vertex/Standard.vert");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Standard.vert"));
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform
 		+ "\n"
-		+ FileIO::LoadFileAsString("Shaders/Fragment/Standard.frag");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Standard.frag"));
 
 	GLShader* standardvert = new GLShader(ShaderType::Vertex);
 	standardvert->SetCode(&vertShaderCode);
@@ -246,7 +246,7 @@ void UniEngine::Default::Load(World* world)
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Shaders/Vertex/StandardInstanced.vert");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
 
 	standardvert = new GLShader(ShaderType::Vertex);
 	standardvert->SetCode(&vertShaderCode);
@@ -264,12 +264,12 @@ void UniEngine::Default::Load(World* world)
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform
 		+ "\n"
-		+ FileIO::LoadFileAsString("Shaders/Fragment/Gizmo.frag");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Gizmo.frag"));
 
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Shaders/Vertex/Gizmo.vert");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Gizmo.vert"));
 
 	deferredVert = new GLShader(ShaderType::Vertex);
 	deferredVert->SetCode(&vertShaderCode);
@@ -286,7 +286,7 @@ void UniEngine::Default::Load(World* world)
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		+"\n"
-		+ FileIO::LoadFileAsString("Shaders/Vertex/GizmoInstanced.vert");
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/GizmoInstanced.vert"));
 
 	deferredVert = new GLShader(ShaderType::Vertex);
 	deferredVert->SetCode(&vertShaderCode);
