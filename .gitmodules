@@ -4,9 +4,6 @@
 [submodule "Submodules/glfw"]
 	path = Submodules/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "Submodules/glm"]
-	path = Submodules/glm
-	url = https://github.com/g-truc/glm.git
 [submodule "Submodules/stb"]
 	path = Submodules/stb
 	url = https://github.com/nothings/stb.git
