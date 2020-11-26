@@ -79,14 +79,14 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto* mmc = owner.GetPrivateComponent<MeshRenderer>();
-			if (!mmc->get()->IsEnabled() || mmc->get()->Material == nullptr || mmc->get()->Mesh == nullptr || mmc->get()->ForwardRendering) continue;
-			if (mmc->get()->BackCulling) GLFrameBuffer::Enable(GL_CULL_FACE);
+			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
+			if (mmc->BackCulling) GLFrameBuffer::Enable(GL_CULL_FACE);
 			else GLFrameBuffer::Disable(GL_CULL_FACE);
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
-				auto meshBound = mmc->get()->Mesh->GetBound();
+				auto meshBound = mmc->Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
 				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
 				minBound = glm::vec3(
@@ -100,8 +100,8 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 					glm::max(maxBound.z, center.z + size.z));
 			}
 			DeferredPrepass(
-				mmc->get()->Mesh.get(),
-				mmc->get()->Material.get(),
+				mmc->Mesh.get(),
+				mmc->Material.get(),
 				ltw
 			);
 		}
@@ -113,15 +113,15 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto* immc = owner.GetPrivateComponent<Particles>();
-			if (!immc->get()->IsEnabled() || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr || immc->get()->ForwardRendering) continue;
-			if (immc->get()->BackCulling)GLFrameBuffer::Enable(GL_CULL_FACE);
+			auto& immc = owner.GetPrivateComponent<Particles>();
+			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
+			if (immc->BackCulling)GLFrameBuffer::Enable(GL_CULL_FACE);
 			else GLFrameBuffer::Disable(GL_CULL_FACE);
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
-				glm::vec3 center = ltw * glm::vec4(immc->get()->BoundingBox.Center, 1.0f);
-				glm::vec3 size = glm::vec4(immc->get()->BoundingBox.Size, 0) * ltw / 2.0f;
+				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
+				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
 				minBound = glm::vec3(
 					glm::min(minBound.x, center.x - size.x),
 					glm::min(minBound.y, center.y - size.y),
@@ -133,11 +133,11 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 					glm::max(maxBound.z, center.z + size.z));
 			}
 			DeferredPrepassInstanced(
-				immc->get()->Mesh.get(),
-				immc->get()->Material.get(),
+				immc->Mesh.get(),
+				immc->Material.get(),
 				ltw,
-				immc->get()->Matrices.data(),
-				immc->get()->Matrices.size()
+				immc->Matrices.data(),
+				immc->Matrices.size()
 			);
 		}
 	}
@@ -239,13 +239,13 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 	if (owners) {
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto* mmc = owner.GetPrivateComponent<MeshRenderer>();
-			if (!mmc->get()->IsEnabled() || mmc->get()->Material == nullptr || mmc->get()->Mesh == nullptr || !mmc->get()->ForwardRendering) continue;
-			if (mmc->get()->BackCulling)glEnable(GL_CULL_FACE);
+			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering) continue;
+			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
-			auto meshBound = mmc->get()->Mesh->GetBound();
+			auto meshBound = mmc->Mesh->GetBound();
 			glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
 			if (calculateBounds) {
 				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
@@ -259,18 +259,18 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			if (!mmc->get()->Transparency) {
+			if (!mmc->Transparency) {
 				DrawMesh(
-					mmc->get()->Mesh.get(),
-					mmc->get()->Material.get(),
+					mmc->Mesh.get(),
+					mmc->Material.get(),
 					ltw,
 					camera.get(),
-					mmc->get()->ReceiveShadow);
+					mmc->ReceiveShadow);
 
 			}
 			else
 			{
-				transparentEntities.insert({ glm::distance(cameraTransform.GetPosition(), center), std::make_pair(mmc->get(), ltw) });
+				transparentEntities.insert({ glm::distance(cameraTransform.GetPosition(), center), std::make_pair(mmc.get(), ltw) });
 			}
 
 
@@ -280,11 +280,11 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 	if (owners) {
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto* immc = owner.GetPrivateComponent<Particles>();
-			if (!immc->get()->IsEnabled() || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr || !immc->get()->ForwardRendering) continue;
-			if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
+			auto& immc = owner.GetPrivateComponent<Particles>();
+			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering) continue;
+			if (immc->BackCulling)glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
-			if(immc->get()->Transparency)
+			if(immc->Transparency)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -295,8 +295,8 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
-				glm::vec3 center = ltw * glm::vec4(immc->get()->BoundingBox.Center, 1.0f);
-				glm::vec3 size = glm::vec4(immc->get()->BoundingBox.Size, 0) * ltw / 2.0f;
+				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
+				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
 				minBound = glm::vec3(
 					glm::min(minBound.x, center.x - size.x),
 					glm::min(minBound.y, center.y - size.y),
@@ -308,13 +308,13 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.z, center.z + size.z));
 			}
 			DrawMeshInstanced(
-				immc->get()->Mesh.get(),
-				immc->get()->Material.get(),
+				immc->Mesh.get(),
+				immc->Material.get(),
 				ltw,
-				immc->get()->Matrices.data(),
-				immc->get()->Matrices.size(),
+				immc->Matrices.data(),
+				immc->Matrices.size(),
 				camera.get(),
-				immc->get()->ReceiveShadow);
+				immc->ReceiveShadow);
 		}
 	}
 
@@ -509,7 +509,7 @@ void UniEngine::RenderManager::PreUpdate()
 	if (cameraEntities != nullptr)
 	{
 		for (auto cameraEntity : *cameraEntities) {
-			cameraEntity.GetPrivateComponent<CameraComponent>()->get()->_Camera->Clear();
+			cameraEntity.GetPrivateComponent<CameraComponent>()->_Camera->Clear();
 		}
 	}
 	auto worldBound = _World->GetBound();
@@ -668,11 +668,11 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto* mmc = owner.GetPrivateComponent<MeshRenderer>();
-								if (!mmc->get()->IsEnabled() || !mmc->get()->CastShadow || mmc->get()->Material == nullptr || mmc->get()->Mesh == nullptr) continue;
-								if (mmc->get()->BackCulling)glEnable(GL_CULL_FACE);
+								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+								if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 								else glDisable(GL_CULL_FACE);
-								auto mesh = mmc->get()->Mesh;
+								auto mesh = mmc->Mesh;
 								auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 								_DirectionalLightProgram->SetFloat4x4("model", ltw);
 								mesh->Enable();
@@ -697,14 +697,14 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto* immc = owner.GetPrivateComponent<Particles>();
-								if (!immc->get()->IsEnabled() || !immc->get()->CastShadow || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr) continue;
-								if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
+								auto& immc = owner.GetPrivateComponent<Particles>();
+								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
+								if (immc->BackCulling)glEnable(GL_CULL_FACE);
 								else glDisable(GL_CULL_FACE);
-								size_t count = immc->get()->Matrices.size();
+								size_t count = immc->Matrices.size();
 								GLVBO* matricesBuffer = new GLVBO();
-								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->get()->Matrices.data(), GL_STATIC_DRAW);
-								auto mesh = immc->get()->Mesh;
+								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+								auto mesh = immc->Mesh;
 								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
@@ -799,11 +799,11 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto* mmc = owner.GetPrivateComponent<MeshRenderer>();
-								if (!mmc->get()->IsEnabled() || !mmc->get()->CastShadow || mmc->get()->Material == nullptr || mmc->get()->Mesh == nullptr) continue;
-								if (mmc->get()->BackCulling)glEnable(GL_CULL_FACE);
+								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+								if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 								else glDisable(GL_CULL_FACE);
-								auto mesh = mmc->get()->Mesh;
+								auto mesh = mmc->Mesh;
 								_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->DisableAttributeArray(12);
@@ -826,14 +826,14 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto* immc = owner.GetPrivateComponent<Particles>();
-								if (!immc->get()->IsEnabled() || !immc->get()->CastShadow || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr) continue;
-								if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
+								auto& immc = owner.GetPrivateComponent<Particles>();
+								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
+								if (immc->BackCulling)glEnable(GL_CULL_FACE);
 								else glDisable(GL_CULL_FACE);
-								size_t count = immc->get()->Matrices.size();
+								size_t count = immc->Matrices.size();
 								GLVBO* matricesBuffer = new GLVBO();
-								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->get()->Matrices.data(), GL_STATIC_DRAW);
-								auto mesh = immc->get()->Mesh;
+								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+								auto mesh = immc->Mesh;
 								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
@@ -928,11 +928,11 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto* mmc = owner.GetPrivateComponent<MeshRenderer>();
-								if (!mmc->get()->IsEnabled() || !mmc->get()->CastShadow || mmc->get()->Material == nullptr || mmc->get()->Mesh == nullptr) continue;
-								if (mmc->get()->BackCulling)glEnable(GL_CULL_FACE);
+								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+								if (mmc->BackCulling)glEnable(GL_CULL_FACE);
 								else glDisable(GL_CULL_FACE);
-								auto mesh = mmc->get()->Mesh;
+								auto mesh = mmc->Mesh;
 								_SpotLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->DisableAttributeArray(12);
@@ -955,14 +955,14 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto* immc = owner.GetPrivateComponent<Particles>();
-								if (!immc->get()->IsEnabled() || !immc->get()->CastShadow || immc->get()->Material == nullptr || immc->get()->Mesh == nullptr) continue;
-								if (immc->get()->BackCulling)glEnable(GL_CULL_FACE);
+								auto& immc = owner.GetPrivateComponent<Particles>();
+								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
+								if (immc->BackCulling)glEnable(GL_CULL_FACE);
 								else glDisable(GL_CULL_FACE);
-								size_t count = immc->get()->Matrices.size();
+								size_t count = immc->Matrices.size();
 								GLVBO* matricesBuffer = new GLVBO();
-								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->get()->Matrices.data(), GL_STATIC_DRAW);
-								auto mesh = immc->get()->Mesh;
+								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+								auto mesh = immc->Mesh;
 								_SpotLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
@@ -998,7 +998,7 @@ void UniEngine::RenderManager::PreUpdate()
 	{
 		for (auto cameraEntity : *cameraEntities) {
 			if (!cameraEntity.Enabled()) continue;
-			auto& cameraComponent = *cameraEntity.GetPrivateComponent<CameraComponent>();
+			auto& cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
 			if (_MainCameraComponent && cameraComponent.get() == _MainCameraComponent) continue;
 			if (cameraComponent->IsEnabled())
 			{
@@ -1045,9 +1045,9 @@ void UniEngine::RenderManager::PreUpdate()
 			);
 			Camera::CameraInfoBlock.UploadMatrices(mainCamera->CameraUniformBufferBlock);
 			LocalToWorld cameraTransform = mainCameraEntity.GetComponentData<LocalToWorld>();
-			RenderToCameraDeferred(*mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
-			RenderBackGround(*mainCameraEntity.GetPrivateComponent<CameraComponent>());
-			RenderToCameraForward(*mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
+			RenderToCameraDeferred(mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
+			RenderBackGround(mainCameraEntity.GetPrivateComponent<CameraComponent>());
+			RenderToCameraForward(mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
 			worldBound.Size = (maxBound - minBound) / 2.0f;
 			worldBound.Center = (maxBound + minBound) / 2.0f;
 			worldBound.Radius = glm::length(worldBound.Size);

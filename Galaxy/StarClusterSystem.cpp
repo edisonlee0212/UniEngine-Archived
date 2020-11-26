@@ -112,9 +112,9 @@ void Galaxy::StarClusterSystem::Update()
 	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
 	_StarQuery.ToComponentDataArray(matrices);
 	//4. Setup transforms for particles component for the entity for actual rendering.
-	auto imr = _StarCluster.GetPrivateComponent<Particles>();
-	imr->get()->Matrices.resize(matrices.size());
-	memcpy(imr->get()->Matrices.data(), matrices.data(), sizeof(glm::mat4) * matrices.size());
+	auto& imr = _StarCluster.GetPrivateComponent<Particles>();
+	imr->Matrices.resize(matrices.size());
+	memcpy(imr->Matrices.data(), matrices.data(), sizeof(glm::mat4) * matrices.size());
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

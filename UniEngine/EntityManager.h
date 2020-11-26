@@ -195,7 +195,7 @@ namespace UniEngine {
 		static bool HasSharedComponent(Entity entity);
 
 		template <typename T = PrivateComponentBase>
-		static std::unique_ptr<T>* GetPrivateComponent(Entity entity);
+		static std::unique_ptr<T>& GetPrivateComponent(Entity entity);
 		template <typename T = PrivateComponentBase>
 		static void SetPrivateComponent(Entity entity, std::unique_ptr<T> value);
 		template <typename T = PrivateComponentBase>
@@ -1453,10 +1453,10 @@ namespace UniEngine {
 	template<typename T>
 	std::shared_ptr<T> EntityManager::GetSharedComponent(Entity entity)
 	{
-		if (entity.IsNull()) return nullptr;
+		if (entity.IsNull()) throw 0;
 		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
 		{
-			if (element.TypeID == typeid(T).hash_code())
+			if (dynamic_cast<T*>(element.SharedComponentData.get()))
 			{
 				return std::dynamic_pointer_cast<T>(element.SharedComponentData);
 			}
@@ -1470,7 +1470,7 @@ namespace UniEngine {
 		bool found = false;
 		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
 		{
-			if (element.TypeID == typeid(T).hash_code())
+			if (dynamic_cast<T*>(element.SharedComponentData.get()))
 			{
 				found = true;
 				element.SharedComponentData = value;
@@ -1489,7 +1489,7 @@ namespace UniEngine {
 		bool found = false;
 		for (auto i = 0; i < _EntityInfos->at(entity.Index).SharedComponentElements.size(); i++)
 		{
-			if (_EntityInfos->at(entity.Index).SharedComponentElements[i].TypeID == typeid(T).hash_code())
+			if (dynamic_cast<T*>(_EntityInfos->at(entity.Index).SharedComponentElements[i].SharedComponentData.get()))
 			{
 				found = true;
 				_EntityInfos->at(entity.Index).SharedComponentElements.erase(_EntityInfos->at(entity.Index).SharedComponentElements.begin() + i);
@@ -1505,7 +1505,7 @@ namespace UniEngine {
 		if (entity.IsNull()) return false;
 		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
 		{
-			if (element.TypeID == typeid(T).hash_code())
+			if (dynamic_cast<T*>(element.SharedComponentData.get()))
 			{
 				return true;
 			}
@@ -1513,19 +1513,19 @@ namespace UniEngine {
 		return false;
 	}
 	template <typename T>
-	std::unique_ptr<T>* EntityManager::GetPrivateComponent(Entity entity)
+	std::unique_ptr<T>& EntityManager::GetPrivateComponent(Entity entity)
 	{
-		if (entity.IsNull()) return nullptr;
+		if (entity.IsNull()) throw 0;
 		int i = 0;
 		for (auto& element : _EntityInfos->at(entity.Index).PrivateComponentElements)
 		{
-			if (element.TypeID == typeid(T).hash_code())
+			if (dynamic_cast<T*>(element.PrivateComponentData.get()))
 			{
-				return reinterpret_cast<std::unique_ptr<T>*>(&element.PrivateComponentData);
+				return *static_cast<std::unique_ptr<T>*>(static_cast<void*>(&element.PrivateComponentData));
 			}
 			i++;
 		}
-		return nullptr;
+		throw 1;
 	}
 	template <typename T>
 	void EntityManager::SetPrivateComponent(Entity entity, std::unique_ptr<T> value)
@@ -1535,7 +1535,7 @@ namespace UniEngine {
 		size_t i = 0;
 		for (auto& element : _EntityInfos->at(entity.Index).PrivateComponentElements)
 		{
-			if (element.TypeID == typeid(T).hash_code())
+			if (dynamic_cast<T*>(element.PrivateComponentData.get()))
 			{
 				found = true;
 				element.PrivateComponentData = std::move(value);
@@ -1558,7 +1558,7 @@ namespace UniEngine {
 		bool found = false;
 		for (auto i = 0; i < _EntityInfos->at(entity.Index).PrivateComponentElements.size(); i++)
 		{
-			if (_EntityInfos->at(entity.Index).PrivateComponentElements[i].TypeID == typeid(T).hash_code())
+			if (dynamic_cast<T*>(_EntityInfos->at(entity.Index).PrivateComponentElements[i].PrivateComponentData.get()))
 			{
 				found = true;
 				_EntityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
@@ -1571,11 +1571,10 @@ namespace UniEngine {
 	template <typename T>
 	bool EntityManager::HasPrivateComponent(Entity entity)
 	{
-
 		if (entity.IsNull()) return false;
 		for (auto& element : _EntityInfos->at(entity.Index).PrivateComponentElements)
 		{
-			if (element.TypeID == typeid(T).hash_code())
+			if (dynamic_cast<T*>(element.PrivateComponentData.get()))
 			{
 				return true;
 			}
@@ -2136,9 +2135,12 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	std::unique_ptr<T>* Entity::GetPrivateComponent()
+	std::unique_ptr<T>& Entity::GetPrivateComponent()
 	{
-		return EntityManager::GetPrivateComponent<T>(*this);
+		try {
+			return EntityManager::GetPrivateComponent<T>(*this);
+		}
+		catch (int e) { throw; }
 	}
 
 	template<typename T1>

@@ -98,7 +98,7 @@ namespace UniEngine {
 		bool HasSharedComponent();
 		
 		template <typename T = PrivateComponentBase>
-		std::unique_ptr<T>* GetPrivateComponent();
+		std::unique_ptr<T>& GetPrivateComponent();
 		template <typename T = PrivateComponentBase>
 		void SetPrivateComponent(std::unique_ptr<T> value);
 		template <typename T = PrivateComponentBase>

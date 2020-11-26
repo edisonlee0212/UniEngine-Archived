@@ -44,7 +44,7 @@ int main()
 	Entity newCam = EntityManager::CreateEntity(archetype, "Camera");
 	newCam.SetPrivateComponent(std::make_unique<CameraComponent>());
 	newCam.SetComponentData(ltw);
-	newCam.GetPrivateComponent<CameraComponent>()->get()->ResizeResolution(300, 300);
+	newCam.GetPrivateComponent<CameraComponent>()->ResizeResolution(300, 300);
 #pragma endregion
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetProgram(Default::GLPrograms::StandardProgram);

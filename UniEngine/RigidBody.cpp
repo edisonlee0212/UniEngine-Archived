@@ -250,10 +250,10 @@ void UniEngine::RigidBody::OnGui()
 			if (ImGui::Button("Apply mesh bound"))
 			{
 				statusChanged = true;
-				auto meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
+				auto& meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
 				if (meshRenderer)
 				{
-					auto bound = meshRenderer->get()->Mesh->GetBound();
+					auto bound = meshRenderer->Mesh->GetBound();
 					glm::vec3 scale = GetOwner().GetComponentData<LocalToWorld>().GetScale();
 					_ShapeParam = bound.Size * scale;
 				}
