@@ -45,14 +45,7 @@ namespace UniEngine {
 	class UNIENGINE_API Material
 	{
 		friend class RenderManager;
-		float _Shininess = 32.0f;
-
-		MaterialPolygonMode _MaterialPolygonMode = MaterialPolygonMode::FILL;
-		MaterialCullingMode _MaterialCullingMode = MaterialCullingMode::BACK;
-		MaterialBlendingMode _MaterialBlendingMode = MaterialBlendingMode::OFF;
 		
-		bool _TransparentDiscard = false;
-		float _TransparentDiscardLimit = 0.99f;
 		std::shared_ptr<Texture2D> _DiffuseMap;
 		std::shared_ptr<Texture2D> _SpecularMap; 
 		std::shared_ptr<Texture2D> _NormalMap;
@@ -63,18 +56,15 @@ namespace UniEngine {
 		std::vector<MaterialFloatProperty> _FloatPropertyList;
 		std::vector<MaterialMat4Property> _Float4x4PropertyList;
 	public:
+		MaterialPolygonMode PolygonMode = MaterialPolygonMode::FILL;
+		MaterialCullingMode CullingMode = MaterialCullingMode::BACK;
+		MaterialBlendingMode BlendingMode = MaterialBlendingMode::OFF;
+		float Shininess = 32.0f;
+		bool TransparentDiscard = false;
+		float TransparentDiscardLimit = 0.99f;
 		std::string Name;
-		Material()
-		{
-			Name = "New material";
-			_Shininess = 32.0f;
-		}
+		Material();
 		void OnGui();
-		MaterialPolygonMode GetMaterialPolygonMode() const;
-		void SetMaterialPolygonMode(MaterialPolygonMode mode);
-		void SetShininess(float value);
-		void SetTransparentDiscardLimit(float value);
-		void SetTransparentDiscard(bool value);
 		void SetMaterialProperty(const std::string& name, float value);
 		void SetMaterialProperty(const std::string& name, glm::mat4 value);
 		void SetTexture(std::shared_ptr<Texture2D> texture, TextureType type);

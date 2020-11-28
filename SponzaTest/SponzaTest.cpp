@@ -242,7 +242,7 @@ void InitGround() {
 	mat->SetTexture(textureH, TextureType::DISPLACEMENT);
 	*/
 	
-	mat->SetShininess(32.0f);
+	mat->Shininess = 32.0f;
 	auto meshMaterial = std::make_unique<MeshRenderer>();
 	meshMaterial->Mesh = Default::Primitives::Quad;
 	meshMaterial->Material = mat;

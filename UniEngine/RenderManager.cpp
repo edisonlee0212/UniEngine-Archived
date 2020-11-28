@@ -81,7 +81,7 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			if (!owner.Enabled()) continue;
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
-			if (mmc->Material->_MaterialBlendingMode != MaterialBlendingMode::OFF) continue;
+			if (mmc->Material->BlendingMode != MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -114,7 +114,7 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			if (!owner.Enabled()) continue;
 			auto& immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
-			if (immc->Material->_MaterialBlendingMode != MaterialBlendingMode::OFF) continue;
+			if (immc->Material->BlendingMode != MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -234,7 +234,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
-			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering && mmc->Material->_MaterialBlendingMode == MaterialBlendingMode::OFF) continue;
+			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering && mmc->Material->BlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			auto meshBound = mmc->Mesh->GetBound();
@@ -251,7 +251,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			if (mmc->Material->_MaterialBlendingMode == MaterialBlendingMode::OFF) {
+			if (mmc->Material->BlendingMode == MaterialBlendingMode::OFF) {
 				transparentEntities.insert({ glm::distance(cameraTransform.GetPosition(), center), std::make_pair(mmc.get(), ltw) });
 				continue;
 			}
@@ -267,7 +267,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
 			auto& immc = owner.GetPrivateComponent<Particles>();
-			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering && immc->Material->_MaterialBlendingMode == MaterialBlendingMode::OFF) continue;
+			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering && immc->Material->BlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -283,7 +283,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			if (immc->Material->_MaterialBlendingMode == MaterialBlendingMode::OFF) {
+			if (immc->Material->BlendingMode == MaterialBlendingMode::OFF) {
 				transparentInstancedEntities.insert({ glm::distance(cameraTransform.GetPosition(), glm::vec3(ltw[3])), std::make_pair(immc.get(), ltw) });
 				continue;
 			}
@@ -1353,7 +1353,7 @@ void RenderManager::LateUpdate()
 #pragma region Internal
 void RenderManager::MaterialPropertySetter(Material* material, bool disableBlending)
 {
-	switch (material->_MaterialPolygonMode)
+	switch (material->PolygonMode)
 	{
 	case MaterialPolygonMode::FILL:
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1366,7 +1366,7 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 		break;
 	}
 
-	switch (material->_MaterialCullingMode)
+	switch (material->CullingMode)
 	{
 	case MaterialCullingMode::OFF:
 		glDisable(GL_CULL_FACE);
@@ -1382,7 +1382,7 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 	}
 	if (disableBlending) glDisable(GL_BLEND);
 	else {
-		switch (material->_MaterialBlendingMode)
+		switch (material->BlendingMode)
 		{
 		case MaterialBlendingMode::OFF:
 			break;
@@ -1447,7 +1447,7 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	_DrawCall++;
 	_Triangles += mesh->Size() / 3;
 	auto& program = _GBufferPrepass;
-	program->SetFloat("material.shininess", material->_Shininess);
+	program->SetFloat("material.shininess", material->Shininess);
 	program->SetFloat4x4("model", model);
 	for (auto j : material->_FloatPropertyList) {
 		program->SetFloat(j.Name, j.Value);
@@ -1484,7 +1484,7 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 	_DrawCall++;
 	_Triangles += mesh->Size() * count / 3;
 	auto& program = _GBufferInstancedPrepass;
-	program->SetFloat("material.shininess", material->_Shininess);
+	program->SetFloat("material.shininess", material->Shininess);
 	program->SetFloat4x4("model", model);
 	for (auto j : material->_FloatPropertyList) {
 		program->SetFloat(j.Name, j.Value);
@@ -1523,9 +1523,9 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	if (program == nullptr) program = Default::GLPrograms::StandardInstancedProgram.get();
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
-	program->SetFloat("material.shininess", material->_Shininess);
-	program->SetBool("transparentDiscard", material->_TransparentDiscard);
-	program->SetFloat("transparentDiscardLimit", material->_TransparentDiscardLimit);
+	program->SetFloat("material.shininess", material->Shininess);
+	program->SetBool("transparentDiscard", material->TransparentDiscard);
+	program->SetFloat("transparentDiscardLimit", material->TransparentDiscardLimit);
 	program->SetInt("directionalShadowMap", 0);
 	program->SetInt("pointShadowMap", 1);
 	program->SetBool("enableShadow", _EnableShadow);
@@ -1557,9 +1557,9 @@ void UniEngine::RenderManager::DrawMesh(
 	if (program == nullptr) program = Default::GLPrograms::StandardProgram.get();
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
-	program->SetFloat("material.shininess", material->_Shininess);
-	program->SetBool("transparentDiscard", material->_TransparentDiscard);
-	program->SetFloat("transparentDiscardLimit", material->_TransparentDiscardLimit);
+	program->SetFloat("material.shininess", material->Shininess);
+	program->SetBool("transparentDiscard", material->TransparentDiscard);
+	program->SetFloat("transparentDiscardLimit", material->TransparentDiscardLimit);
 	program->SetInt("directionalShadowMap", 0);
 	program->SetInt("pointShadowMap", 1);
 	program->SetBool("enableShadow", _EnableShadow);

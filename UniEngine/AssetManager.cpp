@@ -192,7 +192,7 @@ void AssetManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& mode
     float shininess;
     pointMaterial->Get(AI_MATKEY_SHININESS, shininess);
     if (shininess == 0.0f) shininess = 32.0f;
-    material->SetShininess(shininess);
+    material->Shininess = shininess;
     material->SetProgram(shader);
 	if(pointMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
 	{

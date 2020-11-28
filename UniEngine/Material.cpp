@@ -7,6 +7,13 @@ using namespace UniEngine;
 static const char* MatPolygonMode[]{ "Fill", "Line", "Point" };
 static const char* MatCullingMode[]{ "BACK", "FRONT", "OFF" };
 static const char* MatBlendingMode[]{ "OFF", "ONE_MINUS_SRC_ALPHA" };
+
+Material::Material()
+{
+	Name = "New material";
+	Shininess = 32.0f;
+}
+
 void Material::OnGui()
 {
 	ImGui::Text("Name: %s", Name.c_str());
@@ -21,12 +28,12 @@ void Material::OnGui()
 		}
 		ImGui::EndPopup();
 	}
-	ImGui::DragFloat("Shininess", &_Shininess, 1.0f, 1.0f, 1024.0f);
-	ImGui::Checkbox("Enable Transparent Discard", &_TransparentDiscard);
-	ImGui::DragFloat("Transparent Discard Limit", &_TransparentDiscardLimit, 0.01f, 0.0f, 0.99f);
-	ImGui::Combo("Polygon Mode", reinterpret_cast<int*>(&_MaterialPolygonMode), MatPolygonMode, IM_ARRAYSIZE(MatPolygonMode));
-	ImGui::Combo("Culling Mode", reinterpret_cast<int*>(&_MaterialCullingMode), MatCullingMode, IM_ARRAYSIZE(MatCullingMode));
-	ImGui::Combo("Blending Mode", reinterpret_cast<int*>(&_MaterialBlendingMode), MatBlendingMode, IM_ARRAYSIZE(MatBlendingMode));
+	ImGui::DragFloat("Shininess", &Shininess, 1.0f, 1.0f, 1024.0f);
+	ImGui::Checkbox("Enable Transparent Discard", &TransparentDiscard);
+	ImGui::DragFloat("Transparent Discard Limit", &TransparentDiscardLimit, 0.01f, 0.0f, 0.99f);
+	ImGui::Combo("Polygon Mode", reinterpret_cast<int*>(&PolygonMode), MatPolygonMode, IM_ARRAYSIZE(MatPolygonMode));
+	ImGui::Combo("Culling Mode", reinterpret_cast<int*>(&CullingMode), MatCullingMode, IM_ARRAYSIZE(MatCullingMode));
+	ImGui::Combo("Blending Mode", reinterpret_cast<int*>(&BlendingMode), MatBlendingMode, IM_ARRAYSIZE(MatBlendingMode));
 
 	if (ImGui::TreeNode(("Textures##" + std::to_string(std::hash<std::string>{}(Name))).c_str())) {
 		{
@@ -186,31 +193,6 @@ void Material::OnGui()
 		}
 		ImGui::TreePop();
 	}
-}
-
-MaterialPolygonMode Material::GetMaterialPolygonMode() const
-{
-	return _MaterialPolygonMode;
-}
-
-void Material::SetMaterialPolygonMode(MaterialPolygonMode mode)
-{
-	_MaterialPolygonMode = mode;
-}
-
-void Material::SetShininess(float value)
-{
-	_Shininess = value;
-}
-
-void UniEngine::Material::SetTransparentDiscardLimit(float value)
-{
-	_TransparentDiscardLimit = value;
-}
-
-void UniEngine::Material::SetTransparentDiscard(bool value)
-{
-	_TransparentDiscard = value;
 }
 
 void UniEngine::Material::SetMaterialProperty(const std::string& name, float value)
