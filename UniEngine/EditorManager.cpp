@@ -248,7 +248,7 @@ void UniEngine::EditorManager::Init()
 	_SceneCameraPosition = glm::vec3(0.0f);
 	_SceneCameraRotation = glm::quat(glm::vec3(0.0f));
 	_SceneCamera = std::make_unique<CameraComponent>();
-	_SceneCamera->SkyBox = Default::Textures::DefaultSkybox;
+	_SceneCamera->DrawSkyBox = false;
 }
 
 void UniEngine::EditorManager::Destroy()

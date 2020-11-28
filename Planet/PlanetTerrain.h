@@ -1,6 +1,7 @@
 #pragma once
 #include "UniEngine.h"
 #include "TerrainChunk.h"
+#include "TerrainConstructionStageBase.h"
 using namespace UniEngine;
 namespace Planet {
 	struct PlanetInfo {
@@ -19,21 +20,20 @@ namespace Planet {
 		MeshInfo(unsigned index, bool enabled = true) : Index(index), Enabled(enabled) {};
 	};
 
-	class PlanetTerrain : SharedComponentBase
+	class PlanetTerrain : PrivateComponentBase
 	{
 		friend class PlanetTerrainSystem;
-		std::vector<TerrainChunk*> _ChunkList;
-		std::vector<TerrainChunk*> _WaitingList;
-		std::vector<TerrainChunk*> _RecycledChunkList;
+		std::vector<std::shared_ptr<TerrainChunk>> _ChunkList;
+		std::vector<std::shared_ptr<TerrainChunk>> _WaitingList;
+		std::vector<std::shared_ptr<TerrainChunk>> _RecycledChunkList;
 		PlanetInfo _Info;
 		std::shared_ptr<Material> _SurfaceMaterial;	
 		//Used for fast mesh generation;
 		std::vector<Vertex> _SharedVertices;
 		std::vector<unsigned> _SharedTriangles;
+		std::vector<std::shared_ptr<TerrainConstructionStageBase>> _TerrainConstructionStages;
 	public:
-		
-		size_t GetHashCode();
-		PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial, std::queue<TerrainChunk*>* generationQueue);
+		PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial, std::queue<std::shared_ptr<TerrainChunk>>& generationQueue);
 		~PlanetTerrain();
 	};
 }

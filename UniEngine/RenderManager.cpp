@@ -1605,6 +1605,14 @@ void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
 	);
 	Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
 	DrawMesh(mesh, material, model, cameraComponent->GetCamera().get(), receiveShadow);
+	if (cameraComponent == EditorManager::_SceneCamera.get()) return;
+	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
+	Camera::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera->_Camera.get(),
+		EditorManager::_SceneCameraPosition,
+		EditorManager::_SceneCameraRotation
+	);
+	Camera::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera->_Camera->CameraUniformBufferBlock);
+	DrawMesh(mesh, material, model, EditorManager::_SceneCamera->GetCamera().get(), receiveShadow);
 }
 
 void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices,
@@ -1624,6 +1632,14 @@ void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 
 	);
 	Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
 	DrawMeshInstanced(mesh, material, model, matrices, count, cameraComponent->GetCamera().get(), receiveShadow);
+	if (cameraComponent == EditorManager::_SceneCamera.get()) return;
+	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
+	Camera::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera->_Camera.get(),
+		EditorManager::_SceneCameraPosition,
+		EditorManager::_SceneCameraRotation
+	);
+	Camera::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera->_Camera->CameraUniformBufferBlock);
+	DrawMeshInstanced(mesh, material, model, matrices, count, EditorManager::_SceneCamera->GetCamera().get(), receiveShadow);
 }
 
 void UniEngine::RenderManager::DrawMesh(

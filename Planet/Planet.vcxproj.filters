@@ -39,6 +39,9 @@
     <ClCompile Include="TerrainChunk.cpp">
       <Filter>Source Files\Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="TerrainConstructionStageBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PlanetTerrain.h">
@@ -49,6 +52,9 @@
     </ClInclude>
     <ClInclude Include="TerrainChunk.h">
       <Filter>Header Files\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainConstructionStageBase.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

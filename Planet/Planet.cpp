@@ -10,6 +10,8 @@ using namespace Planet;
 int main()
 {
 	FileIO::SetResourcePath("../Resources/");
+
+	RenderManager::SetAmbientLight(0.3f);
 	Application::Init();
 
 #pragma region Preparations
@@ -23,6 +25,8 @@ int main()
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
 
+	RenderManager::GetMainCamera()->DrawSkyBox = false;
+	
 	PlanetTerrainSystem* pts = world->CreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
 	pts->Enable();
 
@@ -33,7 +37,7 @@ int main()
 	pi.LodDistance = 2.0f;
 	pi.Radius = 10.0;
 	pi.Index = 0;
-	pi.Resolution = 64;
+	pi.Resolution = 32;
 	pts->CreatePlanet(pi);
 
 	pi.Position = glm::dvec3(35.0f, 0.0f, 0.0f);

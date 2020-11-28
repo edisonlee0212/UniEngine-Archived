@@ -30,8 +30,6 @@ void Galaxy::StarClusterSystem::OnCreate()
 		StarSeed(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),
 		SelectionStatus(), OriginalColor(), SurfaceColor(), DisplayColor()
 	);
-
-	//TODO: Set star pattern.
 	pattern->YSpread = 0.05;
 	pattern->XZSpread = 0.015;
 	pattern->DiskAB = 3000;
