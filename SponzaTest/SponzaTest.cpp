@@ -37,13 +37,13 @@ int main()
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();
-	LocalToWorld ltw;
-	ltw.SetPosition(glm::vec3(-40, 25, 3));
-	RenderManager::GetMainCamera()->GetOwner().SetComponentData(ltw);
+	LocalToParent transform;
+	transform.SetPosition(glm::vec3(-40, 25, 3));
+	RenderManager::GetMainCamera()->GetOwner().SetComponentData(transform);
 
 	Entity newCam = EntityManager::CreateEntity(archetype, "Camera");
 	newCam.SetPrivateComponent(std::make_unique<CameraComponent>());
-	newCam.SetComponentData(ltw);
+	newCam.SetComponentData(transform);
 	newCam.GetPrivateComponent<CameraComponent>()->ResizeResolution(300, 300);
 #pragma endregion
 	auto sharedMat = std::make_shared<Material>();
@@ -63,9 +63,9 @@ int main()
 		backpackModel->Name = "Backpack";
 		Entity backpackEntity = AssetManager::ToEntity(archetype, backpackModel);
 		backpackEntity.SetName("Backpack");
-		ltw.SetPosition(glm::vec3(0, 10, 0));
-		ltw.SetScale(glm::vec3(5.0f));
-		EntityManager::SetComponentData(backpackEntity, ltw);
+		transform.SetPosition(glm::vec3(0, 10, 0));
+		transform.SetScale(glm::vec3(5.0f));
+		EntityManager::SetComponentData(backpackEntity, transform);
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
@@ -76,9 +76,9 @@ int main()
 		sponzaEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformManager & ParentSystem
-		ltw.SetPosition(glm::vec3(5, 5, 5));
-		ltw.SetScale(glm::vec3(0.05f));
-		EntityManager::SetComponentData(sponzaEntity, ltw);
+		transform.SetPosition(glm::vec3(5, 5, 5));
+		transform.SetScale(glm::vec3(0.05f));
+		EntityManager::SetComponentData(sponzaEntity, transform);
 	}
 	else if (testScene == PCSS) {
 		auto cmmc = std::make_unique<MeshRenderer>();
@@ -86,11 +86,11 @@ int main()
 		cmmc->Material = sharedMat;
 
 		Entity model1 = EntityManager::CreateEntity(archetype);
-		ltw.SetPosition(glm::vec3(-6.0f, 7.0f, 0.0f));
+		transform.SetPosition(glm::vec3(-6.0f, 7.0f, 0.0f));
 
 
-		ltw.SetScale(glm::vec3(4.0f, 8.0f, 4.0f));
-		EntityManager::SetComponentData(model1, ltw);
+		transform.SetScale(glm::vec3(4.0f, 8.0f, 4.0f));
+		EntityManager::SetComponentData(model1, transform);
 		EntityManager::SetPrivateComponent<MeshRenderer>(model1, std::move(cylinder));
 
 		auto mmmc = std::make_unique<MeshRenderer>();
@@ -98,17 +98,17 @@ int main()
 		mmmc->Material = sharedMat;
 
 		Entity model2 = EntityManager::CreateEntity(archetype);
-		ltw.SetPosition(glm::vec3(6.0f, 7.0f, 0.0f));
+		transform.SetPosition(glm::vec3(6.0f, 7.0f, 0.0f));
 
-		ltw.SetScale(glm::vec3(5.0f, 5.0f, 5.0f));
-		EntityManager::SetComponentData(model2, ltw);
+		transform.SetScale(glm::vec3(5.0f, 5.0f, 5.0f));
+		EntityManager::SetComponentData(model2, transform);
 		EntityManager::SetPrivateComponent<MeshRenderer>(model2, std::move(mmmc));
 	}
 #pragma endregion
 #pragma region Lights
 	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", LocalToWorld(), LocalToParent(), DirectionalLight());
 	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", LocalToWorld(), LocalToParent(), PointLight());
-	ltw.SetEulerRotation(glm::radians(glm::vec3(70, 0, 0)));
+	transform.SetEulerRotation(glm::radians(glm::vec3(70, 0, 0)));
 	
 	DirectionalLight dlc;
 	dlc.diffuseBrightness = 0.4f;
@@ -116,7 +116,7 @@ int main()
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	dle.SetName("Dir Light");
 	EntityManager::SetComponentData(dle, dlc);
-	EntityManager::SetComponentData(dle, ltw);
+	EntityManager::SetComponentData(dle, transform);
 
 
 	DirectionalLight dlc2;
@@ -124,14 +124,14 @@ int main()
 	Entity dle2 = EntityManager::CreateEntity(dlarc);
 	dle2.SetName("Dir Light");
 	EntityManager::SetComponentData<DirectionalLight>(dle2, dlc2);
-	ltw.SetEulerRotation(glm::radians(glm::vec3(30, 60, 0)));
-	EntityManager::SetComponentData(dle2, ltw);
+	transform.SetEulerRotation(glm::radians(glm::vec3(30, 60, 0)));
+	EntityManager::SetComponentData(dle2, transform);
 
 
 	auto plmmc = std::make_unique<MeshRenderer>();
 	plmmc->Mesh = Default::Primitives::Sphere;
 	plmmc->Material = sharedMat;
-	ltw.SetScale(glm::vec3(0.5f));
+	transform.SetScale(glm::vec3(0.5f));
 
 	PointLight plc;
 	plc.constant = 1.0f;
@@ -142,9 +142,9 @@ int main()
 	plc.specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity(plarc);
 	ple.SetName("Point Light");
-	ltw.SetPosition(glm::vec3(0, 20, 0));
+	transform.SetPosition(glm::vec3(0, 20, 0));
 	EntityManager::SetComponentData<PointLight>(ple, plc);
-	EntityManager::SetComponentData(ple, ltw);
+	EntityManager::SetComponentData(ple, transform);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
 #pragma endregion
@@ -185,10 +185,10 @@ void InitGround() {
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToParent(), LocalToWorld());
 	auto entity = EntityManager::CreateEntity(archetype);
 	entity.SetName("Ground");
-	LocalToWorld ltw;
-	ltw.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	ltw.SetScale(glm::vec3(100.0f));
-	EntityManager::SetComponentData(entity, ltw);
+	LocalToParent transform;
+	transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	transform.SetScale(glm::vec3(100.0f));
+	EntityManager::SetComponentData(entity, transform);
 	/*
 	auto entity1 = EntityManager::CreateEntity(archetype);
 	translation.Value = glm::vec3(-100.0f, 0.0f, 0.0f);

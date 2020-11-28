@@ -5,38 +5,31 @@
 using namespace UniEngine;
 bool TransformManager::_AddCheck;
 size_t TransformManager::_CurrentStoredHierarchyVersion = INT_MAX;
+EntityQuery TransformManager::_TransformQuery;
 std::vector<std::pair<Entity, ChildInfo>> TransformManager::_CachedParentHierarchies;
 void UniEngine::TransformManager::Init()
 {
+	_TransformQuery = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAllFilters(_TransformQuery, LocalToParent(), LocalToWorld());
 	_CachedParentHierarchies = std::vector<std::pair<Entity, ChildInfo>>();
-
-
 	EditorManager::RegisterComponentDataInspector<LocalToWorld>( [](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
-			auto ltw = reinterpret_cast<LocalToParent*>(data);
-			bool edited = false;
+			LocalToWorld* ltw = reinterpret_cast<LocalToWorld*>(data);
 			glm::vec3 er;
 			glm::vec3 t;
 			glm::vec3 s;
 			ltw->GetTERS(t, er, s);
 			er = glm::degrees(er);
-			if (ImGui::DragFloat3("Position", &t.x, 0.1f)) edited = true;
-			if (ImGui::DragFloat3("Rotation", &er.x, 1.0f)) edited = true;
-			if (ImGui::DragFloat3("Scale", &s.x, 0.01f)) edited = true;
-			if (edited)
-			{
-				er.y = glm::clamp(er.y, -89.0f, 89.0f);
-				auto nltw = glm::translate(t) * glm::mat4_cast(glm::quat(glm::radians(er))) * glm::scale(s);
-				ltw->Value = nltw;
-			}
+			ImGui::InputFloat3("Global Position", &t.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat3("Global Rotation", &er.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat3("Global Scale", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		}
 	);
 
 
 	EditorManager::RegisterComponentDataInspector<LocalToParent>( [](ComponentBase* data, bool isRoot)
 		{
-			if (isRoot) return;
 			std::stringstream stream;
 			auto ltp = reinterpret_cast<LocalToParent*>(data);
 			bool edited = false;
@@ -45,9 +38,9 @@ void UniEngine::TransformManager::Init()
 			glm::vec3 s;
 			ltp->GetTERS(t, er, s);
 			er = glm::degrees(er);
-			if (ImGui::DragFloat3("Position", &t.x, 0.1f)) edited = true;
-			if (ImGui::DragFloat3("Rotation", &er.x, 1.0f)) edited = true;
-			if (ImGui::DragFloat3("Scale", &s.x, 0.01f)) edited = true;
+			if (ImGui::DragFloat3("Local Position", &t.x, 0.1f)) edited = true;
+			if (ImGui::DragFloat3("Local Rotation", &er.x, 1.0f)) edited = true;
+			if (ImGui::DragFloat3("Local Scale", &s.x, 0.01f)) edited = true;
 			if (edited)
 			{
 				er.y = glm::clamp(er.y, -89.0f, 89.0f);
@@ -56,38 +49,18 @@ void UniEngine::TransformManager::Init()
 			}
 		}
 	);
-	/*
-	EntityManager::RegisterComponentDataCreator<LocalToWorld>([](ComponentBase* data)
-		{
-			auto ltw = reinterpret_cast<LocalToWorld*>(data);
-			*ltw = LocalToWorld();
-		}
-	);
-
-	EntityManager::RegisterComponentDataCreator<LocalToParent>([](ComponentBase* data)
-		{
-			auto ltw = reinterpret_cast<LocalToParent*>(data);
-			*ltw = LocalToParent();
-		}
-	);
-	*/
 }
 
 void UniEngine::TransformManager::LateUpdate()
 {
-	
-	/*
-	std::vector<std::shared_future<void>> futures;
-	auto threadPool = _ThreadPool;
-	EntityManager::ForAllRootParent([&futures, &threadPool, this](int i, Entity rootParent) {
-		LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(rootParent);
-		futures.push_back(threadPool->Push([ltw, rootParent, this](int id) {
-			CalculateLTWRecursive(ltw, rootParent);
-			}).share());
-		});
-	for (const auto& i : futures) i.wait();
-	*/
-
+	EntityManager::ForEach<LocalToParent, LocalToWorld>(_TransformQuery, [](int i, Entity entity, LocalToParent* ltp, LocalToWorld* ltw)
+		{
+			if(EntityManager::GetParent(entity).IsNull())
+			{
+				ltw->Value = ltp->Value;
+			}
+		}
+	);
 	if (EntityManager::GetParentHierarchyVersion() == _CurrentStoredHierarchyVersion) {
 		std::vector<std::shared_future<void>> futures;
 		auto list = &_CachedParentHierarchies;
@@ -102,10 +75,7 @@ void UniEngine::TransformManager::LateUpdate()
 						const auto& info = list->at(index);
 						auto pltw = EntityManager::GetComponentData<LocalToWorld>(info.first);
 						auto ltp = EntityManager::GetComponentData<LocalToParent>(info.second.Child);
-						//if (info.second.LastPLTW == pltw && info.second.LastLTP == ltp) continue;
-						//info.second.LastPLTW = pltw;
-						//info.second.LastLTP = ltp;
-						//list->at(index) = info;
+
 						LocalToWorld ltw;
 						ltw.Value = pltw.Value * ltp.Value;
 						EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
@@ -118,10 +88,6 @@ void UniEngine::TransformManager::LateUpdate()
 			const auto& info = list->at(index);
 			auto pltw = EntityManager::GetComponentData<LocalToWorld>(info.first);
 			auto ltp = EntityManager::GetComponentData<LocalToParent>(info.second.Child);
-			//if (info.second.LastPLTW == pltw && info.second.LastLTP == ltp) continue;
-			//info.second.LastPLTW = pltw;
-			//info.second.LastLTP = ltp;
-			//list->at(index) = info;
 			LocalToWorld ltw;
 			ltw.Value = pltw.Value * ltp.Value;
 			EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
@@ -132,7 +98,8 @@ void UniEngine::TransformManager::LateUpdate()
 		_CachedParentHierarchies.clear();
 		EntityManager::ForAllRootParent([](int i, Entity rootParent) {
 			CollectHierarchy(&_CachedParentHierarchies, rootParent);
-			});
+			}
+		);
 		_CurrentStoredHierarchyVersion = EntityManager::GetParentHierarchyVersion();
 	}
 
@@ -149,16 +116,6 @@ void UniEngine::TransformManager::CalculateLtwRecursive(LocalToWorld pltw, Entit
 	and maniputale them directly. The method I'm using here, which is the second one,
 	is faster and I don't know why...
 	*/
-
-	/*
-	EntityManager::ForEachChild(entity, [pltw, this](Entity i) {
-		auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
-		LocalToWorld ltw;
-		ltw.value = pltw.value * ltp.value;
-		EntityManager::SetComponentData<LocalToWorld>(i, ltw);
-		CalculateLTW(ltw, i);
-		});
-	*/
 	for (const auto& i : EntityManager::GetChildren(entity)) {
 		auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
 		LocalToWorld ltw;
@@ -171,7 +128,7 @@ void UniEngine::TransformManager::CalculateLtwRecursive(LocalToWorld pltw, Entit
 void UniEngine::TransformManager::CollectHierarchy(std::vector<std::pair<Entity, ChildInfo>>* container, Entity entity)
 {
 	auto children = EntityManager::GetChildren(entity);
-	auto initialSize = container->size();
+	const auto initialSize = container->size();
 	for (const auto& i : children) {
 		if (EntityManager::HasComponentData<LocalToWorld>(i) && EntityManager::HasComponentData<LocalToParent>(i) && EntityManager::HasComponentData<LocalToWorld>(entity)) {
 			ChildInfo info;
