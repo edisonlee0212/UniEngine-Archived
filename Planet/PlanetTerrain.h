@@ -5,10 +5,8 @@
 using namespace UniEngine;
 namespace Planet {
 	struct PlanetInfo {
-		glm::dvec3 Position;
-		glm::quat Rotation;
 		unsigned MaxLodLevel;
-		float LodDistance;
+		double LodDistance;
 		double Radius;
 		unsigned Index;
 		unsigned Resolution;
@@ -20,20 +18,18 @@ namespace Planet {
 		MeshInfo(unsigned index, bool enabled = true) : Index(index), Enabled(enabled) {};
 	};
 
-	class PlanetTerrain : PrivateComponentBase
+	class PlanetTerrain : public PrivateComponentBase
 	{
+		friend class TerrainChunk;
 		friend class PlanetTerrainSystem;
-		std::vector<std::shared_ptr<TerrainChunk>> _ChunkList;
-		std::vector<std::shared_ptr<TerrainChunk>> _WaitingList;
-		std::vector<std::shared_ptr<TerrainChunk>> _RecycledChunkList;
+		std::vector<std::unique_ptr<TerrainChunk>> _Chunks;
 		PlanetInfo _Info;
-		std::shared_ptr<Material> _SurfaceMaterial;	
 		//Used for fast mesh generation;
 		std::vector<Vertex> _SharedVertices;
 		std::vector<unsigned> _SharedTriangles;
-		std::vector<std::shared_ptr<TerrainConstructionStageBase>> _TerrainConstructionStages;
 	public:
-		PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial, std::queue<std::shared_ptr<TerrainChunk>>& generationQueue);
-		~PlanetTerrain();
+		std::shared_ptr<Material> SurfaceMaterial;
+		std::vector<std::shared_ptr<TerrainConstructionStageBase>> TerrainConstructionStages;
+		PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial);
 	};
 }

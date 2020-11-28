@@ -22,6 +22,7 @@ std::string* Default::ShaderIncludes::Uniform;
 std::shared_ptr<Texture2D> Default::Textures::MissingTexture;
 std::shared_ptr<Texture2D> Default::Textures::UV;
 std::shared_ptr<Texture2D> Default::Textures::ObjectIcon;
+std::shared_ptr<Texture2D> Default::Textures::Border;
 std::shared_ptr<Texture2D> Default::Textures::StandardTexture;
 std::shared_ptr<Cubemap> Default::Textures::DefaultSkybox;
 
@@ -182,6 +183,8 @@ void UniEngine::Default::Load(World* world)
 	Textures::StandardTexture->Name = "Default";
 	Textures::ObjectIcon = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/object.png"));
 	Textures::ObjectIcon->Name = "Icon";
+	Textures::Border = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/border.png"));
+	Textures::Border->Name = "Border";
 #pragma endregion
 #pragma region Standard Shader
 	

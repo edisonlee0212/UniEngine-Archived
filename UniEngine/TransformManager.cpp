@@ -85,7 +85,7 @@ void UniEngine::TransformManager::LateUpdate()
 			CalculateLTWRecursive(ltw, rootParent);
 			}).share());
 		});
-	for (auto i : futures) i.wait();
+	for (const auto& i : futures) i.wait();
 	*/
 
 	if (EntityManager::GetParentHierarchyVersion() == _CurrentStoredHierarchyVersion) {
@@ -126,7 +126,7 @@ void UniEngine::TransformManager::LateUpdate()
 			ltw.Value = pltw.Value * ltp.Value;
 			EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
 		}
-		for (auto i : futures) i.wait();
+		for (const auto& i : futures) i.wait();
 	}
 	else {
 		_CachedParentHierarchies.clear();

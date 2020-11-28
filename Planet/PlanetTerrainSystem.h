@@ -6,17 +6,13 @@ namespace Planet{
 	class PlanetTerrainSystem :
 		public SystemBase
 	{
-		std::vector<std::shared_ptr<PlanetTerrain>> _PlanetTerrainList;
-		std::queue<std::shared_ptr<TerrainChunk>> _GenerationQueue;
-		std::shared_ptr<Material> _DefaultSurfaceMaterial;
-		unsigned _MaxRecycledMeshAmount;
+		static std::shared_ptr<Material> _DefaultSurfaceMaterial;
 	public:
 		void OnCreate() override;
 		void Update() override;
 		void FixedUpdate() override;
-		void Remove(std::vector<std::shared_ptr<TerrainChunk>>& list, unsigned index);
-		void GenerateTerrain(std::shared_ptr<PlanetTerrain>& planetTerrain, std::shared_ptr<TerrainChunk>& targetChunk) const;
-		void SetMaxMeshAmount(unsigned amount);
-		void CreatePlanet(PlanetInfo info);
+		static std::shared_ptr<Material> GetDefaultSurfaceMaterial();
+		void CheckLod(std::mutex& mutex, std::unique_ptr<TerrainChunk>& chunk, const PlanetInfo& info, const LocalToWorld& planetTransform, const LocalToWorld& cameraTransform);
+		void RenderChunk(std::unique_ptr<TerrainChunk>& chunk, Material* material, glm::mat4& matrix, CameraComponent* camera, bool receiveShadow);
 	};
 }

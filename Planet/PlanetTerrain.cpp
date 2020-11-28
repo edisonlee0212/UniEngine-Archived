@@ -1,9 +1,10 @@
 #include "PlanetTerrain.h"
-
-Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial, std::queue<std::shared_ptr<TerrainChunk>>& generationQueue)
+#include "PlanetTerrainSystem.h"
+Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial)
 {
+	SetEnabled(true);
 	_Info = info;
-	_SurfaceMaterial = surfaceMaterial;
+	SurfaceMaterial = surfaceMaterial;
 	_SharedVertices = std::vector<Vertex>();
 	size_t resolution = info.Resolution;
 	_SharedVertices.resize(resolution * resolution);
@@ -30,18 +31,18 @@ Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> 
 			}
 		}
 	}
+	_Chunks.push_back(std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(1, 0, 0)));
+	_Chunks.push_back(std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 1, 0)));
+	_Chunks.push_back(std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, 1)));
+	_Chunks.push_back(std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(-1, 0, 0)));
+	_Chunks.push_back(std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, -1, 0)));
+	_Chunks.push_back(std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, -1)));
 
-	generationQueue.push(std::make_shared<TerrainChunk>(nullptr, 0, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(1, 0, 0)));
-	generationQueue.push(std::make_shared<TerrainChunk>(nullptr, 1, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 1, 0)));
-	generationQueue.push(std::make_shared<TerrainChunk>(nullptr, 2, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, 1)));
-	generationQueue.push(std::make_shared<TerrainChunk>(nullptr, 3, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(-1, 0, 0)));
-	generationQueue.push(std::make_shared<TerrainChunk>(nullptr, 4, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, -1, 0)));
-	generationQueue.push(std::make_shared<TerrainChunk>(nullptr, 5, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, -1)));
-}
-
-
-
-Planet::PlanetTerrain::~PlanetTerrain()
-{
+	std::mutex m;
+	for(auto& chunk : _Chunks)
+	{
+		chunk->GenerateTerrain(m, chunk);
+		chunk->Active = true;
+	}
 }
 

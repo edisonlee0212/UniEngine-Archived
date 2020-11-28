@@ -360,23 +360,20 @@ std::string EntityManager::GetEntityName(Entity entity)
 	return _EntityInfos->at(index).Name;
 }
 
-bool EntityManager::SetEntityName(Entity entity, std::string name)
+void EntityManager::SetEntityName(Entity entity, std::string name)
 {
-	if (entity.IsNull()) return false;
+	if (entity.IsNull()) return;
 	size_t index = entity.Index;
 
 	if (entity != _Entities->at(index)) {
 		Debug::Error("Child already deleted!");
-		return false;
+		return;
 	}
 	if (name.length() != 0) {
 		_EntityInfos->at(index).Name = name;
-		return true;
+		return;
 	}
-
 	_EntityInfos->at(index).Name = "Unnamed";
-	return false;
-
 }
 
 void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)

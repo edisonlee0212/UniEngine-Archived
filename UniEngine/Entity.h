@@ -83,31 +83,31 @@ namespace UniEngine {
 		bool IsDeleted() const;
 
 		template<typename T = ComponentBase>
-		void SetComponentData(T value);
+		void SetComponentData(T value) const;
 		template<typename T = ComponentBase>
-		T GetComponentData();
+		T GetComponentData() const;
 		template<typename T = ComponentBase>
-		bool HasComponentData();
+		bool HasComponentData() const;
 		template <typename T = SharedComponentBase>
-		std::shared_ptr<T> GetSharedComponent();
+		std::shared_ptr<T> GetSharedComponent() const;
 		template <typename T = SharedComponentBase>
-		void SetSharedComponent(std::shared_ptr<T> value);
+		void SetSharedComponent(std::shared_ptr<T> value) const;
 		template <typename T = SharedComponentBase>
-		bool RemoveSharedComponent();
+		bool RemoveSharedComponent() const;
 		template <typename T = SharedComponentBase>
-		bool HasSharedComponent();
+		bool HasSharedComponent() const;
 		
 		template <typename T = PrivateComponentBase>
-		std::unique_ptr<T>& GetPrivateComponent();
+		std::unique_ptr<T>& GetPrivateComponent() const;
 		template <typename T = PrivateComponentBase>
-		void SetPrivateComponent(std::unique_ptr<T> value);
+		void SetPrivateComponent(std::unique_ptr<T> value) const;
 		template <typename T = PrivateComponentBase>
-		bool RemovePrivateComponent();
+		bool RemovePrivateComponent() const;
 		template <typename T = PrivateComponentBase>
 		bool HasPrivateComponent() const;
 		
 		inline std::string GetName() const;
-		inline bool SetName(std::string name) const;
+		inline void SetName(std::string name) const;
 	};
 #pragma region Storage
 

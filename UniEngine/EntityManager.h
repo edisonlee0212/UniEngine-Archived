@@ -148,7 +148,7 @@ namespace UniEngine {
 
 		static std::string GetEntityName(Entity entity);
 
-		static bool SetEntityName(Entity entity, std::string name);
+		static void SetEntityName(Entity entity, std::string name);
 
 		static void SetParent(Entity entity, Entity parent);
 		static Entity GetParent(Entity entity);
@@ -354,9 +354,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (size_t i = 0; i < results.size(); i++) {
-				results[i].wait();
-			}
+			for (const auto& i : results) i.wait();
 		}
 	}
 	template<typename T1, typename T2>
@@ -422,9 +420,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (size_t i = 0; i < results.size(); i++) {
-				results[i].wait();
-			}
+			for (const auto& i : results) i.wait();
 		}
 	}
 	template<typename T1, typename T2, typename T3>
@@ -497,9 +493,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (size_t i = 0; i < results.size(); i++) {
-				results[i].wait();
-			}
+			for (const auto& i : results) i.wait();
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4>
@@ -581,9 +575,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (size_t i = 0; i < results.size(); i++) {
-				results[i].wait();
-			}
+			for (const auto& i : results) i.wait();
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
@@ -674,9 +666,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (size_t i = 0; i < results.size(); i++) {
-				results[i].wait();
-			}
+			for (const auto& i : results) i.wait();
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
@@ -776,9 +766,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (size_t i = 0; i < results.size(); i++) {
-				results[i].wait();
-			}
+			for (const auto& i : results) i.wait();
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
@@ -887,9 +875,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (size_t i = 0; i < results.size(); i++) {
-				results[i].wait();
-			}
+			for (const auto& i : results) i.wait();
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
@@ -1007,9 +993,7 @@ namespace UniEngine {
 						}
 				).share());
 			}
-			for (size_t i = 0; i < results.size(); i++) {
-				results[i].wait();
-			}
+			for (const auto& i : results) i.wait();
 		}
 	}
 #pragma endregion
@@ -1821,7 +1805,7 @@ namespace UniEngine {
 				}
 				}).share());
 		}
-		for (auto i : futures) i.wait();
+		for (const auto& i : futures) i.wait();
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			auto listSize = collectedDataLists[i].size();
 			if (listSize == 0) continue;
@@ -1865,7 +1849,7 @@ namespace UniEngine {
 				}
 				}).share());
 		}
-		for (auto i : futures) i.wait();
+		for (const auto& i : futures) i.wait();
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			auto listSize = collectedDataLists[i].size();
 			if (listSize == 0) continue;
@@ -1906,7 +1890,7 @@ namespace UniEngine {
 				}
 				}).share());
 		}
-		for (auto i : futures) i.wait();
+		for (const auto& i : futures) i.wait();
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			auto listSize = collectedDataLists[i].size();
 			if (listSize == 0) continue;
@@ -1948,7 +1932,7 @@ namespace UniEngine {
 				}
 				}).share());
 		}
-		for (auto i : futures) i.wait();
+		for (const auto& i : futures) i.wait();
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			auto listSize = collectedEntityLists[i].size();
 			if (listSize == 0) continue;
@@ -1992,7 +1976,7 @@ namespace UniEngine {
 				}
 				}).share());
 		}
-		for (auto i : futures) i.wait();
+		for (const auto& i : futures) i.wait();
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			auto listSize = collectedEntityLists[i].size();
 			if (listSize == 0) continue;
@@ -2033,7 +2017,7 @@ namespace UniEngine {
 				}
 				}).share());
 		}
-		for (auto i : futures) i.wait();
+		for (const auto& i : futures) i.wait();
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			auto listSize = collectedEntityLists[i].size();
 			if (listSize == 0) continue;
@@ -2075,55 +2059,55 @@ namespace UniEngine {
 	}
 	*/
 	template <typename T>
-	void Entity::SetComponentData(T value)
+	void Entity::SetComponentData(T value) const
 	{
 		EntityManager::SetComponentData(*this, value);
 	}
 
 	template <typename T>
-	T Entity::GetComponentData()
+	T Entity::GetComponentData() const
 	{
 		return EntityManager::GetComponentData<T>(*this);
 	}
 
 	template <typename T>
-	bool Entity::HasComponentData()
+	bool Entity::HasComponentData() const
 	{
 		return EntityManager::HasComponentData<T>(*this);
 	}
 
 	template <typename T>
-	std::shared_ptr<T> Entity::GetSharedComponent()
+	std::shared_ptr<T> Entity::GetSharedComponent() const
 	{
 		return std::move(EntityManager::GetSharedComponent<T>(*this));
 	}
 
 	template <typename T>
-	void Entity::SetSharedComponent(std::shared_ptr<T> value)
+	void Entity::SetSharedComponent(std::shared_ptr<T> value) const
 	{
 		EntityManager::SetSharedComponent(*this, value);
 	}
 
 	template <typename T>
-	bool Entity::RemoveSharedComponent()
+	bool Entity::RemoveSharedComponent() const
 	{
 		return EntityManager::RemoveSharedComponent<T>();
 	}
 
 	template <typename T>
-	bool Entity::HasSharedComponent()
+	bool Entity::HasSharedComponent() const
 	{
 		return EntityManager::HasSharedComponent<T>();
 	}
 
 	template <typename T>
-	void Entity::SetPrivateComponent(std::unique_ptr<T> value)
+	void Entity::SetPrivateComponent(std::unique_ptr<T> value) const
 	{
 		EntityManager::SetPrivateComponent(*this, std::move(value));
 	}
 
 	template <typename T>
-	bool Entity::RemovePrivateComponent()
+	bool Entity::RemovePrivateComponent() const
 	{
 		return EntityManager::RemovePrivateComponent<T>();
 	}
@@ -2135,7 +2119,7 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	std::unique_ptr<T>& Entity::GetPrivateComponent()
+	std::unique_ptr<T>& Entity::GetPrivateComponent() const
 	{
 		try {
 			return EntityManager::GetPrivateComponent<T>(*this);

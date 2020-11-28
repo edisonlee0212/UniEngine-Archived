@@ -24,7 +24,7 @@ inline std::string Entity::GetName() const
 	return EntityManager::GetEntityName(*this);
 }
 
-inline bool Entity::SetName(std::string name) const
+inline void Entity::SetName(std::string name) const
 {
 	return EntityManager::SetEntityName(*this, std::move(name));
 }

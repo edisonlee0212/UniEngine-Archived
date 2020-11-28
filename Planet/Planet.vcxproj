@@ -97,12 +97,14 @@ xcopy /y /d "..\includes\PhysX\r\*.dll" "$(OutDir)" </Command>
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="PlanetTerrain.cpp" />
     <ClCompile Include="PlanetTerrainSystem.cpp" />
+    <ClCompile Include="PerlinNoiseStage.cpp" />
     <ClCompile Include="TerrainChunk.cpp" />
     <ClCompile Include="TerrainConstructionStageBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PlanetTerrain.h" />
     <ClInclude Include="PlanetTerrainSystem.h" />
+    <ClInclude Include="PerlinNoiseStage.h" />
     <ClInclude Include="TerrainChunk.h" />
     <ClInclude Include="TerrainConstructionStageBase.h" />
   </ItemGroup>

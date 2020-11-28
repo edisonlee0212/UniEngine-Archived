@@ -19,10 +19,10 @@
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{b6c1464c-b1bd-4f98-8422-3195a3af56c7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Terrain">
+    <Filter Include="Header Files\TerrainConstructionStage">
       <UniqueIdentifier>{32fe6610-2648-4587-9937-06e7d41cb230}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Terrain">
+    <Filter Include="Source Files\TerrainConstructionStage">
       <UniqueIdentifier>{3c404a51-8d79-4a98-ace3-cdfb6ff38f4f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -30,31 +30,37 @@
     <ClCompile Include="Planet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PlanetTerrain.cpp">
-      <Filter>Source Files\Terrain</Filter>
-    </ClCompile>
     <ClCompile Include="PlanetTerrainSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PlanetTerrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="TerrainChunk.cpp">
-      <Filter>Source Files\Terrain</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TerrainConstructionStageBase.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\TerrainConstructionStage</Filter>
+    </ClCompile>
+    <ClCompile Include="PerlinNoiseStage.cpp">
+      <Filter>Source Files\TerrainConstructionStage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PlanetTerrain.h">
-      <Filter>Header Files\Terrain</Filter>
-    </ClInclude>
     <ClInclude Include="PlanetTerrainSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="PlanetTerrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="TerrainChunk.h">
-      <Filter>Header Files\Terrain</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TerrainConstructionStageBase.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\TerrainConstructionStage</Filter>
+    </ClInclude>
+    <ClInclude Include="PerlinNoiseStage.h">
+      <Filter>Header Files\TerrainConstructionStage</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
