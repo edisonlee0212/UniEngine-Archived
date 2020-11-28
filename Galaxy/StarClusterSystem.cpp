@@ -14,7 +14,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	imr->CastShadow = false;
 	imr->ReceiveShadow = false;
 	imr->Mesh = Default::Primitives::Sphere;
-	imr->Material->SetProgram(Default::GLPrograms::StandardDeferredInstancedProgram);
+	imr->Material->SetProgram(Default::GLPrograms::StandardInstancedProgram);
 	imr->Material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	_StarCluster.SetPrivateComponent(std::move(imr));
 	_StarCluster.SetComponentData(ltw);
@@ -91,28 +91,22 @@ void Galaxy::StarClusterSystem::Update()
 	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery,
 		[time](int i, Entity entity, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset)
 		{
-			position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0 + time, true);
+			position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0f + time, true);
 		}, false
-		);
+	);
 	//2. Apply position and size to the transform which will later be used for rendering.
 	float size = _Size;
 	EntityManager::ForEach<StarPosition, LocalToWorld>(
 		_StarQuery,
 		[size](int i, Entity entity, StarPosition* position, LocalToWorld* ltw)
 		{
-			glm::vec3 pos = position->Value;
-			ltw->Value = glm::translate(pos / 20.0f) * glm::scale(size * glm::vec3(1.0f));
+			ltw->Value = glm::translate(glm::vec3(position->Value) / 20.0f) * glm::scale(size * glm::vec3(1.0f));
 		}, false
-		);
-	//3. Collect transform data for stars with entity query
-	std::vector<Entity> entities = std::vector<Entity>();
-	_StarQuery.ToEntityArray(entities);
-	std::vector<LocalToWorld> matrices = std::vector<LocalToWorld>();
-	_StarQuery.ToComponentDataArray(matrices);
-	//4. Setup transforms for particles component for the entity for actual rendering.
+	);
+	//3. Setup transforms for particles component for the entity for actual rendering.
 	auto& imr = _StarCluster.GetPrivateComponent<Particles>();
-	imr->Matrices.resize(matrices.size());
-	memcpy(imr->Matrices.data(), matrices.data(), sizeof(glm::mat4) * matrices.size());
+	imr->Matrices.resize(0);
+	_StarQuery.ToComponentDataArray(*(std::vector<LocalToWorld>*)(void*)&imr->Matrices);
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

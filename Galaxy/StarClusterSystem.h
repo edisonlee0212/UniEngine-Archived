@@ -273,9 +273,9 @@ namespace Galaxy {
 		float _Size = 0.1f;
 		float _GalaxyTime = 0.0f;
 	public:
-		void OnCreate();
-		void Update();
-		void FixedUpdate();
+		void OnCreate() override;
+		void Update() override;
+		void FixedUpdate() override;
 	};
 }
 
