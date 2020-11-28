@@ -68,8 +68,6 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 {
 	auto& camera = cameraComponent->GetCamera();
 	cameraComponent->_GBuffer->Bind();
-	GLFrameBuffer::Enable(GL_DEPTH_TEST);
-	GLFrameBuffer::Disable(GL_BLEND);
 	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	cameraComponent->_GBuffer->GetFrameBuffer()->DrawBuffers(3, attachments);
 	cameraComponent->_GBuffer->Clear();
@@ -81,8 +79,6 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			if (!owner.Enabled()) continue;
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
-			if (mmc->BackCulling) GLFrameBuffer::Enable(GL_CULL_FACE);
-			else GLFrameBuffer::Disable(GL_CULL_FACE);
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -115,8 +111,6 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			if (!owner.Enabled()) continue;
 			auto& immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
-			if (immc->BackCulling)GLFrameBuffer::Enable(GL_CULL_FACE);
-			else GLFrameBuffer::Disable(GL_CULL_FACE);
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -141,7 +135,7 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			);
 		}
 	}
-
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	Default::GLPrograms::ScreenVAO->Bind();
 	if (_EnableSSAO) {
 		cameraComponent->_SSAO->Bind();
@@ -230,10 +224,8 @@ void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraCom
 void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
 	auto& camera = cameraComponent->_Camera;
-
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glDisable(GL_BLEND);
 	std::map<float, std::pair<MeshRenderer*, glm::mat4>> transparentEntities;
 	const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners) {
@@ -241,8 +233,6 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 			if (!owner.Enabled()) continue;
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering) continue;
-			if (mmc->BackCulling)glEnable(GL_CULL_FACE);
-			else glDisable(GL_CULL_FACE);
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			auto meshBound = mmc->Mesh->GetBound();
@@ -259,12 +249,11 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			if (!mmc->Transparency) {
+			if (!(mmc->Material.get()->_MaterialBlendingMode == MaterialBlendingMode::OFF)) {
 				DrawMesh(
 					mmc->Mesh.get(),
 					mmc->Material.get(),
 					ltw,
-					camera.get(),
 					mmc->ReceiveShadow);
 
 			}
@@ -272,8 +261,6 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 			{
 				transparentEntities.insert({ glm::distance(cameraTransform.GetPosition(), center), std::make_pair(mmc.get(), ltw) });
 			}
-
-
 		}
 	}
 	owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
@@ -282,16 +269,6 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 			if (!owner.Enabled()) continue;
 			auto& immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering) continue;
-			if (immc->BackCulling)glEnable(GL_CULL_FACE);
-			else glDisable(GL_CULL_FACE);
-			if(immc->Transparency)
-			{
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			}else
-			{
-				glDisable(GL_BLEND);
-			}
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -313,14 +290,11 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 				ltw,
 				immc->Matrices.data(),
 				immc->Matrices.size(),
-				camera.get(),
 				immc->ReceiveShadow);
 		}
 	}
 
 	//Draw all transparent objects here:
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (auto it = transparentEntities.rbegin(); it != transparentEntities.rend(); ++it)
 	{
 		const auto* mmc = it->second.first;
@@ -328,7 +302,6 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 			mmc->Mesh.get(),
 			mmc->Material.get(),
 			it->second.second,
-			camera.get(),
 			mmc->ReceiveShadow
 		);
 	}
@@ -502,7 +475,6 @@ void RenderManager::Init()
 
 void UniEngine::RenderManager::PreUpdate()
 {
-	glCullFace(GL_BACK);
 	_Triangles = 0;
 	_DrawCall = 0;
 	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
@@ -649,8 +621,6 @@ void UniEngine::RenderManager::PreUpdate()
 				if (_EnableShadow) {
 					_DirectionalLightShadowMap->Bind();
 					_DirectionalLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
-					glEnable(GL_DEPTH_TEST);
-					glDisable(GL_BLEND);
 					glClear(GL_DEPTH_BUFFER_BIT);
 					enabledSize = 0;
 					_DirectionalLightProgram->Bind();
@@ -670,8 +640,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!owner.Enabled()) continue;
 								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
-								if (mmc->BackCulling)glEnable(GL_CULL_FACE);
-								else glDisable(GL_CULL_FACE);
+								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
 								auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 								_DirectionalLightProgram->SetFloat4x4("model", ltw);
@@ -699,8 +668,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!owner.Enabled()) continue;
 								auto& immc = owner.GetPrivateComponent<Particles>();
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
-								if (immc->BackCulling)glEnable(GL_CULL_FACE);
-								else glDisable(GL_CULL_FACE);
+								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
 								GLVBO* matricesBuffer = new GLVBO();
 								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
@@ -785,8 +753,6 @@ void UniEngine::RenderManager::PreUpdate()
 #pragma region PointLight Shadowmap Pass
 					_PointLightShadowMap->Bind();
 					_PointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
-					glEnable(GL_DEPTH_TEST);
-					glDisable(GL_BLEND);
 					glClear(GL_DEPTH_BUFFER_BIT);
 					_PointLightProgram->Bind();
 					enabledSize = 0;
@@ -801,8 +767,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!owner.Enabled()) continue;
 								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
-								if (mmc->BackCulling)glEnable(GL_CULL_FACE);
-								else glDisable(GL_CULL_FACE);
+								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
 								_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
@@ -828,8 +793,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!owner.Enabled()) continue;
 								auto& immc = owner.GetPrivateComponent<Particles>();
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
-								if (immc->BackCulling)glEnable(GL_CULL_FACE);
-								else glDisable(GL_CULL_FACE);
+								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
 								GLVBO* matricesBuffer = new GLVBO();
 								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
@@ -914,8 +878,6 @@ void UniEngine::RenderManager::PreUpdate()
 #pragma region SpotLight Shadowmap Pass
 					_SpotLightShadowMap->Bind();
 					_SpotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
-					glEnable(GL_DEPTH_TEST);
-					glDisable(GL_BLEND);
 					glClear(GL_DEPTH_BUFFER_BIT);
 					_SpotLightProgram->Bind();
 					enabledSize = 0;
@@ -930,8 +892,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!owner.Enabled()) continue;
 								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
-								if (mmc->BackCulling)glEnable(GL_CULL_FACE);
-								else glDisable(GL_CULL_FACE);
+								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
 								_SpotLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
@@ -957,8 +918,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!owner.Enabled()) continue;
 								auto& immc = owner.GetPrivateComponent<Particles>();
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
-								if (immc->BackCulling)glEnable(GL_CULL_FACE);
-								else glDisable(GL_CULL_FACE);
+								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
 								GLVBO* matricesBuffer = new GLVBO();
 								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
@@ -1297,7 +1257,51 @@ void RenderManager::LateUpdate()
 #pragma endregion
 #pragma region RenderAPI
 #pragma region Internal
-void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_ptr<GLProgram> program)
+void RenderManager::MaterialPropertySetter(Material* material, bool disableBlending)
+{
+	switch (material->_MaterialPolygonMode)
+	{
+	case MaterialPolygonMode::FILL:
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		break;
+	case MaterialPolygonMode::LINE:
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		break;
+	case MaterialPolygonMode::POINT:
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		break;
+	}
+
+	switch (material->_MaterialCullingMode)
+	{
+	case MaterialCullingMode::OFF:
+		glDisable(GL_CULL_FACE);
+		break;
+	case MaterialCullingMode::FRONT:
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		break;
+	case MaterialCullingMode::BACK:
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		break;
+	}
+	if (disableBlending) glDisable(GL_BLEND);
+	else {
+		switch (material->_MaterialBlendingMode)
+		{
+		case MaterialBlendingMode::OFF:
+			break;
+		case MaterialBlendingMode::ONE_MINUS_SRC_ALPHA:
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		}
+	}
+	glEnable(GL_DEPTH_TEST);
+}
+
+void RenderManager::MaterialTextureBinder(Material* material, std::shared_ptr<GLProgram> program)
 {
 	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
 	{
@@ -1339,6 +1343,7 @@ void RenderManager::MaterialTextureBindHelper(Material* material, std::shared_pt
 
 void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
 {
+	if (mesh == nullptr || material == nullptr) return;
 	mesh->Enable();
 	mesh->VAO()->DisableAttributeArray(12);
 	mesh->VAO()->DisableAttributeArray(13);
@@ -1356,7 +1361,8 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	for (auto j : material->_Float4x4PropertyList) {
 		program->SetFloat4x4(j.Name, j.Value);
 	}
-	MaterialTextureBindHelper(material, program);
+	MaterialPropertySetter(material, true);
+	MaterialTextureBinder(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
@@ -1364,6 +1370,7 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices,
 	size_t count)
 {
+	if (mesh == nullptr || material == nullptr || matrices == nullptr || count == 0) return;
 	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
 	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
@@ -1391,7 +1398,8 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 	for (auto j : material->_Float4x4PropertyList) {
 		program->SetFloat4x4(j.Name, j.Value);
 	}
-	MaterialTextureBindHelper(material, program);
+	MaterialPropertySetter(material, true);
+	MaterialTextureBinder(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 }
@@ -1399,7 +1407,7 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 void UniEngine::RenderManager::DrawMeshInstanced(
 	Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow)
 {
-	glEnable(GL_DEPTH_TEST);
+	if (mesh == nullptr || material == nullptr || matrices == nullptr || count == 0) return;
 	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
 	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
@@ -1433,7 +1441,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	for (auto j : material->_Float4x4PropertyList) {
 		program->SetFloat4x4(j.Name, j.Value);
 	}
-	MaterialTextureBindHelper(material, program);
+	MaterialPropertySetter(material);
+	MaterialTextureBinder(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 }
@@ -1442,7 +1451,6 @@ void UniEngine::RenderManager::DrawMesh(
 	Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow)
 {
 	if (mesh == nullptr || material == nullptr) return;
-	glEnable(GL_DEPTH_TEST);
 	mesh->Enable();
 	mesh->VAO()->DisableAttributeArray(12);
 	mesh->VAO()->DisableAttributeArray(13);
@@ -1466,7 +1474,8 @@ void UniEngine::RenderManager::DrawMesh(
 	for (auto j : material->_Float4x4PropertyList) {
 		program->SetFloat4x4(j.Name, j.Value);
 	}
-	MaterialTextureBindHelper(material, program);
+	MaterialPropertySetter(material);
+	MaterialTextureBinder(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
@@ -1486,10 +1495,12 @@ void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, 
 
 void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix)
 {
+	if (mesh == nullptr || matrices == nullptr || count == 0) return;
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	GLVBO* matricesBuffer = new GLVBO();
 	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
@@ -1519,10 +1530,12 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 
 void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix)
 {
+	if (mesh == nullptr) return;
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	mesh->Enable();
 	mesh->VAO()->DisableAttributeArray(12);
 	mesh->VAO()->DisableAttributeArray(13);

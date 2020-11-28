@@ -112,7 +112,8 @@ namespace UniEngine {
 		static float _MaxShadowDistance;
 #pragma endregion
 #pragma endregion
-		static void MaterialTextureBindHelper(Material* material, std::shared_ptr<GLProgram> program);
+		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
+		static void MaterialTextureBinder(Material* material, std::shared_ptr<GLProgram> program);
 		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
 		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
 

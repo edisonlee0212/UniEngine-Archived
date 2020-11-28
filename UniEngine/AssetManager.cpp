@@ -48,7 +48,6 @@ Entity UniEngine::AssetManager::ToEntity(EntityArchetype archetype, std::shared_
         auto mmc = std::make_unique<MeshRenderer>();
         mmc->Mesh = i.second;
         mmc->Material = i.first;
-        mmc->BackCulling = false;
         EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
     int index = 0;
@@ -301,7 +300,6 @@ void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, std::uni
         auto mmc = std::make_unique<MeshRenderer>();
         mmc->Mesh = i.second;
         mmc->Material = i.first;
-        mmc->BackCulling = false;
         EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
     int index = 0;

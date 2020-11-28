@@ -11,10 +11,8 @@ namespace UniEngine {
 		glm::vec4 DisplayBoundColor = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);;
 		bool DisplayBound = true;
 		bool ForwardRendering = false;
-		bool Transparency = false;
 		bool CastShadow = true;
 		bool ReceiveShadow = true;
-		bool BackCulling = true;
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
 		void OnGui() override;

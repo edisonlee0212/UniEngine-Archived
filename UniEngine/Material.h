@@ -4,6 +4,24 @@
 #include "Texture2D.h"
 #include "Cubemap.h"
 namespace UniEngine {
+	enum class UNIENGINE_API MaterialPolygonMode
+	{
+		FILL,
+		LINE,
+		POINT
+	};
+
+	enum class UNIENGINE_API MaterialCullingMode {
+		BACK,
+		FRONT,
+		OFF
+	};
+
+	enum class UNIENGINE_API MaterialBlendingMode {
+		OFF,
+		ONE_MINUS_SRC_ALPHA,
+	};
+	
 	struct MaterialFloatProperty
 	{
 		std::string Name;
@@ -28,6 +46,11 @@ namespace UniEngine {
 	{
 		friend class RenderManager;
 		float _Shininess = 32.0f;
+
+		MaterialPolygonMode _MaterialPolygonMode = MaterialPolygonMode::FILL;
+		MaterialCullingMode _MaterialCullingMode = MaterialCullingMode::BACK;
+		MaterialBlendingMode _MaterialBlendingMode = MaterialBlendingMode::OFF;
+		
 		bool _TransparentDiscard = false;
 		float _TransparentDiscardLimit = 0.99f;
 		std::shared_ptr<Texture2D> _DiffuseMap;
@@ -47,6 +70,8 @@ namespace UniEngine {
 			_Shininess = 32.0f;
 		}
 		void OnGui();
+		MaterialPolygonMode GetMaterialPolygonMode() const;
+		void SetMaterialPolygonMode(MaterialPolygonMode mode);
 		void SetShininess(float value);
 		void SetTransparentDiscardLimit(float value);
 		void SetTransparentDiscard(bool value);

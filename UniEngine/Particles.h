@@ -15,8 +15,6 @@ namespace UniEngine {
 		bool ForwardRendering = false;
 		bool CastShadow = true;
 		bool ReceiveShadow = true;
-		bool Transparency = false;
-		bool BackCulling = true;
 		std::vector<glm::mat4> Matrices;
 		std::shared_ptr<Mesh> Mesh;
 		std::shared_ptr<Material> Material;
