@@ -60,7 +60,7 @@ int main()
 	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", LocalToParent(), LocalToWorld(), DirectionalLight());
 	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", LocalToParent(), LocalToWorld(), PointLight());
 	auto sharedMat = std::make_shared<Material>();
-	sharedMat->SetProgram(Default::GLPrograms::DeferredPrepass);
+	sharedMat->SetProgram(Default::GLPrograms::StandardDeferredProgram);
 	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
 	LocalToWorld ltw;

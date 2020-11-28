@@ -48,6 +48,8 @@ EntityQuery RenderManager::_SpotLightQuery;
 size_t RenderManager::_DrawCall;
 size_t RenderManager::_Triangles;
 std::unique_ptr<GLUBO> RenderManager::_KernelBlock;
+std::unique_ptr<GLProgram> RenderManager::_GBufferInstancedPrepass;
+std::unique_ptr<GLProgram> RenderManager::_GBufferPrepass;
 std::unique_ptr<GLProgram> RenderManager::_GBufferLightingPass;
 
 #pragma endregion
@@ -73,12 +75,13 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 	cameraComponent->_GBuffer->Clear();
 	const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners) {
-		auto& program = Default::GLPrograms::DeferredPrepass;
+		auto& program = _GBufferPrepass;
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
+			if (mmc->Material->_MaterialBlendingMode != MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -105,12 +108,13 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 
 	owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 	if (owners) {
-		auto& program = Default::GLPrograms::DeferredPrepassInstanced;
+		auto& program = _GBufferInstancedPrepass;
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
 			auto& immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
+			if (immc->Material->_MaterialBlendingMode != MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -136,6 +140,8 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 		}
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
 	Default::GLPrograms::ScreenVAO->Bind();
 	if (_EnableSSAO) {
 		cameraComponent->_SSAO->Bind();
@@ -196,29 +202,24 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 
 void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraComponent)
 {
+	cameraComponent->_Camera->Bind();
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 	if (cameraComponent->DrawSkyBox && cameraComponent->SkyBox.get()) {
-		cameraComponent->_Camera->Bind();
-		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		Default::GLPrograms::SkyboxProgram->Bind();
-		// skybox cube
 		Default::GLPrograms::SkyboxVAO->Bind();
 		cameraComponent->SkyBox->Texture()->Bind(3);
 		Default::GLPrograms::SkyboxProgram->SetInt("skybox", 3);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		GLVAO::BindDefault();
-		glDepthFunc(GL_LESS); // set depth function back to default
 	}
 	else
 	{
-		cameraComponent->_Camera->Bind();
-		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 		Default::GLPrograms::BackGroundProgram->Bind();
 		Default::GLPrograms::SkyboxVAO->Bind();
 		Default::GLPrograms::BackGroundProgram->SetFloat3("clearColor", cameraComponent->ClearColor);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		GLVAO::BindDefault();
-		glDepthFunc(GL_LESS); // set depth function back to default
 	}
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	GLVAO::BindDefault();
+	glDepthFunc(GL_LESS); // set depth function back to default
 }
 
 void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
@@ -227,12 +228,13 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	std::map<float, std::pair<MeshRenderer*, glm::mat4>> transparentEntities;
+	std::map<float, std::pair<Particles*, glm::mat4>> transparentInstancedEntities;
 	const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners) {
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
-			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering) continue;
+			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering && mmc->Material->_MaterialBlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			auto meshBound = mmc->Mesh->GetBound();
@@ -249,18 +251,15 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			if (!(mmc->Material.get()->_MaterialBlendingMode == MaterialBlendingMode::OFF)) {
-				DrawMesh(
-					mmc->Mesh.get(),
-					mmc->Material.get(),
-					ltw,
-					mmc->ReceiveShadow);
-
-			}
-			else
-			{
+			if (mmc->Material->_MaterialBlendingMode == MaterialBlendingMode::OFF) {
 				transparentEntities.insert({ glm::distance(cameraTransform.GetPosition(), center), std::make_pair(mmc.get(), ltw) });
+				continue;
 			}
+			DrawMesh(
+				mmc->Mesh.get(),
+				mmc->Material.get(),
+				ltw,
+				mmc->ReceiveShadow);
 		}
 	}
 	owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
@@ -268,7 +267,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
 			auto& immc = owner.GetPrivateComponent<Particles>();
-			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering) continue;
+			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering && immc->Material->_MaterialBlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
 			if (calculateBounds) {
@@ -284,6 +283,10 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
+			if (immc->Material->_MaterialBlendingMode == MaterialBlendingMode::OFF) {
+				transparentInstancedEntities.insert({ glm::distance(cameraTransform.GetPosition(), glm::vec3(ltw[3])), std::make_pair(immc.get(), ltw) });
+				continue;
+			}
 			DrawMeshInstanced(
 				immc->Mesh.get(),
 				immc->Material.get(),
@@ -295,15 +298,24 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 	}
 
 	//Draw all transparent objects here:
-	for (auto it = transparentEntities.rbegin(); it != transparentEntities.rend(); ++it)
+	for (auto pair = transparentEntities.rbegin(); pair != transparentEntities.rend(); ++pair)
 	{
-		const auto* mmc = it->second.first;
+		const auto* mmc = pair->second.first;
 		DrawMesh(
 			mmc->Mesh.get(),
 			mmc->Material.get(),
-			it->second.second,
+			pair->second.second,
 			mmc->ReceiveShadow
 		);
+	}
+	for (auto pair = transparentInstancedEntities.rbegin(); pair != transparentInstancedEntities.rend(); ++pair)
+	{
+		const auto* immc = pair->second.first;
+		glm::mat4 ltw = pair->second.second;
+		Mesh* mesh = immc->Mesh.get();
+		Material* material = immc->Material.get();
+		const glm::mat4* matrices = immc->Matrices.data();
+		DrawMeshInstanced(mesh, material, ltw, matrices, immc->Matrices.size(), immc->ReceiveShadow);
 	}
 }
 
@@ -366,19 +378,32 @@ void RenderManager::Init()
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/DirectionalLightShadowMap.geom"));
+
+	std::unique_ptr<GLShader> vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+	std::unique_ptr<GLShader> fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
+	std::unique_ptr<GLShader> geomShader = std::make_unique<GLShader>(ShaderType::Geometry);
+	geomShader->SetCode(&geomShaderCode);
+
+
 	_DirectionalLightProgram = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode),
-		new GLShader(ShaderType::Geometry, &geomShaderCode)
-	);
+		vertShader.get(),
+		fragShader.get(),
+		geomShader.get()
+		);
 
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapInstanced.vert"));
+
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+
 	_DirectionalLightInstancedProgram = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode),
-		new GLShader(ShaderType::Geometry, &geomShaderCode)
-	);
+		vertShader.get(),
+		fragShader.get(),
+		geomShader.get()
+		);
 
 #pragma region PointLight
 	_PointLightShadowMap = std::make_unique<PointLightShadowMap>(_ShadowMapResolution);
@@ -393,19 +418,30 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/PointLightShadowMap.geom"));
 
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
+	geomShader = std::make_unique<GLShader>(ShaderType::Geometry);
+	geomShader->SetCode(&geomShaderCode);
+
 	_PointLightProgram = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode),
-		new GLShader(ShaderType::Geometry, &geomShaderCode)
-	);
+		vertShader.get(),
+		fragShader.get(),
+		geomShader.get()
+		);
 
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapInstanced.vert"));
+
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+
 	_PointLightInstancedProgram = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode),
-		new GLShader(ShaderType::Geometry, &geomShaderCode)
-	);
+		vertShader.get(),
+		fragShader.get(),
+		geomShader.get()
+		);
 #pragma endregion
 #pragma region SpotLight
 	_SpotLightShadowMap = std::make_unique<SpotLightShadowMap>(_ShadowMapResolution);
@@ -415,18 +451,29 @@ void RenderManager::Init()
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMap.vert"));
 	fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SpotLightShadowMap.frag"));
+
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
+
+
 	_SpotLightProgram = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		vertShader.get(),
+		fragShader.get()
 		);
 
-	vertShaderCode = std::string("#version 460 core\n") 
+	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapInstanced.vert"));
+
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+
 	_SpotLightInstancedProgram = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		vertShader.get(),
+		fragShader.get()
 		);
 #pragma endregion
 #pragma endregion
@@ -439,11 +486,49 @@ void RenderManager::Init()
 	fragShaderCode = std::string("#version 460 core\n") +
 		*Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/DeferredLighting.frag"));
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferredLighting.frag"));
+
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
 
 	_GBufferLightingPass = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		vertShader.get(),
+		fragShader.get()
+		);
+
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Standard.vert"));
+
+	fragShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform
+		+ "\n"
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferred.frag"));
+
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
+
+	_GBufferPrepass = std::make_unique<GLProgram>(
+		vertShader.get(),
+		fragShader.get()
+		);
+
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
+
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+
+	_GBufferInstancedPrepass = std::make_unique<GLProgram>(
+		vertShader.get(),
+		fragShader.get()
 		);
 
 #pragma endregion
@@ -455,9 +540,14 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
 
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
+
 	_SSAOGeometryPass = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		vertShader.get(),
+		fragShader.get()
 		);
 
 	fragShaderCode = std::string("#version 460 core\n") +
@@ -465,9 +555,12 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOBlur.frag"));
 
+	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
+
 	_SSAOBlurPass = std::make_unique<GLProgram>(
-		new GLShader(ShaderType::Vertex, &vertShaderCode),
-		new GLShader(ShaderType::Fragment, &fragShaderCode)
+		vertShader.get(),
+		fragShader.get()
 		);
 
 #pragma endregion
@@ -831,7 +924,7 @@ void UniEngine::RenderManager::PreUpdate()
 			_SpotLightQuery.ToEntityArray(spotLightEntities);
 			_SpotLightQuery.ToComponentDataArray(spotLightsList);
 			size = spotLightsList.size();
-			if(!spotLightsList.empty())
+			if (!spotLightsList.empty())
 			{
 				size_t enabledSize = 0;
 				for (int i = 0; i < size; i++) {
@@ -946,7 +1039,8 @@ void UniEngine::RenderManager::PreUpdate()
 					}
 #pragma endregion
 				}
-			}else
+			}
+			else
 			{
 				_SpotLightBlock->SubData(0, 4, &size);
 			}
@@ -1301,7 +1395,7 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 	glEnable(GL_DEPTH_TEST);
 }
 
-void RenderManager::MaterialTextureBinder(Material* material, std::shared_ptr<GLProgram> program)
+void RenderManager::MaterialTextureBinder(Material* material, GLProgram* program)
 {
 	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
 	{
@@ -1352,7 +1446,7 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 
 	_DrawCall++;
 	_Triangles += mesh->Size() / 3;
-	auto& program = Default::GLPrograms::DeferredPrepass;
+	auto& program = _GBufferPrepass;
 	program->SetFloat("material.shininess", material->_Shininess);
 	program->SetFloat4x4("model", model);
 	for (auto j : material->_FloatPropertyList) {
@@ -1362,7 +1456,7 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 		program->SetFloat4x4(j.Name, j.Value);
 	}
 	MaterialPropertySetter(material, true);
-	MaterialTextureBinder(material, program);
+	MaterialTextureBinder(material, program.get());
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
@@ -1389,7 +1483,7 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 
 	_DrawCall++;
 	_Triangles += mesh->Size() * count / 3;
-	auto& program = Default::GLPrograms::DeferredPrepassInstanced;
+	auto& program = _GBufferInstancedPrepass;
 	program->SetFloat("material.shininess", material->_Shininess);
 	program->SetFloat4x4("model", model);
 	for (auto j : material->_FloatPropertyList) {
@@ -1399,13 +1493,13 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 		program->SetFloat4x4(j.Name, j.Value);
 	}
 	MaterialPropertySetter(material, true);
-	MaterialTextureBinder(material, program);
+	MaterialTextureBinder(material, program.get());
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 }
 
 void UniEngine::RenderManager::DrawMeshInstanced(
-	Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow)
+	Mesh* mesh, Material* material, glm::mat4 model, const glm::mat4* matrices, size_t count, bool receiveShadow)
 {
 	if (mesh == nullptr || material == nullptr || matrices == nullptr || count == 0) return;
 	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
@@ -1425,7 +1519,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	mesh->VAO()->SetAttributeDivisor(15, 1);
 	_DrawCall++;
 	_Triangles += mesh->Size() * count / 3;
-	auto program = material->_Program;
+	auto program = material->_Program.get();
+	if (program == nullptr) program = Default::GLPrograms::StandardInstancedProgram.get();
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
 	program->SetFloat("material.shininess", material->_Shininess);
@@ -1458,7 +1553,8 @@ void UniEngine::RenderManager::DrawMesh(
 	mesh->VAO()->DisableAttributeArray(15);
 	_DrawCall++;
 	_Triangles += mesh->Size() / 3;
-	auto program = material->_Program;
+	auto program = material->_Program.get();
+	if (program == nullptr) program = Default::GLPrograms::StandardProgram.get();
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
 	program->SetFloat("material.shininess", material->_Shininess);

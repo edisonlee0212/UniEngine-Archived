@@ -13,7 +13,7 @@ namespace UniEngine {
 		{
 			glBindBuffer(_Target, _ID);
 		}
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) const
+		void SetData(GLsizei length, const GLvoid* data, GLenum usage) const
 		{
 			Bind();
 			glNamedBufferData(_ID, length, data, usage);

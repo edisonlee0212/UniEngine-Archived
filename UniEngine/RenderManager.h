@@ -66,6 +66,8 @@ namespace UniEngine {
 #pragma endregion
 #pragma region Render
 		static std::unique_ptr<GLUBO> _KernelBlock;
+		static std::unique_ptr<GLProgram> _GBufferInstancedPrepass;
+		static std::unique_ptr<GLProgram> _GBufferPrepass;
 		static std::unique_ptr<GLProgram> _GBufferLightingPass;
 
 		static int _MainCameraResolutionX;
@@ -113,11 +115,11 @@ namespace UniEngine {
 #pragma endregion
 #pragma endregion
 		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
-		static void MaterialTextureBinder(Material* material, std::shared_ptr<GLProgram> program);
+		static void MaterialTextureBinder(Material* material, GLProgram* program);
 		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
 		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
 
-		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, bool receiveShadow);
+		static void DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, const glm::mat4* matrices, size_t count, bool receiveShadow);
 		static void DrawMesh(Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow);
 
 		static void DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix);

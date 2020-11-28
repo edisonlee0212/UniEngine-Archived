@@ -9,8 +9,6 @@ using namespace UniEngine;
 std::shared_ptr<GLProgram> Default::GLPrograms::SkyboxProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::BackGroundProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::ScreenProgram;
-std::shared_ptr<GLProgram> Default::GLPrograms::DeferredPrepass;
-std::shared_ptr<GLProgram> Default::GLPrograms::DeferredPrepassInstanced;
 std::shared_ptr<GLProgram> Default::GLPrograms::StandardProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::StandardInstancedProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::GizmoProgram;
@@ -186,42 +184,6 @@ void UniEngine::Default::Load(World* world)
 	Textures::ObjectIcon->Name = "Icon";
 #pragma endregion
 #pragma region Standard Shader
-	vertShaderCode = std::string("#version 460 core\n")
-		+ *ShaderIncludes::Uniform +
-		+"\n"
-		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Standard.vert"));
-
-
-	fragShaderCode = std::string("#version 460 core\n")
-		+ *ShaderIncludes::Uniform
-		+ "\n"
-		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/DeferredPrepass.frag"));
-	GLShader* deferredVert = new GLShader(ShaderType::Vertex);
-	deferredVert->SetCode(&vertShaderCode);
-	GLShader* deferredFrag = new GLShader(ShaderType::Fragment);
-	deferredFrag->SetCode(&fragShaderCode);
-	GLPrograms::DeferredPrepass = std::make_shared<GLProgram>();
-	GLPrograms::DeferredPrepass->Attach(ShaderType::Vertex, deferredVert);
-	GLPrograms::DeferredPrepass->Attach(ShaderType::Fragment, deferredFrag);
-	GLPrograms::DeferredPrepass->Link();
-	delete deferredVert;
-	delete deferredFrag;
-
-	vertShaderCode = std::string("#version 460 core\n")
-		+ *ShaderIncludes::Uniform +
-		+"\n"
-		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
-
-	deferredVert = new GLShader(ShaderType::Vertex);
-	deferredVert->SetCode(&vertShaderCode);
-	deferredFrag = new GLShader(ShaderType::Fragment);
-	deferredFrag->SetCode(&fragShaderCode);
-	GLPrograms::DeferredPrepassInstanced = std::make_shared<GLProgram>();
-	GLPrograms::DeferredPrepassInstanced->Attach(ShaderType::Vertex, deferredVert);
-	GLPrograms::DeferredPrepassInstanced->Attach(ShaderType::Fragment, deferredFrag);
-	GLPrograms::DeferredPrepassInstanced->Link();
-	delete deferredVert;
-	delete deferredFrag;
 	
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
@@ -230,34 +192,34 @@ void UniEngine::Default::Load(World* world)
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform
 		+ "\n"
-		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Standard.frag"));
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardForward.frag"));
 
-	GLShader* standardvert = new GLShader(ShaderType::Vertex);
-	standardvert->SetCode(&vertShaderCode);
-	GLShader* standardfrag = new GLShader(ShaderType::Fragment);
-	standardfrag->SetCode(&fragShaderCode);
+	GLShader* standardVert = new GLShader(ShaderType::Vertex);
+	standardVert->SetCode(&vertShaderCode);
+	GLShader* standardFrag = new GLShader(ShaderType::Fragment);
+	standardFrag->SetCode(&fragShaderCode);
 	GLPrograms::StandardProgram = std::make_shared<GLProgram>();
-	GLPrograms::StandardProgram->Attach(ShaderType::Vertex, standardvert);
-	GLPrograms::StandardProgram->Attach(ShaderType::Fragment, standardfrag);
+	GLPrograms::StandardProgram->Attach(ShaderType::Vertex, standardVert);
+	GLPrograms::StandardProgram->Attach(ShaderType::Fragment, standardFrag);
 	GLPrograms::StandardProgram->Link();
-	delete standardvert;
-	delete standardfrag;
+	delete standardVert;
+	delete standardFrag;
 
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
 		+"\n"
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
 
-	standardvert = new GLShader(ShaderType::Vertex);
-	standardvert->SetCode(&vertShaderCode);
-	standardfrag = new GLShader(ShaderType::Fragment);
-	standardfrag->SetCode(&fragShaderCode);
+	standardVert = new GLShader(ShaderType::Vertex);
+	standardVert->SetCode(&vertShaderCode);
+	standardFrag = new GLShader(ShaderType::Fragment);
+	standardFrag->SetCode(&fragShaderCode);
 	GLPrograms::StandardInstancedProgram = std::make_shared<GLProgram>();
-	GLPrograms::StandardInstancedProgram->Attach(ShaderType::Vertex, standardvert);
-	GLPrograms::StandardInstancedProgram->Attach(ShaderType::Fragment, standardfrag);
+	GLPrograms::StandardInstancedProgram->Attach(ShaderType::Vertex, standardVert);
+	GLPrograms::StandardInstancedProgram->Attach(ShaderType::Fragment, standardFrag);
 	GLPrograms::StandardInstancedProgram->Link();
-	delete standardvert;
-	delete standardfrag;
+	delete standardVert;
+	delete standardFrag;
 
 #pragma endregion
 #pragma region Gizmo Shader
@@ -271,16 +233,16 @@ void UniEngine::Default::Load(World* world)
 		+"\n"
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Gizmo.vert"));
 
-	deferredVert = new GLShader(ShaderType::Vertex);
-	deferredVert->SetCode(&vertShaderCode);
-	deferredFrag = new GLShader(ShaderType::Fragment);
-	deferredFrag->SetCode(&fragShaderCode);
+	standardVert = new GLShader(ShaderType::Vertex);
+	standardVert->SetCode(&vertShaderCode);
+	standardFrag = new GLShader(ShaderType::Fragment);
+	standardFrag->SetCode(&fragShaderCode);
 	GLPrograms::GizmoProgram = std::make_shared<GLProgram>();
-	GLPrograms::GizmoProgram->Attach(ShaderType::Vertex, deferredVert);
-	GLPrograms::GizmoProgram->Attach(ShaderType::Fragment, deferredFrag);
+	GLPrograms::GizmoProgram->Attach(ShaderType::Vertex, standardVert);
+	GLPrograms::GizmoProgram->Attach(ShaderType::Fragment, standardFrag);
 	GLPrograms::GizmoProgram->Link();
-	delete deferredVert;
-	delete deferredFrag;
+	delete standardVert;
+	delete standardFrag;
 
 
 	vertShaderCode = std::string("#version 460 core\n")
@@ -288,16 +250,16 @@ void UniEngine::Default::Load(World* world)
 		+"\n"
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/GizmoInstanced.vert"));
 
-	deferredVert = new GLShader(ShaderType::Vertex);
-	deferredVert->SetCode(&vertShaderCode);
-	deferredFrag = new GLShader(ShaderType::Fragment);
-	deferredFrag->SetCode(&fragShaderCode);
+	standardVert = new GLShader(ShaderType::Vertex);
+	standardVert->SetCode(&vertShaderCode);
+	standardFrag = new GLShader(ShaderType::Fragment);
+	standardFrag->SetCode(&fragShaderCode);
 	GLPrograms::GizmoInstancedProgram = std::make_shared<GLProgram>();
-	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Vertex, deferredVert);
-	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Fragment, deferredFrag);
+	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Vertex, standardVert);
+	GLPrograms::GizmoInstancedProgram->Attach(ShaderType::Fragment, standardFrag);
 	GLPrograms::GizmoInstancedProgram->Link();
-	delete deferredVert;
-	delete deferredFrag;
+	delete standardVert;
+	delete standardFrag;
 #pragma endregion
 
 #pragma region Models & Primitives

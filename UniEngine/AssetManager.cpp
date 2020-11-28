@@ -540,7 +540,7 @@ void AssetManager::LateUpdate()
     }
     if (_FileBrowser.showFileDialog("Model Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 700), ".obj"))
     {
-        LoadModel(_FileBrowser.selected_path, Default::GLPrograms::DeferredPrepass);
+        LoadModel(_FileBrowser.selected_path, Default::GLPrograms::StandardProgram);
         Debug::Log("Loaded model from \"" + _FileBrowser.selected_path);
         //std::cout << _FileBrowser.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
         //std::cout << _FileBrowser.selected_path << std::endl;    // The absolute path to the selected file

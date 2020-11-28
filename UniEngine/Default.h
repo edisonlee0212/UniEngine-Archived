@@ -17,9 +17,6 @@ namespace UniEngine {
 			static std::shared_ptr<GLVAO> SkyboxVAO;
 
 			static std::shared_ptr<GLProgram> SkyboxProgram;
-			static std::shared_ptr<GLProgram> DeferredPrepass;
-			static std::shared_ptr<GLProgram> DeferredPrepassInstanced;
-
 			static std::shared_ptr<GLProgram> StandardProgram;
 			static std::shared_ptr<GLProgram> StandardInstancedProgram;
 			
