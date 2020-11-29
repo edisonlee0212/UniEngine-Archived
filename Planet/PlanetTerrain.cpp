@@ -46,3 +46,8 @@ Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> 
 	}
 }
 
+void Planet::PlanetTerrain::OnGui()
+{
+	SurfaceMaterial->OnGui();
+}
+

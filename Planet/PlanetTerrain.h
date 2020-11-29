@@ -31,5 +31,6 @@ namespace Planet {
 		std::shared_ptr<Material> SurfaceMaterial;
 		std::vector<std::shared_ptr<TerrainConstructionStageBase>> TerrainConstructionStages;
 		PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial);
+		void OnGui() override;
 	};
 }

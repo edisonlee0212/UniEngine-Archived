@@ -32,7 +32,7 @@ int main()
 	pts->Enable();
 
 	PlanetInfo pi;
-	LocalToWorld planetTransform;
+	LocalToParent planetTransform;
 	
 	planetTransform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	planetTransform.SetEulerRotation(glm::vec3(0.0f));
@@ -76,7 +76,7 @@ int main()
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
-	LocalToWorld ltw;
+	LocalToParent ltw;
 	DirectionalLight dlc;
 	dlc.diffuse = glm::vec3(1.0f);
 	dlc.specular = glm::vec3(0.5f);
