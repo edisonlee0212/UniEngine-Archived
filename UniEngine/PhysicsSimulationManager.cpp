@@ -16,7 +16,7 @@ PxPvd* UniEngine::PhysicsSimulationManager::_PhysVisDebugger = NULL;
 PxMaterial* UniEngine::PhysicsSimulationManager::_DefaultMaterial = NULL;
 PxReal UniEngine::PhysicsSimulationManager::stackZ = 10.0f;
 bool UniEngine::PhysicsSimulationManager::Enabled = true;
-
+bool UniEngine::PhysicsSimulationManager::_Simulating = false;
 void UniEngine::PhysicsSimulationManager::Init()
 {
 	_PhysicsFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, _Allocator, _ErrorCallback);
@@ -80,7 +80,10 @@ void UniEngine::PhysicsSimulationManager::UploadTransforms()
 
 void UniEngine::PhysicsSimulationManager::Simulate(float time)
 {
-	_PhysicsScene->fetchResults(true);
+	if (_Simulating) {
+		_Simulating = false;
+		_PhysicsScene->fetchResults(true);
+	}
 	const std::vector<Entity>* rigidBodyEntities = EntityManager::GetPrivateComponentOwnersList<RigidBody>();
 #pragma region Get transforms from physX
 	if (rigidBodyEntities)
@@ -143,5 +146,8 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 		for (const auto& i : futures) i.wait();
 	}
 #pragma endregion
-	_PhysicsScene->simulate(time);
+	if (!_Simulating) {
+		_PhysicsScene->simulate(time);
+		_Simulating = true;
+	}
 }

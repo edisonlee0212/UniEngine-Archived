@@ -3,6 +3,8 @@
 #include "Core.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
+	struct LocalToParent;
+
 	enum EntityEditorSystemConfigFlags {
 		EntityEditorSystem_None = 0,
 		EntityEditorSystem_EnableEntityHierarchy = 1 << 0,
@@ -21,7 +23,10 @@ namespace UniEngine {
 		static Entity _SelectedEntity;
 		static bool _DisplayLog;
 		static bool _DisplayError;
-
+		static LocalToParent* _PreviouslyStoredTransform;
+		static glm::vec3 _PreviouslyStoredPosition;
+		static glm::vec3 _PreviouslyStoredRotation;
+		static glm::vec3 _PreviouslyStoredScale;
 #pragma region Scene Camera
 		friend class RenderManager;
 		friend class InputManager;

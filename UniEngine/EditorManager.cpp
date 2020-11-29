@@ -22,7 +22,10 @@ int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
 bool EditorManager::_DisplayLog = true;
 bool EditorManager::_DisplayError = true;
-
+LocalToParent* EditorManager::_PreviouslyStoredTransform;
+glm::vec3 EditorManager::_PreviouslyStoredPosition;
+glm::vec3 EditorManager::_PreviouslyStoredRotation;
+glm::vec3 EditorManager::_PreviouslyStoredScale;
 glm::quat EditorManager::_SceneCameraRotation;
 glm::vec3 EditorManager::_SceneCameraPosition;
 std::unique_ptr<CameraComponent> EditorManager::_SceneCamera;
@@ -102,6 +105,43 @@ void UniEngine::EditorManager::InspectComponentData(ComponentBase* data, Compone
 void UniEngine::EditorManager::Init()
 {
 	_Enabled = true;
+
+	RegisterComponentDataInspector<LocalToWorld>([](ComponentBase* data, bool isRoot)
+		{
+			std::stringstream stream;
+			LocalToWorld* ltw = reinterpret_cast<LocalToWorld*>(data);
+			glm::vec3 er;
+			glm::vec3 t;
+			glm::vec3 s;
+			ltw->GetTERS(t, er, s);
+			er = glm::degrees(er);
+			ImGui::DragFloat3("Global Position", &t.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::DragFloat3("Global Rotation", &er.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::DragFloat3("Global Scale", &s.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		}
+	);
+
+
+	RegisterComponentDataInspector<LocalToParent>([](ComponentBase* data, bool isRoot)
+		{
+			std::stringstream stream;
+			auto ltp = static_cast<LocalToParent*>(static_cast<void*>(data));
+			bool edited = false;
+			if (ltp != _PreviouslyStoredTransform) {
+				_PreviouslyStoredTransform = ltp;
+				ltp->GetTERS(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+				_PreviouslyStoredRotation = glm::degrees(_PreviouslyStoredRotation);
+			}
+			if (ImGui::DragFloat3("Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
+			if (ImGui::DragFloat3("Local Rotation", &_PreviouslyStoredRotation.x, 1.0f)) edited = true;
+			if (ImGui::DragFloat3("Local Scale", &_PreviouslyStoredScale.x, 0.01f)) edited = true;
+			if (edited)
+			{
+				ltp->Value = glm::translate(_PreviouslyStoredPosition) * glm::mat4_cast(glm::quat(glm::radians(_PreviouslyStoredRotation))) * glm::scale(_PreviouslyStoredScale);
+			}
+		}
+	);
+
 	RegisterComponentDataInspector<DirectionalLight>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
@@ -129,7 +169,7 @@ void UniEngine::EditorManager::Init()
 			ImGui::DragFloat("Constant", &pl->constant, 0.01f, 0.0f);
 			ImGui::DragFloat("Linear", &pl->linear, 0.0001f, 0, 1, "%.4f");
 			ImGui::DragFloat("Quadratic", &pl->quadratic, 0.00001f, 0, 10, "%.5f");
-		
+
 			//ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.01f);
 			ImGui::DragFloat("Light Size", &pl->lightSize, 0.01f);
 		});
@@ -221,7 +261,7 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
-	
+
 	RegisterComponentDataMenu<SpotLight>([](Entity owner)
 		{
 			if (owner.HasComponentData<SpotLight>()) return;
@@ -231,7 +271,7 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
-	
+
 	RegisterComponentDataMenu<DirectionalLight>([](Entity owner)
 		{
 			if (owner.HasComponentData<DirectionalLight>()) return;
@@ -241,7 +281,7 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
-	
+
 	_SelectedEntity.Index = 0;
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;
 	_ConfigFlags += EntityEditorSystem_EnableEntityInspector;
@@ -261,7 +301,7 @@ static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
 void EditorManager::PreUpdate()
 {
 	_BasicEntityArchetype = EntityManager::CreateEntityArchetype("General", LocalToWorld(), LocalToParent());
-	
+
 	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 	_SceneCamera->GetCamera()->Clear();
 #pragma region Dock & Main Menu
@@ -399,7 +439,7 @@ void EditorManager::LateUpdate()
 		ImGui::Begin("Entity Explorer");
 		if (ImGui::BeginPopupContextWindow("DataComponentInspectorPopup"))
 		{
-			if(ImGui::Button("Create new entity"))
+			if (ImGui::Button("Create new entity"))
 			{
 				auto newEntity = EntityManager::CreateEntity(_BasicEntityArchetype);
 				newEntity.SetComponentData(LocalToParent());

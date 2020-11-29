@@ -12,43 +12,7 @@ void UniEngine::TransformManager::Init()
 	_TransformQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(_TransformQuery, LocalToParent(), LocalToWorld());
 	_CachedParentHierarchies = std::vector<std::pair<Entity, ChildInfo>>();
-	EditorManager::RegisterComponentDataInspector<LocalToWorld>( [](ComponentBase* data, bool isRoot)
-		{
-			std::stringstream stream;
-			LocalToWorld* ltw = reinterpret_cast<LocalToWorld*>(data);
-			glm::vec3 er;
-			glm::vec3 t;
-			glm::vec3 s;
-			ltw->GetTERS(t, er, s);
-			er = glm::degrees(er);
-			ImGui::InputFloat3("Global Position", &t.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat3("Global Rotation", &er.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::InputFloat3("Global Scale", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		}
-	);
-
-
-	EditorManager::RegisterComponentDataInspector<LocalToParent>( [](ComponentBase* data, bool isRoot)
-		{
-			std::stringstream stream;
-			auto ltp = reinterpret_cast<LocalToParent*>(data);
-			bool edited = false;
-			glm::vec3 er;
-			glm::vec3 t;
-			glm::vec3 s;
-			ltp->GetTERS(t, er, s);
-			er = glm::degrees(er);
-			if (ImGui::DragFloat3("Local Position", &t.x, 0.1f)) edited = true;
-			if (ImGui::DragFloat3("Local Rotation", &er.x, 1.0f)) edited = true;
-			if (ImGui::DragFloat3("Local Scale", &s.x, 0.01f)) edited = true;
-			if (edited)
-			{
-				er.y = glm::clamp(er.y, -89.0f, 89.0f);
-				auto nltp = glm::translate(t) * glm::mat4_cast(glm::quat(glm::radians(er))) * glm::scale(s);
-				ltp->Value = nltp;
-			}
-		}
-	);
+	
 }
 
 void UniEngine::TransformManager::LateUpdate()

@@ -19,7 +19,7 @@ namespace UniEngine {
 		static PxDefaultCpuDispatcher* _Dispatcher;
 		static PxScene* _PhysicsScene;
 		static PxPvd* _PhysVisDebugger;
-
+		static bool _Simulating;
 		static PxMaterial* _DefaultMaterial;
 		static PxReal stackZ;
 	public:
