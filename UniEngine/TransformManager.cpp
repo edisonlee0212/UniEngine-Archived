@@ -105,7 +105,7 @@ void UniEngine::TransformManager::LateUpdate()
 		_CurrentStoredHierarchyVersion = EntityManager::GetParentHierarchyVersion();
 	}
 	*/
-	if(!Application::IsPlaying())
+	if (!Application::IsPlaying())
 	{
 		PhysicsSimulationManager::UploadTransforms();
 	}

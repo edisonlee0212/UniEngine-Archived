@@ -166,6 +166,7 @@ void UniEngine::EditorManager::Init()
 	RegisterPrivateComponentMenu<RigidBody>([](Entity owner)
 		{
 			if (owner.HasPrivateComponent<RigidBody>()) return;
+			if (Application::IsPlaying()) return;
 			if (ImGui::SmallButton("RigidBody"))
 			{
 				owner.SetPrivateComponent(std::make_unique<RigidBody>());

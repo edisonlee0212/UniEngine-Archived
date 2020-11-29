@@ -2,6 +2,7 @@
 #include "PhysicsSimulationManager.h"
 #include "RigidBody.h"
 #include "Transforms.h"
+#include "UniEngine.h"
 using namespace physx;
 
 PxDefaultAllocator		UniEngine::PhysicsSimulationManager::_Allocator;
@@ -79,9 +80,8 @@ void UniEngine::PhysicsSimulationManager::UploadTransforms()
 
 void UniEngine::PhysicsSimulationManager::Simulate(float time)
 {
-	const std::vector<Entity>* rigidBodyEntities = EntityManager::GetPrivateComponentOwnersList<RigidBody>();
-	_PhysicsScene->simulate(time);
 	_PhysicsScene->fetchResults(true);
+	const std::vector<Entity>* rigidBodyEntities = EntityManager::GetPrivateComponentOwnersList<RigidBody>();
 #pragma region Get transforms from physX
 	if (rigidBodyEntities)
 	{
@@ -143,5 +143,5 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 		for (const auto& i : futures) i.wait();
 	}
 #pragma endregion
-
+	_PhysicsScene->simulate(time);
 }
