@@ -35,7 +35,7 @@ namespace UniEngine {
 	class UNIENGINE_API EntityManager : public ManagerBase {
 		friend class PrivateComponentStorage;
 		friend class SharedComponentStorage;
-
+		friend class TransformManager;
 #pragma region Data Storage
 		static std::vector<WorldEntityStorage*> _WorldEntityStorage;
 		static WorldEntityStorage* _CurrentActivatedWorldEntityStorage;

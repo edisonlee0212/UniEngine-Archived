@@ -83,10 +83,45 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 	_PhysicsScene->simulate(time);
 	_PhysicsScene->fetchResults(true);
 #pragma region Get transforms from physX
-	if (rigidBodyEntities != nullptr)
+	if (rigidBodyEntities)
 	{
-		for (auto rigidBodyEntity : *rigidBodyEntities) {
-			auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+		std::vector<std::shared_future<void>> futures;
+		auto& list = rigidBodyEntities;
+		auto threadSize = _ThreadPool->Size();
+		size_t capacity = rigidBodyEntities->size() / threadSize;
+		size_t reminder = rigidBodyEntities->size() % threadSize;
+		for (size_t i = 0; i < threadSize; i++) {
+			futures.push_back(_ThreadPool->Push([&list, i, capacity](int id)
+				{
+					for (size_t j = 0; j < capacity; j++)
+					{
+						size_t index = capacity * i + j;
+						const auto& rigidBodyEntity = list->at(index);
+						auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+						if (rigidBody->IsEnabled()) {
+							PxTransform transform = rigidBody->_RigidBody->getGlobalPose();
+							auto matrix = PxMat44(transform);
+							LocalToWorld temp = *(LocalToWorld*)(void*)&matrix;
+							temp.Value *= glm::inverse(rigidBody->_ShapeTransform);
+							glm::vec3 scale;
+							glm::vec3 pos;
+							glm::quat rot;
+							temp.GetTRS(pos, rot, scale);
+							scale = rigidBodyEntity.GetComponentData<LocalToWorld>().GetScale();
+							temp.SetValue(pos, rot, scale);
+							LocalToParent ltp;
+							auto parentEntity = EntityManager::GetParent(rigidBodyEntity);
+							const glm::mat4 pltw = parentEntity.IsNull() ? LocalToWorld().Value : parentEntity.GetComponentData<LocalToWorld>().Value;
+							ltp.Value = glm::inverse(pltw) * temp.Value;
+							rigidBodyEntity.SetComponentData(ltp);
+						}
+					}
+				}
+			).share());
+		}
+		for (size_t i = 0; i < reminder; i++) {
+			size_t index = capacity * threadSize + i;
+			const auto& rigidBodyEntity = list->at(index); auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
 			if (rigidBody->IsEnabled()) {
 				PxTransform transform = rigidBody->_RigidBody->getGlobalPose();
 				auto matrix = PxMat44(transform);
@@ -98,9 +133,14 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 				temp.GetTRS(pos, rot, scale);
 				scale = rigidBodyEntity.GetComponentData<LocalToWorld>().GetScale();
 				temp.SetValue(pos, rot, scale);
-				rigidBody->GetOwner().SetComponentData(temp);
+				LocalToParent ltp;
+				auto parentEntity = EntityManager::GetParent(rigidBodyEntity);
+				const glm::mat4 pltw = parentEntity.IsNull() ? LocalToWorld().Value : parentEntity.GetComponentData<LocalToWorld>().Value;
+				ltp.Value = glm::inverse(pltw) * temp.Value;
+				rigidBodyEntity.SetComponentData(ltp);
 			}
 		}
+		for (const auto& i : futures) i.wait();
 	}
 #pragma endregion
 

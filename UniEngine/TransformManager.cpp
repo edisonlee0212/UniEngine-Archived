@@ -58,9 +58,11 @@ void UniEngine::TransformManager::LateUpdate()
 			if(EntityManager::GetParent(entity).IsNull())
 			{
 				ltw->Value = ltp->Value;
+				CalculateLtwRecursive(ltw, entity);
 			}
 		}
 	);
+	/*
 	if (EntityManager::GetParentHierarchyVersion() == _CurrentStoredHierarchyVersion) {
 		std::vector<std::shared_future<void>> futures;
 		auto list = &_CachedParentHierarchies;
@@ -102,14 +104,14 @@ void UniEngine::TransformManager::LateUpdate()
 		);
 		_CurrentStoredHierarchyVersion = EntityManager::GetParentHierarchyVersion();
 	}
-
+	*/
 	if(!Application::IsPlaying())
 	{
 		PhysicsSimulationManager::UploadTransforms();
 	}
 }
 
-void UniEngine::TransformManager::CalculateLtwRecursive(LocalToWorld pltw, Entity entity)
+void UniEngine::TransformManager::CalculateLtwRecursive(LocalToWorld* pltw, Entity entity)
 {
 	/*
 	Here we have 2 ways to deal with children, you can use lambda function or you can get children
@@ -119,9 +121,9 @@ void UniEngine::TransformManager::CalculateLtwRecursive(LocalToWorld pltw, Entit
 	for (const auto& i : EntityManager::GetChildren(entity)) {
 		auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
 		LocalToWorld ltw;
-		ltw.Value = pltw.Value * ltp.Value;
+		ltw.Value = pltw->Value * ltp.Value;
 		EntityManager::SetComponentData<LocalToWorld>(i, ltw);
-		CalculateLtwRecursive(ltw, i);
+		CalculateLtwRecursive(&ltw, i);
 	}
 }
 
