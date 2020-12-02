@@ -85,7 +85,6 @@ namespace UniEngine {
 	public:
 		~GLVAO() override {
 			BindDefault();
-			std::cout << "Deleted VAO" << std::endl;
 			glDeleteVertexArrays(1, &_ID);
 		}
 

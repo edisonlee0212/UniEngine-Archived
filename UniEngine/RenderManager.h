@@ -116,7 +116,6 @@ namespace UniEngine {
 #pragma endregion
 		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
 		static void ConnectMaterialTextures(Material* material, GLProgram* program);
-		static void ReleaseMaterialTextures(Material* material);
 		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
 		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
 

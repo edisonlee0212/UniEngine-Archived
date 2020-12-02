@@ -1393,17 +1393,14 @@ void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* progr
 {
 	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
 	{
-		material->_DiffuseMap->Texture()->MakeResident();
 		_MaterialTextures.diffuse = material->_DiffuseMap->Texture()->GetHandle();
 	}
 	else
 	{
-		Default::Textures::StandardTexture->Texture()->MakeResident();
 		_MaterialTextures.diffuse = Default::Textures::StandardTexture->Texture()->GetHandle();
 	}
 	if (material->_SpecularMap && material->_SpecularMap->Texture().get())
 	{
-		material->_SpecularMap->Texture()->MakeResident();
 		_MaterialTextures.specular = material->_SpecularMap->Texture()->GetHandle();
 		program->SetBool("enableSpecularMapping", true);
 	}
@@ -1413,7 +1410,6 @@ void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* progr
 	}
 	if (material->_NormalMap && material->_NormalMap->Texture().get())
 	{
-		material->_NormalMap->Texture()->MakeResident();
 		_MaterialTextures.normal = material->_NormalMap->Texture()->GetHandle();
 		program->SetBool("enableNormalMapping", true);
 	}
@@ -1423,7 +1419,6 @@ void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* progr
 	}
 	if (material->_DisplacementMap && material->_DisplacementMap->Texture().get())
 	{
-		material->_DisplacementMap->Texture()->MakeResident();
 		_MaterialTextures.height = material->_DisplacementMap->Texture()->GetHandle();
 		program->SetBool("enableParallaxMapping", true);
 	}
@@ -1432,32 +1427,6 @@ void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* progr
 		program->SetBool("enableParallaxMapping", false);
 	}
 	_MaterialTextureBindings->SubData(0, sizeof(MaterialTextures), &_MaterialTextures);
-}
-
-void RenderManager::ReleaseMaterialTextures(Material* material)
-{
-	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
-	{
-		material->_DiffuseMap->Texture()->MakeNonResident();
-	}
-	else
-	{
-		Default::Textures::StandardTexture->Texture()->MakeNonResident();
-	}
-	if (material->_SpecularMap && material->_SpecularMap->Texture().get())
-	{
-		material->_SpecularMap->Texture()->MakeNonResident();
-	}
-	
-	if (material->_NormalMap && material->_NormalMap->Texture().get())
-	{
-		material->_NormalMap->Texture()->MakeNonResident();
-	}
-	
-	if (material->_DisplacementMap && material->_DisplacementMap->Texture().get())
-	{
-		material->_DisplacementMap->Texture()->MakeNonResident();
-	}
 }
 
 void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
@@ -1483,7 +1452,6 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	MaterialPropertySetter(material, true);
 	ConnectMaterialTextures(material, program.get());
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
-	ReleaseMaterialTextures(material);
 	GLVAO::BindDefault();
 }
 
@@ -1521,7 +1489,6 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 	MaterialPropertySetter(material, true);
 	ConnectMaterialTextures(material, program.get());
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
-	ReleaseMaterialTextures(material);
 	GLVAO::BindDefault();
 }
 
@@ -1566,7 +1533,6 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	MaterialPropertySetter(material);
 	ConnectMaterialTextures(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
-	ReleaseMaterialTextures(material);
 	GLVAO::BindDefault();
 }
 
@@ -1601,7 +1567,6 @@ void UniEngine::RenderManager::DrawMesh(
 	MaterialPropertySetter(material);
 	ConnectMaterialTextures(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
-	ReleaseMaterialTextures(material);
 	GLVAO::BindDefault();
 }
 
