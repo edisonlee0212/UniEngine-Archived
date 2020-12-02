@@ -418,8 +418,6 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(std::string path)
         retVal->Texture()->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         retVal->Texture()->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         retVal->Texture()->GenerateMipMap();
-    	
-        retVal->Texture()->MakeResident();
         stbi_image_free(data);
     }
     else

@@ -763,8 +763,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
-								GLVBO* matricesBuffer = new GLVBO();
-								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+								std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 								auto mesh = immc->Mesh;
 								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
@@ -782,7 +781,6 @@ void UniEngine::RenderManager::PreUpdate()
 								mesh->VAO()->SetAttributeDivisor(15, 1);
 								glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 								GLVAO::BindDefault();
-								delete matricesBuffer;
 							}
 						}
 						enabledSize++;
@@ -888,8 +886,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
-								GLVBO* matricesBuffer = new GLVBO();
-								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+								std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 								auto mesh = immc->Mesh;
 								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
@@ -907,7 +904,6 @@ void UniEngine::RenderManager::PreUpdate()
 								mesh->VAO()->SetAttributeDivisor(15, 1);
 								glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 								GLVAO::BindDefault();
-								delete matricesBuffer;
 							}
 						}
 						enabledSize++;
@@ -1013,8 +1009,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
-								GLVBO* matricesBuffer = new GLVBO();
-								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+								std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 								auto mesh = immc->Mesh;
 								_SpotLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
 								mesh->Enable();
@@ -1032,7 +1027,6 @@ void UniEngine::RenderManager::PreUpdate()
 								mesh->VAO()->SetAttributeDivisor(15, 1);
 								glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 								GLVAO::BindDefault();
-								delete matricesBuffer;
 							}
 						}
 						enabledSize++;
@@ -1395,18 +1389,21 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 	glEnable(GL_DEPTH_TEST);
 }
 
-void RenderManager::MaterialTextureBinder(Material* material, GLProgram* program)
+void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* program)
 {
 	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
 	{
+		material->_DiffuseMap->Texture()->MakeResident();
 		_MaterialTextures.diffuse = material->_DiffuseMap->Texture()->GetHandle();
 	}
 	else
 	{
+		Default::Textures::StandardTexture->Texture()->MakeResident();
 		_MaterialTextures.diffuse = Default::Textures::StandardTexture->Texture()->GetHandle();
 	}
 	if (material->_SpecularMap && material->_SpecularMap->Texture().get())
 	{
+		material->_SpecularMap->Texture()->MakeResident();
 		_MaterialTextures.specular = material->_SpecularMap->Texture()->GetHandle();
 		program->SetBool("enableSpecularMapping", true);
 	}
@@ -1416,6 +1413,7 @@ void RenderManager::MaterialTextureBinder(Material* material, GLProgram* program
 	}
 	if (material->_NormalMap && material->_NormalMap->Texture().get())
 	{
+		material->_NormalMap->Texture()->MakeResident();
 		_MaterialTextures.normal = material->_NormalMap->Texture()->GetHandle();
 		program->SetBool("enableNormalMapping", true);
 	}
@@ -1425,6 +1423,7 @@ void RenderManager::MaterialTextureBinder(Material* material, GLProgram* program
 	}
 	if (material->_DisplacementMap && material->_DisplacementMap->Texture().get())
 	{
+		material->_DisplacementMap->Texture()->MakeResident();
 		_MaterialTextures.height = material->_DisplacementMap->Texture()->GetHandle();
 		program->SetBool("enableParallaxMapping", true);
 	}
@@ -1433,6 +1432,32 @@ void RenderManager::MaterialTextureBinder(Material* material, GLProgram* program
 		program->SetBool("enableParallaxMapping", false);
 	}
 	_MaterialTextureBindings->SubData(0, sizeof(MaterialTextures), &_MaterialTextures);
+}
+
+void RenderManager::ReleaseMaterialTextures(Material* material)
+{
+	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
+	{
+		material->_DiffuseMap->Texture()->MakeNonResident();
+	}
+	else
+	{
+		Default::Textures::StandardTexture->Texture()->MakeNonResident();
+	}
+	if (material->_SpecularMap && material->_SpecularMap->Texture().get())
+	{
+		material->_SpecularMap->Texture()->MakeNonResident();
+	}
+	
+	if (material->_NormalMap && material->_NormalMap->Texture().get())
+	{
+		material->_NormalMap->Texture()->MakeNonResident();
+	}
+	
+	if (material->_DisplacementMap && material->_DisplacementMap->Texture().get())
+	{
+		material->_DisplacementMap->Texture()->MakeNonResident();
+	}
 }
 
 void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
@@ -1456,8 +1481,9 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 		program->SetFloat4x4(j.Name, j.Value);
 	}
 	MaterialPropertySetter(material, true);
-	MaterialTextureBinder(material, program.get());
+	ConnectMaterialTextures(material, program.get());
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	ReleaseMaterialTextures(material);
 	GLVAO::BindDefault();
 }
 
@@ -1493,8 +1519,9 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 		program->SetFloat4x4(j.Name, j.Value);
 	}
 	MaterialPropertySetter(material, true);
-	MaterialTextureBinder(material, program.get());
+	ConnectMaterialTextures(material, program.get());
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	ReleaseMaterialTextures(material);
 	GLVAO::BindDefault();
 }
 
@@ -1537,8 +1564,9 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 		program->SetFloat4x4(j.Name, j.Value);
 	}
 	MaterialPropertySetter(material);
-	MaterialTextureBinder(material, program);
+	ConnectMaterialTextures(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	ReleaseMaterialTextures(material);
 	GLVAO::BindDefault();
 }
 
@@ -1571,8 +1599,9 @@ void UniEngine::RenderManager::DrawMesh(
 		program->SetFloat4x4(j.Name, j.Value);
 	}
 	MaterialPropertySetter(material);
-	MaterialTextureBinder(material, program);
+	ConnectMaterialTextures(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	ReleaseMaterialTextures(material);
 	GLVAO::BindDefault();
 }
 
@@ -1596,7 +1625,7 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
-	GLVBO* matricesBuffer = new GLVBO();
+	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
 	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
 	mesh->VAO()->EnableAttributeArray(12);
@@ -1620,7 +1649,6 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	_Triangles += mesh->Size() * count / 3;
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
-	delete matricesBuffer;
 }
 
 void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix)

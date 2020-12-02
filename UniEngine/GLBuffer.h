@@ -80,12 +80,10 @@ namespace UniEngine {
 
 	class UNIENGINE_API GLVAO : public GLObject {
 	protected:
-		GLVBO* _VBO;
-		GLEBO* _EBO;
+		GLVBO _VBO;
+		GLEBO _EBO;
 	public:
 		~GLVAO() {
-			delete _VBO;
-			delete _EBO;
 			BindDefault();
 			glDeleteVertexArrays(1, &_ID);
 		}
@@ -99,24 +97,22 @@ namespace UniEngine {
 		}
 		GLVAO() {
 			glGenVertexArrays(1, &_ID);
-			_VBO = new GLVBO();
-			_EBO = new GLEBO();
 		}
 		GLVBO* VBO() {
-			return _VBO;
+			return &_VBO;
 		}
 
 		GLEBO* EBO() {
-			return _EBO;
+			return &_EBO;
 		}
 
 		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
 			Bind();
-			_VBO->SetData(length, data, usage);
+			_VBO.SetData(length, data, usage);
 		}
 		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
 			Bind();
-			_VBO->SubData(offset, size, data);
+			_VBO.SubData(offset, size, data);
 		}
 
 		void EnableAttributeArray(GLuint index)
