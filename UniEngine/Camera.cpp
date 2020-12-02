@@ -54,16 +54,15 @@ void Camera::StoreToPng(std::string path)
 	_ColorTexture->Bind(0);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, (void*)dst.data());
 	std::vector<uint8_t> pixels;
-	pixels.resize(_ResolutionX * _ResolutionY * 4);
+	pixels.resize(_ResolutionX * _ResolutionY * 3);
 	for(int i = 0; i < _ResolutionX * _ResolutionY; i++)
 	{
-		pixels[i * 4] = glm::clamp<int>(int(255.99f * dst[i * 4]), 0, 255);
-		pixels[i * 4 + 1] = glm::clamp<int>(int(255.99f * dst[i * 4 + 1]), 0, 255);
-		pixels[i * 4 + 2] = glm::clamp<int>(int(255.99f * dst[i * 4 + 2]), 0, 255);
-		pixels[i * 4 + 3] = glm::clamp<int>(int(255.99f * dst[i * 4 + 3]), 0, 255);
+		pixels[i * 3] = glm::clamp<int>(int(255.99f * dst[i * 3]), 0, 255);
+		pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * dst[i * 3 + 1]), 0, 255);
+		pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * dst[i * 3 + 2]), 0, 255);
 	}
 	stbi_flip_vertically_on_write(true);
-	stbi_write_png(path.c_str(), _ResolutionX, _ResolutionY, 4, pixels.data(), _ResolutionX * 4);
+	stbi_write_png(path.c_str(), _ResolutionX, _ResolutionY, 3, pixels.data(), _ResolutionX * 3);
 }
 
 void Camera::OnGui()
