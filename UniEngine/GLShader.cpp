@@ -6,7 +6,7 @@ using namespace UniEngine;
 inline void UniEngine::GLShader::SetCode(std::string* code)
 {
 	_Code = code;
-	_Compileable = true;
+	_Compilable = true;
 	Compile();
 }
 
@@ -15,7 +15,7 @@ inline UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
 	_Code = nullptr;
 	_ID = 0;
 	_Attachable = false;
-	_Compileable = false;
+	_Compilable = false;
 	switch (_Type)
 	{
 	case UniEngine::ShaderType::Vertex:
@@ -37,7 +37,7 @@ inline UniEngine::GLShader::GLShader(ShaderType type, std::string* code) : _Type
 	_Code = code;
 	_ID = 0;
 	_Attachable = false;
-	_Compileable = false;
+	_Compilable = false;
 	switch (_Type)
 	{
 	case UniEngine::ShaderType::Vertex:
@@ -70,9 +70,9 @@ inline bool UniEngine::GLShader::Attachable()
 	return _Attachable;
 }
 
-inline bool UniEngine::GLShader::Compileable()
+inline bool UniEngine::GLShader::Compilable()
 {
-	return _Compileable;
+	return _Compilable;
 }
 
 inline void UniEngine::GLShader::Compile()
@@ -108,7 +108,7 @@ inline void UniEngine::GLShader::Compile()
 
 inline void UniEngine::GLShader::Attach(GLuint programID)
 {
-	if (!_Compileable) {
+	if (!_Compilable) {
 		Debug::Error("Error");
 		return;
 	}

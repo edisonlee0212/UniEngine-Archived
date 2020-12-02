@@ -11,15 +11,15 @@ namespace UniEngine {
 		std::string* _Code;
 		ShaderType _Type;
 		bool _Attachable;
-		bool _Compileable;
+		bool _Compilable;
 	public:
 		void SetCode(std::string* code);
 		GLShader(ShaderType type);
 		GLShader(ShaderType type, std::string* code);
-		~GLShader();
+		~GLShader() override;
 		ShaderType Type();
 		bool Attachable();
-		bool Compileable();
+		bool Compilable();
 		void Compile();
 		void Attach(GLuint programID);
 		void Detach(GLuint programID);

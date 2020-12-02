@@ -126,7 +126,7 @@ namespace UniEngine {
 			_Type = target;
 			_Format = format;
 		}
-		~GLTexture() {
+		~GLTexture() override {
 			glDeleteTextures(1, &_ID);
 		}
 	};

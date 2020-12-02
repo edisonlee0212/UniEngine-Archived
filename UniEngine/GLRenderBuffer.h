@@ -7,7 +7,7 @@ namespace UniEngine {
 		void Bind();
 		static void BindDefault();
 		GLRenderBuffer();
-		~GLRenderBuffer();
+		~GLRenderBuffer() override;
 		void AllocateStorage(GLenum internalFormat​, GLsizei width​, GLsizei height);
 	};
 }

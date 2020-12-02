@@ -12,7 +12,7 @@ namespace UniEngine {
         static void BindDefault();
         GLProgram();
         GLProgram(GLShader* vertexShader, GLShader* fragmentShader, GLShader* geometryShader = nullptr);
-        ~GLProgram();
+        ~GLProgram() override;
         void Link();
         void Attach(ShaderType type, GLShader* shader);
         void Detach(ShaderType type);

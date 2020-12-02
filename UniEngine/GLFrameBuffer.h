@@ -49,7 +49,7 @@ namespace UniEngine {
 		}
 		static void BindDefault();
 		GLFrameBuffer();
-		~GLFrameBuffer();
+		~GLFrameBuffer() override;
 		bool Color();
 		bool Depth();
 		bool Stencil();

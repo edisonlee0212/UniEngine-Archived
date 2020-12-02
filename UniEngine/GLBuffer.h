@@ -23,7 +23,7 @@ namespace UniEngine {
 			Bind();
 			glNamedBufferSubData(_ID, offset, size, data);
 		}
-		~GLBuffer() {
+		~GLBuffer() override{
 			glDeleteBuffers(1, &_ID);
 		}
 	};
@@ -83,8 +83,9 @@ namespace UniEngine {
 		GLVBO _VBO;
 		GLEBO _EBO;
 	public:
-		~GLVAO() {
+		~GLVAO() override {
 			BindDefault();
+			std::cout << "Deleted VAO" << std::endl;
 			glDeleteVertexArrays(1, &_ID);
 		}
 
