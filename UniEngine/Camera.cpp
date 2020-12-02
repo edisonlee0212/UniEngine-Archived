@@ -13,18 +13,10 @@ CameraInfoBlock Camera::CameraInfoBlock;
 
 void Camera::StoreToJpg(std::string path, int resizeX, int resizeY)
 {
-	auto pppo = GLPPBO();
-	pppo.SetData(_ResolutionX * _ResolutionY * sizeof(float) * 4, nullptr, GL_STREAM_READ);
 	std::vector<float> dst;
 	dst.resize(_ResolutionX * _ResolutionY * 3);
-
-	Bind();
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	pppo.Bind();
-	glReadPixels(0, 0, _ResolutionX, _ResolutionY, GL_RGB, GL_FLOAT, 0);
-	GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-	memcpy(dst.data(), src, _ResolutionX * _ResolutionY * sizeof(float) * 3);
-	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+	_ColorTexture->Bind(0);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, (void*)dst.data());
 	std::vector<uint8_t> pixels;
 	if(resizeX > 0 && resizeY > 0)
 	{
@@ -57,21 +49,11 @@ void Camera::StoreToJpg(std::string path, int resizeX, int resizeY)
 
 void Camera::StoreToPng(std::string path)
 {
-	auto pppo = GLPPBO();
-	pppo.SetData(_ResolutionX * _ResolutionY * sizeof(float) * 4, nullptr, GL_STREAM_READ);
 	std::vector<float> dst;
-	dst.resize(_ResolutionX * _ResolutionY * 4);
-
-	Bind();
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	pppo.Bind();
-	glReadPixels(0, 0, _ResolutionX, _ResolutionY, GL_RGBA, GL_FLOAT, 0);
-	GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-	memcpy(dst.data(), src, _ResolutionX * _ResolutionY * sizeof(float) * 4);
-	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-
+	dst.resize(_ResolutionX * _ResolutionY * 3);
+	_ColorTexture->Bind(0);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, (void*)dst.data());
 	std::vector<uint8_t> pixels;
-	
 	pixels.resize(_ResolutionX * _ResolutionY * 4);
 	for(int i = 0; i < _ResolutionX * _ResolutionY; i++)
 	{
