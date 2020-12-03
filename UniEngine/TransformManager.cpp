@@ -10,14 +10,14 @@ std::vector<std::pair<Entity, ChildInfo>> TransformManager::_CachedParentHierarc
 void UniEngine::TransformManager::Init()
 {
 	_TransformQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_TransformQuery, LocalToParent(), LocalToWorld());
+	EntityManager::SetEntityQueryAllFilters(_TransformQuery, Transform(), GlobalTransform());
 	_CachedParentHierarchies = std::vector<std::pair<Entity, ChildInfo>>();
 	
 }
 
 void UniEngine::TransformManager::LateUpdate()
 {
-	EntityManager::ForEach<LocalToParent, LocalToWorld>(_TransformQuery, [](int i, Entity entity, LocalToParent* ltp, LocalToWorld* ltw)
+	EntityManager::ForEach<Transform, GlobalTransform>(_TransformQuery, [](int i, Entity entity, Transform* ltp, GlobalTransform* ltw)
 		{
 			if(EntityManager::GetParent(entity).IsNull())
 			{
@@ -39,12 +39,12 @@ void UniEngine::TransformManager::LateUpdate()
 					for (size_t j = 0; j < capacity; j++) {
 						size_t index = capacity * i + j;
 						const auto& info = list->at(index);
-						auto pltw = EntityManager::GetComponentData<LocalToWorld>(info.first);
-						auto ltp = EntityManager::GetComponentData<LocalToParent>(info.second.Child);
+						auto pltw = EntityManager::GetComponentData<GlobalTransform>(info.first);
+						auto ltp = EntityManager::GetComponentData<Transform>(info.second.Child);
 
-						LocalToWorld ltw;
+						GlobalTransform ltw;
 						ltw.Value = pltw.Value * ltp.Value;
-						EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
+						EntityManager::SetComponentData<GlobalTransform>(info.second.Child, ltw);
 					}
 				}
 			).share());
@@ -52,11 +52,11 @@ void UniEngine::TransformManager::LateUpdate()
 		for (size_t i = 0; i < reminder; i++) {
 			size_t index = capacity * threadSize + i;
 			const auto& info = list->at(index);
-			auto pltw = EntityManager::GetComponentData<LocalToWorld>(info.first);
-			auto ltp = EntityManager::GetComponentData<LocalToParent>(info.second.Child);
-			LocalToWorld ltw;
+			auto pltw = EntityManager::GetComponentData<GlobalTransform>(info.first);
+			auto ltp = EntityManager::GetComponentData<Transform>(info.second.Child);
+			GlobalTransform ltw;
 			ltw.Value = pltw.Value * ltp.Value;
-			EntityManager::SetComponentData<LocalToWorld>(info.second.Child, ltw);
+			EntityManager::SetComponentData<GlobalTransform>(info.second.Child, ltw);
 		}
 		for (const auto& i : futures) i.wait();
 	}
@@ -75,7 +75,7 @@ void UniEngine::TransformManager::LateUpdate()
 	}
 }
 
-void UniEngine::TransformManager::CalculateLtwRecursive(LocalToWorld* pltw, Entity entity)
+void UniEngine::TransformManager::CalculateLtwRecursive(GlobalTransform* pltw, Entity entity)
 {
 	/*
 	Here we have 2 ways to deal with children, you can use lambda function or you can get children
@@ -83,10 +83,10 @@ void UniEngine::TransformManager::CalculateLtwRecursive(LocalToWorld* pltw, Enti
 	is faster and I don't know why...
 	*/
 	for (const auto& i : EntityManager::GetChildren(entity)) {
-		auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
-		LocalToWorld ltw;
+		auto ltp = EntityManager::GetComponentData<Transform>(i);
+		GlobalTransform ltw;
 		ltw.Value = pltw->Value * ltp.Value;
-		EntityManager::SetComponentData<LocalToWorld>(i, ltw);
+		EntityManager::SetComponentData<GlobalTransform>(i, ltw);
 		CalculateLtwRecursive(&ltw, i);
 	}
 }
@@ -96,29 +96,29 @@ void UniEngine::TransformManager::CollectHierarchy(std::vector<std::pair<Entity,
 	auto children = EntityManager::GetChildren(entity);
 	const auto initialSize = container->size();
 	for (const auto& i : children) {
-		if (EntityManager::HasComponentData<LocalToWorld>(i) && EntityManager::HasComponentData<LocalToParent>(i) && EntityManager::HasComponentData<LocalToWorld>(entity)) {
+		if (EntityManager::HasComponentData<GlobalTransform>(i) && EntityManager::HasComponentData<Transform>(i) && EntityManager::HasComponentData<GlobalTransform>(entity)) {
 			ChildInfo info;
 			info.Child = i;
-			auto ltp = EntityManager::GetComponentData<LocalToParent>(i);
-			auto pltw = EntityManager::GetComponentData<LocalToWorld>(entity);
+			auto ltp = EntityManager::GetComponentData<Transform>(i);
+			auto pltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 			container->push_back(std::make_pair(entity, info));
-			LocalToWorld ltw;
+			GlobalTransform ltw;
 			ltw.Value = pltw.Value * ltp.Value;
-			EntityManager::SetComponentData<LocalToWorld>(i, ltw);
+			EntityManager::SetComponentData<GlobalTransform>(i, ltw);
 		}
 	}
 	for (int i = initialSize; i < container->size(); i++) {
 		Entity target = container->at(i).second.Child;
 		for (const auto& child : EntityManager::GetChildren(target)) {
-			if (EntityManager::HasComponentData<LocalToWorld>(child) && EntityManager::HasComponentData<LocalToParent>(child) && EntityManager::HasComponentData<LocalToWorld>(target)) {
+			if (EntityManager::HasComponentData<GlobalTransform>(child) && EntityManager::HasComponentData<Transform>(child) && EntityManager::HasComponentData<GlobalTransform>(target)) {
 				ChildInfo info;
 				info.Child = child;
-				auto ltp = EntityManager::GetComponentData<LocalToParent>(child);
-				auto pltw = EntityManager::GetComponentData<LocalToWorld>(target);
+				auto ltp = EntityManager::GetComponentData<Transform>(child);
+				auto pltw = EntityManager::GetComponentData<GlobalTransform>(target);
 				container->push_back(std::make_pair(target, info));
-				LocalToWorld ltw;
+				GlobalTransform ltw;
 				ltw.Value = pltw.Value * ltp.Value;
-				EntityManager::SetComponentData<LocalToWorld>(child, ltw);
+				EntityManager::SetComponentData<GlobalTransform>(child, ltw);
 			}
 		}
 	}

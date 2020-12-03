@@ -31,13 +31,13 @@ int main()
 	auto world = Application::GetWorld();
 	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToWorld(), LocalToParent());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", GlobalTransform(), Transform());
 	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();
-	LocalToParent transform;
+	Transform transform;
 	transform.SetPosition(glm::vec3(-40, 25, 3));
 	RenderManager::GetMainCamera()->GetOwner().SetComponentData(transform);
 
@@ -106,8 +106,8 @@ int main()
 	}
 #pragma endregion
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", LocalToWorld(), LocalToParent(), DirectionalLight());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", LocalToWorld(), LocalToParent(), PointLight());
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", GlobalTransform(), Transform(), DirectionalLight());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", GlobalTransform(), Transform(), PointLight());
 	transform.SetEulerRotation(glm::radians(glm::vec3(70, 0, 0)));
 	
 	DirectionalLight dlc;
@@ -162,7 +162,7 @@ int main()
 		ImGui::ShowDemoWindow();
 
 #pragma region LightsPosition		
-		auto ltw = ple.GetComponentData<LocalToWorld>();
+		auto ltw = ple.GetComponentData<GlobalTransform>();
 		ltw.SetPosition(glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f));
 		EntityManager::SetComponentData(ple, ltw);
 #pragma endregion
@@ -182,10 +182,10 @@ void LightSettingMenu() {
 }
 
 void InitGround() {
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToParent(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 	auto entity = EntityManager::CreateEntity(archetype);
 	entity.SetName("Ground");
-	LocalToParent transform;
+	Transform transform;
 	transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	transform.SetScale(glm::vec3(100.0f));
 	EntityManager::SetComponentData(entity, transform);

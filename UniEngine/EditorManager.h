@@ -3,7 +3,7 @@
 #include "Core.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
-	struct LocalToParent;
+	struct Transform;
 
 	enum EntityEditorSystemConfigFlags {
 		EntityEditorSystem_None = 0,
@@ -23,7 +23,7 @@ namespace UniEngine {
 		static Entity _SelectedEntity;
 		static bool _DisplayLog;
 		static bool _DisplayError;
-		static LocalToParent* _PreviouslyStoredTransform;
+		static Transform* _PreviouslyStoredTransform;
 		static glm::vec3 _PreviouslyStoredPosition;
 		static glm::vec3 _PreviouslyStoredRotation;
 		static glm::vec3 _PreviouslyStoredScale;

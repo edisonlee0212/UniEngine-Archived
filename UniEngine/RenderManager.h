@@ -142,9 +142,9 @@ namespace UniEngine {
 		static void SetEnableSSAO(bool value);
 		static void SetSSAOSampleSize(int value);
 #pragma endregion
-		static void RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
+		static void RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void RenderBackGround(std::unique_ptr<CameraComponent>& cameraComponent);
-		static void RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
+		static void RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void Init();
 		//Main rendering happens here.
 		static void PreUpdate();

@@ -22,7 +22,7 @@ int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
 bool EditorManager::_DisplayLog = true;
 bool EditorManager::_DisplayError = true;
-LocalToParent* EditorManager::_PreviouslyStoredTransform;
+Transform* EditorManager::_PreviouslyStoredTransform;
 glm::vec3 EditorManager::_PreviouslyStoredPosition;
 glm::vec3 EditorManager::_PreviouslyStoredRotation;
 glm::vec3 EditorManager::_PreviouslyStoredScale;
@@ -106,10 +106,10 @@ void UniEngine::EditorManager::Init()
 {
 	_Enabled = true;
 
-	RegisterComponentDataInspector<LocalToWorld>([](ComponentBase* data, bool isRoot)
+	RegisterComponentDataInspector<GlobalTransform>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
-			LocalToWorld* ltw = reinterpret_cast<LocalToWorld*>(data);
+			GlobalTransform* ltw = reinterpret_cast<GlobalTransform*>(data);
 			glm::vec3 er;
 			glm::vec3 t;
 			glm::vec3 s;
@@ -122,10 +122,10 @@ void UniEngine::EditorManager::Init()
 	);
 
 
-	RegisterComponentDataInspector<LocalToParent>([](ComponentBase* data, bool isRoot)
+	RegisterComponentDataInspector<Transform>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
-			auto ltp = static_cast<LocalToParent*>(static_cast<void*>(data));
+			auto ltp = static_cast<Transform*>(static_cast<void*>(data));
 			bool edited = false;
 			if (ltp != _PreviouslyStoredTransform) {
 				_PreviouslyStoredTransform = ltp;
@@ -232,22 +232,22 @@ void UniEngine::EditorManager::Init()
 		}
 	);
 
-	RegisterComponentDataMenu<LocalToWorld>([](Entity owner)
+	RegisterComponentDataMenu<GlobalTransform>([](Entity owner)
 		{
-			if (owner.HasComponentData<LocalToWorld>()) return;
-			if (ImGui::SmallButton("LocalToWorld"))
+			if (owner.HasComponentData<GlobalTransform>()) return;
+			if (ImGui::SmallButton("GlobalTransform"))
 			{
-				EntityManager::AddComponentData(owner, LocalToWorld());
+				EntityManager::AddComponentData(owner, GlobalTransform());
 			}
 		}
 	);
 
-	RegisterComponentDataMenu<LocalToParent>([](Entity owner)
+	RegisterComponentDataMenu<Transform>([](Entity owner)
 		{
-			if (owner.HasComponentData<LocalToParent>()) return;
-			if (ImGui::SmallButton("LocalToParent"))
+			if (owner.HasComponentData<Transform>()) return;
+			if (ImGui::SmallButton("Transform"))
 			{
-				EntityManager::AddComponentData(owner, LocalToParent());
+				EntityManager::AddComponentData(owner, Transform());
 			}
 		}
 	);
@@ -300,7 +300,7 @@ static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
 
 void EditorManager::PreUpdate()
 {
-	_BasicEntityArchetype = EntityManager::CreateEntityArchetype("General", LocalToWorld(), LocalToParent());
+	_BasicEntityArchetype = EntityManager::CreateEntityArchetype("General", GlobalTransform(), Transform());
 
 	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 	_SceneCamera->GetCamera()->Clear();
@@ -442,8 +442,8 @@ void EditorManager::LateUpdate()
 			if (ImGui::Button("Create new entity"))
 			{
 				auto newEntity = EntityManager::CreateEntity(_BasicEntityArchetype);
-				newEntity.SetComponentData(LocalToParent());
-				newEntity.SetComponentData(LocalToWorld());
+				newEntity.SetComponentData(Transform());
+				newEntity.SetComponentData(GlobalTransform());
 			}
 			ImGui::EndPopup();
 		}
@@ -627,8 +627,8 @@ void EditorManager::LateUpdate()
 				{
 					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
 					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
-					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model", LocalToParent(), LocalToWorld());
-					LocalToWorld ltw;
+					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model", Transform(), GlobalTransform());
+					GlobalTransform ltw;
 					AssetManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
 				}
 				ImGui::EndDragDropTarget();

@@ -14,7 +14,7 @@ int main()
 	Application::Init();
 	RenderManager::SetAmbientLight(0.1f);
 	auto world = Application::GetWorld();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToParent(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();
 #pragma endregion
@@ -24,8 +24,8 @@ int main()
 #pragma endregion
 
 #pragma region Light
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", LocalToParent(), LocalToWorld(), DirectionalLight());
-	LocalToWorld ltw;
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Transform(), GlobalTransform(), DirectionalLight());
+	GlobalTransform ltw;
 	ltw.SetEulerRotation(glm::vec3(90, 0, 0));
 	DirectionalLight dlc;
 	dlc.lightSize = 1.0f;

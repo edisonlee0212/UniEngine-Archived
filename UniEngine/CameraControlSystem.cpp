@@ -7,7 +7,7 @@ void CameraControlSystem::Update()
 {
 	auto mainCamera = RenderManager::GetMainCamera();
 	if (mainCamera) {
-		auto transform = mainCamera->GetOwner().GetComponentData<LocalToParent>();
+		auto transform = mainCamera->GetOwner().GetComponentData<Transform>();
 		auto rc = transform.GetRotation();
 		auto pc = transform.GetPosition();
 		glm::vec3 position = pc;

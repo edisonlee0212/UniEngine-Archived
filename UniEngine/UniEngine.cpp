@@ -118,9 +118,9 @@ void UniEngine::Application::Init(bool fullScreen)
 	_Initialized = true;
 #pragma region Main Camera
 	Camera::GenerateMatrices();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", LocalToWorld(), LocalToParent(), CameraLayerMask());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", GlobalTransform(), Transform(), CameraLayerMask());
 	auto mainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
-	LocalToParent cameraLtw;
+	Transform cameraLtw;
 	cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
 	cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
 	EntityManager::SetComponentData(mainCameraEntity, cameraLtw);

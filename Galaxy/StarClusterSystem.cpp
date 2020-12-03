@@ -3,11 +3,11 @@
 void Galaxy::StarClusterSystem::OnCreate()
 {
 	_StarClusterArchetype = EntityManager::CreateEntityArchetype("Star Cluster",
-		LocalToWorld(),
+		GlobalTransform(),
 		StarClusterIndex()
 	);
 	_StarCluster = EntityManager::CreateEntity(_StarClusterArchetype);
-	LocalToWorld ltw;
+	GlobalTransform ltw;
 	ltw.SetScale(glm::vec3(1.0f));
 	auto imr = std::make_unique<Particles>();
 	imr->Material = std::make_shared<Material>();
@@ -24,7 +24,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	EntityManager::SetEntityQueryAllFilters(_StarQuery, StarSeed());
 	_Patterns.push_back(pattern);
 	_StarArchetype = EntityManager::CreateEntityArchetype("Star",
-		LocalToWorld(),
+		GlobalTransform(),
 		StarClusterIndex(),
 		StarIndex(),
 		StarSeed(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),
@@ -96,9 +96,9 @@ void Galaxy::StarClusterSystem::Update()
 	);
 	//2. Apply position and size to the transform which will later be used for rendering.
 	float size = _Size;
-	EntityManager::ForEach<StarPosition, LocalToWorld>(
+	EntityManager::ForEach<StarPosition, GlobalTransform>(
 		_StarQuery,
-		[size](int i, Entity entity, StarPosition* position, LocalToWorld* ltw)
+		[size](int i, Entity entity, StarPosition* position, GlobalTransform* ltw)
 		{
 			ltw->Value = glm::translate(glm::vec3(position->Value) / 20.0f) * glm::scale(size * glm::vec3(1.0f));
 		}, false
@@ -106,7 +106,7 @@ void Galaxy::StarClusterSystem::Update()
 	//3. Setup transforms for particles component for the entity for actual rendering.
 	auto& imr = _StarCluster.GetPrivateComponent<Particles>();
 	imr->Matrices.resize(0);
-	_StarQuery.ToComponentDataArray(*(std::vector<LocalToWorld>*)(void*)&imr->Matrices);
+	_StarQuery.ToComponentDataArray(*(std::vector<GlobalTransform>*)(void*)&imr->Matrices);
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

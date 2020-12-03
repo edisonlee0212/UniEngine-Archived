@@ -40,9 +40,9 @@ Entity UniEngine::AssetManager::ToEntity(EntityArchetype archetype, std::shared_
 {
     Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(model->Name);
-    LocalToParent ltp;
+    Transform ltp;
     std::unique_ptr<ModelNode>& modelNode = model->RootNode();
-    EntityManager::SetComponentData<LocalToParent>(entity, ltp);
+    EntityManager::SetComponentData<Transform>(entity, ltp);
     for (auto& i : modelNode->_MeshMaterials) {
         auto mmc = std::make_unique<MeshRenderer>();
         mmc->Mesh = i.second;
@@ -292,9 +292,9 @@ void UniEngine::AssetManager::AttachChildren(EntityArchetype archetype, std::uni
     Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(parentName);
     EntityManager::SetParent(entity, parentEntity);
-    LocalToParent ltp;
+    Transform ltp;
     ltp.Value = modelNode->_LocalToParent;
-    EntityManager::SetComponentData<LocalToParent>(entity, ltp);
+    EntityManager::SetComponentData<Transform>(entity, ltp);
     for (auto i : modelNode->_MeshMaterials) {
         auto mmc = std::make_unique<MeshRenderer>();
         mmc->Mesh = i.second;

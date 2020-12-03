@@ -236,12 +236,12 @@ GLTexture2D* UniEngine::Camera::GetTexture() const
 	return _ColorTexture;
 }
 
-glm::vec3 Camera::Project(LocalToWorld& ltw, glm::vec3 position)
+glm::vec3 Camera::Project(GlobalTransform& ltw, glm::vec3 position)
 {
 	return CameraInfoBlock.Projection * CameraInfoBlock.View * glm::vec4(position, 1.0f);
 }
 
-glm::vec3 Camera::UnProject(LocalToWorld& ltw, glm::vec3 position) const
+glm::vec3 Camera::UnProject(GlobalTransform& ltw, glm::vec3 position) const
 {
 	glm::mat4 inversed = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	glm::vec4 start = glm::vec4(
@@ -250,7 +250,7 @@ glm::vec3 Camera::UnProject(LocalToWorld& ltw, glm::vec3 position) const
 	return start / start.w;
 }
 
-glm::vec3 Camera::GetMouseWorldPoint(LocalToWorld& ltw, glm::vec2 mousePosition) const
+glm::vec3 Camera::GetMouseWorldPoint(GlobalTransform& ltw, glm::vec2 mousePosition) const
 {
 	glm::mat4 inversed = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
@@ -270,7 +270,7 @@ void Camera::ClearColor(glm::vec3 color) const
 	_FrameBuffer->ClearColor(glm::vec4(0.0f));
 }
 
-Ray Camera::ScreenPointToRay(LocalToWorld& ltw, glm::vec2 mousePosition) const
+Ray Camera::ScreenPointToRay(GlobalTransform& ltw, glm::vec2 mousePosition) const
 {
 	const glm::mat4 inv = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;

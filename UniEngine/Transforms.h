@@ -4,13 +4,9 @@
 #include "Core.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
-	struct UNIENGINE_API LocalToWorld : ComponentBase {
-		LocalToWorld()
-		{
-			Value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
-		}
-		glm::mat4 Value;
-		bool operator ==(const LocalToWorld& other) const {
+	struct UNIENGINE_API GlobalTransform : ComponentBase {
+		glm::mat4 Value = glm::translate(glm::vec3(0.0f))* glm::mat4_cast(glm::quat(glm::vec3(0.0f)))* glm::scale(glm::vec3(1.0f));;
+		bool operator ==(const GlobalTransform& other) const {
 			return other.Value == Value;
 		}
 #pragma region Get & set
@@ -108,13 +104,9 @@ namespace UniEngine {
 		}
 #pragma endregion
 	};
-	struct UNIENGINE_API LocalToParent : ComponentBase {
-		LocalToParent()
-		{
-			Value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
-		}
-		glm::mat4 Value;
-		bool operator ==(const LocalToParent& other) const {
+	struct UNIENGINE_API Transform : ComponentBase {
+		glm::mat4 Value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));;
+		bool operator ==(const Transform& other) const {
 			return other.Value == Value;
 		}
 #pragma region Get & set

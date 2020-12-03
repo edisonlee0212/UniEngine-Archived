@@ -59,7 +59,7 @@ void UniEngine::Particles::OnGui()
 	{
 		RecalculateBoundingBox();
 		ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
-		auto transform = GetOwner().GetComponentData<LocalToWorld>().Value;
+		auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
 		RenderManager::DrawGizmoCube(DisplayBoundColor, transform * glm::translate(BoundingBox.Center) * glm::scale(BoundingBox.Size), 1);
 	}
 	if (Material) {

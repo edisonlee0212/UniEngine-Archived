@@ -22,7 +22,7 @@ void UniEngine::MeshRenderer::OnGui()
 			if (DisplayBound)
 			{
 				ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
-				auto transform = GetOwner().GetComponentData<LocalToWorld>().Value;
+				auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
 				RenderManager::DrawGizmoCube(DisplayBoundColor, transform * (glm::translate(Mesh->_Bound.Center) * glm::scale(Mesh->_Bound.Size)), 1);
 			}
 			Mesh->OnGui();

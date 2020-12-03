@@ -18,7 +18,7 @@ int main()
 #pragma region Preparations
 	auto world = Application::GetWorld();
 	WorldTime* time = world->Time();
-	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", LocalToParent(), LocalToWorld());
+	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 
 	
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
@@ -32,7 +32,7 @@ int main()
 	pts->Enable();
 
 	PlanetInfo pi;
-	LocalToParent planetTransform;
+	Transform planetTransform;
 	
 	planetTransform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	planetTransform.SetEulerRotation(glm::vec3(0.0f));
@@ -71,12 +71,12 @@ int main()
 #pragma endregion
 
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", LocalToParent(), LocalToWorld(), DirectionalLight());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", LocalToParent(), LocalToWorld(), PointLight());
+	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Transform(), GlobalTransform(), DirectionalLight());
+	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Transform(), GlobalTransform(), PointLight());
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	
-	LocalToParent ltw;
+	Transform ltw;
 	DirectionalLight dlc;
 	dlc.diffuse = glm::vec3(1.0f);
 	dlc.specular = glm::vec3(0.5f);

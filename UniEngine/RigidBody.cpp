@@ -87,7 +87,7 @@ void UniEngine::RigidBody::SetTransform(glm::mat4 value)
 		Debug::Log("Failed! Pause game to reset!");
 		return;
 	}
-	LocalToWorld ltw;
+	GlobalTransform ltw;
 	ltw.Value = value;
 	ltw.SetScale(glm::vec3(1.0f));
 	_ShapeTransform = ltw.Value;
@@ -238,7 +238,7 @@ void UniEngine::RigidBody::OnGui()
 		if (ImGui::DragFloat3("Rotation", &skew.x, 0.01f)) shapeTransChanged = true;
 		if (shapeTransChanged)_ShapeTransform = glm::translate(trans) * glm::mat4_cast(glm::quat(glm::radians(skew))) * glm::scale(glm::vec3(1.0f));
 
-		auto ltw = GetOwner().GetComponentData<LocalToWorld>();
+		auto ltw = GetOwner().GetComponentData<GlobalTransform>();
 		ltw.SetScale(glm::vec3(1.0f));
 		switch (_ShapeType)
 		{
@@ -254,7 +254,7 @@ void UniEngine::RigidBody::OnGui()
 				if (meshRenderer)
 				{
 					auto bound = meshRenderer->Mesh->GetBound();
-					glm::vec3 scale = GetOwner().GetComponentData<LocalToWorld>().GetScale();
+					glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
 					_ShapeParam = bound.Size * scale;
 				}
 			}

@@ -17,7 +17,7 @@ void Planet::PlanetTerrainSystem::Update()
 		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
 		if (!planetTerrain->IsEnabled()) continue;
 		auto& planetChunks = planetTerrain->_Chunks;
-		auto planetTransform = planetTerrain->GetOwner().GetComponentData<LocalToWorld>();
+		auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
 		glm::mat4 matrix = glm::scale(glm::translate(glm::mat4_cast(planetTransform.GetRotation()), glm::vec3(planetTransform.GetPosition())), glm::vec3(1.0f));
 		for (auto j = 0; j < planetChunks.size(); j++) {
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -26,12 +26,12 @@ void Planet::PlanetTerrainSystem::Update()
 		}
 	}
 	std::mutex meshGenLock;
-	const auto cameraLtw = RenderManager::GetMainCamera()->GetOwner().GetComponentData<LocalToWorld>();
+	const auto cameraLtw = RenderManager::GetMainCamera()->GetOwner().GetComponentData<GlobalTransform>();
 	for (auto i = 0; i < planetTerrainList->size(); i++) {
 		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
 		if (!planetTerrain->IsEnabled()) continue;
 		auto& planetInfo = planetTerrain->_Info;
-		auto planetTransform = planetTerrain->GetOwner().GetComponentData<LocalToWorld>();
+		auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
 		//1. Scan and expand.
 		for (auto& chunk : planetTerrain->_Chunks) {
 			//futures.push_back(_ThreadPool->Push([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw); }).share());
@@ -50,7 +50,7 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::GetDefaultSurfaceMaterial
 	return _DefaultSurfaceMaterial;
 }
 
-void Planet::PlanetTerrainSystem::CheckLod(std::mutex& mutex, std::unique_ptr<TerrainChunk>& chunk, const PlanetInfo& info, const LocalToWorld& planetTransform, const LocalToWorld& cameraTransform)
+void Planet::PlanetTerrainSystem::CheckLod(std::mutex& mutex, std::unique_ptr<TerrainChunk>& chunk, const PlanetInfo& info, const GlobalTransform& planetTransform, const GlobalTransform& cameraTransform)
 {
 	if (glm::distance(glm::dvec3(chunk->ChunkCenterPosition(planetTransform.GetPosition(), info.Radius, planetTransform.GetRotation())), glm::dvec3(cameraTransform.GetPosition()))
 		< info.LodDistance * info.Radius / glm::pow(2, chunk->DetailLevel + 1)) {

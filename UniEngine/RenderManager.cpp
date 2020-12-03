@@ -66,7 +66,7 @@ int RenderManager::_SSAOSampleSize = 9;
 #pragma endregion
 #pragma endregion
 
-void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
+void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
 	auto& camera = cameraComponent->GetCamera();
 	cameraComponent->_GBuffer->Bind();
@@ -83,7 +83,7 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
 			if (mmc->Material->BlendingMode != MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
-			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
+			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 			if (calculateBounds) {
 				auto meshBound = mmc->Mesh->GetBound();
 				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
@@ -116,7 +116,7 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
 			if (immc->Material->BlendingMode != MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
-			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
+			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 			if (calculateBounds) {
 				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
 				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
@@ -222,7 +222,7 @@ void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraCom
 	glDepthFunc(GL_LESS); // set depth function back to default
 }
 
-void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, LocalToWorld& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
+void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
 	auto& camera = cameraComponent->_Camera;
 	camera->Bind();
@@ -236,7 +236,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering && mmc->Material->BlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
-			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
+			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 			auto meshBound = mmc->Mesh->GetBound();
 			glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
 			if (calculateBounds) {
@@ -269,7 +269,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 			auto& immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering && immc->Material->BlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
-			auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
+			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 			if (calculateBounds) {
 				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
 				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
@@ -586,7 +586,7 @@ void UniEngine::RenderManager::PreUpdate()
 		_MainCameraComponent->ResizeResolution(_MainCameraResolutionX, _MainCameraResolutionY);
 #pragma region Shadow
 		if (mainCameraEntity.Enabled() && _MainCameraComponent->IsEnabled()) {
-			auto ltw = mainCameraEntity.GetComponentData<LocalToWorld>();
+			auto ltw = mainCameraEntity.GetComponentData<GlobalTransform>();
 			glm::vec3 mainCameraPos = ltw.GetPosition();
 			glm::quat mainCameraRot = ltw.GetRotation();
 
@@ -604,7 +604,7 @@ void UniEngine::RenderManager::PreUpdate()
 					const auto& dlc = directionLightsList[i];
 					Entity lightEntity = directionalLightEntities[i];
 					if (!lightEntity.Enabled()) continue;
-					glm::quat rotation = lightEntity.GetComponentData<LocalToWorld>().GetRotation();
+					glm::quat rotation = lightEntity.GetComponentData<GlobalTransform>().GetRotation();
 					glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 					float planeDistance = 0;
 					glm::vec3 center;
@@ -735,7 +735,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
-								auto ltw = EntityManager::GetComponentData<LocalToWorld>(owner).Value;
+								auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 								_DirectionalLightProgram->SetFloat4x4("model", ltw);
 								mesh->Enable();
 								mesh->VAO()->DisableAttributeArray(12);
@@ -765,7 +765,7 @@ void UniEngine::RenderManager::PreUpdate()
 								size_t count = immc->Matrices.size();
 								std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 								auto mesh = immc->Mesh;
-								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
+								_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
 								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -802,7 +802,7 @@ void UniEngine::RenderManager::PreUpdate()
 					const auto& plc = pointLightsList[i];
 					Entity lightEntity = pointLightEntities[i];
 					if (!lightEntity.Enabled()) continue;
-					glm::vec3 position = EntityManager::GetComponentData<LocalToWorld>(lightEntity).Value[3];
+					glm::vec3 position = EntityManager::GetComponentData<GlobalTransform>(lightEntity).Value[3];
 					_PointLights[enabledSize].position = glm::vec4(position, 0);
 
 					_PointLights[enabledSize].constantLinearQuadFarPlane.x = plc.constant;
@@ -860,7 +860,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
-								_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
+								_PointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->DisableAttributeArray(12);
 								mesh->VAO()->DisableAttributeArray(13);
@@ -888,7 +888,7 @@ void UniEngine::RenderManager::PreUpdate()
 								size_t count = immc->Matrices.size();
 								std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 								auto mesh = immc->Mesh;
-								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
+								_PointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
 								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -927,7 +927,7 @@ void UniEngine::RenderManager::PreUpdate()
 					const auto& slc = spotLightsList[i];
 					Entity lightEntity = spotLightEntities[i];
 					if (!lightEntity.Enabled()) continue;
-					auto ltw = EntityManager::GetComponentData<LocalToWorld>(lightEntity);
+					auto ltw = EntityManager::GetComponentData<GlobalTransform>(lightEntity);
 					glm::vec3 position = ltw.Value[3];
 					glm::vec3 front = ltw.GetRotation() * glm::vec3(0, 0, -1);
 					glm::vec3 up = ltw.GetRotation() * glm::vec3(0, 1, 0);
@@ -983,7 +983,7 @@ void UniEngine::RenderManager::PreUpdate()
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
-								_SpotLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
+								_SpotLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->DisableAttributeArray(12);
 								mesh->VAO()->DisableAttributeArray(13);
@@ -1011,7 +1011,7 @@ void UniEngine::RenderManager::PreUpdate()
 								size_t count = immc->Matrices.size();
 								std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 								auto mesh = immc->Mesh;
-								_SpotLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<LocalToWorld>(owner).Value);
+								_SpotLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).Value);
 								mesh->Enable();
 								mesh->VAO()->EnableAttributeArray(12);
 								mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -1050,13 +1050,13 @@ void UniEngine::RenderManager::PreUpdate()
 			if (_MainCameraComponent && cameraComponent.get() == _MainCameraComponent) continue;
 			if (cameraComponent->IsEnabled())
 			{
-				auto ltw = cameraEntity.GetComponentData<LocalToWorld>();
+				auto ltw = cameraEntity.GetComponentData<GlobalTransform>();
 				Camera::CameraInfoBlock.UpdateMatrices(cameraComponent->_Camera.get(),
 					ltw.GetPosition(),
 					ltw.GetRotation()
 				);
 				Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
-				LocalToWorld cameraTransform = cameraEntity.GetComponentData<LocalToWorld>();
+				GlobalTransform cameraTransform = cameraEntity.GetComponentData<GlobalTransform>();
 				RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
 				RenderBackGround(cameraComponent);
 				RenderToCameraForward(cameraComponent, cameraTransform, minBound, maxBound, false);
@@ -1071,7 +1071,7 @@ void UniEngine::RenderManager::PreUpdate()
 			EditorManager::_SceneCameraRotation
 		);
 		Camera::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera->_Camera->CameraUniformBufferBlock);
-		LocalToWorld cameraTransform;
+		GlobalTransform cameraTransform;
 		cameraTransform.Value = glm::translate(EditorManager::_SceneCameraPosition) * glm::mat4_cast(EditorManager::_SceneCameraRotation);
 		RenderToCameraDeferred(EditorManager::_SceneCamera, cameraTransform, minBound, maxBound, false);
 		RenderBackGround(EditorManager::_SceneCamera);
@@ -1086,13 +1086,13 @@ void UniEngine::RenderManager::PreUpdate()
 		if (mainCameraEntity.Enabled() && _MainCameraComponent->IsEnabled()) {
 			auto minBound = glm::vec3((int)INT_MAX);
 			auto maxBound = glm::vec3((int)INT_MIN);
-			auto ltw = mainCameraEntity.GetComponentData<LocalToWorld>();
+			auto ltw = mainCameraEntity.GetComponentData<GlobalTransform>();
 			Camera::CameraInfoBlock.UpdateMatrices(mainCamera.get(),
 				ltw.GetPosition(),
 				ltw.GetRotation()
 			);
 			Camera::CameraInfoBlock.UploadMatrices(mainCamera->CameraUniformBufferBlock);
-			LocalToWorld cameraTransform = mainCameraEntity.GetComponentData<LocalToWorld>();
+			GlobalTransform cameraTransform = mainCameraEntity.GetComponentData<GlobalTransform>();
 			RenderToCameraDeferred(mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
 			RenderBackGround(mainCameraEntity.GetPrivateComponent<CameraComponent>());
 			RenderToCameraForward(mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
@@ -1692,7 +1692,7 @@ void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
 	CameraComponent* cameraComponent, bool receiveShadow)
 {
 	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
-	LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(cameraComponent->GetOwner());
+	GlobalTransform ltw = EntityManager::GetComponentData<GlobalTransform>(cameraComponent->GetOwner());
 	glm::vec3 scale;
 	glm::vec3 trans;
 	glm::quat rotation;
@@ -1719,7 +1719,7 @@ void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 
 	size_t count, CameraComponent* cameraComponent, bool receiveShadow)
 {
 	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
-	LocalToWorld ltw = EntityManager::GetComponentData<LocalToWorld>(cameraComponent->GetOwner());
+	GlobalTransform ltw = EntityManager::GetComponentData<GlobalTransform>(cameraComponent->GetOwner());
 	glm::vec3 scale;
 	glm::vec3 trans;
 	glm::quat rotation;
