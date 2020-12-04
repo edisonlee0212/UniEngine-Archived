@@ -19,7 +19,7 @@ int main()
 	FileIO::SetResourcePath("../Resources/");
 	RenderManager::SetEnableSSAO(true);
 #pragma region Lighting and Shadow settings
-	RenderManager::SetEnableShadow(true);
+	RenderManager::SetEnableShadow(false);
 	RenderManager::SetShadowMapResolution(4096);
 	RenderManager::SetStableFit(false);
 	RenderManager::SetSeamFixRatio(0.05f);
