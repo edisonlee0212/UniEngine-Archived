@@ -51,7 +51,7 @@ namespace UniEngine {
 		Bound GetBound();
 		float GetRadius();
 		Mesh();
-		void SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store = false);
+		void SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store = true);
 		size_t GetVerticesAmount();
 		size_t Size();
 		void RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);

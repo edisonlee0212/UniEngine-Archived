@@ -5,7 +5,7 @@
 #include "RigidBody.h"
 using namespace physx;
 
-#define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
+#define PX_RELEASE(x)	if(x)	{ x->release(); x = nullptr;	}
 namespace UniEngine {
 
 	class UNIENGINE_API PhysicsSimulationManager :
@@ -19,7 +19,6 @@ namespace UniEngine {
 		static PxDefaultCpuDispatcher* _Dispatcher;
 		static PxScene* _PhysicsScene;
 		static PxPvd* _PhysVisDebugger;
-		static bool _Simulating;
 		static PxMaterial* _DefaultMaterial;
 		static PxReal stackZ;
 	public:
