@@ -63,7 +63,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
-	for (auto i = 0; i < 60000; i++) {
+	for (auto i = 0; i < 100000; i++) {
 		auto starEntity = EntityManager::CreateEntity(_StarArchetype);
 		index.Value = i;
 		seed.Value = glm::linearRand(0.0, 1.0);
@@ -87,6 +87,8 @@ void Galaxy::StarClusterSystem::Update()
 	ImGui::End();
 	_GalaxyTime += _World->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
+
+	float timer = Application::EngineTime();
 	//1. Calculate position (double precision) for each star
 	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery,
 		[time](int i, Entity entity, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset)
@@ -103,10 +105,14 @@ void Galaxy::StarClusterSystem::Update()
 			ltw->Value = glm::translate(glm::vec3(position->Value) / 20.0f) * glm::scale(size * glm::vec3(1.0f));
 		}, false
 	);
+
+	
+	
 	//3. Setup transforms for particles component for the entity for actual rendering.
 	auto& imr = _StarCluster.GetPrivateComponent<Particles>();
 	imr->Matrices.resize(0);
 	_StarQuery.ToComponentDataArray(*(std::vector<GlobalTransform>*)(void*)&imr->Matrices);
+	Debug::Log("Calculation Time: " + std::to_string(Application::EngineTime() - timer));
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

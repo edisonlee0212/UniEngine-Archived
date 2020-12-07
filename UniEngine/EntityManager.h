@@ -325,7 +325,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkIndex, data, targetType1, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -341,7 +341,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -389,7 +389,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -406,7 +406,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -460,7 +460,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -478,7 +478,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -540,7 +540,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -559,7 +559,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -629,7 +629,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -649,7 +649,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
 						{
 							for (int i = 0; i < remainder; i++) {
 								int index = i + chunkAmount * capacity;
@@ -727,7 +727,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -748,7 +748,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -834,7 +834,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -856,7 +856,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -950,7 +950,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -973,7 +973,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					_ThreadPool->Push([entities, capacity, func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
+					_ThreadPool->Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
