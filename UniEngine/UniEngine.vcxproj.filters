@@ -73,6 +73,12 @@
     <Filter Include="Source Files\Resource\PrivateComponent">
       <UniqueIdentifier>{b6c738f3-3353-4c5d-8037-78f5cecdc252}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\External\ImGuizmo">
+      <UniqueIdentifier>{5e05cee3-962e-488b-a424-270fb70daaeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\External\ImGuizmo">
+      <UniqueIdentifier>{f13be80a-fbd4-42db-8edc-3048bb049fab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -264,6 +270,21 @@
     <ClInclude Include="SpotLightShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\ImGuizmo\ImZoomSlider.h">
+      <Filter>Header Files\External\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\ImGuizmo\ImCurveEdit.h">
+      <Filter>Header Files\External\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\ImGuizmo\ImGradient.h">
+      <Filter>Header Files\External\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\ImGuizmo\ImGuizmo.h">
+      <Filter>Header Files\External\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\ImGuizmo\ImSequencer.h">
+      <Filter>Header Files\External\ImGuizmo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -436,6 +457,18 @@
     </ClCompile>
     <ClCompile Include="SpotLightShadowMap.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\includes\ImGuizmo\ImSequencer.cpp">
+      <Filter>Source Files\External\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\includes\ImGuizmo\ImCurveEdit.cpp">
+      <Filter>Source Files\External\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\includes\ImGuizmo\ImGradient.cpp">
+      <Filter>Source Files\External\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\includes\ImGuizmo\ImGuizmo.cpp">
+      <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
