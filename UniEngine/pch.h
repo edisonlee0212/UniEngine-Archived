@@ -10,6 +10,7 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 #include <type_traits>
+#include <optional>
 #include <string>
 #include <fstream>
 #include <sstream>

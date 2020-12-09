@@ -27,8 +27,8 @@ Transform* EditorManager::_PreviouslyStoredTransform;
 glm::vec3 EditorManager::_PreviouslyStoredPosition;
 glm::vec3 EditorManager::_PreviouslyStoredRotation;
 glm::vec3 EditorManager::_PreviouslyStoredScale;
-glm::quat EditorManager::_SceneCameraRotation;
-glm::vec3 EditorManager::_SceneCameraPosition;
+glm::quat EditorManager::_SceneCameraRotation = glm::quat(glm::radians(glm::vec3(-14.0f, 0.0f, 0.0f)));
+glm::vec3 EditorManager::_SceneCameraPosition = glm::vec3(0, 5, 10);
 std::unique_ptr<CameraComponent> EditorManager::_SceneCamera;
 int EditorManager::_SceneCameraResolutionX;
 int EditorManager::_SceneCameraResolutionY;
@@ -303,13 +303,9 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
-
 	_SelectedEntity.Index = 0;
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;
 	_ConfigFlags += EntityEditorSystem_EnableEntityInspector;
-
-	_SceneCameraPosition = glm::vec3(0.0f);
-	_SceneCameraRotation = glm::quat(glm::vec3(0.0f));
 	_SceneCamera = std::make_unique<CameraComponent>();
 	_SceneCamera->DrawSkyBox = false;
 }

@@ -4,9 +4,7 @@
 #include "MeshRenderer.h"
 #include <stb_image.h>
 
-
 #include "Default.h"
-#include "FileBrowser.h"
 
 using namespace UniEngine;
 bool AssetManager::_EnableAssetMenu = true;
@@ -14,7 +12,6 @@ std::vector<std::shared_ptr<Model>> AssetManager::_Models;
 std::vector<std::shared_ptr<Texture2D>> AssetManager::_Texture2Ds;
 std::vector<std::shared_ptr<Cubemap>> AssetManager::_Cubemaps;
 
-FileBrowser AssetManager::_FileBrowser;
 std::shared_ptr<Model> UniEngine::AssetManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
 {
     stbi_set_flip_vertically_on_load(true);
@@ -442,8 +439,6 @@ void AssetManager::RemoveTexture(int index)
 
 void AssetManager::LateUpdate()
 {
-    bool openModelLoader = false;
-    bool openTextureLoader = false;
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File"))
         {
@@ -451,11 +446,21 @@ void AssetManager::LateUpdate()
             {
                 if(ImGui::Button("Model"))
                 {
-                    openModelLoader = true;
+                    std::string path = FileIO::OpenFile("Model (*.obj)\0*.obj\0").value();
+                    if(!path.empty())
+                    {
+                        LoadModel(path, Default::GLPrograms::StandardProgram);
+                        Debug::Log("Loaded model from \"" + path);
+                    }
                 }
                 if (ImGui::Button("Texture"))
                 {
-                    openTextureLoader = true;
+                    std::string path = FileIO::OpenFile("Texture (*.png)\0*.jpg\0").value();
+                    if (!path.empty())
+                    {
+                        LoadTexture(path);
+                        Debug::Log("Loaded texture from \"" + path);
+                    }
                 }
                 ImGui::EndMenu();
             }
@@ -526,31 +531,5 @@ void AssetManager::LateUpdate()
         }
         ImGui::EndTabBar();
         ImGui::End();
-    }
-    if(openModelLoader)
-    {
-        ImGui::OpenPopup("Model Loader");
-    }
-
-    if (openTextureLoader)
-    {
-        ImGui::OpenPopup("Texture Loader");
-    }
-    if (_FileBrowser.showFileDialog("Model Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 700), ".obj"))
-    {
-        LoadModel(_FileBrowser.selected_path, Default::GLPrograms::StandardProgram);
-        Debug::Log("Loaded model from \"" + _FileBrowser.selected_path);
-        //std::cout << _FileBrowser.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
-        //std::cout << _FileBrowser.selected_path << std::endl;    // The absolute path to the selected file
-
-    }
-
-    if (_FileBrowser.showFileDialog("Texture Loader", FileBrowser::DialogMode::OPEN, ImVec2(700, 700), ".png,.jpg,.jpeg"))
-    {
-        LoadTexture(_FileBrowser.selected_path);
-        Debug::Log("Loaded texture from \"" + _FileBrowser.selected_path);
-        //std::cout << _FileBrowser.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
-        //std::cout << _FileBrowser.selected_path << std::endl;    // The absolute path to the selected file
-
     }
 }

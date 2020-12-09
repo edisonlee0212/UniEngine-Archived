@@ -222,9 +222,6 @@
     <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_win32.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="FileBrowser.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
     <ClInclude Include="AssetManager.h">
       <Filter>Header Files\Resource\Manager</Filter>
     </ClInclude>
@@ -411,9 +408,6 @@
       <Filter>Source Files\External</Filter>
     </ClCompile>
     <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_glfw.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="FileBrowser.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
     <ClCompile Include="AssetManager.cpp">

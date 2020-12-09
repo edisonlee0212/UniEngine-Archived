@@ -8,13 +8,10 @@
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 
-#include "FileBrowser.h"
-
 namespace UniEngine {
     class UNIENGINE_API AssetManager : public ManagerBase
     {
         static bool _EnableAssetMenu;
-        static FileBrowser _FileBrowser;
         static std::vector<std::shared_ptr<Model>> _Models;
         static std::vector<std::shared_ptr<Texture2D>> _Texture2Ds;
         static std::vector<std::shared_ptr<Cubemap>> _Cubemaps;

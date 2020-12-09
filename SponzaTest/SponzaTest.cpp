@@ -38,8 +38,10 @@ int main()
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();
 	Transform transform;
-	transform.SetPosition(glm::vec3(-40, 25, 3));
+	transform.SetPosition(glm::vec3(0, 5, 10));
+	transform.SetEulerRotation(glm::radians(glm::vec3(-14.0f, 0.0f, 0.0f)));
 	RenderManager::GetMainCamera()->GetOwner().SetComponentData(transform);
+	transform.SetEulerRotation(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
 
 	Entity newCam = EntityManager::CreateEntity(archetype, "Camera");
 	newCam.SetPrivateComponent(std::make_unique<CameraComponent>());
@@ -63,8 +65,8 @@ int main()
 		backpackModel->Name = "Backpack";
 		Entity backpackEntity = AssetManager::ToEntity(archetype, backpackModel);
 		backpackEntity.SetName("Backpack");
-		transform.SetPosition(glm::vec3(0, 10, 0));
-		transform.SetScale(glm::vec3(5.0f));
+		transform.SetPosition(glm::vec3(0, 2, 0));
+		transform.SetScale(glm::vec3(1.0f));
 		EntityManager::SetComponentData(backpackEntity, transform);
 	}
 	else if (testScene == SPONZA_TEST) {
@@ -76,7 +78,7 @@ int main()
 		sponzaEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformManager & ParentSystem
-		transform.SetPosition(glm::vec3(5, 5, 5));
+		transform.SetPosition(glm::vec3(1, 1, 1));
 		transform.SetScale(glm::vec3(0.05f));
 		EntityManager::SetComponentData(sponzaEntity, transform);
 	}
@@ -148,28 +150,13 @@ int main()
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
 #pragma endregion
-	FileBrowser file_dialog;
 	InitGround();
 #pragma region EngineLoop
 	bool loopable = true;
 	//Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our self.
 	//Another way to run engine is to simply execute:
-	//Application.Run();
-	while (loopable) {
-		Application::PreUpdate();
-		/*
-		LightSettingMenu();
-		ImGui::ShowDemoWindow();
-
-#pragma region LightsPosition		
-		auto ltw = ple.GetComponentData<GlobalTransform>();
-		ltw.SetPosition(glm::vec4(glm::vec3(-30.0f * glm::cos(glm::radians(lightAngle6)), 30.0f * glm::sin(glm::radians(lightAngle6)), 0.0f), 0.0f));
-		EntityManager::SetComponentData(ple, ltw);
-#pragma endregion
-*/
-		Application::Update();
-		loopable = Application::LateUpdate();
-	}
+	Application::Run();
+	
 	Application::End();
 #pragma endregion
 	return 0;
@@ -187,7 +174,7 @@ void InitGround() {
 	entity.SetName("Ground");
 	Transform transform;
 	transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	transform.SetScale(glm::vec3(100.0f));
+	transform.SetScale(glm::vec3(10.0f));
 	EntityManager::SetComponentData(entity, transform);
 	/*
 	auto entity1 = EntityManager::CreateEntity(archetype);
