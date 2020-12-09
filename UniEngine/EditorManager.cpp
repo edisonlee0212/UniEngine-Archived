@@ -113,7 +113,7 @@ void UniEngine::EditorManager::Init()
 			glm::vec3 er;
 			glm::vec3 t;
 			glm::vec3 s;
-			ltw->GetTERS(t, er, s);
+			ltw->Decompose(t, er, s);
 			er = glm::degrees(er);
 			ImGui::DragFloat3("Global Position", &t.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			ImGui::DragFloat3("Global Rotation", &er.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
@@ -129,7 +129,7 @@ void UniEngine::EditorManager::Init()
 			bool edited = false;
 			if (ltp != _PreviouslyStoredTransform) {
 				_PreviouslyStoredTransform = ltp;
-				ltp->GetTERS(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+				ltp->Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 				_PreviouslyStoredRotation = glm::degrees(_PreviouslyStoredRotation);
 			}
 			if (ImGui::DragFloat3("Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;

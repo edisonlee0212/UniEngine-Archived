@@ -105,7 +105,7 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 							glm::vec3 scale;
 							glm::vec3 pos;
 							glm::quat rot;
-							temp.GetTRS(pos, rot, scale);
+							temp.Decompose(pos, rot, scale);
 							scale = rigidBodyEntity.GetComponentData<GlobalTransform>().GetScale();
 							temp.SetValue(pos, rot, scale);
 							Transform ltp;
@@ -129,7 +129,7 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 				glm::vec3 scale;
 				glm::vec3 pos;
 				glm::quat rot;
-				temp.GetTRS(pos, rot, scale);
+				temp.Decompose(pos, rot, scale);
 				scale = rigidBodyEntity.GetComponentData<GlobalTransform>().GetScale();
 				temp.SetValue(pos, rot, scale);
 				Transform ltp;
