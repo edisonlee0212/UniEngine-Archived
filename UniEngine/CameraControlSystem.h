@@ -10,8 +10,7 @@ namespace UniEngine {
 		float _Velocity = 20.0f;
 		float _Sensitivity = 0.1f;
 		float _LastX = 0, _LastY = 0, _LastScrollY = 0;
-		bool startMouse = false;
-		bool startScroll = false;
+		bool _StartMouse = false;
 	public:
 		void Update() override;
 		void SetVelocity(float velocity);

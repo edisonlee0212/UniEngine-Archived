@@ -82,8 +82,7 @@ void UniEngine::WindowManager::Init(std::string name, bool fullScreen)
 
 	_Window = glfwCreateWindow(_WindowWidth, _WindowHeight, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr, NULL);
 	if(!fullScreen) glfwMaximizeWindow(_Window);
-	glfwSetFramebufferSizeCallback(_Window, WindowManager::ResizeCallback);
-	InputManager::SetWindow(_Window);
+	glfwSetFramebufferSizeCallback(_Window, ResizeCallback);
 	if (_Window == NULL)
 	{
 		Debug::Error("Failed to create GLFW window");

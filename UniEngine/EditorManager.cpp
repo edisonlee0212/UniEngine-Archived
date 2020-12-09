@@ -403,51 +403,7 @@ void EditorManager::PreUpdate()
 #pragma endregion
 	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 	_SceneCamera->GetCamera()->Clear();
-#pragma region Scene Camera Controller
-	glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
-	glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
-	if (InputManager::GetKey(GLFW_KEY_W, FocusMode::SceneCamera)) {
-		_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-	}
-	if (InputManager::GetKey(GLFW_KEY_S, FocusMode::SceneCamera)) {
-		_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-	}
-	if (InputManager::GetKey(GLFW_KEY_A, FocusMode::SceneCamera)) {
-		_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-	}
-	if (InputManager::GetKey(GLFW_KEY_D, FocusMode::SceneCamera)) {
-		_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-	}
-	if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT, FocusMode::SceneCamera)) {
-		_SceneCameraPosition.y += _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
-	}
-	if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL, FocusMode::SceneCamera)) {
-		_SceneCameraPosition.y -= _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
-	}
-	auto mousePosition = InputManager::GetMouseAbsolutePosition(FocusMode::SceneCamera);
-	if (!_StartMouse) {
-		_LastX = mousePosition.x;
-		_LastY = mousePosition.y;
-		_StartMouse = true;
-	}
-	float xoffset = mousePosition.x - _LastX;
-	float yoffset = -mousePosition.y + _LastY;
-	_LastX = mousePosition.x;
-	_LastY = mousePosition.y;
-	if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT, FocusMode::SceneCamera)) {
-		if (xoffset != 0 || yoffset != 0) {
-			_SceneCameraRotation = _SceneCamera.get()->GetCamera()->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
-		}
-		mousePosition = InputManager::GetMouseScroll(FocusMode::SceneCamera);
-		if (!_StartScroll) {
-			_LastScrollY = mousePosition.y;
-			_StartScroll = true;
-		}
-		float yscrolloffset = -mousePosition.y + _LastScrollY;
-		_LastScrollY = mousePosition.y;
-		if (yscrolloffset != 0) _SceneCamera.get()->GetCamera()->ProcessMouseScroll(yscrolloffset);
-	}
-#pragma endregion
+
 }
 
 
@@ -638,6 +594,46 @@ void EditorManager::LateUpdate()
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
+			if (ImGui::IsWindowFocused())
+			{
+#pragma region Scene Camera Controller
+				glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
+				glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
+				if (InputManager::GetKey(GLFW_KEY_W)) {
+					_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+				}
+				if (InputManager::GetKey(GLFW_KEY_S)) {
+					_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+				}
+				if (InputManager::GetKey(GLFW_KEY_A)) {
+					_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+				}
+				if (InputManager::GetKey(GLFW_KEY_D)) {
+					_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+				}
+				if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT)) {
+					_SceneCameraPosition.y += _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
+				}
+				if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL)) {
+					_SceneCameraPosition.y -= _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
+				}
+				auto mousePosition = InputManager::GetMouseAbsolutePosition();
+				if (!_StartMouse) {
+					_LastX = mousePosition.x;
+					_LastY = mousePosition.y;
+					_StartMouse = true;
+				}
+				float xoffset = mousePosition.x - _LastX;
+				float yoffset = -mousePosition.y + _LastY;
+				_LastX = mousePosition.x;
+				_LastY = mousePosition.y;
+				if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
+					if (xoffset != 0 || yoffset != 0) {
+						_SceneCameraRotation = _SceneCamera.get()->GetCamera()->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
+					}
+				}
+#pragma endregion
+			}
 			viewPortSize = ImGui::GetWindowSize();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			ImGui::Image((ImTextureID)_SceneCamera->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
@@ -673,6 +669,7 @@ void EditorManager::LateUpdate()
 
 		}
 		ImGui::EndChild();
+		_SceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();

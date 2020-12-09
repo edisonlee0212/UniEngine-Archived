@@ -2,6 +2,8 @@
 #include "RenderManager.h"
 #include "TransformManager.h"
 #include <gtx/matrix_decompose.hpp>
+
+#include "imgui_internal.h"
 #include "UniEngine.h"
 using namespace UniEngine;
 #pragma region Global Var
@@ -1323,7 +1325,7 @@ void RenderManager::LateUpdate()
 				ImGui::Text("%d drawcall", _DrawCall);
 				ImGui::Separator();
 				if (ImGui::IsMousePosValid()) {
-					glm::vec2 pos = InputManager::GetMouseScreenPosition();
+					glm::vec2 pos = InputManager::GetMouseScreenPosition(ImGui::GetCurrentWindowRead());
 					ImGui::Text("Mouse Position: (%.1f,%.1f)", pos.x, pos.y);
 				}
 				else {
