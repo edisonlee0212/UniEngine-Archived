@@ -236,6 +236,11 @@ GLTexture2D* UniEngine::Camera::GetTexture() const
 	return _ColorTexture;
 }
 
+glm::mat4 Camera::GetProjection() const
+{
+	return glm::perspective(glm::radians(FieldOfView * 0.5f), GetResolutionRatio(), NearDistance, FarDistance);
+}
+
 glm::vec3 Camera::Project(GlobalTransform& ltw, glm::vec3 position)
 {
 	return CameraInfoBlock.Projection * CameraInfoBlock.View * glm::vec4(position, 1.0f);

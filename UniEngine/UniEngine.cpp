@@ -147,11 +147,7 @@ void UniEngine::Application::PreUpdateInternal()
 		_World->_Time->_FixedDeltaTime += _World->_Time->_DeltaTime;
 		_World->PreUpdate();
 	}
-#pragma region ImGui
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-#pragma endregion
+
 	EditorManager::PreUpdate();
 	WindowManager::PreUpdate();
 	InputManager::PreUpdate();
@@ -182,25 +178,10 @@ bool UniEngine::Application::LaterUpdateInternal()
 	InputManager::LateUpdate();
 	AssetManager::LateUpdate();
 	WindowManager::LateUpdate();
-	EditorManager::LateUpdate();
 	RenderManager::LateUpdate();
 	TransformManager::LateUpdate();
-#pragma region ImGui
-	RenderTarget::BindDefault();
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	
-	// Update and Render additional Platform Windows
-	// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-	//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		GLFWwindow* backup_current_context = glfwGetCurrentContext();
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-		glfwMakeContextCurrent(backup_current_context);
-	}
-#pragma endregion
+
+	EditorManager::LateUpdate();
 	//Swap Window's framebuffer
 	WindowManager::Swap();
 	_World->_Time->_LastFrameTime = glfwGetTime();

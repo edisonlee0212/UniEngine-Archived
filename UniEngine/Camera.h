@@ -70,7 +70,7 @@ namespace UniEngine {
 		void ProcessMouseScroll(float yOffset);
 		void SetResolution(int x, int y);
 		GLTexture2D* GetTexture() const;
-
+		glm::mat4 GetProjection() const;
 		static glm::vec3 Project(GlobalTransform& ltw, glm::vec3 position);
 
 		glm::vec3 UnProject(GlobalTransform& ltw, glm::vec3 position) const;

@@ -11,6 +11,7 @@
 #include "PointLight.h"
 #include "RenderManager.h"
 #include "TransformManager.h"
+#include "ImGuizmo/ImGuizmo.h"
 using namespace UniEngine;
 bool EditorManager::_Enabled = false;
 EntityArchetype EditorManager::_BasicEntityArchetype;
@@ -38,7 +39,9 @@ float EditorManager::_LastY = 0;
 float EditorManager::_LastScrollY = 0;
 bool EditorManager::_StartMouse = false;
 bool EditorManager::_StartScroll = false;
-
+bool EditorManager::_LocalPositionSelected = true;
+bool EditorManager::_LocalRotationSelected = false;
+bool EditorManager::_LocalScaleSelected = false;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	bool deleted = false;
@@ -105,6 +108,7 @@ void UniEngine::EditorManager::InspectComponentData(ComponentBase* data, Compone
 void UniEngine::EditorManager::Init()
 {
 	_Enabled = true;
+	_BasicEntityArchetype = EntityManager::CreateEntityArchetype("General", GlobalTransform(), Transform());
 
 	RegisterComponentDataInspector<GlobalTransform>([](ComponentBase* data, bool isRoot)
 		{
@@ -115,9 +119,9 @@ void UniEngine::EditorManager::Init()
 			glm::vec3 s;
 			ltw->Decompose(t, er, s);
 			er = glm::degrees(er);
-			ImGui::DragFloat3("Global Position", &t.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::DragFloat3("Global Rotation", &er.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::DragFloat3("Global Scale", &s.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::DragFloat3("Position", &t.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::DragFloat3("Rotation", &er.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::DragFloat3("Scale", &s.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		}
 	);
 
@@ -132,9 +136,27 @@ void UniEngine::EditorManager::Init()
 				ltp->Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 				_PreviouslyStoredRotation = glm::degrees(_PreviouslyStoredRotation);
 			}
-			if (ImGui::DragFloat3("Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
-			if (ImGui::DragFloat3("Local Rotation", &_PreviouslyStoredRotation.x, 1.0f)) edited = true;
-			if (ImGui::DragFloat3("Local Scale", &_PreviouslyStoredScale.x, 0.01f)) edited = true;
+			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
+			ImGui::SameLine();
+			if (ImGui::Selectable("Local Position", &_LocalPositionSelected) && _LocalPositionSelected)
+			{
+				_LocalRotationSelected = false;
+				_LocalScaleSelected = false;
+			}
+			if (ImGui::DragFloat3("##Local Rotation", &_PreviouslyStoredRotation.x, 1.0f)) edited = true;
+			ImGui::SameLine();
+			if (ImGui::Selectable("Local Rotation", &_LocalRotationSelected) && _LocalRotationSelected)
+			{
+				_LocalPositionSelected = false;
+				_LocalScaleSelected = false;
+			}
+			if (ImGui::DragFloat3("##Local Scale", &_PreviouslyStoredScale.x, 0.01f)) edited = true;
+			ImGui::SameLine();
+			if (ImGui::Selectable("Local Scale", &_LocalScaleSelected) && _LocalScaleSelected)
+			{
+				_LocalRotationSelected = false;
+				_LocalPositionSelected = false;
+			}
 			if (edited)
 			{
 				ltp->Value = glm::translate(_PreviouslyStoredPosition) * glm::mat4_cast(glm::quat(glm::radians(_PreviouslyStoredRotation))) * glm::scale(_PreviouslyStoredScale);
@@ -300,10 +322,12 @@ static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
 
 void EditorManager::PreUpdate()
 {
-	_BasicEntityArchetype = EntityManager::CreateEntityArchetype("General", GlobalTransform(), Transform());
-
-	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
-	_SceneCamera->GetCamera()->Clear();
+#pragma region ImGui
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
+#pragma endregion
 #pragma region Dock & Main Menu
 	static bool opt_fullscreen_persistant = true;
 	bool opt_fullscreen = opt_fullscreen_persistant;
@@ -377,7 +401,8 @@ void EditorManager::PreUpdate()
 	}
 
 #pragma endregion
-
+	_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
+	_SceneCamera->GetCamera()->Clear();
 #pragma region Scene Camera Controller
 	glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
 	glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
@@ -423,8 +448,6 @@ void EditorManager::PreUpdate()
 		if (yscrolloffset != 0) _SceneCamera.get()->GetCamera()->ProcessMouseScroll(yscrolloffset);
 	}
 #pragma endregion
-
-
 }
 
 
@@ -434,7 +457,7 @@ void UniEngine::EditorManager::Update()
 }
 void EditorManager::LateUpdate()
 {
-#pragma region Select entity here
+#pragma region Entity Explorer
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Explorer");
 		if (ImGui::BeginPopupContextWindow("DataComponentInspectorPopup"))
@@ -494,6 +517,8 @@ void EditorManager::LateUpdate()
 
 		ImGui::End();
 	}
+#pragma endregion
+#pragma region Entity Inspector
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityInspector) {
 		ImGui::Begin("Entity Inspector");
 		if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted()) {
@@ -605,22 +630,17 @@ void EditorManager::LateUpdate()
 		ImGui::End();
 	}
 #pragma endregion
-
-#pragma region Scene Camera Window
+#pragma region Scene Window
 	ImVec2 viewPortSize;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-
 	ImGui::Begin("Scene");
 	{
-		viewPortSize = ImGui::GetWindowSize();
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
-
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			ImGui::Image((ImTextureID)_SceneCamera->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
-
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
@@ -633,6 +653,24 @@ void EditorManager::LateUpdate()
 				}
 				ImGui::EndDragDropTarget();
 			}
+#pragma region Gizmos
+			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted() && (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected))
+			{
+				ImGuizmo::SetOrthographic(false);
+				ImGuizmo::SetDrawlist();
+				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
+				Transform transform = _SelectedEntity.GetComponentData<Transform>();
+				glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
+				glm::mat4 cameraProjection = _SceneCamera->GetCamera()->GetProjection();
+				auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
+				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(transform.Value));
+				if (ImGuizmo::IsUsing()) {
+					_SelectedEntity.SetComponentData(transform);
+					transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+				}
+			}
+#pragma endregion
+
 		}
 		ImGui::EndChild();
 	}
@@ -642,9 +680,6 @@ void EditorManager::LateUpdate()
 	_SceneCameraResolutionY = viewPortSize.y;
 
 #pragma endregion
-
-
-
 #pragma region Logs and errors
 	if (_DisplayLog) {
 		ImGui::Begin("Log");
@@ -668,7 +703,22 @@ void EditorManager::LateUpdate()
 		ImGui::End();
 	}
 #pragma endregion
+#pragma region ImGui
+	RenderTarget::BindDefault();
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+	// Update and Render additional Platform Windows
+	// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+	//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		glfwMakeContextCurrent(backup_current_context);
+	}
+#pragma endregion
 }
 
 

@@ -270,19 +270,19 @@
     <ClInclude Include="SpotLightShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\ImGuizmo\ImZoomSlider.h">
+    <ClInclude Include="ImGuizmo\ImZoomSlider.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\ImGuizmo\ImCurveEdit.h">
+    <ClInclude Include="ImGuizmo\ImCurveEdit.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\ImGuizmo\ImGradient.h">
+    <ClInclude Include="ImGuizmo\ImGradient.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\ImGuizmo\ImGuizmo.h">
+    <ClInclude Include="ImGuizmo\ImGuizmo.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\ImGuizmo\ImSequencer.h">
+    <ClInclude Include="ImGuizmo\ImSequencer.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
   </ItemGroup>
@@ -458,16 +458,16 @@
     <ClCompile Include="SpotLightShadowMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\includes\ImGuizmo\ImSequencer.cpp">
+    <ClCompile Include="ImGuizmo\ImCurveEdit.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="..\includes\ImGuizmo\ImCurveEdit.cpp">
+    <ClCompile Include="ImGuizmo\ImGradient.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="..\includes\ImGuizmo\ImGradient.cpp">
+    <ClCompile Include="ImGuizmo\ImGuizmo.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="..\includes\ImGuizmo\ImGuizmo.cpp">
+    <ClCompile Include="ImGuizmo\ImSequencer.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
   </ItemGroup>

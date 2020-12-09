@@ -15,9 +15,9 @@ namespace UniEngine {
 		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLenum attachPoint);
 		RenderTarget();
 		RenderTarget(size_t width, size_t height);
-		glm::vec2 GetResolution();
+		glm::vec2 GetResolution() const;
 		void SetResolution(size_t width, size_t height);
-		float GetResolutionRatio();
+		float GetResolutionRatio() const;
 		void Bind();
 		void Clear();
 

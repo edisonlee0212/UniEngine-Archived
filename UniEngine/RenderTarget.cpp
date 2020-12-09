@@ -19,7 +19,7 @@ UniEngine::RenderTarget::RenderTarget(size_t width, size_t height)
 	_ResolutionY = height;
 }
 
-glm::vec2 UniEngine::RenderTarget::GetResolution()
+glm::vec2 UniEngine::RenderTarget::GetResolution() const
 {
 	return glm::vec2(_ResolutionX, _ResolutionY);
 }
@@ -30,7 +30,7 @@ void RenderTarget::SetResolution(size_t width, size_t height)
 	_ResolutionY = height;
 }
 
-float UniEngine::RenderTarget::GetResolutionRatio()
+float UniEngine::RenderTarget::GetResolutionRatio() const
 {
 	if (_ResolutionX == 0 || _ResolutionY == 0) return 0;
 	return (float)_ResolutionX / (float)_ResolutionY;

@@ -27,6 +27,10 @@ namespace UniEngine {
 		static glm::vec3 _PreviouslyStoredPosition;
 		static glm::vec3 _PreviouslyStoredRotation;
 		static glm::vec3 _PreviouslyStoredScale;
+
+		static bool _LocalPositionSelected;
+		static bool _LocalRotationSelected;
+		static bool _LocalScaleSelected;
 #pragma region Scene Camera
 		friend class RenderManager;
 		friend class InputManager;
