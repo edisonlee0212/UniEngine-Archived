@@ -1325,7 +1325,8 @@ void RenderManager::LateUpdate()
 				ImGui::Text("%d drawcall", _DrawCall);
 				ImGui::Separator();
 				if (ImGui::IsMousePosValid()) {
-					glm::vec2 pos = InputManager::GetMouseScreenPosition(ImGui::GetCurrentWindowRead());
+					glm::vec2 pos;
+					InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), pos);
 					ImGui::Text("Mouse Position: (%.1f,%.1f)", pos.x, pos.y);
 				}
 				else {

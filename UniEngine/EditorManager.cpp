@@ -21,6 +21,7 @@ std::vector<std::pair<size_t, std::function<void(Entity owner)>>> EditorManager:
 unsigned int EditorManager::_ConfigFlags = 0;
 int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
+Entity EditorManager::_FocusedEntity;
 bool EditorManager::_DisplayLog = true;
 bool EditorManager::_DisplayError = true;
 Transform* EditorManager::_PreviouslyStoredTransform;
@@ -39,7 +40,8 @@ float EditorManager::_LastY = 0;
 float EditorManager::_LastScrollY = 0;
 bool EditorManager::_StartMouse = false;
 bool EditorManager::_StartScroll = false;
-bool EditorManager::_LocalPositionSelected = true;
+bool EditorManager::_GizmoSelected =  false;
+bool EditorManager::_LocalPositionSelected = false;
 bool EditorManager::_LocalRotationSelected = false;
 bool EditorManager::_LocalScaleSelected = false;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
@@ -135,6 +137,10 @@ void UniEngine::EditorManager::Init()
 				_PreviouslyStoredTransform = ltp;
 				ltp->Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 				_PreviouslyStoredRotation = glm::degrees(_PreviouslyStoredRotation);
+				_GizmoSelected = false;
+				_LocalPositionSelected = false;
+				_LocalRotationSelected = false;
+				_LocalScaleSelected = false;
 			}
 			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
 			ImGui::SameLine();
@@ -142,6 +148,7 @@ void UniEngine::EditorManager::Init()
 			{
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
+				_GizmoSelected = true;
 			}
 			if (ImGui::DragFloat3("##Local Rotation", &_PreviouslyStoredRotation.x, 1.0f)) edited = true;
 			ImGui::SameLine();
@@ -149,6 +156,7 @@ void UniEngine::EditorManager::Init()
 			{
 				_LocalPositionSelected = false;
 				_LocalScaleSelected = false;
+				_GizmoSelected = true;
 			}
 			if (ImGui::DragFloat3("##Local Scale", &_PreviouslyStoredScale.x, 0.01f)) edited = true;
 			ImGui::SameLine();
@@ -156,6 +164,7 @@ void UniEngine::EditorManager::Init()
 			{
 				_LocalRotationSelected = false;
 				_LocalPositionSelected = false;
+				_GizmoSelected = true;
 			}
 			if (edited)
 			{
@@ -409,6 +418,12 @@ void UniEngine::EditorManager::Update()
 }
 void EditorManager::LateUpdate()
 {
+	if (InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow())) {
+		_GizmoSelected = false;
+		_LocalPositionSelected = false;
+		_LocalRotationSelected = false;
+		_LocalScaleSelected = false;
+	}
 #pragma region Entity Explorer
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Explorer");
@@ -592,40 +607,92 @@ void EditorManager::LateUpdate()
 		if (ImGui::BeginChild("CameraRenderer")) {
 			if (ImGui::IsWindowFocused())
 			{
-#pragma region Scene Camera Controller
-				glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
-				glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
-				if (InputManager::GetKey(GLFW_KEY_W)) {
-					_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-				}
-				if (InputManager::GetKey(GLFW_KEY_S)) {
-					_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-				}
-				if (InputManager::GetKey(GLFW_KEY_A)) {
-					_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-				}
-				if (InputManager::GetKey(GLFW_KEY_D)) {
-					_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
-				}
-				if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT)) {
-					_SceneCameraPosition.y += _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
-				}
-				if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL)) {
-					_SceneCameraPosition.y -= _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
-				}
-				auto mousePosition = InputManager::GetMouseAbsolutePosition();
-				if (!_StartMouse) {
+				glm::vec2 mousePosition;
+				bool valid = InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), mousePosition);
+				float xOffset = 0;
+				float yOffset = 0;
+				if (valid) {
+					if (!_StartMouse) {
+						_LastX = mousePosition.x;
+						_LastY = mousePosition.y;
+						_StartMouse = true;
+					}
+					xOffset = mousePosition.x - _LastX;
+					yOffset = -mousePosition.y + _LastY;
 					_LastX = mousePosition.x;
 					_LastY = mousePosition.y;
-					_StartMouse = true;
+#pragma region Entity Selection
+					if (!_GizmoSelected) {
+						_FocusedEntity = Entity();
+						const auto* entities = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
+						if (entities) {
+							GlobalTransform cameraLtw;
+							cameraLtw.Value = glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation);
+							const auto cameraRay = _SceneCamera->GetCamera()->ScreenPointToRay(
+								cameraLtw, mousePosition);
+							std::map<float, std::pair<std::pair<Entity, MeshRenderer*>, glm::mat4>> sortedEntities;
+							for (const auto& owner : *entities)
+							{
+								if (!owner.Enabled()) continue;
+								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+								if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+								auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
+								glm::vec3 center = ltw * glm::vec4(mmc->Mesh->_Bound.Center, 1.0f);
+								sortedEntities.insert({ glm::distance(cameraLtw.GetPosition(), center), std::make_pair(std::make_pair(owner, mmc.get()), ltw) });
+							}
+							for (auto pair = sortedEntities.begin(); pair != sortedEntities.end(); ++pair)
+							{
+								const auto* mmc = pair->second.first.second;
+								const auto& entity = pair->second.first.first;
+								const auto& ltw = pair->second.second;
+								auto& bound = mmc->Mesh->_Bound;
+								if (cameraRay.Intersect(ltw, bound))
+								{
+									_FocusedEntity = entity;
+									break;
+								}
+							}
+							if (!_FocusedEntity.IsNull() && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+							{
+								_SelectedEntity = _FocusedEntity;
+							}
+							else
+							{
+								//Highlight the focused entity here.
+								if (_FocusedEntity.HasPrivateComponent<MeshRenderer>())
+								{
+									auto color = glm::vec4(0.6f);
+									_FocusedEntity.GetPrivateComponent<MeshRenderer>()->RenderBound(color);
+								}
+							}
+						}
+					}
+#pragma endregion
 				}
-				float xoffset = mousePosition.x - _LastX;
-				float yoffset = -mousePosition.y + _LastY;
-				_LastX = mousePosition.x;
-				_LastY = mousePosition.y;
-				if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
-					if (xoffset != 0 || yoffset != 0) {
-						_SceneCameraRotation = _SceneCamera.get()->GetCamera()->ProcessMouseMovement(xoffset, yoffset, _Sensitivity);
+#pragma region Scene Camera Controller
+				if (InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow())) {
+					glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
+					glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
+					if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow())) {
+						_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+					}
+					if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow())) {
+						_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+					}
+					if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow())) {
+						_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+					}
+					if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow())) {
+						_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+					}
+					if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow())) {
+						_SceneCameraPosition.y += _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
+					}
+					if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, WindowManager::GetWindow())) {
+						_SceneCameraPosition.y -= _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
+					}
+					if (xOffset != 0 || yOffset != 0) {
+						_SceneCameraRotation = _SceneCamera->GetCamera()->ProcessMouseMovement(xOffset, yOffset, _Sensitivity);
 					}
 				}
 #pragma endregion
@@ -646,7 +713,7 @@ void EditorManager::LateUpdate()
 				ImGui::EndDragDropTarget();
 			}
 #pragma region Gizmos
-			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted() && (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected))
+			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted() && _GizmoSelected && (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected))
 			{
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
@@ -662,7 +729,6 @@ void EditorManager::LateUpdate()
 				}
 			}
 #pragma endregion
-
 		}
 		ImGui::EndChild();
 		_SceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));

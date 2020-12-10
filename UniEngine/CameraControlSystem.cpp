@@ -52,20 +52,25 @@ void CameraControlSystem::LateUpdate()
 				{
 					transform.SetPosition(position);
 				}
-				auto mousePosition = InputManager::GetMouseAbsolutePosition();
-				if (!_StartMouse) {
+				glm::vec2 mousePosition;
+				bool valid = InputManager::GetMousePosition(mousePosition);
+				float xOffset = 0;
+				float yOffset = 0;
+				if (valid) {
+					if (!_StartMouse) {
+						_LastX = mousePosition.x;
+						_LastY = mousePosition.y;
+						_StartMouse = true;
+					}
+					xOffset = mousePosition.x - _LastX;
+					yOffset = -mousePosition.y + _LastY;
 					_LastX = mousePosition.x;
 					_LastY = mousePosition.y;
-					_StartMouse = true;
 				}
-				float xoffset = mousePosition.x - _LastX;
-				float yoffset = -mousePosition.y + _LastY;
-				_LastX = mousePosition.x;
-				_LastY = mousePosition.y;
 				if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
-					if (xoffset != 0 || yoffset != 0) {
+					if (xOffset != 0 || yOffset != 0) {
 						moved = true;
-						transform.SetRotation(mainCamera->GetCamera()->ProcessMouseMovement(xoffset, yoffset, _Sensitivity));
+						transform.SetRotation(mainCamera->GetCamera()->ProcessMouseMovement(xOffset, yOffset, _Sensitivity));
 					}
 				}
 				if(moved)

@@ -41,6 +41,7 @@ namespace UniEngine {
 		Bound _Bound;
 		friend class MeshRenderer;
 		friend class Particles;
+		friend class EditorManager;
 		bool _LocalStored;
 		std::vector<Vertex> _Vertices;
 		std::vector<unsigned> _Indices;

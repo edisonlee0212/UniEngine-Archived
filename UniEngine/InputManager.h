@@ -8,15 +8,7 @@ namespace UniEngine {
     {
         friend class EditorManager;
         friend class Application;
-    	
-    public:
-        static void Init();
-        static bool GetKey(int key);
-        static bool GetMouse(int button);
-        static glm::vec2 GetMouseAbsolutePosition();
-        static glm::vec2 GetMouseScreenPosition(ImGuiWindow* window, int corner = 1);
-        static void Update();
-    private:
+        static bool GetMousePositionInternal(ImGuiWindow* window, glm::vec2& pos, int corner = 1);
         static void PreUpdate();
         static void LateUpdate();
         static bool _EnableInputMenu;
@@ -24,6 +16,16 @@ namespace UniEngine {
         friend class WindowManager;
         friend class RenderManager;
         friend class Application;
+        static bool GetKeyInternal(int key, GLFWwindow* window);
+        static bool GetMouseInternal(int button, GLFWwindow* window);
+        static glm::vec2 GetMouseAbsolutePositionInternal(GLFWwindow* window);
+    public:
+        static void Init();
+        static bool GetKey(int key);
+        static bool GetMouse(int button);
+        static glm::vec2 GetMouseAbsolutePosition();
+        static bool GetMousePosition(glm::vec2& pos);
+        static void Update();
     };
 
 }

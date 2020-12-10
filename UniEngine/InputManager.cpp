@@ -11,32 +11,89 @@ inline void InputManager::Init() {
 }
 
 inline bool InputManager::GetKey(int key) {
-	auto state = glfwGetKey(WindowManager::GetWindow(), key);
-	return state == GLFW_PRESS || state == GLFW_REPEAT;
+	bool retVal = false;
+	ImGui::Begin("Camera");
+	{
+		// Using a Child allow to fill all the space of the window.
+		// It also allows customization
+		if (ImGui::BeginChild("CameraRenderer")) {
+			if (ImGui::IsWindowFocused())
+			{
+				const auto state = glfwGetKey(WindowManager::GetWindow(), key);
+				retVal = state == GLFW_PRESS || state == GLFW_REPEAT;
+			}
+		}
+		ImGui::EndChild();
+	}
+	ImGui::End();
+	return retVal;
 }
 
 inline bool InputManager::GetMouse(int button) {
-	return glfwGetMouseButton(WindowManager::GetWindow(), button) == GLFW_PRESS;
+	bool retVal = false;
+	ImGui::Begin("Camera");
+	{
+		// Using a Child allow to fill all the space of the window.
+		// It also allows customization
+		if (ImGui::BeginChild("CameraRenderer")) {
+			if (ImGui::IsWindowFocused())
+			{
+				retVal = glfwGetMouseButton(WindowManager::GetWindow(), button) == GLFW_PRESS;
+			}
+		}
+		ImGui::EndChild();
+	}
+	ImGui::End();
+	return retVal;
 }
 inline glm::vec2 InputManager::GetMouseAbsolutePosition() {
-	double x = 0;
-	double y = 0;
-	glfwGetCursorPos(WindowManager::GetWindow(), &x, &y);
+	double x = FLT_MIN;
+	double y = FLT_MIN;
+	ImGui::Begin("Camera");
+	{
+		// Using a Child allow to fill all the space of the window.
+		// It also allows customization
+		if (ImGui::BeginChild("CameraRenderer")) {
+			if (ImGui::IsWindowFocused())
+			{
+				glfwGetCursorPos(WindowManager::GetWindow(), &x, &y);
+			}
+		}
+		ImGui::EndChild();
+	}
+	ImGui::End();
 	return glm::vec2(x, y);
 }
 
-inline glm::vec2 InputManager::GetMouseScreenPosition(ImGuiWindow* window, int corner)
+inline bool InputManager::GetMousePositionInternal(ImGuiWindow* window, glm::vec2& pos, int corner)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	auto viewPortSize = window->Size;
-	auto overlayPos = window->Pos;
-	ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+	const auto viewPortSize = window->Size;
+	const auto overlayPos = window->Pos;
+	const ImVec2 windowPos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
 	if (ImGui::IsMousePosValid()) {
-		float x = io.MousePos.x - window_pos.x;
-		float y = io.MousePos.y - window_pos.y;
-		return glm::vec2(x, y);
+		pos.x = io.MousePos.x - windowPos.x;
+		pos.y = io.MousePos.y - windowPos.y;
+		return true;
 	}
-	return glm::vec2(FLT_MIN, FLT_MIN);
+	return false;
+}
+
+bool InputManager::GetMousePosition(glm::vec2& pos)
+{
+	bool retVal = false;
+	ImGui::Begin("Camera");
+	{
+		if (ImGui::BeginChild("CameraRenderer")) {
+			if (ImGui::IsWindowFocused())
+			{
+				retVal = GetMousePositionInternal(ImGui::GetCurrentWindowRead(), pos);
+			}
+		}
+		ImGui::EndChild();
+	}
+	ImGui::End();
+	return retVal;
 }
 
 inline void InputManager::Update()
@@ -62,5 +119,24 @@ void InputManager::LateUpdate()
 		ImGui::Begin("Input Manager");
 		ImGui::End();
 	}
+}
+
+bool InputManager::GetKeyInternal(int key, GLFWwindow* window)
+{
+	auto state = glfwGetKey(window, key);
+	return state == GLFW_PRESS || state == GLFW_REPEAT;
+}
+
+bool InputManager::GetMouseInternal(int button, GLFWwindow* window)
+{
+	return glfwGetMouseButton(window, button) == GLFW_PRESS;
+}
+
+glm::vec2 InputManager::GetMouseAbsolutePositionInternal(GLFWwindow* window)
+{
+	double x = FLT_MIN;
+	double y = FLT_MIN;
+	glfwGetCursorPos(window, &x, &y);
+	return glm::vec2(x, y);
 }
 

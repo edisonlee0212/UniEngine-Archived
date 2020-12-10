@@ -257,14 +257,12 @@ glm::vec3 Camera::UnProject(GlobalTransform& ltw, glm::vec3 position) const
 
 glm::vec3 Camera::GetMouseWorldPoint(GlobalTransform& ltw, glm::vec2 mousePosition) const
 {
-	glm::mat4 inversed = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
 	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
 	const glm::vec4 start = glm::vec4(
 		(mousePosition.x - halfX) / halfX,
 		-1 * (mousePosition.y - halfY) / halfY,
 		0.0f, 1.0f);
-	const auto position = inversed * start;
 	return start / start.w;
 }
 
@@ -277,19 +275,24 @@ void Camera::ClearColor(glm::vec3 color) const
 
 Ray Camera::ScreenPointToRay(GlobalTransform& ltw, glm::vec2 mousePosition) const
 {
-	const glm::mat4 inv = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
+	const auto position = ltw.GetPosition();
+	const auto rotation = ltw.GetRotation();
+	const glm::vec3 front = rotation * glm::vec3(0, 0, -1);
+	const glm::vec3 up = rotation * glm::vec3(0, 1, 0);
+	const auto projection = glm::perspective(glm::radians(FieldOfView * 0.5f), GetResolutionRatio(), NearDistance, FarDistance);
+	const auto view = glm::lookAt(position, position + front, up);
+	const glm::mat4 inv = glm::inverse(projection * view);
 	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
 	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
 	const auto realX = (mousePosition.x + halfX) / halfX;
 	const auto realY = (mousePosition.y - halfY) / halfY;
-	if (glm::abs(realX) > 1.0f || glm::abs(realY) > 1.0f) return { glm::vec3(FLT_MAX), glm::vec3(FLT_MAX) };
+	if (glm::abs(realX) > 1.0f || glm::abs(realY) > 1.0f) 
+		return { glm::vec3(FLT_MAX), glm::vec3(FLT_MAX) };
 	glm::vec4 start = glm::vec4(
 		realX,
 		-1 * realY,
 		-1, 1.0);
-	glm::vec4 end = glm::vec4(realX,
-	                                -1 * realY,
-	                                1, 1.0);
+	glm::vec4 end = glm::vec4(realX, -1.0f * realY, 1.0f, 1.0f);
 	start = inv * start;
 	end = inv * end;
 	start /= start.w;
@@ -312,7 +315,6 @@ void UniEngine::CameraInfoBlock::UpdateMatrices(Camera* camera, glm::vec3 positi
 	glm::vec3 front = rotation * glm::vec3(0, 0, -1);
 	glm::vec3 up = rotation * glm::vec3(0, 1, 0);
 	auto ratio = camera->GetResolutionRatio();
-	if (ratio == 0) return;
 	Projection = glm::perspective(glm::radians(camera->FieldOfView * 0.5f), ratio, camera->NearDistance, camera->FarDistance);
 	Position = glm::vec4(position, 0);
 	View = glm::lookAt(position, position + front, up);

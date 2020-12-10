@@ -31,11 +31,13 @@ namespace UniEngine {
 		static bool _LocalPositionSelected;
 		static bool _LocalRotationSelected;
 		static bool _LocalScaleSelected;
+		static bool _GizmoSelected;
 #pragma region Scene Camera
 		friend class RenderManager;
 		friend class InputManager;
 		static glm::quat _SceneCameraRotation;
 		static glm::vec3 _SceneCameraPosition;
+		static Entity _FocusedEntity;
 		static std::unique_ptr<CameraComponent> _SceneCamera;
 		static int _SceneCameraResolutionX;
 		static int _SceneCameraResolutionY;
