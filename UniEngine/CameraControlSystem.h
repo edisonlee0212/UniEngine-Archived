@@ -12,7 +12,7 @@ namespace UniEngine {
 		float _LastX = 0, _LastY = 0, _LastScrollY = 0;
 		bool _StartMouse = false;
 	public:
-		void Update() override;
+		void LateUpdate() override;
 		void SetVelocity(float velocity);
 		void SetSensitivity(float sensitivity);
     };

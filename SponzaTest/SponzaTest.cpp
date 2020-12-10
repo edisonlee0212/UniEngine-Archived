@@ -20,10 +20,10 @@ int main()
 	RenderManager::SetEnableSSAO(true);
 #pragma region Lighting and Shadow settings
 	RenderManager::SetEnableShadow(false);
-	RenderManager::SetShadowMapResolution(4096);
+	RenderManager::SetShadowMapResolution(8192);
 	RenderManager::SetStableFit(false);
 	RenderManager::SetSeamFixRatio(0.05f);
-	RenderManager::SetMaxShadowDistance(300);
+	RenderManager::SetMaxShadowDistance(100);
 	RenderManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 #pragma endregion
 	Application::Init();

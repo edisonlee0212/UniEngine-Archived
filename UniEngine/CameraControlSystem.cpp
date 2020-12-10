@@ -5,7 +5,7 @@
 #include "InputManager.h"
 #include "UniEngine.h"
 using namespace UniEngine;
-void CameraControlSystem::Update()
+void CameraControlSystem::LateUpdate()
 {
 	auto mainCamera = RenderManager::GetMainCamera();
 	ImVec2 viewPortSize;
