@@ -36,6 +36,9 @@ namespace UniEngine {
 		friend class InputManager;
 		static glm::quat _SceneCameraRotation;
 		static glm::vec3 _SceneCameraPosition;
+		static std::unique_ptr<GLProgram> _SceneHighlightPrePassProgram;
+		static std::unique_ptr<GLProgram> _SceneHighlightProgram;
+
 		static std::unique_ptr<GLProgram> _SceneCameraEntityRecorderProgram;
 		static std::unique_ptr<RenderTarget> _SceneCameraEntityRecorder;
 		static std::unique_ptr<GLTexture2D> _SceneCameraEntityRecorderTexture;

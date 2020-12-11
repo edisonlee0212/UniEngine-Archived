@@ -47,6 +47,8 @@ bool EditorManager::_StartScroll = false;
 bool EditorManager::_LocalPositionSelected = false;
 bool EditorManager::_LocalRotationSelected = false;
 bool EditorManager::_LocalScaleSelected = false;
+std::unique_ptr<GLProgram> EditorManager::_SceneHighlightPrePassProgram;
+std::unique_ptr<GLProgram> EditorManager::_SceneHighlightProgram;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	bool deleted = false;
@@ -130,7 +132,7 @@ void UniEngine::EditorManager::Init()
 	std::string vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
-		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EntityRecorder.vert"));
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
 	std::string fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
 	
@@ -141,6 +143,35 @@ void UniEngine::EditorManager::Init()
 	
 
 	_SceneCameraEntityRecorderProgram = std::make_unique<GLProgram>(
+		vertShader.get(),
+		fragShader.get()
+		);
+
+	fragShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Empty.frag"));
+
+	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
+
+	_SceneHighlightPrePassProgram = std::make_unique<GLProgram>(
+		vertShader.get(),
+		fragShader.get()
+		);
+	
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
+	
+	fragShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
+	
+	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader->SetCode(&vertShaderCode);
+	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader->SetCode(&fragShaderCode);
+
+	_SceneHighlightProgram = std::make_unique<GLProgram>(
 		vertShader.get(),
 		fragShader.get()
 		);
@@ -174,6 +205,7 @@ void UniEngine::EditorManager::Init()
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}
+			
 			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Local Position", &_LocalPositionSelected) && _LocalPositionSelected)
@@ -455,9 +487,14 @@ void UniEngine::EditorManager::Update()
 void EditorManager::LateUpdate()
 {
 	if (InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow())) {
-		_LocalPositionSelected = false;
-		_LocalRotationSelected = false;
-		_LocalScaleSelected = false;
+		if (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected) {
+			_LocalPositionSelected = false;
+			_LocalRotationSelected = false;
+			_LocalScaleSelected = false;
+		}else if(!_SelectedEntity.IsNull())
+		{
+			_SelectedEntity.Index = 0;
+		}
 	}
 #pragma region Entity Explorer
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
@@ -657,7 +694,7 @@ void EditorManager::LateUpdate()
 					_LastX = mousePosition.x;
 					_LastY = mousePosition.y;
 #pragma region Entity Selection
-					if (!_LocalPositionSelected && !_LocalRotationSelected && !_LocalScaleSelected) {
+					if (!_LocalPositionSelected && !_LocalRotationSelected && !_LocalScaleSelected || _SelectedEntity.IsNull()) {
 						_FocusedEntity = Entity();
 						_SceneCameraEntityRecorder->Bind();
 						float entityIndex = 0;
@@ -670,7 +707,7 @@ void EditorManager::LateUpdate()
 							_FocusedEntity.Version = EntityManager::_EntityInfos->at(static_cast<unsigned>(entityIndex)).Version;
 							_FocusedEntity.Index = static_cast<unsigned>(entityIndex);
 						}
-						if (!_FocusedEntity.IsNull() && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+						if (!_FocusedEntity.IsNull() && _SelectedEntity.IsNull() && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
 						{
 							_SelectedEntity = _FocusedEntity;
 						}
@@ -721,19 +758,63 @@ void EditorManager::LateUpdate()
 				ImGui::EndDragDropTarget();
 			}
 #pragma region Gizmos
-			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted() && (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected))
+			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
 			{
-				ImGuizmo::SetOrthographic(false);
-				ImGuizmo::SetDrawlist();
-				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
-				Transform transform = _SelectedEntity.GetComponentData<Transform>();
-				glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
-				glm::mat4 cameraProjection = _SceneCamera->GetCamera()->GetProjection();
-				auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
-				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(transform.Value));
-				if (ImGuizmo::IsUsing()) {
-					_SelectedEntity.SetComponentData(transform);
-					transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+				if (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected) {
+					ImGuizmo::SetOrthographic(false);
+					ImGuizmo::SetDrawlist();
+					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
+					Transform transform = _SelectedEntity.GetComponentData<Transform>();
+					glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
+					glm::mat4 cameraProjection = _SceneCamera->GetCamera()->GetProjection();
+					auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
+					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(transform.Value));
+					if (ImGuizmo::IsUsing()) {
+						_SelectedEntity.SetComponentData(transform);
+						transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+					}
+				}
+				if(_SelectedEntity.Enabled() && _SelectedEntity.HasPrivateComponent<MeshRenderer>())
+				{
+					auto& mmc = _SelectedEntity.GetPrivateComponent<MeshRenderer>();
+					if(mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
+					{
+						Camera::CameraInfoBlock.UpdateMatrices(_SceneCamera->_Camera.get(),
+							_SceneCameraPosition,
+							_SceneCameraRotation
+						);
+						Camera::CameraInfoBlock.UploadMatrices(_SceneCamera->_Camera->CameraUniformBufferBlock);
+						_SceneCamera->GetCamera()->Bind();
+						_SceneHighlightPrePassProgram->Bind();
+						glEnable(GL_STENCIL_TEST);
+						glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+						glClear(GL_STENCIL_BUFFER_BIT);
+						
+						glStencilFunc(GL_ALWAYS, 1, 0xFF);
+						glStencilMask(0xFF);
+						auto ltw = EntityManager::GetComponentData<GlobalTransform>(_SelectedEntity);
+						auto* mesh = mmc->Mesh.get();
+						mesh->Enable();
+						mesh->VAO()->DisableAttributeArray(12);
+						mesh->VAO()->DisableAttributeArray(13);
+						mesh->VAO()->DisableAttributeArray(14);
+						mesh->VAO()->DisableAttributeArray(15);
+						_SceneHighlightPrePassProgram->SetFloat4x4("model", ltw.Value);
+						glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+
+						glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+						glStencilMask(0x00);
+						glDisable(GL_DEPTH_TEST);
+						_SceneHighlightProgram->Bind();
+						_SceneHighlightProgram->SetFloat4x4("model", ltw.Value);
+						_SceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
+						_SceneHighlightProgram->SetFloat4("color", glm::vec4(0, 1, 0, 1));
+						glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+
+						glStencilMask(0xFF);
+						glStencilFunc(GL_ALWAYS, 0, 0xFF);
+						glEnable(GL_DEPTH_TEST);
+					}
 				}
 			}
 #pragma endregion
