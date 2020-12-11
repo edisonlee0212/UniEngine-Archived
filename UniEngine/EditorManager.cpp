@@ -780,11 +780,19 @@ void EditorManager::LateUpdate()
 					ImGuizmo::SetDrawlist();
 					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
 					Transform transform = _SelectedEntity.GetComponentData<Transform>();
+					GlobalTransform parentGlobalTransform;
+					Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
+					if(!parentEntity.IsNull())
+					{
+						parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
+					}
+					GlobalTransform globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
 					glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
 					glm::mat4 cameraProjection = _SceneCamera->GetCamera()->GetProjection();
 					auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
-					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(transform.Value));
+					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
 					if (ImGuizmo::IsUsing()) {
+						transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
 						_SelectedEntity.SetComponentData(transform);
 						transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 					}
