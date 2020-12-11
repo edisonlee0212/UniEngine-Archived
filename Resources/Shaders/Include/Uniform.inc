@@ -97,16 +97,15 @@ layout (std140, binding = 5) uniform KernelBlock
 
 layout (std140, binding = 6) uniform TextureBindings
 {
+	sampler2D spotShadowMap;
+	sampler2DArray directionalShadowMap;
+	sampler2DArray pointShadowMap;
 	sampler2D TEXTURE_DIFFUSE0;
 	sampler2D TEXTURE_SPECULAR0;
 	sampler2D TEXTURE_AMBIENT0;
 	sampler2D TEXTURE_EMISSIVE0;
 	sampler2D TEXTURE_HEIGHT0;
 	sampler2D TEXTURE_NORMAL0;
-	sampler2D spotShadowMap;
-	sampler2DArray directionalShadowMap;
-	sampler2DArray pointShadowMap;
-	
 };
 
 //Material

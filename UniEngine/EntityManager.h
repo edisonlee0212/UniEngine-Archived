@@ -36,6 +36,7 @@ namespace UniEngine {
 		friend class PrivateComponentStorage;
 		friend class SharedComponentStorage;
 		friend class TransformManager;
+		friend class EditorManager;
 #pragma region Data Storage
 		static std::vector<WorldEntityStorage*> _WorldEntityStorage;
 		static WorldEntityStorage* _CurrentActivatedWorldEntityStorage;
@@ -142,7 +143,7 @@ namespace UniEngine {
 		static void SetWorld(World* world);
 		template<typename T = ComponentBase, typename... Ts>
 		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);
-
+		
 		static Entity CreateEntity(EntityArchetype archetype, std::string name = "New Entity");
 		static void DeleteEntity(Entity entity);
 

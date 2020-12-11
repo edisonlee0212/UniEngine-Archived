@@ -68,7 +68,7 @@ int RenderManager::_SSAOSampleSize = 9;
 #pragma endregion
 #pragma endregion
 
-void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
+void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
 	auto& camera = cameraComponent->GetCamera();
 	cameraComponent->_GBuffer->Bind();
@@ -202,7 +202,7 @@ void RenderManager::RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cam
 
 }
 
-void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraComponent)
+void RenderManager::RenderBackGround(const std::unique_ptr<CameraComponent>& cameraComponent)
 {
 	cameraComponent->_Camera->Bind();
 	glEnable(GL_DEPTH_TEST);
@@ -224,13 +224,14 @@ void RenderManager::RenderBackGround(std::unique_ptr<CameraComponent>& cameraCom
 	glDepthFunc(GL_LESS); // set depth function back to default
 }
 
-void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
+void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
+	bool debug = cameraComponent.get() == EditorManager::_SceneCamera.get();
 	auto& camera = cameraComponent->_Camera;
 	camera->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	std::map<float, std::pair<MeshRenderer*, glm::mat4>> transparentEntities;
-	std::map<float, std::pair<Particles*, glm::mat4>> transparentInstancedEntities;
+	std::map<float, std::pair<std::pair<Entity, MeshRenderer*>, glm::mat4>> transparentEntities;
+	std::map<float, std::pair<std::pair<Entity, Particles*>, glm::mat4>> transparentInstancedEntities;
 	const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners) {
 		for (auto owner : *owners) {
@@ -254,7 +255,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.z, center.z + size.z));
 			}
 			if (mmc->Material->BlendingMode == MaterialBlendingMode::OFF) {
-				transparentEntities.insert({ glm::distance(cameraTransform.GetPosition(), center), std::make_pair(mmc.get(), ltw) });
+				transparentEntities.insert({ glm::distance(cameraTransform.GetPosition(), center), std::make_pair(std::make_pair(owner, mmc.get()), ltw) });
 				continue;
 			}
 			DrawMesh(
@@ -286,7 +287,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 					glm::max(maxBound.z, center.z + size.z));
 			}
 			if (immc->Material->BlendingMode == MaterialBlendingMode::OFF) {
-				transparentInstancedEntities.insert({ glm::distance(cameraTransform.GetPosition(), glm::vec3(ltw[3])), std::make_pair(immc.get(), ltw) });
+				transparentInstancedEntities.insert({ glm::distance(cameraTransform.GetPosition(), glm::vec3(ltw[3])), std::make_pair(std::make_pair(owner, immc.get()), ltw) });
 				continue;
 			}
 			DrawMeshInstanced(
@@ -302,7 +303,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 	//Draw all transparent objects here:
 	for (auto pair = transparentEntities.rbegin(); pair != transparentEntities.rend(); ++pair)
 	{
-		const auto* mmc = pair->second.first;
+		const auto* mmc = pair->second.first.second;
 		DrawMesh(
 			mmc->Mesh.get(),
 			mmc->Material.get(),
@@ -312,7 +313,7 @@ void RenderManager::RenderToCameraForward(std::unique_ptr<CameraComponent>& came
 	}
 	for (auto pair = transparentInstancedEntities.rbegin(); pair != transparentInstancedEntities.rend(); ++pair)
 	{
-		const auto* immc = pair->second.first;
+		const auto* immc = pair->second.first.second;
 		glm::mat4 ltw = pair->second.second;
 		Mesh* mesh = immc->Mesh.get();
 		Material* material = immc->Material.get();
@@ -572,6 +573,9 @@ void UniEngine::RenderManager::PreUpdate()
 {
 	_Triangles = 0;
 	_DrawCall = 0;
+	if (_MainCameraComponent != nullptr) {
+		_MainCameraComponent->ResizeResolution(_MainCameraResolutionX, _MainCameraResolutionY);
+	}
 	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
 	if (cameraEntities != nullptr)
 	{
@@ -585,7 +589,6 @@ void UniEngine::RenderManager::PreUpdate()
 	if (_MainCameraComponent != nullptr) {
 		auto& mainCamera = _MainCameraComponent->_Camera;
 		auto mainCameraEntity = _MainCameraComponent->GetOwner();
-		_MainCameraComponent->ResizeResolution(_MainCameraResolutionX, _MainCameraResolutionY);
 #pragma region Shadow
 		if (mainCameraEntity.Enabled() && _MainCameraComponent->IsEnabled()) {
 			auto ltw = mainCameraEntity.GetComponentData<GlobalTransform>();
@@ -1058,7 +1061,7 @@ void UniEngine::RenderManager::PreUpdate()
 					ltw.GetRotation()
 				);
 				Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
-				GlobalTransform cameraTransform = cameraEntity.GetComponentData<GlobalTransform>();
+				const GlobalTransform cameraTransform = cameraEntity.GetComponentData<GlobalTransform>();				
 				RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
 				RenderBackGround(cameraComponent);
 				RenderToCameraForward(cameraComponent, cameraTransform, minBound, maxBound, false);
@@ -1075,6 +1078,31 @@ void UniEngine::RenderManager::PreUpdate()
 		Camera::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera->_Camera->CameraUniformBufferBlock);
 		GlobalTransform cameraTransform;
 		cameraTransform.Value = glm::translate(EditorManager::_SceneCameraPosition) * glm::mat4_cast(EditorManager::_SceneCameraRotation);
+
+#pragma region For entity selection
+		const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
+		if (owners) {
+			EditorManager::_SceneCameraEntityRecorder->Bind();
+			EditorManager::_SceneCameraEntityRecorderProgram->Bind();
+			for (auto owner : *owners) {
+				if (!owner.Enabled()) continue;
+				auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+				if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
+				if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
+				auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
+				auto* mesh = mmc->Mesh.get();
+				mesh->Enable();
+				mesh->VAO()->DisableAttributeArray(12);
+				mesh->VAO()->DisableAttributeArray(13);
+				mesh->VAO()->DisableAttributeArray(14);
+				mesh->VAO()->DisableAttributeArray(15);
+				EditorManager::_SceneCameraEntityRecorderProgram->SetInt("EntityIndex", owner.Index);
+				EditorManager::_SceneCameraEntityRecorderProgram->SetFloat4x4("model", ltw);
+				glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+			}
+			GLVAO::BindDefault();
+		}
+#pragma endregion
 		RenderToCameraDeferred(EditorManager::_SceneCamera, cameraTransform, minBound, maxBound, false);
 		RenderBackGround(EditorManager::_SceneCamera);
 		RenderToCameraForward(EditorManager::_SceneCamera, cameraTransform, minBound, maxBound, false);

@@ -10,6 +10,7 @@ namespace UniEngine {
 		EntityEditorSystem_EnableEntityHierarchy = 1 << 0,
 		EntityEditorSystem_EnableEntityInspector = 1 << 1
 	};
+	
 	class UNIENGINE_API EditorManager :
 		public ManagerBase
 	{
@@ -27,16 +28,18 @@ namespace UniEngine {
 		static glm::vec3 _PreviouslyStoredPosition;
 		static glm::vec3 _PreviouslyStoredRotation;
 		static glm::vec3 _PreviouslyStoredScale;
-
 		static bool _LocalPositionSelected;
 		static bool _LocalRotationSelected;
 		static bool _LocalScaleSelected;
-		static bool _GizmoSelected;
 #pragma region Scene Camera
 		friend class RenderManager;
 		friend class InputManager;
 		static glm::quat _SceneCameraRotation;
 		static glm::vec3 _SceneCameraPosition;
+		static std::unique_ptr<GLProgram> _SceneCameraEntityRecorderProgram;
+		static std::unique_ptr<RenderTarget> _SceneCameraEntityRecorder;
+		static std::unique_ptr<GLTexture2D> _SceneCameraEntityRecorderTexture;
+		static std::unique_ptr<GLRenderBuffer> _SceneCameraEntityRecorderRenderBuffer;
 		static Entity _FocusedEntity;
 		static std::unique_ptr<CameraComponent> _SceneCamera;
 		static int _SceneCameraResolutionX;

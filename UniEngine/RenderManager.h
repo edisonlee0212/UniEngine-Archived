@@ -32,16 +32,15 @@ namespace UniEngine {
 
 	struct MaterialTextures
 	{
+		GLuint64 spotShadowMap = 0;
+		GLuint64 directionalShadowMap = 0;
+		GLuint64 pointShadowMap = 0;
 		GLuint64 diffuse = 0;
 		GLuint64 specular = 0;
 		GLuint64 ambient = 0;
 		GLuint64 emissive = 0;
 		GLuint64 height = 0;
 		GLuint64 normal = 0;
-		GLuint64 spotShadowMap = 0;
-		GLuint64 directionalShadowMap = 0;
-		GLuint64 pointShadowMap = 0;
-		
 	};
 	
 	class UNIENGINE_API RenderManager : public ManagerBase
@@ -105,7 +104,7 @@ namespace UniEngine {
 		static std::unique_ptr<GLProgram> _SpotLightInstancedProgram;
 
 		
-		friend class RenderManager;
+		friend class EditorManager;
 		static std::unique_ptr<DirectionalLightShadowMap> _DirectionalLightShadowMap;
 		static std::unique_ptr<PointLightShadowMap> _PointLightShadowMap;
 		static std::unique_ptr<SpotLightShadowMap> _SpotLightShadowMap;
@@ -142,9 +141,9 @@ namespace UniEngine {
 		static void SetEnableSSAO(bool value);
 		static void SetSSAOSampleSize(int value);
 #pragma endregion
-		static void RenderToCameraDeferred(std::unique_ptr<CameraComponent>& cameraComponent, GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
-		static void RenderBackGround(std::unique_ptr<CameraComponent>& cameraComponent);
-		static void RenderToCameraForward(std::unique_ptr<CameraComponent>& cameraComponent, GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
+		static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
+		static void RenderBackGround(const std::unique_ptr<CameraComponent>& cameraComponent);
+		static void RenderToCameraForward(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void Init();
 		//Main rendering happens here.
 		static void PreUpdate();

@@ -9,6 +9,7 @@ namespace UniEngine {
 		public PrivateComponentBase
 	{
 		friend class RenderManager;
+		friend class EditorManager;
 		std::unique_ptr<Camera> _Camera;
 		
 		std::unique_ptr<RenderTarget> _SSAO;
