@@ -8,7 +8,7 @@ namespace UniEngine {
     {
         friend class EditorManager;
         friend class Application;
-        static bool GetMousePositionInternal(ImGuiWindow* window, glm::vec2& pos, int corner = 1);
+        static bool GetMousePositionInternal(ImGuiWindow* window, glm::vec2& pos);
         static void PreUpdate();
         static void LateUpdate();
         static bool _EnableInputMenu;

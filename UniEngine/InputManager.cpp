@@ -65,12 +65,12 @@ inline glm::vec2 InputManager::GetMouseAbsolutePosition() {
 	return glm::vec2(x, y);
 }
 
-inline bool InputManager::GetMousePositionInternal(ImGuiWindow* window, glm::vec2& pos, int corner)
+inline bool InputManager::GetMousePositionInternal(ImGuiWindow* window, glm::vec2& pos)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	const auto viewPortSize = window->Size;
 	const auto overlayPos = window->Pos;
-	const ImVec2 windowPos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+	const ImVec2 windowPos = ImVec2(overlayPos.x + viewPortSize.x, overlayPos.y);
 	if (ImGui::IsMousePosValid()) {
 		pos.x = io.MousePos.x - windowPos.x;
 		pos.y = io.MousePos.y - windowPos.y;
@@ -124,7 +124,7 @@ void InputManager::LateUpdate()
 bool InputManager::GetKeyInternal(int key, GLFWwindow* window)
 {
 	auto state = glfwGetKey(window, key);
-	return state == GLFW_PRESS || state == GLFW_REPEAT;
+	return state == GLFW_PRESS;
 }
 
 bool InputManager::GetMouseInternal(int button, GLFWwindow* window)

@@ -58,6 +58,7 @@ namespace UniEngine {
 		static float _LastScrollY;
 		static bool _StartMouse;
 		static bool _StartScroll;
+		static bool _EscapeHold;
 #pragma endregion
 		static bool DrawEntityMenu(bool enabled, Entity& entity);
 		static void DrawEntityNode(Entity& entity);

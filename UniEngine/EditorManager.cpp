@@ -49,6 +49,7 @@ bool EditorManager::_LocalScaleSelected = false;
 bool EditorManager::_EnableConsoleLogs = true;
 bool EditorManager::_EnableConsoleErrors = true;
 bool EditorManager::_EnableConsoleWarnings = false;
+bool EditorManager::_EscapeHold = false;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightPrePassProgram;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightProgram;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
@@ -202,7 +203,6 @@ void UniEngine::EditorManager::Init()
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}
-
 			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Local Position", &_LocalPositionSelected) && _LocalPositionSelected)
@@ -482,15 +482,11 @@ void UniEngine::EditorManager::Update()
 
 void EditorManager::LateUpdate()
 {
-	if (InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow())) {
-		if (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected) {
-			_LocalPositionSelected = false;
-			_LocalRotationSelected = false;
-			_LocalScaleSelected = false;
-		}
-		else if (!_SelectedEntity.IsNull())
+	if(_EscapeHold)
+	{
+		if (!InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow()))
 		{
-			_SelectedEntity.Index = 0;
+			_EscapeHold = false;
 		}
 	}
 #pragma region Entity Explorer
@@ -691,22 +687,44 @@ void EditorManager::LateUpdate()
 					_LastX = mousePosition.x;
 					_LastY = mousePosition.y;
 #pragma region Entity Selection
-					if (!_LocalPositionSelected && !_LocalRotationSelected && !_LocalScaleSelected || _SelectedEntity.IsNull()) {
+					if (!_LocalPositionSelected && !_LocalRotationSelected && !_LocalScaleSelected) {
 						_FocusedEntity = Entity();
 						_SceneCameraEntityRecorder->Bind();
 						float entityIndex = 0;
-						glm::vec2 point = _SceneCameraEntityRecorder->GetResolution();
+						const glm::vec2 resolution = _SceneCameraEntityRecorder->GetResolution();
+						glm::vec2 point = resolution;
 						point.x += mousePosition.x;
 						point.y -= mousePosition.y;
-						glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
-						if (entityIndex > 0)
-						{
-							_FocusedEntity.Version = EntityManager::_EntityInfos->at(static_cast<unsigned>(entityIndex)).Version;
-							_FocusedEntity.Index = static_cast<unsigned>(entityIndex);
+						if (point.x >= 0 && point.x < resolution.x && point.y >= 0 && point.y < resolution.y) {
+							glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
+							if (entityIndex > 0)
+							{
+								_FocusedEntity.Version = EntityManager::_EntityInfos->at(static_cast<unsigned>(entityIndex)).Version;
+								_FocusedEntity.Index = static_cast<unsigned>(entityIndex);
+							}
+							if (InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+							{
+								if (entityIndex == 0)
+								{
+									_SelectedEntity.Index = 0;
+								}
+								else
+								{
+									_SelectedEntity = _FocusedEntity;
+								}
+							}
+							if (!_EscapeHold && InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow())) {
+								_EscapeHold = true;
+								_SelectedEntity.Index = 0;
+							}
 						}
-						if (!_FocusedEntity.IsNull() && _SelectedEntity.IsNull() && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
-						{
-							_SelectedEntity = _FocusedEntity;
+					}else
+					{
+						if (!_EscapeHold && InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow())) {
+							_EscapeHold = true;
+							_LocalPositionSelected = false;
+							_LocalRotationSelected = false;
+							_LocalScaleSelected = false;
 						}
 					}
 #pragma endregion
