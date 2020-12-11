@@ -463,7 +463,7 @@ void EditorManager::PreUpdate()
 
 #pragma endregion
 	const auto resolution = _SceneCamera->_GBuffer->GetResolution();
-	if (resolution.x != _SceneCameraResolutionX || resolution.y != _SceneCameraResolutionY) {
+	if (_SceneCameraResolutionX != 0 && _SceneCameraResolutionY != 0 && (resolution.x != _SceneCameraResolutionX || resolution.y != _SceneCameraResolutionY)) {
 		_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 		_SceneCameraEntityRecorderTexture->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, _SceneCameraResolutionX, _SceneCameraResolutionY);
 		_SceneCameraEntityRecorderRenderBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _SceneCameraResolutionX, _SceneCameraResolutionY);
