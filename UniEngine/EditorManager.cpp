@@ -22,8 +22,7 @@ unsigned int EditorManager::_ConfigFlags = 0;
 int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
 Entity EditorManager::_FocusedEntity;
-bool EditorManager::_DisplayLog = true;
-bool EditorManager::_DisplayError = true;
+bool EditorManager::_EnableConsole = true;
 Transform* EditorManager::_PreviouslyStoredTransform;
 glm::vec3 EditorManager::_PreviouslyStoredPosition;
 glm::vec3 EditorManager::_PreviouslyStoredRotation;
@@ -47,6 +46,9 @@ bool EditorManager::_StartScroll = false;
 bool EditorManager::_LocalPositionSelected = false;
 bool EditorManager::_LocalRotationSelected = false;
 bool EditorManager::_LocalScaleSelected = false;
+bool EditorManager::_EnableConsoleLogs = true;
+bool EditorManager::_EnableConsoleErrors = true;
+bool EditorManager::_EnableConsoleWarnings = false;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightPrePassProgram;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightProgram;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
@@ -127,20 +129,20 @@ void UniEngine::EditorManager::Init()
 	_SceneCameraEntityRecorder->SetResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 	_SceneCameraEntityRecorder->AttachRenderBuffer(_SceneCameraEntityRecorderRenderBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
 	_SceneCameraEntityRecorder->AttachTexture(_SceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
-	
-	
+
+
 	std::string vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
 	std::string fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
-	
+
 	std::unique_ptr<GLShader> vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
 	std::unique_ptr<GLShader> fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
-	
+
 
 	_SceneCameraEntityRecorderProgram = std::make_unique<GLProgram>(
 		vertShader.get(),
@@ -157,7 +159,7 @@ void UniEngine::EditorManager::Init()
 		vertShader.get(),
 		fragShader.get()
 		);
-	
+
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
@@ -170,7 +172,7 @@ void UniEngine::EditorManager::Init()
 		vertShader.get(),
 		fragShader.get()
 		);
-	
+
 	RegisterComponentDataInspector<GlobalTransform>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
@@ -200,7 +202,7 @@ void UniEngine::EditorManager::Init()
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}
-			
+
 			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Local Position", &_LocalPositionSelected) && _LocalPositionSelected)
@@ -446,8 +448,7 @@ void EditorManager::PreUpdate()
 		}
 		if (ImGui::BeginMenu("View"))
 		{
-			ImGui::Checkbox("Log", &_DisplayLog);
-			ImGui::Checkbox("Error", &_DisplayError);
+			ImGui::Checkbox("Console", &_EnableConsole);
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Window"))
@@ -486,7 +487,8 @@ void EditorManager::LateUpdate()
 			_LocalPositionSelected = false;
 			_LocalRotationSelected = false;
 			_LocalScaleSelected = false;
-		}else if(!_SelectedEntity.IsNull())
+		}
+		else if (!_SelectedEntity.IsNull())
 		{
 			_SelectedEntity.Index = 0;
 		}
@@ -697,7 +699,7 @@ void EditorManager::LateUpdate()
 						point.x += mousePosition.x;
 						point.y -= mousePosition.y;
 						glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
-						if(entityIndex > 0)
+						if (entityIndex > 0)
 						{
 							_FocusedEntity.Version = EntityManager::_EntityInfos->at(static_cast<unsigned>(entityIndex)).Version;
 							_FocusedEntity.Index = static_cast<unsigned>(entityIndex);
@@ -769,10 +771,10 @@ void EditorManager::LateUpdate()
 						transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 					}
 				}
-				if(_SelectedEntity.Enabled() && _SelectedEntity.HasPrivateComponent<MeshRenderer>())
+				if (_SelectedEntity.Enabled() && _SelectedEntity.HasPrivateComponent<MeshRenderer>())
 				{
 					auto& mmc = _SelectedEntity.GetPrivateComponent<MeshRenderer>();
-					if(mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
+					if (mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
 					{
 						Camera::CameraInfoBlock.UpdateMatrices(_SceneCamera->_Camera.get(),
 							_SceneCameraPosition,
@@ -801,7 +803,7 @@ void EditorManager::LateUpdate()
 
 						glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 						glStencilMask(0x00);
-						
+
 						_SceneHighlightProgram->Bind();
 						_SceneHighlightProgram->SetFloat4x4("model", ltw.Value);
 						_SceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
@@ -816,7 +818,7 @@ void EditorManager::LateUpdate()
 			}
 #pragma endregion
 			if (InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow())) {
-				if(!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
+				if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
 				{
 					EntityManager::DeleteEntity(_SelectedEntity);
 				}
@@ -832,25 +834,51 @@ void EditorManager::LateUpdate()
 
 #pragma endregion
 #pragma region Logs and errors
-	if (_DisplayLog) {
-		ImGui::Begin("Log");
-		size_t size = Debug::GetLogs()->size();
-		std::string logs = "";
-		for (int i = (int)size - 1; i >= 0; i--) {
-			logs += Debug::GetLogs()->at(i)->c_str();
+	if (_EnableConsole) {
+		ImGui::Begin("Console");
+		ImGui::Checkbox("Log", &_EnableConsoleLogs);
+		ImGui::SameLine();
+		ImGui::Checkbox("Warning", &_EnableConsoleWarnings);
+		ImGui::SameLine();
+		ImGui::Checkbox("Error", &_EnableConsoleErrors);
+		int i = 0;
+		for (auto msg = Debug::GetConsoleMessages().rbegin(); msg != Debug::GetConsoleMessages().rend(); ++msg)
+		{
+			if (i > 999) break;
+			i++;
+			switch (msg->Type)
+			{
+			case ConsoleMessageType::Log:
+				if (_EnableConsoleLogs)
+				{
+					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->Time);
+					ImGui::SameLine();
+					ImGui::TextColored(ImVec4(1, 1, 1, 1), msg->Value.c_str());
+					ImGui::Separator();
+				}
+				break;
+			case ConsoleMessageType::Warning:
+				if (_EnableConsoleWarnings)
+				{
+					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->Time);
+					ImGui::SameLine();
+					ImGui::TextColored(ImVec4(1, 1, 0, 1), msg->Value.c_str());
+					ImGui::Separator();
+				}
+				break;
+			case ConsoleMessageType::Error:
+				if (_EnableConsoleErrors)
+				{
+					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->Time);
+					ImGui::SameLine();
+					ImGui::TextColored(ImVec4(1, 0, 0, 1), msg->Value.c_str());
+					ImGui::Separator();
+				}
+				break;
+			}
+
 		}
-		ImGui::Text(logs.c_str());
-		ImGui::End();
-	}
-	if (_DisplayError)
-	{
-		ImGui::Begin("Error");
-		size_t size = Debug::GetErrors()->size();
-		std::string logs = "";
-		for (int i = (int)size - 1; i >= 0; i--) {
-			logs += Debug::GetErrors()->at(i)->c_str();
-		}
-		ImGui::Text(logs.c_str());
+		ImGui::EndTabBar();
 		ImGui::End();
 	}
 #pragma endregion

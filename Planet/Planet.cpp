@@ -136,7 +136,9 @@ int main()
 		ltw.SetPosition(glm::vec4(glm::vec3(20.0f * glm::cos(Application::EngineTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f)), 0.0f));
 		EntityManager::SetComponentData(ple2, ltw);
 #pragma endregion
-
+		Debug::Log("LogHere!");
+		Debug::Warning("WarningHere!");
+		Debug::Error("ErrorHere!");
 		Application::Update();
 		loopable = Application::LateUpdate();
 	}

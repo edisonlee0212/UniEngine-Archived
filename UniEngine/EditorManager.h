@@ -22,8 +22,7 @@ namespace UniEngine {
 		static unsigned int _ConfigFlags;
 		static int _SelectedHierarchyDisplayMode;
 		static Entity _SelectedEntity;
-		static bool _DisplayLog;
-		static bool _DisplayError;
+		static bool _EnableConsole;
 		static Transform* _PreviouslyStoredTransform;
 		static glm::vec3 _PreviouslyStoredPosition;
 		static glm::vec3 _PreviouslyStoredRotation;
@@ -31,6 +30,11 @@ namespace UniEngine {
 		static bool _LocalPositionSelected;
 		static bool _LocalRotationSelected;
 		static bool _LocalScaleSelected;
+
+		static bool _EnableConsoleLogs;
+		static bool _EnableConsoleErrors;
+		static bool _EnableConsoleWarnings;
+		
 #pragma region Scene Camera
 		friend class RenderManager;
 		friend class InputManager;
