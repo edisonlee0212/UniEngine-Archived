@@ -148,7 +148,7 @@ void UniEngine::EditorManager::Init()
 		);
 
 	fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Empty.frag"));
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
 
 	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
@@ -162,14 +162,9 @@ void UniEngine::EditorManager::Init()
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
-	
-	fragShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
-	
+
 	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
-	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
-	fragShader->SetCode(&fragShaderCode);
 
 	_SceneHighlightProgram = std::make_unique<GLProgram>(
 		vertShader.get(),
@@ -787,9 +782,10 @@ void EditorManager::LateUpdate()
 						_SceneCamera->GetCamera()->Bind();
 						_SceneHighlightPrePassProgram->Bind();
 						glEnable(GL_STENCIL_TEST);
+						glEnable(GL_BLEND);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 						glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
-						glClear(GL_STENCIL_BUFFER_BIT);
-						
+						glDisable(GL_DEPTH_TEST);
 						glStencilFunc(GL_ALWAYS, 1, 0xFF);
 						glStencilMask(0xFF);
 						auto ltw = EntityManager::GetComponentData<GlobalTransform>(_SelectedEntity);
@@ -800,15 +796,16 @@ void EditorManager::LateUpdate()
 						mesh->VAO()->DisableAttributeArray(14);
 						mesh->VAO()->DisableAttributeArray(15);
 						_SceneHighlightPrePassProgram->SetFloat4x4("model", ltw.Value);
+						_SceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.2f));
 						glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 
 						glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 						glStencilMask(0x00);
-						glDisable(GL_DEPTH_TEST);
+						
 						_SceneHighlightProgram->Bind();
 						_SceneHighlightProgram->SetFloat4x4("model", ltw.Value);
 						_SceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
-						_SceneHighlightProgram->SetFloat4("color", glm::vec4(0, 1, 0, 1));
+						_SceneHighlightProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.8f));
 						glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 
 						glStencilMask(0xFF);
