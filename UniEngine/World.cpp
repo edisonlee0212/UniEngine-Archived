@@ -4,12 +4,17 @@
 using namespace UniEngine;
 
 
-ThreadPool* World::GetThreadPool()
+void World::RegisterFixedUpdateFunction(const std::function<void()>& func)
+{
+	_ExternalFixedUpdateFunctions.push_back(func);
+}
+
+ThreadPool* World::GetThreadPool() const
 {
 	return _ThreadPool;
 }
 
-Bound UniEngine::World::GetBound()
+Bound UniEngine::World::GetBound() const
 {
 	return _WorldBound;
 }
@@ -22,6 +27,7 @@ void UniEngine::World::SetBound(Bound value)
 UniEngine::Bound::Bound()
 {
 	Center = glm::vec3(0.0f);
+	Size = glm::vec3(0.0f);
 	Radius = 0;
 }
 
@@ -79,6 +85,7 @@ void World::PreUpdate()
 	}
 	
 	if (_NeedFixedUpdate) {
+		for (const auto& i : _ExternalFixedUpdateFunctions) i();
 		for (auto i : _PreparationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}

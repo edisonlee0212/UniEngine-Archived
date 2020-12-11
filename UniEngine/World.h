@@ -29,13 +29,15 @@ namespace UniEngine {
 		std::vector<SystemBase*> _PreparationSystems;
 		std::vector<SystemBase*> _SimulationSystems;
 		std::vector<SystemBase*> _PresentationSystems;
+		std::vector<std::function<void()>> _ExternalFixedUpdateFunctions;
 		size_t _Index;
 		UniEngine::Bound _WorldBound;
 		ThreadPool* _ThreadPool;
 		bool _NeedFixedUpdate = false;
 	public:
-		ThreadPool* GetThreadPool();
-		Bound GetBound();
+		void RegisterFixedUpdateFunction(const std::function<void()>& func);
+		ThreadPool* GetThreadPool() const;
+		Bound GetBound() const;
 		void SetBound(Bound value);
 		void SetFrameStartTime(double time) const;
 		void SetTimeStep(float timeStep) const;

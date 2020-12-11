@@ -19,39 +19,17 @@ bool Application::_InnerLooping = false;
 bool Application::_Playing = false;
 float Application::_TimeStep = 0.016f;
 ThreadPool Application::_ThreadPool;
+
+std::vector<std::function<void()>> Application::_ExternalPreUpdateFunctions;
+std::vector<std::function<void()>> Application::_ExternalUpdateFunctions;
+std::vector<std::function<void()>> Application::_ExternalLateUpdateFunctions;
+
 #pragma region Utilities
 
 void UniEngine::Application::SetTimeStep(float value) {
 	_TimeStep = value;
 	_World->SetTimeStep(value);
 }
-void UniEngine::Application::PreUpdate()
-{
-	if (_InnerLooping) {
-		Debug::Error("Application already running!");
-		return;
-	}
-	PreUpdateInternal();
-}
-
-void UniEngine::Application::Update()
-{
-	if (_InnerLooping) {
-		Debug::Error("Application already running!");
-		return;
-	}
-	UpdateInternal();
-}
-
-bool UniEngine::Application::LateUpdate()
-{
-	if (_InnerLooping) {
-		Debug::Error("Application already running!");
-		return false;
-	}
-	return LaterUpdateInternal();
-}
-
 
 #pragma endregion
 
@@ -139,6 +117,9 @@ void UniEngine::Application::PreUpdateInternal()
 		return;
 	}
 	glfwPollEvents();
+
+	for (const auto& i : _ExternalPreUpdateFunctions) i();
+	
 	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
 	
 	_World->_Time->_DeltaTime = _World->_Time->_LastFrameTime - _World->_Time->_FrameStartTime;
@@ -160,6 +141,9 @@ void UniEngine::Application::UpdateInternal()
 	if (!_Initialized) {
 		return;
 	}
+
+	for (const auto& i : _ExternalUpdateFunctions) i();
+	
 	if (_Playing) {
 		_World->Update();
 	}
@@ -167,11 +151,14 @@ void UniEngine::Application::UpdateInternal()
 	InputManager::Update();
 }
 
-bool UniEngine::Application::LaterUpdateInternal()
+bool UniEngine::Application::LateUpdateInternal()
 {
 	if (!_Initialized) {
 		return false;
 	}
+
+	for (const auto& i : _ExternalLateUpdateFunctions) i();
+	
 	if (_Playing) {
 		_World->LateUpdate();
 	}
@@ -221,7 +208,7 @@ void UniEngine::Application::Run()
 	while (_Initialized) {
 		PreUpdateInternal();
 		UpdateInternal();
-		_Initialized = LaterUpdateInternal();
+		_Initialized = LateUpdateInternal();
 	}
 	_InnerLooping = false;
 }
@@ -229,6 +216,21 @@ void UniEngine::Application::Run()
 std::shared_ptr<World>& UniEngine::Application::GetWorld()
 {
 	return _World;
+}
+
+void Application::RegisterPreUpdateFunction(const std::function<void()>& func)
+{
+	_ExternalPreUpdateFunctions.push_back(func);
+}
+
+void Application::RegisterUpdateFunction(const std::function<void()>& func)
+{
+	_ExternalUpdateFunctions.push_back(func);
+}
+
+void Application::RegisterLateUpdateFunction(const std::function<void()>& func)
+{
+	_ExternalLateUpdateFunctions.push_back(func);
 }
 
 #pragma region OpenGL Debugging

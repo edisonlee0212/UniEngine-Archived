@@ -18,9 +18,13 @@ namespace UniEngine {
 		static bool _InnerLooping;
 		static bool _Playing;
 		static ThreadPool _ThreadPool;
+		static std::vector<std::function<void()>> _ExternalPreUpdateFunctions;
+		static std::vector<std::function<void()>> _ExternalUpdateFunctions;
+		static std::vector<std::function<void()>> _ExternalLateUpdateFunctions;
+		
 		static void PreUpdateInternal();
 		static void UpdateInternal();
-		static bool LaterUpdateInternal();
+		static bool LateUpdateInternal();
 	public:
 		static double EngineTime();
 		static void SetPlaying(bool value);
@@ -29,11 +33,12 @@ namespace UniEngine {
 		static bool IsInitialized();
 		static void SetTimeStep(float value);
 		static void Init(bool fullScreen = false);
-		static void PreUpdate();
-		static void Update();
-		static bool LateUpdate();
 		static void End();
 		static void Run();
 		static std::shared_ptr<World>& GetWorld();
+
+		static void RegisterPreUpdateFunction(const std::function<void()>& func);
+		static void RegisterUpdateFunction(const std::function<void()>& func);
+		static void RegisterLateUpdateFunction(const std::function<void()>& func);
 	};
 }

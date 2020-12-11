@@ -121,27 +121,21 @@ int main()
 #pragma endregion
 
 #pragma region EngineLoop
-	bool loopable = true;
-	
-
-	bool wireFrame = false;
-	while (loopable) {
-		Application::PreUpdate();
-		static bool show = true;
+	Application::RegisterPreUpdateFunction([&]()
+		{
 #pragma region LightsPosition
-		ltw.SetPosition(glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f), -20.0f * glm::cos(Application::EngineTime() / 2.0f)), 0.0f));
-		EntityManager::SetComponentData(dle, ltw);
-		ltw.SetPosition(glm::vec4(glm::vec3(-20.0f * glm::cos(Application::EngineTime() / 2.0f), 20.0f * glm::sin(Application::EngineTime() / 2.0f), 0.0f), 0.0f));
-		EntityManager::SetComponentData(ple, ltw);
-		ltw.SetPosition(glm::vec4(glm::vec3(20.0f * glm::cos(Application::EngineTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f)), 0.0f));
-		EntityManager::SetComponentData(ple2, ltw);
+			ltw.SetPosition(glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f), -20.0f * glm::cos(Application::EngineTime() / 2.0f)), 0.0f));
+			EntityManager::SetComponentData(dle, ltw);
+			ltw.SetPosition(glm::vec4(glm::vec3(-20.0f * glm::cos(Application::EngineTime() / 2.0f), 20.0f * glm::sin(Application::EngineTime() / 2.0f), 0.0f), 0.0f));
+			EntityManager::SetComponentData(ple, ltw);
+			ltw.SetPosition(glm::vec4(glm::vec3(20.0f * glm::cos(Application::EngineTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f)), 0.0f));
+			EntityManager::SetComponentData(ple2, ltw);
 #pragma endregion
-		Debug::Log("LogHere!");
-		Debug::Warning("WarningHere!");
-		Debug::Error("ErrorHere!");
-		Application::Update();
-		loopable = Application::LateUpdate();
-	}
+			Debug::Log("LogHere!");
+			Debug::Warning("WarningHere!");
+			Debug::Error("ErrorHere!");
+		});
+	Application::Run();
 	Application::End();
 #pragma endregion
 	return 0;

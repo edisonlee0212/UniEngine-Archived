@@ -36,7 +36,6 @@ int main()
 #pragma endregion
 
 #pragma region EngineLoop
-	bool loopable = true;
 	Application::Run();
 	Application::End();
 #pragma endregion
