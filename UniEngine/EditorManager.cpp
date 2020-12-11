@@ -183,9 +183,27 @@ void UniEngine::EditorManager::Init()
 			glm::vec3 s;
 			ltw->Decompose(t, er, s);
 			er = glm::degrees(er);
-			ImGui::DragFloat3("Position", &t.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::DragFloat3("Rotation", &er.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::DragFloat3("Scale", &s.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::DragFloat3("##Global Position", &t.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::SameLine();
+			if (ImGui::Selectable("Position##Global", &_LocalPositionSelected) && _LocalPositionSelected)
+			{
+				_LocalRotationSelected = false;
+				_LocalScaleSelected = false;
+			}
+			ImGui::DragFloat3("##Global Rotation", &er.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::SameLine();
+			if (ImGui::Selectable("Rotation##Global", &_LocalRotationSelected) && _LocalRotationSelected)
+			{
+				_LocalPositionSelected = false;
+				_LocalScaleSelected = false;
+			}
+			ImGui::DragFloat3("##Global Scale", &s.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::SameLine();
+			if (ImGui::Selectable("Scale##Global", &_LocalScaleSelected) && _LocalScaleSelected)
+			{
+				_LocalRotationSelected = false;
+				_LocalPositionSelected = false;
+			}
 		}
 	);
 
@@ -205,21 +223,21 @@ void UniEngine::EditorManager::Init()
 			}
 			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
 			ImGui::SameLine();
-			if (ImGui::Selectable("Local Position", &_LocalPositionSelected) && _LocalPositionSelected)
+			if (ImGui::Selectable("Position##Local", &_LocalPositionSelected) && _LocalPositionSelected)
 			{
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}
 			if (ImGui::DragFloat3("##Local Rotation", &_PreviouslyStoredRotation.x, 1.0f)) edited = true;
 			ImGui::SameLine();
-			if (ImGui::Selectable("Local Rotation", &_LocalRotationSelected) && _LocalRotationSelected)
+			if (ImGui::Selectable("Rotation##Local", &_LocalRotationSelected) && _LocalRotationSelected)
 			{
 				_LocalPositionSelected = false;
 				_LocalScaleSelected = false;
 			}
 			if (ImGui::DragFloat3("##Local Scale", &_PreviouslyStoredScale.x, 0.01f)) edited = true;
 			ImGui::SameLine();
-			if (ImGui::Selectable("Local Scale", &_LocalScaleSelected) && _LocalScaleSelected)
+			if (ImGui::Selectable("Scale##Local", &_LocalScaleSelected) && _LocalScaleSelected)
 			{
 				_LocalRotationSelected = false;
 				_LocalPositionSelected = false;
@@ -779,22 +797,31 @@ void EditorManager::LateUpdate()
 					ImGuizmo::SetOrthographic(false);
 					ImGuizmo::SetDrawlist();
 					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
-					Transform transform = _SelectedEntity.GetComponentData<Transform>();
-					GlobalTransform parentGlobalTransform;
-					Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
-					if(!parentEntity.IsNull())
-					{
-						parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
-					}
-					GlobalTransform globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
 					glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
 					glm::mat4 cameraProjection = _SceneCamera->GetCamera()->GetProjection();
 					auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
-					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
-					if (ImGuizmo::IsUsing()) {
-						transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
-						_SelectedEntity.SetComponentData(transform);
-						transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+					if (_SelectedEntity.HasComponentData<Transform>()) {
+						Transform transform = _SelectedEntity.GetComponentData<Transform>();
+						GlobalTransform parentGlobalTransform;
+						Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
+						if (!parentEntity.IsNull())
+						{
+							parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
+						}
+						GlobalTransform globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
+						ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
+						if (ImGuizmo::IsUsing()) {
+							transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
+							_SelectedEntity.SetComponentData(transform);
+							transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+						}
+					}else if(_SelectedEntity.HasComponentData<GlobalTransform>())
+					{
+						GlobalTransform globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
+						ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
+						if (ImGuizmo::IsUsing()) {
+							_SelectedEntity.SetComponentData(globalTransform);
+						}
 					}
 				}
 				if (_SelectedEntity.Enabled() && _SelectedEntity.HasPrivateComponent<MeshRenderer>())
