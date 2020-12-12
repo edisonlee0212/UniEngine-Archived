@@ -223,21 +223,21 @@ namespace UniEngine {
 
 
 		template<typename T1 = ComponentBase>
-		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*)>& func, bool checkEnable = true);
+		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*)>& func, bool checkEnable = true);
+		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
-		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func, bool checkEnable = true);
+		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase>
-		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func, bool checkEnable = true);
+		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase>
-		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func, bool checkEnable = true);
+		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase>
-		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func, bool checkEnable = true);
+		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase>
-		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func, bool checkEnable = true);
+		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
-		static void ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func, bool checkEnable = true);
+		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func, bool checkEnable = true);
 
 		static void ForAllEntities(const std::function<void(int i, Entity entity)>& func);
 		static void ForAllRootParent(const std::function<void(int i, Entity rootParent)>& func);
@@ -1618,7 +1618,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma region For Each
 	template<typename T1>
-	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*)>& func, bool checkEnable)
+	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*)>& func, bool checkEnable)
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
@@ -1631,7 +1631,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2>
-	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*)>& func, bool checkEnable) {
+	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1643,7 +1643,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3>
-	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func, bool checkEnable) {
+	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1655,7 +1655,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4>
-	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func, bool checkEnable) {
+	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1667,7 +1667,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func, bool checkEnable) {
+	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1679,7 +1679,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func, bool checkEnable) {
+	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1691,7 +1691,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func, bool checkEnable) {
+	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1703,7 +1703,7 @@ namespace UniEngine {
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func, bool checkEnable) {
+	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
