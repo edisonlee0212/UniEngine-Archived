@@ -181,7 +181,7 @@ namespace UniEngine {
 		static bool HasComponentData(size_t index);
 
 		template <typename T = SharedComponentBase>
-		static std::optional<std::reference_wrapper<std::shared_ptr<T>>> GetSharedComponent(const Entity& entity);
+		static std::shared_ptr<T> GetSharedComponent(const Entity& entity);
 		template <typename T = SharedComponentBase>
 		static void SetSharedComponent(const Entity& entity, std::shared_ptr<T> value);
 		template <typename T = SharedComponentBase>
@@ -190,7 +190,7 @@ namespace UniEngine {
 		static bool HasSharedComponent(const Entity& entity);
 
 		template <typename T = PrivateComponentBase>
-		static std::optional<std::reference_wrapper<std::unique_ptr<T>>> GetPrivateComponent(const Entity& entity);
+		static std::unique_ptr<T>& GetPrivateComponent(const Entity& entity);
 		template <typename T = PrivateComponentBase>
 		static void SetPrivateComponent(const Entity& entity, std::unique_ptr<T> value);
 		template <typename T = PrivateComponentBase>
@@ -1429,17 +1429,17 @@ namespace UniEngine {
 		return false;
 	}
 	template<typename T>
-	std::optional<std::reference_wrapper<std::shared_ptr<T>>> EntityManager::GetSharedComponent(const Entity& entity)
+	std::shared_ptr<T> EntityManager::GetSharedComponent(const Entity& entity)
 	{
-		if (!entity.IsValid()) return std::nullopt;
+		if (!entity.IsValid()) throw 0;
 		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
 		{
 			if (dynamic_cast<T*>(element.SharedComponentData.get()))
 			{
-				return std::optional<std::reference_wrapper<std::shared_ptr<T>>>{std::dynamic_pointer_cast<T>(element.SharedComponentData)};
+				return std::dynamic_pointer_cast<T>(element.SharedComponentData);
 			}
 		}
-		return std::nullopt;
+		throw 0;
 	}
 	template<typename T>
 	void EntityManager::SetSharedComponent(const Entity& entity, std::shared_ptr<T> value)
@@ -1489,19 +1489,19 @@ namespace UniEngine {
 		return false;
 	}
 	template <typename T>
-	std::optional<std::reference_wrapper<std::unique_ptr<T>>> EntityManager::GetPrivateComponent(const Entity& entity)
+	std::unique_ptr<T>& EntityManager::GetPrivateComponent(const Entity& entity)
 	{
-		if (!entity.IsValid()) return std::nullopt;
+		if (!entity.IsValid()) throw 0;
 		int i = 0;
 		for (auto& element : _EntityInfos->at(entity.Index).PrivateComponentElements)
 		{
 			if (dynamic_cast<T*>(element.PrivateComponentData.get()))
 			{
-				return std::optional<std::reference_wrapper<std::unique_ptr<T>>>{*static_cast<std::unique_ptr<T>*>(static_cast<void*>(&element.PrivateComponentData))};
+				return *static_cast<std::unique_ptr<T>*>(static_cast<void*>(&element.PrivateComponentData));
 			}
 			i++;
 		}
-		return std::nullopt;
+		throw 0;
 	}
 	template <typename T>
 	void EntityManager::SetPrivateComponent(const Entity& entity, std::unique_ptr<T> value)
@@ -2098,9 +2098,14 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	auto Entity::GetPrivateComponent() const
+	auto& Entity::GetPrivateComponent() const
 	{
-		return std::move(EntityManager::GetPrivateComponent<T>(*this));
+		try {
+			return EntityManager::GetPrivateComponent<T>(*this);
+		}catch(int e)
+		{
+			throw;
+		}
 	}
 
 	template <typename T, typename ... Ts>

@@ -92,7 +92,7 @@ namespace UniEngine {
 		bool HasSharedComponent() const;
 		
 		template <typename T = PrivateComponentBase>
-		auto GetPrivateComponent() const;
+		auto& GetPrivateComponent() const;
 		template <typename T = PrivateComponentBase>
 		void SetPrivateComponent(std::unique_ptr<T> value) const;
 		template <typename T = PrivateComponentBase>

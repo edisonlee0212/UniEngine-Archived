@@ -14,7 +14,7 @@ void Planet::PlanetTerrainSystem::Update()
 {
 	const std::vector<Entity>* const planetTerrainList = EntityManager::GetPrivateComponentOwnersList<PlanetTerrain>();
 	for (auto i = 0; i < planetTerrainList->size(); i++) {
-		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>()->get();
+		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
 		if (!planetTerrain->IsEnabled()) continue;
 		auto& planetChunks = planetTerrain->_Chunks;
 		auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
@@ -26,7 +26,7 @@ void Planet::PlanetTerrainSystem::Update()
 	std::mutex meshGenLock;
 	const auto cameraLtw = RenderManager::GetMainCamera()->GetOwner().GetComponentData<GlobalTransform>();
 	for (auto i = 0; i < planetTerrainList->size(); i++) {
-		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>()->get();
+		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
 		if (!planetTerrain->IsEnabled()) continue;
 		auto& planetInfo = planetTerrain->_Info;
 		auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
