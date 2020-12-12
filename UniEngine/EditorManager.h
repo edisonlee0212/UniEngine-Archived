@@ -24,6 +24,7 @@ namespace UniEngine {
 		static Entity _SelectedEntity;
 		static bool _EnableConsole;
 		static Transform* _PreviouslyStoredTransform;
+		static GlobalTransform* _PreviouslyStoredGlobalTransform;
 		static glm::vec3 _PreviouslyStoredPosition;
 		static glm::vec3 _PreviouslyStoredRotation;
 		static glm::vec3 _PreviouslyStoredScale;

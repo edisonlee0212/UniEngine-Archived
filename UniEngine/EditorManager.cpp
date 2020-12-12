@@ -24,6 +24,7 @@ Entity EditorManager::_SelectedEntity;
 Entity EditorManager::_FocusedEntity;
 bool EditorManager::_EnableConsole = true;
 Transform* EditorManager::_PreviouslyStoredTransform;
+GlobalTransform* EditorManager::_PreviouslyStoredGlobalTransform;
 glm::vec3 EditorManager::_PreviouslyStoredPosition;
 glm::vec3 EditorManager::_PreviouslyStoredRotation;
 glm::vec3 EditorManager::_PreviouslyStoredScale;
@@ -178,6 +179,12 @@ void UniEngine::EditorManager::Init()
 		{
 			std::stringstream stream;
 			GlobalTransform* ltw = reinterpret_cast<GlobalTransform*>(data);
+			if (ltw != _PreviouslyStoredGlobalTransform) {
+				_PreviouslyStoredGlobalTransform = ltw;
+				_LocalPositionSelected = true;
+				_LocalRotationSelected = false;
+				_LocalScaleSelected = false;
+			}
 			glm::vec3 er;
 			glm::vec3 t;
 			glm::vec3 s;
