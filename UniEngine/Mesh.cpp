@@ -18,18 +18,15 @@ void Mesh::OnGui()
 	}
 }
 
-glm::vec3 UniEngine::Mesh::GetCenter()
+glm::vec3 UniEngine::Mesh::GetCenter() const
 {
-	return _Bound.Center;
+	return _Bound.Center();
 }
-Bound UniEngine::Mesh::GetBound()
+Bound UniEngine::Mesh::GetBound() const
 {
 	return _Bound;
 }
-float UniEngine::Mesh::GetRadius()
-{
-	return _Bound.Radius;
-}
+
 UniEngine::Mesh::Mesh()
 {
 	_VAO = std::make_shared<GLVAO>();
@@ -140,9 +137,8 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, 
 			texcoords7s.push_back(vertices.at(i).TexCoords7);
 		}
 	}
-	_Bound.Size = (maxBound - minBound) / 2.0f;
-	_Bound.Center = (maxBound + minBound) / 2.0f;
-	_Bound.Radius = glm::length(_Bound.Size);
+	_Bound.Max = maxBound;
+	_Bound.Min = minBound;
 #pragma endregion
 #pragma region ToGPU
 

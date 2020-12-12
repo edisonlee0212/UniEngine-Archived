@@ -6,11 +6,11 @@
 void UniEngine::MeshRenderer::RenderBound(glm::vec4& color) const
 {
 	const auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
-	glm::vec3 size = Mesh->_Bound.Size;
+	glm::vec3 size = Mesh->_Bound.Size();
 	if (size.x < 0.01f) size.x = 0.01f;
 	if (size.z < 0.01f) size.z = 0.01f;
 	if (size.y < 0.01f) size.y = 0.01f;
-	RenderManager::DrawGizmoCube(color, transform * (glm::translate(Mesh->_Bound.Center) * glm::scale(size)), 1);
+	RenderManager::DrawGizmoCube(color, transform * (glm::translate(Mesh->_Bound.Center()) * glm::scale(size)), 1);
 }
 
 void UniEngine::MeshRenderer::OnGui()

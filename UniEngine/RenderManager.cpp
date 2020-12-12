@@ -88,8 +88,9 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 			if (calculateBounds) {
 				auto meshBound = mmc->Mesh->GetBound();
-				glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
-				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
+				meshBound.ApplyTransform(ltw);
+				glm::vec3 center = meshBound.Center();
+				glm::vec3 size = meshBound.Size();
 				minBound = glm::vec3(
 					glm::min(minBound.x, center.x - size.x),
 					glm::min(minBound.y, center.y - size.y),
@@ -120,8 +121,10 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 			if (calculateBounds) {
-				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
-				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
+				auto meshBound = immc->Mesh->GetBound();
+				meshBound.ApplyTransform(ltw);
+				glm::vec3 center = meshBound.Center();
+				glm::vec3 size = meshBound.Size();
 				minBound = glm::vec3(
 					glm::min(minBound.x, center.x - size.x),
 					glm::min(minBound.y, center.y - size.y),
@@ -241,9 +244,11 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 			auto meshBound = mmc->Mesh->GetBound();
-			glm::vec3 center = ltw * glm::vec4(meshBound.Center, 1.0f);
+			meshBound.ApplyTransform(ltw);
+			glm::vec3 center = meshBound.Center();
+			glm::vec3 size = meshBound.Size();
 			if (calculateBounds) {
-				glm::vec3 size = glm::vec4(meshBound.Size, 0) * ltw / 2.0f;
+				
 				minBound = glm::vec3(
 					glm::min(minBound.x, center.x - size.x),
 					glm::min(minBound.y, center.y - size.y),
@@ -274,8 +279,10 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
 			if (calculateBounds) {
-				glm::vec3 center = ltw * glm::vec4(immc->BoundingBox.Center, 1.0f);
-				glm::vec3 size = glm::vec4(immc->BoundingBox.Size, 0) * ltw / 2.0f;
+				auto meshBound = immc->Mesh->GetBound();
+				meshBound.ApplyTransform(ltw);
+				glm::vec3 center = meshBound.Center();
+				glm::vec3 size = meshBound.Size();
 				minBound = glm::vec3(
 					glm::min(minBound.x, center.x - size.x),
 					glm::min(minBound.y, center.y - size.y),
@@ -584,8 +591,8 @@ void UniEngine::RenderManager::PreUpdate()
 		}
 	}
 	auto worldBound = _World->GetBound();
-	glm::vec3 maxBound = worldBound.Center + worldBound.Size;
-	glm::vec3 minBound = worldBound.Center - worldBound.Size;
+	glm::vec3 maxBound = worldBound.Max;
+	glm::vec3 minBound = worldBound.Min;
 	if (_MainCameraComponent != nullptr) {
 		auto& mainCamera = _MainCameraComponent->_Camera;
 		auto mainCameraEntity = _MainCameraComponent->GetOwner();
@@ -667,7 +674,7 @@ void UniEngine::RenderManager::PreUpdate()
 
 						float d3 = glm::distance(p3, p4);
 
-						center = ClosestPointOnLine(worldBound.Center, cameraFrustumCenter, cameraFrustumCenter + lightDir);
+						center = ClosestPointOnLine(worldBound.Center(), cameraFrustumCenter, cameraFrustumCenter + lightDir);
 						planeDistance = glm::max(glm::max(d0, d1), glm::max(d2, d3));
 						lightPos = center - lightDir * planeDistance;
 						lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::normalize(rotation * glm::vec3(0, 1, 0)));
@@ -1126,9 +1133,8 @@ void UniEngine::RenderManager::PreUpdate()
 			RenderToCameraDeferred(mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
 			RenderBackGround(mainCameraEntity.GetPrivateComponent<CameraComponent>());
 			RenderToCameraForward(mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
-			worldBound.Size = (maxBound - minBound) / 2.0f;
-			worldBound.Center = (maxBound + minBound) / 2.0f;
-			worldBound.Radius = glm::length(worldBound.Size);
+			worldBound.Max = maxBound;
+			worldBound.Min = minBound;
 			_World->SetBound(worldBound);
 		}
 	}
@@ -1280,7 +1286,7 @@ void RenderManager::LateUpdate()
 		if (_EnableShadow && ImGui::TreeNode("Shadow")) {
 			if (ImGui::TreeNode("Distance"))
 			{
-				ImGui::DragFloat("Max shadow distance", &_MaxShadowDistance, _MaxShadowDistance / 10.0f, 0.1f);
+				ImGui::DragFloat("Max shadow distance", &_MaxShadowDistance, 1.0f, 0.1f);
 				ImGui::DragFloat("Split 1", &_ShadowCascadeSplit[0], 0.01f, 0.0f, _ShadowCascadeSplit[1]);
 				ImGui::DragFloat("Split 2", &_ShadowCascadeSplit[1], 0.01f, _ShadowCascadeSplit[0], _ShadowCascadeSplit[2]);
 				ImGui::DragFloat("Split 3", &_ShadowCascadeSplit[2], 0.01f, _ShadowCascadeSplit[1], _ShadowCascadeSplit[3]);

@@ -51,8 +51,8 @@ namespace UniEngine
 		
 		
 		glm::vec3 delta = OBBWorldSpace - Start;
-		glm::vec3 AABBMin = scale * (bound.Center - bound.Size);
-		glm::vec3 AABBMax = scale * (bound.Center + bound.Size);
+		glm::vec3 AABBMin = scale * (bound.Min);
+		glm::vec3 AABBMax = scale * (bound.Max);
 		// Test intersection with the 2 planes perpendicular to the OBB's X axis
 		{
 			glm::vec3 xAxis(transform[0].x, transform[0].y, transform[0].z);

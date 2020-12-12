@@ -48,9 +48,8 @@ namespace UniEngine {
 	public:
 		std::string Name;
 		void OnGui();
-		glm::vec3 GetCenter();
-		Bound GetBound();
-		float GetRadius();
+		glm::vec3 GetCenter() const;
+		Bound GetBound() const;
 		Mesh();
 		void SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store = true);
 		size_t GetVerticesAmount();

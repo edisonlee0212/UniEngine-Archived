@@ -217,7 +217,7 @@ void UniEngine::EditorManager::Init()
 				_PreviouslyStoredTransform = ltp;
 				ltp->Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 				_PreviouslyStoredRotation = glm::degrees(_PreviouslyStoredRotation);
-				_LocalPositionSelected = false;
+				_LocalPositionSelected = true;
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}

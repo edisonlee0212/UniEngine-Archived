@@ -26,9 +26,8 @@ void UniEngine::World::SetBound(Bound value)
 
 UniEngine::Bound::Bound()
 {
-	Center = glm::vec3(0.0f);
-	Size = glm::vec3(0.0f);
-	Radius = 0;
+	Min = glm::vec3(FLT_MIN);
+	Max = glm::vec3(FLT_MAX);
 }
 
 
