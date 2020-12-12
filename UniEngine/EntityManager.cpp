@@ -714,57 +714,29 @@ bool UniEngine::EntityManager::IsEntityDeleted(size_t index)
 	return _Entities->at(index).Version == 0;
 }
 
+bool EntityManager::IsEntityValid(const Entity& entity)
+{
+	return _Entities->at(entity.Index).Version == entity.Version;
+}
+
+
 EntityQuery UniEngine::EntityManager::CreateEntityQuery()
 {
 	EntityQuery retVal;
-	if (_EntityQueryPools->empty()) {
 		retVal.Index = _EntityQueries->size();
-		retVal.Version = 1;
 		_EntityQueries->push_back(retVal);
 
 		EntityQueryInfo info;
 		_EntityQueryInfos->push_back(info);
 		RefreshEntityQueryInfos(retVal.Index);
-	}
-	else {
-		retVal = _EntityQueryPools->front();
-		_EntityQueryPools->pop();
-		_EntityQueries->at(retVal.Index).Version = retVal.Version;
-		RefreshEntityQueryInfos(retVal.Index);
-	}
+	
 	return retVal;
-}
-
-void UniEngine::EntityManager::DeleteEntityQuery(EntityQuery entityQuery)
-{
-	if (entityQuery.IsNull()) return;
-	size_t index = entityQuery.Index;
-	if (_EntityQueries->at(index).IsDeleted()) {
-		Debug::Error("EntityQuery already deleted!");
-		return;
-	}
-	if (_EntityQueries->at(index) != entityQuery) {
-		Debug::Error("EntityQuery out of date!");
-		return;
-	}
-	EntityQuery toPool = _EntityQueries->at(index);
-	_EntityQueryInfos->at(index).AllComponentTypes.clear();
-	_EntityQueryInfos->at(index).AnyComponentTypes.clear();
-	_EntityQueryInfos->at(index).NoneComponentTypes.clear();
-	_EntityQueryInfos->at(index).QueriedStorages.clear();
-	_EntityQueries->at(index).Version = 0;
-	toPool.Version++;
-	_EntityQueryPools->push(toPool);
 }
 
 std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorage(EntityQuery entityQuery)
 {
 	if (entityQuery.IsNull()) return std::vector<EntityComponentStorage>();
 	size_t index = entityQuery.Index;
-	if (_EntityQueries->at(index).IsDeleted()) {
-		Debug::Error("EntityQuery already deleted!");
-		return std::vector<EntityComponentStorage>();
-	}
 	if (_EntityQueries->at(index) != entityQuery) {
 		Debug::Error("EntityQuery out of date!");
 		return std::vector<EntityComponentStorage>();
@@ -798,10 +770,6 @@ void UniEngine::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vect
 {
 	if (entityQuery.IsNull()) return;
 	size_t index = entityQuery.Index;
-	if (_EntityQueries->at(index).IsDeleted()) {
-		Debug::Error("EntityQuery already deleted!");
-		return;
-	}
 	if (_EntityQueries->at(index) != entityQuery) {
 		Debug::Error("EntityQuery out of date!");
 		return;
@@ -825,10 +793,6 @@ UniEngine::EntityComponentStorage::EntityComponentStorage(EntityArchetypeInfo* i
 size_t UniEngine::EntityManager::GetEntityAmount(EntityQuery entityQuery) {
 	if (entityQuery.IsNull()) return 0;
 	size_t index = entityQuery.Index;
-	if (_EntityQueries->at(index).IsDeleted()) {
-		Debug::Error("EntityQuery already deleted!");
-		return 0;
-	}
 	if (_EntityQueries->at(index) != entityQuery) {
 		Debug::Error("EntityQuery out of date!");
 		return 0;

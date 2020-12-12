@@ -115,7 +115,7 @@ namespace UniEngine {
 		static bool IsEntityEnabled(const Entity& entity);
 
 		static bool IsEntityDeleted(size_t index);
-
+		static bool IsEntityValid(const Entity& entity);
 		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
 		static std::vector<EntityComponentStorage> UnsafeQueryStorage(EntityQuery entityQuery);
 		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
@@ -214,7 +214,6 @@ namespace UniEngine {
 		static EntityArchetype GetEntityArchetype(const Entity& entity);
 
 		static EntityQuery CreateEntityQuery();
-		static void DeleteEntityQuery(EntityQuery entityQuery);
 		template<typename T = ComponentBase, typename... Ts>
 		static void SetEntityQueryAllFilters(const EntityQuery& entityQuery, T arg, Ts... args);
 		template<typename T = ComponentBase, typename... Ts>
@@ -1583,12 +1582,8 @@ namespace UniEngine {
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		_EntityQueryInfos->at(index).AllComponentTypes = CollectComponentTypes(arg, args...);
@@ -1600,12 +1595,8 @@ namespace UniEngine {
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		_EntityQueryInfos->at(index).AnyComponentTypes = CollectComponentTypes(arg, args...);
@@ -1617,12 +1608,8 @@ namespace UniEngine {
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		_EntityQueryInfos->at(index).NoneComponentTypes = CollectComponentTypes(arg, args...);
@@ -1631,16 +1618,12 @@ namespace UniEngine {
 #pragma endregion
 #pragma region For Each
 	template<typename T1>
-	inline void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*)>& func, bool checkEnable)
+	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*)>& func, bool checkEnable)
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1651,12 +1634,8 @@ namespace UniEngine {
 	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1667,12 +1646,8 @@ namespace UniEngine {
 	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1683,12 +1658,8 @@ namespace UniEngine {
 	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1699,12 +1670,8 @@ namespace UniEngine {
 	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1715,12 +1682,8 @@ namespace UniEngine {
 	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1731,12 +1694,8 @@ namespace UniEngine {
 	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1747,12 +1706,8 @@ namespace UniEngine {
 	void EntityManager::ForEach(EntityQuery entityQuery, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1765,12 +1720,8 @@ namespace UniEngine {
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
-		if (_EntityQueries->at(index).IsDeleted()) {
-			Debug::Error("EntityQuery already deleted!");
-			return;
-		}
-		if (_EntityQueries->at(index) != entityQuery) {
-			Debug::Error("EntityQuery out of date!");
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorages) {
@@ -1782,6 +1733,12 @@ namespace UniEngine {
 	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container,
 		const std::function<bool(T2&)>& filterFunc)
 	{
+		if (entityQuery.IsNull()) return;
+		size_t index = entityQuery.Index;
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
+			return;
+		}
 		std::vector<T2> componentDataList;
 		std::vector<T1> targetDataList;
 		GetComponentDataArray(entityQuery, componentDataList);
@@ -1824,6 +1781,12 @@ namespace UniEngine {
 	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container,
 		const std::function<bool(T2&, T3&)>& filterFunc)
 	{
+		if (entityQuery.IsNull()) return;
+		size_t index = entityQuery.Index;
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
+			return;
+		}
 		std::vector<T3> componentDataList2;
 		std::vector<T2> componentDataList1;
 		std::vector<T1> targetDataList;
@@ -1867,6 +1830,12 @@ namespace UniEngine {
 	template<typename T1, typename T2>
 	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>& container)
 	{
+		if (entityQuery.IsNull()) return;
+		size_t index = entityQuery.Index;
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
+			return;
+		}
 		std::vector<T1> componentDataList;
 		std::vector<T2> targetDataList;
 		GetComponentDataArray(entityQuery, componentDataList);
@@ -1909,6 +1878,12 @@ namespace UniEngine {
 	void EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container,
 		const std::function<bool(Entity, T1&)>& filterFunc)
 	{
+		if (entityQuery.IsNull()) return;
+		size_t index = entityQuery.Index;
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
+			return;
+		}
 		std::vector<Entity> allEntities;
 		std::vector<T1> componentDataList;
 		GetEntityArray(entityQuery, allEntities);
@@ -1951,6 +1926,12 @@ namespace UniEngine {
 	void EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container,
 		const std::function<bool(Entity, T1&, T2&)>& filterFunc)
 	{
+		if (entityQuery.IsNull()) return;
+		size_t index = entityQuery.Index;
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
+			return;
+		}
 		std::vector<Entity> allEntities;
 		std::vector<T1> componentDataList1;
 		std::vector<T2> componentDataList2;
@@ -1995,6 +1976,12 @@ namespace UniEngine {
 	template<typename T1>
 	void EntityManager::GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container)
 	{
+		if (entityQuery.IsNull()) return;
+		size_t index = entityQuery.Index;
+		if (index > _EntityQueries->size()) {
+			Debug::Error("EntityQuery not exist!");
+			return;
+		}
 		std::vector<Entity> allEntities;
 		std::vector<T1> componentDataList;
 		GetEntityArray(entityQuery, allEntities);

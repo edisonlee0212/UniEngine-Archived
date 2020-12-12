@@ -14,6 +14,11 @@ inline void UniEngine::Entity::SetEnabled(bool value) const
 	EntityManager::SetEnable(*this, value);
 }
 
+bool Entity::IsNull() const
+{
+	return Index == 0;
+}
+
 bool UniEngine::Entity::IsDeleted() const
 {
 	return EntityManager::IsEntityDeleted(Index);
@@ -21,7 +26,9 @@ bool UniEngine::Entity::IsDeleted() const
 
 bool Entity::IsValid() const
 {
-	return !IsNull() && !IsDeleted();
+	if(!IsNull() && EntityManager::IsEntityValid(*this)) return true;
+	Debug::Error("Entity not valid!");
+	return false;
 }
 
 inline std::string Entity::GetName() const

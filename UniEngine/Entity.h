@@ -75,10 +75,7 @@ namespace UniEngine {
 
 		void SetEnabled(bool value) const;
 
-		bool IsNull() const
-		{
-			return Index == 0;
-		}
+		bool IsNull() const;
 
 		bool IsDeleted() const;
 		bool IsValid() const;
@@ -257,29 +254,20 @@ namespace UniEngine {
 
 	struct UNIENGINE_API EntityQuery {
 		size_t Index = 0;
-		size_t Version = 0;
-
 		bool operator ==(const EntityQuery& other) const {
-			return (other.Index == Index) && (other.Version == Version);
+			return other.Index == Index;
 		}
 		bool operator !=(const EntityQuery& other) const {
-			return (other.Index != Index) || (other.Version != Version);
+			return other.Index != Index;
 		}
 		size_t operator() (EntityQuery const& key) const
 		{
 			return Index;
 		}
-
 		bool IsNull() const
 		{
 			return Index == 0;
 		}
-
-		bool IsDeleted() const
-		{
-			return Version == 0;
-		}
-
 		template<typename T = ComponentBase, typename... Ts>
 		void SetAllFilters(T arg, Ts... args);
 		template<typename T = ComponentBase, typename... Ts>
