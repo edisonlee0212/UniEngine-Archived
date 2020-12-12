@@ -19,6 +19,11 @@ bool UniEngine::Entity::IsDeleted() const
 	return EntityManager::IsEntityDeleted(Index);
 }
 
+bool Entity::IsValid() const
+{
+	return !IsNull() && !IsDeleted();
+}
+
 inline std::string Entity::GetName() const
 {
 	return EntityManager::GetEntityName(*this);

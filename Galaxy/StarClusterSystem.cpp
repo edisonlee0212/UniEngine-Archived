@@ -109,7 +109,7 @@ void Galaxy::StarClusterSystem::Update()
 	
 	
 	//3. Setup transforms for particles component for the entity for actual rendering.
-	auto& imr = _StarCluster.GetPrivateComponent<Particles>();
+	auto& imr = _StarCluster.GetPrivateComponent<Particles>()->get();
 	imr->Matrices.resize(0);
 	_StarQuery.ToComponentDataArray(*(std::vector<GlobalTransform>*)(void*)&imr->Matrices);
 	Debug::Log("Calculation Time: " + std::to_string(Application::EngineTime() - timer));

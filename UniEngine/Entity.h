@@ -81,7 +81,7 @@ namespace UniEngine {
 		}
 
 		bool IsDeleted() const;
-
+		bool IsValid() const;
 		template<typename T = ComponentBase>
 		void SetComponentData(T value) const;
 		template<typename T = ComponentBase>
@@ -89,7 +89,7 @@ namespace UniEngine {
 		template<typename T = ComponentBase>
 		bool HasComponentData() const;
 		template <typename T = SharedComponentBase>
-		std::shared_ptr<T> GetSharedComponent() const;
+		auto GetSharedComponent() const;
 		template <typename T = SharedComponentBase>
 		void SetSharedComponent(std::shared_ptr<T> value) const;
 		template <typename T = SharedComponentBase>
@@ -98,7 +98,7 @@ namespace UniEngine {
 		bool HasSharedComponent() const;
 		
 		template <typename T = PrivateComponentBase>
-		std::unique_ptr<T>& GetPrivateComponent() const;
+		auto GetPrivateComponent() const;
 		template <typename T = PrivateComponentBase>
 		void SetPrivateComponent(std::unique_ptr<T> value) const;
 		template <typename T = PrivateComponentBase>
@@ -279,6 +279,15 @@ namespace UniEngine {
 		{
 			return Version == 0;
 		}
+
+		template<typename T = ComponentBase, typename... Ts>
+		void SetAllFilters(T arg, Ts... args);
+		template<typename T = ComponentBase, typename... Ts>
+		void SetAnyFilters(T arg, Ts... args);
+		template<typename T = ComponentBase, typename... Ts>
+		void SetNoneFilters(T arg, Ts... args);
+
+		
 		template<typename T1 = ComponentBase>
 		void ToComponentDataArray(std::vector<T1>& container);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>

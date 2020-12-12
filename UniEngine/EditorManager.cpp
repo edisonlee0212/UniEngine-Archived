@@ -833,7 +833,7 @@ void EditorManager::LateUpdate()
 				}
 				if (_SelectedEntity.Enabled() && _SelectedEntity.HasPrivateComponent<MeshRenderer>())
 				{
-					auto& mmc = _SelectedEntity.GetPrivateComponent<MeshRenderer>();
+					auto& mmc = _SelectedEntity.GetPrivateComponent<MeshRenderer>()->get();
 					if (mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
 					{
 						Camera::CameraInfoBlock.UpdateMatrices(_SceneCamera->_Camera.get(),

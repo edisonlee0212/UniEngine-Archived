@@ -49,16 +49,16 @@ namespace UniEngine {
 		std::vector<std::shared_ptr<T>>* GetSCList();
 
 		template <typename T>
-		std::unique_ptr<OwnersCollection>* GetOwnersCollection(std::shared_ptr<T> value);
+		std::unique_ptr<OwnersCollection>* GetOwnersCollection(std::shared_ptr<T>& value);
 
 		template <typename T>
-		OwnersMap* GetOwnersMap(std::shared_ptr<T> value);
+		OwnersMap* GetOwnersMap(std::shared_ptr<T>& value);
 
 		template <typename T>
-		std::vector<Entity>* GetOwnersList(std::shared_ptr<T> value);
+		std::vector<Entity>* GetOwnersList(std::shared_ptr<T>& value);
 
 		template <typename T>
-		void SetSharedComponent(Entity entity, std::shared_ptr<T> value);
+		void SetSharedComponent(Entity entity, std::shared_ptr<T>& value);
 
 		template <typename T>
 		bool RemoveSharedComponent(Entity entity);
@@ -104,7 +104,7 @@ namespace UniEngine {
 	}
 
 	template<typename T>
-	std::unique_ptr<OwnersCollection>* SharedComponentStorage::GetOwnersCollection(std::shared_ptr<T> value)
+	std::unique_ptr<OwnersCollection>* SharedComponentStorage::GetOwnersCollection(std::shared_ptr<T>& value)
 	{
 		std::unique_ptr<SCCollection>* scc = GetSCCollection<T>();
 		if (scc == nullptr) return nullptr;
@@ -118,7 +118,7 @@ namespace UniEngine {
 	}
 
 	template<typename T>
-	OwnersMap* SharedComponentStorage::GetOwnersMap(std::shared_ptr<T> value)
+	OwnersMap* SharedComponentStorage::GetOwnersMap(std::shared_ptr<T>& value)
 	{
 		std::unique_ptr<OwnersCollection>* oc = GetOwnersCollection<T>(value);
 		if (oc == nullptr) return nullptr;
@@ -126,7 +126,7 @@ namespace UniEngine {
 	}
 
 	template<typename T>
-	std::vector<Entity>* SharedComponentStorage::GetOwnersList(std::shared_ptr<T> value)
+	std::vector<Entity>* SharedComponentStorage::GetOwnersList(std::shared_ptr<T>& value)
 	{
 		std::unique_ptr<OwnersCollection>* oc = GetOwnersCollection<T>(value);
 		if (oc == nullptr) return nullptr;
@@ -134,7 +134,7 @@ namespace UniEngine {
 	}
 
 	template<typename T>
-	void SharedComponentStorage::SetSharedComponent(Entity entity, std::shared_ptr<T> value)
+	void SharedComponentStorage::SetSharedComponent(Entity entity, std::shared_ptr<T>& value)
 	{
 		RemoveSharedComponent<T>(entity);
 		std::unique_ptr<SCCollection>* scc = GetSCCollection<T>();

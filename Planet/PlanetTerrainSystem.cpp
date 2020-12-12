@@ -14,21 +14,19 @@ void Planet::PlanetTerrainSystem::Update()
 {
 	const std::vector<Entity>* const planetTerrainList = EntityManager::GetPrivateComponentOwnersList<PlanetTerrain>();
 	for (auto i = 0; i < planetTerrainList->size(); i++) {
-		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
+		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>()->get();
 		if (!planetTerrain->IsEnabled()) continue;
 		auto& planetChunks = planetTerrain->_Chunks;
 		auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
 		glm::mat4 matrix = glm::scale(glm::translate(glm::mat4_cast(planetTransform.GetRotation()), glm::vec3(planetTransform.GetPosition())), glm::vec3(1.0f));
 		for (auto j = 0; j < planetChunks.size(); j++) {
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			RenderChunk(planetChunks[j], _DefaultSurfaceMaterial.get(), matrix, RenderManager::GetMainCamera(), true);
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 	}
 	std::mutex meshGenLock;
 	const auto cameraLtw = RenderManager::GetMainCamera()->GetOwner().GetComponentData<GlobalTransform>();
 	for (auto i = 0; i < planetTerrainList->size(); i++) {
-		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
+		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>()->get();
 		if (!planetTerrain->IsEnabled()) continue;
 		auto& planetInfo = planetTerrain->_Info;
 		auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();

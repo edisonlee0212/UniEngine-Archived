@@ -64,7 +64,7 @@ void UniEngine::PhysicsSimulationManager::UploadTransforms()
 	if (rigidBodyEntities != nullptr)
 	{
 		for (auto rigidBodyEntity : *rigidBodyEntities) {
-			auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+			auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>()->get();
 			if (rigidBody->IsEnabled()) {
 				auto temp = rigidBodyEntity.GetComponentData<GlobalTransform>();
 				temp.SetScale(glm::vec3(1.0f));
@@ -96,7 +96,7 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 					{
 						size_t index = capacity * i + j;
 						const auto& rigidBodyEntity = list->at(index);
-						auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+						auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>()->get();
 						if (rigidBody->IsEnabled()) {
 							PxTransform transform = rigidBody->_RigidBody->getGlobalPose();
 							auto matrix = PxMat44(transform);
@@ -120,7 +120,7 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 		}
 		for (size_t i = 0; i < reminder; i++) {
 			size_t index = capacity * threadSize + i;
-			const auto& rigidBodyEntity = list->at(index); auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+			const auto& rigidBodyEntity = list->at(index); auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>()->get();
 			if (rigidBody->IsEnabled()) {
 				PxTransform transform = rigidBody->_RigidBody->getGlobalPose();
 				auto matrix = PxMat44(transform);

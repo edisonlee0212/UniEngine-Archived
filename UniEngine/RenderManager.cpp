@@ -81,7 +81,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+			auto& mmc = owner.GetPrivateComponent<MeshRenderer>()->get();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
 			if (mmc->Material->BlendingMode != MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
@@ -115,7 +115,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto& immc = owner.GetPrivateComponent<Particles>();
+			auto& immc = owner.GetPrivateComponent<Particles>()->get();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
 			if (immc->Material->BlendingMode != MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
@@ -239,7 +239,7 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 	if (owners) {
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+			auto& mmc = owner.GetPrivateComponent<MeshRenderer>()->get();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering && mmc->Material->BlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
@@ -274,7 +274,7 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 	if (owners) {
 		for (auto owner : *owners) {
 			if (!owner.Enabled()) continue;
-			auto& immc = owner.GetPrivateComponent<Particles>();
+			auto& immc = owner.GetPrivateComponent<Particles>()->get();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering && immc->Material->BlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
@@ -587,7 +587,7 @@ void UniEngine::RenderManager::PreUpdate()
 	if (cameraEntities != nullptr)
 	{
 		for (auto cameraEntity : *cameraEntities) {
-			cameraEntity.GetPrivateComponent<CameraComponent>()->_Camera->Clear();
+			cameraEntity.GetPrivateComponent<CameraComponent>()->get()->_Camera->Clear();
 		}
 	}
 	auto worldBound = _World->GetBound();
@@ -743,7 +743,7 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+								auto& mmc = owner.GetPrivateComponent<MeshRenderer>()->get();
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
@@ -771,7 +771,7 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto& immc = owner.GetPrivateComponent<Particles>();
+								auto& immc = owner.GetPrivateComponent<Particles>()->get();
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
@@ -868,7 +868,7 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+								auto& mmc = owner.GetPrivateComponent<MeshRenderer>()->get();
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
@@ -894,7 +894,7 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto& immc = owner.GetPrivateComponent<Particles>();
+								auto& immc = owner.GetPrivateComponent<Particles>()->get();
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
@@ -991,7 +991,7 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+								auto& mmc = owner.GetPrivateComponent<MeshRenderer>()->get();
 								if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 								MaterialPropertySetter(mmc.get()->Material.get(), true);
 								auto mesh = mmc->Mesh;
@@ -1017,7 +1017,7 @@ void UniEngine::RenderManager::PreUpdate()
 						if (owners) {
 							for (auto owner : *owners) {
 								if (!owner.Enabled()) continue;
-								auto& immc = owner.GetPrivateComponent<Particles>();
+								auto& immc = owner.GetPrivateComponent<Particles>()->get();
 								if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 								MaterialPropertySetter(immc.get()->Material.get(), true);
 								size_t count = immc->Matrices.size();
@@ -1058,7 +1058,7 @@ void UniEngine::RenderManager::PreUpdate()
 	{
 		for (auto cameraEntity : *cameraEntities) {
 			if (!cameraEntity.Enabled()) continue;
-			auto& cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
+			auto& cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>()->get();
 			if (_MainCameraComponent && cameraComponent.get() == _MainCameraComponent) continue;
 			if (cameraComponent->IsEnabled())
 			{
@@ -1068,7 +1068,7 @@ void UniEngine::RenderManager::PreUpdate()
 					ltw.GetRotation()
 				);
 				Camera::CameraInfoBlock.UploadMatrices(cameraComponent->_Camera->CameraUniformBufferBlock);
-				const GlobalTransform cameraTransform = cameraEntity.GetComponentData<GlobalTransform>();				
+				const auto cameraTransform = cameraEntity.GetComponentData<GlobalTransform>();				
 				RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
 				RenderBackGround(cameraComponent);
 				RenderToCameraForward(cameraComponent, cameraTransform, minBound, maxBound, false);
@@ -1093,7 +1093,7 @@ void UniEngine::RenderManager::PreUpdate()
 			EditorManager::_SceneCameraEntityRecorderProgram->Bind();
 			for (auto owner : *owners) {
 				if (!owner.Enabled()) continue;
-				auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
+				auto& mmc = owner.GetPrivateComponent<MeshRenderer>()->get();
 				if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
 				auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
@@ -1130,9 +1130,10 @@ void UniEngine::RenderManager::PreUpdate()
 			);
 			Camera::CameraInfoBlock.UploadMatrices(mainCamera->CameraUniformBufferBlock);
 			GlobalTransform cameraTransform = mainCameraEntity.GetComponentData<GlobalTransform>();
-			RenderToCameraDeferred(mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
-			RenderBackGround(mainCameraEntity.GetPrivateComponent<CameraComponent>());
-			RenderToCameraForward(mainCameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform, minBound, maxBound, true);
+			auto& mainCameraComponent = mainCameraEntity.GetPrivateComponent<CameraComponent>()->get();
+			RenderToCameraDeferred(mainCameraComponent, cameraTransform, minBound, maxBound, true);
+			RenderBackGround(mainCameraComponent);
+			RenderToCameraForward(mainCameraComponent, cameraTransform, minBound, maxBound, true);
 			worldBound.Max = maxBound;
 			worldBound.Min = minBound;
 			_World->SetBound(worldBound);

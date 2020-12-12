@@ -19,9 +19,9 @@ std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
 //std::map<size_t, ComponentDestroyFunction> UniEngine::EntityManager::_ComponentDestructionFunctionMap;
 #pragma region EntityManager
 
-void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::function<void(ComponentType type, void* data)>& func)
+void UniEngine::EntityManager::ForEachComponentUnsafe(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func)
 {
-	if (entity.IsNull()) return;
+	if (!entity.IsValid()) return;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
 	if (_Entities->at(entity.Index) == entity) {
 		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
@@ -34,9 +34,9 @@ void UniEngine::EntityManager::ForEachComponentUnsafe(Entity entity, const std::
 	}
 }
 
-void EntityManager::ForEachSharedComponent(Entity entity, const std::function<void(SharedComponentElement data)>& func)
+void EntityManager::ForEachSharedComponent(const Entity& entity, const std::function<void(SharedComponentElement data)>& func)
 {
-	if (entity.IsNull()) return;
+	if (!entity.IsValid()) return;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
 	if (_Entities->at(entity.Index) == entity)
 	{
@@ -47,10 +47,10 @@ void EntityManager::ForEachSharedComponent(Entity entity, const std::function<vo
 	}
 }
 
-void EntityManager::ForEachPrivateComponent(Entity entity,
+void EntityManager::ForEachPrivateComponent(const Entity& entity,
 	const std::function<void(PrivateComponentElement& data)>& func)
 {
-	if (entity.IsNull()) return;
+	if (!entity.IsValid()) return;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
 	if (_Entities->at(entity.Index) == entity)
 	{
@@ -314,19 +314,14 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 	return retVal;
 }
 
-void UniEngine::EntityManager::DeleteEntity(Entity entity)
+void UniEngine::EntityManager::DeleteEntity(const Entity& entity)
 {
 	if (!Application::_Initialized)
 	{
 		Debug::Error("DeleteEntity: Initialize Engine first!");
 		return;
 	}
-	if (entity.IsNull()) return;
-	if (entity.IsDeleted())
-	{
-		Debug::Error("DeleteEntity: Entity already deleted!");
-		return;
-	}
+	if (!entity.IsValid()) return;
 	size_t entityIndex = entity.Index;
 	if (entity != _Entities->at(entityIndex)) {
 		Debug::Error("Entity out of date!");
@@ -348,9 +343,9 @@ void UniEngine::EntityManager::DeleteEntity(Entity entity)
 	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
 }
 
-std::string EntityManager::GetEntityName(Entity entity)
+std::string EntityManager::GetEntityName(const Entity& entity)
 {
-	if (entity.IsNull()) return "";
+	if (!entity.IsValid()) return "";
 	size_t index = entity.Index;
 
 	if (entity != _Entities->at(index)) {
@@ -360,9 +355,9 @@ std::string EntityManager::GetEntityName(Entity entity)
 	return _EntityInfos->at(index).Name;
 }
 
-void EntityManager::SetEntityName(Entity entity, std::string name)
+void EntityManager::SetEntityName(const Entity& entity, std::string name)
 {
-	if (entity.IsNull()) return;
+	if (!entity.IsValid()) return;
 	size_t index = entity.Index;
 
 	if (entity != _Entities->at(index)) {
@@ -376,9 +371,9 @@ void EntityManager::SetEntityName(Entity entity, std::string name)
 	_EntityInfos->at(index).Name = "Unnamed";
 }
 
-void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
+void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& parent)
 {
-	if (entity.IsNull() || parent.IsNull()) return;
+	if (!entity.IsValid() || !parent.IsValid()) return;
 	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
 	size_t childIndex = entity.Index;
 	size_t parentIndex = parent.Index;
@@ -412,9 +407,9 @@ void UniEngine::EntityManager::SetParent(Entity entity, Entity parent)
 
 }
 
-Entity UniEngine::EntityManager::GetParent(Entity entity)
+Entity UniEngine::EntityManager::GetParent(const Entity& entity)
 {
-	if (entity.IsNull()) return Entity();
+	if (!entity.IsValid()) return Entity();
 	size_t entityIndex = entity.Index;
 	if (entity != _Entities->at(entityIndex)) {
 		Debug::Error("Entity already deleted!");
@@ -423,9 +418,9 @@ Entity UniEngine::EntityManager::GetParent(Entity entity)
 	return _EntityInfos->at(entityIndex).Parent;
 }
 
-std::vector<Entity> UniEngine::EntityManager::GetChildren(Entity entity)
+std::vector<Entity> UniEngine::EntityManager::GetChildren(const Entity& entity)
 {
-	if (entity.IsNull()) return std::vector<Entity>();
+	if (!entity.IsValid()) return std::vector<Entity>();
 	size_t entityIndex = entity.Index;
 	if (entity != _Entities->at(entityIndex)) {
 		Debug::Error("Parent already deleted!");
@@ -434,9 +429,9 @@ std::vector<Entity> UniEngine::EntityManager::GetChildren(Entity entity)
 	return _EntityInfos->at(entityIndex).Children;
 }
 
-size_t UniEngine::EntityManager::GetChildrenAmount(Entity entity)
+size_t UniEngine::EntityManager::GetChildrenAmount(const Entity& entity)
 {
-	if (entity.IsNull()) return 0;
+	if (!entity.IsValid()) return 0;
 	size_t entityIndex = entity.Index;
 	if (entity != _Entities->at(entityIndex)) {
 		Debug::Error("Parent already deleted!");
@@ -445,17 +440,18 @@ size_t UniEngine::EntityManager::GetChildrenAmount(Entity entity)
 	return _EntityInfos->at(entityIndex).Children.size();
 }
 
-inline void UniEngine::EntityManager::ForEachChild(Entity entity, const std::function<void(Entity child)>& func)
+inline void UniEngine::EntityManager::ForEachChild(const Entity& entity, const std::function<void(Entity child)>& func)
 {
+	if (!entity.IsValid()) return;
 	auto children = _EntityInfos->at(entity.Index).Children;
 	for (auto i : children) {
 		if (!i.IsDeleted()) func(i);
 	}
 }
 
-void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
+void UniEngine::EntityManager::RemoveChild(const Entity& entity, const Entity& parent)
 {
-	if (entity.IsNull() || parent.IsNull()) return;
+	if (!entity.IsValid() || !parent.IsValid()) return;
 	size_t childIndex = entity.Index;
 	size_t parentIndex = parent.Index;
 
@@ -489,11 +485,11 @@ void UniEngine::EntityManager::RemoveChild(Entity entity, Entity parent)
 	}
 }
 
-void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>* container)
+void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>& container)
 {
 	size_t amount = _ParentRoots->size();
-	container->resize(container->size() + amount);
-	memcpy(&container->at(container->size() - amount), _ParentRoots->data(), amount * sizeof(Entity));
+	container.resize(container.size() + amount);
+	memcpy(&container.at(container.size() - amount), _ParentRoots->data(), amount * sizeof(Entity));
 }
 
 size_t UniEngine::EntityManager::GetParentHierarchyVersion()
@@ -501,9 +497,9 @@ size_t UniEngine::EntityManager::GetParentHierarchyVersion()
 	return _CurrentActivatedWorldEntityStorage->ParentHierarchyVersion;
 }
 
-void EntityManager::RemoveComponentData(Entity entity, size_t typeID)
+void EntityManager::RemoveComponentData(const Entity& entity, size_t typeID)
 {
-	if (entity.IsNull()) return;
+	if (!entity.IsValid()) return;
 	EntityInfo& entityInfo = _EntityInfos->at(entity.Index);
 	if (_Entities->at(entity.Index) != entity) {
 		Debug::Error("Entity version mismatch!");
@@ -611,7 +607,7 @@ void EntityManager::RemoveComponentData(Entity entity, size_t typeID)
 
 void EntityManager::SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data)
 {
-	if (entity.IsNull()) return;
+	if (!entity.IsValid()) return;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
 
 	if (_Entities->at(entity.Index) == entity) {
@@ -637,7 +633,7 @@ void EntityManager::SetComponentData(Entity entity, size_t id, size_t size, Comp
 
 ComponentBase* EntityManager::GetComponentDataPointer(Entity entity, size_t id)
 {
-	if (entity.IsNull()) return nullptr;
+	if (!entity.IsValid()) return nullptr;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
 	if (_Entities->at(entity.Index) == entity) {
 		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ArchetypeInfo;
@@ -660,9 +656,9 @@ ComponentBase* EntityManager::GetComponentDataPointer(Entity entity, size_t id)
 	}
 }
 
-bool EntityManager::RemovePrivateComponent(Entity entity, size_t typeId)
+void EntityManager::RemovePrivateComponent(const Entity& entity, size_t typeId)
 {
-	if (entity.IsNull()) return false;
+	if (!entity.IsValid()) return;
 	bool found = false;
 	for (auto i = 0; i < _EntityInfos->at(entity.Index).PrivateComponentElements.size(); i++)
 	{
@@ -673,19 +669,20 @@ bool EntityManager::RemovePrivateComponent(Entity entity, size_t typeId)
 		}
 	}
 	_EntityPrivateComponentStorage->RemovePrivateComponent(entity, typeId);
-	return found;
+	return;
 }
 
-EntityArchetype UniEngine::EntityManager::GetEntityArchetype(Entity entity)
+EntityArchetype UniEngine::EntityManager::GetEntityArchetype(const Entity& entity)
 {
 	EntityArchetype retVal = EntityArchetype();
-	if (entity.IsNull()) return retVal;
+	if (!entity.IsValid()) return retVal;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
 	retVal.Index = info.ArchetypeInfoIndex;
 	return retVal;
 }
 
-void UniEngine::EntityManager::SetEnable(Entity entity, bool value) {
+void UniEngine::EntityManager::SetEnable(const Entity& entity, bool value) {
+	if (!entity.IsValid()) return;
 	if (_EntityInfos->at(entity.Index).Enabled != value)
 	{
 		for (auto& i : _EntityInfos->at(entity.Index).PrivateComponentElements)
@@ -702,12 +699,13 @@ void UniEngine::EntityManager::SetEnable(Entity entity, bool value) {
 	}
 	_EntityInfos->at(entity.Index).Enabled = value;
 	
-	for (auto i : _EntityInfos->at(entity.Index).Children) {
+	for (const auto& i : _EntityInfos->at(entity.Index).Children) {
 		SetEnable(i, value);
 	}
 }
 
-bool UniEngine::EntityManager::IsEntityEnabled(Entity entity) {
+bool UniEngine::EntityManager::IsEntityEnabled(const Entity& entity) {
+	if (!entity.IsValid()) return false;
 	return _EntityInfos->at(entity.Index).Enabled;
 }
 

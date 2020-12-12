@@ -250,7 +250,7 @@ void UniEngine::RigidBody::OnGui()
 			if (ImGui::Button("Apply mesh bound"))
 			{
 				statusChanged = true;
-				auto& meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
+				auto& meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>()->get();
 				if (meshRenderer)
 				{
 					auto bound = meshRenderer->Mesh->GetBound();
