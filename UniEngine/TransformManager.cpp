@@ -83,6 +83,7 @@ void UniEngine::TransformManager::CalculateLtwRecursive(GlobalTransform* pltw, E
 	is faster and I don't know why...
 	*/
 	for (const auto& i : EntityManager::GetChildren(entity)) {
+		if (!i.HasComponentData<Transform>()) continue;
 		auto ltp = EntityManager::GetComponentData<Transform>(i);
 		GlobalTransform ltw;
 		ltw.Value = pltw->Value * ltp.Value;
