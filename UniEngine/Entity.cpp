@@ -27,7 +27,6 @@ bool UniEngine::Entity::IsDeleted() const
 bool Entity::IsValid() const
 {
 	if(!IsNull() && EntityManager::IsEntityValid(*this)) return true;
-	Debug::Error("Entity not valid!");
 	return false;
 }
 

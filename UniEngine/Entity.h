@@ -3,7 +3,7 @@
 namespace UniEngine {
 #pragma region EntityManager
 #pragma region Entity
-	struct UNIENGINE_API ComponentType {
+	struct UNIENGINE_API ComponentType final {
 		const char* Name;
 		size_t TypeID;
 		//Size of component
@@ -20,9 +20,6 @@ namespace UniEngine {
 
 	struct UNIENGINE_API ComponentBase {
 	};
-
-	
-
 	
 	class UNIENGINE_API SharedComponentBase {
 		friend class EditorManager;
@@ -50,7 +47,7 @@ namespace UniEngine {
 		virtual ~SharedComponentBase() = default;
 	};
 	class PrivateComponentBase;
-	struct UNIENGINE_API Entity {
+	struct UNIENGINE_API Entity final {
 		//Position in _Entity Array
 		unsigned Index = 0;
 		unsigned Version = 0;
@@ -252,7 +249,7 @@ namespace UniEngine {
 		bool HasType(size_t typeID);
 	};
 
-	struct UNIENGINE_API EntityQuery {
+	struct UNIENGINE_API EntityQuery final {
 		size_t Index = 0;
 		bool operator ==(const EntityQuery& other) const {
 			return other.Index == Index;
@@ -311,7 +308,7 @@ namespace UniEngine {
 
 #pragma endregion
 	template<typename T>
-	inline bool EntityArchetypeInfo::HasType()
+	bool EntityArchetypeInfo::HasType()
 	{
 		for (auto i : ComponentTypes) {
 			if (i.TypeID == typeid(T).hash_code()) return true;

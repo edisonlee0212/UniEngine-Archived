@@ -19,7 +19,7 @@ std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
 //std::map<size_t, ComponentDestroyFunction> UniEngine::EntityManager::_ComponentDestructionFunctionMap;
 #pragma region EntityManager
 
-void UniEngine::EntityManager::ForEachComponentUnsafe(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func)
+void UniEngine::EntityManager::UnsafeForEachComponent(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func)
 {
 	if (!entity.IsValid()) return;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
@@ -61,7 +61,7 @@ void EntityManager::ForEachPrivateComponent(const Entity& entity,
 	}
 }
 
-void UniEngine::EntityManager::ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func)
+void UniEngine::EntityManager::UnsafeForEachEntityStorage(const std::function<void(int i, EntityComponentStorage storage)>& func)
 {
 	for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
 		if (_EntityComponentStorage->at(i).ArchetypeInfo->EntityAliveCount != 0) {
@@ -204,7 +204,7 @@ size_t UniEngine::EntityManager::SwapEntity(EntityComponentStorage storage, size
 	return retVal;
 }
 
-std::vector<Entity>* UniEngine::EntityManager::GetParentRootsUnsafe()
+std::vector<Entity>* UniEngine::EntityManager::UnsafeGetParentRoots()
 {
 	return _ParentRoots;
 }
@@ -213,7 +213,7 @@ void UniEngine::EntityManager::GetAllEntities(std::vector<Entity>& target) {
 	target.insert(target.end(), _Entities->begin() + 1, _Entities->end());
 }
 
-std::vector<Entity>* UniEngine::EntityManager::GetAllEntitiesUnsafe()
+std::vector<Entity>* UniEngine::EntityManager::UnsafeGetAllEntities()
 {
 	return _Entities;
 }

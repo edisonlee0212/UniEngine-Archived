@@ -529,7 +529,7 @@ void EditorManager::LateUpdate()
 		}
 		ImGui::Combo("Display mode", &_SelectedHierarchyDisplayMode, HierarchyDisplayMode, IM_ARRAYSIZE(HierarchyDisplayMode));
 		if (_SelectedHierarchyDisplayMode == 0) {
-			EntityManager::ForEachEntityStorageUnsafe([](int i, EntityComponentStorage storage) {
+			EntityManager::UnsafeForEachEntityStorage([](int i, EntityComponentStorage storage) {
 				ImGui::Separator();
 
 				std::string title = std::to_string(i) + ". " + storage.ArchetypeInfo->Name;
@@ -599,7 +599,7 @@ void EditorManager::LateUpdate()
 					}
 					bool skip = false;
 					int i = 0;
-					EntityManager::ForEachComponentUnsafe(_SelectedEntity, [&skip, &i](ComponentType type, void* data)
+					EntityManager::UnsafeForEachComponent(_SelectedEntity, [&skip, &i](ComponentType type, void* data)
 						{
 							if (skip) return;
 							std::string info = std::string(type.Name + 7);

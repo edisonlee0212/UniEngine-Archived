@@ -32,7 +32,7 @@ namespace UniEngine {
 		size_t ComponentSize;
 		std::function<void(ComponentBase*)> Function;
 	};
-	class UNIENGINE_API EntityManager : public ManagerBase {
+	class UNIENGINE_API EntityManager final : public ManagerBase {
 		friend class PrivateComponentStorage;
 		friend class SharedComponentStorage;
 		friend class TransformManager;
@@ -119,25 +119,19 @@ namespace UniEngine {
 		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
 		static std::vector<EntityComponentStorage> UnsafeQueryStorage(EntityQuery entityQuery);
 		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
-		static std::vector<Entity>* GetAllEntitiesUnsafe();
-		static std::vector<Entity>* GetParentRootsUnsafe();
+		static std::vector<Entity>* UnsafeGetAllEntities();
+		static std::vector<Entity>* UnsafeGetParentRoots();
+		static void UnsafeForEachComponent(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func);
+		static void UnsafeForEachEntityStorage(const std::function<void(int i, EntityComponentStorage storage)>& func);
 
 		static void SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data);
 		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
 	public:
 		template <typename T>
 		static const std::vector<Entity>* GetPrivateComponentOwnersList();
-		/*
-		template<typename T1 = ComponentBase>
-		static void RegisterComponentDataCreator(const std::function<void(ComponentBase*)>& func);
-		template<typename T1 = ComponentBase>
-		static void RegisterComponentDataDestroyer(const std::function<void(ComponentBase*)>& func);
-		*/
-		static void ForEachComponentUnsafe(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func);
 		static void ForEachSharedComponent(const Entity& entity, const std::function<void(SharedComponentElement data)>& func);
 		static void ForEachPrivateComponent(const Entity& entity, const std::function<void(PrivateComponentElement& data)>& func);
 
-		static void ForEachEntityStorageUnsafe(const std::function<void(int i, EntityComponentStorage storage)>& func);
 		static void GetAllEntities(std::vector<Entity>& target);
 
 		static void SetWorld(World* world);

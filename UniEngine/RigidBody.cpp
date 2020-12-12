@@ -8,11 +8,11 @@
 
 void UniEngine::RigidBody::RegisterCheck()
 {
-	if (_CurrentRegistered == false && GetOwner().Enabled() && IsEnabled()) {
+	if (_CurrentRegistered == false && GetOwner().IsValid() && GetOwner().Enabled() && IsEnabled()) {
 		_CurrentRegistered = true;
 		PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
 	}
-	if(_CurrentRegistered == true && !(GetOwner().Enabled() && IsEnabled()))
+	if(_CurrentRegistered == true && GetOwner().IsValid() && !(GetOwner().Enabled() && IsEnabled()))
 	{
 		_CurrentRegistered = false;
 		PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
