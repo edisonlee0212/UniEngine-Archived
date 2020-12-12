@@ -931,7 +931,6 @@ void EditorManager::LateUpdate()
 			}
 
 		}
-		ImGui::EndTabBar();
 		ImGui::End();
 	}
 #pragma endregion
