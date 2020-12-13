@@ -581,7 +581,12 @@ void EditorManager::LateUpdate()
 		if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted()) {
 			std::string title = std::to_string(_SelectedEntity.Index) + ": ";
 			title += _SelectedEntity.GetName();
-			ImGui::Text(title.c_str());
+			bool enabled = _SelectedEntity.Enabled();
+			ImGui::Checkbox(title.c_str(), &enabled);
+			if(_SelectedEntity.Enabled() != enabled)
+			{
+				_SelectedEntity.SetEnabled(enabled);
+			}
 			bool deleted = DrawEntityMenu(_SelectedEntity.Enabled(), _SelectedEntity);
 			ImGui::Separator();
 			if (!deleted) {

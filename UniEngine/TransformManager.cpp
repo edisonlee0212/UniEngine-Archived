@@ -24,51 +24,8 @@ void UniEngine::TransformManager::LateUpdate()
 				ltw->Value = ltp->Value;
 				CalculateLtwRecursive(ltw, entity);
 			}
-		}
+		}, false
 	);
-	/*
-	if (EntityManager::GetParentHierarchyVersion() == _CurrentStoredHierarchyVersion) {
-		std::vector<std::shared_future<void>> futures;
-		auto list = &_CachedParentHierarchies;
-		auto threadSize = _ThreadPool->Size();
-		size_t capacity = _CachedParentHierarchies.size() / threadSize;
-		size_t reminder = _CachedParentHierarchies.size() % threadSize;
-		for (size_t i = 0; i < threadSize; i++) {
-			futures.push_back(_ThreadPool->Push([&list, i, capacity](int id)
-				{
-					for (size_t j = 0; j < capacity; j++) {
-						size_t index = capacity * i + j;
-						const auto& info = list->at(index);
-						auto pltw = EntityManager::GetComponentData<GlobalTransform>(info.first);
-						auto ltp = EntityManager::GetComponentData<Transform>(info.second.Child);
-
-						GlobalTransform ltw;
-						ltw.Value = pltw.Value * ltp.Value;
-						EntityManager::SetComponentData<GlobalTransform>(info.second.Child, ltw);
-					}
-				}
-			).share());
-		}
-		for (size_t i = 0; i < reminder; i++) {
-			size_t index = capacity * threadSize + i;
-			const auto& info = list->at(index);
-			auto pltw = EntityManager::GetComponentData<GlobalTransform>(info.first);
-			auto ltp = EntityManager::GetComponentData<Transform>(info.second.Child);
-			GlobalTransform ltw;
-			ltw.Value = pltw.Value * ltp.Value;
-			EntityManager::SetComponentData<GlobalTransform>(info.second.Child, ltw);
-		}
-		for (const auto& i : futures) i.wait();
-	}
-	else {
-		_CachedParentHierarchies.clear();
-		EntityManager::ForAllRootParent([](int i, Entity rootParent) {
-			CollectHierarchy(&_CachedParentHierarchies, rootParent);
-			}
-		);
-		_CurrentStoredHierarchyVersion = EntityManager::GetParentHierarchyVersion();
-	}
-	*/
 	if (!Application::IsPlaying())
 	{
 		PhysicsSimulationManager::UploadTransforms();
@@ -79,7 +36,7 @@ void UniEngine::TransformManager::CalculateLtwRecursive(GlobalTransform* pltw, E
 {
 	/*
 	Here we have 2 ways to deal with children, you can use lambda function or you can get children
-	and maniputale them directly. The method I'm using here, which is the second one,
+	and manipulate them directly. The method I'm using here, which is the second one,
 	is faster and I don't know why...
 	*/
 	for (const auto& i : EntityManager::GetChildren(entity)) {
