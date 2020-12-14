@@ -13,65 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Resource">
-      <UniqueIdentifier>{dbca06b1-d1f9-4e4f-8783-811867853664}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\Asset">
-      <UniqueIdentifier>{4f8380f0-a61e-404d-bf0d-fbe6f52c6184}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\Manager">
-      <UniqueIdentifier>{5f364dd2-ef88-4cb5-b742-359d46d2ccc7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource">
-      <UniqueIdentifier>{1c8b910f-251b-446e-a0f5-22ae0ff94f9b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\Asset">
-      <UniqueIdentifier>{044ca4de-41cf-4918-9b9c-9db261496f37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\Manager">
-      <UniqueIdentifier>{a5deae8c-3e4f-4595-822d-d86fd9a44f03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\SharedComponent">
-      <UniqueIdentifier>{38693c77-a117-47b3-ade0-8f4fa54bf0bd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\SharedComponent">
-      <UniqueIdentifier>{a71b4075-ed8f-43ee-986e-edf3c93ebd04}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Systems">
-      <UniqueIdentifier>{a3c20565-e827-416b-99b7-90bc09c95a9f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Systems">
-      <UniqueIdentifier>{5e7affdb-525a-4e62-976e-d931b9c44bc7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\External">
       <UniqueIdentifier>{600b98ef-cb4a-42bc-b4f9-6c2032d3df22}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\External">
       <UniqueIdentifier>{10d94e26-7228-417a-a4f0-1e081e421a3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\Rendering">
-      <UniqueIdentifier>{a84dcb55-783b-484d-9b67-316f019967c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Core">
-      <UniqueIdentifier>{5be41011-6f73-4911-aecf-b568f710bb76}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Core">
-      <UniqueIdentifier>{de175eab-21b9-4063-a163-e1d8fc6e62ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\Rendering">
-      <UniqueIdentifier>{7ab163c2-3e06-42f1-bac1-c119e0b1d8e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\ComponentData">
-      <UniqueIdentifier>{98d9d20f-ef8f-48b9-8036-be6a5c011733}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Resource\PrivateComponent">
-      <UniqueIdentifier>{75e2d44d-ea1e-45bf-a86a-604102388020}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\ComponentData">
-      <UniqueIdentifier>{3d72652e-0113-4c97-aa32-c390abf10261}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Resource\PrivateComponent">
-      <UniqueIdentifier>{b6c738f3-3353-4c5d-8037-78f5cecdc252}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\External\ImGuizmo">
       <UniqueIdentifier>{5e05cee3-962e-488b-a424-270fb70daaeb}</UniqueIdentifier>
@@ -81,51 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UniEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files\Resource\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Cubemap.h">
-      <Filter>Header Files\Resource\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectionalLightShadowMap.h">
-      <Filter>Header Files\Resource\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Header Files\Resource\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Resource\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="PointLightShadowMap.h">
-      <Filter>Header Files\Resource\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderTarget.h">
-      <Filter>Header Files\Resource\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2D.h">
-      <Filter>Header Files\Resource\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Default.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UniEngineAPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraControlSystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
     <ClInclude Include="..\Submodules\ImGui\imgui.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
@@ -144,75 +45,6 @@
     <ClInclude Include="..\Submodules\ImGui\imconfig.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="Ray.h">
-      <Filter>Header Files\Resource\ComponentData</Filter>
-    </ClInclude>
-    <ClInclude Include="Memory.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPool.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="FileIO.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GLBuffer.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GLCore.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GLFrameBuffer.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GLObject.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GLProgram.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GLRenderBuffer.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GLShader.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GLTexture.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="ManagerBase.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SharedComponentStorage.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemBase.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="World.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldTime.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="InputManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
     <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_glfw.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
@@ -222,113 +54,185 @@
     <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_win32.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="AssetManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsSimulationManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="EntityManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="PrivateComponentStorage.h">
+    <ClInclude Include="include\AssetManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CameraComponent.h">
-      <Filter>Header Files\Resource\PrivateComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="EditorManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshRenderer.h">
-      <Filter>Header Files\Resource\PrivateComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="Transforms.h">
-      <Filter>Header Files\Resource\ComponentData</Filter>
-    </ClInclude>
-    <ClInclude Include="RigidBody.h">
-      <Filter>Header Files\Resource\PrivateComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectionalLight.h">
-      <Filter>Header Files\Resource\ComponentData</Filter>
-    </ClInclude>
-    <ClInclude Include="PointLight.h">
-      <Filter>Header Files\Resource\ComponentData</Filter>
-    </ClInclude>
-    <ClInclude Include="SpotLight.h">
-      <Filter>Header Files\Resource\ComponentData</Filter>
-    </ClInclude>
-    <ClInclude Include="Particles.h">
-      <Filter>Header Files\Resource\PrivateComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformManager.h">
-      <Filter>Header Files\Resource\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="SpotLightShadowMap.h">
+    <ClInclude Include="include\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuizmo\ImZoomSlider.h">
+    <ClInclude Include="include\CameraComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CameraControlSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Cubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Default.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectionalLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DirectionalLightShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EditorManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EntityManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FileIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLFrameBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLProgram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLRenderBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ManagerBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mathemetics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MeshRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Particles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PhysicsSimulationManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PointLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PointLightShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PrivateComponentStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RenderTarget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RigidBody.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SharedComponentStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SpotLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SpotLightShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SystemBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Texture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ThreadPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TransformManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Transforms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UniEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UniEngineAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WindowManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\World.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WorldTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\ImGuizmo\ImCurveEdit.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuizmo\ImCurveEdit.h">
+    <ClInclude Include="..\external\ImGuizmo\ImGradient.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuizmo\ImGradient.h">
+    <ClInclude Include="..\external\ImGuizmo\ImGuizmo.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuizmo\ImGuizmo.h">
+    <ClInclude Include="..\external\ImGuizmo\ImSequencer.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuizmo\ImSequencer.h">
+    <ClInclude Include="..\external\ImGuizmo\ImZoomSlider.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UniEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Cubemap.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectionalLightShadowMap.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="PointLightShadowMap.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTarget.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
-      <Filter>Source Files\Resource\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Default.cpp">
-      <Filter>Source Files\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraControlSystem.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="..\Submodules\ImGui\imgui_widgets.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
@@ -341,66 +245,6 @@
     <ClCompile Include="..\Submodules\ImGui\imgui_draw.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="FileIO.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLBuffer.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLCore.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLFrameBuffer.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLProgram.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLRenderBuffer.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLShader.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GLTexture.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Memory.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\includes\glad\src\glad.c">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ManagerBase.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="SharedComponentStorage.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemBase.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="World.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="WorldTime.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="InputManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
     <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_opengl3.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
@@ -410,58 +254,163 @@
     <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_glfw.cpp">
       <Filter>Source Files\External</Filter>
     </ClCompile>
-    <ClCompile Include="AssetManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsSimulationManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="PrivateComponentStorage.cpp">
+    <ClCompile Include="src\EntityManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CameraComponent.cpp">
-      <Filter>Source Files\Resource\PrivateComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="EditorManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshRenderer.cpp">
-      <Filter>Source Files\Resource\PrivateComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="RigidBody.cpp">
-      <Filter>Source Files\Resource\PrivateComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectionalLight.cpp">
-      <Filter>Source Files\Resource\ComponentData</Filter>
-    </ClCompile>
-    <ClCompile Include="PointLight.cpp">
-      <Filter>Source Files\Resource\ComponentData</Filter>
-    </ClCompile>
-    <ClCompile Include="SpotLight.cpp">
-      <Filter>Source Files\Resource\ComponentData</Filter>
-    </ClCompile>
-    <ClCompile Include="Particles.cpp">
-      <Filter>Source Files\Resource\PrivateComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformManager.cpp">
-      <Filter>Source Files\Resource\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="SpotLightShadowMap.cpp">
+    <ClCompile Include="src\FileIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuizmo\ImCurveEdit.cpp">
+    <ClCompile Include="src\GLBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLFrameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLRenderBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ManagerBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MeshRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Particles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicsSimulationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PointLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PointLightShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PrivateComponentStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RigidBody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SharedComponentStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpotLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpotLightShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SystemBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TransformManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UniEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WindowManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WorldTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AssetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CameraComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CameraControlSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Default.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DirectionalLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DirectionalLightShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EditorManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\glad\src\glad.c">
+      <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\ImGuizmo\ImSequencer.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuizmo\ImGradient.cpp">
+    <ClCompile Include="..\external\ImGuizmo\ImCurveEdit.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuizmo\ImGuizmo.cpp">
+    <ClCompile Include="..\external\ImGuizmo\ImGradient.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuizmo\ImSequencer.cpp">
+    <ClCompile Include="..\external\ImGuizmo\ImGuizmo.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
     </ClCompile>
   </ItemGroup>

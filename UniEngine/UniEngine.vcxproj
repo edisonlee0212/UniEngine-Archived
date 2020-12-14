@@ -46,13 +46,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\includes\glad\include;..\includes\glad\include\KHR;..\includes\glad\include\glad;..\includes\Assimp\include;..\includes\glm\glm;..\Submodules\stb;..\includes\PhysX\include;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>..\external;include;..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
+    <SourcePath>$(VC_SourcePath);src</SourcePath>
+    <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\includes\glad\include;..\includes\glad\include\KHR;..\includes\glad\include\glad;..\includes\Assimp\include;..\includes\glm\glm;..\Submodules\stb;..\includes\PhysX\include;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>..\external;include;..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
+    <SourcePath>$(VC_SourcePath);src</SourcePath>
+    <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -68,11 +72,11 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mtd.lib;..\includes\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\includes\Assimp\contrib\zlib\Debug\zlibstaticd.lib;..\includes\glfw\glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\includes\PhysX\d;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;..\external\Assimp\x64\Debug\assimp-vc142-mtd.lib;..\external\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\external\Assimp\contrib\zlib\Debug\zlibstaticd.lib;..\external\glfw\glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\external\PhysX\d;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"</Command>
+      <Command>xcopy /y /d "..\external\Assimp\x64\Debug\assimp-vc142-mtd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -93,14 +97,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;..\includes\Assimp\$(IntDir)assimp-vc142-mt.lib;..\includes\Assimp\contrib\irrXML\Release\IrrXML.lib;..\includes\Assimp\contrib\zlib\Release\zlibstatic.lib;..\includes\glfw\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\includes\PhysX\r;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;..\external\Assimp\x64\Release\assimp-vc142-mt.lib;..\external\Assimp\contrib\irrXML\Release\IrrXML.lib;..\external\Assimp\contrib\zlib\Release\zlibstatic.lib;..\external\glfw\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\external\PhysX\r;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" </Command>
+      <Command>xcopy /y /d "..\external\Assimp\x64\Release\assimp-vc142-mt.dll" "$(OutDir)" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\external\ImGuizmo\ImCurveEdit.h" />
+    <ClInclude Include="..\external\ImGuizmo\ImGradient.h" />
+    <ClInclude Include="..\external\ImGuizmo\ImGuizmo.h" />
+    <ClInclude Include="..\external\ImGuizmo\ImSequencer.h" />
+    <ClInclude Include="..\external\ImGuizmo\ImZoomSlider.h" />
     <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_win32.h" />
@@ -110,67 +119,79 @@
     <ClInclude Include="..\Submodules\ImGui\imstb_rectpack.h" />
     <ClInclude Include="..\Submodules\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\Submodules\ImGui\imstb_truetype.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="CameraComponent.h" />
-    <ClInclude Include="CameraControlSystem.h" />
-    <ClInclude Include="Core.h" />
-    <ClInclude Include="Cubemap.h" />
-    <ClInclude Include="Debug.h" />
-    <ClInclude Include="Default.h" />
-    <ClInclude Include="DirectionalLight.h" />
-    <ClInclude Include="DirectionalLightShadowMap.h" />
-    <ClInclude Include="Entity.h" />
-    <ClInclude Include="EditorManager.h" />
-    <ClInclude Include="EntityManager.h" />
-    <ClInclude Include="FileIO.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="GLBuffer.h" />
-    <ClInclude Include="GLCore.h" />
-    <ClInclude Include="GLFrameBuffer.h" />
-    <ClInclude Include="GLObject.h" />
-    <ClInclude Include="GLProgram.h" />
-    <ClInclude Include="GLRenderBuffer.h" />
-    <ClInclude Include="GLShader.h" />
-    <ClInclude Include="GLTexture.h" />
-    <ClInclude Include="ImGuizmo\ImCurveEdit.h" />
-    <ClInclude Include="ImGuizmo\ImGradient.h" />
-    <ClInclude Include="ImGuizmo\ImGuizmo.h" />
-    <ClInclude Include="ImGuizmo\ImSequencer.h" />
-    <ClInclude Include="ImGuizmo\ImZoomSlider.h" />
-    <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Particles.h" />
-    <ClInclude Include="ManagerBase.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Memory.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshRenderer.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="PhysicsSimulationManager.h" />
-    <ClInclude Include="PointLight.h" />
-    <ClInclude Include="PrivateComponentStorage.h" />
-    <ClInclude Include="Ray.h" />
-    <ClInclude Include="RigidBody.h" />
-    <ClInclude Include="SharedComponentStorage.h" />
-    <ClInclude Include="SpotLight.h" />
-    <ClInclude Include="SpotLightShadowMap.h" />
-    <ClInclude Include="SystemBase.h" />
-    <ClInclude Include="ThreadPool.h" />
-    <ClInclude Include="Transforms.h" />
-    <ClInclude Include="TransformManager.h" />
-    <ClInclude Include="UniEngineAPI.h" />
-    <ClInclude Include="AssetManager.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="PointLightShadowMap.h" />
-    <ClInclude Include="RenderManager.h" />
-    <ClInclude Include="RenderTarget.h" />
-    <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="UniEngine.h" />
-    <ClInclude Include="WindowManager.h" />
-    <ClInclude Include="World.h" />
-    <ClInclude Include="WorldTime.h" />
+    <ClInclude Include="include\AssetManager.h" />
+    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\CameraComponent.h" />
+    <ClInclude Include="include\CameraControlSystem.h" />
+    <ClInclude Include="include\Core.h" />
+    <ClInclude Include="include\Cubemap.h" />
+    <ClInclude Include="include\Debug.h" />
+    <ClInclude Include="include\Default.h" />
+    <ClInclude Include="include\DirectionalLight.h" />
+    <ClInclude Include="include\DirectionalLightShadowMap.h" />
+    <ClInclude Include="include\EditorManager.h" />
+    <ClInclude Include="include\Entity.h" />
+    <ClInclude Include="include\EntityManager.h" />
+    <ClInclude Include="include\FileIO.h" />
+    <ClInclude Include="include\framework.h" />
+    <ClInclude Include="include\GLBuffer.h" />
+    <ClInclude Include="include\GLCore.h" />
+    <ClInclude Include="include\GLFrameBuffer.h" />
+    <ClInclude Include="include\GLObject.h" />
+    <ClInclude Include="include\GLProgram.h" />
+    <ClInclude Include="include\GLRenderBuffer.h" />
+    <ClInclude Include="include\GLShader.h" />
+    <ClInclude Include="include\GLTexture.h" />
+    <ClInclude Include="include\InputManager.h" />
+    <ClInclude Include="include\ManagerBase.h" />
+    <ClInclude Include="include\Material.h" />
+    <ClInclude Include="include\Mathemetics.h" />
+    <ClInclude Include="include\Memory.h" />
+    <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\MeshRenderer.h" />
+    <ClInclude Include="include\Model.h" />
+    <ClInclude Include="include\Particles.h" />
+    <ClInclude Include="include\pch.h" />
+    <ClInclude Include="include\PhysicsSimulationManager.h" />
+    <ClInclude Include="include\PointLight.h" />
+    <ClInclude Include="include\PointLightShadowMap.h" />
+    <ClInclude Include="include\PrivateComponentStorage.h" />
+    <ClInclude Include="include\Ray.h" />
+    <ClInclude Include="include\RenderManager.h" />
+    <ClInclude Include="include\RenderTarget.h" />
+    <ClInclude Include="include\RigidBody.h" />
+    <ClInclude Include="include\SharedComponentStorage.h" />
+    <ClInclude Include="include\SpotLight.h" />
+    <ClInclude Include="include\SpotLightShadowMap.h" />
+    <ClInclude Include="include\SystemBase.h" />
+    <ClInclude Include="include\Texture2D.h" />
+    <ClInclude Include="include\ThreadPool.h" />
+    <ClInclude Include="include\TransformManager.h" />
+    <ClInclude Include="include\Transforms.h" />
+    <ClInclude Include="include\UniEngine.h" />
+    <ClInclude Include="include\UniEngineAPI.h" />
+    <ClInclude Include="include\WindowManager.h" />
+    <ClInclude Include="include\World.h" />
+    <ClInclude Include="include\WorldTime.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\includes\glad\src\glad.c">
+    <ClCompile Include="..\external\glad\src\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\external\ImGuizmo\ImCurveEdit.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\external\ImGuizmo\ImGradient.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\external\ImGuizmo\ImGuizmo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\external\ImGuizmo\ImSequencer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -218,73 +239,198 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CameraComponent.cpp" />
-    <ClCompile Include="CameraControlSystem.cpp" />
-    <ClCompile Include="Cubemap.cpp" />
-    <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="Default.cpp" />
-    <ClCompile Include="DirectionalLight.cpp" />
-    <ClCompile Include="DirectionalLightShadowMap.cpp" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EditorManager.cpp" />
-    <ClCompile Include="EntityManager.cpp" />
-    <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="GLBuffer.cpp" />
-    <ClCompile Include="GLCore.cpp" />
-    <ClCompile Include="GLFrameBuffer.cpp" />
-    <ClCompile Include="GLProgram.cpp" />
-    <ClCompile Include="GLRenderBuffer.cpp" />
-    <ClCompile Include="GLShader.cpp" />
-    <ClCompile Include="GLTexture.cpp" />
-    <ClCompile Include="ImGuizmo\ImCurveEdit.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    <ClCompile Include="src\AssetManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ImGuizmo\ImGradient.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    <ClCompile Include="src\Camera.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ImGuizmo\ImGuizmo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    <ClCompile Include="src\CameraComponent.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ImGuizmo\ImSequencer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    <ClCompile Include="src\CameraControlSystem.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="Particles.cpp" />
-    <ClCompile Include="ManagerBase.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Memory.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshRenderer.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="PhysicsSimulationManager.cpp" />
-    <ClCompile Include="AssetManager.cpp" />
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="src\Cubemap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Debug.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Default.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\DirectionalLight.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\DirectionalLightShadowMap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\dllmain.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\EditorManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Entity.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\EntityManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\FileIO.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\GLBuffer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\GLCore.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\GLFrameBuffer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\GLProgram.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\GLRenderBuffer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\GLShader.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\GLTexture.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\InputManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\ManagerBase.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Material.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Memory.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\MeshRenderer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Particles.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PointLight.cpp" />
-    <ClCompile Include="PointLightShadowMap.cpp" />
-    <ClCompile Include="PrivateComponentStorage.cpp" />
-    <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="RenderTarget.cpp" />
-    <ClCompile Include="RigidBody.cpp" />
-    <ClCompile Include="SharedComponentStorage.cpp" />
-    <ClCompile Include="SpotLight.cpp" />
-    <ClCompile Include="SpotLightShadowMap.cpp" />
-    <ClCompile Include="stb.cpp" />
-    <ClCompile Include="SystemBase.cpp" />
-    <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="TransformManager.cpp" />
-    <ClCompile Include="UniEngine.cpp" />
-    <ClCompile Include="WindowManager.cpp" />
-    <ClCompile Include="World.cpp" />
-    <ClCompile Include="WorldTime.cpp" />
+    <ClCompile Include="src\PhysicsSimulationManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\PointLight.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\PointLightShadowMap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\PrivateComponentStorage.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\RenderManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\RenderTarget.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\RigidBody.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\SharedComponentStorage.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\SpotLight.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\SpotLightShadowMap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\stb.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\SystemBase.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Texture2D.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\TransformManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\UniEngine.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\WindowManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\World.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\WorldTime.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

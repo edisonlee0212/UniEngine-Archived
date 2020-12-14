@@ -45,13 +45,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\includes\glad\include;..\includes\glad\include\KHR;..\includes\glad\include\glad;..\includes\Assimp\include;..\includes\glm\glm;..\Submodules\stb;..\includes\PhysX\include;..\UniEngine;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
+    <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\includes\glad\include;..\includes\glad\include\KHR;..\includes\glad\include\glad;..\includes\Assimp\include;..\includes\glm\glm;..\Submodules\stb;..\includes\PhysX\include;..\UniEngine;$(IncludePath)</IncludePath>
-    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
+    <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -67,9 +69,9 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "..\UniEngine\$(IntDir)UniEngine.dll" "$(OutDir)"
-xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mtd.dll" "$(OutDir)"
-xcopy /y /d "..\includes\PhysX\d\*.dll" "$(OutDir)" </Command>
+      <Command>xcopy /y /d "..\bin\Debug-x64\UniEngine\UniEngine.dll" "$(OutDir)"
+xcopy /y /d "..\external\Assimp\x64\Debug\assimp-vc142-mtd.dll" "$(OutDir)"
+xcopy /y /d "..\external\PhysX\d\*.dll" "$(OutDir)" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -91,9 +93,9 @@ xcopy /y /d "..\includes\PhysX\d\*.dll" "$(OutDir)" </Command>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "..\UniEngine\$(IntDir)UniEngine.dll" "$(OutDir)"
-xcopy /y /d "..\includes\Assimp\$(IntDir)assimp-vc142-mt.dll" "$(OutDir)" 
-xcopy /y /d "..\includes\PhysX\r\*.dll" "$(OutDir)" </Command>
+      <Command>xcopy /y /d "..\bin\Release-x64\UniEngine\UniEngine.dll" "$(OutDir)"
+xcopy /y /d "..\external\Assimp\x64\Release\assimp-vc142-mt.dll" "$(OutDir)" 
+xcopy /y /d "..\external\PhysX\r\*.dll" "$(OutDir)" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
