@@ -123,6 +123,7 @@
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\CameraComponent.h" />
     <ClInclude Include="include\CameraControlSystem.h" />
+    <ClInclude Include="include\ComponentFactory.h" />
     <ClInclude Include="include\Core.h" />
     <ClInclude Include="include\Cubemap.h" />
     <ClInclude Include="include\Debug.h" />
@@ -160,7 +161,9 @@
     <ClInclude Include="include\RenderManager.h" />
     <ClInclude Include="include\RenderTarget.h" />
     <ClInclude Include="include\RigidBody.h" />
+    <ClInclude Include="include\Serializable.h" />
     <ClInclude Include="include\SharedComponentStorage.h" />
+    <ClInclude Include="include\Singleton.h" />
     <ClInclude Include="include\SpotLight.h" />
     <ClInclude Include="include\SpotLightShadowMap.h" />
     <ClInclude Include="include\SystemBase.h" />
@@ -255,6 +258,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\ComponentFactory.cpp" />
     <ClCompile Include="src\Cubemap.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>

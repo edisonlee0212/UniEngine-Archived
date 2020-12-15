@@ -25,35 +25,17 @@
     <Filter Include="Source Files\External\ImGuizmo">
       <UniqueIdentifier>{f13be80a-fbd4-42db-8edc-3048bb049fab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\External\ImGui">
+      <UniqueIdentifier>{461a17a8-0a25-49fc-bbd7-d533c0bb5bac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\External\ImGui">
+      <UniqueIdentifier>{df2df3fa-6798-4ae3-b757-ecdfff203cba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{6f427b71-faee-41b5-9bfb-33f2dbe40378}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Submodules\ImGui\imgui.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\imgui_internal.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\imstb_rectpack.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\imstb_textedit.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\imstb_truetype.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\imconfig.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_glfw.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_opengl3.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_win32.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
     <ClInclude Include="include\AssetManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,9 +54,6 @@
     <ClInclude Include="include\Cubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Default.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -87,55 +66,16 @@
     <ClInclude Include="include\EditorManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EntityManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\FileIO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\GLBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GLCore.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GLFrameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GLObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GLProgram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GLRenderBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GLShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GLTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\InputManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ManagerBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Mathemetics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Mesh.h">
@@ -186,13 +126,7 @@
     <ClInclude Include="include\SpotLightShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\SystemBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Texture2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ThreadPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\TransformManager.h">
@@ -208,9 +142,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\WindowManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\WorldTime.h">
@@ -231,29 +162,95 @@
     <ClInclude Include="..\external\ImGuizmo\ImZoomSlider.h">
       <Filter>Header Files\External\ImGuizmo</Filter>
     </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\imconfig.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\imgui.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_glfw.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_opengl3.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\backends\imgui_impl_win32.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\imgui_internal.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\imstb_rectpack.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\imstb_textedit.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Submodules\ImGui\imstb_truetype.h">
+      <Filter>Header Files\External\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Debug.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Memory.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FileIO.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLBuffer.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLCore.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLFrameBuffer.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLObject.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLProgram.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLRenderBuffer.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLShader.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLTexture.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ThreadPool.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\World.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EntityManager.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Entity.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SystemBase.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ManagerBase.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Serializable.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ComponentFactory.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Singleton.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Submodules\ImGui\imgui_widgets.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\imgui.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\imgui_demo.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\imgui_draw.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_opengl3.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_win32.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_glfw.cpp">
-      <Filter>Source Files\External</Filter>
-    </ClCompile>
     <ClCompile Include="src\EntityManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -412,6 +409,30 @@
     </ClCompile>
     <ClCompile Include="..\external\ImGuizmo\ImGuizmo.cpp">
       <Filter>Source Files\External\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\imgui.cpp">
+      <Filter>Source Files\External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\imgui_demo.cpp">
+      <Filter>Source Files\External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\imgui_draw.cpp">
+      <Filter>Source Files\External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_glfw.cpp">
+      <Filter>Source Files\External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\backends\imgui_impl_win32.cpp">
+      <Filter>Source Files\External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\imgui_widgets.cpp">
+      <Filter>Source Files\External\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComponentFactory.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

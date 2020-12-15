@@ -18,3 +18,5 @@
 #include "World.h"
 #include "SystemBase.h"
 #include "ManagerBase.h"
+
+#include "Serializable.h"

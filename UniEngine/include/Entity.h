@@ -1,5 +1,6 @@
 #pragma once
 #include "UniEngineAPI.h"
+#include "Serializable.h"
 namespace UniEngine {
 #pragma region EntityManager
 #pragma region Entity
@@ -21,7 +22,7 @@ namespace UniEngine {
 	struct UNIENGINE_API ComponentBase {
 	};
 	
-	class UNIENGINE_API SharedComponentBase {
+	class UNIENGINE_API SharedComponentBase : public SerializableClass {
 		friend class EditorManager;
 		bool _Enabled = false;
 	public:
@@ -105,7 +106,7 @@ namespace UniEngine {
 	};
 #pragma region Storage
 
-	class UNIENGINE_API PrivateComponentBase {
+	class UNIENGINE_API PrivateComponentBase : public SerializableClass {
 		friend class EntityManager;
 		friend class EditorManager;
 		friend class PrivateComponentElement;
