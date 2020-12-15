@@ -2,7 +2,7 @@
 #include "Default.h"
 #include "World.h"
 #include "MeshRenderer.h"
-#include "AssetManager.h"
+#include "FileManager.h"
 #include "RenderManager.h"
 using namespace UniEngine;
 
@@ -175,15 +175,15 @@ void UniEngine::Default::Load(World* world)
 #pragma endregion
 
 #pragma region Textures
-	Textures::MissingTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"));
+	Textures::MissingTexture = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"));
 	Textures::MissingTexture->Name = "Missing";
-	Textures::UV = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"));
+	Textures::UV = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"));
 	Textures::UV->Name = "UV";
-	Textures::StandardTexture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/white.png"));
+	Textures::StandardTexture = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/white.png"));
 	Textures::StandardTexture->Name = "Default";
-	Textures::ObjectIcon = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/object.png"));
+	Textures::ObjectIcon = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/object.png"));
 	Textures::ObjectIcon->Name = "Icon";
-	Textures::Border = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/border.png"));
+	Textures::Border = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/border.png"));
 	Textures::Border->Name = "Border";
 #pragma endregion
 #pragma region Standard Shader
@@ -267,43 +267,43 @@ void UniEngine::Default::Load(World* world)
 
 #pragma region Models & Primitives
 	{
-		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram, false,
+		auto model = FileManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		model->Name = "Quad";
 	}
 	{
-		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram, false,
+		auto model = FileManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		model->Name = "Sphere";
 	}
 	{
-		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram, false,
+		auto model = FileManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		model->Name = "Cube";
 	}
 	{
-		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram, false,
+		auto model = FileManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		model->Name = "Cone";
 	}
 	{
-		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram, false,
+		auto model = FileManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		model->Name = "Cylinder";
 	}
 	{
-		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram, false,
+		auto model = FileManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		model->Name = "Ring";
 	}	
 	{
-		auto model = AssetManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram, false,
+		auto model = FileManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		model->Name = "Monkey";

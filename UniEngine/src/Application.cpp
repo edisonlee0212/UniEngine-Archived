@@ -9,7 +9,7 @@
 #include "TransformManager.h"
 #include "RenderManager.h"
 #include "EditorManager.h"
-#include "AssetManager.h"
+#include "FileManager.h"
 using namespace UniEngine;
 
 bool Application::_Initialized = false;
@@ -166,7 +166,7 @@ bool UniEngine::Application::LateUpdateInternal()
 		_World->LateUpdate();
 	}
 	InputManager::LateUpdate();
-	AssetManager::LateUpdate();
+	FileManager::LateUpdate();
 	WindowManager::LateUpdate();
 	RenderManager::LateUpdate();
 	TransformManager::LateUpdate();
@@ -200,6 +200,7 @@ bool Application::IsInitialized()
 
 void UniEngine::Application::End()
 {
+	_World->Purge();
 	PhysicsSimulationManager::Destroy();
 	EditorManager::Destroy();
 	glfwTerminate();

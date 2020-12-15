@@ -657,6 +657,47 @@ ComponentBase* EntityManager::GetComponentDataPointer(Entity entity, size_t id)
 	}
 }
 
+EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, std::vector<ComponentType>& types)
+{
+	EntityArchetypeInfo* info = new EntityArchetypeInfo();
+	info->Name = name;
+	info->EntityCount = 0;
+	info->ComponentTypes = types;
+	info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
+	info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
+	int duplicateIndex = -1;
+	for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
+		EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
+		if (info->ChunkCapacity != compareInfo->ChunkCapacity) continue;
+		if (info->EntitySize != compareInfo->EntitySize) continue;
+		bool typeCheck = true;
+
+		for (size_t j = 0; j < info->ComponentTypes.size(); j++) {
+			if (!compareInfo->HasType(info->ComponentTypes[j].TypeID)) typeCheck = false;
+		}
+		if (typeCheck) {
+			duplicateIndex = compareInfo->Index;
+			delete info;
+			info = compareInfo;
+			break;
+		}
+	}
+	EntityArchetype retVal;
+	if (duplicateIndex == -1) {
+		retVal.Index = _EntityComponentStorage->size();
+		info->Index = retVal.Index;
+		_EntityComponentStorage->push_back(EntityComponentStorage(info, new ComponentDataChunkArray()));
+	}
+	else {
+		retVal.Index = duplicateIndex;
+	}
+	for (size_t i = 0; i < _EntityQueryInfos->size(); i++) {
+		RefreshEntityQueryInfos(i);
+	}
+	return retVal;
+}
+
+
 void EntityManager::RemovePrivateComponent(const Entity& entity, size_t typeId)
 {
 	if (!entity.IsValid()) return;
@@ -765,6 +806,11 @@ inline void UniEngine::EntityManager::ForAllRootParent(const std::function<void(
 	for (int index = 0; index < _ParentRoots->size(); index++) {
 		func(index, _ParentRoots->at(index));
 	}
+}
+
+std::string EntityManager::GetEntityArchetypeName(const EntityArchetype& entityArchetype)
+{
+	return _CurrentAttachedWorldEntityStorage->EntityComponentStorage[entityArchetype.Index].ArchetypeInfo->Name;
 }
 
 void UniEngine::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container)

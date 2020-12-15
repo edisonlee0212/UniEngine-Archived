@@ -7,7 +7,7 @@
 #include "WindowManager.h"
 
 using namespace UniEngine;
-
+ComponentFactoryRegistrations::ComponentDataRegistration<CameraLayerMask> CameraLayerMaskRegistry(1);
 GLUBO* Camera::CameraUniformBufferBlock;
 CameraInfoBlock Camera::CameraInfoBlock;
 

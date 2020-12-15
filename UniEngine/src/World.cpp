@@ -6,12 +6,22 @@ using namespace UniEngine;
 
 void World::Purge()
 {
-	_WorldEntityStorage = WorldEntityStorage();
+	_WorldEntityStorage.Entities.clear();
+	_WorldEntityStorage.ParentRoots.clear();
+	_WorldEntityStorage.EntityInfos.clear();
+	for(auto& i : _WorldEntityStorage.EntityComponentStorage)
+	{
+		for (auto& chunk : i.ChunkArray->Chunks) free(chunk.Data);
+		i.ChunkArray->Chunks.clear();
+		i.ChunkArray->Entities.clear();
+		i.ArchetypeInfo->EntityAliveCount = 0;
+		i.ArchetypeInfo->EntityCount = 0;
+	}
+	_WorldEntityStorage.EntitySharedComponentStorage = SharedComponentStorage();
+	_WorldEntityStorage.EntityPrivateComponentStorage = PrivateComponentStorage();
+	
 	_WorldEntityStorage.Entities.emplace_back();
 	_WorldEntityStorage.EntityInfos.emplace_back();
-	_WorldEntityStorage.EntityComponentStorage.emplace_back(nullptr, nullptr);
-	_WorldEntityStorage.EntityQueries.emplace_back();
-	_WorldEntityStorage.EntityQueryInfos.emplace_back();
 }
 
 void World::RegisterFixedUpdateFunction(const std::function<void()>& func)

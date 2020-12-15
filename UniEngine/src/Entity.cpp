@@ -40,6 +40,11 @@ inline void Entity::SetName(std::string name) const
 	return EntityManager::SetEntityName(*this, std::move(name));
 }
 
+std::string EntityArchetype::GetName() const
+{
+	return EntityManager::GetEntityArchetypeName(*this);
+}
+
 bool EntityArchetypeInfo::HasType(size_t typeID)
 {
 	for (const auto& type : ComponentTypes)

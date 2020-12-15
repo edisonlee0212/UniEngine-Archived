@@ -98,9 +98,12 @@ namespace UniEngine {
 		static void UnsafeForEachEntityStorage(const std::function<void(int i, EntityComponentStorage storage)>& func);
 
 		static void SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data);
+		friend class SerializationManager;
 		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
-		
+		static EntityArchetype CreateEntityArchetype(const std::string& name, std::vector<ComponentType>& types);
 	public:
+		static EntityArchetype GetEntityArchetype(const Entity& entity);
+		
 		template <typename T>
 		static const std::vector<Entity>* GetPrivateComponentOwnersList();
 		static void ForEachSharedComponent(const Entity& entity, const std::function<void(SharedComponentElement data)>& func);
@@ -146,6 +149,8 @@ namespace UniEngine {
 		template<typename T = ComponentBase>
 		static T GetComponentData(const Entity& entity);
 
+
+		
 		template<typename T = ComponentBase>
 		static bool HasComponentData(const Entity& entity);
 
@@ -179,8 +184,6 @@ namespace UniEngine {
 		template <typename T = SharedComponentBase>
 		static std::vector<std::shared_ptr<T>>* GetSharedComponentDataArray();
 
-		static EntityArchetype GetEntityArchetype(const Entity& entity);
-
 		static EntityQuery CreateEntityQuery();
 		template<typename T = ComponentBase, typename... Ts>
 		static void SetEntityQueryAllFilters(const EntityQuery& entityQuery, T arg, Ts... args);
@@ -209,6 +212,7 @@ namespace UniEngine {
 
 		static void ForAllEntities(const std::function<void(int i, Entity entity)>& func);
 		static void ForAllRootParent(const std::function<void(int i, Entity rootParent)>& func);
+		static std::string GetEntityArchetypeName(const EntityArchetype& entityArchetype);
 	};
 #pragma endregion
 #pragma region Functions

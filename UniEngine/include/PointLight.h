@@ -27,4 +27,7 @@ namespace UniEngine {
 		float specularBrightness = 0.2f;
 		float lightSize = 0.1f;
 	};
+
+	
+	
 }

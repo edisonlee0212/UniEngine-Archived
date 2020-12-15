@@ -21,7 +21,6 @@ namespace UniEngine {
 		CameraLayerMask() { Value = 0; }
 	};
 
-
 	const float YAW = -90.0f;
 	const float PITCH = 0.0f;
 	const float DEFAULTFOV = 90.0f;

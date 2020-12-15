@@ -58,12 +58,12 @@ int main()
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == BACKPACK) {
-		auto backpackModel = AssetManager::LoadModel(
+		auto backpackModel = FileManager::LoadModel(
 			FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes
 		);
 		backpackModel->Name = "Backpack";
-		Entity backpackEntity = AssetManager::ToEntity(archetype, backpackModel);
+		Entity backpackEntity = FileManager::ToEntity(archetype, backpackModel);
 		backpackEntity.SetName("Backpack");
 		transform.SetPosition(glm::vec3(0, 2, 0));
 		transform.SetScale(glm::vec3(1.0f));
@@ -71,10 +71,10 @@ int main()
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
-		auto sponzaModel = AssetManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram, false,
+		auto sponzaModel = FileManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		sponzaModel->Name = "Sponza Scene";
-		Entity sponzaEntity = AssetManager::ToEntity(archetype, sponzaModel);
+		Entity sponzaEntity = FileManager::ToEntity(archetype, sponzaModel);
 		sponzaEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
 		//	 automatically apply to the entire model by the parent hierarchy transform calculation. See TransformManager & ParentSystem
@@ -218,14 +218,14 @@ void InitGround() {
 	auto mat = std::make_shared<Material>();
 	mat->SetProgram(Default::GLPrograms::StandardProgram);
 	
-	auto texture = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"));
+	auto texture = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"));
 	mat->SetTexture(texture, TextureType::DIFFUSE);
 	/*
-	auto textureD = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2.jpg"));
+	auto textureD = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2.jpg"));
 	mat->SetTexture(textureD, TextureType::DIFFUSE);
-	auto textureN = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2_normal.jpg"));
+	auto textureN = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2_normal.jpg"));
 	mat->SetTexture(textureN, TextureType::NORMAL);
-	auto textureH = AssetManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2_disp.jpg"));
+	auto textureH = FileManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2_disp.jpg"));
 	mat->SetTexture(textureH, TextureType::DISPLACEMENT);
 	*/
 	

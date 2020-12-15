@@ -5,12 +5,20 @@ namespace UniEngine {
 #pragma region EntityManager
 #pragma region Entity
 	struct UNIENGINE_API ComponentType final {
-		const char* Name;
+		std::string Name;
 		size_t TypeID;
 		//Size of component
 		size_t Size;
 		//Starting point of the component, this part is not comparable
 		size_t Offset;
+		ComponentType() = default;
+		ComponentType(const std::string& name, size_t id, size_t size)
+		{
+			Name = name;
+			TypeID = id;
+			Size = size;
+			Offset = 0;
+		}
 		bool operator ==(const ComponentType& other) const {
 			return (other.TypeID == TypeID) && (other.Size == Size);
 		}
@@ -142,7 +150,7 @@ namespace UniEngine {
 	template<typename T>
 	ComponentType typeof() {
 		ComponentType type;
-		type.Name = typeid(T).name();
+		type.Name = std::string(typeid(T).name());
 		type.Size = sizeof(T);
 		type.Offset = 0;
 		type.TypeID = typeid(T).hash_code();
@@ -188,6 +196,7 @@ namespace UniEngine {
 		bool IsNull() {
 			return Index == 0;
 		}
+		std::string GetName() const;
 	};
 
 	struct SharedComponentElement

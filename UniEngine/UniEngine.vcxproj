@@ -120,7 +120,7 @@
     <ClInclude Include="..\Submodules\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\Submodules\ImGui\imstb_truetype.h" />
     <ClInclude Include="include\Application.h" />
-    <ClInclude Include="include\AssetManager.h" />
+    <ClInclude Include="include\FileManager.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\CameraComponent.h" />
     <ClInclude Include="include\CameraControlSystem.h" />
@@ -245,7 +245,7 @@
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="src\Application.cpp" />
-    <ClCompile Include="src\AssetManager.cpp">
+    <ClCompile Include="src\FileManager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>

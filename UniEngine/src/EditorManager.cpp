@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "EditorManager.h"
 
-#include "AssetManager.h"
+#include "FileManager.h"
 #include "UniEngine.h"
 #include "Default.h"
 #include "DirectionalLight.h"
@@ -607,7 +607,7 @@ void EditorManager::LateUpdate()
 					EntityManager::UnsafeForEachComponent(_SelectedEntity, [&skip, &i](ComponentType type, void* data)
 						{
 							if (skip) return;
-							std::string info = std::string(type.Name + 7);
+							std::string info = type.Name.substr(7);
 							info += " Size: " + std::to_string(type.Size);
 							ImGui::Text(info.c_str());
 							ImGui::PushID(i);
@@ -798,7 +798,7 @@ void EditorManager::LateUpdate()
 					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
 					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model", Transform(), GlobalTransform());
 					GlobalTransform ltw;
-					AssetManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
+					FileManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
 				}
 				ImGui::EndDragDropTarget();
 			}
