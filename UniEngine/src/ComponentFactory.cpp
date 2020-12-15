@@ -20,16 +20,16 @@ std::shared_ptr<ComponentBase> ComponentFactory::ProduceComponentData(const std:
 	throw 1;
 }
 
-bool ComponentFactory::RegisterSharedComponent(const std::string& id,
-	const std::function<std::shared_ptr<SharedComponentBase>()>& func)
+bool ComponentFactory::RegisterComponent(const std::string& id,
+	const std::function<Serializable* ()>& func)
 {
-	return Get()._SharedComponentGenerators.insert({ id, func }).second;
+	return Get()._ClassComponentGenerators.insert({ id, func }).second;
 }
 
-std::shared_ptr<SharedComponentBase> ComponentFactory::ProduceSharedComponent(const std::string& id)
+Serializable* ComponentFactory::ProduceSharedComponent(const std::string& id)
 {
-	const auto it = Get()._SharedComponentGenerators.find(id);
-	if (it != Get()._SharedComponentGenerators.end())
+	const auto it = Get()._ClassComponentGenerators.find(id);
+	if (it != Get()._ClassComponentGenerators.end())
 	{
 		return it->second();
 	}

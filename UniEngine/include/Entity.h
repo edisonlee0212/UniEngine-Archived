@@ -22,7 +22,7 @@ namespace UniEngine {
 	struct UNIENGINE_API ComponentBase {
 	};
 	
-	class UNIENGINE_API SharedComponentBase : public SerializableClass {
+	class UNIENGINE_API SharedComponentBase : public Serializable {
 		friend class EditorManager;
 		bool _Enabled = false;
 	public:
@@ -106,7 +106,7 @@ namespace UniEngine {
 	};
 #pragma region Storage
 
-	class UNIENGINE_API PrivateComponentBase : public SerializableClass {
+	class UNIENGINE_API PrivateComponentBase : public Serializable {
 		friend class EntityManager;
 		friend class EditorManager;
 		friend class PrivateComponentElement;

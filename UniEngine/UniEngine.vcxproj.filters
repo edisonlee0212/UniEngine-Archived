@@ -250,7 +250,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\JobManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

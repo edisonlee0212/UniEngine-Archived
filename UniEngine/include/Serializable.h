@@ -3,7 +3,7 @@
 
 namespace UniEngine
 {
-	class UNIENGINE_API SerializableClass
+	class UNIENGINE_API Serializable
 	{
 	public:
 		virtual void Serialize(){}
