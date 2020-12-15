@@ -3,7 +3,7 @@
 #include "AssetManager.h"
 #include "MeshRenderer.h"
 #include <stb_image.h>
-
+#include "EntityManager.h"
 #include "Default.h"
 
 using namespace UniEngine;

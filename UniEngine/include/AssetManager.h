@@ -7,9 +7,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
-
 namespace UniEngine {
-    class UNIENGINE_API AssetManager : public ManagerBase
+    class UNIENGINE_API AssetManager : public Singleton<AssetManager>
     {
         static bool _EnableAssetMenu;
         static std::vector<std::shared_ptr<Model>> _Models;

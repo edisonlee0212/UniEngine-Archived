@@ -12,7 +12,7 @@ namespace UniEngine {
 	};
 	
 	class UNIENGINE_API EditorManager :
-		public ManagerBase
+		public Singleton<EditorManager>
 	{
 		static EntityArchetype _BasicEntityArchetype;
 		static bool _Enabled;

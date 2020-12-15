@@ -28,7 +28,7 @@ void UniEngine::PhysicsSimulationManager::Init()
 
 	PxSceneDesc sceneDesc(_Physics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	_Dispatcher = PxDefaultCpuDispatcherCreate(_ThreadPool->Size());
+	_Dispatcher = PxDefaultCpuDispatcherCreate(Application::GetThreadPool().Size());
 	sceneDesc.cpuDispatcher = _Dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	_PhysicsScene = _Physics->createScene(sceneDesc);
@@ -86,11 +86,11 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 	{
 		std::vector<std::shared_future<void>> futures;
 		auto& list = rigidBodyEntities;
-		auto threadSize = _ThreadPool->Size();
+		auto threadSize = Application::GetThreadPool().Size();
 		size_t capacity = rigidBodyEntities->size() / threadSize;
 		size_t reminder = rigidBodyEntities->size() % threadSize;
 		for (size_t i = 0; i < threadSize; i++) {
-			futures.push_back(_ThreadPool->Push([&list, i, capacity](int id)
+			futures.push_back(Application::GetThreadPool().Push([&list, i, capacity](int id)
 				{
 					for (size_t j = 0; j < capacity; j++)
 					{

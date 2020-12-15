@@ -764,22 +764,22 @@ void EditorManager::LateUpdate()
 					glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
 					glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
 					if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow())) {
-						_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+						_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld().Time()->DeltaTime() * _Velocity;
 					}
 					if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow())) {
-						_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+						_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld().Time()->DeltaTime() * _Velocity;
 					}
 					if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow())) {
-						_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+						_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld().Time()->DeltaTime() * _Velocity;
 					}
 					if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow())) {
-						_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetWorld()->Time()->DeltaTime() * _Velocity;
+						_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld().Time()->DeltaTime() * _Velocity;
 					}
 					if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow())) {
-						_SceneCameraPosition.y += _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
+						_SceneCameraPosition.y += _Velocity * (float)Application::GetCurrentWorld().Time()->DeltaTime();
 					}
 					if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, WindowManager::GetWindow())) {
-						_SceneCameraPosition.y -= _Velocity * (float)Application::GetWorld()->Time()->DeltaTime();
+						_SceneCameraPosition.y -= _Velocity * (float)Application::GetCurrentWorld().Time()->DeltaTime();
 					}
 					if (xOffset != 0 || yOffset != 0) {
 						_SceneCameraRotation = _SceneCamera->GetCamera()->ProcessMouseMovement(xOffset, yOffset, _Sensitivity);

@@ -9,7 +9,7 @@ using namespace physx;
 namespace UniEngine {
 
 	class UNIENGINE_API PhysicsSimulationManager :
-		public ManagerBase
+		public Singleton<PhysicsSimulationManager>
 	{
 		friend class RigidBody;
 		static PxDefaultAllocator _Allocator;

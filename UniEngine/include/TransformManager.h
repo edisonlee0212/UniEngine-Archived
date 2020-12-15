@@ -9,7 +9,7 @@ namespace UniEngine {
 		GlobalTransform LastPLTW;
 	};
 	class UNIENGINE_API TransformManager :
-		public ManagerBase
+		public Singleton<TransformManager>
 	{
 		static bool _AddCheck;
 		static size_t _CurrentStoredHierarchyVersion;

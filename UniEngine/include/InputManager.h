@@ -4,7 +4,7 @@
 struct ImGuiWindow;
 
 namespace UniEngine {
-    class UNIENGINE_API InputManager : public ManagerBase
+    class UNIENGINE_API InputManager : public Singleton<InputManager>
     {
         friend class EditorManager;
         friend class Application;

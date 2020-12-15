@@ -119,6 +119,7 @@
     <ClInclude Include="..\Submodules\ImGui\imstb_rectpack.h" />
     <ClInclude Include="..\Submodules\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\Submodules\ImGui\imstb_truetype.h" />
+    <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\AssetManager.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\CameraComponent.h" />
@@ -144,7 +145,7 @@
     <ClInclude Include="include\GLShader.h" />
     <ClInclude Include="include\GLTexture.h" />
     <ClInclude Include="include\InputManager.h" />
-    <ClInclude Include="include\ManagerBase.h" />
+    <ClInclude Include="include\JobManager.h" />
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\Mathemetics.h" />
     <ClInclude Include="include\Memory.h" />
@@ -242,6 +243,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\AssetManager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
@@ -328,10 +330,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\InputManager.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\ManagerBase.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>

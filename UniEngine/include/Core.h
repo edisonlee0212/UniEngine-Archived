@@ -14,9 +14,8 @@
 #include "ThreadPool.h"
 
 #include "Entity.h"
-#include "EntityManager.h"
+
 #include "World.h"
 #include "SystemBase.h"
-#include "ManagerBase.h"
 
-#include "Serializable.h"
+#include "ComponentFactory.h"

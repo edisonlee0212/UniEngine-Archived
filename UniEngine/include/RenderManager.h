@@ -43,7 +43,7 @@ namespace UniEngine {
 		GLuint64 normal = 0;
 	};
 	
-	class UNIENGINE_API RenderManager : public ManagerBase
+	class UNIENGINE_API RenderManager : public Singleton<RenderManager>
 	{
 		static CameraComponent* _MainCameraComponent;
 #pragma region Global Var

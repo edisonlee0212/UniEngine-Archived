@@ -3,7 +3,7 @@
 namespace UniEngine
 {
 	template<typename T>
-	class Singleton
+	class UNIENGINE_API Singleton
 	{
 	protected:
 		Singleton() = default;
@@ -12,7 +12,7 @@ namespace UniEngine
 		Singleton& operator=(Singleton&&) = default;
 		Singleton& operator=(const Singleton&) = default;
 	public:
-		UNIENGINE_API static T& Get()
+		static T& Get()
 		{
 			static T instance;
 			return instance;

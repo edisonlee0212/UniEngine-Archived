@@ -4,7 +4,7 @@
 #include "Texture2D.h"
 
 namespace UniEngine {
-	class UNIENGINE_API WindowManager : public ManagerBase
+	class UNIENGINE_API WindowManager : public Singleton<WindowManager>
 	{
 	public:
 		static void LateUpdate();

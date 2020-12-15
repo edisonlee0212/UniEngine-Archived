@@ -72,6 +72,7 @@ namespace UniEngine {
 		ThreadPool* _ThreadPool;
 		bool _NeedFixedUpdate = false;
 	public:
+		World() = default;
 		void RegisterFixedUpdateFunction(const std::function<void()>& func);
 		ThreadPool* GetThreadPool() const;
 		Bound GetBound() const;
