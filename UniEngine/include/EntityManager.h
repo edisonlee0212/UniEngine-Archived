@@ -1,45 +1,20 @@
 #pragma once
 #include "UniEngineAPI.h"
-#include "Entity.h"
-#include "PrivateComponentStorage.h"
-#include "SharedComponentStorage.h"
+
 #include "Singleton.h"
 #include "Debug.h"
 #include "JobManager.h"
+#include "World.h"
 namespace UniEngine {
-	class World;
 #pragma region EntityManager
-	struct WorldEntityStorage {
-		size_t Index;
-		size_t ParentHierarchyVersion = 0;
-		std::vector<Entity> Entities;
-		std::vector<Entity> ParentRoots;
-		std::vector<EntityInfo> EntityInfos;
-		std::vector<EntityComponentStorage> EntityComponentStorage;
-		SharedComponentStorage EntitySharedComponentStorage;
-		PrivateComponentStorage EntityPrivateComponentStorage;
-		std::vector<EntityQuery> EntityQueries;
-		std::vector<EntityQueryInfo> EntityQueryInfos;
-		std::queue<EntityQuery> EntityQueryPools;
-	};
-	struct ComponentCreateFunction
-	{
-		size_t ComponentSize;
-		std::function<void(ComponentBase*)> Function;
-	};
-	struct ComponentDestroyFunction
-	{
-		size_t ComponentSize;
-		std::function<void(ComponentBase*)> Function;
-	};
 	class UNIENGINE_API EntityManager final : public Singleton<EntityManager> {
 		friend class PrivateComponentStorage;
 		friend class SharedComponentStorage;
 		friend class TransformManager;
 		friend class EditorManager;
+		friend class World;
 #pragma region Data Storage
-		static std::vector<WorldEntityStorage*> _WorldEntityStorage;
-		static WorldEntityStorage* _CurrentActivatedWorldEntityStorage;
+		static WorldEntityStorage* _CurrentAttachedWorldEntityStorage;
 		static std::vector<Entity>* _Entities;
 		static std::vector<Entity>* _ParentRoots;
 		static std::vector<EntityInfo>* _EntityInfos;
@@ -50,8 +25,6 @@ namespace UniEngine {
 		static std::vector<EntityQueryInfo>* _EntityQueryInfos;
 		static std::queue<EntityQuery>* _EntityQueryPools;
 #pragma endregion
-		//static std::map<size_t, ComponentCreateFunction> _ComponentCreationFunctionMap;
-		//static std::map<size_t, ComponentDestroyFunction> _ComponentDestructionFunctionMap;
 		template<typename T = ComponentBase>
 		static bool CheckComponentTypes(T arg);
 		template<typename T = ComponentBase, typename... Ts>
@@ -126,6 +99,7 @@ namespace UniEngine {
 
 		static void SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data);
 		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
+		
 	public:
 		template <typename T>
 		static const std::vector<Entity>* GetPrivateComponentOwnersList();
@@ -133,8 +107,8 @@ namespace UniEngine {
 		static void ForEachPrivateComponent(const Entity& entity, const std::function<void(PrivateComponentElement& data)>& func);
 
 		static void GetAllEntities(std::vector<Entity>& target);
-
-		static void SetWorld(World* world);
+		static void Detach();
+		static void Attach(std::unique_ptr<World>& world);
 		template<typename T = ComponentBase, typename... Ts>
 		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);
 		

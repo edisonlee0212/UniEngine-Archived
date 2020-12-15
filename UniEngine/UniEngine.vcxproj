@@ -46,14 +46,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\external;include;..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\external;include;..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\external\yaml-cpp\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
     <SourcePath>$(VC_SourcePath);src</SourcePath>
     <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\external;include;..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\external;include;..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\external\yaml-cpp\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
     <SourcePath>$(VC_SourcePath);src</SourcePath>
     <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
@@ -72,7 +72,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;..\external\Assimp\x64\Debug\assimp-vc142-mtd.lib;..\external\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\external\Assimp\contrib\zlib\Debug\zlibstaticd.lib;..\external\glfw\glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;..\external\Assimp\x64\Debug\assimp-vc142-mtd.lib;..\external\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\external\Assimp\contrib\zlib\Debug\zlibstaticd.lib;..\external\glfw\glfw3d.lib;..\external\yaml-cpp\Debug\yaml-cppd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\external\PhysX\d;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -97,7 +97,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;..\external\Assimp\x64\Release\assimp-vc142-mt.lib;..\external\Assimp\contrib\irrXML\Release\IrrXML.lib;..\external\Assimp\contrib\zlib\Release\zlibstatic.lib;..\external\glfw\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;..\external\Assimp\x64\Release\assimp-vc142-mt.lib;..\external\Assimp\contrib\irrXML\Release\IrrXML.lib;..\external\Assimp\contrib\zlib\Release\zlibstatic.lib;..\external\glfw\glfw3.lib;..\external\yaml-cpp\Release\yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\external\PhysX\r;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -163,6 +163,7 @@
     <ClInclude Include="include\RenderTarget.h" />
     <ClInclude Include="include\RigidBody.h" />
     <ClInclude Include="include\Serializable.h" />
+    <ClInclude Include="include\SerializationManager.h" />
     <ClInclude Include="include\SharedComponentStorage.h" />
     <ClInclude Include="include\Singleton.h" />
     <ClInclude Include="include\SpotLight.h" />
@@ -390,6 +391,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\SerializationManager.cpp" />
     <ClCompile Include="src\SharedComponentStorage.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>

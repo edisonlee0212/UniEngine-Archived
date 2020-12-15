@@ -2,56 +2,23 @@
 #include "UniEngineAPI.h"
 #include "SystemBase.h"
 #include "WorldTime.h"
+#include "Entity.h"
+#include "PrivateComponentStorage.h"
+#include "SharedComponentStorage.h"
 namespace UniEngine {
 	struct UNIENGINE_API Bound {
 		glm::vec3 Min;
 		glm::vec3 Max;
 		Bound();
-		glm::vec3 Size() const
-		{
-			return (Max - Min) / 2.0f;
-		}
-		glm::vec3 Center() const
-		{
-			return (Max + Min) / 2.0f;
-		}
-		bool InBound(glm::vec3 position) const
-		{
-			glm::vec3 center = (Min + Max) / 2.0f;
-			glm::vec3 size = (Max - Min) / 2.0f;
-			if (glm::abs(position.x - center.x) > size.x) return false;
-			if (glm::abs(position.y - center.y) > size.y) return false;
-			if (glm::abs(position.z - center.z) > size.z) return false;
-			return true;
-		}
-		void ApplyTransform(glm::mat4 transform)
-		{
-			std::vector<glm::vec3> corners;
-			PopulateCorners(corners);
-			Min = glm::vec3(FLT_MAX);
-			Max = glm::vec3(FLT_MIN);
+		glm::vec3 Size() const;
 
-			// Transform all of the corners, and keep track of the greatest and least
-			// values we see on each coordinate axis.
-			for (int i = 0; i < 8; i++) {
-				glm::vec3 transformed = transform * glm::vec4(corners[i], 1.0f);
-				Min = glm::min(Min, transformed);
-				Max = glm::max(Max, transformed);
-			}
-		}
+		glm::vec3 Center() const;
 
-		void PopulateCorners(std::vector<glm::vec3>& corners) const
-		{
-			corners.resize(8);
-			corners[0] = Min;
-			corners[1] = glm::vec3(Min.x, Min.y, Max.z);
-			corners[2] = glm::vec3(Min.x, Max.y, Min.z);
-			corners[3] = glm::vec3(Max.x, Min.y, Min.z);
-			corners[4] = glm::vec3(Min.x, Max.y, Max.z);
-			corners[5] = glm::vec3(Max.x, Min.y, Max.z);
-			corners[6] = glm::vec3(Max.x, Max.y, Min.z);
-			corners[7] = Max;
-		}
+		bool InBound(glm::vec3 position) const;
+
+		void ApplyTransform(glm::mat4 transform);
+
+		void PopulateCorners(std::vector<glm::vec3>& corners) const;
 	};
 
 	enum class UNIENGINE_API SystemGroup {
@@ -59,9 +26,28 @@ namespace UniEngine {
 		SimulationSystemGroup,
 		PresentationSystemGroup
 	};
+
+
+	struct WorldEntityStorage {
+		size_t Index;
+		size_t ParentHierarchyVersion = 0;
+		std::vector<Entity> Entities;
+		std::vector<Entity> ParentRoots;
+		std::vector<EntityInfo> EntityInfos;
+		std::vector<EntityComponentStorage> EntityComponentStorage;
+		SharedComponentStorage EntitySharedComponentStorage;
+		PrivateComponentStorage EntityPrivateComponentStorage;
+		std::vector<EntityQuery> EntityQueries;
+		std::vector<EntityQueryInfo> EntityQueryInfos;
+		std::queue<EntityQuery> EntityQueryPools;
+	};
+	
 	class UNIENGINE_API World
 	{
 		friend class Application;
+		friend class EntityManager;
+		friend class SerializationManager;
+		WorldEntityStorage _WorldEntityStorage;
 		WorldTime* _Time;
 		std::vector<SystemBase*> _PreparationSystems;
 		std::vector<SystemBase*> _SimulationSystems;
@@ -71,9 +57,9 @@ namespace UniEngine {
 		UniEngine::Bound _WorldBound;
 		bool _NeedFixedUpdate = false;
 	public:
+		void Purge();
 		World& operator=(World&&) = delete;
 		World& operator=(const World&) = delete;
-		World() = default;
 		void RegisterFixedUpdateFunction(const std::function<void()>& func);
 		Bound GetBound() const;
 		void SetBound(Bound value);

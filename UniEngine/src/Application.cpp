@@ -69,7 +69,7 @@ void UniEngine::Application::Init(bool fullScreen)
 
 #pragma endregion
 	_World = std::make_unique<World>(0);
-	EntityManager::SetWorld(_World.get());
+	EntityManager::Attach(_World);
 	_World->SetTimeStep(_TimeStep);
 
 	PhysicsSimulationManager::Init();

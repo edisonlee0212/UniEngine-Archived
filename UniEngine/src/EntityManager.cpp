@@ -4,19 +4,16 @@
 #include "UniEngine.h"
 #include "World.h"
 using namespace UniEngine;
-std::vector<WorldEntityStorage*> UniEngine::EntityManager::_WorldEntityStorage;
-WorldEntityStorage* UniEngine::EntityManager::_CurrentActivatedWorldEntityStorage;
-std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos;
-std::vector<Entity>* UniEngine::EntityManager::_Entities;
-std::vector<Entity>* UniEngine::EntityManager::_ParentRoots;
-std::vector<EntityComponentStorage>* UniEngine::EntityManager::_EntityComponentStorage;
-SharedComponentStorage* UniEngine::EntityManager::_EntitySharedComponentStorage;
-PrivateComponentStorage* UniEngine::EntityManager::_EntityPrivateComponentStorage;
-std::vector<EntityQuery>* UniEngine::EntityManager::_EntityQueries;
-std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos;
-std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools;
-//std::map<size_t, ComponentCreateFunction> UniEngine::EntityManager::_ComponentCreationFunctionMap;
-//std::map<size_t, ComponentDestroyFunction> UniEngine::EntityManager::_ComponentDestructionFunctionMap;
+WorldEntityStorage* UniEngine::EntityManager::_CurrentAttachedWorldEntityStorage = nullptr;
+std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos = nullptr;
+std::vector<Entity>* UniEngine::EntityManager::_Entities = nullptr;
+std::vector<Entity>* UniEngine::EntityManager::_ParentRoots = nullptr;
+std::vector<EntityComponentStorage>* UniEngine::EntityManager::_EntityComponentStorage = nullptr;
+SharedComponentStorage* UniEngine::EntityManager::_EntitySharedComponentStorage = nullptr;
+PrivateComponentStorage* UniEngine::EntityManager::_EntityPrivateComponentStorage = nullptr;
+std::vector<EntityQuery>* UniEngine::EntityManager::_EntityQueries = nullptr;
+std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos = nullptr;
+std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools = nullptr;
 #pragma region EntityManager
 
 void UniEngine::EntityManager::UnsafeForEachComponent(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func)
@@ -213,26 +210,30 @@ void UniEngine::EntityManager::GetAllEntities(std::vector<Entity>& target) {
 	target.insert(target.end(), _Entities->begin() + 1, _Entities->end());
 }
 
+void EntityManager::Detach()
+{
+	_CurrentAttachedWorldEntityStorage = nullptr;
+	_Entities = nullptr;
+	_ParentRoots = nullptr;
+	_EntityInfos = nullptr;
+	_EntityComponentStorage = nullptr;
+	_EntitySharedComponentStorage = nullptr;
+	_EntityPrivateComponentStorage = nullptr;
+	_EntityQueries = nullptr;
+	_EntityQueryInfos = nullptr;
+	_EntityQueryPools = nullptr;
+}
+
 std::vector<Entity>* UniEngine::EntityManager::UnsafeGetAllEntities()
 {
 	return _Entities;
 }
 
 
-void UniEngine::EntityManager::SetWorld(World* world)
+void UniEngine::EntityManager::Attach(std::unique_ptr<World>& world)
 {
-	size_t index = world->GetIndex();
-	while (index >= _WorldEntityStorage.size()) {
-		auto storage = new WorldEntityStorage();
-		storage->Entities.emplace_back();
-		storage->EntityInfos.emplace_back();
-		storage->EntityComponentStorage.emplace_back(nullptr, nullptr);
-		storage->EntityQueries.emplace_back();
-		storage->EntityQueryInfos.emplace_back();
-		_WorldEntityStorage.push_back(storage);
-	}
-	WorldEntityStorage* targetStorage = _WorldEntityStorage[index];
-	_CurrentActivatedWorldEntityStorage = targetStorage;
+	WorldEntityStorage* targetStorage = &world->_WorldEntityStorage;
+	_CurrentAttachedWorldEntityStorage = targetStorage;
 	_Entities = &targetStorage->Entities;
 	_ParentRoots = &targetStorage->ParentRoots;
 	_EntityInfos = &targetStorage->EntityInfos;
@@ -340,7 +341,7 @@ void UniEngine::EntityManager::DeleteEntity(const Entity& entity)
 	if (_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
 	DeleteEntityInternal(entity);
 
-	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
+	_CurrentAttachedWorldEntityStorage->ParentHierarchyVersion++;
 }
 
 std::string EntityManager::GetEntityName(const Entity& entity)
@@ -374,7 +375,7 @@ void EntityManager::SetEntityName(const Entity& entity, std::string name)
 void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& parent)
 {
 	if (!entity.IsValid() || !parent.IsValid()) return;
-	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
+	_CurrentAttachedWorldEntityStorage->ParentHierarchyVersion++;
 	size_t childIndex = entity.Index;
 	size_t parentIndex = parent.Index;
 	if (entity != _Entities->at(childIndex)) {
@@ -466,7 +467,7 @@ void UniEngine::EntityManager::RemoveChild(const Entity& entity, const Entity& p
 	if (_EntityInfos->at(childIndex).Parent.Index == 0) {
 		Debug::Error("No child by the parent!");
 	}
-	_CurrentActivatedWorldEntityStorage->ParentHierarchyVersion++;
+	_CurrentAttachedWorldEntityStorage->ParentHierarchyVersion++;
 	_EntityInfos->at(childIndex).Parent = Entity();
 	size_t childrenCount = _EntityInfos->at(parentIndex).Children.size();
 	
@@ -494,7 +495,7 @@ void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>& container)
 
 size_t UniEngine::EntityManager::GetParentHierarchyVersion()
 {
-	return _CurrentActivatedWorldEntityStorage->ParentHierarchyVersion;
+	return _CurrentAttachedWorldEntityStorage->ParentHierarchyVersion;
 }
 
 void EntityManager::RemoveComponentData(const Entity& entity, size_t typeID)
