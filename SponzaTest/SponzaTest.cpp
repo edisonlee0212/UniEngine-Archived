@@ -29,11 +29,11 @@ int main()
 	Application::Init();
 #pragma region Preparations
 	auto& world = Application::GetCurrentWorld();
-	WorldTime* time = world.Time();
+	WorldTime* time = world->Time();
 	bool enableSCTreeSystem = false;
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", GlobalTransform(), Transform());
 	
-	CameraControlSystem* ccs = world.CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
+	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->SetSensitivity(0.1f);
 	ccs->SetVelocity(20.0f);
 	ccs->Enable();

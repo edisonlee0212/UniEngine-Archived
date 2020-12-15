@@ -25,27 +25,27 @@ void CameraControlSystem::LateUpdate()
 				glm::vec3 right = rotation * glm::vec3(1, 0, 0);
 				bool moved = false;
 				if (InputManager::GetKey(GLFW_KEY_W)) {
-					position += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld().Time()->DeltaTime() * _Velocity;
+					position += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_S)) {
-					position -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld().Time()->DeltaTime() * _Velocity;
+					position -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_A)) {
-					position -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld().Time()->DeltaTime() * _Velocity;
+					position -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_D)) {
-					position += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld().Time()->DeltaTime() * _Velocity;
+					position += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT)) {
-					position.y += _Velocity * (float)Application::GetCurrentWorld().Time()->DeltaTime();
+					position.y += _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL)) {
-					position.y -= _Velocity * (float)Application::GetCurrentWorld().Time()->DeltaTime();
+					position.y -= _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
 					moved = true;
 				}
 				if(moved)

@@ -590,7 +590,7 @@ void UniEngine::RenderManager::PreUpdate()
 			cameraEntity.GetPrivateComponent<CameraComponent>()->_Camera->Clear();
 		}
 	}
-	auto worldBound = Application::GetCurrentWorld().GetBound();
+	auto worldBound = Application::GetCurrentWorld()->GetBound();
 	glm::vec3 maxBound = worldBound.Max;
 	glm::vec3 minBound = worldBound.Min;
 	if (_MainCameraComponent != nullptr) {
@@ -1136,7 +1136,7 @@ void UniEngine::RenderManager::PreUpdate()
 			RenderToCameraForward(mainCameraComponent, cameraTransform, minBound, maxBound, true);
 			worldBound.Max = maxBound;
 			worldBound.Min = minBound;
-			Application::GetCurrentWorld().SetBound(worldBound);
+			Application::GetCurrentWorld()->SetBound(worldBound);
 		}
 	}
 #pragma endregion

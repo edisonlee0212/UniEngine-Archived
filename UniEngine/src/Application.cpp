@@ -21,7 +21,7 @@ bool Application::_InnerLooping = false;
 bool Application::_Playing = false;
 float Application::_TimeStep = 0.016f;
 ThreadPool Application::_ThreadPool;
-World UniEngine::Application::_World;
+std::unique_ptr<World> UniEngine::Application::_World;
 std::vector<std::function<void()>> Application::_ExternalPreUpdateFunctions;
 std::vector<std::function<void()>> Application::_ExternalUpdateFunctions;
 std::vector<std::function<void()>> Application::_ExternalLateUpdateFunctions;
@@ -30,7 +30,7 @@ std::vector<std::function<void()>> Application::_ExternalLateUpdateFunctions;
 
 void UniEngine::Application::SetTimeStep(float value) {
 	_TimeStep = value;
-	_World.SetTimeStep(value);
+	_World->SetTimeStep(value);
 }
 
 #pragma endregion
@@ -72,9 +72,9 @@ void UniEngine::Application::Init(bool fullScreen)
 	}
 
 #pragma endregion
-	_World = World(0, &_ThreadPool);
-	EntityManager::SetWorld(&_World);
-	_World.SetTimeStep(_TimeStep);
+	_World = std::make_unique<World>(0, &_ThreadPool);
+	EntityManager::SetWorld(_World.get());
+	_World->SetTimeStep(_TimeStep);
 
 	PhysicsSimulationManager::Init();
 #pragma region ImGUI
@@ -94,7 +94,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460 core");
 #pragma endregion
-	Default::Load(&_World);
+	Default::Load(_World.get());
 	TransformManager::Init();
 	RenderManager::Init();
 	EditorManager::Init();
@@ -114,7 +114,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	mainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
 	EntityManager::SetPrivateComponent<CameraComponent>(mainCameraEntity, std::move(mainCameraComponent));
 #pragma endregion
-	_World.ResetTime();
+	_World->ResetTime();
 
 }
 
@@ -129,11 +129,11 @@ void UniEngine::Application::PreUpdateInternal()
 
 	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
 
-	_World._Time->_DeltaTime = _World._Time->_LastFrameTime - _World._Time->_FrameStartTime;
-	_World.SetFrameStartTime(glfwGetTime());
+	_World->_Time->_DeltaTime = _World->_Time->_LastFrameTime - _World->_Time->_FrameStartTime;
+	_World->SetFrameStartTime(glfwGetTime());
 	if (_Playing) {
-		_World._Time->_FixedDeltaTime += _World._Time->_DeltaTime;
-		_World.PreUpdate();
+		_World->_Time->_FixedDeltaTime += _World->_Time->_DeltaTime;
+		_World->PreUpdate();
 	}
 
 	EditorManager::PreUpdate();
@@ -152,7 +152,7 @@ void UniEngine::Application::UpdateInternal()
 	for (const auto& i : _ExternalUpdateFunctions) i();
 
 	if (_Playing) {
-		_World.Update();
+		_World->Update();
 	}
 	EditorManager::Update();
 	InputManager::Update();
@@ -167,7 +167,7 @@ bool UniEngine::Application::LateUpdateInternal()
 	for (const auto& i : _ExternalLateUpdateFunctions) i();
 
 	if (_Playing) {
-		_World.LateUpdate();
+		_World->LateUpdate();
 	}
 	InputManager::LateUpdate();
 	AssetManager::LateUpdate();
@@ -178,7 +178,7 @@ bool UniEngine::Application::LateUpdateInternal()
 	EditorManager::LateUpdate();
 	//Swap Window's framebuffer
 	WindowManager::Swap();
-	_World._Time->_LastFrameTime = glfwGetTime();
+	_World->_Time->_LastFrameTime = glfwGetTime();
 	return _Initialized;
 }
 
@@ -220,7 +220,7 @@ void UniEngine::Application::Run()
 	_InnerLooping = false;
 }
 
-World& UniEngine::Application::GetCurrentWorld()
+std::unique_ptr<World>& UniEngine::Application::GetCurrentWorld()
 {
 	return _World;
 }
