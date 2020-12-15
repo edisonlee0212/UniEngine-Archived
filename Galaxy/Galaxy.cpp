@@ -13,7 +13,7 @@ int main()
 #pragma region Application Preparations
 	Application::Init();
 	RenderManager::SetAmbientLight(0.1f);
-	auto world = Application::GetCurrentWorld();
+	auto& world = Application::GetCurrentWorld();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 	CameraControlSystem* ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 	ccs->Enable();

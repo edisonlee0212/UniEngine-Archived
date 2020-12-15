@@ -1,8 +1,5 @@
 #include "pch.h"
 #include "Application.h"
-
-
-
 #include "Camera.h"
 #include "CameraComponent.h"
 #include "Default.h"
@@ -13,14 +10,13 @@
 #include "RenderManager.h"
 #include "EditorManager.h"
 #include "AssetManager.h"
-#include "EntityManager.h"
 using namespace UniEngine;
 
 bool Application::_Initialized = false;
 bool Application::_InnerLooping = false;
 bool Application::_Playing = false;
 float Application::_TimeStep = 0.016f;
-ThreadPool Application::_ThreadPool;
+
 std::unique_ptr<World> UniEngine::Application::_World;
 std::vector<std::function<void()>> Application::_ExternalPreUpdateFunctions;
 std::vector<std::function<void()>> Application::_ExternalUpdateFunctions;
@@ -47,7 +43,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	_Initialized = false;
 	WindowManager::Init("UniEngine", fullScreen);
 	InputManager::Init();
-	_ThreadPool.Resize(std::thread::hardware_concurrency());
+	JobManager::Resize(std::thread::hardware_concurrency());
 
 #pragma region OpenGL
 	// glad: load all OpenGL function pointers
@@ -72,7 +68,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	}
 
 #pragma endregion
-	_World = std::make_unique<World>(0, &_ThreadPool);
+	_World = std::make_unique<World>(0);
 	EntityManager::SetWorld(_World.get());
 	_World->SetTimeStep(_TimeStep);
 
@@ -223,11 +219,6 @@ void UniEngine::Application::Run()
 std::unique_ptr<World>& UniEngine::Application::GetCurrentWorld()
 {
 	return _World;
-}
-
-ThreadPool& Application::GetThreadPool()
-{
-	return _ThreadPool;
 }
 
 void Application::RegisterPreUpdateFunction(const std::function<void()>& func)

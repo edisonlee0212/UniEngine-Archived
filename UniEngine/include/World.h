@@ -69,20 +69,18 @@ namespace UniEngine {
 		std::vector<std::function<void()>> _ExternalFixedUpdateFunctions;
 		size_t _Index;
 		UniEngine::Bound _WorldBound;
-		ThreadPool* _ThreadPool;
 		bool _NeedFixedUpdate = false;
 	public:
 		World& operator=(World&&) = delete;
 		World& operator=(const World&) = delete;
 		World() = default;
 		void RegisterFixedUpdateFunction(const std::function<void()>& func);
-		ThreadPool* GetThreadPool() const;
 		Bound GetBound() const;
 		void SetBound(Bound value);
 		void SetFrameStartTime(double time) const;
 		void SetTimeStep(float timeStep) const;
 		size_t GetIndex() const;
-		World(size_t index, ThreadPool* threadPool);
+		World(size_t index);
 		void ResetTime() const;
 		WorldTime* Time() const;
 		template <class T = SystemBase>
@@ -106,7 +104,6 @@ namespace UniEngine {
 		system = new T();
 		system->_World = this;
 		system->_Time = _Time;
-		system->_ThreadPool = _ThreadPool;
 		switch (group)
 		{
 		case UniEngine::SystemGroup::PreparationSystemGroup:

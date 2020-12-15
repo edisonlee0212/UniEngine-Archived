@@ -5,7 +5,7 @@
 #include "SharedComponentStorage.h"
 #include "Singleton.h"
 #include "Debug.h"
-#include "Application.h"
+#include "JobManager.h"
 namespace UniEngine {
 	class World;
 #pragma region EntityManager
@@ -319,7 +319,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -335,7 +335,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -383,7 +383,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -400,7 +400,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -454,7 +454,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -472,7 +472,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -534,7 +534,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -553,7 +553,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -623,7 +623,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -643,7 +643,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
 						{
 							for (int i = 0; i < remainder; i++) {
 								int index = i + chunkAmount * capacity;
@@ -721,7 +721,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -742,7 +742,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -828,7 +828,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -850,7 +850,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -944,7 +944,7 @@ namespace UniEngine {
 			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 				void* data = chunkArray->Chunks[chunkIndex].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
 						{
 							for (size_t i = 0; i < capacity; i++) {
 								size_t index = i + chunkIndex * capacity;
@@ -967,7 +967,7 @@ namespace UniEngine {
 			if (remainder != 0) {
 				void* data = chunkArray->Chunks[chunkAmount].Data;
 				results.push_back(
-					Application::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
+					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
 						{
 							for (size_t i = 0; i < remainder; i++) {
 								size_t index = i + chunkAmount * capacity;
@@ -1741,12 +1741,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList.size();
 		std::vector<std::vector<T1>> collectedDataLists;
-		for (int i = 0; i < Application::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
 			collectedDataLists.push_back(std::vector<T1>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T1>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(Application::GetThreadPool().Push([&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc](int id) {
+			futures.push_back(JobManager::GetThreadPool().Push([&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filterFunc(componentDataList[j * 8 + i])) {
 						collectedDataList->push_back(targetDataList[j * 8 + i]);
@@ -1791,12 +1791,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList1.size();
 		std::vector<std::vector<T1>> collectedDataLists;
-		for (int i = 0; i < Application::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
 			collectedDataLists.push_back(std::vector<T1>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T1>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(Application::GetThreadPool().Push([&targetDataList, &componentDataList1, &componentDataList2, size, collectedDataList, i, filterFunc](int id) {
+			futures.push_back(JobManager::GetThreadPool().Push([&targetDataList, &componentDataList1, &componentDataList2, size, collectedDataList, i, filterFunc](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filterFunc(componentDataList1[j * 8 + i], componentDataList2[j * 8 + i])) {
 						collectedDataList->push_back(targetDataList[j * 8 + i]);
@@ -1838,12 +1838,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList.size();
 		std::vector<std::vector<T2>> collectedDataLists;
-		for (int i = 0; i < Application::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
 			collectedDataLists.push_back(std::vector<T2>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T2>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(Application::GetThreadPool().Push([&targetDataList, &componentDataList, size, filter, collectedDataList, i](int id) {
+			futures.push_back(JobManager::GetThreadPool().Push([&targetDataList, &componentDataList, size, filter, collectedDataList, i](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filter == componentDataList[j * 8 + i]) {
 						collectedDataList->push_back(targetDataList[j * 8 + i]);
@@ -1886,12 +1886,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < Application::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
-			futures.push_back(Application::GetThreadPool().Push([&allEntities, &componentDataList, size, collectedEntityList, i, filterFunc](int id) {
+			futures.push_back(JobManager::GetThreadPool().Push([&allEntities, &componentDataList, size, collectedEntityList, i, filterFunc](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filterFunc(allEntities[j * 8 + i], componentDataList[j * 8 + i])) {
 						collectedEntityList->push_back(allEntities[j * 8 + i]);
@@ -1936,12 +1936,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < Application::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
-			futures.push_back(Application::GetThreadPool().Push([&allEntities, &componentDataList1, &componentDataList2, size, collectedEntityList, i, filterFunc](int id) {
+			futures.push_back(JobManager::GetThreadPool().Push([&allEntities, &componentDataList1, &componentDataList2, size, collectedEntityList, i, filterFunc](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filterFunc(allEntities[j * 8 + i], componentDataList1[j * 8 + i], componentDataList2[j * 8 + i])) {
 						collectedEntityList->push_back(allEntities[j * 8 + i]);
@@ -1983,12 +1983,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < Application::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
-			futures.push_back(Application::GetThreadPool().Push([&allEntities, &componentDataList, size, filter, collectedEntityList, i](int id) {
+			futures.push_back(JobManager::GetThreadPool().Push([&allEntities, &componentDataList, size, filter, collectedEntityList, i](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filter == componentDataList[j * 8 + i]) {
 						collectedEntityList->push_back(allEntities[j * 8 + i]);

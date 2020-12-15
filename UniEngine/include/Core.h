@@ -11,9 +11,9 @@
 #include "GLRenderBuffer.h"
 #include "GLShader.h"
 
-#include "ThreadPool.h"
+#include "JobManager.h"
 
-#include "Entity.h"
+#include "EntityManager.h"
 
 #include "World.h"
 #include "SystemBase.h"

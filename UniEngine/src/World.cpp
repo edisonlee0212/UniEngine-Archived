@@ -9,11 +9,6 @@ void World::RegisterFixedUpdateFunction(const std::function<void()>& func)
 	_ExternalFixedUpdateFunctions.push_back(func);
 }
 
-ThreadPool* World::GetThreadPool() const
-{
-	return _ThreadPool;
-}
-
 Bound UniEngine::World::GetBound() const
 {
 	return _WorldBound;
@@ -46,9 +41,8 @@ size_t UniEngine::World::GetIndex() const
 	return _Index;
 }
 
-UniEngine::World::World(size_t index, ThreadPool* threadPool) {
+UniEngine::World::World(size_t index) {
 	_Index = index;
-	_ThreadPool = threadPool;
 	_Time = new WorldTime();
 }
 

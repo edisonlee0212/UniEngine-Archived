@@ -10,7 +10,7 @@ namespace UniEngine {
 		static float _TimeStep;
 		static bool _InnerLooping;
 		static bool _Playing;
-		static ThreadPool _ThreadPool;
+		
 		static std::vector<std::function<void()>> _ExternalPreUpdateFunctions;
 		static std::vector<std::function<void()>> _ExternalUpdateFunctions;
 		static std::vector<std::function<void()>> _ExternalLateUpdateFunctions;
@@ -29,7 +29,7 @@ namespace UniEngine {
 		static void End();
 		static void Run();
 		static std::unique_ptr<World>& GetCurrentWorld();
-		static ThreadPool& GetThreadPool();
+		
 		static void RegisterPreUpdateFunction(const std::function<void()>& func);
 		static void RegisterUpdateFunction(const std::function<void()>& func);
 		static void RegisterLateUpdateFunction(const std::function<void()>& func);
