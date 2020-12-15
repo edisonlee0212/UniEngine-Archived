@@ -3,9 +3,7 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-#Exclude glfw and Assimp Library
-!external/
-!external/*
+
 
 #Discard VTune results
 VTune Profiler Results/
@@ -355,3 +353,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+#Exclude glfw and Assimp Library
+!/external/
+!/external/*
