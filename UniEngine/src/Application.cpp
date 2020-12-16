@@ -10,6 +10,7 @@
 #include "RenderManager.h"
 #include "EditorManager.h"
 #include "FileManager.h"
+#include "SerializationManager.h"
 using namespace UniEngine;
 
 bool Application::_Initialized = false;
@@ -66,7 +67,7 @@ void UniEngine::Application::Init(bool fullScreen)
 		glDebugMessageCallback(glDebugOutput, nullptr);
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	}
-
+	SerializationManager::Init();
 #pragma endregion
 	_World = std::make_unique<World>(0);
 	EntityManager::Attach(_World);

@@ -265,7 +265,7 @@ void UniEngine::EditorManager::Init()
 			ImGui::DragFloat("Diffuse Brightness", &dl->diffuseBrightness, 0.1f, 0.0f);
 			ImGui::ColorEdit3("Specular", &dl->specular[0]);
 			ImGui::DragFloat("Specular Brightness", &dl->specularBrightness, 0.1f, 0.0f);
-			ImGui::DragFloat("Bias", &dl->depthBias, 0.001f, 0.0f);
+			ImGui::DragFloat("Bias", &dl->bias, 0.001f, 0.0f);
 			ImGui::InputFloat("Normal Offset", &dl->normalOffset, 0.001f, 0.0f);
 			ImGui::DragFloat("Light Size", &dl->lightSize, 0.01f, 0.0f);
 		});

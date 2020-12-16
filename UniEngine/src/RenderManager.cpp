@@ -714,7 +714,7 @@ void UniEngine::RenderManager::PreUpdate()
 						_DirectionalLights[enabledSize].lightSpaceMatrix[split] = lightProjection * lightView;
 						_DirectionalLights[enabledSize].lightFrustumWidth[split] = max;
 						_DirectionalLights[enabledSize].lightFrustumDistance[split] = planeDistance;
-						if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[enabledSize].ReservedParameters = glm::vec4(dlc.lightSize, 0, dlc.depthBias, dlc.normalOffset);
+						if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) _DirectionalLights[enabledSize].ReservedParameters = glm::vec4(dlc.lightSize, 0, dlc.bias, dlc.normalOffset);
 
 					}
 					enabledSize++;

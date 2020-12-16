@@ -28,10 +28,13 @@ namespace Planet {
 		std::vector<Vertex> _SharedVertices;
 		std::vector<unsigned> _SharedTriangles;
 	public:
+		void Deserialize(const YAML::Node& in) override;
+		void Serialize(YAML::Emitter& out) override;
 		PlanetTerrain() = default;
 		std::shared_ptr<Material> SurfaceMaterial;
 		std::vector<std::shared_ptr<TerrainConstructionStageBase>> TerrainConstructionStages;
-		PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial);
+		void Init(PlanetInfo& info);
+		void Init(PlanetInfo& info, std::shared_ptr<Material> surfaceMaterial);
 		void OnGui() override;
 	};
 }

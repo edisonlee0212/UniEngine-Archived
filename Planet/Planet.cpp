@@ -43,8 +43,10 @@ int main()
 	pi.Index = 0;
 	pi.Resolution = 8;
 
-	auto planetTerrain1 = std::make_unique<PlanetTerrain>(pi, pts->GetDefaultSurfaceMaterial());
-	planetTerrain1->TerrainConstructionStages.push_back(std::make_shared<PerlinNoiseStage>());
+	auto planetTerrain1 = std::make_unique<PlanetTerrain>();
+	planetTerrain1->Init(pi);
+	//Serialization not implemented.
+	//planetTerrain1->TerrainConstructionStages.push_back(std::make_shared<PerlinNoiseStage>());
 	auto planet1 = EntityManager::CreateEntity(archetype);
 	planet1.SetPrivateComponent(std::move(planetTerrain1));
 	planet1.SetComponentData(planetTransform);
@@ -54,7 +56,8 @@ int main()
 	pi.LodDistance = 7.0;
 	pi.Radius = 15.0;
 	pi.Index = 1;
-	auto planetTerrain2 = std::make_unique<PlanetTerrain>(pi, pts->GetDefaultSurfaceMaterial());
+	auto planetTerrain2 = std::make_unique<PlanetTerrain>();
+	planetTerrain2->Init(pi);
 	auto planet2 = EntityManager::CreateEntity(archetype);
 	planet2.SetPrivateComponent(std::move(planetTerrain2));
 	planet2.SetComponentData(planetTransform);
@@ -64,7 +67,8 @@ int main()
 	pi.LodDistance = 7.0;
 	pi.Radius = 5.0;
 	pi.Index = 2;
-	auto planetTerrain3 = std::make_unique<PlanetTerrain>(pi, pts->GetDefaultSurfaceMaterial());
+	auto planetTerrain3 = std::make_unique<PlanetTerrain>();
+	planetTerrain3->Init(pi);
 	auto planet3 = EntityManager::CreateEntity(archetype);
 	planet3.SetPrivateComponent(std::move(planetTerrain3));
 	planet3.SetComponentData(planetTransform);

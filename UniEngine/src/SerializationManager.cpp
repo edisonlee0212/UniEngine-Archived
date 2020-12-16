@@ -1,6 +1,287 @@
 #include "pch.h"
 #include "SerializationManager.h"
+
 #include "yaml-cpp/yaml.h"
+
+#include "Camera.h"
+#include "CameraComponent.h"
+#include "DirectionalLight.h"
+#include "Particles.h"
+#include "PointLight.h"
+#include "Ray.h"
+#include "SpotLight.h"
+#include "Transforms.h"
+#include "MeshRenderer.h"
+#include "RigidBody.h"
+using namespace UniEngine;
+
+
+ComponentDataRegistration<Transform> TransformRegistry(1);
+ComponentDataRegistration<GlobalTransform> GlobalTransformRegistry(1);
+ComponentDataRegistration<Ray> RayRegistry(1);
+ComponentDataRegistration<SpotLight> SpotLightRegistry(1);
+ComponentDataRegistration<PointLight> PointLightRegistry(1);
+ComponentDataRegistration<DirectionalLight> DirectionalLightRegistry(1);
+ComponentDataRegistration<CameraLayerMask> CameraLayerMaskRegistry(1);
+
+SerializableRegistration<CameraComponent> CameraComponentRegistry(1);
+SerializableRegistration<Particles> ParticlesRegistry(1);
+SerializableRegistration<MeshRenderer> MeshRendererRegistry(1);
+SerializableRegistration<RigidBody> RigidBodyRegistry(1);
+
+
+
+void UniEngine::SerializationManager::Init()
+{
+	RegisterComponentDataSerializerDeserializer<Transform>(
+		{
+		[](ComponentBase* data)
+		{
+			Transform* out = static_cast<Transform*>(data);
+			glm::mat4 val = out->Value;
+			std::stringstream stream;
+			EXPORT_PARAM(stream, val);
+			return stream.str();
+		},
+		[](const std::string& data, ComponentBase* ptr)
+		{
+			std::stringstream stream;
+			stream << data;
+			Transform* out = static_cast<Transform*>(ptr);
+			char temp;
+			IMPORT_PARAM(stream, out->Value, temp);
+		}
+		}
+	);
+	RegisterComponentDataSerializerDeserializer<GlobalTransform>(
+		{
+		[](ComponentBase* data)
+		{
+			GlobalTransform* out = static_cast<GlobalTransform*>(data);
+			glm::mat4 val = out->Value;
+			std::stringstream stream;
+			EXPORT_PARAM(stream, val);
+			return stream.str();
+		},
+		[](const std::string& data, ComponentBase* ptr)
+		{
+			std::stringstream stream;
+			stream << data;
+			GlobalTransform* out = static_cast<GlobalTransform*>(ptr);
+			char temp;
+			IMPORT_PARAM(stream, out->Value, temp);
+		}
+		}
+	);
+
+	RegisterComponentDataSerializerDeserializer<Ray>(
+		{
+		[](ComponentBase* data)
+		{
+			Ray* out = static_cast<Ray*>(data);
+			std::stringstream stream;
+			EXPORT_PARAM(stream, out->Start);
+			EXPORT_PARAM(stream, out->Direction);
+			EXPORT_PARAM(stream, out->Length);
+			return stream.str();
+		},
+		[](const std::string& data, ComponentBase* ptr)
+		{
+			std::stringstream stream;
+			stream << data;
+			Ray* out = static_cast<Ray*>(ptr);
+			char temp;
+			IMPORT_PARAM(stream, out->Start, temp);
+			IMPORT_PARAM(stream, out->Direction, temp);
+			IMPORT_PARAM(stream, out->Length, temp);
+		}
+		}
+	);
+
+	RegisterComponentDataSerializerDeserializer<SpotLight>(
+		{
+		[](ComponentBase* data)
+		{
+			SpotLight* out = static_cast<SpotLight*>(data);
+			std::stringstream stream;
+			EXPORT_PARAM(stream, out->innerDegrees);
+			EXPORT_PARAM(stream, out->outerDegrees);
+			EXPORT_PARAM(stream, out->constant);
+			EXPORT_PARAM(stream, out->linear);
+			EXPORT_PARAM(stream, out->quadratic);
+			EXPORT_PARAM(stream, out->bias);
+			EXPORT_PARAM(stream, out->farPlane);
+			EXPORT_PARAM(stream, out->diffuse);
+			EXPORT_PARAM(stream, out->diffuseBrightness);
+			EXPORT_PARAM(stream, out->specular);
+			EXPORT_PARAM(stream, out->specularBrightness);
+			EXPORT_PARAM(stream, out->lightSize);
+			return stream.str();
+		},
+		[](const std::string& data, ComponentBase* ptr)
+		{
+			std::stringstream stream;
+			stream << data;
+			SpotLight* out = static_cast<SpotLight*>(ptr);
+			char temp;
+			IMPORT_PARAM(stream, out->innerDegrees, temp);
+			IMPORT_PARAM(stream, out->outerDegrees, temp);
+			IMPORT_PARAM(stream, out->constant, temp);
+			IMPORT_PARAM(stream, out->linear, temp);
+			IMPORT_PARAM(stream, out->quadratic, temp);
+			IMPORT_PARAM(stream, out->bias, temp);
+			IMPORT_PARAM(stream, out->farPlane, temp);
+			IMPORT_PARAM(stream, out->diffuse, temp);
+			IMPORT_PARAM(stream, out->diffuseBrightness, temp);
+			IMPORT_PARAM(stream, out->specular, temp);
+			IMPORT_PARAM(stream, out->specularBrightness, temp);
+			IMPORT_PARAM(stream, out->lightSize, temp);
+		}
+		}
+	);
+	RegisterComponentDataSerializerDeserializer<PointLight>(
+		{
+		[](ComponentBase* data)
+		{
+			PointLight* out = static_cast<PointLight*>(data);
+			std::stringstream stream;
+			EXPORT_PARAM(stream, out->constant);
+			EXPORT_PARAM(stream, out->linear);
+			EXPORT_PARAM(stream, out->quadratic);
+			EXPORT_PARAM(stream, out->bias);
+			EXPORT_PARAM(stream, out->farPlane);
+			EXPORT_PARAM(stream, out->diffuse);
+			EXPORT_PARAM(stream, out->diffuseBrightness);
+			EXPORT_PARAM(stream, out->specular);
+			EXPORT_PARAM(stream, out->specularBrightness);
+			EXPORT_PARAM(stream, out->lightSize);
+			return stream.str();
+		},
+		[](const std::string& data, ComponentBase* ptr)
+		{
+			std::stringstream stream;
+			stream << data;
+			PointLight* out = static_cast<PointLight*>(ptr);
+			char temp;
+			IMPORT_PARAM(stream, out->constant, temp);
+			IMPORT_PARAM(stream, out->linear, temp);
+			IMPORT_PARAM(stream, out->quadratic, temp);
+			IMPORT_PARAM(stream, out->bias, temp);
+			IMPORT_PARAM(stream, out->farPlane, temp);
+			IMPORT_PARAM(stream, out->diffuse, temp);
+			IMPORT_PARAM(stream, out->diffuseBrightness, temp);
+			IMPORT_PARAM(stream, out->specular, temp);
+			IMPORT_PARAM(stream, out->specularBrightness, temp);
+			IMPORT_PARAM(stream, out->lightSize, temp);
+		}
+		}
+	);
+	RegisterComponentDataSerializerDeserializer<DirectionalLight>(
+		{
+		[](ComponentBase* data)
+		{
+			DirectionalLight* out = static_cast<DirectionalLight*>(data);
+			std::stringstream stream;
+			EXPORT_PARAM(stream, out->bias);
+			EXPORT_PARAM(stream, out->normalOffset);
+			EXPORT_PARAM(stream, out->diffuse);
+			EXPORT_PARAM(stream, out->diffuseBrightness);
+			EXPORT_PARAM(stream, out->specular);
+			EXPORT_PARAM(stream, out->specularBrightness);
+			EXPORT_PARAM(stream, out->lightSize);
+			return stream.str();
+		},
+		[](const std::string& data, ComponentBase* ptr)
+		{
+			std::stringstream stream;
+			stream << data;
+			DirectionalLight* out = static_cast<DirectionalLight*>(ptr);
+			char temp;
+			IMPORT_PARAM(stream, out->bias, temp);
+			IMPORT_PARAM(stream, out->normalOffset, temp);
+			IMPORT_PARAM(stream, out->diffuse, temp);
+			IMPORT_PARAM(stream, out->diffuseBrightness, temp);
+			IMPORT_PARAM(stream, out->specular, temp);
+			IMPORT_PARAM(stream, out->specularBrightness, temp);
+			IMPORT_PARAM(stream, out->lightSize, temp);
+		}
+		}
+	);
+	RegisterComponentDataSerializerDeserializer<CameraLayerMask>(
+		{
+		[](ComponentBase* data)
+		{
+			CameraLayerMask* out = static_cast<CameraLayerMask*>(data);
+			std::stringstream stream;
+			EXPORT_PARAM(stream, out->Value);
+			return stream.str();
+		},
+		[](const std::string& data, ComponentBase* ptr)
+		{
+			std::stringstream stream;
+			stream << data;
+			CameraLayerMask* out = static_cast<CameraLayerMask*>(ptr);
+			char temp;
+			IMPORT_PARAM(stream, out->Value, temp);
+		}
+		}
+	);
+}
+
+
+
+std::ostream& UniEngine::operator<<(std::ostream& out, const glm::vec2& v)
+{
+	out << "[" << v.x << ',' << v.y << ']';
+	return out;
+}
+
+std::ostream& UniEngine::operator<<(std::ostream& out, const glm::vec3& v)
+{
+	out << "[" << v.x << ',' << v.y << ',' << v.z << ']';
+	return out;
+}
+
+std::ostream& UniEngine::operator<<(std::ostream& out, const glm::vec4& v)
+{
+	out << "[" << v.x << ',' << v.y << ',' << v.z << ',' << v.w << ']';
+	return out;
+}
+
+std::ostream& UniEngine::operator<<(std::ostream& out, const glm::mat4& v)
+{
+	out << "[" << v[0] << ',' << v[1] << ',' << v[2] << ',' << v[3] << ']';
+	return out;
+}
+
+std::istream& UniEngine::operator>>(std::istream& in, glm::vec2& v)
+{
+	char temp;
+	in >> temp >> v.x >> temp >> v.y >> temp;
+	return in;
+}
+
+std::istream& UniEngine::operator>>(std::istream& in, glm::vec3& v)
+{
+	char temp;
+	in >> temp >> v.x >> temp >> v.y >> temp >> v.z >> temp;
+	return in;
+}
+
+std::istream& UniEngine::operator>>(std::istream& in, glm::vec4& v)
+{
+	char temp;
+	in >> temp >> v.x >> temp >> v.y >> temp >> v.z >> temp >> v.w >> temp;
+	return in;
+}
+
+std::istream& UniEngine::operator>>(std::istream& in, glm::mat4& v)
+{
+	char temp;
+	in >> temp >> v[0] >> temp >> v[1] >> temp >> v[2] >> temp >> v[3] >> temp;
+	return in;
+}
+
 
 void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& world, YAML::Emitter& out, const Entity& entity)
 {
@@ -236,3 +517,4 @@ bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World>& world,
 	}
 	return true;
 }
+

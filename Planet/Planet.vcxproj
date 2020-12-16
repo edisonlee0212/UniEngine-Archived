@@ -45,13 +45,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;..\external\yaml-cpp\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
     <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;..\external\yaml-cpp\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
     <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>
@@ -66,7 +66,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\external\PhysX\d\PhysX_64.lib;..\external\PhysX\d\LowLevel_static_64.lib;..\external\PhysX\d\LowLevelAABB_static_64.lib;..\external\PhysX\d\LowLevelDynamics_static_64.lib;..\external\PhysX\d\PhysXCharacterKinematic_static_64.lib;..\external\PhysX\d\PhysXCommon_64.lib;..\external\PhysX\d\PhysXCooking_64.lib;..\external\PhysX\d\PhysXExtensions_static_64.lib;..\external\PhysX\d\PhysXFoundation_64.lib;..\external\PhysX\d\PhysXPvdSDK_static_64.lib;..\external\PhysX\d\PhysXTask_static_64.lib;..\external\PhysX\d\PhysXVehicle_static_64.lib;..\external\Assimp\x64\Debug\assimp-vc142-mtd.lib;..\external\Assimp\contrib\irrXML\Debug\IrrXMLd.lib;..\external\Assimp\contrib\zlib\Debug\zlibstaticd.lib;..\external\glfw\glfw3d.lib;..\external\yaml-cpp\Debug\yaml-cppd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "..\bin\Debug-x64\UniEngine\UniEngine.dll" "$(OutDir)"
@@ -89,7 +89,7 @@ xcopy /y /d "..\external\PhysX\d\*.dll" "$(OutDir)" </Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\external\PhysX\rPhysX_64.lib;..\external\PhysX\rLowLevel_static_64.lib;..\external\PhysX\rLowLevelAABB_static_64.lib;..\external\PhysX\rLowLevelDynamics_static_64.lib;..\external\PhysX\rPhysXCharacterKinematic_static_64.lib;..\external\PhysX\rPhysXCommon_64.lib;..\external\PhysX\rPhysXCooking_64.lib;..\external\PhysX\rPhysXExtensions_static_64.lib;..\external\PhysX\rPhysXFoundation_64.lib;..\external\PhysX\rPhysXPvdSDK_static_64.lib;..\external\PhysX\rPhysXTask_static_64.lib;..\external\PhysX\rPhysXVehicle_static_64.lib;..\external\Assimp\x64\Release\assimp-vc142-mt.lib;..\external\Assimp\contrib\irrXML\Release\IrrXML.lib;..\external\Assimp\contrib\zlib\Release\zlibstatic.lib;..\external\glfw\glfw3.lib;..\external\yaml-cpp\Release\yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "..\bin\Release-x64\UniEngine\UniEngine.dll" "$(OutDir)"

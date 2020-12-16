@@ -1,10 +1,40 @@
 #include "PlanetTerrain.h"
-
-Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial)
+#include "yaml-cpp/yaml.h"
+#include "PlanetTerrainSystem.h"
+void Planet::PlanetTerrain::Serialize(YAML::Emitter& out)
 {
-	SetEnabled(true);
+	out << YAML::Key << "PlanetInfo";
+	out << YAML::BeginMap;
+	out << YAML::Key << "MaxLodLevel" << YAML::Value << _Info.MaxLodLevel;
+	out << YAML::Key << "LodDistance" << YAML::Value << _Info.LodDistance;
+	out << YAML::Key << "Radius" << YAML::Value << _Info.Radius;
+	out << YAML::Key << "Index" << YAML::Value << _Info.Index;
+	out << YAML::Key << "Resolution" << YAML::Value << _Info.Resolution;
+	out << YAML::EndMap;
+	
+}
+
+void Planet::PlanetTerrain::Deserialize(const YAML::Node& out)
+{
+	auto info = out["PlanetInfo"];
+	PlanetInfo planetInfo;
+	planetInfo.MaxLodLevel = info["MaxLodLevel"].as<unsigned>();
+	planetInfo.LodDistance = info["LodDistance"].as<double>();
+	planetInfo.Radius = info["Radius"].as<double>();
+	planetInfo.Index = info["Index"].as<unsigned>();
+	planetInfo.Resolution = info["Resolution"].as<unsigned>();
+	Init(planetInfo);
+}
+
+void Planet::PlanetTerrain::Init(PlanetInfo& info)
+{
+	Init(info, PlanetTerrainSystem::_DefaultSurfaceMaterial);
+}
+
+void Planet::PlanetTerrain::Init(PlanetInfo& info, std::shared_ptr<Material> surfaceMaterial)
+{
 	_Info = info;
-	SurfaceMaterial = surfaceMaterial;
+	SurfaceMaterial = std::move(surfaceMaterial);
 	_SharedVertices = std::vector<Vertex>();
 	size_t resolution = info.Resolution;
 	_SharedVertices.resize(resolution * resolution);
@@ -39,15 +69,16 @@ Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> 
 	_Chunks.push_back(std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, -1)));
 
 	std::mutex m;
-	for(auto& chunk : _Chunks)
+	for (auto& chunk : _Chunks)
 	{
 		chunk->GenerateTerrain(m, chunk);
 		chunk->Active = true;
 	}
+	SetEnabled(true);
 }
 
 void Planet::PlanetTerrain::OnGui()
 {
-	if(SurfaceMaterial) SurfaceMaterial->OnGui();
+	if (SurfaceMaterial) SurfaceMaterial->OnGui();
 }
 

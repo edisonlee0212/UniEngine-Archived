@@ -6,6 +6,7 @@ namespace Planet{
 	class PlanetTerrainSystem :
 		public SystemBase
 	{
+		friend class PlanetTerrain;
 		static std::shared_ptr<Material> _DefaultSurfaceMaterial;
 	public:
 		void OnCreate() override;

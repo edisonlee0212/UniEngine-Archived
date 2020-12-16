@@ -14,49 +14,20 @@ void UniEngine::TransformManager::Init()
 	EntityManager::SetEntityQueryAllFilters(_TransformQuery, Transform(), GlobalTransform());
 	_CachedParentHierarchies = std::vector<std::pair<Entity, ChildInfo>>();
 
-	SerializationManager::RegisterComponentDataSerializerDeserializer<Transform>(
-		{
-		[](ComponentBase* data)
-		{
-			Transform* out = static_cast<Transform*>(data);
-			glm::mat4 val = out->Value;
-			std::stringstream stream;
-			stream << val[0].x << ',' << val[0].y << ',' << val[0].z << ',' << val[0].w << '-';
-			stream << val[1].x << ',' << val[1].y << ',' << val[1].z << ',' << val[1].w << '-';
-			stream << val[2].x << ',' << val[2].y << ',' << val[2].z << ',' << val[2].w << '-';
-			stream << val[3].x << ',' << val[3].y << ',' << val[3].z << ',' << val[3].w;
-			return stream.str();
-		},
-		[](const std::string& data, ComponentBase* ptr)
-		{
-			std::stringstream stream;
-			stream << data;
-			Transform* out = static_cast<Transform*>(ptr);
-			glm::mat4 val;
-			char temp;
-			for (int i = 0; i < 4; i++) {
-				for(int j = 0; j < 4; j++)
-				{
-					stream >> val[i][j] >> temp;
-				}
-			}
-			out->Value = val;
-			Debug::Log("Finished");
-		}
-	});
+	
 }
 
 void UniEngine::TransformManager::LateUpdate()
 {
 	EntityManager::ForEach<Transform, GlobalTransform>(_TransformQuery, [](int i, Entity entity, Transform* ltp, GlobalTransform* ltw)
 		{
-			if(EntityManager::GetParent(entity).IsNull())
+			if (EntityManager::GetParent(entity).IsNull())
 			{
 				ltw->Value = ltp->Value;
 				CalculateLtwRecursive(ltw, entity);
 			}
 		}, false
-	);
+		);
 	if (!Application::IsPlaying())
 	{
 		PhysicsSimulationManager::UploadTransforms();
