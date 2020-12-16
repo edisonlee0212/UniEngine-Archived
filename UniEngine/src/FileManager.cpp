@@ -447,7 +447,7 @@ void FileManager::LateUpdate()
 			{
 				if(ImGui::Button("World"))
 				{
-					auto result = FileIO::OpenFile("WorldSave (*.uew)\0*.uew\0");
+					auto result = FileIO::OpenFile("WorldSave (*.uniengineworld)\0*.uniengineworld\0");
 					if(result.has_value())
 					{
 						const std::string path = result.value();
@@ -464,7 +464,7 @@ void FileManager::LateUpdate()
 			{
 				if (ImGui::Button("World"))
 				{
-					auto result = FileIO::SaveFile("WorldSave (*.uew)\0*.uew\0");
+					auto result = FileIO::SaveFile("WorldSave (*.uniengineworld)\0*.uniengineworld\0");
 					if (result.has_value())
 					{
 						const std::string path = result.value();
