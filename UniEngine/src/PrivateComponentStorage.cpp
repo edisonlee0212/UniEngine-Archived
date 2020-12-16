@@ -45,3 +45,24 @@ void UniEngine::PrivateComponentStorage::DeleteEntity(Entity entity)
 		RemovePrivateComponent(entity, id);
 	}
 }
+
+void UniEngine::PrivateComponentStorage::SetPrivateComponent(Entity entity, size_t id)
+{
+	auto search = _POwnersCollectionsMap.find(id);
+	if (search != _POwnersCollectionsMap.end())
+	{
+		auto insearch = _POwnersCollectionsList[search->second].second->_OwnersMap.find(entity);
+		if (insearch == _POwnersCollectionsList[search->second].second->_OwnersMap.end()) {
+			_POwnersCollectionsList[search->second].second->_OwnersMap.insert({ entity, _POwnersCollectionsList[search->second].second->_OwnersList.size() });
+			_POwnersCollectionsList[search->second].second->_OwnersList.push_back(entity);
+		}
+	}
+	else
+	{
+		std::unique_ptr<POwnersCollection> collection = std::make_unique<POwnersCollection>();
+		collection->_OwnersMap.insert({ entity, 0 });
+		collection->_OwnersList.push_back(entity);
+		_POwnersCollectionsMap.insert({ id, _POwnersCollectionsList.size() });
+		_POwnersCollectionsList.push_back(std::make_pair(id, std::move(collection)));
+	}
+}

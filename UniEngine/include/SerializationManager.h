@@ -12,7 +12,7 @@ namespace UniEngine
 	{
 		std::unordered_map<size_t, std::function<std::string(ComponentBase*)>> _ComponentDataSerializers;
 		static void SerializeEntity(std::unique_ptr<World>& world, YAML::Emitter& out, const Entity& entity);
-		static Entity DeserializeEntity(std::unique_ptr<World>& world, const YAML::Node& node);
+		static Entity DeserializeEntity(std::unique_ptr<World>& world, const YAML::Node& node, std::map<std::string, std::map<size_t, std::vector<Entity>>>& sharedComponentEntityMap);
 	public:
 		template <typename T = ComponentBase>
 		static bool RegisterComponentDataSerializer(const std::function<std::string(ComponentBase*)>& func);

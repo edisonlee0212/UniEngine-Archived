@@ -10,6 +10,7 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
+	ComponentFactory::RegisterSerializable<PlanetTerrain>();
 	FileIO::SetResourcePath("../Resources/");
 
 	RenderManager::SetAmbientLight(0.3f);

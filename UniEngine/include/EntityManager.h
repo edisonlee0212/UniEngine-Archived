@@ -101,6 +101,8 @@ namespace UniEngine {
 		friend class SerializationManager;
 		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
 		static EntityArchetype CreateEntityArchetype(const std::string& name, std::vector<ComponentType>& types);
+		static void SetPrivateComponent(const Entity& entity, const std::string& name, size_t id, PrivateComponentBase* ptr);
+		static void SetSharedComponent(const Entity& entity, const std::string& name, size_t id, std::shared_ptr<SharedComponentBase> ptr);
 	public:
 		static EntityArchetype GetEntityArchetype(const Entity& entity);
 		
@@ -1501,7 +1503,7 @@ namespace UniEngine {
 		if (!found)
 		{
 			_EntityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-			_EntityInfos->at(entity.Index).PrivateComponentElements.push_back(PrivateComponentElement(typeid(T).name(), typeid(T).hash_code(), std::move(value), entity));
+			_EntityInfos->at(entity.Index).PrivateComponentElements.push_back(PrivateComponentElement(std::string(typeid(T).name()), typeid(T).hash_code(), std::move(value), entity));
 		}
 		
 	}

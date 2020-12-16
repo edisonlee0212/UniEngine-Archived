@@ -1811,6 +1811,24 @@ void RenderManager::SetMainCamera(CameraComponent* value)
 
 CameraComponent* RenderManager::GetMainCamera()
 {
+	if(_MainCameraComponent == nullptr)
+	{
+		const auto* list = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
+		if (list == nullptr) return nullptr;
+		for (const auto& entity : *list)
+		{
+			if(entity.GetPrivateComponent<CameraComponent>()->_IsMainCamera)
+			{
+				_MainCameraComponent = entity.GetPrivateComponent<CameraComponent>().get();
+				break;
+			}
+		}
+		if(_MainCameraComponent == nullptr && list->size() > 0)
+		{
+			_MainCameraComponent = list->at(0).GetPrivateComponent<CameraComponent>().get();
+			_MainCameraComponent->_IsMainCamera = true;
+		}
+	}
 	return _MainCameraComponent;
 }
 

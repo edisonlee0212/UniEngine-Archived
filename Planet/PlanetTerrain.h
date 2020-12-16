@@ -28,6 +28,7 @@ namespace Planet {
 		std::vector<Vertex> _SharedVertices;
 		std::vector<unsigned> _SharedTriangles;
 	public:
+		PlanetTerrain() = default;
 		std::shared_ptr<Material> SurfaceMaterial;
 		std::vector<std::shared_ptr<TerrainConstructionStageBase>> TerrainConstructionStages;
 		PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial);

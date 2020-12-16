@@ -3,9 +3,6 @@
 #include "UniEngine.h"
 #include "EditorManager.h"
 using namespace UniEngine;
-
-ComponentFactoryRegistrations::ComponentDataRegistration<Transform> TransformRegistry(1);
-ComponentFactoryRegistrations::ComponentDataRegistration<GlobalTransform> GlobalTransformRegistry(1);
 bool TransformManager::_AddCheck;
 size_t TransformManager::_CurrentStoredHierarchyVersion = INT_MAX;
 EntityQuery TransformManager::_TransformQuery;

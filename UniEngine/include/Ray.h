@@ -8,6 +8,7 @@ namespace UniEngine
 		glm::vec3 Start;
 		glm::vec3 Direction;
 		float Length;
+		Ray() = default;
 		Ray(glm::vec3 start, glm::vec3 end);
 		Ray(glm::vec3 start, glm::vec3 direction, float length);
 		bool Intersect(const glm::vec3& position, float radius) const;

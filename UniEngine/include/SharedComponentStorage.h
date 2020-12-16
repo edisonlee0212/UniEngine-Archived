@@ -17,10 +17,11 @@ namespace UniEngine {
 	};
 
 	struct SCCollection {
+		std::string Name;
 		std::unordered_map<std::size_t, Index> _OwnersCollectionsMap;
 		std::vector<std::shared_ptr<SharedComponentBase>> _SCList;
 		std::vector<std::unique_ptr<OwnersCollection>> _OwnersCollectionsList;
-		SCCollection() {
+		SCCollection(const std::string& name) {
 			_OwnersCollectionsMap = std::unordered_map<std::size_t, Index>();
 			_SCList = std::vector<std::shared_ptr<SharedComponentBase>>();
 			_OwnersCollectionsList = std::vector<std::unique_ptr<OwnersCollection>>();
@@ -31,6 +32,7 @@ namespace UniEngine {
 	{
 		std::unordered_map<std::size_t, Index> _SCCollectionsMap;
 		std::vector<std::unique_ptr<SCCollection>> _SCCollectionsList;
+		friend class SerializationManager;
 	public:
 		SharedComponentStorage();
 
@@ -38,6 +40,8 @@ namespace UniEngine {
 
 		template <typename T>
 		std::unique_ptr<SCCollection>* GetSCCollection();
+
+		std::unique_ptr<SCCollection>* GetSCCollection(size_t hashCode);
 
 		template <typename T>
 		std::unordered_map<std::size_t, Index>* GetOwnersCollectionsMap();
@@ -60,10 +64,12 @@ namespace UniEngine {
 		template <typename T>
 		void SetSharedComponent(Entity entity, std::shared_ptr<T>& value);
 
+		void SetSharedComponent(Entity entity, const std::string& name, size_t id, std::shared_ptr<SharedComponentBase>& value);
+
 		template <typename T>
 		bool RemoveSharedComponent(Entity entity);
 
-		
+		bool RemoveSharedComponent(Entity entity, size_t hashCode);
 	};
 
 	template<typename T>
@@ -140,7 +146,7 @@ namespace UniEngine {
 		std::unique_ptr<SCCollection>* scc = GetSCCollection<T>();
 		std::shared_ptr<SharedComponentBase> scp = std::dynamic_pointer_cast<SharedComponentBase>(value);
 		if (scc == nullptr) {
-			std::unique_ptr<SCCollection> nscc = std::make_unique<SCCollection>();
+			std::unique_ptr<SCCollection> nscc = std::make_unique<SCCollection>(std::string(typeid(T).name()));
 			std::unique_ptr<OwnersCollection> noc = std::make_unique<OwnersCollection>();
 			noc.get()->_OwnersMap.insert({ entity, 0 });
 			noc.get()->_OwnersList.push_back(entity);

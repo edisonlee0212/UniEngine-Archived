@@ -29,7 +29,6 @@ namespace UniEngine {
 
 
 	struct WorldEntityStorage {
-		size_t Index;
 		size_t ParentHierarchyVersion = 0;
 		std::vector<Entity> Entities;
 		std::vector<Entity> ParentRoots;

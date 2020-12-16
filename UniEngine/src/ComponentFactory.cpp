@@ -3,7 +3,7 @@
 #include "Debug.h"
 using namespace UniEngine;
 
-bool ComponentFactory::RegisterComponentData(const std::string& id,
+bool ComponentFactory::Register(const std::string& id,
 	const std::function<std::shared_ptr<ComponentBase>(size_t&, size_t&)>& func)
 {
 	return Get()._ComponentDataGenerators.insert({ id, func }).second;
@@ -21,18 +21,18 @@ std::shared_ptr<ComponentBase> ComponentFactory::ProduceComponentData(const std:
 	throw 1;
 }
 
-bool ComponentFactory::RegisterComponent(const std::string& id,
-	const std::function<Serializable* ()>& func)
+bool ComponentFactory::Register(const std::string& id,
+	const std::function<Serializable* (size_t&)>& func)
 {
 	return Get()._ClassComponentGenerators.insert({ id, func }).second;
 }
 
-Serializable* ComponentFactory::ProduceSharedComponent(const std::string& id)
+Serializable* ComponentFactory::ProduceSerializableObject(const std::string& id, size_t& hashCode)
 {
 	const auto it = Get()._ClassComponentGenerators.find(id);
 	if (it != Get()._ClassComponentGenerators.end())
 	{
-		return it->second();
+		return it->second(hashCode);
 	}
 	Debug::Error("Component " + id + "is not registered!");
 	throw 1;

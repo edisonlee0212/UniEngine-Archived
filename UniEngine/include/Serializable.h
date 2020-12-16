@@ -3,6 +3,7 @@
 
 namespace YAML {
 	class Emitter;
+	class Node;
 }
 
 namespace UniEngine
@@ -11,7 +12,7 @@ namespace UniEngine
 	{
 	public:
 		virtual void Serialize(YAML::Emitter& out){}
-		virtual void Deserialize() {}
+		virtual void Deserialize(const YAML::Node& in) {}
 	};
 }
 

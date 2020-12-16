@@ -1,5 +1,5 @@
 #include "PlanetTerrain.h"
-#include "PlanetTerrainSystem.h"
+
 Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> surfaceMaterial)
 {
 	SetEnabled(true);
@@ -48,6 +48,6 @@ Planet::PlanetTerrain::PlanetTerrain(PlanetInfo info, std::shared_ptr<Material> 
 
 void Planet::PlanetTerrain::OnGui()
 {
-	SurfaceMaterial->OnGui();
+	if(SurfaceMaterial) SurfaceMaterial->OnGui();
 }
 

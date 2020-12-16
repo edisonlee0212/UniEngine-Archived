@@ -20,6 +20,7 @@ namespace UniEngine
 		void DeleteEntity(Entity entity);
 		template <typename T = PrivateComponentBase>
 		void SetPrivateComponent(Entity entity);
+		void SetPrivateComponent(Entity entity, size_t id);
 		template <typename T = PrivateComponentBase>
 		void RemovePrivateComponent(Entity entity);
 		template <typename T>

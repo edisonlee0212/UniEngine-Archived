@@ -646,7 +646,7 @@ void EditorManager::LateUpdate()
 					EntityManager::ForEachPrivateComponent(_SelectedEntity, [&i, &skip](PrivateComponentElement& data)
 						{
 							if (skip) return;
-							ImGui::Checkbox((data.Name + 6), &data.PrivateComponentData->_Enabled);
+							ImGui::Checkbox(data.Name.substr(6).c_str(), &data.PrivateComponentData->_Enabled);
 							ImGui::PushID(i);
 							if (ImGui::BeginPopupContextItem(("PrivateComponentDeletePopup" + std::to_string(i)).c_str()))
 							{
@@ -674,7 +674,7 @@ void EditorManager::LateUpdate()
 					int i = 0;
 					EntityManager::ForEachSharedComponent(_SelectedEntity, [&i](SharedComponentElement data)
 						{
-							ImGui::Checkbox((data.Name + 6), &data.SharedComponentData->_Enabled);
+							ImGui::Checkbox(data.Name.substr(6).c_str(), &data.SharedComponentData->_Enabled);
 							if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
 								data.SharedComponentData->OnGui();
 								ImGui::TreePop();

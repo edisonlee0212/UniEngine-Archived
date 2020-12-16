@@ -697,6 +697,50 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, st
 	return retVal;
 }
 
+void EntityManager::SetPrivateComponent(const Entity& entity, const std::string& name, size_t id,
+	PrivateComponentBase* ptr)
+{
+	if (!entity.IsValid()) return;
+	bool found = false;
+	size_t i = 0;
+	for (auto& element : _EntityInfos->at(entity.Index).PrivateComponentElements)
+	{
+		if (id == element.TypeID)
+		{
+			found = true;
+			element.PrivateComponentData = std::unique_ptr<PrivateComponentBase>(ptr);
+			element.ResetOwner(entity);
+			element.PrivateComponentData->Init();
+		}
+		i++;
+	}
+	if (!found)
+	{
+		_EntityPrivateComponentStorage->SetPrivateComponent(entity, id);
+		_EntityInfos->at(entity.Index).PrivateComponentElements.emplace_back(name, id, std::unique_ptr<PrivateComponentBase>(ptr), entity);
+	}
+}
+
+void EntityManager::SetSharedComponent(const Entity& entity, const std::string& name, size_t id,
+	std::shared_ptr<SharedComponentBase> ptr)
+{
+	if (!entity.IsValid()) return;
+	bool found = false;
+	for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
+	{
+		if (id == element.TypeID)
+		{
+			found = true;
+			element.SharedComponentData = ptr;
+		}
+	}
+	if (!found)
+	{
+		_EntityInfos->at(entity.Index).SharedComponentElements.emplace_back(name, id, ptr);
+	}
+	_EntitySharedComponentStorage->SetSharedComponent(entity, name, id, ptr);
+}
+
 
 void EntityManager::RemovePrivateComponent(const Entity& entity, size_t typeId)
 {
@@ -711,7 +755,6 @@ void EntityManager::RemovePrivateComponent(const Entity& entity, size_t typeId)
 		}
 	}
 	_EntityPrivateComponentStorage->RemovePrivateComponent(entity, typeId);
-	return;
 }
 
 EntityArchetype UniEngine::EntityManager::GetEntityArchetype(const Entity& entity)
@@ -826,7 +869,7 @@ void UniEngine::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vect
 	}
 }
 
-void UniEngine::EntityQuery::ToEntityArray(std::vector<Entity>& container)
+void UniEngine::EntityQuery::ToEntityArray(std::vector<Entity>& container) const
 {
 	EntityManager::GetEntityArray(*this, container);
 }

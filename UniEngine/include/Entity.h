@@ -201,10 +201,10 @@ namespace UniEngine {
 
 	struct SharedComponentElement
 	{
-		const char* Name;
+		std::string Name;
 		size_t TypeID;
 		std::shared_ptr<SharedComponentBase> SharedComponentData;
-		SharedComponentElement(const char* name, size_t id, std::shared_ptr<SharedComponentBase> data)
+		SharedComponentElement(const std::string& name, size_t id, std::shared_ptr<SharedComponentBase> data)
 		{
 			Name = name;
 			TypeID = id;
@@ -214,10 +214,10 @@ namespace UniEngine {
 
 	struct PrivateComponentElement
 	{
-		const char* Name;
+		std::string Name;
 		size_t TypeID;
 		std::unique_ptr<PrivateComponentBase> PrivateComponentData;
-		PrivateComponentElement(const char* name, size_t id, std::unique_ptr<PrivateComponentBase> data, Entity owner)
+		PrivateComponentElement(const std::string& name, size_t id, std::unique_ptr<PrivateComponentBase> data, Entity owner)
 		{
 			Name = name;
 			TypeID = id;
@@ -291,7 +291,7 @@ namespace UniEngine {
 		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(T2&, T3&)>& filterFunc);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
 		void ToComponentDataArray(T1 filter, std::vector<T2>& container);
-		void ToEntityArray(std::vector<Entity>& container);
+		void ToEntityArray(std::vector<Entity>& container) const;
 		template<typename T1 = ComponentBase>
 		void ToEntityArray(T1 filter, std::vector<Entity>& container);
 		template<typename T1 = ComponentBase>
