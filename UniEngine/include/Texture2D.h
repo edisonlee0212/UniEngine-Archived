@@ -1,5 +1,6 @@
 #pragma once
 #include "Core.h"
+#include "EditorManager.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
     enum class UNIENGINE_API TextureType {
@@ -25,14 +26,13 @@ namespace UniEngine {
 
         UNKNOWN = 18
     };
-	class UNIENGINE_API Texture2D
+	class UNIENGINE_API Texture2D : public DragDropBehaviour
 	{
         std::unique_ptr<GLTexture2D> _Texture;
         std::string _Path;
 
         friend class FileManager;
     public:
-        std::string Name;
         Texture2D();
         std::unique_ptr<GLTexture2D>& Texture();
         std::string Path();

@@ -3,6 +3,8 @@
 #include "UniEngineAPI.h"
 #include "Texture2D.h"
 #include "Cubemap.h"
+#include "EditorManager.h"
+
 namespace UniEngine {
 	enum class UNIENGINE_API MaterialPolygonMode
 	{
@@ -42,7 +44,7 @@ namespace UniEngine {
 			Value = value;
 		}
 	};
-	class UNIENGINE_API Material
+	class UNIENGINE_API Material : public DragDropBehaviour
 	{
 		friend class RenderManager;
 		
@@ -56,13 +58,13 @@ namespace UniEngine {
 		std::vector<MaterialFloatProperty> _FloatPropertyList;
 		std::vector<MaterialMat4Property> _Float4x4PropertyList;
 	public:
+		static void MaterialDragAndDrop(std::shared_ptr<Material>& material);
 		MaterialPolygonMode PolygonMode = MaterialPolygonMode::FILL;
 		MaterialCullingMode CullingMode = MaterialCullingMode::BACK;
 		MaterialBlendingMode BlendingMode = MaterialBlendingMode::OFF;
 		float Shininess = 32.0f;
 		bool TransparentDiscard = false;
 		float TransparentDiscardLimit = 0.99f;
-		std::string Name;
 		Material();
 		void OnGui();
 		void SetMaterialProperty(const std::string& name, float value);

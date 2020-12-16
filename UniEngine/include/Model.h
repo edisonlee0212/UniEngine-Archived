@@ -8,11 +8,10 @@ namespace UniEngine {
 		std::vector<std::pair<std::shared_ptr<Material>, std::shared_ptr<Mesh>>> _MeshMaterials;
 		std::vector<std::unique_ptr<ModelNode>> Children;
 	};
-	class UNIENGINE_API Model
+	class UNIENGINE_API Model : public DragDropBehaviour
 	{
 		std::unique_ptr<ModelNode> _RootNode;
 	public:
-		std::string Name;
 		Model();
 		std::unique_ptr<ModelNode>& RootNode();
 	};

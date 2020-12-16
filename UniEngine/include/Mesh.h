@@ -1,5 +1,6 @@
 #pragma once
 #include "Core.h"
+#include "EditorManager.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
 	struct UNIENGINE_API Vertex {
@@ -32,7 +33,7 @@ namespace UniEngine {
 		TexCoord7 = 1 << 11
 	};
 
-	class UNIENGINE_API Mesh
+	class UNIENGINE_API Mesh : public DragDropBehaviour
 	{
 		std::shared_ptr<GLVAO> _VAO;
 		size_t _VerticesSize;
@@ -46,7 +47,6 @@ namespace UniEngine {
 		std::vector<Vertex> _Vertices;
 		std::vector<unsigned> _Indices;
 	public:
-		std::string Name;
 		void OnGui();
 		glm::vec3 GetCenter() const;
 		Bound GetBound() const;

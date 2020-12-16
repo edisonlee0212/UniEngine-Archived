@@ -12,7 +12,8 @@ bool FileManager::_EnableAssetMenu = true;
 std::vector<std::shared_ptr<Model>> FileManager::_Models;
 std::vector<std::shared_ptr<Texture2D>> FileManager::_Texture2Ds;
 std::vector<std::shared_ptr<Cubemap>> FileManager::_Cubemaps;
-
+std::vector<std::shared_ptr<Material>> FileManager::_Materials;
+std::vector<std::shared_ptr<Mesh>> FileManager::_Meshes;
 std::shared_ptr<Model> UniEngine::FileManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
 {
 	stbi_set_flip_vertically_on_load(true);
@@ -523,20 +524,138 @@ void FileManager::LateUpdate()
 		if (ImGui::BeginTabBar("##AssetTabs", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
 			if (ImGui::BeginTabItem("Model"))
 			{
-				for (int i = 0; i < _Models.size(); i++)
+				if (ImGui::BeginDragDropTarget())
 				{
-					ModelGuiNode(i);
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Model).name()))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
+						std::shared_ptr<Model> payload_n = *static_cast<std::shared_ptr<Model>*>(payload->Data);
+						bool missing = true;
+						for (auto i : _Models)
+						{
+							if (i.get() == payload_n.get())
+							{
+								missing = false;
+								break;
+							}
+						}
+						if (missing)
+						{
+							_Models.push_back(payload_n);
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+				bool removed = false;
+				for (auto& i : _Models)
+				{
+					if (EditorManager::Draggable(i)) removed = true;
+				}
+				if (removed)
+				{
+					for (int i = 0; i < _Models.size(); i++)
+					{
+						if (!_Models[i]) {
+							_Models.erase(_Models.begin() + i);
+							i--;
+						}
+					}
 				}
 				ImGui::EndTabItem();
 			}
+
+			if (ImGui::BeginTabItem("Mesh"))
+			{
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Mesh).name()))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
+						std::shared_ptr<Mesh> payload_n = *static_cast<std::shared_ptr<Mesh>*>(payload->Data);
+						bool missing = true;
+						for (auto i : _Meshes)
+						{
+							if (i.get() == payload_n.get())
+							{
+								missing = false;
+								break;
+							}
+						}
+						if (missing)
+						{
+							_Meshes.push_back(payload_n);
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+				bool removed = false;
+				for (auto& i : _Meshes)
+				{
+					if (EditorManager::Draggable(i)) removed = true;
+				}
+				if (removed)
+				{
+					for (int i = 0; i < _Meshes.size(); i++)
+					{
+						if (!_Meshes[i]) {
+							_Meshes.erase(_Meshes.begin() + i);
+							i--;
+						}
+					}
+				}
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Material"))
+			{
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Material).name()))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Material>));
+						std::shared_ptr<Material> payload_n = *static_cast<std::shared_ptr<Material>*>(payload->Data);
+						bool missing = true;
+						for (auto i : _Materials)
+						{
+							if (i.get() == payload_n.get())
+							{
+								missing = false;
+								break;
+							}
+						}
+						if (missing)
+						{
+							_Materials.push_back(payload_n);
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+				bool removed = false;
+				for (auto& i : _Materials)
+				{
+					if (EditorManager::Draggable(i)) removed = true;
+				}
+				if (removed)
+				{
+					for (int i = 0; i < _Materials.size(); i++)
+					{
+						if (!_Materials[i]) {
+							_Materials.erase(_Materials.begin() + i);
+							i--;
+						}
+					}
+				}
+				ImGui::EndTabItem();
+			}
+			
 			if (ImGui::BeginTabItem("Texture"))
 			{
 				if (ImGui::BeginDragDropTarget())
 				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_TEXTURE2D"))
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Texture2D).name()))
 					{
 						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-						std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D>*)payload->Data;
+						std::shared_ptr<Texture2D> payload_n = *static_cast<std::shared_ptr<Texture2D>*>(payload->Data);
 						bool missing = true;
 						for (auto i : _Texture2Ds)
 						{
@@ -553,21 +672,62 @@ void FileManager::LateUpdate()
 					}
 					ImGui::EndDragDropTarget();
 				}
-				for (int i = 0; i < _Texture2Ds.size(); i++)
+				bool removed = false;
+				for (auto& i : _Texture2Ds)
 				{
-					TextureGuiNode(i);
+					if (EditorManager::Draggable(i)) removed = true;
 				}
-				
+				if (removed)
+				{
+					for (int i = 0; i < _Texture2Ds.size(); i++)
+					{
+						if (!_Texture2Ds[i]) {
+							_Texture2Ds.erase(_Texture2Ds.begin() + i);
+							i--;
+						}
+					}
+				}
 				ImGui::EndTabItem();
 			}
 			
 			if (ImGui::BeginTabItem("Cubemap"))
 			{
-				for (int i = 0; i < _Cubemaps.size(); i++)
+				if (ImGui::BeginDragDropTarget())
 				{
-					ImGui::Image((ImTextureID)_Cubemaps[i]->Texture()->ID(), ImVec2(50, 50));
-					ImGui::SameLine();
-					ImGui::Text("[%d] %s", i + 1, _Cubemaps[i]->Name.c_str());
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Cubemap).name()))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
+						std::shared_ptr<Cubemap> payload_n = *static_cast<std::shared_ptr<Cubemap>*>(payload->Data);
+						bool missing = true;
+						for (auto i : _Cubemaps)
+						{
+							if (i.get() == payload_n.get())
+							{
+								missing = false;
+								break;
+							}
+						}
+						if (missing)
+						{
+							_Cubemaps.push_back(payload_n);
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+				bool removed = false;
+				for (auto& i : _Cubemaps)
+				{
+					if (EditorManager::Draggable(i)) removed = true;
+				}
+				if(removed)
+				{
+					for(int i = 0; i < _Cubemaps.size(); i++)
+					{
+						if (!_Cubemaps[i]) {
+							_Cubemaps.erase(_Cubemaps.begin() + i);
+							i--;
+						}
+					}
 				}
 				ImGui::EndTabItem();
 			}

@@ -60,12 +60,14 @@ void UniEngine::Particles::OnGui()
 		auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
 		RenderManager::DrawGizmoCube(DisplayBoundColor, transform * glm::translate(BoundingBox.Center()) * glm::scale(BoundingBox.Size()), 1);
 	}
+	EditorManager::DragAndDrop(Material);
 	if (Material) {
 		if (ImGui::TreeNode("Material##2")) {
 			Material->OnGui();
 			ImGui::TreePop();
 		}
 	}
+	EditorManager::DragAndDrop(Mesh);
 	if (Mesh) {
 		if (ImGui::TreeNode("Mesh##2")) {
 			Mesh->OnGui();

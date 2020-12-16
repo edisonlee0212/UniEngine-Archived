@@ -2,9 +2,9 @@
 #include "Core.h"
 #include "UniEngineAPI.h"
 #include "Camera.h"
-#include "Cubemap.h"
 
 namespace UniEngine {
+	class Cubemap;
 	class UNIENGINE_API CameraComponent :
 		public PrivateComponentBase
 	{

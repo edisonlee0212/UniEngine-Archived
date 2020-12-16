@@ -10,6 +10,11 @@ namespace UniEngine {
 		EntityEditorSystem_EnableEntityHierarchy = 1 << 0,
 		EntityEditorSystem_EnableEntityInspector = 1 << 1
 	};
+
+	class UNIENGINE_API DragDropBehaviour {
+	public:
+		std::string Name;
+	};
 	
 	class UNIENGINE_API EditorManager :
 		public Singleton<EditorManager>
@@ -78,6 +83,11 @@ namespace UniEngine {
 		static void Update();
 		static Entity GetSelectedEntity() { return _SelectedEntity; }
 		static void SetSelectedEntity(Entity entity);
+
+		template<typename T = DragDropBehaviour>
+		static bool DragAndDrop(std::shared_ptr<T>& target);
+		template<typename T = DragDropBehaviour>
+		static bool Draggable(std::shared_ptr<T>& target);
 	};
 
 	template <typename T1>
@@ -112,5 +122,78 @@ namespace UniEngine {
 			}
 		}
 		_ComponentDataMenuList.emplace_back(typeid(T1).hash_code(), func);
+	}
+
+	template <typename T>
+	bool EditorManager::DragAndDrop(std::shared_ptr<T>& target)
+	{
+		const std::shared_ptr<DragDropBehaviour> ptr = std::dynamic_pointer_cast<DragDropBehaviour>(target);
+		
+		ImGui::Button(ptr ? ptr->Name.c_str() : "none");
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+		{
+			ImGui::SetDragDropPayload(typeid(T).name(), &target, sizeof(std::shared_ptr<T>));
+			ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
+			//ImGui::Image(reinterpret_cast<ImTextureID>(ptr->Icon->Texture()->ID()), ImVec2(30, 30));
+			ImGui::EndDragDropSource();
+		}
+		bool removed = false;
+		if (ptr && ImGui::BeginPopupContextItem(reinterpret_cast<char*>(target.get())))
+		{
+			if (ImGui::BeginMenu("Rename"))
+			{
+				static char newName[256];
+				ImGui::InputText("New name", newName, 256);
+				if (ImGui::Button("Confirm")) ptr->Name = std::string(newName);
+				ImGui::EndMenu();
+			}
+			if (ImGui::Button("Remove")) {
+				target.reset();
+				removed = true;
+			}
+			ImGui::EndPopup();
+		}
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(T).name()))
+			{
+				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<T>));
+				std::shared_ptr<T> payload_n = *static_cast<std::shared_ptr<T>*>(payload->Data);
+				target = payload_n;
+			}
+			ImGui::EndDragDropTarget();
+		}
+		return removed;
+	}
+
+	template <typename T>
+	bool EditorManager::Draggable(std::shared_ptr<T>& target)
+	{
+		const std::shared_ptr<DragDropBehaviour> ptr = std::dynamic_pointer_cast<DragDropBehaviour>(target);
+		ImGui::Button(ptr ? ptr->Name.c_str() : "none");
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+		{
+			ImGui::SetDragDropPayload(typeid(T).name(), &target, sizeof(std::shared_ptr<T>));
+			ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
+			//ImGui::Image(reinterpret_cast<ImTextureID>(ptr->Icon->Texture()->ID()), ImVec2(30, 30));
+			ImGui::EndDragDropSource();
+		}
+		bool removed = false;
+		if (ptr && ImGui::BeginPopupContextItem(reinterpret_cast<char*>(target.get())))
+		{
+			if (ImGui::BeginMenu("Rename"))
+			{
+				static char newName[256];
+				ImGui::InputText("New name", newName, 256);
+				if (ImGui::Button("Confirm")) ptr->Name = std::string(newName);
+				ImGui::EndMenu();
+			}
+			if (ImGui::Button("Remove")) {
+				target.reset();
+				removed = true;
+			}
+			ImGui::EndPopup();
+		}
+		return removed;
 	}
 }

@@ -21,12 +21,14 @@ void UniEngine::MeshRenderer::OnGui()
 		ImGui::Checkbox("Receive shadow", &ReceiveShadow);
 	}
 	ImGui::Checkbox("Cast shadow", &CastShadow);
+	EditorManager::DragAndDrop(Material);
 	if (Material) {
 		if (ImGui::TreeNode("Material##1")) {
 			Material->OnGui();
 			ImGui::TreePop();
 		}
 	}
+	EditorManager::DragAndDrop(Mesh);
 	if (Mesh) {
 		if (ImGui::TreeNode("Mesh##1")) {
 			ImGui::Checkbox("Display bounds", &DisplayBound);
