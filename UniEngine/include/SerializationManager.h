@@ -10,6 +10,12 @@ namespace YAML {
 #define IMPORT_PARAM(x, y, temp) (x) >> (temp) >> (y) >> (temp)
 namespace UniEngine
 {
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& v);
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& v);
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec4& v);
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::mat4& v);
+
+	
 	std::ostream& operator<<(std::ostream& out, const glm::vec2& v);
 	std::ostream& operator<<(std::ostream& out, const glm::vec3& v);
 	std::ostream& operator<<(std::ostream& out, const glm::vec4& v);

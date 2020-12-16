@@ -30,7 +30,6 @@ SerializableRegistration<MeshRenderer> MeshRendererRegistry(1);
 SerializableRegistration<RigidBody> RigidBodyRegistry(1);
 
 
-
 void UniEngine::SerializationManager::Init()
 {
 	RegisterComponentDataSerializerDeserializer<Transform>(
@@ -229,6 +228,39 @@ void UniEngine::SerializationManager::Init()
 }
 
 
+YAML::Emitter& UniEngine::operator<<(YAML::Emitter& out, const glm::vec2& v)
+{
+	out << YAML::Flow;
+	out << YAML::BeginSeq << v.x << v.y <<YAML::EndSeq;
+	return out;
+}
+
+YAML::Emitter& UniEngine::operator<<(YAML::Emitter& out, const glm::vec3& v)
+{
+	out << YAML::Flow;
+	out << YAML::BeginSeq << v.x << v.y << v.z << YAML::EndSeq;
+	return out;
+}
+
+YAML::Emitter& UniEngine::operator<<(YAML::Emitter& out, const glm::vec4& v)
+{
+	out << YAML::Flow;
+	out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
+	return out;
+}
+
+YAML::Emitter& UniEngine::operator<<(YAML::Emitter& out, const glm::mat4& v)
+{
+	out << YAML::BeginMap;
+	out << YAML::Key << "Row0" << YAML::Value << v[0];
+	out << YAML::Key << "Row1" << YAML::Value << v[1];
+	out << YAML::Key << "Row2" << YAML::Value << v[2];
+	out << YAML::Key << "Row3" << YAML::Value << v[3];
+	out << YAML::EndMap;
+	return out;
+}
+
+
 
 std::ostream& UniEngine::operator<<(std::ostream& out, const glm::vec2& v)
 {
@@ -287,6 +319,7 @@ void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& wo
 {
 	out << YAML::BeginMap;
 	out << YAML::Key << "Entity" << YAML::Value << std::to_string(entity.Index);
+	out << YAML::Key << "Enabled" << YAML::Value << entity.Enabled();
 	out << YAML::Key << "ArchetypeName" << YAML::Value << EntityManager::GetEntityArchetypeName(EntityManager::GetEntityArchetype(entity));
 	out << YAML::Key << "Name" << YAML::Value << entity.GetName();
 	out << YAML::Key << "Parent" << YAML::Value << EntityManager::GetParent(entity).Index;
@@ -317,8 +350,8 @@ void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& wo
 	EntityManager::ForEachPrivateComponent(entity, [&](PrivateComponentElement& data)
 		{
 			out << YAML::BeginMap;
-			out << YAML::Key << "Name";
-			out << YAML::Value << data.Name;
+			out << YAML::Key << "Name" << YAML::Value << data.Name;
+			out << YAML::Key << "Enabled" << YAML::Value << data.PrivateComponentData.get()->_Enabled;
 			data.PrivateComponentData->Serialize(out);
 			out << YAML::EndMap;
 		}
@@ -386,6 +419,7 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(std::unique
 			auto* ptr = dynamic_cast<PrivateComponentBase*>(ComponentFactory::ProduceSerializableObject(
 				name, hashCode));
 			ptr->Deserialize(privateComponent);
+			ptr->_Enabled = privateComponent["Enabled"].as<bool>();
 			EntityManager::SetPrivateComponent(retVal, name, hashCode, ptr);
 		}
 	}
@@ -430,6 +464,7 @@ void UniEngine::SerializationManager::Serialize(std::unique_ptr<World>& world, c
 		{
 			out << YAML::BeginMap;
 			out << YAML::Key << "HashCode" << YAML::Value << sharedComponent->GetHashCode();
+			out << YAML::Key << "Enabled" << YAML::Value << sharedComponent->_Enabled;
 			sharedComponent->Serialize(out);
 			out << YAML::EndMap;
 		}
@@ -468,6 +503,7 @@ bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World>& world,
 			auto parent = node["Parent"].as<unsigned>();
 			
 			auto entity = DeserializeEntity(world, node, sharedComponentEntityMap);
+			world->_WorldEntityStorage.EntityInfos[entity.Index].Enabled = node["Enabled"].as<bool>();
 			if (entity.IsNull())
 			{
 				Debug::Error("Error!");
@@ -481,7 +517,6 @@ bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World>& world,
 		{
 			EntityManager::SetParent(entityMap[fst], entityMap[snd]);
 		}
-
 		auto sharedComponentStorage = data["SharedComponentsStorage"];
 		if(sharedComponentStorage)
 		{
@@ -497,6 +532,7 @@ bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World>& world,
 						size_t id;
 						auto* ptr = dynamic_cast<SharedComponentBase*>(ComponentFactory::ProduceSerializableObject(
 							name, id));
+						ptr->_Enabled = sharedComponent["Enabled"].as<bool>();
 						ptr->Deserialize(sharedComponent);
 						sharedComponentMap[name].first = id;
 						sharedComponentMap[name].second[hashCode] = std::shared_ptr<SharedComponentBase>(ptr);

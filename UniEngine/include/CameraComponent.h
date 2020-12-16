@@ -27,6 +27,8 @@ namespace UniEngine {
 		int _ResolutionY;
 		bool _IsMainCamera = false;
 	public:
+		void Serialize(YAML::Emitter& out) override;
+		void Deserialize(const YAML::Node& in) override;
 		void ResizeResolution(int x, int y);
 		CameraComponent();
 		~CameraComponent() override;

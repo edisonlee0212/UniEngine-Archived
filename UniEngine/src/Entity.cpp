@@ -14,6 +14,11 @@ inline void UniEngine::Entity::SetEnabled(bool value) const
 	EntityManager::SetEnable(*this, value);
 }
 
+void Entity::SetEnabledSingle(bool value) const
+{
+	EntityManager::SetEnableSingle(*this, value);
+}
+
 bool Entity::IsNull() const
 {
 	return Index == 0;

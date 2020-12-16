@@ -31,6 +31,7 @@ namespace UniEngine {
 	};
 	
 	class UNIENGINE_API SharedComponentBase : public Serializable {
+		friend class SerializationManager;
 		friend class EditorManager;
 		bool _Enabled = false;
 	public:
@@ -80,7 +81,7 @@ namespace UniEngine {
 		bool Enabled() const;
 
 		void SetEnabled(bool value) const;
-
+		void SetEnabledSingle(bool value) const;
 		bool IsNull() const;
 
 		bool IsDeleted() const;
@@ -118,6 +119,7 @@ namespace UniEngine {
 		friend class EntityManager;
 		friend class EditorManager;
 		friend class PrivateComponentElement;
+		friend class SerializationManager;
 		bool _Enabled = false;
 		Entity _Owner;
 	public:

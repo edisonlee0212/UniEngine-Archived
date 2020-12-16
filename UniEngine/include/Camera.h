@@ -42,6 +42,7 @@ namespace UniEngine {
 
 	class UNIENGINE_API Camera : public RenderTarget
 	{
+		friend class CameraComponent;
 		size_t _LayerMask;
 		GLTexture2D* _ColorTexture;
 		GLRenderBuffer* _RenderBuffer;

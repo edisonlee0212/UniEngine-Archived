@@ -301,17 +301,6 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 			chunk.ClearData(offset, i.Size);
 		}
 	}
-	
-	/*
-	for (auto& type : info->ComponentTypes)
-	{
-		auto search = _ComponentCreationFunctionMap.find(type.TypeID);
-		if (search != _ComponentCreationFunctionMap.end())
-		{
-			search->second.Function(GetComponentDataPointer(retVal, type.TypeID));
-		}
-	}
-	*/
 	return retVal;
 }
 
@@ -391,7 +380,6 @@ void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& par
 	}
 	_EntityInfos->at(childIndex).Parent = parent;
 	_EntityInfos->at(parentIndex).Children.push_back(entity);
-	_EntityInfos->at(childIndex).Enabled = _EntityInfos->at(parentIndex).Enabled;
 	for (int i = 0; i < _ParentRoots->size(); i++) {
 		if (_Entities->at(childIndex) == _ParentRoots->at(i)) {
 			_ParentRoots->erase(_ParentRoots->begin() + i);
@@ -804,6 +792,26 @@ void UniEngine::EntityManager::SetEnable(const Entity& entity, bool value) {
 	for (const auto& i : _EntityInfos->at(entity.Index).Children) {
 		SetEnable(i, value);
 	}
+}
+
+void EntityManager::SetEnableSingle(const Entity& entity, bool value)
+{
+	if (!entity.IsValid()) return;
+	if (_EntityInfos->at(entity.Index).Enabled != value)
+	{
+		for (auto& i : _EntityInfos->at(entity.Index).PrivateComponentElements)
+		{
+			if (value)
+			{
+				i.PrivateComponentData->OnEntityEnable();
+			}
+			else
+			{
+				i.PrivateComponentData->OnEntityDisable();
+			}
+		}
+	}
+	_EntityInfos->at(entity.Index).Enabled = value;
 }
 
 bool UniEngine::EntityManager::IsEntityEnabled(const Entity& entity) {

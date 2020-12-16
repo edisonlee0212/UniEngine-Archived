@@ -83,8 +83,9 @@ namespace UniEngine {
 
 		static size_t GetEntityAmount(EntityQuery entityQuery);
 		friend struct Entity;
-		//Enable or Disable an Entity. Note that the disable action will recursively disable the children of current entity. You are not allowed to enable an entity unless its parent(if exist) is enabled. 
+		//Enable or Disable an Entity. Note that the disable action will recursively disable the children of current entity. 
 		static void SetEnable(const Entity& entity, bool value);
+		static void SetEnableSingle(const Entity& entity, bool value);
 		static bool IsEntityEnabled(const Entity& entity);
 
 		static bool IsEntityDeleted(size_t index);
@@ -1505,7 +1506,6 @@ namespace UniEngine {
 			_EntityPrivateComponentStorage->SetPrivateComponent<T>(entity);
 			_EntityInfos->at(entity.Index).PrivateComponentElements.push_back(PrivateComponentElement(std::string(typeid(T).name()), typeid(T).hash_code(), std::move(value), entity));
 		}
-		
 	}
 	template <typename T>
 	void EntityManager::RemovePrivateComponent(const Entity& entity)

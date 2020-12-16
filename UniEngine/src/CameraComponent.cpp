@@ -1,6 +1,43 @@
 #include "pch.h"
 #include "CameraComponent.h"
+#include "SerializationManager.h"
 #include "RenderManager.h"
+#include "yaml-cpp/yaml.h"
+void UniEngine::CameraComponent::Serialize(YAML::Emitter& out)
+{
+	out << YAML::Key << "_ResolutionX" << YAML::Value << _ResolutionX;
+	out << YAML::Key << "_ResolutionY" << YAML::Value << _ResolutionY;
+	out << YAML::Key << "_IsMainCamera" << YAML::Value << _IsMainCamera;
+	out << YAML::Key << "DrawSkyBox" << YAML::Value << DrawSkyBox;
+	out << YAML::Key << "ClearColor" << YAML::Value << ClearColor;
+
+	out << YAML::Key << "_LayerMask" << YAML::Value << _Camera->_LayerMask;
+	out << YAML::Key << "YawAngle" << YAML::Value << _Camera->YawAngle;
+	out << YAML::Key << "PitchAngle" << YAML::Value << _Camera->PitchAngle;
+	out << YAML::Key << "NearDistance" << YAML::Value << _Camera->NearDistance;
+	out << YAML::Key << "FarDistance" << YAML::Value << _Camera->FarDistance;
+	out << YAML::Key << "FieldOfView" << YAML::Value << _Camera->FieldOfView;
+}
+
+void UniEngine::CameraComponent::Deserialize(const YAML::Node& in)
+{
+	_ResolutionX = in["_ResolutionX"].as<int>();
+	_ResolutionY = in["_ResolutionY"].as<int>();
+	_IsMainCamera = in["_IsMainCamera"].as<bool>();
+	if (_IsMainCamera) RenderManager::SetMainCamera(this);
+	DrawSkyBox = in["DrawSkyBox"].as<bool>();
+	ClearColor.x = in["ClearColor"][0].as<float>();
+	ClearColor.y = in["ClearColor"][1].as<float>();
+	ClearColor.z = in["ClearColor"][2].as<float>();
+	
+	_Camera->_LayerMask = in["_LayerMask"].as<size_t>();
+	_Camera->YawAngle = in["YawAngle"].as<float>();
+	_Camera->PitchAngle = in["PitchAngle"].as<float>();
+	_Camera->NearDistance = in["NearDistance"].as<float>();
+	_Camera->FarDistance = in["FarDistance"].as<float>();
+	_Camera->FieldOfView = in["FieldOfView"].as<float>();
+}
+
 void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 {
 	const auto originalResolution = _GBuffer->GetResolution();

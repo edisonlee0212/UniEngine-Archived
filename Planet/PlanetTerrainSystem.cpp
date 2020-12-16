@@ -24,19 +24,21 @@ void Planet::PlanetTerrainSystem::Update()
 		}
 	}
 	std::mutex meshGenLock;
-	const auto cameraLtw = RenderManager::GetMainCamera()->GetOwner().GetComponentData<GlobalTransform>();
-	for (auto i = 0; i < planetTerrainList->size(); i++) {
-		auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
-		if (!planetTerrain->IsEnabled()) continue;
-		auto& planetInfo = planetTerrain->_Info;
-		auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
-		//1. Scan and expand.
-		for (auto& chunk : planetTerrain->_Chunks) {
-			//futures.push_back(_ThreadPool->Push([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw); }).share());
-			CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw);
+	const auto mainCamera = RenderManager::GetMainCamera();
+	if (mainCamera) {
+		const auto cameraLtw = mainCamera->GetOwner().GetComponentData<GlobalTransform>();
+		for (auto i = 0; i < planetTerrainList->size(); i++) {
+			auto& planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
+			if (!planetTerrain->IsEnabled()) continue;
+			auto& planetInfo = planetTerrain->_Info;
+			auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
+			//1. Scan and expand.
+			for (auto& chunk : planetTerrain->_Chunks) {
+				//futures.push_back(_ThreadPool->Push([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw); }).share());
+				CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw);
+			}
 		}
 	}
-
 }
 
 void Planet::PlanetTerrainSystem::FixedUpdate()
