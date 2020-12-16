@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "TransformManager.h"
 #include "FileManager.h"
+
+#include <filesystem>
+
 #include "MeshRenderer.h"
 #include <stb_image.h>
 #include "EntityManager.h"
@@ -183,7 +186,7 @@ void FileManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& model
 	// process materials
 	aiMaterial* pointMaterial = scene->mMaterials[aimesh->mMaterialIndex];
 
-	auto mesh = std::make_shared<Mesh>() ;
+	auto mesh = std::make_shared<Mesh>();
 	mesh->SetVertices(mask, vertices, indices);
 
 	auto material = std::make_shared<Material>();
@@ -192,7 +195,7 @@ void FileManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& model
 	if (shininess == 0.0f) shininess = 32.0f;
 	material->Shininess = shininess;
 	material->SetProgram(shader);
-	if(pointMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+	if (pointMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
 	{
 		aiString str;
 		pointMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
@@ -213,7 +216,8 @@ void FileManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& model
 			_Texture2Ds.pop_back();
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
-	}else
+	}
+	else
 	{
 		material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	}
@@ -334,7 +338,7 @@ void FileManager::ModelGuiNode(int i)
 		}
 		ImGui::EndPopup();
 	}
-	
+
 	ImGui::PopID();
 	ImGui::SameLine();
 	if (!deleted) {
@@ -368,11 +372,11 @@ void FileManager::TextureGuiNode(int i)
 		}
 		ImGui::EndPopup();
 	}
-	
+
 	ImGui::PopID();
 	ImGui::SameLine();
 	ImGui::TextWrapped(_Texture2Ds[i]->Name.c_str());
-	
+
 }
 
 std::shared_ptr<Model> FileManager::GetModel(int i)
@@ -444,12 +448,12 @@ void FileManager::LateUpdate()
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File"))
 		{
-			if(ImGui::BeginMenu("Open..."))
+			if (ImGui::BeginMenu("Open..."))
 			{
-				if(ImGui::Button("World"))
+				if (ImGui::Button("World"))
 				{
 					auto result = FileIO::OpenFile("WorldSave (*.uniengineworld)\0*.uniengineworld\0");
-					if(result.has_value())
+					if (result.has_value())
 					{
 						const std::string path = result.value();
 						if (!path.empty())
@@ -477,10 +481,10 @@ void FileManager::LateUpdate()
 				}
 				ImGui::EndMenu();
 			}
-			
+
 			if (ImGui::BeginMenu("Load"))
 			{
-				if(ImGui::Button("Model"))
+				if (ImGui::Button("Model"))
 				{
 					auto result = FileIO::OpenFile("Model (*.obj)\0*.obj\0");
 					if (result.has_value())
@@ -515,13 +519,31 @@ void FileManager::LateUpdate()
 			ImGui::Checkbox("Asset Manager", &_EnableAssetMenu);
 			ImGui::EndMenu();
 		}
-		
+
 		ImGui::EndMainMenuBar();
 	}
 	if (_EnableAssetMenu)
 	{
-		ImGui::Begin("Asset Manager");
-		if (ImGui::BeginTabBar("##AssetTabs", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
+		ImGui::Begin("Resource Manager");
+		if (ImGui::BeginTabBar("##Resource Tab", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
+			if (ImGui::BeginTabItem("Assets")) {
+				uint32_t count = 0;
+				for (const auto& entry : std::filesystem::recursive_directory_iterator(FileIO::GetAssetFolderPath()))
+					count++;
+				static int selection_mask = 0;
+				auto clickState = FileIO::DirectoryTreeViewRecursive(FileIO::GetAssetFolderPath(), &count, &selection_mask);
+				if (clickState.first)
+				{
+					// Update selection state
+					// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
+					if (ImGui::GetIO().KeyCtrl)
+						selection_mask ^= 1 << (clickState.second);          // CTRL+click to toggle
+					else //if (!(selection_mask & (1 << clickState.second))) // Depending on selection behavior you want, may want to preserve selection when clicking on item that is part of the selection
+						selection_mask = 1 << (clickState.second);           // Click to single-select
+				}
+				ImGui::EndTabItem();
+			}
+			
 			if (ImGui::BeginTabItem("Model"))
 			{
 				if (ImGui::BeginDragDropTarget())
@@ -647,7 +669,7 @@ void FileManager::LateUpdate()
 				}
 				ImGui::EndTabItem();
 			}
-			
+
 			if (ImGui::BeginTabItem("Texture"))
 			{
 				if (ImGui::BeginDragDropTarget())
@@ -689,7 +711,7 @@ void FileManager::LateUpdate()
 				}
 				ImGui::EndTabItem();
 			}
-			
+
 			if (ImGui::BeginTabItem("Cubemap"))
 			{
 				if (ImGui::BeginDragDropTarget())
@@ -719,9 +741,9 @@ void FileManager::LateUpdate()
 				{
 					if (EditorManager::Draggable(i)) removed = true;
 				}
-				if(removed)
+				if (removed)
 				{
-					for(int i = 0; i < _Cubemaps.size(); i++)
+					for (int i = 0; i < _Cubemaps.size(); i++)
 					{
 						if (!_Cubemaps[i]) {
 							_Cubemaps.erase(_Cubemaps.begin() + i);
