@@ -6,6 +6,8 @@ using namespace UniEngine;
 
 void World::Purge()
 {
+	_WorldEntityStorage.EntitySharedComponentStorage = SharedComponentStorage();
+	_WorldEntityStorage.EntityPrivateComponentStorage = PrivateComponentStorage();
 	_WorldEntityStorage.Entities.clear();
 	_WorldEntityStorage.ParentRoots.clear();
 	_WorldEntityStorage.EntityInfos.clear();
@@ -19,8 +21,6 @@ void World::Purge()
 		i.ArchetypeInfo->EntityAliveCount = 0;
 		i.ArchetypeInfo->EntityCount = 0;
 	}
-	_WorldEntityStorage.EntitySharedComponentStorage = SharedComponentStorage();
-	_WorldEntityStorage.EntityPrivateComponentStorage = PrivateComponentStorage();
 	
 	_WorldEntityStorage.Entities.emplace_back();
 	_WorldEntityStorage.EntityInfos.emplace_back();
