@@ -23,7 +23,7 @@ void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& wo
 		if (it != Get()._ComponentDataSerializers.end())
 		{
 			ComponentBase* ptr = EntityManager::GetComponentDataPointer(entity, type.TypeID);
-			value = it->second(ptr);
+			value = it->second.first(ptr);
 		}
 		out << YAML::Key << "Content" << YAML::Value << value;
 		out << YAML::EndMap;
@@ -77,14 +77,21 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(std::unique
 		auto name = componentData["Name"].as<std::string>();
 		size_t hashCode;
 		size_t size;
-		ptrs.push_back(ComponentFactory::ProduceComponentData(name, hashCode, size));
+		auto ptr = ComponentFactory::ProduceComponentData(name, hashCode, size);
+
+		//Deserialize componentData here.
+		const auto it = Get()._ComponentDataSerializers.find(hashCode);
+		if (it != Get()._ComponentDataSerializers.end())
+		{
+			it->second.second(componentData["Content"].as<std::string>(), ptr.get());
+		}
+		ptrs.push_back(ptr);
 		types.emplace_back(name, hashCode, size);
 	}
 	const EntityArchetype archetype = EntityManager::CreateEntityArchetype(archetypeName, types);
 	retVal = EntityManager::CreateEntity(archetype, entityName);
 	for (int i = 0; i < ptrs.size(); i++)
 	{
-		//Deserialize componentData here.
 		EntityManager::SetComponentData(retVal, types[i].TypeID, types[i].Size, ptrs[i].get());
 	}
 

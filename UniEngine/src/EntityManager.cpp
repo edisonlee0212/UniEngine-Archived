@@ -662,6 +662,23 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, st
 	EntityArchetypeInfo* info = new EntityArchetypeInfo();
 	info->Name = name;
 	info->EntityCount = 0;
+	std::sort(types.begin(), types.end(), ComponentTypeComparator);
+	size_t offset = 0;
+	ComponentType prev = types[0];
+	//Erase duplicates
+	for (size_t i = 1; i < types.size(); i++) {
+		if (types[i] == prev) {
+			types.erase(types.begin() + i);
+			i--;
+		}
+		else {
+			prev = types[i];
+		}
+	}
+	for (size_t i = 0; i < types.size(); i++) {
+		types[i].Offset = offset;
+		offset += types[i].Size;
+	}
 	info->ComponentTypes = types;
 	info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
 	info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
