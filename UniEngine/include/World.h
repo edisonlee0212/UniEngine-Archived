@@ -4,7 +4,6 @@
 #include "WorldTime.h"
 #include "Entity.h"
 #include "PrivateComponentStorage.h"
-#include "SharedComponentStorage.h"
 namespace UniEngine {
 	struct UNIENGINE_API Bound {
 		glm::vec3 Min;
@@ -34,7 +33,6 @@ namespace UniEngine {
 		std::vector<Entity> ParentRoots;
 		std::vector<EntityInfo> EntityInfos;
 		std::vector<EntityComponentStorage> EntityComponentStorage;
-		SharedComponentStorage EntitySharedComponentStorage;
 		PrivateComponentStorage EntityPrivateComponentStorage;
 		std::vector<EntityQuery> EntityQueries;
 		std::vector<EntityQueryInfo> EntityQueryInfos;

@@ -9,12 +9,15 @@ std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos = nullptr;
 std::vector<Entity>* UniEngine::EntityManager::_Entities = nullptr;
 std::vector<Entity>* UniEngine::EntityManager::_ParentRoots = nullptr;
 std::vector<EntityComponentStorage>* UniEngine::EntityManager::_EntityComponentStorage = nullptr;
-SharedComponentStorage* UniEngine::EntityManager::_EntitySharedComponentStorage = nullptr;
 PrivateComponentStorage* UniEngine::EntityManager::_EntityPrivateComponentStorage = nullptr;
 std::vector<EntityQuery>* UniEngine::EntityManager::_EntityQueries = nullptr;
 std::vector<EntityQueryInfo>* UniEngine::EntityManager::_EntityQueryInfos = nullptr;
 std::queue<EntityQuery>* UniEngine::EntityManager::_EntityQueryPools = nullptr;
 #pragma region EntityManager
+bool UniEngine::ComponentTypeComparator(ComponentType a, ComponentType b)
+{
+	return a.TypeID < b.TypeID;
+}
 
 void UniEngine::EntityManager::UnsafeForEachComponent(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func)
 {
@@ -27,19 +30,6 @@ void UniEngine::EntityManager::UnsafeForEachComponent(const Entity& entity, cons
 		ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 		for (const auto& i : chunkInfo->ComponentTypes) {
 			func(i, (void*)((char*)chunk.Data + i.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.Size));
-		}
-	}
-}
-
-void EntityManager::ForEachSharedComponent(const Entity& entity, const std::function<void(SharedComponentElement data)>& func)
-{
-	if (!entity.IsValid()) return;
-	EntityInfo& info = _EntityInfos->at(entity.Index);
-	if (_Entities->at(entity.Index) == entity)
-	{
-		for (auto& component : info.SharedComponentElements)
-		{
-			func(component);
 		}
 	}
 }
@@ -84,11 +74,9 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 			}
 		}
 		*/
-		_EntitySharedComponentStorage->DeleteEntity(actualEntity);
 		_EntityPrivateComponentStorage->DeleteEntity(actualEntity);
 		info.Version = actualEntity.Version + 1;
 		info.PrivateComponentElements.clear();
-		info.SharedComponentElements.clear();
 		//Set to version 0, marks it as deleted.
 		actualEntity.Version = 0;
 		EntityComponentStorage storage = _EntityComponentStorage->at(info.ArchetypeInfoIndex);
@@ -217,7 +205,6 @@ void EntityManager::Detach()
 	_ParentRoots = nullptr;
 	_EntityInfos = nullptr;
 	_EntityComponentStorage = nullptr;
-	_EntitySharedComponentStorage = nullptr;
 	_EntityPrivateComponentStorage = nullptr;
 	_EntityQueries = nullptr;
 	_EntityQueryInfos = nullptr;
@@ -238,7 +225,6 @@ void UniEngine::EntityManager::Attach(std::unique_ptr<World>& world)
 	_ParentRoots = &targetStorage->ParentRoots;
 	_EntityInfos = &targetStorage->EntityInfos;
 	_EntityComponentStorage = &targetStorage->EntityComponentStorage;
-	_EntitySharedComponentStorage = &targetStorage->EntitySharedComponentStorage;
 	_EntityPrivateComponentStorage = &targetStorage->EntityPrivateComponentStorage;
 	_EntityQueries = &targetStorage->EntityQueries;
 	_EntityQueryInfos = &targetStorage->EntityQueryInfos;
@@ -725,27 +711,6 @@ void EntityManager::SetPrivateComponent(const Entity& entity, const std::string&
 		_EntityInfos->at(entity.Index).PrivateComponentElements.emplace_back(name, id, std::unique_ptr<PrivateComponentBase>(ptr), entity);
 	}
 }
-
-void EntityManager::SetSharedComponent(const Entity& entity, const std::string& name, size_t id,
-	std::shared_ptr<SharedComponentBase> ptr)
-{
-	if (!entity.IsValid()) return;
-	bool found = false;
-	for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
-	{
-		if (id == element.TypeID)
-		{
-			found = true;
-			element.SharedComponentData = ptr;
-		}
-	}
-	if (!found)
-	{
-		_EntityInfos->at(entity.Index).SharedComponentElements.emplace_back(name, id, ptr);
-	}
-	_EntitySharedComponentStorage->SetSharedComponent(entity, name, id, ptr);
-}
-
 
 void EntityManager::RemovePrivateComponent(const Entity& entity, size_t typeId)
 {

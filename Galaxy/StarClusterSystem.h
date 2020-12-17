@@ -123,19 +123,10 @@ namespace Galaxy {
 		int Value;
 	};
 
-	class StarClusterPattern : SharedComponentBase
+	class StarClusterPattern : public PrivateComponentBase
 	{
 	public:
 		StarClusterIndex Index;
-		bool Equals(StarClusterPattern other)
-		{
-			return Index.Value == other.Index.Value;
-		}
-
-		std::size_t GetHashCode() {
-			return Index.Value;
-		}
-
 		double YSpread;
 		double XZSpread;
 

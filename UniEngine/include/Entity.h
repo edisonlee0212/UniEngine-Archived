@@ -29,33 +29,7 @@ namespace UniEngine {
 
 	struct UNIENGINE_API ComponentBase {
 	};
-	
-	class UNIENGINE_API SharedComponentBase : public Serializable {
-		friend class SerializationManager;
-		friend class EditorManager;
-		bool _Enabled = false;
-	public:
-		void SetEnabled(bool value)
-		{
-			if(_Enabled != value)
-			{
-				if(value)
-				{
-					OnEnable();
-				}else
-				{
-					OnDisable();
-				}
-				_Enabled = value;
-			}
-		}
-		bool IsEnabled() const { return _Enabled; }
-		virtual void OnEnable(){}
-		virtual void OnDisable(){}
-		virtual size_t GetHashCode() = 0;
-		virtual void OnGui() {}
-		virtual ~SharedComponentBase() = default;
-	};
+
 	class PrivateComponentBase;
 	struct UNIENGINE_API Entity final {
 		//Position in _Entity Array
@@ -92,14 +66,6 @@ namespace UniEngine {
 		T GetComponentData() const;
 		template<typename T = ComponentBase>
 		bool HasComponentData() const;
-		template <typename T = SharedComponentBase>
-		auto GetSharedComponent() const;
-		template <typename T = SharedComponentBase>
-		void SetSharedComponent(std::shared_ptr<T> value) const;
-		template <typename T = SharedComponentBase>
-		bool RemoveSharedComponent() const;
-		template <typename T = SharedComponentBase>
-		bool HasSharedComponent() const;
 		
 		template <typename T = PrivateComponentBase>
 		auto& GetPrivateComponent() const;
@@ -201,19 +167,6 @@ namespace UniEngine {
 		std::string GetName() const;
 	};
 
-	struct SharedComponentElement
-	{
-		std::string Name;
-		size_t TypeID;
-		std::shared_ptr<SharedComponentBase> SharedComponentData;
-		SharedComponentElement(const std::string& name, size_t id, std::shared_ptr<SharedComponentBase> data)
-		{
-			Name = name;
-			TypeID = id;
-			SharedComponentData = std::move(data);
-		}
-	};
-
 	struct PrivateComponentElement
 	{
 		std::string Name;
@@ -232,12 +185,10 @@ namespace UniEngine {
 	
 	struct EntityInfo {
 		friend class PrivateComponentStorage;
-		friend class SharedComponentStorage;
 		std::string Name;
 		size_t Version;
 		bool Enabled = true;
 		Entity Parent;
-		std::vector<SharedComponentElement> SharedComponentElements;
 		std::vector<PrivateComponentElement> PrivateComponentElements;
 		std::vector<Entity> Children;
 		size_t ArchetypeInfoIndex;

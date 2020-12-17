@@ -669,21 +669,6 @@ void EditorManager::LateUpdate()
 						}
 					);
 				}
-
-				if (ImGui::CollapsingHeader("Shared components", ImGuiTreeNodeFlags_DefaultOpen)) {
-					int i = 0;
-					EntityManager::ForEachSharedComponent(_SelectedEntity, [&i](SharedComponentElement data)
-						{
-							ImGui::Checkbox(data.Name.substr(6).c_str(), &data.SharedComponentData->_Enabled);
-							if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
-								data.SharedComponentData->OnGui();
-								ImGui::TreePop();
-							}
-							ImGui::Separator();
-							i++;
-						});
-				}
-
 			}
 		}
 		else {

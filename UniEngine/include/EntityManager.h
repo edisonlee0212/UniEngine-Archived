@@ -6,10 +6,10 @@
 #include "JobManager.h"
 #include "World.h"
 namespace UniEngine {
+	UNIENGINE_API bool ComponentTypeComparator(ComponentType a, ComponentType b);
 #pragma region EntityManager
 	class UNIENGINE_API EntityManager final : public Singleton<EntityManager> {
 		friend class PrivateComponentStorage;
-		friend class SharedComponentStorage;
 		friend class TransformManager;
 		friend class EditorManager;
 		friend class World;
@@ -19,7 +19,6 @@ namespace UniEngine {
 		static std::vector<Entity>* _ParentRoots;
 		static std::vector<EntityInfo>* _EntityInfos;
 		static std::vector<EntityComponentStorage>* _EntityComponentStorage;
-		static SharedComponentStorage* _EntitySharedComponentStorage;
 		static PrivateComponentStorage* _EntityPrivateComponentStorage;
 		static std::vector<EntityQuery>* _EntityQueries;
 		static std::vector<EntityQueryInfo>* _EntityQueryInfos;
@@ -103,13 +102,11 @@ namespace UniEngine {
 		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
 		static EntityArchetype CreateEntityArchetype(const std::string& name, std::vector<ComponentType>& types);
 		static void SetPrivateComponent(const Entity& entity, const std::string& name, size_t id, PrivateComponentBase* ptr);
-		static void SetSharedComponent(const Entity& entity, const std::string& name, size_t id, std::shared_ptr<SharedComponentBase> ptr);
 	public:
 		static EntityArchetype GetEntityArchetype(const Entity& entity);
 		
 		template <typename T>
 		static const std::vector<Entity>* GetPrivateComponentOwnersList();
-		static void ForEachSharedComponent(const Entity& entity, const std::function<void(SharedComponentElement data)>& func);
 		static void ForEachPrivateComponent(const Entity& entity, const std::function<void(PrivateComponentElement& data)>& func);
 
 		static void GetAllEntities(std::vector<Entity>& target);
@@ -162,15 +159,7 @@ namespace UniEngine {
 		template<typename T = ComponentBase>
 		static bool HasComponentData(size_t index);
 
-		template <typename T = SharedComponentBase>
-		static std::shared_ptr<T> GetSharedComponent(const Entity& entity);
-		template <typename T = SharedComponentBase>
-		static void SetSharedComponent(const Entity& entity, std::shared_ptr<T> value);
-		template <typename T = SharedComponentBase>
-		static void RemoveSharedComponent(const Entity& entity);
-		template <typename T = SharedComponentBase>
-		static bool HasSharedComponent(const Entity& entity);
-
+		
 		template <typename T = PrivateComponentBase>
 		static std::unique_ptr<T>& GetPrivateComponent(const Entity& entity);
 		template <typename T = PrivateComponentBase>
@@ -182,11 +171,6 @@ namespace UniEngine {
 
 		static void RemovePrivateComponent(const Entity& entity, size_t typeId);
 		
-		template <typename T = SharedComponentBase>
-		static std::vector<Entity>* GetSharedComponentEntities(std::shared_ptr<T>& value);
-		template <typename T = SharedComponentBase>
-		static std::vector<std::shared_ptr<T>>* GetSharedComponentDataArray();
-
 		static EntityQuery CreateEntityQuery();
 		template<typename T = ComponentBase, typename... Ts>
 		static void SetEntityQueryAllFilters(const EntityQuery& entityQuery, T arg, Ts... args);
@@ -1409,66 +1393,7 @@ namespace UniEngine {
 		Debug::Error("Entity already deleted!");
 		return false;
 	}
-	template<typename T>
-	std::shared_ptr<T> EntityManager::GetSharedComponent(const Entity& entity)
-	{
-		if (!entity.IsValid()) throw 0;
-		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
-		{
-			if (dynamic_cast<T*>(element.SharedComponentData.get()))
-			{
-				return std::dynamic_pointer_cast<T>(element.SharedComponentData);
-			}
-		}
-		throw 0;
-	}
-	template<typename T>
-	void EntityManager::SetSharedComponent(const Entity& entity, std::shared_ptr<T> value)
-	{
-		if (!entity.IsValid()) return;
-		bool found = false;
-		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
-		{
-			if (dynamic_cast<T*>(element.SharedComponentData.get()))
-			{
-				found = true;
-				element.SharedComponentData = value;
-			}
-		}
-		if (!found)
-		{
-			_EntityInfos->at(entity.Index).SharedComponentElements.push_back(SharedComponentElement(typeid(T).name(), typeid(T).hash_code(), value));
-		}
-		_EntitySharedComponentStorage->SetSharedComponent<T>(entity, value);
-	}
-	template<typename T>
-	void EntityManager::RemoveSharedComponent(const Entity& entity)
-	{
-		if (!entity.IsValid()) return;
-		bool found = false;
-		for (auto i = 0; i < _EntityInfos->at(entity.Index).SharedComponentElements.size(); i++)
-		{
-			if (dynamic_cast<T*>(_EntityInfos->at(entity.Index).SharedComponentElements[i].SharedComponentData.get()))
-			{
-				found = true;
-				_EntityInfos->at(entity.Index).SharedComponentElements.erase(_EntityInfos->at(entity.Index).SharedComponentElements.begin() + i);
-			}
-		}
-		return;
-	}
-	template<typename T>
-	bool EntityManager::HasSharedComponent(const Entity& entity)
-	{
-		if (entity.IsNull()) return false;
-		for (auto& element : _EntityInfos->at(entity.Index).SharedComponentElements)
-		{
-			if (dynamic_cast<T*>(element.SharedComponentData.get()))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+	
 	template <typename T>
 	std::unique_ptr<T>& EntityManager::GetPrivateComponent(const Entity& entity)
 	{
@@ -1538,18 +1463,7 @@ namespace UniEngine {
 		return false;
 	}
 
-	template<typename T>
-	std::vector<Entity>* EntityManager::GetSharedComponentEntities(std::shared_ptr<T>& value)
-	{
-		return _EntitySharedComponentStorage->GetOwnersList<T>(value);
-	}
-#pragma endregion
-#pragma region SharedQuery
-	template<typename T>
-	std::vector<std::shared_ptr<T>>* EntityManager::GetSharedComponentDataArray()
-	{
-		return _EntitySharedComponentStorage->GetSCList<T>();
-	}
+	
 
 	template<typename T, typename ...Ts>
 	void EntityManager::SetEntityQueryAllFilters(const EntityQuery& entityQuery, T arg, Ts ...args)
@@ -2033,30 +1947,6 @@ namespace UniEngine {
 	bool Entity::HasComponentData() const
 	{
 		return EntityManager::HasComponentData<T>(*this);
-	}
-
-	template <typename T>
-	auto Entity::GetSharedComponent() const
-	{
-		return std::move(EntityManager::GetSharedComponent<T>(*this));
-	}
-
-	template <typename T>
-	void Entity::SetSharedComponent(std::shared_ptr<T> value) const
-	{
-		EntityManager::SetSharedComponent(*this, value);
-	}
-
-	template <typename T>
-	bool Entity::RemoveSharedComponent() const
-	{
-		return EntityManager::RemoveSharedComponent<T>();
-	}
-
-	template <typename T>
-	bool Entity::HasSharedComponent() const
-	{
-		return EntityManager::HasSharedComponent<T>();
 	}
 
 	template <typename T>
