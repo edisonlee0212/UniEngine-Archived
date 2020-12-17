@@ -45,6 +45,11 @@ inline void Entity::SetName(std::string name) const
 	return EntityManager::SetEntityName(*this, std::move(name));
 }
 
+bool EntityArchetype::IsValid() const
+{
+	return EntityManager::IsEntityArchetypeValid(*this);
+}
+
 std::string EntityArchetype::GetName() const
 {
 	return EntityManager::GetEntityArchetypeName(*this);

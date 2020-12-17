@@ -12,6 +12,7 @@
 #include "TransformManager.h"
 
 using namespace UniEngine;
+
 bool EditorManager::_Enabled = false;
 EntityArchetype EditorManager::_BasicEntityArchetype;
 std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> EditorManager::_ComponentDataInspectorMap;
@@ -776,11 +777,11 @@ void EditorManager::LateUpdate()
 			ImGui::Image((ImTextureID)_SceneCamera->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_MODEL"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Model).name()))
 				{
 					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
 					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
-					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Model", Transform(), GlobalTransform());
+					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
 					GlobalTransform ltw;
 					FileManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
 				}

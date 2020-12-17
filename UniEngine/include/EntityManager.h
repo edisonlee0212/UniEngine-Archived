@@ -13,6 +13,12 @@ namespace UniEngine {
 		friend class TransformManager;
 		friend class EditorManager;
 		friend class World;
+		friend class SerializationManager;
+		friend struct EntityArchetype;
+		friend struct EntityQuery;
+		friend struct Entity;
+
+		static EntityArchetype _BasicArchetype;
 #pragma region Data Storage
 		static WorldEntityStorage* _CurrentAttachedWorldEntityStorage;
 		static std::vector<Entity>* _Entities;
@@ -61,7 +67,6 @@ namespace UniEngine {
 		static void GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>& container);
 		static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
 
-		friend struct EntityQuery;
 		template<typename T = ComponentBase>
 		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>& container);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
@@ -81,7 +86,6 @@ namespace UniEngine {
 		static void GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container);
 
 		static size_t GetEntityAmount(EntityQuery entityQuery);
-		friend struct Entity;
 		//Enable or Disable an Entity. Note that the disable action will recursively disable the children of current entity. 
 		static void SetEnable(const Entity& entity, bool value);
 		static void SetEnableSingle(const Entity& entity, bool value);
@@ -102,6 +106,7 @@ namespace UniEngine {
 		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
 		static EntityArchetype CreateEntityArchetype(const std::string& name, std::vector<ComponentType>& types);
 		static void SetPrivateComponent(const Entity& entity, const std::string& name, size_t id, PrivateComponentBase* ptr);
+		static bool IsEntityArchetypeValid(const EntityArchetype& archetype);
 	public:
 		static EntityArchetype GetEntityArchetype(const Entity& entity);
 		
@@ -114,6 +119,8 @@ namespace UniEngine {
 		static void Attach(std::unique_ptr<World>& world);
 		template<typename T = ComponentBase, typename... Ts>
 		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);
+
+		static Entity CreateEntity(std::string name = "New Entity");
 		
 		static Entity CreateEntity(EntityArchetype archetype, std::string name = "New Entity");
 		static void DeleteEntity(const Entity& entity);
@@ -1912,25 +1919,7 @@ namespace UniEngine {
 	{
 		return _EntityPrivateComponentStorage->GetOwnersList<T>();
 	}
-	/*
-	template <typename T1>
-	void EntityManager::RegisterComponentDataCreator(const std::function<void(ComponentBase*)>& func)
-	{
-		ComponentCreateFunction ins;
-		ins.ComponentSize = sizeof(T1);
-		ins.Function = func;
-		_ComponentCreationFunctionMap.insert_or_assign(typeid(T1).hash_code(), ins);
-	}
-
-	template <typename T1>
-	void EntityManager::RegisterComponentDataDestroyer(const std::function<void(ComponentBase*)>& func)
-	{
-		ComponentDestroyFunction ins;
-		ins.ComponentSize = sizeof(T1);
-		ins.Function = func;
-		_ComponentDestructionFunctionMap.insert_or_assign(typeid(T1).hash_code(), ins);
-	}
-	*/
+	
 	template <typename T>
 	void Entity::SetComponentData(T value) const
 	{

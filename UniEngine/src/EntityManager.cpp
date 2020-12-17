@@ -4,6 +4,7 @@
 #include "UniEngine.h"
 #include "World.h"
 using namespace UniEngine;
+EntityArchetype EntityManager::_BasicArchetype;
 WorldEntityStorage* UniEngine::EntityManager::_CurrentAttachedWorldEntityStorage = nullptr;
 std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos = nullptr;
 std::vector<Entity>* UniEngine::EntityManager::_Entities = nullptr;
@@ -229,17 +230,28 @@ void UniEngine::EntityManager::Attach(std::unique_ptr<World>& world)
 	_EntityQueries = &targetStorage->EntityQueries;
 	_EntityQueryInfos = &targetStorage->EntityQueryInfos;
 	_EntityQueryPools = &targetStorage->EntityQueryPools;
+	_BasicArchetype = CreateEntityArchetype("Basic", Transform(), GlobalTransform());
 }
 
 
-Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::string name)
+Entity EntityManager::CreateEntity(std::string name)
 {
-	if (!Application::_Initialized)
+	if (!_CurrentAttachedWorldEntityStorage)
 	{
-		Debug::Error("CreateEntity: Initialize Engine first!");
+		Debug::Error("EntityManager not attached to any world!");
 		return Entity();
 	}
-	if (archetype.Index == 0) return Entity();
+	return CreateEntity(_BasicArchetype, name);
+}
+
+Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::string name)
+{
+	if (!_CurrentAttachedWorldEntityStorage)
+	{
+		Debug::Error("EntityManager not attached to any world!");
+		return Entity();
+	}
+	if (archetype.IsValid()) return Entity();
 	Entity retVal;
 	EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
 	EntityArchetypeInfo* info = storage.ArchetypeInfo;
@@ -710,6 +722,11 @@ void EntityManager::SetPrivateComponent(const Entity& entity, const std::string&
 		_EntityPrivateComponentStorage->SetPrivateComponent(entity, id);
 		_EntityInfos->at(entity.Index).PrivateComponentElements.emplace_back(name, id, std::unique_ptr<PrivateComponentBase>(ptr), entity);
 	}
+}
+
+bool EntityManager::IsEntityArchetypeValid(const EntityArchetype& archetype)
+{
+	return archetype.IsNull() && _EntityComponentStorage->size() > archetype.Index;
 }
 
 void EntityManager::RemovePrivateComponent(const Entity& entity, size_t typeId)

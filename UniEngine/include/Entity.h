@@ -159,11 +159,12 @@ namespace UniEngine {
 		std::vector<ComponentDataChunk> Chunks;
 	};
 
-	struct UNIENGINE_API EntityArchetype {
+	struct UNIENGINE_API EntityArchetype final {
 		size_t Index;
-		bool IsNull() {
+		bool IsNull() const {
 			return Index == 0;
 		}
+		bool IsValid() const;
 		std::string GetName() const;
 	};
 
