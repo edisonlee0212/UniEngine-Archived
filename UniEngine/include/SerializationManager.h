@@ -43,6 +43,6 @@ namespace UniEngine
 	template <typename T>
 	bool SerializationManager::RegisterComponentDataSerializerDeserializer(const std::pair<std::function<std::string(ComponentBase*)>, std::function<void(const std::string&, ComponentBase*)>>& funcPair)
 	{
-		return Get()._ComponentDataSerializers.insert({ typeid(T).hash_code(), funcPair }).second;
+		return GetInstance()._ComponentDataSerializers.insert({ typeid(T).hash_code(), funcPair }).second;
 	}
 }

@@ -26,15 +26,15 @@ namespace UniEngine {
 
         UNKNOWN = 18
     };
-	class UNIENGINE_API Texture2D : public DragDropBehaviour
+	class UNIENGINE_API Texture2D : public ResourceBehaviour
 	{
-        std::unique_ptr<GLTexture2D> _Texture;
+        std::shared_ptr<GLTexture2D> _Texture;
         std::string _Path;
 
-        friend class FileManager;
+        friend class ResourceManager;
     public:
         Texture2D();
-        std::unique_ptr<GLTexture2D>& Texture();
-        std::string Path();
+        std::shared_ptr<GLTexture2D> Texture() const;
+        std::string Path() const;
 	};
 }

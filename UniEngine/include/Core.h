@@ -17,5 +17,5 @@
 
 #include "World.h"
 #include "SystemBase.h"
-
+#include "ResourceBehaviour.h"
 #include "ComponentFactory.h"

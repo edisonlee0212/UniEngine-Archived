@@ -256,6 +256,7 @@ void UniEngine::RigidBody::OnGui()
 					auto bound = meshRenderer->Mesh->GetBound();
 					glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
 					_ShapeParam = bound.Size() * scale;
+					_ShapeParam = glm::max(glm::vec3(0.01f), _ShapeParam);
 				}
 			}
 			if (ImGui::DragFloat3("XYZ Size", &_ShapeParam.x, 0.01f, 0.0f)) statusChanged = true;

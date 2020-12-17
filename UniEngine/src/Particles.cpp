@@ -60,6 +60,8 @@ void UniEngine::Particles::OnGui()
 		auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
 		RenderManager::DrawGizmoCube(DisplayBoundColor, transform * glm::translate(BoundingBox.Center()) * glm::scale(BoundingBox.Size()), 1);
 	}
+	ImGui::Text("Material: ");
+	ImGui::SameLine();
 	EditorManager::DragAndDrop(Material);
 	if (Material) {
 		if (ImGui::TreeNode("Material##2")) {
@@ -67,6 +69,8 @@ void UniEngine::Particles::OnGui()
 			ImGui::TreePop();
 		}
 	}
+	ImGui::Text("Mesh: ");
+	ImGui::SameLine();
 	EditorManager::DragAndDrop(Mesh);
 	if (Mesh) {
 		if (ImGui::TreeNode("Mesh##2")) {

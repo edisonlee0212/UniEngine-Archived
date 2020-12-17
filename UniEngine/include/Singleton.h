@@ -12,7 +12,7 @@ namespace UniEngine
 		Singleton& operator=(Singleton&&) = default;
 		Singleton& operator=(const Singleton&) = default;
 	public:
-		static T& Get()
+		static T& GetInstance()
 		{
 			static T instance;
 			return instance;

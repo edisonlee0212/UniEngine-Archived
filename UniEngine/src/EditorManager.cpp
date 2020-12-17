@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "EditorManager.h"
 
-#include "FileManager.h"
+#include "ResourceManager.h"
 #include "UniEngine.h"
 #include "Default.h"
 #include "DirectionalLight.h"
@@ -140,26 +140,26 @@ void UniEngine::EditorManager::Init()
 	std::string fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
 
-	std::unique_ptr<GLShader> vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	auto vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
-	std::unique_ptr<GLShader> fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	auto fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
 
 
 	_SceneCameraEntityRecorderProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 	fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
 
-	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
 
 	_SceneHighlightPrePassProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 	vertShaderCode = std::string("#version 460 core\n")
@@ -167,12 +167,12 @@ void UniEngine::EditorManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
 
 	_SceneHighlightProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 	RegisterComponentDataInspector<GlobalTransform>([](ComponentBase* data, bool isRoot)
@@ -782,8 +782,22 @@ void EditorManager::LateUpdate()
 					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
 					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
 					EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-					GlobalTransform ltw;
-					FileManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
+					Transform ltw;
+					ResourceManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
+				}
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Mesh).name()))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
+					std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh>*)payload->Data;
+					Transform ltw;
+					auto meshRenderer = std::make_unique<MeshRenderer>();
+					meshRenderer->Mesh = payload_n;
+					meshRenderer->Material = std::make_shared<Material>();
+					meshRenderer->Material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
+					meshRenderer->Material->SetProgram(Default::GLPrograms::StandardProgram);
+					Entity entity = EntityManager::CreateEntity("Mesh");
+					entity.SetComponentData(ltw);
+					entity.SetPrivateComponent(std::move(meshRenderer));
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -955,4 +969,33 @@ void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
 {
 	if (entity.IsNull() || entity.IsDeleted()) return;
 	_SelectedEntity = entity;
+}
+
+bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceBehaviour>& target)
+{
+	ImGui::Button(target ? target->Name.c_str() : "none");
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+	{
+		ImGui::SetDragDropPayload(name.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
+		if (target->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(target->_Icon->Texture()->ID()), ImVec2(30, 30));
+		else ImGui::TextColored(ImVec4(0, 0, 1, 1), name.substr(6).c_str());
+		ImGui::EndDragDropSource();
+	}
+	bool removed = false;
+	if (target && ImGui::BeginPopupContextItem(reinterpret_cast<char*>(target.get())))
+	{
+		if (ImGui::BeginMenu("Rename"))
+		{
+			static char newName[256];
+			ImGui::InputText("New name", newName, 256);
+			if (ImGui::Button("Confirm")) target->Name = std::string(newName);
+			ImGui::EndMenu();
+		}
+		if (ImGui::Button("Remove")) {
+			target.reset();
+			removed = true;
+		}
+		ImGui::EndPopup();
+	}
+	return removed;
 }

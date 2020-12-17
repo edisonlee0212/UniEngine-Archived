@@ -21,6 +21,8 @@ void UniEngine::MeshRenderer::OnGui()
 		ImGui::Checkbox("Receive shadow", &ReceiveShadow);
 	}
 	ImGui::Checkbox("Cast shadow", &CastShadow);
+	ImGui::Text("Material: ");
+	ImGui::SameLine();
 	EditorManager::DragAndDrop(Material);
 	if (Material) {
 		if (ImGui::TreeNode("Material##1")) {
@@ -28,6 +30,8 @@ void UniEngine::MeshRenderer::OnGui()
 			ImGui::TreePop();
 		}
 	}
+	ImGui::Text("Mesh: ");
+	ImGui::SameLine();
 	EditorManager::DragAndDrop(Mesh);
 	if (Mesh) {
 		if (ImGui::TreeNode("Mesh##1")) {

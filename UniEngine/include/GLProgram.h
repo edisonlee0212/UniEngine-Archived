@@ -1,20 +1,25 @@
 #pragma once
+#include "ResourceBehaviour.h"
 #include "GLObject.h"
 #include "GLShader.h"
 namespace UniEngine {
-	class UNIENGINE_API GLProgram : public GLObject
+	class UNIENGINE_API GLProgram : public GLObject, public ResourceBehaviour
 	{
-        GLShader* _VertexShader;
-        GLShader* _FragmentShader;
-        GLShader* _GeometryShader;
+        friend class ResourceManager;
+        std::shared_ptr<GLShader> _VertexShader;
+        std::shared_ptr<GLShader> _FragmentShader;
+        std::shared_ptr<GLShader> _GeometryShader;
+        
     public:
+        GLProgram(const std::shared_ptr<GLShader>& vertexShader, const std::shared_ptr<GLShader>& fragmentShader);
+        GLProgram(const std::shared_ptr<GLShader>& vertexShader, const std::shared_ptr<GLShader>& fragmentShader, const std::shared_ptr<GLShader>& geometryShader);
+        GLProgram();
+        ~GLProgram() override;
+       
         void Bind() const;
         static void BindDefault();
-        GLProgram();
-        GLProgram(GLShader* vertexShader, GLShader* fragmentShader, GLShader* geometryShader = nullptr);
-        ~GLProgram() override;
         void Link();
-        void Attach(ShaderType type, GLShader* shader);
+        void Attach(ShaderType type, std::shared_ptr<GLShader> shader);
         void Detach(ShaderType type);
         void SetBool(const std::string& name, bool value) const;
         void SetInt(const std::string& name, int value) const;

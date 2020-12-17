@@ -9,7 +9,7 @@
 #include "TransformManager.h"
 #include "RenderManager.h"
 #include "EditorManager.h"
-#include "FileManager.h"
+#include "ResourceManager.h"
 #include "SerializationManager.h"
 using namespace UniEngine;
 
@@ -167,7 +167,7 @@ bool UniEngine::Application::LateUpdateInternal()
 		_World->LateUpdate();
 	}
 	InputManager::LateUpdate();
-	FileManager::LateUpdate();
+	ResourceManager::LateUpdate();
 	WindowManager::LateUpdate();
 	RenderManager::LateUpdate();
 	TransformManager::LateUpdate();

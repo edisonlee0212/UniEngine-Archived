@@ -2,20 +2,14 @@
 #include "CameraComponent.h"
 #include "Core.h"
 #include "UniEngineAPI.h"
+#include "Texture2D.h"
 namespace UniEngine {
 	struct Transform;
-
 	enum EntityEditorSystemConfigFlags {
 		EntityEditorSystem_None = 0,
 		EntityEditorSystem_EnableEntityHierarchy = 1 << 0,
 		EntityEditorSystem_EnableEntityInspector = 1 << 1
 	};
-
-	class UNIENGINE_API DragDropBehaviour {
-	public:
-		std::string Name;
-	};
-	
 	class UNIENGINE_API EditorManager :
 		public Singleton<EditorManager>
 	{
@@ -84,10 +78,12 @@ namespace UniEngine {
 		static Entity GetSelectedEntity() { return _SelectedEntity; }
 		static void SetSelectedEntity(Entity entity);
 
-		template<typename T = DragDropBehaviour>
+		template<typename T = ResourceBehaviour>
 		static bool DragAndDrop(std::shared_ptr<T>& target);
-		template<typename T = DragDropBehaviour>
+		template<typename T = ResourceBehaviour>
 		static bool Draggable(std::shared_ptr<T>& target);
+
+		static bool Draggable(const std::string& name, std::shared_ptr<ResourceBehaviour>& target);
 	};
 
 	template <typename T1>
@@ -127,14 +123,14 @@ namespace UniEngine {
 	template <typename T>
 	bool EditorManager::DragAndDrop(std::shared_ptr<T>& target)
 	{
-		const std::shared_ptr<DragDropBehaviour> ptr = std::dynamic_pointer_cast<DragDropBehaviour>(target);
+		const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
 		
 		ImGui::Button(ptr ? ptr->Name.c_str() : "none");
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			ImGui::SetDragDropPayload(typeid(T).name(), &target, sizeof(std::shared_ptr<T>));
-			ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
-			//ImGui::Image(reinterpret_cast<ImTextureID>(ptr->Icon->Texture()->ID()), ImVec2(30, 30));
+			if(ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30));
+			else ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
 			ImGui::EndDragDropSource();
 		}
 		bool removed = false;
@@ -169,13 +165,13 @@ namespace UniEngine {
 	template <typename T>
 	bool EditorManager::Draggable(std::shared_ptr<T>& target)
 	{
-		const std::shared_ptr<DragDropBehaviour> ptr = std::dynamic_pointer_cast<DragDropBehaviour>(target);
+		const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
 		ImGui::Button(ptr ? ptr->Name.c_str() : "none");
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			ImGui::SetDragDropPayload(typeid(T).name(), &target, sizeof(std::shared_ptr<T>));
-			ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
-			//ImGui::Image(reinterpret_cast<ImTextureID>(ptr->Icon->Texture()->ID()), ImVec2(30, 30));
+			if (ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30));
+			else ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
 			ImGui::EndDragDropSource();
 		}
 		bool removed = false;

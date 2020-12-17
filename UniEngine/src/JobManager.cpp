@@ -6,10 +6,10 @@ ThreadPool JobManager::_ThreadPool;
 
 inline ThreadPool& JobManager::GetThreadPool()
 {
-	return Get()._ThreadPool;
+	return GetInstance()._ThreadPool;
 }
 
 inline void JobManager::Resize(int value)
 {
-	return Get()._ThreadPool.Resize(value);
+	return GetInstance()._ThreadPool.Resize(value);
 }

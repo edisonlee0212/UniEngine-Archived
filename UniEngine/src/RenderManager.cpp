@@ -389,30 +389,30 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/DirectionalLightShadowMap.geom"));
 
-	std::unique_ptr<GLShader> vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	auto vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
-	std::unique_ptr<GLShader> fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	auto fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
-	std::unique_ptr<GLShader> geomShader = std::make_unique<GLShader>(ShaderType::Geometry);
+	auto geomShader = std::make_shared<GLShader>(ShaderType::Geometry);
 	geomShader->SetCode(&geomShaderCode);
 
 
 	_DirectionalLightProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get(),
-		geomShader.get()
+		vertShader,
+		fragShader,
+		geomShader
 		);
 
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapInstanced.vert"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
 
 	_DirectionalLightInstancedProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get(),
-		geomShader.get()
+		vertShader,
+		fragShader,
+		geomShader
 		);
 
 #pragma region PointLight
@@ -428,29 +428,29 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/PointLightShadowMap.geom"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
-	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
-	geomShader = std::make_unique<GLShader>(ShaderType::Geometry);
+	geomShader = std::make_shared<GLShader>(ShaderType::Geometry);
 	geomShader->SetCode(&geomShaderCode);
 
 	_PointLightProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get(),
-		geomShader.get()
+		vertShader,
+		fragShader,
+		geomShader
 		);
 
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapInstanced.vert"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
 
 	_PointLightInstancedProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get(),
-		geomShader.get()
+		vertShader,
+		fragShader,
+		geomShader
 		);
 #pragma endregion
 #pragma region SpotLight
@@ -462,15 +462,15 @@ void RenderManager::Init()
 	fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SpotLightShadowMap.frag"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
-	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
 
 
 	_SpotLightProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 	vertShaderCode = std::string("#version 460 core\n")
@@ -478,12 +478,12 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapInstanced.vert"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
 
 	_SpotLightInstancedProgram = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 #pragma endregion
 #pragma endregion
@@ -498,14 +498,14 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferredLighting.frag"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
-	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
 
 	_GBufferLightingPass = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 	vertShaderCode = std::string("#version 460 core\n")
@@ -518,14 +518,14 @@ void RenderManager::Init()
 		+ "\n"
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferred.frag"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
-	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
 
 	_GBufferPrepass = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 	vertShaderCode = std::string("#version 460 core\n")
@@ -533,12 +533,12 @@ void RenderManager::Init()
 		+"\n"
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
 
 	_GBufferInstancedPrepass = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 #pragma endregion
@@ -550,14 +550,14 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
 
-	vertShader = std::make_unique<GLShader>(ShaderType::Vertex);
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->SetCode(&vertShaderCode);
-	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
 
 	_SSAOGeometryPass = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 	fragShaderCode = std::string("#version 460 core\n") +
@@ -565,12 +565,12 @@ void RenderManager::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOBlur.frag"));
 
-	fragShader = std::make_unique<GLShader>(ShaderType::Fragment);
+	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->SetCode(&fragShaderCode);
 
 	_SSAOBlurPass = std::make_unique<GLProgram>(
-		vertShader.get(),
-		fragShader.get()
+		vertShader,
+		fragShader
 		);
 
 #pragma endregion

@@ -1,19 +1,21 @@
 #include "pch.h"
 #include "TransformManager.h"
-#include "FileManager.h"
+#include "ResourceManager.h"
 #include "MeshRenderer.h"
 #include "EntityManager.h"
 #include "Default.h"
 #include "SerializationManager.h"
 #include "Application.h"
 using namespace UniEngine;
-bool FileManager::_EnableAssetMenu = true;
-std::vector<std::shared_ptr<Model>> FileManager::_Models;
-std::vector<std::shared_ptr<Texture2D>> FileManager::_Texture2Ds;
-std::vector<std::shared_ptr<Cubemap>> FileManager::_Cubemaps;
-std::vector<std::shared_ptr<Material>> FileManager::_Materials;
-std::vector<std::shared_ptr<Mesh>> FileManager::_Meshes;
-std::shared_ptr<Model> UniEngine::FileManager::LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
+bool ResourceManager::_EnableAssetMenu = true;
+std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> ResourceManager::_Resources;
+
+void ResourceManager::Remove(size_t id, size_t hashCode)
+{
+	_Resources[id].second.erase(hashCode);
+}
+
+std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
 {
 	stbi_set_flip_vertically_on_load(true);
 	// read file via ASSIMP
@@ -30,11 +32,11 @@ std::shared_ptr<Model> UniEngine::FileManager::LoadModel(std::string const& path
 	std::vector<std::shared_ptr<Texture2D>> Texture2DsLoaded;
 	auto retVal = std::make_shared<Model>();
 	ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
-	_Models.push_back(retVal);
+	Push(retVal);
 	return retVal;
 }
 
-Entity UniEngine::FileManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
+Entity UniEngine::ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
 {
 	Entity entity = EntityManager::CreateEntity(archetype);
 	entity.SetName(model->Name);
@@ -55,7 +57,7 @@ Entity UniEngine::FileManager::ToEntity(EntityArchetype archetype, std::shared_p
 	return entity;
 }
 
-void FileManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram> shader, std::unique_ptr<ModelNode>& modelNode, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiNode* node, const aiScene* scene)
+void ResourceManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram> shader, std::unique_ptr<ModelNode>& modelNode, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiNode* node, const aiScene* scene)
 {
 	for (unsigned i = 0; i < node->mNumMeshes; i++)
 	{
@@ -78,7 +80,7 @@ void FileManager::ProcessNode(std::string directory, std::shared_ptr<GLProgram> 
 	}
 }
 
-void FileManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
+void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& modelNode, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene) {
 	unsigned mask = 1;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> indices;
@@ -209,7 +211,6 @@ void FileManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& model
 		{   // if Texture2D hasn't been loaded already, load it
 			auto texture2D = LoadTexture(directory + "/" + str.C_Str());
 			material->SetTexture(texture2D, TextureType::DIFFUSE);
-			_Texture2Ds.pop_back();
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
 	}
@@ -235,7 +236,6 @@ void FileManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& model
 		{   // if Texture2D hasn't been loaded already, load it
 			auto texture2D = LoadTexture(directory + "/" + str.C_Str());
 			material->SetTexture(texture2D, TextureType::SPECULAR);
-			_Texture2Ds.pop_back();
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
 	}
@@ -257,7 +257,6 @@ void FileManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& model
 		{   // if Texture2D hasn't been loaded already, load it
 			auto texture2D = LoadTexture(directory + "/" + str.C_Str());
 			material->SetTexture(texture2D, TextureType::NORMAL);
-			_Texture2Ds.pop_back();
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
 	}
@@ -279,14 +278,13 @@ void FileManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& model
 		{   // if Texture2D hasn't been loaded already, load it
 			auto texture2D = LoadTexture(directory + "/" + str.C_Str());
 			material->SetTexture(texture2D, TextureType::DISPLACEMENT);
-			_Texture2Ds.pop_back();
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
 	}
-	modelNode->_MeshMaterials.push_back(std::make_pair(material, mesh));
+	modelNode->_MeshMaterials.emplace_back(material, mesh);
 }
 
-void UniEngine::FileManager::AttachChildren(EntityArchetype archetype, std::unique_ptr<ModelNode>& modelNode, Entity parentEntity, std::string parentName)
+void UniEngine::ResourceManager::AttachChildren(EntityArchetype archetype, std::unique_ptr<ModelNode>& modelNode, Entity parentEntity, std::string parentName)
 {
 	Entity entity = EntityManager::CreateEntity(archetype);
 	entity.SetName(parentName);
@@ -307,29 +305,29 @@ void UniEngine::FileManager::AttachChildren(EntityArchetype archetype, std::uniq
 	}
 }
 
-void FileManager::ModelGuiNode(int i)
+void ResourceManager::ModelGuiNode(std::shared_ptr<Model>& model)
 {
-	ImGui::PushID(i);
+	ImGui::PushID(model->GetHashCode());
 	ImGui::ImageButton(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 	{
 		// Set payload to carry the index of our item (could be anything)
-		ImGui::SetDragDropPayload("ASSET_MODEL", &_Models[i], sizeof(std::shared_ptr<Model>));
+		ImGui::SetDragDropPayload("ASSET_MODEL", &model, sizeof(std::shared_ptr<Model>));
 		ImGui::Image(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
 		ImGui::EndDragDropSource();
 	}
 	bool deleted = false;
-	if (ImGui::BeginPopupContextItem(std::to_string(i).c_str()))
+	if (ImGui::BeginPopupContextItem(std::to_string(model->GetHashCode()).c_str()))
 	{
 		if (ImGui::BeginMenu("Rename"))
 		{
 			static char newName[256];
 			ImGui::InputText("New name", newName, 256);
-			if (ImGui::Button("Confirm")) _Models[i]->Name = std::string(newName);
+			if (ImGui::Button("Confirm")) model->Name = std::string(newName);
 			ImGui::EndMenu();
 		}
 		if (ImGui::Button("Delete")) {
-			RemoveModel(i);
+			Remove<Model>(model->GetHashCode());
 			deleted = true;
 		}
 		ImGui::EndPopup();
@@ -338,32 +336,32 @@ void FileManager::ModelGuiNode(int i)
 	ImGui::PopID();
 	ImGui::SameLine();
 	if (!deleted) {
-		ImGui::TextWrapped(_Models[i]->Name.c_str(), ImVec2(30, 30));
+		ImGui::TextWrapped(model->Name.c_str(), ImVec2(30, 30));
 	}
 }
 
-void FileManager::TextureGuiNode(int i)
+void ResourceManager::TextureGuiNode(std::shared_ptr<Texture2D>& texture2D)
 {
-	ImGui::PushID(i);
-	ImGui::ImageButton((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
+	ImGui::PushID(texture2D->GetHashCode());
+	ImGui::ImageButton((ImTextureID)texture2D->Texture()->ID(), ImVec2(30, 30));
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 	{
-		ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &_Texture2Ds[i], sizeof(std::shared_ptr<Texture2D>));
-		ImGui::Image((ImTextureID)_Texture2Ds[i]->Texture()->ID(), ImVec2(30, 30));
+		ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &texture2D, sizeof(std::shared_ptr<Texture2D>));
+		ImGui::Image((ImTextureID)texture2D->Texture()->ID(), ImVec2(30, 30));
 		ImGui::EndDragDropSource();
 	}
 	bool deleted = false;
-	if (ImGui::BeginPopupContextItem(std::to_string(i).c_str()))
+	if (ImGui::BeginPopupContextItem(std::to_string(texture2D->GetHashCode()).c_str()))
 	{
 		if (ImGui::BeginMenu("Rename"))
 		{
 			static char newName[256];
 			ImGui::InputText("New name", newName, 256);
-			if (ImGui::Button("Confirm")) _Texture2Ds[i]->Name = std::string(newName);
+			if (ImGui::Button("Confirm")) texture2D->Name = std::string(newName);
 			ImGui::EndMenu();
 		}
 		if (ImGui::Button("Delete")) {
-			RemoveTexture(i);
+			Remove<Texture2D>(texture2D->GetHashCode());
 			deleted = true;
 		}
 		ImGui::EndPopup();
@@ -371,21 +369,12 @@ void FileManager::TextureGuiNode(int i)
 
 	ImGui::PopID();
 	ImGui::SameLine();
-	ImGui::TextWrapped(_Texture2Ds[i]->Name.c_str());
+	ImGui::TextWrapped(texture2D->Name.c_str());
 
 }
 
-std::shared_ptr<Model> FileManager::GetModel(int i)
-{
-	return _Models[i];
-}
 
-std::shared_ptr<Texture2D> FileManager::GetTexture2D(int i)
-{
-	return _Texture2Ds[i];
-}
-
-std::shared_ptr<Texture2D> FileManager::LoadTexture(std::string path)
+std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& path)
 {
 	stbi_set_flip_vertically_on_load(true);
 	auto retVal = std::make_shared<Texture2D>();
@@ -410,7 +399,7 @@ std::shared_ptr<Texture2D> FileManager::LoadTexture(std::string path)
 			iformat = GL_RGBA8;
 		}
 		GLsizei mipmap = static_cast<GLsizei>(log2(std::max(width, height))) + 1;
-		retVal->Texture() = std::make_unique<GLTexture2D>(mipmap, iformat, width, height, true);
+		retVal->_Texture = std::make_shared<GLTexture2D>(mipmap, iformat, width, height, true);
 		retVal->Texture()->SetData(0, format, GL_UNSIGNED_BYTE, data);
 		retVal->Texture()->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
 		retVal->Texture()->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -425,21 +414,102 @@ std::shared_ptr<Texture2D> FileManager::LoadTexture(std::string path)
 		Debug::Log("Texture failed to load at path: " + filename);
 		stbi_image_free(data);
 	}
-	_Texture2Ds.push_back(retVal);
+	retVal->_Icon = retVal;
+	Push(retVal);
 	return retVal;
 }
 
-void FileManager::RemoveModel(int index)
+
+std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(const std::vector<std::string>& paths)
 {
-	_Models.erase(_Models.begin() + index);
+	int width, height, nrComponents;
+	auto size = paths.size();
+	if (size != 6) {
+		Debug::Error("Texture::LoadCubeMap: Size error.");
+		return nullptr;
+	}
+	unsigned char* temp = stbi_load(paths[0].c_str(), &width, &height, &nrComponents, 0);
+	stbi_image_free(temp);
+	auto texture = std::make_unique<GLTextureCubeMap>(1, GL_RGB, width, height, false);
+	for (int i = 0; i < size; i++)
+	{
+		unsigned char* data = stbi_load(paths[i].c_str(), &width, &height, &nrComponents, 0);
+		if (data)
+		{
+			GLenum iformat = GL_R8;
+			GLenum format = GL_RED;
+			if (nrComponents == 2) {
+				format = GL_RG;
+				iformat = GL_RG8;
+			}
+			else if (nrComponents == 3) {
+				format = GL_RGB;
+				iformat = GL_RGB8;
+			}
+			else if (nrComponents == 4) {
+				format = GL_RGBA;
+				iformat = GL_RGBA8;
+			}
+
+			texture->SetData((CubeMapIndex)i, 0, iformat, format, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap texture failed to load at path: " << paths[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	texture->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	auto retVal = std::make_shared<Cubemap>();
+	retVal->_Texture = std::move(texture);
+	retVal->_Paths = paths;
+	Push(retVal);
+	return retVal;
 }
 
-void FileManager::RemoveTexture(int index)
+std::shared_ptr<Material> ResourceManager::LoadMaterial(const std::shared_ptr<GLProgram>& program)
 {
-	_Texture2Ds.erase(_Texture2Ds.begin() + index);
+	auto retVal = std::make_shared<Material>();
+	retVal->Shininess = 32.0f;
+	retVal->SetProgram(program);
+	Push(retVal);
+	return retVal;
 }
 
-void FileManager::LateUpdate()
+std::shared_ptr<GLProgram> ResourceManager::LoadProgram(std::shared_ptr<GLShader> vertex,
+                                                        std::shared_ptr<GLShader> fragment)
+{
+	auto retVal = std::make_shared<GLProgram>();
+	retVal->Attach(ShaderType::Vertex, vertex);
+	retVal->Attach(ShaderType::Fragment, fragment);
+	retVal->_VertexShader = vertex;
+	retVal->_FragmentShader = fragment;
+	retVal->Link();
+	Push(retVal);
+	return retVal;
+}
+
+std::shared_ptr<GLProgram> ResourceManager::LoadProgram(std::shared_ptr<GLShader> vertex,
+	std::shared_ptr<GLShader> geometry, std::shared_ptr<GLShader> fragment)
+{
+	auto retVal = std::make_shared<GLProgram>();
+	retVal->Attach(ShaderType::Vertex, vertex);
+	retVal->Attach(ShaderType::Geometry, geometry);
+	retVal->Attach(ShaderType::Fragment, fragment);
+	retVal->_VertexShader = vertex;
+	retVal->_GeometryShader = geometry;
+	retVal->_FragmentShader = fragment;
+	retVal->Link();
+	Push(retVal);
+	return retVal;
+}
+
+void ResourceManager::LateUpdate()
 {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File"))
@@ -539,216 +609,32 @@ void FileManager::LateUpdate()
 				}
 				ImGui::EndTabItem();
 			}
+			for (auto& collection : _Resources) {
+				if (ImGui::BeginTabItem(collection.second.first.substr(6).c_str()))
+				{
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(collection.second.first.c_str()))
+						{
+							IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<ResourceBehaviour>));
+							std::shared_ptr<ResourceBehaviour> payload_n = *static_cast<std::shared_ptr<ResourceBehaviour>*>(payload->Data);
+							Push(payload_n);
+						}
+						ImGui::EndDragDropTarget();
+					}
+					for (auto& i : collection.second.second)
+					{
+						if (EditorManager::Draggable(collection.second.first, i.second))
+						{
+							Remove(i.first, i.second->GetHashCode());
+							break;
+						}
+					}
+
+					ImGui::EndTabItem();
+				}
+			}
 			
-			if (ImGui::BeginTabItem("Model"))
-			{
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Model).name()))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
-						std::shared_ptr<Model> payload_n = *static_cast<std::shared_ptr<Model>*>(payload->Data);
-						bool missing = true;
-						for (auto i : _Models)
-						{
-							if (i.get() == payload_n.get())
-							{
-								missing = false;
-								break;
-							}
-						}
-						if (missing)
-						{
-							_Models.push_back(payload_n);
-						}
-					}
-					ImGui::EndDragDropTarget();
-				}
-				bool removed = false;
-				for (auto& i : _Models)
-				{
-					if (EditorManager::Draggable(i)) removed = true;
-				}
-				if (removed)
-				{
-					for (int i = 0; i < _Models.size(); i++)
-					{
-						if (!_Models[i]) {
-							_Models.erase(_Models.begin() + i);
-							i--;
-						}
-					}
-				}
-				ImGui::EndTabItem();
-			}
-
-			if (ImGui::BeginTabItem("Mesh"))
-			{
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Mesh).name()))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
-						std::shared_ptr<Mesh> payload_n = *static_cast<std::shared_ptr<Mesh>*>(payload->Data);
-						bool missing = true;
-						for (auto i : _Meshes)
-						{
-							if (i.get() == payload_n.get())
-							{
-								missing = false;
-								break;
-							}
-						}
-						if (missing)
-						{
-							_Meshes.push_back(payload_n);
-						}
-					}
-					ImGui::EndDragDropTarget();
-				}
-				bool removed = false;
-				for (auto& i : _Meshes)
-				{
-					if (EditorManager::Draggable(i)) removed = true;
-				}
-				if (removed)
-				{
-					for (int i = 0; i < _Meshes.size(); i++)
-					{
-						if (!_Meshes[i]) {
-							_Meshes.erase(_Meshes.begin() + i);
-							i--;
-						}
-					}
-				}
-				ImGui::EndTabItem();
-			}
-
-			if (ImGui::BeginTabItem("Material"))
-			{
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Material).name()))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Material>));
-						std::shared_ptr<Material> payload_n = *static_cast<std::shared_ptr<Material>*>(payload->Data);
-						bool missing = true;
-						for (auto i : _Materials)
-						{
-							if (i.get() == payload_n.get())
-							{
-								missing = false;
-								break;
-							}
-						}
-						if (missing)
-						{
-							_Materials.push_back(payload_n);
-						}
-					}
-					ImGui::EndDragDropTarget();
-				}
-				bool removed = false;
-				for (auto& i : _Materials)
-				{
-					if (EditorManager::Draggable(i)) removed = true;
-				}
-				if (removed)
-				{
-					for (int i = 0; i < _Materials.size(); i++)
-					{
-						if (!_Materials[i]) {
-							_Materials.erase(_Materials.begin() + i);
-							i--;
-						}
-					}
-				}
-				ImGui::EndTabItem();
-			}
-
-			if (ImGui::BeginTabItem("Texture"))
-			{
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Texture2D).name()))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-						std::shared_ptr<Texture2D> payload_n = *static_cast<std::shared_ptr<Texture2D>*>(payload->Data);
-						bool missing = true;
-						for (auto i : _Texture2Ds)
-						{
-							if (i.get() == payload_n.get())
-							{
-								missing = false;
-								break;
-							}
-						}
-						if (missing)
-						{
-							_Texture2Ds.push_back(payload_n);
-						}
-					}
-					ImGui::EndDragDropTarget();
-				}
-				bool removed = false;
-				for (auto& i : _Texture2Ds)
-				{
-					if (EditorManager::Draggable(i)) removed = true;
-				}
-				if (removed)
-				{
-					for (int i = 0; i < _Texture2Ds.size(); i++)
-					{
-						if (!_Texture2Ds[i]) {
-							_Texture2Ds.erase(_Texture2Ds.begin() + i);
-							i--;
-						}
-					}
-				}
-				ImGui::EndTabItem();
-			}
-
-			if (ImGui::BeginTabItem("Cubemap"))
-			{
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Cubemap).name()))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
-						std::shared_ptr<Cubemap> payload_n = *static_cast<std::shared_ptr<Cubemap>*>(payload->Data);
-						bool missing = true;
-						for (auto i : _Cubemaps)
-						{
-							if (i.get() == payload_n.get())
-							{
-								missing = false;
-								break;
-							}
-						}
-						if (missing)
-						{
-							_Cubemaps.push_back(payload_n);
-						}
-					}
-					ImGui::EndDragDropTarget();
-				}
-				bool removed = false;
-				for (auto& i : _Cubemaps)
-				{
-					if (EditorManager::Draggable(i)) removed = true;
-				}
-				if (removed)
-				{
-					for (int i = 0; i < _Cubemaps.size(); i++)
-					{
-						if (!_Cubemaps[i]) {
-							_Cubemaps.erase(_Cubemaps.begin() + i);
-							i--;
-						}
-					}
-				}
-				ImGui::EndTabItem();
-			}
 		}
 		ImGui::EndTabBar();
 		ImGui::End();

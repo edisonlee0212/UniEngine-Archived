@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Material.h"
-#include "FileManager.h"
+#include "ResourceManager.h"
 #include "Default.h"
 using namespace UniEngine;
 
@@ -28,6 +28,10 @@ void Material::OnGui()
 		}
 		ImGui::EndPopup();
 	}
+	ImGui::Text("Program: ");
+	ImGui::SameLine();
+	EditorManager::DragAndDrop(_Program);
+	
 	ImGui::DragFloat("Shininess", &Shininess, 1.0f, 1.0f, 1024.0f);
 	ImGui::Checkbox("Enable Transparent Discard", &TransparentDiscard);
 	ImGui::DragFloat("Transparent Discard Limit", &TransparentDiscardLimit, 0.01f, 0.0f, 0.99f);

@@ -33,7 +33,7 @@ namespace UniEngine {
 		TexCoord7 = 1 << 11
 	};
 
-	class UNIENGINE_API Mesh : public DragDropBehaviour
+	class UNIENGINE_API Mesh : public ResourceBehaviour
 	{
 		std::shared_ptr<GLVAO> _VAO;
 		size_t _VerticesSize;

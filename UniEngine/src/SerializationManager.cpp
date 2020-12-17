@@ -330,8 +330,8 @@ void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& wo
 		out << YAML::BeginMap;
 		out << YAML::Key << "Name" << YAML::Value << type.Name;
 		std::string value;
-		const auto it = Get()._ComponentDataSerializers.find(type.TypeID);
-		if (it != Get()._ComponentDataSerializers.end())
+		const auto it = GetInstance()._ComponentDataSerializers.find(type.TypeID);
+		if (it != GetInstance()._ComponentDataSerializers.end())
 		{
 			ComponentBase* ptr = EntityManager::GetComponentDataPointer(entity, type.TypeID);
 			value = it->second.first(ptr);
@@ -378,8 +378,8 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(std::unique
 		auto ptr = ComponentFactory::ProduceComponentData(name, hashCode, size);
 
 		//Deserialize componentData here.
-		const auto it = Get()._ComponentDataSerializers.find(hashCode);
-		if (it != Get()._ComponentDataSerializers.end())
+		const auto it = GetInstance()._ComponentDataSerializers.find(hashCode);
+		if (it != GetInstance()._ComponentDataSerializers.end())
 		{
 			it->second.second(componentData["Content"].as<std::string>(), ptr.get());
 		}
