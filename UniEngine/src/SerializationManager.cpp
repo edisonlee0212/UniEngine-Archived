@@ -1,8 +1,5 @@
 #include "pch.h"
 #include "SerializationManager.h"
-
-#include "yaml-cpp/yaml.h"
-
 #include "Camera.h"
 #include "CameraComponent.h"
 #include "DirectionalLight.h"

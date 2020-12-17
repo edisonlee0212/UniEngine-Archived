@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "PxPhysicsAPI.h"
+
 using namespace physx;
 namespace UniEngine {
 	enum class UNIENGINE_API ShapeType

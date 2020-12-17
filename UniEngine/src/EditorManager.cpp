@@ -5,13 +5,12 @@
 #include "UniEngine.h"
 #include "Default.h"
 #include "DirectionalLight.h"
-#include "imgui_internal.h"
 #include "InputManager.h"
 #include "Model.h"
 #include "PointLight.h"
 #include "RenderManager.h"
 #include "TransformManager.h"
-#include "ImGuizmo/ImGuizmo.h"
+
 using namespace UniEngine;
 bool EditorManager::_Enabled = false;
 EntityArchetype EditorManager::_BasicEntityArchetype;

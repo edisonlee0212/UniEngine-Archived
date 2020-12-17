@@ -45,13 +45,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;..\external\yaml-cpp\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;..\external\yaml-cpp\include;..\external;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
     <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;..\external\yaml-cpp\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Submodules\glfw\include;..\Submodules\ImGui\backends;..\Submodules\ImGui;..\external\glad\include;..\external\glad\include\KHR;..\external\glad\include\glad;..\external\Assimp\include;..\external\glm\glm;..\Submodules\stb;..\external\PhysX\include;..\UniEngine\include;..\external\yaml-cpp\include;..\external;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)-$(Platform)\$(ProjectName)</OutDir>
     <IntDir>$(SolutionDir)bin\int\$(Configuration)-$(Platform)\$(ProjectName)</IntDir>
   </PropertyGroup>

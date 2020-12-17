@@ -2,7 +2,6 @@
 #include "CameraComponent.h"
 #include "SerializationManager.h"
 #include "RenderManager.h"
-#include "yaml-cpp/yaml.h"
 void UniEngine::CameraComponent::Serialize(YAML::Emitter& out)
 {
 	out << YAML::Key << "_ResolutionX" << YAML::Value << _ResolutionX;

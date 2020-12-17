@@ -4,9 +4,7 @@
 #include "Texture2D.h"
 #include "MeshRenderer.h"
 #include "Model.h"
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <assimp/Importer.hpp>
+
 namespace UniEngine {
     class UNIENGINE_API FileManager : public Singleton<FileManager>
     {

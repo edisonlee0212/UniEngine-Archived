@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "Camera.h"
 
-#include <stb_image_write.h>
-#include <stb_image_resize.h>
 #include "TransformManager.h"
 #include "WindowManager.h"
 

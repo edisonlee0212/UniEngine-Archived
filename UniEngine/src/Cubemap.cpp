@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Cubemap.h"
-#include <stb_image.h>
 
 void UniEngine::Cubemap::LoadCubeMap(std::vector<std::string> paths)
 {

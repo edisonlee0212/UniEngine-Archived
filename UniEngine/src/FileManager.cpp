@@ -1,11 +1,7 @@
 #include "pch.h"
 #include "TransformManager.h"
 #include "FileManager.h"
-
-#include <filesystem>
-
 #include "MeshRenderer.h"
-#include <stb_image.h>
 #include "EntityManager.h"
 #include "Default.h"
 #include "SerializationManager.h"

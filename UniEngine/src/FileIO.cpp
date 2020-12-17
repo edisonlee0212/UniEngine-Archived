@@ -1,11 +1,5 @@
 #include "pch.h"
 #include "FileIO.h"
-#include <sstream>
-#include <commdlg.h>
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-#include <filesystem>
 #include "Debug.h"
 #include "WindowManager.h"
 std::unique_ptr<std::string> UniEngine::FileIO::_ResourceRootPath = std::make_unique<std::string>("../Resources/");

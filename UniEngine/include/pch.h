@@ -43,10 +43,29 @@
 #include <gtc/random.hpp>
 #include <gtx/rotate_vector.hpp>
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h"
 
-#include "stb_image_write.h"
+#define STBI_MSC_SECURE_CRT
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_image_resize.h>
 
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+
+#include <commdlg.h>
+#include <GLFW/glfw3.h>
+#include <filesystem>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
+#include "yaml-cpp/yaml.h"
+
+#include "ImGuizmo/ImGuizmo.h"
+
+#include "PxPhysicsAPI.h"
 #endif //PCH_H
