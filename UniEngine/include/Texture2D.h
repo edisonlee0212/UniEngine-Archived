@@ -34,8 +34,9 @@ namespace UniEngine {
         friend class CameraComponent;
     public:
         Texture2D();
-        void StoreToPng(const std::string& path, int resizeX = -1, int resizeY = -1);
-        void StoreToJpg(const std::string& path, int resizeX = -1, int resizeY = -1);
+        glm::vec2 GetResolution() const;
+        void StoreToPng(const std::string& path, int resizeX = -1, int resizeY = -1) const;
+        void StoreToJpg(const std::string& path, int resizeX = -1, int resizeY = -1) const;
         std::shared_ptr<GLTexture2D> Texture() const;
         std::string Path() const;
 	};

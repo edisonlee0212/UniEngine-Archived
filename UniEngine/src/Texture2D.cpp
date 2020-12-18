@@ -10,7 +10,12 @@ UniEngine::Texture2D::Texture2D()
 	Name = "New Texture";
 }
 
-void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY)
+glm::vec2 Texture2D::GetResolution() const
+{
+	return { _Texture->_Width, _Texture->_Height };
+}
+
+void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY) const
 {
 	const auto resolutionX = _Texture->_Width;
 	const auto resolutionY = _Texture->_Height;
@@ -48,7 +53,7 @@ void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY)
 	}
 }
 
-void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY)
+void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY) const
 {
 	const auto resolutionX = _Texture->_Width;
 	const auto resolutionY = _Texture->_Height;
