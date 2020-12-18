@@ -7,7 +7,7 @@ std::unique_ptr<std::string> UniEngine::FileIO::_ProjectPath;
 
 std::string UniEngine::FileIO::GetAssetFolderPath()
 {
-	std::string path = GetProjectPath() + "Assets";
+	std::string path = GetProjectPath() + "Assets/";
 	if (!std::filesystem::exists(path))
 	{
 		std::filesystem::create_directory(path);
