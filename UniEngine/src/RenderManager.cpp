@@ -1724,6 +1724,57 @@ void RenderManager::DrawGizmoRay(glm::vec4 color, glm::vec3 start, glm::vec3 end
 	DrawGizmoMesh(Default::Primitives::Cylinder.get(), color, model);
 }
 
+void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<std::pair<glm::vec3, glm::vec3>> connections,
+	float width)
+{
+	if (connections.empty()) return;
+	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
+	Camera::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera->_Camera.get(),
+		EditorManager::_SceneCameraPosition,
+		EditorManager::_SceneCameraRotation
+	);
+	Camera::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera->_Camera->CameraUniformBufferBlock);
+	EditorManager::_SceneCamera->_Camera->Bind();
+	std::vector<glm::mat4> models;
+	models.resize(connections.size());
+	for(int i = 0; i < connections.size(); i++)
+	{
+		auto start = connections[i].first;
+		auto& end = connections[i].second;
+		glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
+		rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+		glm::mat4 rotationMat = glm::mat4_cast(rotation);
+		auto model = glm::translate((start + end) / 2.0f) * rotationMat * glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
+		models[i] = model;
+	}
+	
+	DrawGizmoMeshInstanced(Default::Primitives::Cylinder.get(), color, models.data(), connections.size()); 
+}
+
+void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<Ray>& rays, float width)
+{
+	if(rays.empty()) return;
+	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
+	Camera::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera->_Camera.get(),
+		EditorManager::_SceneCameraPosition,
+		EditorManager::_SceneCameraRotation
+	);
+	Camera::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera->_Camera->CameraUniformBufferBlock);
+	EditorManager::_SceneCamera->_Camera->Bind();
+	std::vector<glm::mat4> models;
+	models.resize(rays.size());
+	for (int i = 0; i < rays.size(); i++)
+	{
+		auto& ray = rays[i];
+		glm::quat rotation = glm::quatLookAt(ray.Direction, glm::vec3(0.0f, 1.0f, 0.0f));
+		rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+		const glm::mat4 rotationMat = glm::mat4_cast(rotation);
+		auto model = glm::translate((ray.Start + ray.Direction * ray.Length / 2.0f)) * rotationMat * glm::scale(glm::vec3(width, ray.Length / 2.0f, width));
+		models[i] = model;
+	}
+	DrawGizmoMeshInstanced(Default::Primitives::Cylinder.get(), color, models.data(), rays.size());
+}
+
 void RenderManager::DrawGizmoRay(glm::vec4 color, Ray& ray, float width)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
