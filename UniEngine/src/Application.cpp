@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Application.h"
-#include "Camera.h"
 #include "CameraComponent.h"
 #include "Default.h"
 #include "InputManager.h"
@@ -99,7 +98,7 @@ void UniEngine::Application::Init(bool fullScreen)
 #pragma endregion
 	_Initialized = true;
 #pragma region Main Camera
-	Camera::GenerateMatrices();
+	CameraComponent::GenerateMatrices();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", GlobalTransform(), Transform(), CameraLayerMask());
 	auto mainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
 	Transform cameraLtw;

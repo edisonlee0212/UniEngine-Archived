@@ -166,6 +166,7 @@ namespace UniEngine {
 		GLsizei _Width = 0;
 		GLsizei _Height = 0;
 		bool _Immutable;
+		friend class Texture2D;
 	public:
 		GLTexture2D(GLsizei levels,
 			GLenum internalFormat,

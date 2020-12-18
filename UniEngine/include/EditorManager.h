@@ -49,6 +49,8 @@ namespace UniEngine {
 		static std::unique_ptr<GLRenderBuffer> _SceneCameraEntityRecorderRenderBuffer;
 		static Entity _FocusedEntity;
 		static std::unique_ptr<CameraComponent> _SceneCamera;
+		static float _SceneCameraYawAngle;
+		static float _SceneCameraPitchAngle;
 		static int _SceneCameraResolutionX;
 		static int _SceneCameraResolutionY;
 		static float _Velocity;

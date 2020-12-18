@@ -11,6 +11,8 @@ namespace UniEngine {
 		float _Sensitivity = 0.1f;
 		float _LastX = 0, _LastY = 0, _LastScrollY = 0;
 		bool _StartMouse = false;
+		float _SceneCameraYawAngle = -90;
+		float _SceneCameraPitchAngle = 0;
 	public:
 		void LateUpdate() override;
 		void SetVelocity(float velocity);

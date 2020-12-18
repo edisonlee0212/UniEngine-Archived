@@ -12,7 +12,8 @@
 #include "TransformManager.h"
 
 using namespace UniEngine;
-
+float EditorManager::_SceneCameraYawAngle = -90;
+float EditorManager::_SceneCameraPitchAngle = 0;
 bool EditorManager::_Enabled = false;
 EntityArchetype EditorManager::_BasicEntityArchetype;
 std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> EditorManager::_ComponentDataInspectorMap;
@@ -495,7 +496,7 @@ void EditorManager::PreUpdate()
 		_SceneCameraEntityRecorderRenderBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _SceneCameraResolutionX, _SceneCameraResolutionY);
 		_SceneCameraEntityRecorder->SetResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 	}
-	_SceneCamera->GetCamera()->Clear();
+	_SceneCamera->Clear();
 	_SceneCameraEntityRecorder->Clear();
 }
 
@@ -507,7 +508,7 @@ void UniEngine::EditorManager::Update()
 
 void EditorManager::LateUpdate()
 {
-	if(_EscapeHold)
+	if (_EscapeHold)
 	{
 		if (!InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow()))
 		{
@@ -583,7 +584,7 @@ void EditorManager::LateUpdate()
 			title += _SelectedEntity.GetName();
 			bool enabled = _SelectedEntity.Enabled();
 			ImGui::Checkbox(title.c_str(), &enabled);
-			if(_SelectedEntity.Enabled() != enabled)
+			if (_SelectedEntity.Enabled() != enabled)
 			{
 				_SelectedEntity.SetEnabled(enabled);
 			}
@@ -733,7 +734,8 @@ void EditorManager::LateUpdate()
 								_SelectedEntity.Index = 0;
 							}
 						}
-					}else
+					}
+					else
 					{
 						if (!_EscapeHold && InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow())) {
 							_EscapeHold = true;
@@ -767,14 +769,21 @@ void EditorManager::LateUpdate()
 						_SceneCameraPosition.y -= _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
 					}
 					if (xOffset != 0 || yOffset != 0) {
-						_SceneCameraRotation = _SceneCamera->GetCamera()->ProcessMouseMovement(xOffset, yOffset, _Sensitivity);
+						_SceneCameraYawAngle += xOffset * _Sensitivity;
+						_SceneCameraPitchAngle += yOffset * _Sensitivity;
+						if (_SceneCameraPitchAngle > 89.0f)
+							_SceneCameraPitchAngle = 89.0f;
+						if (_SceneCameraPitchAngle < -89.0f)
+							_SceneCameraPitchAngle = -89.0f;
+
+						_SceneCameraRotation = CameraComponent::ProcessMouseMovement(_SceneCameraYawAngle, _SceneCameraPitchAngle, false);
 					}
 				}
 #pragma endregion
 			}
 			viewPortSize = ImGui::GetWindowSize();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
-			ImGui::Image((ImTextureID)_SceneCamera->GetCamera()->GetTexture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_SceneCamera->GetTexture()->Texture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Model).name()))
@@ -809,7 +818,7 @@ void EditorManager::LateUpdate()
 					ImGuizmo::SetDrawlist();
 					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
 					glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
-					glm::mat4 cameraProjection = _SceneCamera->GetCamera()->GetProjection();
+					glm::mat4 cameraProjection = _SceneCamera->GetProjection();
 					auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
 					if (_SelectedEntity.HasComponentData<Transform>()) {
 						Transform transform = _SelectedEntity.GetComponentData<Transform>();
@@ -826,7 +835,8 @@ void EditorManager::LateUpdate()
 							_SelectedEntity.SetComponentData(transform);
 							transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 						}
-					}else if(_SelectedEntity.HasComponentData<GlobalTransform>())
+					}
+					else if (_SelectedEntity.HasComponentData<GlobalTransform>())
 					{
 						GlobalTransform globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
 						ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
@@ -840,12 +850,12 @@ void EditorManager::LateUpdate()
 					auto& mmc = _SelectedEntity.GetPrivateComponent<MeshRenderer>();
 					if (mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
 					{
-						Camera::CameraInfoBlock.UpdateMatrices(_SceneCamera->_Camera.get(),
+						CameraComponent::_CameraInfoBlock.UpdateMatrices(_SceneCamera.get(),
 							_SceneCameraPosition,
 							_SceneCameraRotation
 						);
-						Camera::CameraInfoBlock.UploadMatrices(_SceneCamera->_Camera->CameraUniformBufferBlock);
-						_SceneCamera->GetCamera()->Bind();
+						CameraComponent::_CameraInfoBlock.UploadMatrices(_SceneCamera.get());
+						_SceneCamera->Bind();
 						_SceneHighlightPrePassProgram->Bind();
 						glEnable(GL_STENCIL_TEST);
 						glEnable(GL_BLEND);

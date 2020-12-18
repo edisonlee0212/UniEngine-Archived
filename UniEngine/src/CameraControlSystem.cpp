@@ -5,8 +5,7 @@
 using namespace UniEngine;
 void CameraControlSystem::LateUpdate()
 {
-	auto mainCamera = RenderManager::GetMainCamera();
-	ImVec2 viewPortSize;
+	auto* mainCamera = RenderManager::GetMainCamera();
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 	ImGui::Begin("Camera");
 	{
@@ -46,7 +45,7 @@ void CameraControlSystem::LateUpdate()
 					position.y -= _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
 					moved = true;
 				}
-				if(moved)
+				if (moved)
 				{
 					transform.SetPosition(position);
 				}
@@ -68,10 +67,18 @@ void CameraControlSystem::LateUpdate()
 				if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
 					if (xOffset != 0 || yOffset != 0) {
 						moved = true;
-						transform.SetRotation(mainCamera->GetCamera()->ProcessMouseMovement(xOffset, yOffset, _Sensitivity));
+						_SceneCameraYawAngle += xOffset * _Sensitivity;
+						_SceneCameraPitchAngle += yOffset * _Sensitivity;
+
+						if (_SceneCameraPitchAngle > 89.0f)
+							_SceneCameraPitchAngle = 89.0f;
+						if (_SceneCameraPitchAngle < -89.0f)
+							_SceneCameraPitchAngle = -89.0f;
+
+						transform.SetRotation(CameraComponent::ProcessMouseMovement(_SceneCameraYawAngle, _SceneCameraPitchAngle, false));
 					}
 				}
-				if(moved)
+				if (moved)
 				{
 					EntityManager::SetComponentData(mainCamera->GetOwner(), transform);
 				}

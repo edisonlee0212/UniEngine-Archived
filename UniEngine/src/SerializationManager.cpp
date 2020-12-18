@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "SerializationManager.h"
-#include "Camera.h"
 #include "CameraComponent.h"
 #include "DirectionalLight.h"
 #include "Particles.h"

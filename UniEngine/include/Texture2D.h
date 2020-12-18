@@ -30,10 +30,12 @@ namespace UniEngine {
 	{
         std::shared_ptr<GLTexture2D> _Texture;
         std::string _Path;
-
         friend class ResourceManager;
+        friend class CameraComponent;
     public:
         Texture2D();
+        void StoreToPng(const std::string& path, int resizeX = -1, int resizeY = -1);
+        void StoreToJpg(const std::string& path, int resizeX = -1, int resizeY = -1);
         std::shared_ptr<GLTexture2D> Texture() const;
         std::string Path() const;
 	};
