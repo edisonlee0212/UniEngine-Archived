@@ -4,5 +4,5 @@ uniform mat4 model;
 uniform int index;
 void main()
 {
-    gl_Position = SpotLights[index].lightSpaceMatrix * model * vec4(aPos, 1.0);
+    gl_Position = UE_SPOT_LIGHTS[index].lightSpaceMatrix * model * vec4(aPos, 1.0);
 }

@@ -14,9 +14,9 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir);
-float DirectionalLightShadowCalculation(int i, int splitIndex, vec3 fragPos, vec3 normal);
-float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal);
-float SpotLightShadowCalculation(int i, vec3 fragPos, vec3 normal);
+float UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(int i, int splitIndex, vec3 fragPos, vec3 normal);
+float UE_POINT_LIGHTShadowCalculation(int i, vec3 fragPos, vec3 normal);
+float UE_SPOT_LIGHTShadowCalculation(int i, vec3 fragPos, vec3 normal);
 void main()
 {	
 	vec3 fragPos = texture(gPosition, fs_in.TexCoords).rgb;
@@ -24,13 +24,13 @@ void main()
 	float shininess = texture(gNormal, fs_in.TexCoords).a;
 	vec3 albedo = texture(gAlbedoSpec, fs_in.TexCoords).rgb;
 	float specular = texture(gAlbedoSpec, fs_in.TexCoords).a;
-	vec3 viewDir = normalize(CameraPosition - fragPos);
-	float dist = distance(fragPos, CameraPosition);
+	vec3 viewDir = normalize(UE_CAMERA_POSITION - fragPos);
+	float dist = distance(fragPos, UE_CAMERA_POSITION);
 
 	float AmbientOcclusion = (enableSSAO ? texture(ssao, fs_in.TexCoords).r : 1.0);
 
 	vec3 result = CalculateLights(shininess, albedo, specular, dist, normal, viewDir, fragPos);
-	FragColor = vec4(result * AmbientOcclusion + AmbientLight * albedo * AmbientOcclusion, 1.0);
+	FragColor = vec4(result * AmbientOcclusion + UE_AMBIENT_LIGHT * albedo * AmbientOcclusion, 1.0);
 }
 
 
@@ -38,33 +38,33 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 	vec3 result = vec3(0.0, 0.0, 0.0);
 
 	// phase 1: directional lighting
-	for(int i = 0; i < DirectionalLightCount; i++){
+	for(int i = 0; i < UE_DIRECTIONAL_LIGHT_BLOCK_AMOUNT; i++){
 		float shadow = 1.0;
 		if(enableShadow && receiveShadow){
 			int split = 0;
-			if(dist < SplitDistance0 - SplitDistance0 * SeamFixRatio){
-				shadow = DirectionalLightShadowCalculation(i, 0, fragPos, normal);
-			}else if(dist < SplitDistance0){
+			if(dist < UE_SHADOW_SPLIT_0 - UE_SHADOW_SPLIT_0 * UE_SHADOW_SEAM_FIX_RATIO){
+				shadow = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 0, fragPos, normal);
+			}else if(dist < UE_SHADOW_SPLIT_0){
 				//Blend between split 1 & 2
-				shadow = DirectionalLightShadowCalculation(i, 0, fragPos, normal);
-				float nextLevel = DirectionalLightShadowCalculation(i, 1, fragPos, normal);
-				shadow = (nextLevel * (dist - (SplitDistance0 - SplitDistance0 * SeamFixRatio)) + shadow * (SplitDistance0 - dist)) / (SplitDistance0 * SeamFixRatio);
-			}else if(dist < SplitDistance1 - SplitDistance1 * SeamFixRatio){
-				shadow = DirectionalLightShadowCalculation(i, 1, fragPos, normal);
-			}else if(dist < SplitDistance1){
+				shadow = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 0, fragPos, normal);
+				float nextLevel = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 1, fragPos, normal);
+				shadow = (nextLevel * (dist - (UE_SHADOW_SPLIT_0 - UE_SHADOW_SPLIT_0 * UE_SHADOW_SEAM_FIX_RATIO)) + shadow * (UE_SHADOW_SPLIT_0 - dist)) / (UE_SHADOW_SPLIT_0 * UE_SHADOW_SEAM_FIX_RATIO);
+			}else if(dist < UE_SHADOW_SPLIT_1 - UE_SHADOW_SPLIT_1 * UE_SHADOW_SEAM_FIX_RATIO){
+				shadow = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 1, fragPos, normal);
+			}else if(dist < UE_SHADOW_SPLIT_1){
 				//Blend between split 2 & 3
-				shadow = DirectionalLightShadowCalculation(i, 1, fragPos, normal);
-				float nextLevel = DirectionalLightShadowCalculation(i, 2, fragPos, normal);
-				shadow = (nextLevel * (dist - (SplitDistance1 - SplitDistance1 * SeamFixRatio)) + shadow * (SplitDistance1 - dist)) / (SplitDistance1 * SeamFixRatio);
-			}else if(dist < SplitDistance2 - SplitDistance2 * SeamFixRatio){
-				shadow = DirectionalLightShadowCalculation(i, 2, fragPos, normal);
-			}else if(dist < SplitDistance2){
+				shadow = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 1, fragPos, normal);
+				float nextLevel = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 2, fragPos, normal);
+				shadow = (nextLevel * (dist - (UE_SHADOW_SPLIT_1 - UE_SHADOW_SPLIT_1 * UE_SHADOW_SEAM_FIX_RATIO)) + shadow * (UE_SHADOW_SPLIT_1 - dist)) / (UE_SHADOW_SPLIT_1 * UE_SHADOW_SEAM_FIX_RATIO);
+			}else if(dist < UE_SHADOW_SPLIT_2 - UE_SHADOW_SPLIT_2 * UE_SHADOW_SEAM_FIX_RATIO){
+				shadow = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 2, fragPos, normal);
+			}else if(dist < UE_SHADOW_SPLIT_2){
 				//Blend between split 3 & 4
-				shadow = DirectionalLightShadowCalculation(i, 2, fragPos, normal);
-				float nextLevel = DirectionalLightShadowCalculation(i, 3, fragPos, normal);
-				shadow = (nextLevel * (dist - (SplitDistance2 - SplitDistance2 * SeamFixRatio)) + shadow * (SplitDistance2 - dist)) / (SplitDistance2 * SeamFixRatio);
-			}else if(dist < SplitDistance3){
-				shadow = DirectionalLightShadowCalculation(i, 3, fragPos, normal);
+				shadow = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 2, fragPos, normal);
+				float nextLevel = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 3, fragPos, normal);
+				shadow = (nextLevel * (dist - (UE_SHADOW_SPLIT_2 - UE_SHADOW_SPLIT_2 * UE_SHADOW_SEAM_FIX_RATIO)) + shadow * (UE_SHADOW_SPLIT_2 - dist)) / (UE_SHADOW_SPLIT_2 * UE_SHADOW_SEAM_FIX_RATIO);
+			}else if(dist < UE_SHADOW_SPLIT_3){
+				shadow = UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(i, 3, fragPos, normal);
 			}else{
 				shadow = 1.0;
 			}
@@ -72,18 +72,18 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 		result += CalcDirectionalLight(shininess, albedo, specular, i, normal, viewDir) * shadow;
 	}
 	// phase 2: point lights
-	for(int i = 0; i < PointLightCount; i++){
+	for(int i = 0; i < UE_POINT_LIGHT_AMOUNT; i++){
 		float shadow = 1.0;
 		if(enableShadow && receiveShadow){
-			shadow = PointLightShadowCalculation(i, fragPos, normal);
+			shadow = UE_POINT_LIGHTShadowCalculation(i, fragPos, normal);
 		}
 		result += CalcPointLight(shininess, albedo, specular, i, normal, fragPos, viewDir) * shadow;
 	}
 	// phase 3: spot light
-	for(int i = 0; i < SpotLightCount; i++){
+	for(int i = 0; i < UE_SPOT_LIGHT_AMOUNT; i++){
 		float shadow = 1.0;
 		if(enableShadow && receiveShadow){
-			shadow = SpotLightShadowCalculation(i, fragPos, normal);
+			shadow = UE_SPOT_LIGHTShadowCalculation(i, fragPos, normal);
 		}
 		result += CalcSpotLight(shininess, albedo, specular, i, normal, fragPos, viewDir) * shadow;
 	}
@@ -93,7 +93,7 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 // calculates the color when using a directional light.
 vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir)
 {
-	DirectionalLight light = DirectionalLights[i];
+	DirectionalLight light = UE_DIRECTIONAL_LIGHT_BLOCKS[i];
 	vec3 lightDir = normalize(-light.direction);
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
@@ -109,7 +109,7 @@ vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, v
 // calculates the color when using a point light.
 vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
-	PointLight light = PointLights[i];
+	PointLight light = UE_POINT_LIGHTS[i];
 	vec3 lightDir = normalize(light.position - fragPos);
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
@@ -130,7 +130,7 @@ vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 no
 // calculates the color when using a spot light.
 vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
-	SpotLight light = SpotLights[i];
+	SpotLight light = UE_SPOT_LIGHTS[i];
 	vec3 lightDir = normalize(light.position - fragPos);
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
@@ -165,9 +165,9 @@ float InterleavedGradientNoise(vec3 fragCoords){
 	return fract(dot(fragCoords, magic));
 }
 
-float DirectionalLightShadowCalculation(int i, int splitIndex, vec3 fragPos, vec3 normal)
+float UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(int i, int splitIndex, vec3 fragPos, vec3 normal)
 {
-	DirectionalLight light = DirectionalLights[i];
+	DirectionalLight light = UE_DIRECTIONAL_LIGHT_BLOCKS[i];
 	vec3 lightDir = light.direction;
 	if(dot(lightDir, normal) > -0.02) return 1.0;
 	vec4 fragPosLightSpace = light.lightSpaceMatrix[splitIndex] * vec4(fragPos, 1.0);
@@ -190,18 +190,18 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, vec3 fragPos, vec
 	int blockers = 0;
 	float avgDistance = 0;
 
-	int sampleAmount = PCSSBSAmount;
+	int sampleAmount = UE_SHADOW_PCSS_BLOCKER_SEARCH_SIZE;
 	float sampleWidth = lightSize / light.lightFrustumWidth[splitIndex] / sampleAmount;
 
-	float texScale = float(light.viewPortXSize) / float(textureSize(directionalShadowMap, 0).x);
-	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(directionalShadowMap, 0).y), float(light.viewPortYStart) / float(textureSize(directionalShadowMap, 0).y));
+	float texScale = float(light.viewPortXSize) / float(textureSize(UE_DIRECTIONAL_LIGHT_SM, 0).x);
+	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(UE_DIRECTIONAL_LIGHT_SM, 0).y), float(light.viewPortYStart) / float(textureSize(UE_DIRECTIONAL_LIGHT_SM, 0).y));
 
 	
 	for(int i = -sampleAmount; i <= sampleAmount; i++)
 	{
 		for(int j = -sampleAmount; j <= sampleAmount; j++){
 			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
-			float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
+			float closestDepth = texture(UE_DIRECTIONAL_LIGHT_SM, vec3(texCoord * texScale + texBase, splitIndex)).r;
 			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
 			avgDistance += closestDepth * tf;
 			blockers += tf;
@@ -210,14 +210,14 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, vec3 fragPos, vec
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
-	float texelSize = penumbraWidth * PCSSScaleFactor / DirectionalLights[i].lightFrustumWidth[splitIndex] * DirectionalLights[i].lightFrustumDistance[splitIndex] / 100.0;
+	float texelSize = penumbraWidth * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE / UE_DIRECTIONAL_LIGHT_BLOCKS[i].lightFrustumWidth[splitIndex] * UE_DIRECTIONAL_LIGHT_BLOCKS[i].lightFrustumDistance[splitIndex] / 100.0;
 	
 	int shadowCount = 0;
-	sampleAmount = PCSSPCFSampleAmount;
+	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
 	for(int i = 0; i < sampleAmount; i++)
 	{
 		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * texelSize;
-		float closestDepth = texture(directionalShadowMap, vec3(texCoord * texScale + texBase, splitIndex)).r;
+		float closestDepth = texture(UE_DIRECTIONAL_LIGHT_SM, vec3(texCoord * texScale + texBase, splitIndex)).r;
 		if(closestDepth == 0.0) continue;
 		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
 	}
@@ -225,9 +225,9 @@ float DirectionalLightShadowCalculation(int i, int splitIndex, vec3 fragPos, vec
 	return shadow;
 }
 
-float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal)
+float UE_POINT_LIGHTShadowCalculation(int i, vec3 fragPos, vec3 normal)
 {
-	PointLight light = PointLights[i];
+	PointLight light = UE_POINT_LIGHTS[i];
 	vec3 lightPos = light.position;
 	// get vector between fragment position and light position
 	vec3 fragToLight = fragPos - lightPos;
@@ -259,11 +259,11 @@ float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal)
 	fragPosLightSpace.z -= bias;
 	vec3 projCoords = (fragPosLightSpace.xyz) / fragPosLightSpace.w;
 	projCoords = projCoords * 0.5 + 0.5;
-	float texScale = float(light.viewPortXSize) / float(textureSize(pointShadowMap, 0).x);
-	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(pointShadowMap, 0).y), float(light.viewPortYStart) / float(textureSize(pointShadowMap, 0).y));
+	float texScale = float(light.viewPortXSize) / float(textureSize(UE_POINT_LIGHT_SM, 0).x);
+	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(UE_POINT_LIGHT_SM, 0).y), float(light.viewPortYStart) / float(textureSize(UE_POINT_LIGHT_SM, 0).y));
 
 	//Blocker Search
-	int sampleAmount = PCSSBSAmount;
+	int sampleAmount = UE_SHADOW_PCSS_BLOCKER_SEARCH_SIZE;
 	float lightSize = light.ReservedParameters.y * projCoords.z;
 	float blockers = 0;
 	float avgDistance = 0;
@@ -274,7 +274,7 @@ float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal)
 			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
 			texCoord.x = clamp(texCoord.x, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
 			texCoord.y = clamp(texCoord.y, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
-			float closestDepth = texture(pointShadowMap, vec3(texCoord * texScale + texBase, slice)).r;
+			float closestDepth = texture(UE_POINT_LIGHT_SM, vec3(texCoord * texScale + texBase, slice)).r;
 			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
 			avgDistance += closestDepth * tf;
 			blockers += tf;
@@ -283,15 +283,15 @@ float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal)
 
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
-	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * PCSSScaleFactor;	
+	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE;	
 	//End search
-	sampleAmount = PCSSPCFSampleAmount;
+	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
 	for(int i = 0; i < sampleAmount; i++)
 	{
 		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * penumbraWidth;
 		texCoord.x = clamp(texCoord.x, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
 		texCoord.y = clamp(texCoord.y, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
-		float closestDepth = texture(pointShadowMap, vec3(texCoord * texScale + texBase, slice)).r;
+		float closestDepth = texture(UE_POINT_LIGHT_SM, vec3(texCoord * texScale + texBase, slice)).r;
 		if(closestDepth == 0.0) continue;
 		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
 	}
@@ -299,18 +299,18 @@ float PointLightShadowCalculation(int i, vec3 fragPos, vec3 normal)
 	return shadow;
 }
 
-float SpotLightShadowCalculation(int i, vec3 fragPos, vec3 normal){
-	SpotLight light = SpotLights[i];
+float UE_SPOT_LIGHTShadowCalculation(int i, vec3 fragPos, vec3 normal){
+	SpotLight light = UE_SPOT_LIGHTS[i];
 	float bias = light.cutOffOuterCutOffLightSizeBias.w;
 	vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.0);
 	fragPosLightSpace.z -= bias;
 	vec3 projCoords = (fragPosLightSpace.xyz) / fragPosLightSpace.w;
 	projCoords = projCoords * 0.5 + 0.5;
-	float texScale = float(light.viewPortXSize) / float(textureSize(spotShadowMap, 0).x);
-	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(spotShadowMap, 0).y), float(light.viewPortYStart) / float(textureSize(spotShadowMap, 0).y));
+	float texScale = float(light.viewPortXSize) / float(textureSize(UE_SPOT_LIGHT_SM, 0).x);
+	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(UE_SPOT_LIGHT_SM, 0).y), float(light.viewPortYStart) / float(textureSize(UE_SPOT_LIGHT_SM, 0).y));
 
 	//Blocker Search
-	int sampleAmount = PCSSBSAmount;
+	int sampleAmount = UE_SHADOW_PCSS_BLOCKER_SEARCH_SIZE;
 	float lightSize = light.cutOffOuterCutOffLightSizeBias.z * projCoords.z / light.cutOffOuterCutOffLightSizeBias.y;
 	float blockers = 0;
 	float avgDistance = 0;
@@ -319,7 +319,7 @@ float SpotLightShadowCalculation(int i, vec3 fragPos, vec3 normal){
 	{
 		for(int j = -sampleAmount; j <= sampleAmount; j++){
 			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
-			float closestDepth = texture(spotShadowMap, vec2(texCoord * texScale + texBase)).r;
+			float closestDepth = texture(UE_SPOT_LIGHT_SM, vec2(texCoord * texScale + texBase)).r;
 			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
 			avgDistance += closestDepth * tf;
 			blockers += tf;
@@ -327,14 +327,14 @@ float SpotLightShadowCalculation(int i, vec3 fragPos, vec3 normal){
 	}
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
-	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * PCSSScaleFactor;	
+	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE;	
 	//End search
-	sampleAmount = PCSSPCFSampleAmount;
+	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
 	float shadow = 0.0;
 	for(int i = 0; i < sampleAmount; i++)
 	{
 		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * penumbraWidth;
-		float closestDepth = texture(spotShadowMap, vec2(texCoord * texScale + texBase)).r;
+		float closestDepth = texture(UE_SPOT_LIGHT_SM, vec2(texCoord * texScale + texBase)).r;
 		if(closestDepth == 0.0) continue;
 		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
 	}

@@ -11,7 +11,7 @@ void main()
         for(int i = 0; i < 3; ++i) // for each triangle's vertices
         {
             FragPos = gl_in[i].gl_Position;
-            gl_Position = DirectionalLights[index].lightSpaceMatrix[split] * FragPos;
+            gl_Position = UE_DIRECTIONAL_LIGHT_BLOCKS[index].lightSpaceMatrix[split] * FragPos;
             EmitVertex();
         }
         EndPrimitive();

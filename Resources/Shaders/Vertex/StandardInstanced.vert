@@ -25,5 +25,5 @@ void main()
 	vs_out.Normal = N;
 	vs_out.Tangent = T;
 	vs_out.TexCoords = aTexCoords;    
-	gl_Position =  CameraProjection * CameraView * vec4(vs_out.FragPos, 1.0);
+	gl_Position =  UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * vec4(vs_out.FragPos, 1.0);
 }

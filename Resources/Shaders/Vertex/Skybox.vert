@@ -5,6 +5,6 @@ out vec3 TexCoords;
 void main()
 {
     TexCoords = aPos;
-    vec4 pos = CameraProjection * mat4(mat3(CameraView)) * vec4(aPos, 1.0);
+    vec4 pos = UE_CAMERA_PROJECTION * mat4(mat3(UE_CAMERA_VIEW)) * vec4(aPos, 1.0);
     gl_Position = pos.xyww;
 }  

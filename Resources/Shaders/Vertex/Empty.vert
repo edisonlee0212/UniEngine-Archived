@@ -4,5 +4,5 @@ uniform mat4 model;
 
 void main()
 {
-	gl_Position = CameraProjection * CameraView * model * vec4(aPos, 1.0);
+	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * model * vec4(aPos, 1.0);
 }

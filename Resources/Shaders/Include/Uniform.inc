@@ -1,13 +1,5 @@
 #extension GL_ARB_bindless_texture : require
 
-//Camera
-layout (std140, binding = 0) uniform MainCameraBlock
-{
-	mat4 CameraProjection;
-	mat4 CameraView;
-	vec4 CameraReservedParameters;
-	vec3 CameraPosition;
-};
 
 //Lights
 struct DirectionalLight {
@@ -55,57 +47,67 @@ struct SpotLight {
 	int viewPortYSize;
 };
 
-layout (std140, binding = 1) uniform DirectionalLightBlock
+
+//Camera
+layout (std140, binding = 0) uniform UE_CAMERA
 {
-	int DirectionalLightCount;
-	DirectionalLight DirectionalLights[DIRECTIONAL_LIGHTS_AMOUNT];
+	mat4 UE_CAMERA_PROJECTION;
+	mat4 UE_CAMERA_VIEW;
+	vec4 UE_CAMERA_RESERVED;
+	vec3 UE_CAMERA_POSITION;
 };
 
-layout (std140, binding = 2) uniform PointsLightBlock
+layout (std140, binding = 1) uniform UE_DIRECTIONAL_LIGHT_BLOCK
 {
-	int PointLightCount;
-	PointLight PointLights[POINT_LIGHTS_AMOUNT];
+	int UE_DIRECTIONAL_LIGHT_BLOCK_AMOUNT;
+	DirectionalLight UE_DIRECTIONAL_LIGHT_BLOCKS[DIRECTIONAL_LIGHTS_AMOUNT];
 };
 
-layout (std140, binding = 3) uniform SpotLightBlock
+layout (std140, binding = 2) uniform UE_POINT_LIGHT_BLOCK
 {
-	int SpotLightCount;
-	SpotLight SpotLights[SPOT_LIGHTS_AMOUNT];
+	int UE_POINT_LIGHT_AMOUNT;
+	PointLight UE_POINT_LIGHTS[POINT_LIGHTS_AMOUNT];
 };
 
-layout (std140, binding = 4) uniform LightSettingsBlock
+layout (std140, binding = 3) uniform UE_SPOT_LIGHT_BLOCK
 {
-	float SplitDistance0;
-	float SplitDistance1;
-	float SplitDistance2;
-	float SplitDistance3;
-	int PCSSPCFSampleAmount;
-	float PCSSScaleFactor;
-	int PCSSBSAmount;
-	float SeamFixRatio;
-	float VSMMaxVariance;
-	float LightBleedFactor;
-	float EVSMExponent;
-	float AmbientLight;
+	int UE_SPOT_LIGHT_AMOUNT;
+	SpotLight UE_SPOT_LIGHTS[SPOT_LIGHTS_AMOUNT];
 };
 
-layout (std140, binding = 5) uniform KernelBlock
+layout (std140, binding = 4) uniform UE_LIGHT_SETTINGS_BLOCK
 {
-	vec4 UniformKernel[MAX_KERNEL_AMOUNT];
-	vec4 GaussianKernel[MAX_KERNEL_AMOUNT];
+	float UE_SHADOW_SPLIT_0;
+	float UE_SHADOW_SPLIT_1;
+	float UE_SHADOW_SPLIT_2;
+	float UE_SHADOW_SPLIT_3;
+	int UE_SHADOW_SAMPLE_SIZE;
+	float UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE;
+	int UE_SHADOW_PCSS_BLOCKER_SEARCH_SIZE;
+	float UE_SHADOW_SEAM_FIX_RATIO;
+	float UE_SHADOW_VSM_VARIANCE;
+	float UE_SHADOW_LIGHT_BLEED_FACTOR;
+	float UE_SHADOW_EVSM_EXP;
+	float UE_AMBIENT_LIGHT;
 };
 
-layout (std140, binding = 6) uniform TextureBindings
+layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
 {
-	sampler2D spotShadowMap;
-	sampler2DArray directionalShadowMap;
-	sampler2DArray pointShadowMap;
-	sampler2D TEXTURE_DIFFUSE0;
-	sampler2D TEXTURE_SPECULAR0;
-	sampler2D TEXTURE_AMBIENT0;
-	sampler2D TEXTURE_EMISSIVE0;
-	sampler2D TEXTURE_HEIGHT0;
-	sampler2D TEXTURE_NORMAL0;
+	vec4 UE_UNIFORM_KERNEL[MAX_KERNEL_AMOUNT];
+	vec4 UE_GAUSS_KERNEL[MAX_KERNEL_AMOUNT];
+};
+
+layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
+{
+	sampler2D UE_SPOT_LIGHT_SM;
+	sampler2DArray UE_DIRECTIONAL_LIGHT_SM;
+	sampler2DArray UE_POINT_LIGHT_SM;
+	sampler2D UE_DIFFUSE_MAP;
+	sampler2D UE_SPECULAR_MAP;
+	sampler2D UE_AMBIENT_MAP;
+	sampler2D UE_EMISSIVE_MAP;
+	sampler2D UE_HEIGHT_MAP;
+	sampler2D UE_NORMAL_MAP;
 };
 
 //Material
@@ -114,9 +116,9 @@ struct Material{
 };
 
 uniform Material material;
-uniform bool enableSpecularMapping;
-uniform bool enableNormalMapping;
-uniform bool enableParallaxMapping;
+uniform bool UE_SPECULAR_MAP_ENABLED;
+uniform bool UE_NORMAL_MAP_ENABLED;
+uniform bool UE_PARALLAX_MAP_ENABLED;
 
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;

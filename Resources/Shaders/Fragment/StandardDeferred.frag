@@ -27,14 +27,14 @@ vec3 ParallaxMapping(vec2 texCoords, vec3 viewDir)
   
     // get initial values
     vec2  currentTexCoords     = texCoords;
-    float currentDepthMapValue = texture(TEXTURE_HEIGHT0, currentTexCoords).r;
+    float currentDepthMapValue = texture(UE_HEIGHT_MAP, currentTexCoords).r;
       
     while(currentLayerDepth < currentDepthMapValue)
     {
         // shift texture coordinates along direction of P
         currentTexCoords -= deltaTexCoords;
         // get depthmap value at current texture coordinates
-        currentDepthMapValue = texture(TEXTURE_HEIGHT0, currentTexCoords).r;  
+        currentDepthMapValue = texture(UE_HEIGHT_MAP, currentTexCoords).r;  
         // get depth of next layer
         currentLayerDepth += layerDepth;  
     }
@@ -44,7 +44,7 @@ vec3 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
     // get depth after and before collision for linear interpolation
     float afterDepth  = currentDepthMapValue - currentLayerDepth;
-    float beforeDepth = texture(TEXTURE_HEIGHT0, prevTexCoords).r - currentLayerDepth + layerDepth;
+    float beforeDepth = texture(UE_HEIGHT_MAP, prevTexCoords).r - currentLayerDepth + layerDepth;
  
     // interpolation of texture coordinates
     float weight = afterDepth / (afterDepth - beforeDepth);
@@ -61,21 +61,21 @@ void main()
     vec2 texCoords = fs_in.TexCoords;
     float depth = 0.0;
 
-    if(enableParallaxMapping){
-        vec3 viewDir = reflect(normalize(CameraPosition - fs_in.FragPos), fs_in.Normal);
+    if(UE_PARALLAX_MAP_ENABLED){
+        vec3 viewDir = reflect(normalize(UE_CAMERA_POSITION - fs_in.FragPos), fs_in.Normal);
         vec3 result = ParallaxMapping(texCoords, normalize(TBN * viewDir));
         depth = result.z / heightScale;
         texCoords = result.xy;
     }
 
     vec3 normal = fs_in.Normal;
-	if(enableNormalMapping){
-		normal = texture(TEXTURE_NORMAL0, texCoords).rgb;
+	if(UE_NORMAL_MAP_ENABLED){
+		normal = texture(UE_NORMAL_MAP, texCoords).rgb;
 		normal = normal * 2.0 - 1.0;   
 		normal = normalize(TBN * normal); 
 	}
 
-	vec4 albedo = texture(TEXTURE_DIFFUSE0, texCoords).rgba;
+	vec4 albedo = texture(UE_DIFFUSE_MAP, texCoords).rgba;
 	if(albedo.a < 0.5)
         discard;
     // store the fragment position vector in the first gbuffer texture
@@ -89,8 +89,8 @@ void main()
 	gNormal.a = material.shininess;
     // store specular intensity in gAlbedoSpec's alpha component
     float specular = 1.0;
-	if(enableSpecularMapping){
-		specular = texture(TEXTURE_SPECULAR0, texCoords).r;
+	if(UE_SPECULAR_MAP_ENABLED){
+		specular = texture(UE_SPECULAR_MAP, texCoords).r;
 	}
 
 	gAlbedoSpec.rgb = albedo.rgb;

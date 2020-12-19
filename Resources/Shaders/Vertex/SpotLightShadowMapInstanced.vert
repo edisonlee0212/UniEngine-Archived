@@ -6,5 +6,5 @@ uniform int index;
 void main()
 {
     mat4 matrix = model * aInstanceMatrix;
-    gl_Position = SpotLights[index].lightSpaceMatrix * matrix * vec4(aPos, 1.0);
+    gl_Position = UE_SPOT_LIGHTS[index].lightSpaceMatrix * matrix * vec4(aPos, 1.0);
 }
