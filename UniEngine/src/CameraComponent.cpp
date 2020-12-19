@@ -230,7 +230,7 @@ void UniEngine::CameraComponent::Deserialize(const YAML::Node& in)
 
 void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 {
-	if (_ResolutionX == x && _ResolutionY == y) return;
+	if (!AllowAutoResize || _ResolutionX == x && _ResolutionY == y) return;
 	_ResolutionX = x > 0 ? x : 1;
 	_ResolutionY = y > 0 ? y : 1;
 	_GBuffer->SetResolution(_ResolutionX, _ResolutionY);
@@ -323,8 +323,17 @@ UniEngine::CameraComponent::~CameraComponent()
 
 void UniEngine::CameraComponent::OnGui()
 {
+	ImGui::Checkbox("Allow auto resize", &AllowAutoResize);
+	if(!AllowAutoResize)
+	{
+		glm::ivec2 resolution = { _ResolutionX, _ResolutionY };
+		if(ImGui::DragInt2("Resolution", &resolution.x))
+		{
+			ResizeResolution(resolution.x, resolution.y);
+		}
+	}
 	ImGui::Checkbox("Skybox", &DrawSkyBox);
-	bool savedState = _IsMainCamera;
+	const bool savedState = _IsMainCamera;
 	ImGui::Checkbox("Main Camera", &_IsMainCamera);
 	if(savedState != _IsMainCamera)
 	{

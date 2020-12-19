@@ -63,6 +63,8 @@ namespace UniEngine {
 		static std::unique_ptr<GLUBO> _CameraUniformBufferBlock;
 		bool _IsMainCamera = false;
 	public:
+
+		bool AllowAutoResize = true;
 		float NearDistance = 0.1f;
 		float FarDistance = 500.0f;
 		float FOV = 90;

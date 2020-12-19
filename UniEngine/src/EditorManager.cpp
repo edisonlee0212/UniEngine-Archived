@@ -999,8 +999,8 @@ bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceB
 		if (ImGui::BeginMenu(("Rename" + tag).c_str()))
 		{
 			static char newName[256];
-			ImGui::InputText("New name", newName, 256);
-			if (ImGui::Button("Confirm")) target->Name = std::string(newName);
+			ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+			if (ImGui::Button(("Confirm" + tag).c_str())) target->Name = std::string(newName);
 			ImGui::EndMenu();
 		}
 		if (ImGui::Button(("Remove" + tag).c_str())) {
