@@ -108,6 +108,7 @@ namespace UniEngine {
 		static void SetPrivateComponent(const Entity& entity, const std::string& name, size_t id, PrivateComponentBase* ptr);
 		static bool IsEntityArchetypeValid(const EntityArchetype& archetype);
 	public:
+		static Entity GetEntity(size_t index);
 		static EntityArchetype GetEntityArchetype(const Entity& entity);
 		
 		template <typename T>

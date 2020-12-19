@@ -729,6 +729,12 @@ bool EntityManager::IsEntityArchetypeValid(const EntityArchetype& archetype)
 	return archetype.IsNull() && _EntityComponentStorage->size() > archetype.Index;
 }
 
+Entity EntityManager::GetEntity(size_t index)
+{
+	if (index > 0 && index < _Entities->size()) return _Entities->at(index);
+	return Entity();
+}
+
 void EntityManager::RemovePrivateComponent(const Entity& entity, size_t typeId)
 {
 	if (!entity.IsValid()) return;
