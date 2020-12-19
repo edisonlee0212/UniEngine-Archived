@@ -126,11 +126,12 @@ namespace UniEngine {
 	bool EditorManager::DragAndDrop(std::shared_ptr<T>& target)
 	{
 		const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
-		
-		ImGui::Button(ptr ? ptr->Name.c_str() : "none");
+		const std::string tag = "##" + (ptr ? std::to_string(ptr->GetHashCode()) : "");
+		ImGui::Button(ptr ? (ptr->Name + tag).c_str() : "none");
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
-			ImGui::SetDragDropPayload(typeid(T).name(), &target, sizeof(std::shared_ptr<T>));
+			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
+			ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<T>));
 			if(ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30));
 			else ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
 			ImGui::EndDragDropSource();
@@ -138,14 +139,14 @@ namespace UniEngine {
 		bool removed = false;
 		if (ptr && ImGui::BeginPopupContextItem(reinterpret_cast<char*>(target.get())))
 		{
-			if (ImGui::BeginMenu("Rename"))
+			if (ImGui::BeginMenu(("Rename" + tag).c_str()))
 			{
 				static char newName[256];
 				ImGui::InputText("New name", newName, 256);
 				if (ImGui::Button("Confirm")) ptr->Name = std::string(newName);
 				ImGui::EndMenu();
 			}
-			if (ImGui::Button("Remove")) {
+			if (ImGui::Button(("Remove" + tag).c_str())) {
 				target.reset();
 				removed = true;
 			}
@@ -153,7 +154,8 @@ namespace UniEngine {
 		}
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(T).name()))
+			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(hash.c_str()))
 			{
 				IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<T>));
 				std::shared_ptr<T> payload_n = *static_cast<std::shared_ptr<T>*>(payload->Data);
@@ -168,7 +170,8 @@ namespace UniEngine {
 	bool EditorManager::Draggable(std::shared_ptr<T>& target)
 	{
 		const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
-		ImGui::Button(ptr ? (ptr->Name + "##" + std::to_string(ptr->GetHashCode())).c_str() : "none");
+		const std::string tag = "##" + (ptr ? std::to_string(ptr->GetHashCode()) : "");
+		ImGui::Button(ptr ? (ptr->Name + tag).c_str() : "none");
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
@@ -179,14 +182,14 @@ namespace UniEngine {
 		bool removed = false;
 		if (ptr && ImGui::BeginPopupContextItem(reinterpret_cast<char*>(target.get())))
 		{
-			if (ImGui::BeginMenu("Rename"))
+			if (ImGui::BeginMenu(("Rename" + tag).c_str()))
 			{
 				static char newName[256];
 				ImGui::InputText("New name", newName, 256);
 				if (ImGui::Button("Confirm")) ptr->Name = std::string(newName);
 				ImGui::EndMenu();
 			}
-			if (ImGui::Button("Remove")) {
+			if (ImGui::Button(("Remove" + tag).c_str())) {
 				target.reset();
 				removed = true;
 			}

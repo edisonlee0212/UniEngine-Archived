@@ -984,6 +984,7 @@ void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
 bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceBehaviour>& target)
 {
 	ImGui::Button(target ? (target->Name + "##" + std::to_string(target->GetHashCode())).c_str() : "none");
+	const std::string tag = "##" + (target ? std::to_string(target->GetHashCode()) : "");
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 	{
 		const std::string hash = std::to_string(std::hash<std::string>{}(name));
@@ -995,14 +996,14 @@ bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceB
 	bool removed = false;
 	if (target && ImGui::BeginPopupContextItem(reinterpret_cast<char*>(target.get())))
 	{
-		if (ImGui::BeginMenu("Rename"))
+		if (ImGui::BeginMenu(("Rename" + tag).c_str()))
 		{
 			static char newName[256];
 			ImGui::InputText("New name", newName, 256);
 			if (ImGui::Button("Confirm")) target->Name = std::string(newName);
 			ImGui::EndMenu();
 		}
-		if (ImGui::Button("Remove")) {
+		if (ImGui::Button(("Remove" + tag).c_str())) {
 			target.reset();
 			removed = true;
 		}

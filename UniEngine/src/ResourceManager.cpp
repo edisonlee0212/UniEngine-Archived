@@ -609,7 +609,8 @@ void ResourceManager::LateUpdate()
 				{
 					if (ImGui::BeginDragDropTarget())
 					{
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(collection.second.first.c_str()))
+						const std::string hash = std::to_string(std::hash<std::string>{}(collection.second.first));
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(hash.c_str()))
 						{
 							IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<ResourceBehaviour>));
 							std::shared_ptr<ResourceBehaviour> payload_n = *static_cast<std::shared_ptr<ResourceBehaviour>*>(payload->Data);
