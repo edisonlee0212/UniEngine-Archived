@@ -786,7 +786,8 @@ void EditorManager::LateUpdate()
 			ImGui::Image((ImTextureID)_SceneCamera->GetTexture()->Texture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Model).name()))
+				const std::string modelTypeHash = std::to_string(std::hash<std::string>{}(typeid(Model).name()));
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
 				{
 					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
 					std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model>*)payload->Data;
@@ -794,7 +795,8 @@ void EditorManager::LateUpdate()
 					Transform ltw;
 					ResourceManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
 				}
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeid(Mesh).name()))
+				const std::string meshTypeHash = std::to_string(std::hash<std::string>{}(typeid(Mesh).name()));
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
 				{
 					IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
 					std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh>*)payload->Data;

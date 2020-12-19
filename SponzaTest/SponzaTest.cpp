@@ -113,7 +113,7 @@ int main()
 	transform.SetEulerRotation(glm::radians(glm::vec3(70, 0, 0)));
 	
 	DirectionalLight dlc;
-	dlc.diffuseBrightness = 0.4f;
+	dlc.diffuseBrightness = 1.0f;
 	dlc.lightSize = 1.0f;
 	Entity dle = EntityManager::CreateEntity(dlarc);
 	dle.SetName("Dir Light");
