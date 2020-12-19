@@ -481,29 +481,24 @@ std::shared_ptr<Material> ResourceManager::LoadMaterial(const std::shared_ptr<GL
 	return retVal;
 }
 
-std::shared_ptr<GLProgram> ResourceManager::LoadProgram(std::shared_ptr<GLShader> vertex,
-                                                        std::shared_ptr<GLShader> fragment)
+std::shared_ptr<GLProgram> ResourceManager::LoadProgram(const std::shared_ptr<GLShader>& vertex,
+	const std::shared_ptr<GLShader>& fragment)
 {
 	auto retVal = std::make_shared<GLProgram>();
-	retVal->Attach(ShaderType::Vertex, vertex);
-	retVal->Attach(ShaderType::Fragment, fragment);
-	retVal->_VertexShader = vertex;
-	retVal->_FragmentShader = fragment;
+	retVal->Attach(vertex);
+	retVal->Attach(fragment);
 	retVal->Link();
 	Push(retVal);
 	return retVal;
 }
 
-std::shared_ptr<GLProgram> ResourceManager::LoadProgram(std::shared_ptr<GLShader> vertex,
-	std::shared_ptr<GLShader> geometry, std::shared_ptr<GLShader> fragment)
+std::shared_ptr<GLProgram> ResourceManager::LoadProgram(const std::shared_ptr<GLShader>& vertex,
+	const std::shared_ptr<GLShader>& geometry, const std::shared_ptr<GLShader>& fragment)
 {
 	auto retVal = std::make_shared<GLProgram>();
-	retVal->Attach(ShaderType::Vertex, vertex);
-	retVal->Attach(ShaderType::Geometry, geometry);
-	retVal->Attach(ShaderType::Fragment, fragment);
-	retVal->_VertexShader = vertex;
-	retVal->_GeometryShader = geometry;
-	retVal->_FragmentShader = fragment;
+	retVal->Attach(vertex);
+	retVal->Attach(geometry);
+	retVal->Attach(fragment);
 	retVal->Link();
 	Push(retVal);
 	return retVal;

@@ -32,8 +32,8 @@ namespace UniEngine {
 
 		static std::shared_ptr<Material> LoadMaterial(const std::shared_ptr<GLProgram>& program);
 		
-		static std::shared_ptr<GLProgram> LoadProgram(std::shared_ptr<GLShader> vertex, std::shared_ptr<GLShader> fragment);
-		static std::shared_ptr<GLProgram> LoadProgram(std::shared_ptr<GLShader> vertex, std::shared_ptr<GLShader> geometry, std::shared_ptr<GLShader> fragment);
+		static std::shared_ptr<GLProgram> LoadProgram(const std::shared_ptr<GLShader>& vertex, const std::shared_ptr<GLShader>& fragment);
+		static std::shared_ptr<GLProgram> LoadProgram(const std::shared_ptr<GLShader>& vertex, const std::shared_ptr<GLShader>& geometry, const std::shared_ptr<GLShader>& fragment);
 
 
 		static void LateUpdate();

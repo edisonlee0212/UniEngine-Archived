@@ -3,19 +3,22 @@
 #include "Debug.h"
 using namespace UniEngine;
 
-inline void UniEngine::GLShader::SetCode(std::string* code)
+std::string GLShader::GetCode() const
 {
-	_Code = code;
-	_Compilable = true;
-	Compile();
+	return _Code;
+}
+
+bool GLShader::HasCode() const
+{
+	return _HasCode;
 }
 
 inline UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
 {
-	_Code = nullptr;
 	_ID = 0;
+	_Code = "";
+	_HasCode = false;
 	_Attachable = false;
-	_Compilable = false;
 	switch (_Type)
 	{
 	case UniEngine::ShaderType::Vertex:
@@ -32,12 +35,14 @@ inline UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
 	}
 }
 
-inline UniEngine::GLShader::GLShader(ShaderType type, std::string* code) : _Type(type)
+inline UniEngine::GLShader::GLShader(ShaderType type, const std::string& code, bool store) : _Type(type)
 {
-	_Code = code;
+	if (store) {
+		_Code = code;
+		_HasCode = true;
+	}
 	_ID = 0;
 	_Attachable = false;
-	_Compilable = false;
 	switch (_Type)
 	{
 	case UniEngine::ShaderType::Vertex:
@@ -52,7 +57,7 @@ inline UniEngine::GLShader::GLShader(ShaderType type, std::string* code) : _Type
 	default:
 		break;
 	}
-	SetCode(_Code);
+	Compile(code);
 }
 
 inline UniEngine::GLShader::~GLShader()
@@ -60,25 +65,25 @@ inline UniEngine::GLShader::~GLShader()
 	glDeleteShader(_ID);
 }
 
-inline ShaderType UniEngine::GLShader::Type()
+inline ShaderType UniEngine::GLShader::Type() const
 {
 	return _Type;
 }
 
-inline bool UniEngine::GLShader::Attachable()
+inline bool UniEngine::GLShader::Attachable() const
 {
 	return _Attachable;
 }
 
-inline bool UniEngine::GLShader::Compilable()
-{
-	return _Compilable;
-}
 
-inline void UniEngine::GLShader::Compile()
+inline void UniEngine::GLShader::Compile(const std::string& code, bool store)
 {
-	const char* code = _Code->c_str();
-	glShaderSource(_ID, 1, &code, nullptr);
+	if (store) {
+		_Code = code;
+		_HasCode = true;
+	}
+	const char* ptr = code.c_str();
+	glShaderSource(_ID, 1, &ptr, nullptr);
 	glCompileShader(_ID);
 	GLint success;
 	GLchar infoLog[1024];
@@ -108,15 +113,17 @@ inline void UniEngine::GLShader::Compile()
 
 inline void UniEngine::GLShader::Attach(GLuint programID)
 {
-	if (!_Compilable) {
-		Debug::Error("Error");
-		return;
+	if (!_Attachable) {
+		if(_HasCode)Compile(_Code);
+		else
+		{
+			Debug::Log("No code!");
+		}
 	}
-	if (!_Attachable) Compile();
 	glAttachShader(programID, _ID);
 }
 
-inline void UniEngine::GLShader::Detach(GLuint programID)
+inline void UniEngine::GLShader::Detach(GLuint programID) const
 {
 	glDetachShader(programID, _ID);
 }

@@ -119,12 +119,12 @@ void UniEngine::Default::Load(World* world)
 	std::string vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
 		+"\n" + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Skybox.vert")));
-	skyboxvert->SetCode(&vertShaderCode);
+	skyboxvert->Compile(vertShaderCode);
 	auto skyboxfrag = std::make_shared<GLShader>(ShaderType::Fragment);
 	std::string fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
 		+"\n" + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Skybox.frag")));
-	skyboxfrag->SetCode(&fragShaderCode);
+	skyboxfrag->Compile(fragShaderCode);
 	GLPrograms::SkyboxProgram = ResourceManager::LoadProgram(skyboxvert, skyboxfrag);
 	GLPrograms::SkyboxProgram->SetInt("skybox", 0);
 	GLPrograms::SkyboxProgram->Name = "Skybox";
@@ -132,7 +132,7 @@ void UniEngine::Default::Load(World* world)
 	fragShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
 		+"\n" + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BackGround.frag")));
-	skyboxfrag->SetCode(&fragShaderCode);
+	skyboxfrag->Compile(fragShaderCode);
 	GLPrograms::BackGroundProgram = ResourceManager::LoadProgram(skyboxvert, skyboxfrag);
 	GLPrograms::BackGroundProgram->Name = "Background";
 #pragma endregion
@@ -158,10 +158,10 @@ void UniEngine::Default::Load(World* world)
 
 	auto screenvert = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Screen.vert")));
-	screenvert->SetCode(&vertShaderCode);
+	screenvert->Compile(vertShaderCode);
 	auto screenfrag = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Screen.frag")));
-	screenfrag->SetCode(&fragShaderCode);
+	screenfrag->Compile(fragShaderCode);
 	GLPrograms::ScreenProgram = ResourceManager::LoadProgram(screenvert, screenfrag);
 	GLPrograms::ScreenProgram->Name = "Screen";
 #pragma endregion
@@ -190,9 +190,9 @@ void UniEngine::Default::Load(World* world)
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardForward.frag"));
 
 	auto standardVert = std::make_shared<GLShader>(ShaderType::Vertex);
-	standardVert->SetCode(&vertShaderCode);
+	standardVert->Compile(vertShaderCode);
 	auto standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
-	standardFrag->SetCode(&fragShaderCode);
+	standardFrag->Compile(fragShaderCode);
 	GLPrograms::StandardProgram = ResourceManager::LoadProgram(standardVert, standardFrag);
 	GLPrograms::StandardProgram->Name = "Standard";
 	vertShaderCode = std::string("#version 460 core\n")
@@ -201,9 +201,9 @@ void UniEngine::Default::Load(World* world)
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
 
 	standardVert = std::make_shared<GLShader>(ShaderType::Vertex);
-	standardVert->SetCode(&vertShaderCode);
+	standardVert->Compile(vertShaderCode);
 	standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
-	standardFrag->SetCode(&fragShaderCode);
+	standardFrag->Compile(fragShaderCode);
 	GLPrograms::StandardInstancedProgram = ResourceManager::LoadProgram(standardVert, standardFrag);
 	GLPrograms::StandardInstancedProgram->Name = "Standard Instanced";
 #pragma endregion
@@ -219,9 +219,9 @@ void UniEngine::Default::Load(World* world)
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Gizmo.vert"));
 
 	standardVert = std::make_shared<GLShader>(ShaderType::Vertex);
-	standardVert->SetCode(&vertShaderCode);
+	standardVert->Compile(vertShaderCode);
 	standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
-	standardFrag->SetCode(&fragShaderCode);
+	standardFrag->Compile(fragShaderCode);
 	GLPrograms::GizmoProgram = ResourceManager::LoadProgram(standardVert, standardFrag);
 	GLPrograms::GizmoProgram->Name = "Gizmo";
 	vertShaderCode = std::string("#version 460 core\n")
@@ -230,9 +230,9 @@ void UniEngine::Default::Load(World* world)
 		+ FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/GizmoInstanced.vert"));
 
 	standardVert = std::make_shared<GLShader>(ShaderType::Vertex);
-	standardVert->SetCode(&vertShaderCode);
+	standardVert->Compile(vertShaderCode);
 	standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
-	standardFrag->SetCode(&fragShaderCode);
+	standardFrag->Compile(fragShaderCode);
 	GLPrograms::GizmoInstancedProgram = ResourceManager::LoadProgram(standardVert, standardFrag);
 	GLPrograms::GizmoInstancedProgram->Name = "Gizmo Instanced";
 #pragma endregion

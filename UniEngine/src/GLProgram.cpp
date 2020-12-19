@@ -19,33 +19,29 @@ inline UniEngine::GLProgram::GLProgram()
 {
 	Name = "New Program";
 	_ID = glCreateProgram();
-	_VertexShader = nullptr;
-	_FragmentShader = nullptr;
-	_GeometryShader = nullptr;
 }
 
-GLProgram::GLProgram(const std::shared_ptr<GLShader>& vertexShader, const std::shared_ptr<GLShader>& fragmentShader)
+GLProgram::GLProgram(const std::shared_ptr<GLShader>& shader1, const std::shared_ptr<GLShader>& shader2)
 {
 	Name = "New Program";
 	_ID = glCreateProgram();
-	Attach(ShaderType::Vertex, vertexShader);
-	Attach(ShaderType::Fragment, fragmentShader);
-	_GeometryShader = nullptr;
-	_VertexShader = vertexShader;
-	_FragmentShader = fragmentShader;
+	Attach(shader1);
+	Attach(shader2);
+	_Shaders.push_back(shader1);
+	_Shaders.push_back(shader2);
 	Link();
 }
 
-inline UniEngine::GLProgram::GLProgram(const std::shared_ptr<GLShader>& vertexShader, const std::shared_ptr<GLShader>& fragmentShader, const std::shared_ptr<GLShader>& geometryShader)
+inline UniEngine::GLProgram::GLProgram(const std::shared_ptr<GLShader>& shader1, const std::shared_ptr<GLShader>& shader2, const std::shared_ptr<GLShader>& shader3)
 {
 	Name = "New Program";
 	_ID = glCreateProgram();
-	Attach(ShaderType::Vertex, vertexShader);
-	Attach(ShaderType::Fragment, fragmentShader);
-	Attach(ShaderType::Geometry, geometryShader);
-	_VertexShader = vertexShader;
-	_FragmentShader = fragmentShader;
-	_GeometryShader = geometryShader;
+	Attach(shader1);
+	Attach(shader2);
+	Attach(shader3);
+	_Shaders.push_back(shader1);
+	_Shaders.push_back(shader2);
+	_Shaders.push_back(shader3);
 	Link();
 }
 
@@ -55,67 +51,63 @@ inline UniEngine::GLProgram::~GLProgram()
 	glDeleteProgram(_ID);
 }
 
+std::shared_ptr<GLShader> GLProgram::GetShader(ShaderType type)
+{
+	for (const auto& i : _Shaders)
+	{
+		if (i->Type() == type) return i;
+	}
+	return nullptr;
+}
 
-inline void UniEngine::GLProgram::Link()
+bool GLProgram::HasShader(ShaderType type)
+{
+	for(const auto& i : _Shaders)
+	{
+		if(i->Type() == type) return true;
+	}
+	return false;
+}
+
+
+inline void UniEngine::GLProgram::Link() const
 {
 	glLinkProgram(_ID);
 	GLint status = 0;
 	glGetProgramiv(_ID, GL_LINK_STATUS, &status);
 	if (!status) {
 		GLchar infoLog[1024];
-		std::string type = "PROGRAM";
-		glGetProgramInfoLog(_ID, 1024, NULL, infoLog);
+		const std::string type = "PROGRAM";
+		glGetProgramInfoLog(_ID, 1024, nullptr, infoLog);
 		Debug::Error("ERROR::PROGRAM_LINKING_ERROR of type: " + type + "\n" + infoLog + "\n -- --------------------------------------------------- -- ");
 	}
 }
 
-inline void UniEngine::GLProgram::Attach(ShaderType type, std::shared_ptr<GLShader> shader)
+inline void UniEngine::GLProgram::Attach(std::shared_ptr<GLShader> shader)
 {
-	switch (type)
-	{
-	case UniEngine::ShaderType::Vertex:
-		if (_VertexShader != nullptr) Detach(type);
-		_VertexShader = shader;
-		_VertexShader->Attach(_ID);
-		break;
-	case UniEngine::ShaderType::Geometry:
-		if (_GeometryShader != nullptr) Detach(type);
-		_GeometryShader = shader;
-		_GeometryShader->Attach(_ID);
-		break;
-	case UniEngine::ShaderType::Fragment:
-		if (_FragmentShader != nullptr) Detach(type);
-		_FragmentShader = shader;
-		_FragmentShader->Attach(_ID);
-		break;
-	default:
-		break;
-	}
+	const auto type = shader->Type();
+	if (HasShader(type)) Detach(type);
+	_Shaders.push_back(shader);
+	shader->Attach(_ID);
 }
 
 inline void UniEngine::GLProgram::Detach(ShaderType type)
 {
-	switch (type)
+	for (int index = 0; index < _Shaders.size(); index++)
 	{
-	case UniEngine::ShaderType::Vertex:
-		_VertexShader->Detach(_ID);
-		_VertexShader = nullptr;
-		break;
-	case UniEngine::ShaderType::Geometry:
-		_GeometryShader->Detach(_ID);
-		_GeometryShader = nullptr;
-		break;
-	case UniEngine::ShaderType::Fragment:
-		_FragmentShader->Detach(_ID);
-		_FragmentShader = nullptr;
-		break;
+		auto& i = _Shaders[index];
+		if (i->Type() == type) {
+			i->Detach(_ID);
+			_Shaders.erase(_Shaders.begin() + index);
+			break;
+		}
 	}
 }
 
 inline void GLProgram::SetBool(const std::string& name, bool value) const
 {
 	Bind();
-	glUniform1i(glGetUniformLocation(_ID, name.c_str()), (int)value);
+	glUniform1i(glGetUniformLocation(_ID, name.c_str()), static_cast<int>(value));
 }
 inline void GLProgram::SetInt(const std::string& name, int value) const
 {
@@ -152,7 +144,7 @@ inline void GLProgram::SetFloat4(const std::string& name, const glm::vec4& value
 	Bind();
 	glUniform4fv(glGetUniformLocation(_ID, name.c_str()), 1, &value[0]);
 }
-inline void GLProgram::SetFloat4(const std::string& name, float x, float y, float z, float w)
+inline void GLProgram::SetFloat4(const std::string& name, float x, float y, float z, float w) const
 {
 	Bind();
 	glUniform4f(glGetUniformLocation(_ID, name.c_str()), x, y, z, w);

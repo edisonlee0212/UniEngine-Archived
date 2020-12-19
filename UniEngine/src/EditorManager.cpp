@@ -142,9 +142,9 @@ void UniEngine::EditorManager::Init()
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
 
 	auto vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
-	vertShader->SetCode(&vertShaderCode);
+	vertShader->Compile(vertShaderCode);
 	auto fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
-	fragShader->SetCode(&fragShaderCode);
+	fragShader->Compile(fragShaderCode);
 
 
 	_SceneCameraEntityRecorderProgram = std::make_unique<GLProgram>(
@@ -156,7 +156,7 @@ void UniEngine::EditorManager::Init()
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
 
 	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
-	fragShader->SetCode(&fragShaderCode);
+	fragShader->Compile(fragShaderCode);
 
 	_SceneHighlightPrePassProgram = std::make_unique<GLProgram>(
 		vertShader,
@@ -169,7 +169,7 @@ void UniEngine::EditorManager::Init()
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
 
 	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
-	vertShader->SetCode(&vertShaderCode);
+	vertShader->Compile(vertShaderCode);
 
 	_SceneHighlightProgram = std::make_unique<GLProgram>(
 		vertShader,
@@ -983,10 +983,11 @@ void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
 
 bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceBehaviour>& target)
 {
-	ImGui::Button(target ? target->Name.c_str() : "none");
+	ImGui::Button(target ? (target->Name + "##" + std::to_string(target->GetHashCode())).c_str() : "none");
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 	{
-		ImGui::SetDragDropPayload(name.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
+		const std::string hash = std::to_string(std::hash<std::string>{}(name));
+		ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
 		if (target->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(target->_Icon->Texture()->ID()), ImVec2(30, 30));
 		else ImGui::TextColored(ImVec4(0, 0, 1, 1), name.substr(6).c_str());
 		ImGui::EndDragDropSource();

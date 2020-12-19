@@ -168,11 +168,11 @@ namespace UniEngine {
 	bool EditorManager::Draggable(std::shared_ptr<T>& target)
 	{
 		const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
-		ImGui::Button(ptr ? ptr->Name.c_str() : "none");
+		ImGui::Button(ptr ? (ptr->Name + "##" + std::to_string(ptr->GetHashCode())).c_str() : "none");
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
-			ImGui::SetDragDropPayload(typeid(T).name(), &target, sizeof(std::shared_ptr<T>));
-			if (ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30));
+			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
+			ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>)); if (ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30));
 			else ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
 			ImGui::EndDragDropSource();
 		}
