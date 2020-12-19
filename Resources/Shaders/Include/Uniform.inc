@@ -102,12 +102,30 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	sampler2D UE_SPOT_LIGHT_SM;
 	sampler2DArray UE_DIRECTIONAL_LIGHT_SM;
 	sampler2DArray UE_POINT_LIGHT_SM;
+
+	sampler2D UE_ALBEDO_MAP;
+	sampler2D UE_NORMAL_MAP;
+	sampler2D UE_METALLIC_MAP;
+	sampler2D UE_ROUGHNESS_MAP;
+	sampler2D UE_AO_MAP;
+	
+	sampler2D UE_AMBIENT_MAP;
 	sampler2D UE_DIFFUSE_MAP;
 	sampler2D UE_SPECULAR_MAP;
-	sampler2D UE_AMBIENT_MAP;
 	sampler2D UE_EMISSIVE_MAP;
-	sampler2D UE_HEIGHT_MAP;
-	sampler2D UE_NORMAL_MAP;
+	sampler2D UE_DISPLACEMENT_MAP;
+
+	bool UE_ALBEDO_MAP_ENABLED;
+	bool UE_NORMAL_MAP_ENABLED;
+	bool UE_METALLIC_MAP_ENABLED;
+	bool UE_ROUGHNESS_MAP_ENABLED;
+	bool UE_AO_MAP_ENABLED;
+	
+	bool UE_AMBIENT_MAP_ENABLED;
+	bool UE_DIFFUSE_MAP_ENABLED;
+	bool UE_SPECULAR_MAP_ENABLED;
+	bool UE_EMISSIVE_MAP_ENABLED;
+	bool UE_DISPLACEMENT_MAP_ENABLED;
 };
 
 //Material
@@ -116,9 +134,7 @@ struct Material{
 };
 
 uniform Material material;
-uniform bool UE_SPECULAR_MAP_ENABLED;
-uniform bool UE_NORMAL_MAP_ENABLED;
-uniform bool UE_PARALLAX_MAP_ENABLED;
+
 
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;

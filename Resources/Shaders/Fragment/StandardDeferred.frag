@@ -27,14 +27,14 @@ vec3 ParallaxMapping(vec2 texCoords, vec3 viewDir)
   
     // get initial values
     vec2  currentTexCoords     = texCoords;
-    float currentDepthMapValue = texture(UE_HEIGHT_MAP, currentTexCoords).r;
+    float currentDepthMapValue = texture(UE_DISPLACEMENT_MAP, currentTexCoords).r;
       
     while(currentLayerDepth < currentDepthMapValue)
     {
         // shift texture coordinates along direction of P
         currentTexCoords -= deltaTexCoords;
         // get depthmap value at current texture coordinates
-        currentDepthMapValue = texture(UE_HEIGHT_MAP, currentTexCoords).r;  
+        currentDepthMapValue = texture(UE_DISPLACEMENT_MAP, currentTexCoords).r;  
         // get depth of next layer
         currentLayerDepth += layerDepth;  
     }
@@ -44,7 +44,7 @@ vec3 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
     // get depth after and before collision for linear interpolation
     float afterDepth  = currentDepthMapValue - currentLayerDepth;
-    float beforeDepth = texture(UE_HEIGHT_MAP, prevTexCoords).r - currentLayerDepth + layerDepth;
+    float beforeDepth = texture(UE_DISPLACEMENT_MAP, prevTexCoords).r - currentLayerDepth + layerDepth;
  
     // interpolation of texture coordinates
     float weight = afterDepth / (afterDepth - beforeDepth);
@@ -61,7 +61,7 @@ void main()
     vec2 texCoords = fs_in.TexCoords;
     float depth = 0.0;
 
-    if(UE_PARALLAX_MAP_ENABLED){
+    if(UE_DISPLACEMENT_MAP_ENABLED){
         vec3 viewDir = reflect(normalize(UE_CAMERA_POSITION - fs_in.FragPos), fs_in.Normal);
         vec3 result = ParallaxMapping(texCoords, normalize(TBN * viewDir));
         depth = result.z / heightScale;

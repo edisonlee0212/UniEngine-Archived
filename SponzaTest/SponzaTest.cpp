@@ -50,7 +50,7 @@ int main()
 #pragma endregion
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetProgram(Default::GLPrograms::StandardProgram);
-	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
+	sharedMat->SetTexture(Default::Textures::StandardTexture);
 	
 	auto cylinder = std::make_unique<MeshRenderer>();
 	cylinder->Mesh = Default::Primitives::Cylinder;
@@ -219,7 +219,7 @@ void InitGround() {
 	mat->SetProgram(Default::GLPrograms::StandardProgram);
 	
 	auto texture = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"));
-	mat->SetTexture(texture, TextureType::DIFFUSE);
+	mat->SetTexture(texture);
 	/*
 	auto textureD = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2.jpg"));
 	mat->SetTexture(textureD, TextureType::DIFFUSE);

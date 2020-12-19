@@ -4,10 +4,19 @@
 #include "ResourceManager.h"
 using namespace UniEngine;
 
-
-UniEngine::Texture2D::Texture2D()
+Texture2D::Texture2D(TextureType type)
 {
-	Name = "New Texture";
+	_Type = type;
+}
+
+void Texture2D::SetType(TextureType type)
+{
+	_Type = type;
+}
+
+TextureType Texture2D::GetType() const
+{
+	return _Type;
 }
 
 glm::vec2 Texture2D::GetResolution() const

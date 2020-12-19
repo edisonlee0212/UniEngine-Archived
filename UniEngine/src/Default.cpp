@@ -298,9 +298,9 @@ void UniEngine::Default::Load(World* world)
 
 	Materials::StandardMaterial = ResourceManager::LoadMaterial(GLPrograms::StandardProgram);
 	Materials::StandardMaterial->Name = "Standard";
-	Materials::StandardMaterial->SetTexture(Textures::StandardTexture, TextureType::DIFFUSE);
+	Materials::StandardMaterial->SetTexture(Textures::StandardTexture);
 
 	Materials::StandardInstancedMaterial = ResourceManager::LoadMaterial(GLPrograms::StandardInstancedProgram);
-	Materials::StandardInstancedMaterial->SetTexture(Textures::StandardTexture, TextureType::DIFFUSE);
+	Materials::StandardInstancedMaterial->SetTexture(Textures::StandardTexture);
 	Materials::StandardMaterial->Name = "Standard Instanced";
 }

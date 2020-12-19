@@ -802,7 +802,7 @@ void EditorManager::LateUpdate()
 					auto meshRenderer = std::make_unique<MeshRenderer>();
 					meshRenderer->Mesh = payload_n;
 					meshRenderer->Material = std::make_shared<Material>();
-					meshRenderer->Material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
+					meshRenderer->Material->SetTexture(Default::Textures::StandardTexture);
 					meshRenderer->Material->SetProgram(Default::GLPrograms::StandardProgram);
 					Entity entity = EntityManager::CreateEntity("Mesh");
 					entity.SetComponentData(ltw);

@@ -193,6 +193,134 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 	if (shininess == 0.0f) shininess = 32.0f;
 	material->Shininess = shininess;
 	material->SetProgram(shader);
+	//PBR
+	if (pointMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
+	{
+		aiString str;
+		pointMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &str);
+		bool skip = false;
+		for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+		{
+			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
+			{
+				material->SetTexture(Texture2DsLoaded.at(j));
+				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip)
+		{   // if Texture2D hasn't been loaded already, load it
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::ALBEDO);
+			material->SetTexture(texture2D);
+			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+		}
+	}
+	if (pointMaterial->GetTextureCount(aiTextureType_NORMAL_CAMERA) > 0)
+	{
+		aiString str;
+		pointMaterial->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &str);
+		bool skip = false;
+		for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+		{
+			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
+			{
+				material->SetTexture(Texture2DsLoaded.at(j));
+				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip)
+		{   // if Texture2D hasn't been loaded already, load it
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::NORMAL);
+			material->SetTexture(texture2D);
+			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+		}
+	}
+	if (pointMaterial->GetTextureCount(aiTextureType_EMISSION_COLOR) > 0)
+	{
+		aiString str;
+		pointMaterial->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &str);
+		bool skip = false;
+		for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+		{
+			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
+			{
+				material->SetTexture(Texture2DsLoaded.at(j));
+				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip)
+		{   // if Texture2D hasn't been loaded already, load it
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::EMISSIVE);
+			material->SetTexture(texture2D);
+			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+		}
+	}
+	if (pointMaterial->GetTextureCount(aiTextureType_METALNESS) > 0)
+	{
+		aiString str;
+		pointMaterial->GetTexture(aiTextureType_METALNESS, 0, &str);
+		bool skip = false;
+		for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+		{
+			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
+			{
+				material->SetTexture(Texture2DsLoaded.at(j));
+				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip)
+		{   // if Texture2D hasn't been loaded already, load it
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::METALLIC);
+			material->SetTexture(texture2D);
+			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+		}
+	}
+	if (pointMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
+	{
+		aiString str;
+		pointMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &str);
+		bool skip = false;
+		for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+		{
+			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
+			{
+				material->SetTexture(Texture2DsLoaded.at(j));
+				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip)
+		{   // if Texture2D hasn't been loaded already, load it
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::ROUGHNESS);
+			material->SetTexture(texture2D);
+			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+		}
+	}
+	if (pointMaterial->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0)
+	{
+		aiString str;
+		pointMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &str);
+		bool skip = false;
+		for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+		{
+			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
+			{
+				material->SetTexture(Texture2DsLoaded.at(j));
+				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip)
+		{   // if Texture2D hasn't been loaded already, load it
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::AO);
+			material->SetTexture(texture2D);
+			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
+		}
+	}
+	//Others
 	if (pointMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
 	{
 		aiString str;
@@ -202,21 +330,17 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		{
 			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
 			{
-				material->SetTexture(Texture2DsLoaded.at(j), TextureType::DIFFUSE);
+				material->SetTexture(Texture2DsLoaded.at(j));
 				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
 				break;
 			}
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str());
-			material->SetTexture(texture2D, TextureType::DIFFUSE);
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DIFFUSE);
+			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
-	}
-	else
-	{
-		material->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
 	}
 	if (pointMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
 	{
@@ -227,15 +351,15 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		{
 			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
 			{
-				material->SetTexture(Texture2DsLoaded.at(j), TextureType::SPECULAR);
+				material->SetTexture(Texture2DsLoaded.at(j));
 				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
 				break;
 			}
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str());
-			material->SetTexture(texture2D, TextureType::SPECULAR);
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::SPECULAR);
+			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
 	}
@@ -248,15 +372,15 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		{
 			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
 			{
-				material->SetTexture(Texture2DsLoaded.at(j), TextureType::NORMAL);
+				material->SetTexture(Texture2DsLoaded.at(j));
 				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
 				break;
 			}
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str());
-			material->SetTexture(texture2D, TextureType::NORMAL);
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::NORMAL);
+			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
 	}
@@ -269,15 +393,15 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		{
 			if (Texture2DsLoaded.at(j)->Path()._Equal(directory + "/" + str.C_Str()))
 			{
-				material->SetTexture(Texture2DsLoaded.at(j), TextureType::DISPLACEMENT);
+				material->SetTexture(Texture2DsLoaded.at(j));
 				skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one. (optimization)
 				break;
 			}
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str());
-			material->SetTexture(texture2D, TextureType::DISPLACEMENT);
+			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DISPLACEMENT);
+			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
 	}
@@ -305,11 +429,11 @@ void UniEngine::ResourceManager::AttachChildren(EntityArchetype archetype, std::
 	}
 }
 
-std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& path)
+std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& path, TextureType type)
 {
 	stbi_set_flip_vertically_on_load(true);
-	auto retVal = std::make_shared<Texture2D>();
-	std::string filename = path;
+	auto retVal = std::make_shared<Texture2D>(type);
+	const std::string filename = path;
 	retVal->_Path = filename;
 	int width, height, nrComponents;
 	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);

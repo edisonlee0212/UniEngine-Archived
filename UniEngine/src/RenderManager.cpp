@@ -1443,40 +1443,64 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 
 void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* program)
 {
-	if (material->_DiffuseMap && material->_DiffuseMap->Texture().get())
+	_MaterialTextures.albedoEnabled = false;
+	_MaterialTextures.normalEnabled = false;
+	_MaterialTextures.metallicEnabled = false;
+	_MaterialTextures.roughnessEnabled = false;
+	_MaterialTextures.aoEnabled = false;
+	
+	_MaterialTextures.ambientEnabled = false;
+	_MaterialTextures.diffuseEnabled = false;
+	_MaterialTextures.specularEnabled = false;
+	_MaterialTextures.emissiveEnabled = false;
+	_MaterialTextures.displacementEnabled = false;
+
+	for(const auto& i : material->_Textures)
 	{
-		_MaterialTextures.diffuse = material->_DiffuseMap->Texture()->GetHandle();
-	}
-	else
-	{
-		_MaterialTextures.diffuse = Default::Textures::StandardTexture->Texture()->GetHandle();
-	}
-	if (material->_SpecularMap && material->_SpecularMap->Texture().get())
-	{
-		_MaterialTextures.specular = material->_SpecularMap->Texture()->GetHandle();
-		program->SetBool("enableSpecularMapping", true);
-	}
-	else
-	{
-		program->SetBool("enableSpecularMapping", false);
-	}
-	if (material->_NormalMap && material->_NormalMap->Texture().get())
-	{
-		_MaterialTextures.normal = material->_NormalMap->Texture()->GetHandle();
-		program->SetBool("enableNormalMapping", true);
-	}
-	else
-	{
-		program->SetBool("enableNormalMapping", false);
-	}
-	if (material->_DisplacementMap && material->_DisplacementMap->Texture().get())
-	{
-		_MaterialTextures.height = material->_DisplacementMap->Texture()->GetHandle();
-		program->SetBool("enableParallaxMapping", true);
-	}
-	else
-	{
-		program->SetBool("enableParallaxMapping", false);
+		if (!i.second) continue;
+		switch (i.second->_Type)
+		{
+		case TextureType::ALBEDO:
+			_MaterialTextures.albedo = i.second->Texture()->GetHandle();
+			_MaterialTextures.albedoEnabled = static_cast<int>(true);
+			break;
+		case TextureType::NORMAL:
+			_MaterialTextures.normal = i.second->Texture()->GetHandle();
+			_MaterialTextures.normalEnabled = static_cast<int>(true);
+			break;
+		case TextureType::METALLIC:
+			_MaterialTextures.metallic = i.second->Texture()->GetHandle();
+			_MaterialTextures.metallicEnabled = static_cast<int>(true);
+			break;
+		case TextureType::ROUGHNESS:
+			_MaterialTextures.roughness = i.second->Texture()->GetHandle();
+			_MaterialTextures.roughnessEnabled = static_cast<int>(true);
+			break;
+		case TextureType::AO:
+			_MaterialTextures.ao = i.second->Texture()->GetHandle();
+			_MaterialTextures.aoEnabled = static_cast<int>(true);
+			break;
+		case TextureType::AMBIENT:
+			_MaterialTextures.ambient = i.second->Texture()->GetHandle();
+			_MaterialTextures.ambientEnabled = static_cast<int>(true);
+			break;
+		case TextureType::DIFFUSE:
+			_MaterialTextures.diffuse = i.second->Texture()->GetHandle();
+			_MaterialTextures.diffuseEnabled = static_cast<int>(true);
+			break;
+		case TextureType::SPECULAR:
+			_MaterialTextures.specular = i.second->Texture()->GetHandle();
+			_MaterialTextures.specularEnabled = static_cast<int>(true);
+			break;
+		case TextureType::EMISSIVE:
+			_MaterialTextures.emissive = i.second->Texture()->GetHandle();
+			_MaterialTextures.emissiveEnabled = static_cast<int>(true);
+			break;
+		case TextureType::DISPLACEMENT:
+			_MaterialTextures.displacement = i.second->Texture()->GetHandle();
+			_MaterialTextures.displacementEnabled = static_cast<int>(true);
+			break;
+		}
 	}
 	_MaterialTextureBindings->SubData(0, sizeof(MaterialTextures), &_MaterialTextures);
 }

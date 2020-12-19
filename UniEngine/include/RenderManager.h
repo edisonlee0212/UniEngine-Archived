@@ -35,12 +35,30 @@ namespace UniEngine {
 		GLuint64 spotShadowMap = 0;
 		GLuint64 directionalShadowMap = 0;
 		GLuint64 pointShadowMap = 0;
+		
+		GLuint64 albedo = 0;
+		GLuint64 normal = 0;
+		GLuint64 metallic = 0;
+		GLuint64 roughness = 0;
+		GLuint64 ao = 0;
+		
+		GLuint64 ambient = 0;
 		GLuint64 diffuse = 0;
 		GLuint64 specular = 0;
-		GLuint64 ambient = 0;
 		GLuint64 emissive = 0;
-		GLuint64 height = 0;
-		GLuint64 normal = 0;
+		GLuint64 displacement = 0;
+		
+		int albedoEnabled = 0;
+		int normalEnabled = 0;
+		int metallicEnabled = 0;
+		int roughnessEnabled = 0;
+		int aoEnabled = 0;
+
+		int ambientEnabled = 0;
+		int diffuseEnabled = 0;
+		int specularEnabled = 0;
+		int emissiveEnabled = 0;
+		int displacementEnabled = 0;
 	};
 	
 	class UNIENGINE_API RenderManager : public Singleton<RenderManager>

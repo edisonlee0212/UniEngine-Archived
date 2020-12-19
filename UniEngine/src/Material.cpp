@@ -10,6 +10,19 @@ static const char* MatBlendingMode[]{ "OFF", "ONE_MINUS_SRC_ALPHA" };
 
 Material::Material()
 {
+	_Textures[TextureType::ALBEDO] = nullptr;
+	_Textures[TextureType::NORMAL] = nullptr;
+	_Textures[TextureType::METALLIC] = nullptr;
+	_Textures[TextureType::ROUGHNESS] = nullptr;
+	_Textures[TextureType::AO] = nullptr;
+
+	_Textures[TextureType::AMBIENT] = nullptr;
+	_Textures[TextureType::DIFFUSE] = nullptr;
+	_Textures[TextureType::SPECULAR] = nullptr;
+	_Textures[TextureType::EMISSIVE] = nullptr;
+	_Textures[TextureType::DISPLACEMENT] = nullptr;
+	
+	
 	Name = "New material";
 	Shininess = 32.0f;
 }
@@ -42,17 +55,9 @@ void Material::OnGui()
 	if (ImGui::TreeNode(("Textures##" + std::to_string(std::hash<std::string>{}(Name))).c_str())) {
 		{
 			ImGui::Spacing();
-			ImGui::Text("Diffuse: ");
+			ImGui::Text("Albedo: ");
 			ImGui::Spacing();
-			EditorManager::DragAndDrop(_DiffuseMap);
-		}
-
-		{
-			ImGui::Spacing();
-			ImGui::Separator();
-			ImGui::Text("Specular: ");
-			ImGui::Spacing();
-			EditorManager::DragAndDrop(_SpecularMap);
+			EditorManager::DragAndDrop(_Textures[TextureType::ALBEDO]);
 		}
 
 		{
@@ -60,15 +65,69 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Normal: ");
 			ImGui::Spacing();
-			EditorManager::DragAndDrop(_NormalMap);
+			EditorManager::DragAndDrop(_Textures[TextureType::NORMAL]);
+		}
+
+		
+		{
+			ImGui::Spacing();
+			ImGui::Text("Metallic: ");
+			ImGui::Spacing();
+			EditorManager::DragAndDrop(_Textures[TextureType::METALLIC]);
+		}
+		
+		{
+			ImGui::Spacing();
+			ImGui::Text("Roughness: ");
+			ImGui::Spacing();
+			EditorManager::DragAndDrop(_Textures[TextureType::ROUGHNESS]);
 		}
 
 		{
 			ImGui::Spacing();
 			ImGui::Separator();
-			ImGui::Text("Displacement: ");
+			ImGui::Text("AO: ");
 			ImGui::Spacing();
-			EditorManager::DragAndDrop(_DisplacementMap);
+			EditorManager::DragAndDrop(_Textures[TextureType::AO]);
+		}
+
+		{
+			ImGui::Spacing();
+			ImGui::Text("Ambient: ");
+			ImGui::Spacing();
+			EditorManager::DragAndDrop(_Textures[TextureType::AMBIENT]);
+		}
+
+		{
+			ImGui::Spacing();
+			ImGui::Text("Diffuse: ");
+			ImGui::Spacing();
+			EditorManager::DragAndDrop(_Textures[TextureType::DIFFUSE]);
+		}
+		
+		{
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Text("Specular: ");
+			ImGui::Spacing();
+			EditorManager::DragAndDrop(_Textures[TextureType::SPECULAR]);
+		}
+
+		{
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Text("Emissive: ");
+			ImGui::Spacing();
+			EditorManager::DragAndDrop(_Textures[TextureType::EMISSIVE]);
+		}
+
+		
+		{
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Text("Height: ");
+			ImGui::Spacing();
+			EditorManager::DragAndDrop(_Textures[TextureType::DISPLACEMENT]);
 		}
 		ImGui::TreePop();
 	}
@@ -100,44 +159,14 @@ void UniEngine::Material::SetMaterialProperty(const std::string& name, glm::mat4
 	_Float4x4PropertyList.emplace_back(name, value);
 }
 
-void Material::SetTexture(std::shared_ptr<Texture2D> texture, TextureType type)
+void Material::SetTexture(std::shared_ptr<Texture2D> texture)
 {
-	switch (type)
-	{
-	case TextureType::DIFFUSE:
-		_DiffuseMap = std::move(texture);
-		break;
-	case TextureType::NORMAL:
-		_NormalMap = std::move(texture);
-		break;
-	case TextureType::SPECULAR:
-		_SpecularMap = std::move(texture);
-		break;
-	case TextureType::DISPLACEMENT:
-		_DisplacementMap = std::move(texture);
-		break;
-	default:
-		break;
-	}
+	_Textures[texture->_Type] = texture;
 }
 
 void Material::RemoveTexture(TextureType type)
 {
-	switch (type)
-	{
-	case TextureType::DIFFUSE:
-		_DiffuseMap.reset();
-		break;
-	case TextureType::NORMAL:
-		_NormalMap.reset();
-		break;
-	case TextureType::SPECULAR:
-		_SpecularMap.reset();
-		break;
-	case TextureType::DISPLACEMENT:
-		_DisplacementMap.reset();
-		break;
-	}
+	_Textures.erase(type);
 }
 
 void Material::SetProgram(std::shared_ptr<GLProgram> program)

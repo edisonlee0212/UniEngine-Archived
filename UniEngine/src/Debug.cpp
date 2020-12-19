@@ -19,6 +19,7 @@ void Debug::Log(const std::string& msg)
 void Debug::Error(const std::string& msg)
 {
 	std::lock_guard<std::mutex> lock(_ConsoleMessageMutex);
+	std::cout << msg << "\n" << std::endl;
 	ConsoleMessage cm;
 	cm.Value = msg;
 	cm.Type = ConsoleMessageType::Error;

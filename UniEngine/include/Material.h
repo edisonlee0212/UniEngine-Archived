@@ -28,7 +28,7 @@ namespace UniEngine {
 	{
 		std::string Name;
 		float Value;
-		MaterialFloatProperty(std::string name, float value)
+		MaterialFloatProperty(const std::string& name, float value)
 		{
 			Name = name;
 			Value = value;
@@ -38,7 +38,7 @@ namespace UniEngine {
 	{
 		std::string Name;
 		glm::mat4 Value;
-		MaterialMat4Property(std::string name, glm::mat4 value)
+		MaterialMat4Property(const std::string& name, glm::mat4 value)
 		{
 			Name = name;
 			Value = value;
@@ -47,12 +47,7 @@ namespace UniEngine {
 	class UNIENGINE_API Material : public ResourceBehaviour
 	{
 		friend class RenderManager;
-		
-		std::shared_ptr<Texture2D> _DiffuseMap;
-		std::shared_ptr<Texture2D> _SpecularMap; 
-		std::shared_ptr<Texture2D> _NormalMap;
-		std::shared_ptr<Texture2D> _DisplacementMap;
-		
+		std::map<TextureType, std::shared_ptr<Texture2D>> _Textures;
 		
 		std::shared_ptr<GLProgram> _Program;
 		std::vector<MaterialFloatProperty> _FloatPropertyList;
@@ -68,7 +63,7 @@ namespace UniEngine {
 		void OnGui();
 		void SetMaterialProperty(const std::string& name, float value);
 		void SetMaterialProperty(const std::string& name, glm::mat4 value);
-		void SetTexture(std::shared_ptr<Texture2D> texture, TextureType type);
+		void SetTexture(std::shared_ptr<Texture2D> texture);
 		void RemoveTexture(TextureType type);
 		void SetProgram(std::shared_ptr<GLProgram> program);
 	};
