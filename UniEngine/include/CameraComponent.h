@@ -59,6 +59,7 @@ namespace UniEngine {
 		std::unique_ptr<GLTexture2D> _GPositionBuffer;
 		std::unique_ptr<GLTexture2D> _GNormalBuffer;
 		std::unique_ptr<GLTexture2D> _GColorSpecularBuffer;
+		std::unique_ptr<GLTexture2D> _GMetallicRoughnessAO;
 		static CameraInfoBlock _CameraInfoBlock;
 		static std::unique_ptr<GLUBO> _CameraUniformBufferBlock;
 		bool _IsMainCamera = false;

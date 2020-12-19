@@ -237,6 +237,7 @@ void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 	_GPositionBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
 	_GNormalBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
 	_GColorSpecularBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
+	_GMetallicRoughnessAO->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
 	_GDepthBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _ResolutionX, _ResolutionY);
 
 	_SSAO->SetResolution(_ResolutionX, _ResolutionY);
@@ -284,6 +285,11 @@ UniEngine::CameraComponent::CameraComponent()
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_GBuffer->AttachTexture(_GColorSpecularBuffer.get(), GL_COLOR_ATTACHMENT2);
+
+	_GMetallicRoughnessAO = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_GBuffer->AttachTexture(_GMetallicRoughnessAO.get(), GL_COLOR_ATTACHMENT3);
 	
 	_SSAO = std::make_unique<RenderTarget>(_ResolutionX, _ResolutionY);
 	_SSAOColor = std::make_unique<GLTexture2D>(0, GL_R32F, _ResolutionX, _ResolutionY, false);

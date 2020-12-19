@@ -72,8 +72,8 @@ int RenderManager::_SSAOSampleSize = 9;
 void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
 	cameraComponent->_GBuffer->Bind();
-	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-	cameraComponent->_GBuffer->GetFrameBuffer()->DrawBuffers(3, attachments);
+	unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 , GL_COLOR_ATTACHMENT3 };
+	cameraComponent->_GBuffer->GetFrameBuffer()->DrawBuffers(4, attachments);
 	cameraComponent->_GBuffer->Clear();
 	const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners) {
@@ -177,21 +177,26 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 	cameraComponent->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_GBufferLightingPass->Bind();
+	
 	cameraComponent->_GPositionBuffer->Bind(3);
 	cameraComponent->_GNormalBuffer->Bind(4);
 	cameraComponent->_GColorSpecularBuffer->Bind(5);
+	cameraComponent->_GMetallicRoughnessAO->Bind(6);
+	_GBufferLightingPass->SetInt("gPosition", 3);
+	_GBufferLightingPass->SetInt("gNormal", 4);
+	_GBufferLightingPass->SetInt("gAlbedoSpec", 5);
+	_GBufferLightingPass->SetInt("gMetallicRoughnessAO", 6);
+	
 	_GBufferLightingPass->SetBool("receiveShadow", true);
 	_GBufferLightingPass->SetBool("enableSSAO", _EnableSSAO);
 	if (_EnableSSAO)
 	{
-		cameraComponent->_SSAOBlur->Bind(6);
-		_GBufferLightingPass->SetInt("ssao", 6);
+		cameraComponent->_SSAOBlur->Bind(7);
+		_GBufferLightingPass->SetInt("ssao", 7);
 	}
 	_GBufferLightingPass->SetBool("enableShadow", _EnableShadow);
-	_GBufferLightingPass->SetInt("gPosition", 3);
-	_GBufferLightingPass->SetInt("gNormal", 4);
-	_GBufferLightingPass->SetInt("gAlbedoSpec", 5);
-
+	
+	
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	auto res = cameraComponent->GetResolution();
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->_GBuffer->GetFrameBuffer()->ID());
