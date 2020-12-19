@@ -989,7 +989,7 @@ bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceB
 	{
 		const std::string hash = std::to_string(std::hash<std::string>{}(name));
 		ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
-		if (target->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(target->_Icon->Texture()->ID()), ImVec2(30, 30));
+		if (target->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(target->_Icon->Texture()->ID()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
 		else ImGui::TextColored(ImVec4(0, 0, 1, 1), name.substr(6).c_str());
 		ImGui::EndDragDropSource();
 	}

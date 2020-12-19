@@ -305,75 +305,6 @@ void UniEngine::ResourceManager::AttachChildren(EntityArchetype archetype, std::
 	}
 }
 
-void ResourceManager::ModelGuiNode(std::shared_ptr<Model>& model)
-{
-	ImGui::PushID(model->GetHashCode());
-	ImGui::ImageButton(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
-	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-	{
-		// Set payload to carry the index of our item (could be anything)
-		ImGui::SetDragDropPayload("ASSET_MODEL", &model, sizeof(std::shared_ptr<Model>));
-		ImGui::Image(reinterpret_cast<ImTextureID>(Default::Textures::ObjectIcon->Texture()->ID()), ImVec2(30, 30));
-		ImGui::EndDragDropSource();
-	}
-	bool deleted = false;
-	if (ImGui::BeginPopupContextItem(std::to_string(model->GetHashCode()).c_str()))
-	{
-		if (ImGui::BeginMenu("Rename"))
-		{
-			static char newName[256];
-			ImGui::InputText("New name", newName, 256);
-			if (ImGui::Button("Confirm")) model->Name = std::string(newName);
-			ImGui::EndMenu();
-		}
-		if (ImGui::Button("Delete")) {
-			Remove<Model>(model->GetHashCode());
-			deleted = true;
-		}
-		ImGui::EndPopup();
-	}
-
-	ImGui::PopID();
-	ImGui::SameLine();
-	if (!deleted) {
-		ImGui::TextWrapped(model->Name.c_str(), ImVec2(30, 30));
-	}
-}
-
-void ResourceManager::TextureGuiNode(std::shared_ptr<Texture2D>& texture2D)
-{
-	ImGui::PushID(texture2D->GetHashCode());
-	ImGui::ImageButton((ImTextureID)texture2D->Texture()->ID(), ImVec2(30, 30));
-	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-	{
-		ImGui::SetDragDropPayload("ASSET_TEXTURE2D", &texture2D, sizeof(std::shared_ptr<Texture2D>));
-		ImGui::Image((ImTextureID)texture2D->Texture()->ID(), ImVec2(30, 30));
-		ImGui::EndDragDropSource();
-	}
-	bool deleted = false;
-	if (ImGui::BeginPopupContextItem(std::to_string(texture2D->GetHashCode()).c_str()))
-	{
-		if (ImGui::BeginMenu("Rename"))
-		{
-			static char newName[256];
-			ImGui::InputText("New name", newName, 256);
-			if (ImGui::Button("Confirm")) texture2D->Name = std::string(newName);
-			ImGui::EndMenu();
-		}
-		if (ImGui::Button("Delete")) {
-			Remove<Texture2D>(texture2D->GetHashCode());
-			deleted = true;
-		}
-		ImGui::EndPopup();
-	}
-
-	ImGui::PopID();
-	ImGui::SameLine();
-	ImGui::TextWrapped(texture2D->Name.c_str());
-
-}
-
-
 std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& path)
 {
 	stbi_set_flip_vertically_on_load(true);
@@ -560,7 +491,7 @@ void ResourceManager::LateUpdate()
 				}
 				if (ImGui::Button("Texture"))
 				{
-					auto result = FileIO::OpenFile("Texture (*.png)\0*.jpg\0");
+					auto result = FileIO::OpenFile("Texture (*.png, *.jpg, *.jpeg)\0*.jpg;*.png;*.jpeg\0");
 					if (result.has_value())
 					{
 						const std::string path = result.value();

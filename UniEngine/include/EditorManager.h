@@ -132,7 +132,7 @@ namespace UniEngine {
 		{
 			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
 			ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<T>));
-			if(ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30));
+			if(ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
 			else ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
 			ImGui::EndDragDropSource();
 		}
@@ -175,7 +175,7 @@ namespace UniEngine {
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
-			ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>)); if (ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30));
+			ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>)); if (ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
 			else ImGui::TextColored(ImVec4(0, 0, 1, 1), typeid(T).name());
 			ImGui::EndDragDropSource();
 		}

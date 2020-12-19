@@ -14,8 +14,6 @@ namespace UniEngine {
 		static void ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>&, std::string directory, std::shared_ptr<GLProgram> shader, std::vector<std::shared_ptr<Texture2D>>& Texture2DsLoaded, aiMesh* aimesh, const aiScene* scene);
 		static void AttachChildren(EntityArchetype archetype, std::unique_ptr<ModelNode>& modelNode, Entity parentEntity, std::string parentName);
 
-		static void ModelGuiNode(std::shared_ptr<Model>& model);
-		static void TextureGuiNode(std::shared_ptr<Texture2D>& texture2D);
 	public:
 		template<typename T>
 		static void Push(std::shared_ptr<T> resource);
