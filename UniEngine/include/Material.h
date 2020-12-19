@@ -48,7 +48,6 @@ namespace UniEngine {
 	{
 		friend class RenderManager;
 		std::map<TextureType, std::shared_ptr<Texture2D>> _Textures;
-		
 		std::shared_ptr<GLProgram> _Program;
 		std::vector<MaterialFloatProperty> _FloatPropertyList;
 		std::vector<MaterialMat4Property> _Float4x4PropertyList;
@@ -57,6 +56,10 @@ namespace UniEngine {
 		MaterialCullingMode CullingMode = MaterialCullingMode::BACK;
 		MaterialBlendingMode BlendingMode = MaterialBlendingMode::OFF;
 		float Shininess = 32.0f;
+		float Metallic = 0.5f;
+		float Roughness = 0.5f;
+		float AmbientOcclusion = 1.0f;
+		glm::vec3 AlbedoColor = glm::vec3(1.0f);
 		bool TransparentDiscard = false;
 		float TransparentDiscardLimit = 0.99f;
 		Material();

@@ -86,7 +86,7 @@ void main()
     
     // also store the per-fragment normals into the gbuffer
     gNormal.rgb = (gl_FrontFacing ? 1.0 : -1.0) * normalize(normal);
-	gNormal.a = material.shininess;
+	gNormal.a = UE_PBR_SHININESS;
     // store specular intensity in gAlbedoSpec's alpha component
     float specular = 1.0;
 	if(UE_SPECULAR_MAP_ENABLED){

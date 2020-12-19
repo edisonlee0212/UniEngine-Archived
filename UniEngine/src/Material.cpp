@@ -44,8 +44,16 @@ void Material::OnGui()
 	ImGui::Text("Program: ");
 	ImGui::SameLine();
 	EditorManager::DragAndDrop(_Program);
+	if(ImGui::TreeNode("PBR"))
+	{
+		ImGui::ColorEdit3("Albedo", &AlbedoColor.x);
+		ImGui::DragFloat("Metallic", &Metallic, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Roughness", &Roughness, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("AO", &AmbientOcclusion, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Shininess", &Shininess, 1.0f, 1.0f, 1024.0f);
+		ImGui::TreePop();
+	}
 	
-	ImGui::DragFloat("Shininess", &Shininess, 1.0f, 1.0f, 1024.0f);
 	ImGui::Checkbox("Enable Transparent Discard", &TransparentDiscard);
 	ImGui::DragFloat("Transparent Discard Limit", &TransparentDiscardLimit, 0.01f, 0.0f, 0.99f);
 	ImGui::Combo("Polygon Mode", reinterpret_cast<int*>(&PolygonMode), MatPolygonMode, IM_ARRAYSIZE(MatPolygonMode));

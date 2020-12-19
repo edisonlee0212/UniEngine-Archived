@@ -187,8 +187,6 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 		cameraComponent->_SSAOBlur->Bind(6);
 		_GBufferLightingPass->SetInt("ssao", 6);
 	}
-	_GBufferLightingPass->SetInt("directionalShadowMap", 0);
-	_GBufferLightingPass->SetInt("pointShadowMap", 1);
 	_GBufferLightingPass->SetBool("enableShadow", _EnableShadow);
 	_GBufferLightingPass->SetInt("gPosition", 3);
 	_GBufferLightingPass->SetInt("gNormal", 4);
@@ -1443,6 +1441,12 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 
 void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* program)
 {
+	_MaterialTextures.albedoColorVal = glm::vec4(material->AlbedoColor, 1.0f);
+	_MaterialTextures.shininessVal = material->Shininess;
+	_MaterialTextures.metallicVal = material->Metallic;
+	_MaterialTextures.roughnessVal = material->Roughness;
+	_MaterialTextures.aoVal = material->AmbientOcclusion;
+	
 	_MaterialTextures.albedoEnabled = false;
 	_MaterialTextures.normalEnabled = false;
 	_MaterialTextures.metallicEnabled = false;
@@ -1461,23 +1465,23 @@ void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* progr
 		switch (i.second->_Type)
 		{
 		case TextureType::ALBEDO:
-			_MaterialTextures.albedo = i.second->Texture()->GetHandle();
+			_MaterialTextures.albedoMap = i.second->Texture()->GetHandle();
 			_MaterialTextures.albedoEnabled = static_cast<int>(true);
 			break;
 		case TextureType::NORMAL:
-			_MaterialTextures.normal = i.second->Texture()->GetHandle();
+			_MaterialTextures.normalMap = i.second->Texture()->GetHandle();
 			_MaterialTextures.normalEnabled = static_cast<int>(true);
 			break;
 		case TextureType::METALLIC:
-			_MaterialTextures.metallic = i.second->Texture()->GetHandle();
+			_MaterialTextures.metallicMap = i.second->Texture()->GetHandle();
 			_MaterialTextures.metallicEnabled = static_cast<int>(true);
 			break;
 		case TextureType::ROUGHNESS:
-			_MaterialTextures.roughness = i.second->Texture()->GetHandle();
+			_MaterialTextures.roughnessMap = i.second->Texture()->GetHandle();
 			_MaterialTextures.roughnessEnabled = static_cast<int>(true);
 			break;
 		case TextureType::AO:
-			_MaterialTextures.ao = i.second->Texture()->GetHandle();
+			_MaterialTextures.aoMap = i.second->Texture()->GetHandle();
 			_MaterialTextures.aoEnabled = static_cast<int>(true);
 			break;
 		case TextureType::AMBIENT:
@@ -1517,7 +1521,6 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	_DrawCall++;
 	_Triangles += mesh->Size() / 3;
 	auto& program = _GBufferPrepass;
-	program->SetFloat("material.shininess", material->Shininess);
 	program->SetFloat4x4("model", model);
 	for (auto j : material->_FloatPropertyList) {
 		program->SetFloat(j.Name, j.Value);
@@ -1554,7 +1557,6 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 	_DrawCall++;
 	_Triangles += mesh->Size() * count / 3;
 	auto& program = _GBufferInstancedPrepass;
-	program->SetFloat("material.shininess", material->Shininess);
 	program->SetFloat4x4("model", model);
 	for (auto j : material->_FloatPropertyList) {
 		program->SetFloat(j.Name, j.Value);
@@ -1593,11 +1595,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	if (program == nullptr) program = Default::GLPrograms::StandardInstancedProgram.get();
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
-	program->SetFloat("material.shininess", material->Shininess);
 	program->SetBool("transparentDiscard", material->TransparentDiscard);
 	program->SetFloat("transparentDiscardLimit", material->TransparentDiscardLimit);
-	program->SetInt("directionalShadowMap", 0);
-	program->SetInt("pointShadowMap", 1);
 	program->SetBool("enableShadow", _EnableShadow);
 	program->SetFloat4x4("model", model);
 	for (auto j : material->_FloatPropertyList) {
@@ -1627,11 +1626,8 @@ void UniEngine::RenderManager::DrawMesh(
 	if (program == nullptr) program = Default::GLPrograms::StandardProgram.get();
 	program->Bind();
 	program->SetBool("receiveShadow", receiveShadow);
-	program->SetFloat("material.shininess", material->Shininess);
 	program->SetBool("transparentDiscard", material->TransparentDiscard);
 	program->SetFloat("transparentDiscardLimit", material->TransparentDiscardLimit);
-	program->SetInt("directionalShadowMap", 0);
-	program->SetInt("pointShadowMap", 1);
 	program->SetBool("enableShadow", _EnableShadow);
 	program->SetFloat4x4("model", model);
 	for (auto j : material->_FloatPropertyList) {

@@ -36,11 +36,11 @@ namespace UniEngine {
 		GLuint64 directionalShadowMap = 0;
 		GLuint64 pointShadowMap = 0;
 		
-		GLuint64 albedo = 0;
-		GLuint64 normal = 0;
-		GLuint64 metallic = 0;
-		GLuint64 roughness = 0;
-		GLuint64 ao = 0;
+		GLuint64 albedoMap = 0;
+		GLuint64 normalMap = 0;
+		GLuint64 metallicMap = 0;
+		GLuint64 roughnessMap = 0;
+		GLuint64 aoMap = 0;
 		
 		GLuint64 ambient = 0;
 		GLuint64 diffuse = 0;
@@ -59,6 +59,12 @@ namespace UniEngine {
 		int specularEnabled = 0;
 		int emissiveEnabled = 0;
 		int displacementEnabled = 0;
+
+		glm::vec4 albedoColorVal;
+		float shininessVal;
+		float metallicVal;
+		float roughnessVal;
+		float aoVal;
 	};
 	
 	class UNIENGINE_API RenderManager : public Singleton<RenderManager>

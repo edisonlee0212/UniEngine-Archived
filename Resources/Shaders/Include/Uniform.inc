@@ -126,15 +126,13 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	bool UE_SPECULAR_MAP_ENABLED;
 	bool UE_EMISSIVE_MAP_ENABLED;
 	bool UE_DISPLACEMENT_MAP_ENABLED;
+	
+	vec4 UE_PBR_ALBEDO;
+	float UE_PBR_SHININESS;
+	float UE_PBR_METALLIC;
+	float UE_PBR_ROUGHNESS;
+	float UE_PBR_AO;
 };
-
-//Material
-struct Material{
-	float shininess;
-};
-
-uniform Material material;
-
 
 uniform bool receiveShadow;
 uniform bool enableSplitDisplay;

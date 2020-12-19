@@ -7,10 +7,10 @@ in VS_OUT {
 	vec2 TexCoords;
 } fs_in;
 
-vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos);
-vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir);
-vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir);
-vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalculateLights(float UE_PBR_SHININESS, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos);
+vec3 CalcDirectionalLight(float UE_PBR_SHININESS, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir);
+vec3 CalcPointLight(float UE_PBR_SHININESS, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcSpotLight(float UE_PBR_SHININESS, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir);
 float UE_DIRECTIONAL_LIGHT_BLOCKShadowCalculation(int i, int splitIndex, vec3 fragPos, vec3 normal);
 float UE_POINT_LIGHTShadowCalculation(int i, vec3 fragPos, vec3 normal);
 float UE_SPOT_LIGHTShadowCalculation(int i, vec3 fragPos, vec3 normal);
@@ -36,12 +36,12 @@ void main()
 	vec3 viewDir = normalize(UE_CAMERA_POSITION - fs_in.FragPos);
 	float dist = distance(fs_in.FragPos, UE_CAMERA_POSITION);
 
-	vec3 result = CalculateLights(material.shininess, textureColor.rgb, specular, dist, normal, viewDir, fs_in.FragPos);
+	vec3 result = CalculateLights(UE_PBR_SHININESS, textureColor.rgb, specular, dist, normal, viewDir, fs_in.FragPos);
 	FragColor = vec4(result + UE_AMBIENT_LIGHT * textureColor.rgb, textureColor.a);
 }
 
 
-vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos){
+vec3 CalculateLights(float UE_PBR_SHININESS, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos){
 	vec3 result = vec3(0.0, 0.0, 0.0);
 
 	// phase 1: directional lighting
@@ -76,7 +76,7 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 				shadow = 1.0;
 			}
 		}
-		result += CalcDirectionalLight(shininess, albedo, specular, i, normal, viewDir) * shadow;
+		result += CalcDirectionalLight(UE_PBR_SHININESS, albedo, specular, i, normal, viewDir) * shadow;
 	}
 	// phase 2: point lights
 	for(int i = 0; i < UE_POINT_LIGHT_AMOUNT; i++){
@@ -84,7 +84,7 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 		if(enableShadow && receiveShadow){
 			shadow = UE_POINT_LIGHTShadowCalculation(i, fragPos, normal);
 		}
-		result += CalcPointLight(shininess, albedo, specular, i, normal, fragPos, viewDir) * shadow;
+		result += CalcPointLight(UE_PBR_SHININESS, albedo, specular, i, normal, fragPos, viewDir) * shadow;
 	}
 	// phase 3: spot light
 	for(int i = 0; i < UE_SPOT_LIGHT_AMOUNT; i++){
@@ -92,13 +92,13 @@ vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, v
 		if(enableShadow && receiveShadow){
 			shadow = UE_SPOT_LIGHTShadowCalculation(i, fragPos, normal);
 		}
-		result += CalcSpotLight(shininess, albedo, specular, i, normal, fragPos, viewDir) * shadow;
+		result += CalcSpotLight(UE_PBR_SHININESS, albedo, specular, i, normal, fragPos, viewDir) * shadow;
 	}
 	return result;
 }
 
 // calculates the color when using a directional light.
-vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir)
+vec3 CalcDirectionalLight(float UE_PBR_SHININESS, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir)
 {
 	DirectionalLight light = UE_DIRECTIONAL_LIGHT_BLOCKS[i];
 	vec3 lightDir = normalize(-light.direction);
@@ -106,7 +106,7 @@ vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, v
 	float diff = max(dot(normal, lightDir), 0.0);
 	// specular shading
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), UE_PBR_SHININESS);
 	// combine results
 	vec3 diffuseOutput = light.diffuse * diff * albedo;
 	vec3 specularOutput = light.specular * spec * albedo * specular;
@@ -114,7 +114,7 @@ vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, v
 }
 
 // calculates the color when using a point light.
-vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcPointLight(float UE_PBR_SHININESS, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
 	PointLight light = UE_POINT_LIGHTS[i];
 	vec3 lightDir = normalize(light.position - fragPos);
@@ -122,7 +122,7 @@ vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 no
 	float diff = max(dot(normal, lightDir), 0.0);
 	// specular shading
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), UE_PBR_SHININESS);
 	// attenuation
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constantLinearQuadFarPlane.x + light.constantLinearQuadFarPlane.y * distance + light.constantLinearQuadFarPlane.z * (distance * distance));	
@@ -135,7 +135,7 @@ vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 no
 }
 
 // calculates the color when using a spot light.
-vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcSpotLight(float UE_PBR_SHININESS, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
 	SpotLight light = UE_SPOT_LIGHTS[i];
 	vec3 lightDir = normalize(light.position - fragPos);
@@ -143,7 +143,7 @@ vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 nor
 	float diff = max(dot(normal, lightDir), 0.0);
 	// specular shading
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), UE_PBR_SHININESS);
 	// attenuation
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constantLinearQuadFarPlane.x + light.constantLinearQuadFarPlane.y * distance + light.constantLinearQuadFarPlane.z * (distance * distance));	
