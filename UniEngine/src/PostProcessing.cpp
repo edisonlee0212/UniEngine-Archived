@@ -11,6 +11,7 @@ void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
 PostProcessing::PostProcessing()
 {
 	ResizeResolution(1, 1);
+	SetEnabled(true);
 }
 
 void PostProcessing::Process()

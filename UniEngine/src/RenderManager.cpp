@@ -1272,7 +1272,7 @@ void RenderManager::LateUpdate()
 		for (auto postProcessingEntity : *postProcessingEntities) {
 			if (!postProcessingEntity.Enabled()) continue;
 			auto& postProcessing = postProcessingEntity.GetPrivateComponent<PostProcessing>();
-			postProcessing->Process();
+			if(postProcessing->IsEnabled()) postProcessing->Process();
 		}
 	}
 	

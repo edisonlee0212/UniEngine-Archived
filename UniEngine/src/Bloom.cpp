@@ -47,7 +47,7 @@ UniEngine::Bloom::Bloom()
 		std::make_shared<GLShader>(ShaderType::Fragment,
 			std::string("#version 460 core\n") +
 			FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomCombine.frag"))));
-
+	
 }
 
 void UniEngine::Bloom::ResizeResolution(int x, int y)
