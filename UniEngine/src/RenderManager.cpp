@@ -2,7 +2,7 @@
 #include "RenderManager.h"
 #include "TransformManager.h"
 #include <gtx/matrix_decompose.hpp>
-
+#include "PostProcessing.h"
 #include "imgui_internal.h"
 #include "UniEngine.h"
 #include "Ray.h"
@@ -1266,6 +1266,16 @@ glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(glm::vec3 point, glm::vec
 
 void RenderManager::LateUpdate()
 {
+	const std::vector<Entity>* postProcessingEntities = EntityManager::GetPrivateComponentOwnersList<PostProcessing>();
+	if (postProcessingEntities != nullptr)
+	{
+		for (auto postProcessingEntity : *postProcessingEntities) {
+			if (!postProcessingEntity.Enabled()) continue;
+			auto& postProcessing = postProcessingEntity.GetPrivateComponent<PostProcessing>();
+			postProcessing->Process();
+		}
+	}
+	
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("View"))
 		{

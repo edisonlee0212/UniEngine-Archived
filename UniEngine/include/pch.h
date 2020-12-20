@@ -42,6 +42,8 @@
 #include <gtc/type_ptr.hpp>
 #include <gtc/random.hpp>
 #include <gtx/rotate_vector.hpp>
+
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_impl_glfw.h"

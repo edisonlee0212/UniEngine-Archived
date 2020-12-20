@@ -44,6 +44,8 @@ namespace UniEngine {
 		friend class RenderManager;
 		friend class EditorManager;
 		friend struct CameraInfoBlock;
+		friend class PostProcessing;
+		friend class Bloom;
 		std::shared_ptr<Texture2D> _ColorTexture;
 		std::unique_ptr<GLRenderBuffer> _DepthStencilBuffer;
 

@@ -252,6 +252,15 @@
     <ClInclude Include="include\ResourceBehaviour.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="include\PostProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Bloom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Bezier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EntityManager.cpp">
@@ -435,6 +444,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ResourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PostProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bloom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bezier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

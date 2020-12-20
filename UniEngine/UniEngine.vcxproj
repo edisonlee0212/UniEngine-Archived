@@ -121,6 +121,9 @@
     <ClInclude Include="..\Submodules\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\Submodules\ImGui\imstb_truetype.h" />
     <ClInclude Include="include\Application.h" />
+    <ClInclude Include="include\Bezier.h" />
+    <ClInclude Include="include\Bloom.h" />
+    <ClInclude Include="include\PostProcessing.h" />
     <ClInclude Include="include\ResourceBehaviour.h" />
     <ClInclude Include="include\ResourceManager.h" />
     <ClInclude Include="include\CameraComponent.h" />
@@ -245,6 +248,9 @@
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Bezier.cpp" />
+    <ClCompile Include="src\Bloom.cpp" />
+    <ClCompile Include="src\PostProcessing.cpp" />
     <ClCompile Include="src\ResourceManager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>

@@ -4,6 +4,7 @@
 #include "RenderManager.h"
 #include "Ray.h"
 #include "Transforms.h"
+#include "PostProcessing.h"
 UniEngine::CameraInfoBlock UniEngine::CameraComponent::_CameraInfoBlock;
 std::unique_ptr<UniEngine::GLUBO> UniEngine::CameraComponent::_CameraUniformBufferBlock;
 UniEngine::CameraLayerMask::CameraLayerMask()
@@ -247,6 +248,11 @@ void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 
 	_ColorTexture->_Texture->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
 	_DepthStencilBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, x, y);
+
+	if(GetOwner().HasPrivateComponent<PostProcessing>())
+	{
+		GetOwner().GetPrivateComponent<PostProcessing>()->ResizeResolution(x, y);
+	}
 }
 
 UniEngine::CameraComponent::CameraComponent()

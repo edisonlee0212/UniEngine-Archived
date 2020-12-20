@@ -19,6 +19,7 @@ namespace UniEngine {
 	{
         friend class Material;
         friend class RenderManager;
+        friend class Bloom;
         TextureType _Type;
         std::shared_ptr<GLTexture2D> _Texture;
         std::string _Path;

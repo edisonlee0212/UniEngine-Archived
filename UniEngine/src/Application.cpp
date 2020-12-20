@@ -10,6 +10,8 @@
 #include "EditorManager.h"
 #include "ResourceManager.h"
 #include "SerializationManager.h"
+#include "PostProcessing.h"
+#include "Bloom.h"
 using namespace UniEngine;
 
 bool Application::_Initialized = false;
@@ -100,7 +102,7 @@ void UniEngine::Application::Init(bool fullScreen)
 #pragma region Main Camera
 	CameraComponent::GenerateMatrices();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", GlobalTransform(), Transform(), CameraLayerMask());
-	auto mainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
+	const auto mainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");	
 	Transform cameraLtw;
 	cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
 	cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
@@ -109,6 +111,10 @@ void UniEngine::Application::Init(bool fullScreen)
 	RenderManager::SetMainCamera(mainCameraComponent.get());
 	mainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
 	EntityManager::SetPrivateComponent<CameraComponent>(mainCameraEntity, std::move(mainCameraComponent));
+
+	auto postProcessing = std::make_unique<PostProcessing>();
+	postProcessing->PushLayer(std::make_unique<Bloom>());
+	EntityManager::SetPrivateComponent(mainCameraEntity, std::move(postProcessing));
 #pragma endregion
 	_World->ResetTime();
 
