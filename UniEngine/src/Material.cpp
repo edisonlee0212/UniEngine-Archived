@@ -46,16 +46,16 @@ void Material::OnGui()
 	EditorManager::DragAndDrop(_Program);
 	if(ImGui::TreeNode("PBR"))
 	{
-		ImGui::ColorEdit3("Albedo", &AlbedoColor.x);
-		ImGui::DragFloat("Metallic", &Metallic, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Roughness", &Roughness, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("AO", &AmbientOcclusion, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Shininess", &Shininess, 1.0f, 1.0f, 1024.0f);
+		if (!_Textures[TextureType::ALBEDO])ImGui::ColorEdit3("Albedo", &AlbedoColor.x);
+		if (!_Textures[TextureType::METALLIC])ImGui::DragFloat("Metallic", &Metallic, 0.01f, 0.0f, 1.0f);
+		if (!_Textures[TextureType::ROUGHNESS])ImGui::DragFloat("Roughness", &Roughness, 0.01f, 0.0f, 1.0f);
+		if (!_Textures[TextureType::AO])ImGui::DragFloat("AO", &AmbientOcclusion, 0.01f, 0.0f, 1.0f);
+		if(_Textures[TextureType::DISPLACEMENT]) ImGui::DragFloat("DisplacementMapScale", &DisplacementMapScale, 0.01f, -1.0f, 1.0f);
 		ImGui::TreePop();
 	}
-	
+	ImGui::DragFloat("Shininess", &Shininess, 1.0f, 1.0f, 1024.0f);
 	ImGui::Checkbox("Enable alpha discard", &AlphaDiscardEnabled);
-	if(AlphaDiscardOffset) ImGui::DragFloat("Alpha discard offset", &AlphaDiscardOffset, 0.01f, 0.0f, 0.99f);
+	if(AlphaDiscardEnabled) ImGui::DragFloat("Alpha discard offset", &AlphaDiscardOffset, 0.01f, 0.0f, 0.99f);
 	ImGui::Combo("Polygon Mode", reinterpret_cast<int*>(&PolygonMode), MatPolygonMode, IM_ARRAYSIZE(MatPolygonMode));
 	ImGui::Combo("Culling Mode", reinterpret_cast<int*>(&CullingMode), MatCullingMode, IM_ARRAYSIZE(MatCullingMode));
 	ImGui::Combo("Blending Mode", reinterpret_cast<int*>(&BlendingMode), MatBlendingMode, IM_ARRAYSIZE(MatBlendingMode));
@@ -66,6 +66,7 @@ void Material::OnGui()
 			ImGui::Text("Albedo: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::ALBEDO]);
+			if (_Textures[TextureType::ALBEDO]) _Textures[TextureType::ALBEDO]->SetType(TextureType::ALBEDO);
 		}
 
 		{
@@ -74,6 +75,7 @@ void Material::OnGui()
 			ImGui::Text("Normal: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::NORMAL]);
+			if (_Textures[TextureType::NORMAL]) _Textures[TextureType::NORMAL]->SetType(TextureType::NORMAL);
 		}
 
 		
@@ -82,6 +84,7 @@ void Material::OnGui()
 			ImGui::Text("Metallic: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::METALLIC]);
+			if (_Textures[TextureType::METALLIC]) _Textures[TextureType::METALLIC]->SetType(TextureType::METALLIC);
 		}
 		
 		{
@@ -89,6 +92,7 @@ void Material::OnGui()
 			ImGui::Text("Roughness: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::ROUGHNESS]);
+			if (_Textures[TextureType::ROUGHNESS]) _Textures[TextureType::ROUGHNESS]->SetType(TextureType::ROUGHNESS);
 		}
 
 		{
@@ -97,6 +101,7 @@ void Material::OnGui()
 			ImGui::Text("AO: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::AO]);
+			if (_Textures[TextureType::AO]) _Textures[TextureType::AO]->SetType(TextureType::AO);
 		}
 
 		{
@@ -104,6 +109,7 @@ void Material::OnGui()
 			ImGui::Text("Ambient: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::AMBIENT]);
+			if (_Textures[TextureType::AMBIENT]) _Textures[TextureType::AMBIENT]->SetType(TextureType::AMBIENT);
 		}
 
 		{
@@ -111,6 +117,7 @@ void Material::OnGui()
 			ImGui::Text("Diffuse: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::DIFFUSE]);
+			if (_Textures[TextureType::DIFFUSE]) _Textures[TextureType::DIFFUSE]->SetType(TextureType::DIFFUSE);
 		}
 		
 		{
@@ -119,6 +126,7 @@ void Material::OnGui()
 			ImGui::Text("Specular: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::SPECULAR]);
+			if (_Textures[TextureType::SPECULAR]) _Textures[TextureType::SPECULAR]->SetType(TextureType::SPECULAR);
 		}
 
 		{
@@ -127,6 +135,7 @@ void Material::OnGui()
 			ImGui::Text("Emissive: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::EMISSIVE]);
+			if (_Textures[TextureType::EMISSIVE]) _Textures[TextureType::EMISSIVE]->SetType(TextureType::EMISSIVE);
 		}
 
 		
@@ -136,8 +145,11 @@ void Material::OnGui()
 			ImGui::Text("Height: ");
 			ImGui::Spacing();
 			EditorManager::DragAndDrop(_Textures[TextureType::DISPLACEMENT]);
+			if (_Textures[TextureType::DISPLACEMENT]) _Textures[TextureType::DISPLACEMENT]->SetType(TextureType::DISPLACEMENT);
 		}
 		ImGui::TreePop();
+
+		
 	}
 }
 

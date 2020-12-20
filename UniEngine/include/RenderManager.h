@@ -65,7 +65,8 @@ namespace UniEngine {
 		float metallicVal;
 		float roughnessVal;
 		float aoVal;
-
+		float dispScale;
+		
 		int receiveShadow;
 		int enableShadow = true;
 		int alphaDiscardEnabled;
@@ -142,7 +143,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma endregion
 		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
-		static void ConnectMaterialTextures(Material* material, GLProgram* program);
+		static void ApplyMaterialSettings(Material* material, GLProgram* program);
 		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
 		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
 

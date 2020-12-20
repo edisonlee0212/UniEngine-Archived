@@ -31,6 +31,7 @@ std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(std::string const&
 	std::string directory = path.substr(0, path.find_last_of('/'));
 	std::vector<std::shared_ptr<Texture2D>> Texture2DsLoaded;
 	auto retVal = std::make_shared<Model>();
+	retVal->Name = path.substr(path.find_last_of("/\\") + 1);
 	ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
 	Push(retVal);
 	return retVal;
@@ -470,6 +471,7 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& path,
 		stbi_image_free(data);
 	}
 	retVal->_Icon = retVal;
+	retVal->Name = path.substr(path.find_last_of("/\\") + 1);
 	Push(retVal);
 	return retVal;
 }
@@ -523,6 +525,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(const std::vector<std::str
 	auto retVal = std::make_shared<Cubemap>();
 	retVal->_Texture = std::move(texture);
 	retVal->_Paths = paths;
+	retVal->Name = paths[0].substr(paths[0].find_last_of("/\\") + 1);
 	Push(retVal);
 	return retVal;
 }

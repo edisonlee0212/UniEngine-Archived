@@ -59,6 +59,7 @@ namespace UniEngine {
 		float Metallic = 0.5f;
 		float Roughness = 0.5f;
 		float AmbientOcclusion = 1.0f;
+		float DisplacementMapScale = 0.0f;
 		glm::vec3 AlbedoColor = glm::vec3(1.0f);
 		bool AlphaDiscardEnabled = false;
 		float AlphaDiscardOffset = 0.99f;

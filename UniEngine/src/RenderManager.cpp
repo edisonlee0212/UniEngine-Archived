@@ -1444,11 +1444,11 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 	glEnable(GL_DEPTH_TEST);
 }
 
-void RenderManager::ConnectMaterialTextures(Material* material, GLProgram* program)
+void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program)
 {
 	_MaterialSettingsBlock.alphaDiscardEnabled = material->AlphaDiscardEnabled;
 	_MaterialSettingsBlock.alphaDiscardOffset = material->AlphaDiscardOffset;
-	
+	_MaterialSettingsBlock.dispScale = material->DisplacementMapScale;
 	_MaterialSettingsBlock.albedoColorVal = glm::vec4(material->AlbedoColor, 1.0f);
 	_MaterialSettingsBlock.shininessVal = material->Shininess;
 	_MaterialSettingsBlock.metallicVal = material->Metallic;
@@ -1537,7 +1537,7 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 		program->SetFloat4x4(j.Name, j.Value);
 	}
 	MaterialPropertySetter(material, true);
-	ConnectMaterialTextures(material, program.get());
+	ApplyMaterialSettings(material, program.get());
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
@@ -1573,7 +1573,7 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 		program->SetFloat4x4(j.Name, j.Value);
 	}
 	MaterialPropertySetter(material, true);
-	ConnectMaterialTextures(material, program.get());
+	ApplyMaterialSettings(material, program.get());
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 }
@@ -1611,7 +1611,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	}
 	_MaterialSettingsBlock.receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
-	ConnectMaterialTextures(material, program);
+	ApplyMaterialSettings(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 }
@@ -1639,7 +1639,7 @@ void UniEngine::RenderManager::DrawMesh(
 	}
 	_MaterialSettingsBlock.receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
-	ConnectMaterialTextures(material, program);
+	ApplyMaterialSettings(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
