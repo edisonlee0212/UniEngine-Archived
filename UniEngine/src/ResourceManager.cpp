@@ -605,7 +605,7 @@ void ResourceManager::LateUpdate()
 			{
 				if (ImGui::Button("Model"))
 				{
-					auto result = FileIO::OpenFile("Model (*.obj)\0*.obj\0");
+					auto result = FileIO::OpenFile("Model (*.obj,*.gltf,*.glb,*.blend,*.ply,*.fbx)\0*.obj;*.gltf;*.glb;*.blend;*.ply;*.fbx\0");
 					if (result.has_value())
 					{
 						const std::string path = result.value();
@@ -618,7 +618,7 @@ void ResourceManager::LateUpdate()
 				}
 				if (ImGui::Button("Texture"))
 				{
-					auto result = FileIO::OpenFile("Texture (*.png, *.jpg, *.jpeg)\0*.jpg;*.png;*.jpeg\0");
+					auto result = FileIO::OpenFile("Texture (*.png,*.jpg,*.jpeg)\0*.jpg;*.png;*.jpeg\0");
 					if (result.has_value())
 					{
 						const std::string path = result.value();

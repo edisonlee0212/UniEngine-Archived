@@ -56,13 +56,13 @@ namespace UniEngine {
 		MaterialCullingMode CullingMode = MaterialCullingMode::BACK;
 		MaterialBlendingMode BlendingMode = MaterialBlendingMode::OFF;
 		float Shininess = 32.0f;
-		float Metallic = 0.5f;
-		float Roughness = 0.5f;
+		float Metallic = 0.3f;
+		float Roughness = 0.3f;
 		float AmbientOcclusion = 1.0f;
-		float DisplacementMapScale = 0.0f;
+		float DisplacementMapScale = -0.04f;
 		glm::vec3 AlbedoColor = glm::vec3(1.0f);
-		bool AlphaDiscardEnabled = false;
-		float AlphaDiscardOffset = 0.99f;
+		bool AlphaDiscardEnabled = true;
+		float AlphaDiscardOffset = 0.01f;
 		Material();
 		void OnGui();
 		void SetMaterialProperty(const std::string& name, float value);

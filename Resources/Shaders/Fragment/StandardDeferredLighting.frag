@@ -36,10 +36,11 @@ void main()
 	vec3 result = UE_FUNC_CALCULATE_LIGHTS(receiveShadow, shininess, albedo, 1.0, dist, normal, viewDir, fragPos, metallic, roughness, F0);
 	vec3 color = (result + UE_AMBIENT_LIGHT * albedo * ao) * AmbientOcclusion;
 
-	 // HDR tonemapping
-	//color = color / (color + vec3(1.0));
-	// gamma correct
-	//color = pow(color, vec3(1.0/2.2)); 
+	//float gamma = 2.2;
+	// exposure tone mapping
+    //vec3 mapped = vec3(1.0) - exp(-color * 1.0);
+    // gamma correction 
+    //mapped = pow(mapped, vec3(1.0 / gamma));
 
 	FragColor = vec4(color, 1.0);
 }

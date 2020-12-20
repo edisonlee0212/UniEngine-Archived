@@ -24,7 +24,6 @@ Material::Material()
 	
 	
 	Name = "New material";
-	Shininess = 32.0f;
 }
 
 void Material::OnGui()

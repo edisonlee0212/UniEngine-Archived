@@ -1469,7 +1469,7 @@ void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program
 
 	for(const auto& i : material->_Textures)
 	{
-		if (!i.second) continue;
+		if (!i.second || !i.second->Texture()) continue;
 		switch (i.second->_Type)
 		{
 		case TextureType::ALBEDO:
