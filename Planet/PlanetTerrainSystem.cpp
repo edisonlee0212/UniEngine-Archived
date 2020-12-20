@@ -7,7 +7,7 @@ void Planet::PlanetTerrainSystem::OnCreate()
 {
 	_DefaultSurfaceMaterial = std::make_shared<Material>();
 	_DefaultSurfaceMaterial->SetProgram(Default::GLPrograms::StandardProgram);
-	_DefaultSurfaceMaterial->SetTexture(Default::Textures::Border, TextureType::DIFFUSE);
+	_DefaultSurfaceMaterial->SetTexture(Default::Textures::Border);
 }
 
 void Planet::PlanetTerrainSystem::Update()

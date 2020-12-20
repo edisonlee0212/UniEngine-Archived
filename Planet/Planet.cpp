@@ -79,8 +79,8 @@ int main()
 	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Transform(), GlobalTransform(), DirectionalLight());
 	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Transform(), GlobalTransform(), PointLight());
 	auto sharedMat = std::make_shared<Material>();
-	sharedMat->SetTexture(Default::Textures::StandardTexture, TextureType::DIFFUSE);
-	
+	sharedMat->SetTexture(Default::Textures::StandardTexture);
+
 	Transform ltw;
 	DirectionalLight dlc;
 	dlc.diffuse = glm::vec3(1.0f);
