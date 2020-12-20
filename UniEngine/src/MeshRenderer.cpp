@@ -16,10 +16,7 @@ void UniEngine::MeshRenderer::RenderBound(glm::vec4& color) const
 void UniEngine::MeshRenderer::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
-	if(ForwardRendering){
-		//Disable shadow receiving only allowed in forward rendering.
-		ImGui::Checkbox("Receive shadow", &ReceiveShadow);
-	}
+	ImGui::Checkbox("Receive shadow", &ReceiveShadow);
 	ImGui::Checkbox("Cast shadow", &CastShadow);
 	ImGui::Text("Material: ");
 	ImGui::SameLine();

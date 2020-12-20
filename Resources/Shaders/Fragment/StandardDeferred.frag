@@ -1,6 +1,6 @@
-layout (location = 0) out vec4 gPosition;
-layout (location = 1) out vec4 gNormal;
-layout (location = 2) out vec4 gAlbedoSpec;
+layout (location = 0) out vec4 gPositionShadow;
+layout (location = 1) out vec4 gNormalShininess;
+layout (location = 2) out vec4 gAlbedoSpecular;
 layout (location = 3) out vec4 gMetallicRoughnessAO;
 
 in VS_OUT {
@@ -36,13 +36,13 @@ void main()
 
 	vec4 albedo;
 	float roughness = UE_PBR_ROUGHNESS;
-	gNormal.a = UE_PBR_SHININESS;
+	gNormalShininess.a = UE_PBR_SHININESS;
 	float metallic = UE_PBR_METALLIC;
 	float ao = UE_PBR_AO;
 	if(UE_ALBEDO_MAP_ENABLED) albedo = vec4(texture(UE_DIFFUSE_MAP, texCoords).rgb, 1.0);
 	else if(UE_DIFFUSE_MAP_ENABLED) albedo = texture(UE_DIFFUSE_MAP, texCoords).rgba;
 
-	if(transparentDiscard && albedo.a < transparentDiscardLimit)
+	if(UE_APLHA_DISCARD_ENABLED && albedo.a < UE_APLHA_DISCARD_OFFSET)
 		discard;
 
 	if(UE_ROUGHNESS_MAP_ENABLED) roughness = texture(UE_ROUGHNESS_MAP, texCoords).r;
@@ -51,19 +51,19 @@ void main()
 
 
 	// store the fragment position vector in the first gbuffer texture
-	gPosition.rgb = fs_in.FragPos - (depth * fs_in.Normal);
-	gPosition.a = 1.0;
+	gPositionShadow.rgb = fs_in.FragPos - (depth * fs_in.Normal);
+	gPositionShadow.a = float(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW);
 
 	// also store the per-fragment normals into the gbuffer
-	gNormal.rgb = (gl_FrontFacing ? 1.0 : -1.0) * normalize(normal);
+	gNormalShininess.rgb = (gl_FrontFacing ? 1.0 : -1.0) * normalize(normal);
 	
-	// store specular intensity in gAlbedoSpec's alpha component
+	// store specular intensity in gAlbedoSpecular's alpha component
 	float specular = 1.0;
 	if(UE_SPECULAR_MAP_ENABLED){
 		specular = texture(UE_SPECULAR_MAP, texCoords).r;
 	}
 
-	gAlbedoSpec = vec4(albedo.rgb, specular);
+	gAlbedoSpecular = vec4(albedo.rgb, specular);
 	gMetallicRoughnessAO = vec4(metallic, roughness, ao, 1.0);
 }
 

@@ -54,8 +54,8 @@ void Material::OnGui()
 		ImGui::TreePop();
 	}
 	
-	ImGui::Checkbox("Enable Transparent Discard", &TransparentDiscard);
-	ImGui::DragFloat("Transparent Discard Limit", &TransparentDiscardLimit, 0.01f, 0.0f, 0.99f);
+	ImGui::Checkbox("Enable alpha discard", &AlphaDiscardEnabled);
+	if(AlphaDiscardOffset) ImGui::DragFloat("Alpha discard offset", &AlphaDiscardOffset, 0.01f, 0.0f, 0.99f);
 	ImGui::Combo("Polygon Mode", reinterpret_cast<int*>(&PolygonMode), MatPolygonMode, IM_ARRAYSIZE(MatPolygonMode));
 	ImGui::Combo("Culling Mode", reinterpret_cast<int*>(&CullingMode), MatCullingMode, IM_ARRAYSIZE(MatCullingMode));
 	ImGui::Combo("Blending Mode", reinterpret_cast<int*>(&BlendingMode), MatBlendingMode, IM_ARRAYSIZE(MatBlendingMode));

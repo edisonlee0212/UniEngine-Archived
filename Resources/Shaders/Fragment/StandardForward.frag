@@ -11,7 +11,7 @@ in VS_OUT {
 void main()
 {	
 	vec4 textureColor = texture(UE_DIFFUSE_MAP, fs_in.TexCoords).rgba;
-	if(transparentDiscard && textureColor.a < transparentDiscardLimit)
+	if(UE_APLHA_DISCARD_ENABLED && textureColor.a < UE_APLHA_DISCARD_OFFSET)
         discard;
 	float specular = 1.0;
 	if(UE_SPECULAR_MAP_ENABLED){
@@ -34,6 +34,6 @@ void main()
 	F0 = mix(F0, textureColor.rgb, UE_PBR_METALLIC);
 
 
-	vec3 result = CalculateLights(UE_PBR_SHININESS, textureColor.rgb, specular, dist, normal, viewDir, fs_in.FragPos, UE_PBR_METALLIC, UE_PBR_ROUGHNESS, F0);
+	vec3 result = UE_FUNC_CALCULATE_LIGHTS(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW, UE_PBR_SHININESS, textureColor.rgb, specular, dist, normal, viewDir, fs_in.FragPos, UE_PBR_METALLIC, UE_PBR_ROUGHNESS, F0);
 	FragColor = vec4(result + UE_AMBIENT_LIGHT * textureColor.rgb, textureColor.a);
 }

@@ -60,8 +60,8 @@ namespace UniEngine {
 		float Roughness = 0.5f;
 		float AmbientOcclusion = 1.0f;
 		glm::vec3 AlbedoColor = glm::vec3(1.0f);
-		bool TransparentDiscard = false;
-		float TransparentDiscardLimit = 0.99f;
+		bool AlphaDiscardEnabled = false;
+		float AlphaDiscardOffset = 0.99f;
 		Material();
 		void OnGui();
 		void SetMaterialProperty(const std::string& name, float value);

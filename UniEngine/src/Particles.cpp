@@ -42,10 +42,7 @@ void UniEngine::Particles::RecalculateBoundingBox()
 void UniEngine::Particles::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
-	if (ForwardRendering) {
-		//Disable shadow receiving only allowed in forward rendering.
-		ImGui::Checkbox("Receive shadow", &ReceiveShadow);
-	}
+	ImGui::Checkbox("Receive shadow", &ReceiveShadow);
 	ImGui::Checkbox("Cast shadow", &CastShadow);
 	ImGui::Text(("Instance count: " + std::to_string(Matrices.size())).c_str());
 	ImGui::Checkbox("Display bounds", &DisplayBound);

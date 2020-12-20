@@ -60,7 +60,7 @@ layout (std140, binding = 0) uniform UE_CAMERA
 layout (std140, binding = 1) uniform UE_DIRECTIONAL_LIGHT_BLOCK
 {
 	int UE_DIRECTIONAL_LIGHT_BLOCK_AMOUNT;
-	DirectionalLight UE_DIRECTIONAL_LIGHT_BLOCKS[DIRECTIONAL_LIGHTS_AMOUNT];
+	DirectionalLight UE_DIRECTIONAL_LIGHTS[DIRECTIONAL_LIGHTS_AMOUNT];
 };
 
 layout (std140, binding = 2) uniform UE_POINT_LIGHT_BLOCK
@@ -132,27 +132,24 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	float UE_PBR_METALLIC;
 	float UE_PBR_ROUGHNESS;
 	float UE_PBR_AO;
+
+	bool UE_RECEIVE_SHADOW;
+	bool UE_ENABLE_SHADOW;
+	bool UE_APLHA_DISCARD_ENABLED;
+	float UE_APLHA_DISCARD_OFFSET;
 };
 
-uniform bool receiveShadow;
-uniform bool enableShadow;
-uniform float transparentDiscardLimit;
-uniform bool transparentDiscard;
-
-
-vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
-vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0);
-vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
-vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
-float DirectionalLightShadow(int i, int splitIndex, vec3 fragPos, vec3 normal);
-float PointLightShadow(int i, vec3 fragPos, vec3 normal);
-float SpotLightShadow(int i, vec3 fragPos, vec3 normal);
-
-
+vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
+vec3 UE_FUNC_DIRECTIONAL_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0);
+vec3 UE_FUNC_POINT_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
+vec3 UE_FUNC_SPOT_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
+float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3 normal);
+float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal);
+float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal);
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
-float DistributionGGX(vec3 N, vec3 H, float roughness)
+float UE_FUNC_DISTRIBUTION_GGX(vec3 N, vec3 H, float roughness)
 {
 	float a = roughness*roughness;
 	float a2 = a*a;
@@ -166,7 +163,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 	return nom / max(denom, 0.001); // prevent divide by zero for roughness=0.0 and NdotH=1.0
 }
 // ----------------------------------------------------------------------------
-float GeometrySchlickGGX(float NdotV, float roughness)
+float UE_FUNC_GEOMETRY_SCHLICH_GGX(float NdotV, float roughness)
 {
 	float r = (roughness + 1.0);
 	float k = (r*r) / 8.0;
@@ -177,100 +174,100 @@ float GeometrySchlickGGX(float NdotV, float roughness)
 	return nom / denom;
 }
 // ----------------------------------------------------------------------------
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+float UE_FUNC_GEOMETRY_SMITH(vec3 N, vec3 V, vec3 L, float roughness)
 {
 	float NdotV = max(dot(N, V), 0.0);
 	float NdotL = max(dot(N, L), 0.0);
-	float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-	float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+	float ggx2 = UE_FUNC_GEOMETRY_SCHLICH_GGX(NdotV, roughness);
+	float ggx1 = UE_FUNC_GEOMETRY_SCHLICH_GGX(NdotL, roughness);
 
 	return ggx1 * ggx2;
 }
 // ----------------------------------------------------------------------------
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+vec3 UE_FUNC_FRESNEL_SCHLICK(float cosTheta, vec3 F0)
 {
 	return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 
 
-vec3 CalculateLights(float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0){
+vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0){
 	vec3 result = vec3(0.0, 0.0, 0.0);
 
 	// phase 1: directional lighting
 	for(int i = 0; i < UE_DIRECTIONAL_LIGHT_BLOCK_AMOUNT; i++){
 		float shadow = 1.0;
-		if(enableShadow && receiveShadow){
+		if(calculateShadow){
 			int split = 0;
 			if(dist < UE_SHADOW_SPLIT_0 - UE_SHADOW_SPLIT_0 * UE_SHADOW_SEAM_FIX_RATIO){
-				shadow = DirectionalLightShadow(i, 0, fragPos, normal);
+				shadow = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 0, fragPos, normal);
 			}else if(dist < UE_SHADOW_SPLIT_0){
 				//Blend between split 1 & 2
-				shadow = DirectionalLightShadow(i, 0, fragPos, normal);
-				float nextLevel = DirectionalLightShadow(i, 1, fragPos, normal);
+				shadow = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 0, fragPos, normal);
+				float nextLevel = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 1, fragPos, normal);
 				shadow = (nextLevel * (dist - (UE_SHADOW_SPLIT_0 - UE_SHADOW_SPLIT_0 * UE_SHADOW_SEAM_FIX_RATIO)) + shadow * (UE_SHADOW_SPLIT_0 - dist)) / (UE_SHADOW_SPLIT_0 * UE_SHADOW_SEAM_FIX_RATIO);
 			}else if(dist < UE_SHADOW_SPLIT_1 - UE_SHADOW_SPLIT_1 * UE_SHADOW_SEAM_FIX_RATIO){
-				shadow = DirectionalLightShadow(i, 1, fragPos, normal);
+				shadow = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 1, fragPos, normal);
 			}else if(dist < UE_SHADOW_SPLIT_1){
 				//Blend between split 2 & 3
-				shadow = DirectionalLightShadow(i, 1, fragPos, normal);
-				float nextLevel = DirectionalLightShadow(i, 2, fragPos, normal);
+				shadow = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 1, fragPos, normal);
+				float nextLevel = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 2, fragPos, normal);
 				shadow = (nextLevel * (dist - (UE_SHADOW_SPLIT_1 - UE_SHADOW_SPLIT_1 * UE_SHADOW_SEAM_FIX_RATIO)) + shadow * (UE_SHADOW_SPLIT_1 - dist)) / (UE_SHADOW_SPLIT_1 * UE_SHADOW_SEAM_FIX_RATIO);
 			}else if(dist < UE_SHADOW_SPLIT_2 - UE_SHADOW_SPLIT_2 * UE_SHADOW_SEAM_FIX_RATIO){
-				shadow = DirectionalLightShadow(i, 2, fragPos, normal);
+				shadow = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 2, fragPos, normal);
 			}else if(dist < UE_SHADOW_SPLIT_2){
 				//Blend between split 3 & 4
-				shadow = DirectionalLightShadow(i, 2, fragPos, normal);
-				float nextLevel = DirectionalLightShadow(i, 3, fragPos, normal);
+				shadow = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 2, fragPos, normal);
+				float nextLevel = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 3, fragPos, normal);
 				shadow = (nextLevel * (dist - (UE_SHADOW_SPLIT_2 - UE_SHADOW_SPLIT_2 * UE_SHADOW_SEAM_FIX_RATIO)) + shadow * (UE_SHADOW_SPLIT_2 - dist)) / (UE_SHADOW_SPLIT_2 * UE_SHADOW_SEAM_FIX_RATIO);
 			}else if(dist < UE_SHADOW_SPLIT_3){
-				shadow = DirectionalLightShadow(i, 3, fragPos, normal);
+				shadow = UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(i, 3, fragPos, normal);
 			}else{
 				shadow = 1.0;
 			}
 		}
-		result += CalcDirectionalLight(shininess, albedo, specular, i, normal, viewDir, metallic, roughness, F0) * shadow;
+		result += UE_FUNC_DIRECTIONAL_LIGHT(shininess, albedo, specular, i, normal, viewDir, metallic, roughness, F0) * shadow;
 	}
 	// phase 2: point lights
 	for(int i = 0; i < UE_POINT_LIGHT_AMOUNT; i++){
 		float shadow = 1.0;
-		if(enableShadow && receiveShadow){
-			shadow = PointLightShadow(i, fragPos, normal);
+		if(calculateShadow){
+			shadow = UE_FUNC_POINT_LIGHT_SHADOW(i, fragPos, normal);
 		}
-		result += CalcPointLight(shininess, albedo, specular, i, normal, fragPos, viewDir, metallic, roughness, F0) * shadow;
+		result += UE_FUNC_POINT_LIGHT(shininess, albedo, specular, i, normal, fragPos, viewDir, metallic, roughness, F0) * shadow;
 	}
 	// phase 3: spot light
 	for(int i = 0; i < UE_SPOT_LIGHT_AMOUNT; i++){
 		float shadow = 1.0;
-		if(enableShadow && receiveShadow){
-			shadow = SpotLightShadow(i, fragPos, normal);
+		if(calculateShadow){
+			shadow = UE_FUNC_SPOT_LIGHT_SHADOW(i, fragPos, normal);
 		}
-		result += CalcSpotLight(shininess, albedo, specular, i, normal, fragPos, viewDir, metallic, roughness, F0) * shadow;
+		result += UE_FUNC_SPOT_LIGHT(shininess, albedo, specular, i, normal, fragPos, viewDir, metallic, roughness, F0) * shadow;
 	}
 	return result;
 }
 
 // calculates the color when using a directional light.
-vec3 CalcDirectionalLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0)
+vec3 UE_FUNC_DIRECTIONAL_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0)
 {
-	DirectionalLight light = UE_DIRECTIONAL_LIGHT_BLOCKS[i];
+	DirectionalLight light = UE_DIRECTIONAL_LIGHTS[i];
 	vec3 lightDir = normalize(-light.direction);
 	vec3 H = normalize(viewDir + lightDir);
 	vec3 radiance = light.diffuse;
-	float normalDF = DistributionGGX(normal, H, roughness);   
-	float G   = GeometrySmith(normal, viewDir, lightDir, roughness);      
-	vec3 F    = fresnelSchlick(clamp(dot(H, viewDir), 0.0, 1.0), F0);
+	float normalDF = UE_FUNC_DISTRIBUTION_GGX(normal, H, roughness);   
+	float G   = UE_FUNC_GEOMETRY_SMITH(normal, viewDir, lightDir, roughness);      
+	vec3 F    = UE_FUNC_FRESNEL_SCHLICK(clamp(dot(H, viewDir), 0.0, 1.0), F0);
 	vec3 nominator    = normalDF * G * F; 
 	float denominator = 4 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir), 0.0);
 	vec3 spec = nominator / max(denominator, 0.001) * specular;
 	vec3 kS = F;
 	vec3 kD = vec3(1.0) - kS;
 	kD *= 1.0 - metallic;	  
-	float normaldotlightDir = max(dot(normal, lightDir), 0.0);       
-	return (kD * albedo / PI + spec) * radiance * normaldotlightDir;
+	float NdotL = max(dot(normal, lightDir), 0.0);       
+	return (kD * albedo / PI + spec) * radiance * NdotL;
 }
 
 // calculates the color when using a point light.
-vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0)
+vec3 UE_FUNC_POINT_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0)
 {
 	PointLight light = UE_POINT_LIGHTS[i];
 	vec3 lightDir = normalize(light.position - fragPos);
@@ -278,22 +275,22 @@ vec3 CalcPointLight(float shininess, vec3 albedo, float specular, int i, vec3 no
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constantLinearQuadFarPlane.x + light.constantLinearQuadFarPlane.y * distance + light.constantLinearQuadFarPlane.z * (distance * distance));	
 	vec3 radiance = light.diffuse * attenuation;
-	float normalDF = DistributionGGX(normal, H, roughness);   
-	float G   = GeometrySmith(normal, viewDir, lightDir, roughness);      
-	vec3 F    = fresnelSchlick(clamp(dot(H, viewDir), 0.0, 1.0), F0);
+	float normalDF = UE_FUNC_DISTRIBUTION_GGX(normal, H, roughness);   
+	float G   = UE_FUNC_GEOMETRY_SMITH(normal, viewDir, lightDir, roughness);      
+	vec3 F    = UE_FUNC_FRESNEL_SCHLICK(clamp(dot(H, viewDir), 0.0, 1.0), F0);
 	vec3 nominator    = normalDF * G * F; 
 	float denominator = 4 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir), 0.0);
 	vec3 spec = nominator / max(denominator, 0.001) * specular;
 	vec3 kS = F;
 	vec3 kD = vec3(1.0) - kS;
 	kD *= 1.0 - metallic;	  
-	float normaldotlightDir = max(dot(normal, lightDir), 0.0);       
-	return (kD * albedo / PI + spec) * radiance * normaldotlightDir;
+	float NdotL = max(dot(normal, lightDir), 0.0);       
+	return (kD * albedo / PI + spec) * radiance * NdotL;
 
 }
 
 // calculates the color when using a spot light.
-vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0)
+vec3 UE_FUNC_SPOT_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0)
 {
 	SpotLight light = UE_SPOT_LIGHTS[i];
 	vec3 lightDir = normalize(light.position - fragPos);
@@ -306,17 +303,17 @@ vec3 CalcSpotLight(float shininess, vec3 albedo, float specular, int i, vec3 nor
 	float intensity = clamp((theta - light.cutOffOuterCutOffLightSizeBias.y) / epsilon, 0.0, 1.0);
 	
 	vec3 radiance = light.diffuse * attenuation * intensity;
-	float normalDF = DistributionGGX(normal, H, roughness);   
-	float G   = GeometrySmith(normal, viewDir, lightDir, roughness);      
-	vec3 F    = fresnelSchlick(clamp(dot(H, viewDir), 0.0, 1.0), F0);
+	float normalDF = UE_FUNC_DISTRIBUTION_GGX(normal, H, roughness);   
+	float G   = UE_FUNC_GEOMETRY_SMITH(normal, viewDir, lightDir, roughness);      
+	vec3 F    = UE_FUNC_FRESNEL_SCHLICK(clamp(dot(H, viewDir), 0.0, 1.0), F0);
 	vec3 nominator    = normalDF * G * F; 
 	float denominator = 4 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir), 0.0);
 	vec3 spec = nominator / max(denominator, 0.001) * specular;
 	vec3 kS = F;
 	vec3 kD = vec3(1.0) - kS;
 	kD *= 1.0 - metallic;	  
-	float normaldotlightDir = max(dot(normal, lightDir), 0.0);       
-	return (kD * albedo / PI + spec) * radiance * normaldotlightDir;
+	float NdotL = max(dot(normal, lightDir), 0.0);       
+	return (kD * albedo / PI + spec) * radiance * NdotL;
 }
 
 vec2 VogelDiskSample(int sampleIndex, int sampleCount, float phi)
@@ -332,9 +329,9 @@ float InterleavedGradientNoise(vec3 fragCoords){
 	return fract(dot(fragCoords, magic));
 }
 
-float DirectionalLightShadow(int i, int splitIndex, vec3 fragPos, vec3 normal)
+float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3 normal)
 {
-	DirectionalLight light = UE_DIRECTIONAL_LIGHT_BLOCKS[i];
+	DirectionalLight light = UE_DIRECTIONAL_LIGHTS[i];
 	vec3 lightDir = light.direction;
 	if(dot(lightDir, normal) > -0.02) return 1.0;
 	vec4 fragPosLightSpace = light.lightSpaceMatrix[splitIndex] * vec4(fragPos, 1.0);
@@ -377,7 +374,7 @@ float DirectionalLightShadow(int i, int splitIndex, vec3 fragPos, vec3 normal)
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
-	float texelSize = penumbraWidth * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE / UE_DIRECTIONAL_LIGHT_BLOCKS[i].lightFrustumWidth[splitIndex] * UE_DIRECTIONAL_LIGHT_BLOCKS[i].lightFrustumDistance[splitIndex] / 100.0;
+	float texelSize = penumbraWidth * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE / UE_DIRECTIONAL_LIGHTS[i].lightFrustumWidth[splitIndex] * UE_DIRECTIONAL_LIGHTS[i].lightFrustumDistance[splitIndex] / 100.0;
 	
 	int shadowCount = 0;
 	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
@@ -392,7 +389,7 @@ float DirectionalLightShadow(int i, int splitIndex, vec3 fragPos, vec3 normal)
 	return shadow;
 }
 
-float PointLightShadow(int i, vec3 fragPos, vec3 normal)
+float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal)
 {
 	PointLight light = UE_POINT_LIGHTS[i];
 	vec3 lightPos = light.position;
@@ -466,7 +463,7 @@ float PointLightShadow(int i, vec3 fragPos, vec3 normal)
 	return shadow;
 }
 
-float SpotLightShadow(int i, vec3 fragPos, vec3 normal){
+float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal){
 	SpotLight light = UE_SPOT_LIGHTS[i];
 	float bias = light.cutOffOuterCutOffLightSizeBias.w;
 	vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.0);

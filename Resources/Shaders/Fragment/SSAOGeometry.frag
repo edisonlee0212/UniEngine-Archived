@@ -4,8 +4,8 @@ in VS_OUT {
 	vec2 TexCoords;
 } fs_in;
 
-uniform sampler2D gPosition;
-uniform sampler2D gNormal;
+uniform sampler2D gPositionShadow;
+uniform sampler2D gNormalShininess;
 uniform sampler2D texNoise;
 
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
@@ -19,8 +19,8 @@ uniform vec2 noiseScale;
 void main()
 {
     // get input for SSAO algorithm
-    vec3 fragPos = vec3(UE_CAMERA_VIEW * vec4(texture(gPosition, fs_in.TexCoords).xyz, 1.0));
-    vec3 normal = normalize(texture(gNormal, fs_in.TexCoords).rgb);
+    vec3 fragPos = vec3(UE_CAMERA_VIEW * vec4(texture(gPositionShadow, fs_in.TexCoords).xyz, 1.0));
+    vec3 normal = normalize(texture(gNormalShininess, fs_in.TexCoords).rgb);
     if(normal == vec3(0.0)) discard;
     normal = normalize(mat3(UE_CAMERA_VIEW) * normal);
     vec3 randomVec = normalize(texture(texNoise, fs_in.TexCoords * noiseScale).xyz);
@@ -44,10 +44,10 @@ void main()
         offset = UE_CAMERA_PROJECTION * offset; // from view to clip-space
         offset.xyz /= offset.w; // perspective divide
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
-        if(texture(gNormal, offset.xy).xyz == vec3(0.0)) continue;
+        if(texture(gNormalShininess, offset.xy).xyz == vec3(0.0)) continue;
         validAmount = validAmount + 1;
         // get sample depth
-        float sampleDepth = vec3(UE_CAMERA_VIEW * texture(gPosition, offset.xy)).z; // get depth value of kernel sample
+        float sampleDepth = vec3(UE_CAMERA_VIEW * texture(gPositionShadow, offset.xy)).z; // get depth value of kernel sample
         
         // range check & accumulate
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));

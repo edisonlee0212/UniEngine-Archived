@@ -18,7 +18,7 @@
 
 
 namespace UniEngine {
-	struct UNIENGINE_API LightSettings {
+	struct UNIENGINE_API LightSettingsBlock {
 		float SplitDistance[4];
 		int PCSSPCFSampleAmount = 16;
 		float PCSSScaleFactor = 1.0f;
@@ -30,7 +30,7 @@ namespace UniEngine {
 		float AmbientLight = 0.1f;
 	};
 
-	struct MaterialTextures
+	struct MaterialSettingsBlock
 	{
 		GLuint64 spotShadowMap = 0;
 		GLuint64 directionalShadowMap = 0;
@@ -65,6 +65,12 @@ namespace UniEngine {
 		float metallicVal;
 		float roughnessVal;
 		float aoVal;
+
+		int receiveShadow;
+		int enableShadow = true;
+		int alphaDiscardEnabled;
+		float alphaDiscardOffset;
+		
 	};
 	
 	class UNIENGINE_API RenderManager : public Singleton<RenderManager>
@@ -101,8 +107,8 @@ namespace UniEngine {
 		friend class RenderTarget;
 		static size_t _Triangles;
 		static size_t _DrawCall;
-		static MaterialTextures _MaterialTextures;
-		static std::unique_ptr<GLUBO> _MaterialTextureBindings;
+		static MaterialSettingsBlock _MaterialSettingsBlock;
+		static std::unique_ptr<GLUBO> _MaterialSettingsBuffer;
 #pragma endregion
 #pragma region Shadow
 		static GLUBO* _DirectionalLightBlock;
@@ -112,13 +118,11 @@ namespace UniEngine {
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
 		static size_t _ShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
-		static LightSettings _LightSettings;
+		static LightSettingsBlock _LightSettings;
 
 		static DirectionalLightInfo _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 		static PointLightInfo _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
 		static SpotLightInfo _SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
-
-		static bool _EnableShadow;
 
 		static std::unique_ptr<GLProgram> _DirectionalLightProgram;
 		static std::unique_ptr<GLProgram> _DirectionalLightInstancedProgram;
@@ -147,13 +151,7 @@ namespace UniEngine {
 
 		static void DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix);
 		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix);
-
-		
-		
 		static float Lerp(float a, float b, float f);
-
-		
-		
 	public:
 #pragma region Settings
 		static void SetSSAOKernelRadius(float value);
