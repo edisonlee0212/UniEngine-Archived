@@ -985,18 +985,18 @@ void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
 
 bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceBehaviour>& target)
 {
-	ImGui::Button(target ? (target->Name + "##" + std::to_string(target->GetHashCode())).c_str() : "none");
 	const std::string tag = "##" + (target ? std::to_string(target->GetHashCode()) : "");
+	ImGui::Button(target ? (target->Name + tag).c_str() : "none");
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 	{
 		const std::string hash = std::to_string(std::hash<std::string>{}(name));
 		ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
-		if (target->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(target->_Icon->Texture()->ID()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
-		else ImGui::TextColored(ImVec4(0, 0, 1, 1), name.substr(6).c_str());
+		if (target && target->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(target->_Icon->Texture()->ID()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
+		else ImGui::TextColored(ImVec4(0, 0, 1, 1), (name + tag).substr(6).c_str());
 		ImGui::EndDragDropSource();
 	}
 	bool removed = false;
-	if (target && ImGui::BeginPopupContextItem(reinterpret_cast<char*>(target.get())))
+	if (target && ImGui::BeginPopupContextItem(tag.c_str()))
 	{
 		if (ImGui::BeginMenu(("Rename" + tag).c_str()))
 		{
