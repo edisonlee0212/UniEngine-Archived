@@ -177,7 +177,6 @@ namespace UniEngine {
 			_Immutable = immutable;
 			Bind(0);
 			if(immutable) glTextureStorage2D(_ID, levels, internalFormat, width, height);
-			else glTexImage2D(_Type, levels, internalFormat, width, height, 0, GL_RED, GL_FLOAT, 0);
 		}
 		
 		void SetData(GLint level,

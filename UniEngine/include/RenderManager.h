@@ -87,17 +87,6 @@ namespace UniEngine {
 		static bool _EnableRenderMenu;
 		static bool _EnableInfoWindow;
 #pragma endregion
-#pragma region SSAO
-		static bool _EnableSSAO;
-		static std::unique_ptr<GLProgram> _SSAOGeometryPass;
-		static std::unique_ptr<GLProgram> _SSAOBlurPass;
-
-		static float _SSAOKernelRadius;
-		static float _SSAOKernelBias;
-		static float _SSAOScale;
-		static float _SSAOFactor;
-		static int _SSAOSampleSize;
-#pragma endregion
 #pragma region Render
 		static std::unique_ptr<GLUBO> _KernelBlock;
 		static std::unique_ptr<GLProgram> _GBufferInstancedPrepass;
@@ -158,14 +147,6 @@ namespace UniEngine {
 		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix);
 		static float Lerp(float a, float b, float f);
 	public:
-#pragma region Settings
-		static void SetSSAOKernelRadius(float value);
-		static void SetSSAOKernelBias(float value);
-		static void SetSSAOScale(float value);
-		static void SetSSAOFactor(float value);
-		static void SetEnableSSAO(bool value);
-		static void SetSSAOSampleSize(int value);
-#pragma endregion
 		static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void RenderBackGround(const std::unique_ptr<CameraComponent>& cameraComponent);
 		static void RenderToCameraForward(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);

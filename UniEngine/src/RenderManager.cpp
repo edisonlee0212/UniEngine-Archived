@@ -55,17 +55,6 @@ std::unique_ptr<GLProgram> RenderManager::_GBufferPrepass;
 std::unique_ptr<GLProgram> RenderManager::_GBufferLightingPass;
 
 #pragma endregion
-#pragma region SSAO
-bool RenderManager::_EnableSSAO = true;
-std::unique_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
-std::unique_ptr<GLProgram> RenderManager::_SSAOBlurPass;
-
-float RenderManager::_SSAOKernelRadius = 0.1f;
-float RenderManager::_SSAOKernelBias = 0.0f;
-float RenderManager::_SSAOScale = 1.0;
-float RenderManager::_SSAOFactor = 1.0f;
-int RenderManager::_SSAOSampleSize = 16;
-#pragma endregion
 #pragma endregion
 
 void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
@@ -522,24 +511,7 @@ void RenderManager::Init()
 	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->Compile(fragShaderCode);
 
-	_SSAOGeometryPass = std::make_unique<GLProgram>(
-		vertShader,
-		fragShader
-		);
-
-	fragShaderCode = std::string("#version 460 core\n") +
-		*Default::ShaderIncludes::Uniform +
-		"\n" +
-		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOBlur.frag"));
-
-	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
-	fragShader->Compile(fragShaderCode);
-
-	_SSAOBlurPass = std::make_unique<GLProgram>(
-		vertShader,
-		fragShader
-		);
-
+	
 #pragma endregion
 }
 
@@ -1120,35 +1092,7 @@ inline float RenderManager::Lerp(float a, float b, float f)
 	return a + f * (b - a);
 }
 #pragma region Settings
-void RenderManager::SetSSAOKernelRadius(float value)
-{
-	_SSAOKernelRadius = value;
-}
 
-void RenderManager::SetSSAOKernelBias(float value)
-{
-	_SSAOKernelBias = value;
-}
-
-void RenderManager::SetSSAOScale(float value)
-{
-	_SSAOScale = value;
-}
-
-void RenderManager::SetSSAOFactor(float value)
-{
-	_SSAOFactor = value;
-}
-
-void RenderManager::SetEnableSSAO(bool value)
-{
-	_EnableSSAO = value;
-}
-
-void RenderManager::SetSSAOSampleSize(int value)
-{
-	_SSAOSampleSize = glm::clamp(value, 0, 64);
-}
 #pragma endregion
 #pragma region Shadow
 
@@ -1289,14 +1233,6 @@ void RenderManager::LateUpdate()
 			}
 			ImGui::DragFloat("Seam fix ratio", &_LightSettings.SeamFixRatio, 0.001f, 0.0f, 0.1f);
 			ImGui::Checkbox("Stable fit", &_StableFit);
-			ImGui::TreePop();
-		}
-		ImGui::Checkbox("Enable SSAO", &_EnableSSAO);
-		if (_EnableSSAO && ImGui::TreeNode("SSAO")) {
-			ImGui::DragFloat("Radius", &_SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
-			ImGui::DragFloat("Bias", &_SSAOKernelBias, 0.001f, 0.0f, 1.0f);
-			ImGui::DragFloat("Factor", &_SSAOFactor, 0.01f, 1.0f, 10.0f);
-			ImGui::DragInt("Sample Size", &_SSAOSampleSize, 1, 0, 64);
 			ImGui::TreePop();
 		}
 		ImGui::End();

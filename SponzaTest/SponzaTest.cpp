@@ -17,7 +17,6 @@ enum TestScene {
 int main()
 {
 	FileIO::SetResourcePath("../Resources/");
-	RenderManager::SetEnableSSAO(true);
 #pragma region Lighting and Shadow settings
 	RenderManager::SetShadowMapResolution(8192);
 	RenderManager::SetStableFit(false);

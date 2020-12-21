@@ -239,12 +239,12 @@ void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 	_GNormalBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
 	_GColorSpecularBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
 	_GMetallicRoughnessAO->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
-	_GDepthBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _ResolutionX, _ResolutionY);
+	_GDepthBuffer->AllocateStorage(GL_DEPTH32F_STENCIL8, _ResolutionX, _ResolutionY);
 
 	
 
 	_ColorTexture->_Texture->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
-	_DepthStencilBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, x, y);
+	_DepthStencilBuffer->ReSize(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, x, y);
 
 	if(GetOwner().HasPrivateComponent<PostProcessing>())
 	{
@@ -266,17 +266,23 @@ UniEngine::CameraComponent::CameraComponent()
 	_ColorTexture->_Texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_ColorTexture->_Texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	AttachTexture(_ColorTexture->_Texture.get(), GL_COLOR_ATTACHMENT0);
-	_DepthStencilBuffer = std::make_unique<GLRenderBuffer>();
-	_DepthStencilBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _ResolutionX, _ResolutionY);
-	AttachRenderBuffer(_DepthStencilBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
-	
+
+	_DepthStencilBuffer = std::make_unique<GLTexture2D>(0, GL_DEPTH32F_STENCIL8, _ResolutionX, _ResolutionY, false);
+	_DepthStencilBuffer->SetData(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0);
+	_DepthStencilBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_DepthStencilBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_DepthStencilBuffer->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_DepthStencilBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	AttachTexture(_DepthStencilBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
+
 	_GBuffer = std::make_unique<RenderTarget>(_ResolutionX, _ResolutionY);
 
 	_GDepthBuffer = std::make_unique<GLRenderBuffer>();
-	_GDepthBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _ResolutionX, _ResolutionY);
+	_GDepthBuffer->AllocateStorage(GL_DEPTH32F_STENCIL8, _ResolutionX, _ResolutionY);
 	_GBuffer->AttachRenderBuffer(_GDepthBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
 	
 	_GPositionBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	_GPositionBuffer->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	_GPositionBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GPositionBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_GPositionBuffer->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -284,6 +290,7 @@ UniEngine::CameraComponent::CameraComponent()
 	_GBuffer->AttachTexture(_GPositionBuffer.get(), GL_COLOR_ATTACHMENT0);
 	
 	_GNormalBuffer = std::make_unique <GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	_GNormalBuffer->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	_GNormalBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GNormalBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_GNormalBuffer->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -291,6 +298,7 @@ UniEngine::CameraComponent::CameraComponent()
 	_GBuffer->AttachTexture(_GNormalBuffer.get(), GL_COLOR_ATTACHMENT1);
 	
 	_GColorSpecularBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	_GColorSpecularBuffer->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -298,6 +306,7 @@ UniEngine::CameraComponent::CameraComponent()
 	_GBuffer->AttachTexture(_GColorSpecularBuffer.get(), GL_COLOR_ATTACHMENT2);
 
 	_GMetallicRoughnessAO = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	_GMetallicRoughnessAO->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

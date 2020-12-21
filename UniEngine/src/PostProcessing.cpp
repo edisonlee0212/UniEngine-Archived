@@ -5,21 +5,27 @@ using namespace UniEngine;
 void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
 {
 	layer->ResizeResolution(_ResolutionX, _ResolutionY);
-	_Layers.insert({ layer->_Type, std::move(layer) });
+	_Layers[layer->_Type] = std::move(layer);
 }
 
 PostProcessing::PostProcessing()
 {
 	ResizeResolution(1, 1);
+	_Layers[PostProcessingLayerType::SSAO] = nullptr;
+	_Layers[PostProcessingLayerType::Bloom] = nullptr;
 	SetEnabled(true);
 }
 
 void PostProcessing::Process()
 {
 	auto& cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
-	for (const auto& layer : _Layers)
+	if(_Layers[PostProcessingLayerType::SSAO] && _Layers[PostProcessingLayerType::SSAO]->_Enabled)
 	{
-		if (layer.second->_Enabled) layer.second->Process(cameraComponent, *this);
+		_Layers[PostProcessingLayerType::SSAO]->Process(cameraComponent, *this);
+	}
+	if (_Layers[PostProcessingLayerType::Bloom] && _Layers[PostProcessingLayerType::Bloom]->_Enabled)
+	{
+		_Layers[PostProcessingLayerType::Bloom]->Process(cameraComponent, *this);
 	}
 }
 
@@ -29,7 +35,7 @@ void PostProcessing::ResizeResolution(int x, int y)
 	_ResolutionY = y;
 	for (auto& layer : _Layers)
 	{
-		if (layer.second->_Enabled) layer.second->ResizeResolution(x, y);
+		if (layer.second && layer.second->_Enabled) layer.second->ResizeResolution(x, y);
 	}
 }
 
@@ -39,6 +45,6 @@ void PostProcessing::OnGui()
 
 	for (auto& layer : _Layers)
 	{
-		layer.second->OnGui(cameraComponent);
+		if(layer.second) layer.second->OnGui(cameraComponent);
 	}
 }

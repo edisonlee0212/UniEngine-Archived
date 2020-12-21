@@ -23,6 +23,26 @@ UniEngine::SSAO::SSAO()
 	_SSAOBlur->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
 	 */
+	/*
+	 * _SSAOGeometryPass = std::make_unique<GLProgram>(
+		vertShader,
+		fragShader
+		);
+
+	fragShaderCode = std::string("#version 460 core\n") +
+		*Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOBlur.frag"));
+
+	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
+	fragShader->Compile(fragShaderCode);
+
+	_SSAOBlurPass = std::make_unique<GLProgram>(
+		vertShader,
+		fragShader
+		);
+
+	 */
 }
 
 void UniEngine::SSAO::ResizeResolution(int x, int y)
@@ -69,4 +89,14 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 
 void UniEngine::SSAO::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 {
+	/*
+	 * ImGui::Checkbox("Enable SSAO", &_EnableSSAO);
+		if (_EnableSSAO && ImGui::TreeNode("SSAO")) {
+			ImGui::DragFloat("Radius", &_SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
+			ImGui::DragFloat("Bias", &_SSAOKernelBias, 0.001f, 0.0f, 1.0f);
+			ImGui::DragFloat("Factor", &_SSAOFactor, 0.01f, 1.0f, 10.0f);
+			ImGui::DragInt("Sample Size", &_SSAOSampleSize, 1, 0, 64);
+			ImGui::TreePop();
+		}
+	 */
 }

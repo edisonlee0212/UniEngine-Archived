@@ -7,6 +7,7 @@ namespace UniEngine
 {
 	enum class PostProcessingLayerType
 	{
+		SSAO,
 		Bloom
 	};
 	class UNIENGINE_API PostProcessingLayer
