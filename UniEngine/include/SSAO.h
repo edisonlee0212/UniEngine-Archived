@@ -8,18 +8,16 @@ namespace UniEngine
 {
 	class UNIENGINE_API SSAO : public PostProcessingLayer
 	{
-		float _Intensity = 0.02f;
-		float _Threshold = 1.0f;
-		float _Clamp = 0.0f;
+		float _Intensity = 0.07f;
 		int _Diffusion = 16;
-		float _BlurScale = 0.5f;
+		float _BlurScale = 0.25f;
 		Bezier2D _Bezier2D;
 
 		
 		float _SSAOKernelRadius = 0.1f;
-		float _SSAOKernelBias = 0.1f;
-		float _SSAOScale = 1.0f;
-		int _SSAOSampleSize = 16;
+		float _SSAOKernelBias = 0.03f;
+		float _SSAOScale = 0.25f;
+		int _SSAOSampleSize = 32;
 
 		std::unique_ptr<GLTexture2D> _OriginalColor;
 		std::unique_ptr<GLTexture2D> _SSAOPosition;

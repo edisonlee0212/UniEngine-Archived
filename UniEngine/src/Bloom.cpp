@@ -113,19 +113,13 @@ void UniEngine::Bloom::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 	ImGui::Checkbox("Enabled", &_Enabled);
 	if (_Enabled) {
 		if (ImGui::TreeNode("Bloom")) {
-			ImGui::Separator();
 			ImGui::DragFloat("Intensity##Bloom", &_Intensity, 0.001f, 0.001f, 1.0f);
-			ImGui::DragInt("Diffusion##Bloom", &_Diffusion, 1, 1.0f, 64.0f);
-			_Bezier2D.Graph("Bezier##Bloom");
+			ImGui::DragInt("Diffusion##Bloom", &_Diffusion, 1.0f, 1, 64);
 			ImGui::Separator();
 			ImGui::DragFloat("Threshold##Bloom", &_Threshold, 0.01f, 0.0f, 5.0f);
 			ImGui::DragFloat("Clamp##Bloom", &_Clamp, 0.01f, 0.0f, 5.0f);
-
-
-			ImGui::Separator();
-			ImGui::Image((ImTextureID)_FlatColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::Image((ImTextureID)_Result->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::Image((ImTextureID)_BrightColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			_Bezier2D.Graph("Bezier##Bloom");
+			ImGui::TreePop();
 		}
 	}
 }

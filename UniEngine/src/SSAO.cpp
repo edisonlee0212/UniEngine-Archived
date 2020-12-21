@@ -135,21 +135,13 @@ void UniEngine::SSAO::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 		if (ImGui::TreeNode("SSAO")) {
 			ImGui::DragFloat("Radius##SSAO", &_SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
 			ImGui::DragFloat("Bias##SSAO", &_SSAOKernelBias, 0.001f, 0.0f, 1.0f);
-			ImGui::DragInt("Sample Size##SSAO", &_SSAOSampleSize, 1, 0, 64);
-			ImGui::DragFloat("Sample Scale##SSAO", &_BlurScale, 0.001f, 0.0f, 1.0f);
-			ImGui::TreePop();
-
+			ImGui::DragInt("Sample Size##SSAO", &_SSAOSampleSize, 1, 1, 64);
 			ImGui::Separator();
+			ImGui::DragFloat("Blur Scale##SSAO", &_BlurScale, 0.001f, 0.01f, 1.0f);
 			ImGui::DragFloat("Intensity##SSAO", &_Intensity, 0.001f, 0.001f, 1.0f);
 			ImGui::DragInt("Diffusion##SSAO", &_Diffusion, 1, 1.0f, 64.0f);
 			_Bezier2D.Graph("Bezier##SSAO");
-			ImGui::Separator();
-			ImGui::DragFloat("Threshold##SSAO", &_Threshold, 0.01f, 0.0f, 5.0f);
-			ImGui::DragFloat("Clamp##SSAO", &_Clamp, 0.01f, 0.0f, 5.0f);
-
-			ImGui::Image((ImTextureID)_OriginalColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::Image((ImTextureID)_SSAOPosition->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::Image((ImTextureID)_SSAOBlur->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::TreePop();
 		}
 	}
 }
