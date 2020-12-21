@@ -51,14 +51,6 @@ namespace UniEngine {
 		friend class Bloom;
 		std::shared_ptr<Texture2D> _ColorTexture;
 		std::unique_ptr<GLRenderBuffer> _DepthStencilBuffer;
-
-		
-		std::unique_ptr<RenderTarget> _SSAO;
-		std::unique_ptr<RenderTarget> _SSAOBlurFilter;
-		std::unique_ptr<GLTexture2D> _SSAONoise;
-		std::unique_ptr<GLTexture2D> _SSAOColor;
-		std::unique_ptr<GLTexture2D> _SSAOBlur;
-
 		std::unique_ptr<RenderTarget> _GBuffer;
 		std::unique_ptr<GLRenderBuffer> _GDepthBuffer;
 		std::unique_ptr<GLTexture2D> _GPositionBuffer;

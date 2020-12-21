@@ -171,6 +171,7 @@
     <ClInclude Include="include\Singleton.h" />
     <ClInclude Include="include\SpotLight.h" />
     <ClInclude Include="include\SpotLightShadowMap.h" />
+    <ClInclude Include="include\SSAO.h" />
     <ClInclude Include="include\SystemBase.h" />
     <ClInclude Include="include\Texture2D.h" />
     <ClInclude Include="include\ThreadPool.h" />
@@ -402,6 +403,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\SSAO.cpp" />
     <ClCompile Include="src\stb.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>

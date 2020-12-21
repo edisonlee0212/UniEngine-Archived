@@ -60,11 +60,11 @@ bool RenderManager::_EnableSSAO = true;
 std::unique_ptr<GLProgram> RenderManager::_SSAOGeometryPass;
 std::unique_ptr<GLProgram> RenderManager::_SSAOBlurPass;
 
-float RenderManager::_SSAOKernelRadius = 0.3f;
+float RenderManager::_SSAOKernelRadius = 0.1f;
 float RenderManager::_SSAOKernelBias = 0.0f;
-float RenderManager::_SSAOScale = 4.0;
+float RenderManager::_SSAOScale = 1.0;
 float RenderManager::_SSAOFactor = 1.0f;
-int RenderManager::_SSAOSampleSize = 9;
+int RenderManager::_SSAOSampleSize = 16;
 #pragma endregion
 #pragma endregion
 
@@ -149,31 +149,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
 	Default::GLPrograms::ScreenVAO->Bind();
-	if (_EnableSSAO) {
-		cameraComponent->_SSAO->Bind();
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		_SSAOGeometryPass->Bind();
-		cameraComponent->_GPositionBuffer->Bind(3);
-		cameraComponent->_GNormalBuffer->Bind(4);
-		cameraComponent->_SSAONoise->Bind(5);
-		_SSAOGeometryPass->SetFloat("radius", _SSAOKernelRadius);
-		_SSAOGeometryPass->SetFloat("bias", _SSAOKernelBias);
-		_SSAOGeometryPass->SetFloat("factor", _SSAOFactor);
-		_SSAOGeometryPass->SetInt("kernelSize", _SSAOSampleSize);
-		_SSAOGeometryPass->SetInt("gPositionShadow", 3);
-		_SSAOGeometryPass->SetInt("gNormalShininess", 4);
-		_SSAOGeometryPass->SetInt("texNoise", 5);
-		_SSAOGeometryPass->SetFloat2("noiseScale", cameraComponent->GetResolution() / _SSAOScale);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		cameraComponent->_SSAOBlurFilter->Bind();
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		cameraComponent->_SSAOColor->Bind(3);
-		_SSAOBlurPass->SetInt("ssaoInput", 3);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-	}
+	
 
 	cameraComponent->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -187,13 +163,6 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 	_GBufferLightingPass->SetInt("gNormalShininess", 4);
 	_GBufferLightingPass->SetInt("gAlbedoSpecular", 5);
 	_GBufferLightingPass->SetInt("gMetallicRoughnessAO", 6);
-	_GBufferLightingPass->SetBool("enableSSAO", _EnableSSAO);
-	if (_EnableSSAO)
-	{
-		cameraComponent->_SSAOBlur->Bind(7);
-		_GBufferLightingPass->SetInt("ssao", 7);
-	}
-	
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	auto res = cameraComponent->GetResolution();
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->_GBuffer->GetFrameBuffer()->ID());

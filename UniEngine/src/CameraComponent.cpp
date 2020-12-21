@@ -241,10 +241,7 @@ void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 	_GMetallicRoughnessAO->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
 	_GDepthBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _ResolutionX, _ResolutionY);
 
-	_SSAO->SetResolution(_ResolutionX, _ResolutionY);
-	_SSAOBlurFilter->SetResolution(_ResolutionX, _ResolutionY);
-	_SSAOColor->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
-	_SSAOBlur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
+	
 
 	_ColorTexture->_Texture->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
 	_DepthStencilBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, x, y);
@@ -266,6 +263,8 @@ UniEngine::CameraComponent::CameraComponent()
 	_ColorTexture->_Texture->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
 	_ColorTexture->_Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_ColorTexture->_Texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_ColorTexture->_Texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_ColorTexture->_Texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	AttachTexture(_ColorTexture->_Texture.get(), GL_COLOR_ATTACHMENT0);
 	_DepthStencilBuffer = std::make_unique<GLRenderBuffer>();
 	_DepthStencilBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _ResolutionX, _ResolutionY);
@@ -280,48 +279,30 @@ UniEngine::CameraComponent::CameraComponent()
 	_GPositionBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
 	_GPositionBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GPositionBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_GPositionBuffer->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_GPositionBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_GBuffer->AttachTexture(_GPositionBuffer.get(), GL_COLOR_ATTACHMENT0);
 	
 	_GNormalBuffer = std::make_unique <GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
 	_GNormalBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GNormalBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_GNormalBuffer->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_GNormalBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_GBuffer->AttachTexture(_GNormalBuffer.get(), GL_COLOR_ATTACHMENT1);
 	
 	_GColorSpecularBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GColorSpecularBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_GColorSpecularBuffer->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_GColorSpecularBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_GBuffer->AttachTexture(_GColorSpecularBuffer.get(), GL_COLOR_ATTACHMENT2);
 
 	_GMetallicRoughnessAO = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
 	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_GMetallicRoughnessAO->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_GBuffer->AttachTexture(_GMetallicRoughnessAO.get(), GL_COLOR_ATTACHMENT3);
-	
-	_SSAO = std::make_unique<RenderTarget>(_ResolutionX, _ResolutionY);
-	_SSAOColor = std::make_unique<GLTexture2D>(0, GL_R32F, _ResolutionX, _ResolutionY, false);
-	_SSAOColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_SSAOColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_SSAO->AttachTexture(_SSAOColor.get(), GL_COLOR_ATTACHMENT0);
-	
-	_SSAOBlurFilter = std::make_unique<RenderTarget>();
-	_SSAOBlur = std::make_unique<GLTexture2D>(0, GL_R32F, _ResolutionX, _ResolutionY, false);
-	_SSAOBlur->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_SSAOBlur->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_SSAOBlurFilter->AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
-
-	// generate noise texture
-	// ----------------------
-	std::vector<glm::vec3> ssaoNoise;
-	for (unsigned int i = 0; i < 16; i++)
-	{
-		glm::vec3 noise(glm::linearRand(-1.0f, 1.0f), glm::linearRand(-1.0f, 1.0f), 0.0f); // rotate around z-axis (in tangent space)
-		ssaoNoise.push_back(noise);
-	}
-	_SSAONoise = std::make_unique<GLTexture2D>(0, GL_RGBA32F, 0, 0, false);
-	_SSAONoise->ReSize(0, GL_RGBA32F, GL_RGB, GL_FLOAT, ssaoNoise.data(), 4, 4);
-	_SSAONoise->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_SSAONoise->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
 	
 	SetEnabled(true);
 }

@@ -9,10 +9,6 @@ uniform sampler2D gNormalShininess;
 uniform sampler2D gAlbedoSpecular;
 uniform sampler2D gMetallicRoughnessAO;
 
-uniform bool enableSSAO;
-uniform sampler2D ssao;
-
-
 void main()
 {	
 	vec3 fragPos = texture(gPositionShadow, fs_in.TexCoords).rgb;
@@ -28,13 +24,12 @@ void main()
 
 	vec3 viewDir = normalize(UE_CAMERA_POSITION - fragPos);
 	float dist = distance(fragPos, UE_CAMERA_POSITION);
-	float AmbientOcclusion = (enableSSAO ? texture(ssao, fs_in.TexCoords).r : 1.0);
 
 	vec3 F0 = vec3(0.04); 
 	F0 = mix(F0, albedo, metallic);
 
 	vec3 result = UE_FUNC_CALCULATE_LIGHTS(receiveShadow, shininess, albedo, 1.0, dist, normal, viewDir, fragPos, metallic, roughness, F0);
-	vec3 color = (result + UE_AMBIENT_LIGHT * albedo * ao) * AmbientOcclusion;
+	vec3 color = result + UE_AMBIENT_LIGHT * albedo * ao;
 
 	//float gamma = 2.2;
 	// exposure tone mapping

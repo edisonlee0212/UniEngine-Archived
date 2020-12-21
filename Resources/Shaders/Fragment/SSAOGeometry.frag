@@ -6,7 +6,6 @@ in VS_OUT {
 
 uniform sampler2D gPositionShadow;
 uniform sampler2D gNormalShininess;
-uniform sampler2D texNoise;
 
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
 uniform int kernelSize;
@@ -23,7 +22,7 @@ void main()
     vec3 normal = normalize(texture(gNormalShininess, fs_in.TexCoords).rgb);
     if(normal == vec3(0.0)) discard;
     normal = normalize(mat3(UE_CAMERA_VIEW) * normal);
-    vec3 randomVec = normalize(texture(texNoise, fs_in.TexCoords * noiseScale).xyz);
+    vec3 randomVec = UE_UNIFORM_KERNEL[int(fs_in.TexCoords.x * MAX_KERNEL_AMOUNT) % MAX_KERNEL_AMOUNT].xyz;
     // create TBN change-of-basis matrix: from tangent-space to view-space
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);

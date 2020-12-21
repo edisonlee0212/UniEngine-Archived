@@ -27,7 +27,7 @@ namespace UniEngine {
 		float VSMMaxVariance = 0.001f;
 		float LightBleedFactor = 0.5f;
 		float EVSMExponent = 40.0f;
-		float AmbientLight = 0.1f;
+		float AmbientLight = 0.3f;
 	};
 
 	struct MaterialSettingsBlock
