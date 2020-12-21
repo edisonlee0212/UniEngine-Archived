@@ -1,4 +1,5 @@
 #pragma once
+#include "Bezier.h"
 #include "Core.h"
 #include "UniEngineAPI.h"
 #include "PostProcessing.h"
@@ -7,20 +8,23 @@ namespace UniEngine
 {
 	class UNIENGINE_API SSAO : public PostProcessingLayer
 	{
-		/*
-		 * static bool _EnableSSAO;
-		static std::unique_ptr<GLProgram> _SSAOGeometryPass;
-		static std::unique_ptr<GLProgram> _SSAOBlurPass;
+		float _Intensity = 0.02f;
+		float _Threshold = 1.0f;
+		float _Clamp = 0.0f;
+		int _Diffusion = 16;
+		float _BlurScale = 0.5f;
+		Bezier2D _Bezier2D;
 
-		static float _SSAOKernelRadius;
-		static float _SSAOKernelBias;
-		static float _SSAOScale;
-		static float _SSAOFactor;
-		static int _SSAOSampleSize;
-		 */
+		
+		float _SSAOKernelRadius = 0.1f;
+		float _SSAOKernelBias = 0.1f;
+		float _SSAOScale = 1.0f;
+		int _SSAOSampleSize = 16;
+
+		std::unique_ptr<GLTexture2D> _OriginalColor;
 		std::unique_ptr<GLTexture2D> _SSAOPosition;
 		std::unique_ptr<GLTexture2D> _SSAOBlur;
-		std::unique_ptr<GLProgram> _PositionProgram;
+		std::unique_ptr<GLProgram> _GeometryProgram;
 		std::unique_ptr<GLProgram> _BlurProgram;
 		std::unique_ptr<GLProgram> _CombineProgram;
 	public:

@@ -12,6 +12,7 @@
 #include "SerializationManager.h"
 #include "PostProcessing.h"
 #include "Bloom.h"
+#include "SSAO.h"
 using namespace UniEngine;
 
 bool Application::_Initialized = false;
@@ -114,6 +115,7 @@ void UniEngine::Application::Init(bool fullScreen)
 
 	auto postProcessing = std::make_unique<PostProcessing>();
 	postProcessing->PushLayer(std::make_unique<Bloom>());
+	postProcessing->PushLayer(std::make_unique<SSAO>());
 	EntityManager::SetPrivateComponent(mainCameraEntity, std::move(postProcessing));
 #pragma endregion
 	_World->ResetTime();

@@ -49,6 +49,7 @@ namespace UniEngine {
 		friend struct CameraInfoBlock;
 		friend class PostProcessing;
 		friend class Bloom;
+		friend class SSAO;
 		std::shared_ptr<Texture2D> _ColorTexture;
 		std::unique_ptr<GLTexture2D> _DepthStencilBuffer;
 		std::unique_ptr<RenderTarget> _GBuffer;

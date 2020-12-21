@@ -40,7 +40,7 @@ UniEngine::Bloom::Bloom()
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
 		std::make_shared<GLShader>(ShaderType::Fragment, 
 			std::string("#version 460 core\n") +
-			FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomFilter.frag"))) );
+			FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"))) );
 	_CombineProgram = std::make_unique<GLProgram>(std::make_shared<GLShader>(ShaderType::Vertex,
 		std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
@@ -59,7 +59,6 @@ void UniEngine::Bloom::ResizeResolution(int x, int y)
 
 void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const
 {
-	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
@@ -85,6 +84,7 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent
 	_BrightColor->Bind(0);
 	_FilterProgram->SetInt("image", 0);
 	_FilterProgram->SetBool("horizontal", false);
+	_FilterProgram->SetFloat("sampleScale", 1.0f);
 	_FilterProgram->SetFloat4("bezier", _Bezier2D.ControlPoints[0], _Bezier2D.ControlPoints[1], _Bezier2D.ControlPoints[2], _Bezier2D.ControlPoints[3]);
 	_FilterProgram->SetInt("diffusion", _Diffusion);
 	_FilterProgram->SetFloat("clamp", _Clamp);
@@ -111,18 +111,21 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent
 void UniEngine::Bloom::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 {
 	ImGui::Checkbox("Enabled", &_Enabled);
-	ImGui::Separator();
-	ImGui::DragFloat("Intensity", &_Intensity, 0.001f, 0.001f, 1.0f);
-	ImGui::DragInt("Diffusion", &_Diffusion, 1, 1.0f, 64.0f);
-	_Bezier2D.Graph("Bezier");
-	ImGui::Separator();
-	ImGui::DragFloat("Threshold", &_Threshold, 0.01f, 0.0f, 5.0f);
-	ImGui::DragFloat("Clamp", &_Clamp, 0.01f, 0.0f, 5.0f);
-	
-	
-	ImGui::Separator();
-	ImGui::Image((ImTextureID)_FlatColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-	ImGui::Image((ImTextureID)_Result->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-	ImGui::Image((ImTextureID)_BrightColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-	
+	if (_Enabled) {
+		if (ImGui::TreeNode("Bloom")) {
+			ImGui::Separator();
+			ImGui::DragFloat("Intensity##Bloom", &_Intensity, 0.001f, 0.001f, 1.0f);
+			ImGui::DragInt("Diffusion##Bloom", &_Diffusion, 1, 1.0f, 64.0f);
+			_Bezier2D.Graph("Bezier##Bloom");
+			ImGui::Separator();
+			ImGui::DragFloat("Threshold##Bloom", &_Threshold, 0.01f, 0.0f, 5.0f);
+			ImGui::DragFloat("Clamp##Bloom", &_Clamp, 0.01f, 0.0f, 5.0f);
+
+
+			ImGui::Separator();
+			ImGui::Image((ImTextureID)_FlatColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_Result->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_BrightColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		}
+	}
 }

@@ -1,9 +1,10 @@
-out float FragColor;
+layout (location = 0) out vec4 OriginalColor;
+layout (location = 1) out float FragColor;
 
 in VS_OUT {
 	vec2 TexCoords;
 } fs_in;
-
+uniform sampler2D image;
 uniform sampler2D gPositionShadow;
 uniform sampler2D gNormalShininess;
 
@@ -55,6 +56,7 @@ void main()
     if(validAmount == 0){
         FragColor = 1.0;
     }else{
-        FragColor = pow(1.0 - (occlusion / validAmount), factor);
+        FragColor = occlusion / validAmount;
     }
+    OriginalColor = texture(image, fs_in.TexCoords);
 }

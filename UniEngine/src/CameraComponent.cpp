@@ -243,7 +243,7 @@ void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 
 	
 
-	_ColorTexture->_Texture->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
+	_ColorTexture->_Texture->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
 	_DepthStencilBuffer->ReSize(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, x, y);
 
 	if(GetOwner().HasPrivateComponent<PostProcessing>())
@@ -259,8 +259,8 @@ UniEngine::CameraComponent::CameraComponent()
 	
 	_ColorTexture = std::make_shared<Texture2D>();
 	_ColorTexture->Name = "CameraTexture";
-	_ColorTexture->_Texture = std::make_shared<GLTexture2D>(0, GL_RGB32F, _ResolutionX, _ResolutionY, false);
-	_ColorTexture->_Texture->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+	_ColorTexture->_Texture = std::make_shared<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	_ColorTexture->_Texture->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	_ColorTexture->_Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_ColorTexture->_Texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_ColorTexture->_Texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
