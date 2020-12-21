@@ -47,6 +47,7 @@ namespace UniEngine {
 		GLuint64 specular = 0;
 		GLuint64 emissive = 0;
 		GLuint64 displacement = 0;
+
 		
 		int albedoEnabled = 0;
 		int normalEnabled = 0;
@@ -71,7 +72,10 @@ namespace UniEngine {
 		int enableShadow = true;
 		int alphaDiscardEnabled;
 		float alphaDiscardOffset;
-		
+
+		GLuint64 environmentalMap = 0;
+		int environmentalMapEnabled = 0;
+
 	};
 	
 	class UNIENGINE_API RenderManager : public Singleton<RenderManager>

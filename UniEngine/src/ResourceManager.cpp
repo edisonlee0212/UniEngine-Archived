@@ -456,13 +456,13 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& path,
 		}
 		GLsizei mipmap = static_cast<GLsizei>(log2(std::max(width, height))) + 1;
 		retVal->_Texture = std::make_shared<GLTexture2D>(mipmap, iformat, width, height, true);
-		retVal->Texture()->SetData(0, format, GL_UNSIGNED_BYTE, data);
-		retVal->Texture()->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
-		retVal->Texture()->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
-		retVal->Texture()->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		retVal->Texture()->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		retVal->Texture()->GenerateMipMap();
-		retVal->Texture()->MakeResident();
+		retVal->_Texture->SetData(0, format, GL_UNSIGNED_BYTE, data);
+		retVal->_Texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+		retVal->_Texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+		retVal->_Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		retVal->_Texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		retVal->_Texture->GenerateMipMap();
+		retVal->_Texture->MakeResident();
 		stbi_image_free(data);
 	}
 	else
@@ -522,6 +522,8 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(const std::vector<std::str
 	texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	texture->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	//texture->GenerateMipMap();
+	texture->MakeResident();
 	auto retVal = std::make_shared<Cubemap>();
 	retVal->_Texture = std::move(texture);
 	retVal->_Paths = paths;

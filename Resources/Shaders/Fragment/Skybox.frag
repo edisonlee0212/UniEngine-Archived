@@ -2,9 +2,7 @@ out vec4 FragColor;
 
 in vec3 TexCoords;
 
-uniform samplerCube skybox;
-
 void main()
 {    
-    FragColor = texture(skybox, TexCoords);
+	FragColor = vec4(UE_CAMERA_SKYBOX_ENABLED ? texture(UE_CAMERA_SKYBOX, TexCoords).xyz : UE_CAMERA_BACKGROUND_COLOR, 1.0);
 }

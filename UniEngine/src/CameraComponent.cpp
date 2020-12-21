@@ -384,6 +384,15 @@ void UniEngine::CameraInfoBlock::UpdateMatrices(CameraComponent* camera, glm::ve
 	Position = glm::vec4(position, 0);
 	View = glm::lookAt(position, position + front, up);
 	ReservedParameters = glm::vec4(camera->NearDistance, camera->FarDistance, camera->FOV, 0);
+	BackGroundColor = glm::vec4(camera->ClearColor, 1.0f);
+	if (camera->SkyBox) {
+		Skybox = camera->SkyBox->Texture()->GetHandle();
+		SkyboxEnabled = true;
+	}
+	else {
+		Skybox = 0;
+		SkyboxEnabled = false;
+	}
 }
 
 void UniEngine::CameraInfoBlock::UploadMatrices(CameraComponent* camera)

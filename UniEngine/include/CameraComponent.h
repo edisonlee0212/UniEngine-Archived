@@ -32,6 +32,9 @@ namespace UniEngine {
 		glm::mat4 View;
 		glm::vec4 ReservedParameters;
 		glm::vec4 Position;
+		glm::vec4 BackGroundColor;
+		GLuint64 Skybox = 0;
+		int SkyboxEnabled = 0;
 		void UpdateMatrices(CameraComponent* camera, glm::vec3 position, glm::quat rotation);
 		void UploadMatrices(CameraComponent* camera);
 	};

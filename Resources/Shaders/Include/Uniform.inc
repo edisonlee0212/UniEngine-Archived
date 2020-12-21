@@ -55,6 +55,9 @@ layout (std140, binding = 0) uniform UE_CAMERA
 	mat4 UE_CAMERA_VIEW;
 	vec4 UE_CAMERA_RESERVED;
 	vec3 UE_CAMERA_POSITION;
+	vec3 UE_CAMERA_BACKGROUND_COLOR;
+	samplerCube UE_CAMERA_SKYBOX;
+	bool UE_CAMERA_SKYBOX_ENABLED;
 };
 
 layout (std140, binding = 1) uniform UE_DIRECTIONAL_LIGHT_BLOCK
@@ -115,6 +118,8 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	sampler2D UE_EMISSIVE_MAP;
 	sampler2D UE_DISPLACEMENT_MAP;
 
+	
+	
 	bool UE_ALBEDO_MAP_ENABLED;
 	bool UE_NORMAL_MAP_ENABLED;
 	bool UE_METALLIC_MAP_ENABLED;
@@ -138,6 +143,9 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	bool UE_ENABLE_SHADOW;
 	bool UE_APLHA_DISCARD_ENABLED;
 	float UE_APLHA_DISCARD_OFFSET;
+
+	samplerCube UE_ENVIRONMENTAL_MAP;
+	bool UE_ENVIRONMENTAL_MAP_ENABLED;
 };
 
 vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
