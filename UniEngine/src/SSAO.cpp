@@ -6,6 +6,7 @@
 
 UniEngine::SSAO::SSAO()
 {
+	_Name = "SSAO";
 	_Bezier2D = { 1.0f, 0.0f, 0.9f, 1.0f };
 	_Type = PostProcessingLayerType::SSAO;
 	_OriginalColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
@@ -130,18 +131,20 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 
 void UniEngine::SSAO::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 {
-	ImGui::Checkbox("Enabled", &_Enabled);
-	if (_Enabled) {
-		if (ImGui::TreeNode("SSAO")) {
-			ImGui::DragFloat("Radius##SSAO", &_SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
-			ImGui::DragFloat("Bias##SSAO", &_SSAOKernelBias, 0.001f, 0.0f, 1.0f);
-			ImGui::DragInt("Sample Size##SSAO", &_SSAOSampleSize, 1, 1, 64);
-			ImGui::Separator();
-			ImGui::DragFloat("Blur Scale##SSAO", &_BlurScale, 0.001f, 0.01f, 1.0f);
-			ImGui::DragFloat("Intensity##SSAO", &_Intensity, 0.001f, 0.001f, 1.0f);
-			ImGui::DragInt("Diffusion##SSAO", &_Diffusion, 1, 1.0f, 64.0f);
-			_Bezier2D.Graph("Bezier##SSAO");
-			ImGui::TreePop();
+	if (ImGui::TreeNode("SSAO Settings")) {
+		ImGui::DragFloat("Radius##SSAO", &_SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
+		ImGui::DragFloat("Bias##SSAO", &_SSAOKernelBias, 0.001f, 0.0f, 1.0f);
+		ImGui::DragInt("Sample Size##SSAO", &_SSAOSampleSize, 1, 1, 64);
+		ImGui::DragFloat("Blur Scale##SSAO", &_BlurScale, 0.001f, 0.01f, 1.0f);
+		ImGui::DragFloat("Intensity##SSAO", &_Intensity, 0.001f, 0.001f, 1.0f);
+		ImGui::DragInt("Diffusion##SSAO", &_Diffusion, 1.0f, 1, 64);
+		_Bezier2D.Graph("Bezier##SSAO");
+		if(ImGui::TreeNode("Debug##SSAO"))
+		{
+			ImGui::Image((ImTextureID)_OriginalColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_SSAOPosition->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_SSAOBlur->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		}
+		ImGui::TreePop();
 	}
 }

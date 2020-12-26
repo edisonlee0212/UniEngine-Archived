@@ -42,9 +42,11 @@ void PostProcessing::ResizeResolution(int x, int y)
 void PostProcessing::OnGui()
 {
 	auto& cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
-
 	for (auto& layer : _Layers)
 	{
-		if(layer.second) layer.second->OnGui(cameraComponent);
+		if (layer.second) {
+			ImGui::Checkbox(layer.second->_Name.c_str(), &layer.second->_Enabled);
+			if(layer.second->_Enabled) layer.second->OnGui(cameraComponent);
+		}
 	}
 }

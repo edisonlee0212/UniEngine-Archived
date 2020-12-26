@@ -16,6 +16,7 @@ namespace UniEngine
 	protected:
 		bool _Enabled = true;
 		PostProcessingLayerType _Type;
+		std::string _Name = "";
 	public:
 		virtual void ResizeResolution(int x, int y) = 0;
 		virtual void Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const = 0;
