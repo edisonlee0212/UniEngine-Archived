@@ -4,8 +4,11 @@ using namespace UniEngine;
 
 void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
 {
+	if (!layer) return;
+	_Layers[layer->_Type]->Init();
 	layer->ResizeResolution(_ResolutionX, _ResolutionY);
 	_Layers[layer->_Type] = std::move(layer);
+	
 }
 
 PostProcessing::PostProcessing()

@@ -2,6 +2,8 @@
 //
 #include "UniEngine.h"
 #include "CameraControlSystem.h"
+#include "Bloom.h"
+#include "SSAO.h"
 using namespace UniEngine;
 void LightSettingMenu();
 void InitGround();
@@ -40,7 +42,10 @@ int main()
 	transform.SetEulerRotation(glm::radians(glm::vec3(-14.0f, 0.0f, 0.0f)));
 	RenderManager::GetMainCamera()->GetOwner().SetComponentData(transform);
 	transform.SetEulerRotation(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
-
+	auto postProcessing = std::make_unique<PostProcessing>();
+	postProcessing->PushLayer(std::make_unique<Bloom>());
+	postProcessing->PushLayer(std::make_unique<SSAO>());
+	EntityManager::SetPrivateComponent(RenderManager::GetMainCamera()->GetOwner(), std::move(postProcessing));
 	Entity newCam = EntityManager::CreateEntity(archetype, "Camera");
 	newCam.SetPrivateComponent(std::make_unique<CameraComponent>());
 	newCam.SetComponentData(transform);

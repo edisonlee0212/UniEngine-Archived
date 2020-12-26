@@ -16,6 +16,7 @@
 #include "Default.h"
 #include "Texture2D.h"
 
+#include "PostProcessing.h"
 
 namespace UniEngine {
 	struct UNIENGINE_API LightSettingsBlock {

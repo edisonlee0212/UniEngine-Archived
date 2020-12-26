@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Core.h"
 namespace UniEngine {
 	class UNIENGINE_API Application {

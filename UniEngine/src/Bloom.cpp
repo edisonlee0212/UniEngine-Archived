@@ -3,7 +3,7 @@
 
 #include "Default.h"
 #include "Texture2D.h"
-UniEngine::Bloom::Bloom()
+void UniEngine::Bloom::Init()
 {
 	_Name = "Bloom";
 	_Bezier2D = { 1.0f, 0.0f, 0.9f, 1.0f };

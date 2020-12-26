@@ -26,7 +26,7 @@ namespace UniEngine
 		std::unique_ptr<GLProgram> _BlurProgram;
 		std::unique_ptr<GLProgram> _CombineProgram;
 	public:
-		SSAO();
+		void Init() override;
 		void ResizeResolution(int x, int y) override;
 		void Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const override;
 		void OnGui(std::unique_ptr<CameraComponent>& cameraComponent) override;

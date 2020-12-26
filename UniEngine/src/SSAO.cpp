@@ -4,7 +4,7 @@
 #include "Default.h"
 #include "Texture2D.h"
 
-UniEngine::SSAO::SSAO()
+void UniEngine::SSAO::Init()
 {
 	_Name = "SSAO";
 	_Bezier2D = { 1.0f, 0.0f, 0.9f, 1.0f };

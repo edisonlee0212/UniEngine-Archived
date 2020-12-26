@@ -18,6 +18,7 @@ namespace UniEngine
 		PostProcessingLayerType _Type;
 		std::string _Name = "";
 	public:
+		virtual void Init() = 0;
 		virtual void ResizeResolution(int x, int y) = 0;
 		virtual void Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const = 0;
 		virtual void OnGui(std::unique_ptr<CameraComponent>& cameraComponent) = 0;
