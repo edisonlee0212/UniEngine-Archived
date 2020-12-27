@@ -9,6 +9,7 @@ b.	A full stack of deferred rendering that includes lighting, shadows, SSAO, pos
 c.	A full stack of forward rendering that includes user-controlled shading, lighting, shadows, etc. Develop APIs like Graphics in Unity: https://docs.unity3d.com/ScriptReference/Graphics.html
 3.	Integrated industrial proven physics engine PhysX to provide stable and good physics simulations.
 4.	Integrated ImGui with docking, multiple viewport features enabled to provide good editor experiences.
+5.  An engine editor that allow user to create/edit/save/load the scene.
 
 What additional components or libraries will you rely on?
 Here is a list of libraries that I will use in the project:
