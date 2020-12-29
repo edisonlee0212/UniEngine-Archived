@@ -729,6 +729,17 @@ bool EntityManager::IsEntityArchetypeValid(const EntityArchetype& archetype)
 	return archetype.IsNull() && _EntityComponentStorage->size() > archetype.Index;
 }
 
+Entity EntityManager::GetRoot(const Entity& entity)
+{
+	Entity retVal = entity;
+	auto parent = GetParent(retVal);
+	while (!parent.IsNull()) {
+		retVal = parent;
+		parent = GetParent(retVal);
+	}
+	return retVal;
+}
+
 Entity EntityManager::GetEntity(size_t index)
 {
 	if (index > 0 && index < _Entities->size()) return _Entities->at(index);

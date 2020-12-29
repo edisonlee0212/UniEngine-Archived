@@ -22,7 +22,6 @@ std::vector<std::pair<size_t, std::function<void(Entity owner)>>> EditorManager:
 unsigned int EditorManager::_ConfigFlags = 0;
 int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
-Entity EditorManager::_FocusedEntity;
 bool EditorManager::_EnableConsole = true;
 Transform* EditorManager::_PreviouslyStoredTransform;
 GlobalTransform* EditorManager::_PreviouslyStoredGlobalTransform;
@@ -51,7 +50,8 @@ bool EditorManager::_LocalScaleSelected = false;
 bool EditorManager::_EnableConsoleLogs = true;
 bool EditorManager::_EnableConsoleErrors = true;
 bool EditorManager::_EnableConsoleWarnings = false;
-bool EditorManager::_EscapeHold = false;
+bool EditorManager::_LeftMouseButtonHold = false;
+bool EditorManager::_RightMouseButtonHold = false;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightPrePassProgram;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightProgram;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
@@ -115,6 +115,112 @@ void UniEngine::EditorManager::InspectComponentData(ComponentBase* data, Compone
 	if (_ComponentDataInspectorMap.find(type.TypeID) != _ComponentDataInspectorMap.end()) {
 		_ComponentDataInspectorMap.at(type.TypeID)(data, isRoot);
 	}
+}
+
+Entity EditorManager::MouseEntitySelection(const glm::vec2& mousePosition)
+{
+	Entity retVal;
+	_SceneCameraEntityRecorder->Bind();
+	float entityIndex = 0;
+	const glm::vec2 resolution = _SceneCameraEntityRecorder->GetResolution();
+	glm::vec2 point = resolution;
+	point.x += mousePosition.x;
+	point.y -= mousePosition.y;
+	if (point.x >= 0 && point.x < resolution.x && point.y >= 0 && point.y < resolution.y) {
+		glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
+		if (entityIndex > 0)
+		{
+			retVal.Version = EntityManager::_EntityInfos->at(static_cast<unsigned>(entityIndex)).Version;
+			retVal.Index = static_cast<unsigned>(entityIndex);
+		}
+	}
+	return retVal;
+}
+
+void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
+{
+	if (!entity.IsValid() || entity.IsDeleted() || !entity.Enabled()) return;
+	EntityManager::ForEachChild(entity, [](Entity child)
+		{
+			HighLightEntityPrePassHelper(child);
+		}
+	);
+	if (entity.HasPrivateComponent<MeshRenderer>())
+	{
+		auto& mmc = entity.GetPrivateComponent<MeshRenderer>();
+		if (mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
+		{
+
+			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+			auto* mesh = mmc->Mesh.get();
+			mesh->Enable();
+			mesh->VAO()->DisableAttributeArray(12);
+			mesh->VAO()->DisableAttributeArray(13);
+			mesh->VAO()->DisableAttributeArray(14);
+			mesh->VAO()->DisableAttributeArray(15);
+			_SceneHighlightPrePassProgram->SetFloat4x4("model", ltw.Value);
+
+			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+		}
+	}
+}
+
+void EditorManager::HighLightEntityHelper(const Entity& entity)
+{
+	if (!entity.IsValid() || entity.IsDeleted() || !entity.Enabled()) return;
+	EntityManager::ForEachChild(entity, [](Entity child)
+		{
+			HighLightEntityHelper(child);
+		}
+	);
+	if (entity.HasPrivateComponent<MeshRenderer>())
+	{
+		auto& mmc = entity.GetPrivateComponent<MeshRenderer>();
+		if (mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
+		{
+
+			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+			auto* mesh = mmc->Mesh.get();
+			mesh->Enable();
+			mesh->VAO()->DisableAttributeArray(12);
+			mesh->VAO()->DisableAttributeArray(13);
+			mesh->VAO()->DisableAttributeArray(14);
+			mesh->VAO()->DisableAttributeArray(15);
+			_SceneHighlightProgram->SetFloat4x4("model", ltw.Value);
+			_SceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
+			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+		}
+	}
+}
+
+void EditorManager::HighLightEntity(const Entity& entity, const glm::vec4& color)
+{
+	if (!entity.IsValid() || entity.IsDeleted() || !entity.Enabled()) return;
+	CameraComponent::_CameraInfoBlock.UpdateMatrices(_SceneCamera.get(),
+		_SceneCameraPosition,
+		_SceneCameraRotation
+	);
+	CameraComponent::_CameraInfoBlock.UploadMatrices(_SceneCamera.get());
+	_SceneCamera->Bind();
+	glEnable(GL_STENCIL_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glStencilMask(0xFF);
+	_SceneHighlightPrePassProgram->Bind();
+	_SceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.0f));
+	HighLightEntityPrePassHelper(entity);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilMask(0x00);
+	_SceneHighlightProgram->Bind();
+	_SceneHighlightProgram->SetFloat4("color", color);
+	HighLightEntityHelper(entity);
+	glStencilMask(0xFF);
+	glStencilFunc(GL_ALWAYS, 0, 0xFF);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void UniEngine::EditorManager::Init()
@@ -346,7 +452,7 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
-	
+
 	RegisterPrivateComponentMenu<Particles>([](Entity owner)
 		{
 			if (owner.HasPrivateComponent<Particles>()) return;
@@ -518,12 +624,14 @@ void UniEngine::EditorManager::Update()
 
 void EditorManager::LateUpdate()
 {
-	if (_EscapeHold)
+	if (_LeftMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
 	{
-		if (!InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow()))
-		{
-			_EscapeHold = false;
-		}
+		_LeftMouseButtonHold = false;
+	}
+	if (_RightMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow()))
+	{
+		_RightMouseButtonHold = false;
+		_StartMouse = false;
 	}
 #pragma region Entity Explorer
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
@@ -696,101 +804,6 @@ void EditorManager::LateUpdate()
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
-			if (ImGui::IsWindowFocused())
-			{
-				glm::vec2 mousePosition;
-				bool valid = InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), mousePosition);
-				float xOffset = 0;
-				float yOffset = 0;
-				if (valid) {
-					if (!_StartMouse) {
-						_LastX = mousePosition.x;
-						_LastY = mousePosition.y;
-						_StartMouse = true;
-					}
-					xOffset = mousePosition.x - _LastX;
-					yOffset = -mousePosition.y + _LastY;
-					_LastX = mousePosition.x;
-					_LastY = mousePosition.y;
-#pragma region Entity Selection
-					if (!_LocalPositionSelected && !_LocalRotationSelected && !_LocalScaleSelected) {
-						_FocusedEntity = Entity();
-						_SceneCameraEntityRecorder->Bind();
-						float entityIndex = 0;
-						const glm::vec2 resolution = _SceneCameraEntityRecorder->GetResolution();
-						glm::vec2 point = resolution;
-						point.x += mousePosition.x;
-						point.y -= mousePosition.y;
-						if (point.x >= 0 && point.x < resolution.x && point.y >= 0 && point.y < resolution.y) {
-							glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
-							if (entityIndex > 0)
-							{
-								_FocusedEntity.Version = EntityManager::_EntityInfos->at(static_cast<unsigned>(entityIndex)).Version;
-								_FocusedEntity.Index = static_cast<unsigned>(entityIndex);
-							}
-							if (InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
-							{
-								if (entityIndex == 0)
-								{
-									_SelectedEntity.Index = 0;
-								}
-								else
-								{
-									_SelectedEntity = _FocusedEntity;
-								}
-							}
-							if (!_EscapeHold && InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow())) {
-								_EscapeHold = true;
-								_SelectedEntity.Index = 0;
-							}
-						}
-					}
-					else
-					{
-						if (!_EscapeHold && InputManager::GetKeyInternal(GLFW_KEY_ESCAPE, WindowManager::GetWindow())) {
-							_EscapeHold = true;
-							_LocalPositionSelected = false;
-							_LocalRotationSelected = false;
-							_LocalScaleSelected = false;
-						}
-					}
-#pragma endregion
-				}
-#pragma region Scene Camera Controller
-				if (InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow())) {
-					glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
-					glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
-					if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow())) {
-						_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
-					}
-					if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow())) {
-						_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
-					}
-					if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow())) {
-						_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
-					}
-					if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow())) {
-						_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
-					}
-					if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow())) {
-						_SceneCameraPosition.y += _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
-					}
-					if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, WindowManager::GetWindow())) {
-						_SceneCameraPosition.y -= _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
-					}
-					if (xOffset != 0 || yOffset != 0) {
-						_SceneCameraYawAngle += xOffset * _Sensitivity;
-						_SceneCameraPitchAngle += yOffset * _Sensitivity;
-						if (_SceneCameraPitchAngle > 89.0f)
-							_SceneCameraPitchAngle = 89.0f;
-						if (_SceneCameraPitchAngle < -89.0f)
-							_SceneCameraPitchAngle = -89.0f;
-
-						_SceneCameraRotation = CameraComponent::ProcessMouseMovement(_SceneCameraYawAngle, _SceneCameraPitchAngle, false);
-					}
-				}
-#pragma endregion
-			}
 			viewPortSize = ImGui::GetWindowSize();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			ImGui::Image((ImTextureID)_SceneCamera->GetTexture()->Texture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
@@ -822,92 +835,125 @@ void EditorManager::LateUpdate()
 				}
 				ImGui::EndDragDropTarget();
 			}
-#pragma region Gizmos
-			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
+			if (ImGui::IsWindowFocused())
 			{
-				if (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected) {
-					ImGuizmo::SetOrthographic(false);
-					ImGuizmo::SetDrawlist();
-					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
-					glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
-					glm::mat4 cameraProjection = _SceneCamera->GetProjection();
-					auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
-					if (_SelectedEntity.HasComponentData<Transform>()) {
-						Transform transform = _SelectedEntity.GetComponentData<Transform>();
-						GlobalTransform parentGlobalTransform;
-						Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
-						if (!parentEntity.IsNull())
-						{
-							parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
-						}
-						GlobalTransform globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
-						ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
-						if (ImGuizmo::IsUsing()) {
-							transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
-							_SelectedEntity.SetComponentData(transform);
-							transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
-						}
+				glm::vec2 mousePosition;
+				bool valid = InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), mousePosition);
+				float xOffset = 0;
+				float yOffset = 0;
+				if (valid) {
+					if (!_StartMouse) {
+						_LastX = mousePosition.x;
+						_LastY = mousePosition.y;
+						_StartMouse = true;
 					}
-					else if (_SelectedEntity.HasComponentData<GlobalTransform>())
+					xOffset = mousePosition.x - _LastX;
+					yOffset = -mousePosition.y + _LastY;
+					_LastX = mousePosition.x;
+					_LastY = mousePosition.y;
+#pragma region Scene Camera Controller
+					if (!_RightMouseButtonHold && !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x || mousePosition.y > viewPortSize.y) &&
+						InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow())) {
+						_RightMouseButtonHold = true;
+					}
+					if(_RightMouseButtonHold)
 					{
-						GlobalTransform globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
-						ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
-						if (ImGuizmo::IsUsing()) {
-							_SelectedEntity.SetComponentData(globalTransform);
+						glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
+						glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
+						if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow())) {
+							_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+						}
+						if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow())) {
+							_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+						}
+						if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow())) {
+							_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+						}
+						if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow())) {
+							_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+						}
+						if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow())) {
+							_SceneCameraPosition.y += _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
+						}
+						if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, WindowManager::GetWindow())) {
+							_SceneCameraPosition.y -= _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
+						}
+						if (xOffset != 0 || yOffset != 0) {
+							_SceneCameraYawAngle += xOffset * _Sensitivity;
+							_SceneCameraPitchAngle += yOffset * _Sensitivity;
+							if (_SceneCameraPitchAngle > 89.0f)
+								_SceneCameraPitchAngle = 89.0f;
+							if (_SceneCameraPitchAngle < -89.0f)
+								_SceneCameraPitchAngle = -89.0f;
+
+							_SceneCameraRotation = CameraComponent::ProcessMouseMovement(_SceneCameraYawAngle, _SceneCameraPitchAngle, false);
 						}
 					}
-				}
-				if (_SelectedEntity.Enabled() && _SelectedEntity.HasPrivateComponent<MeshRenderer>())
-				{
-					auto& mmc = _SelectedEntity.GetPrivateComponent<MeshRenderer>();
-					if (mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
-					{
-						CameraComponent::_CameraInfoBlock.UpdateMatrices(_SceneCamera.get(),
-							_SceneCameraPosition,
-							_SceneCameraRotation
-						);
-						CameraComponent::_CameraInfoBlock.UploadMatrices(_SceneCamera.get());
-						_SceneCamera->Bind();
-						_SceneHighlightPrePassProgram->Bind();
-						glEnable(GL_STENCIL_TEST);
-						glEnable(GL_BLEND);
-						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-						glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
-						glDisable(GL_DEPTH_TEST);
-						glStencilFunc(GL_ALWAYS, 1, 0xFF);
-						glStencilMask(0xFF);
-						auto ltw = EntityManager::GetComponentData<GlobalTransform>(_SelectedEntity);
-						auto* mesh = mmc->Mesh.get();
-						mesh->Enable();
-						mesh->VAO()->DisableAttributeArray(12);
-						mesh->VAO()->DisableAttributeArray(13);
-						mesh->VAO()->DisableAttributeArray(14);
-						mesh->VAO()->DisableAttributeArray(15);
-						_SceneHighlightPrePassProgram->SetFloat4x4("model", ltw.Value);
-						_SceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.2f));
-						glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
-
-						glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-						glStencilMask(0x00);
-
-						_SceneHighlightProgram->Bind();
-						_SceneHighlightProgram->SetFloat4x4("model", ltw.Value);
-						_SceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
-						_SceneHighlightProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.8f));
-						glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
-
-						glStencilMask(0xFF);
-						glStencilFunc(GL_ALWAYS, 0, 0xFF);
-						glEnable(GL_DEPTH_TEST);
-					}
-				}
-			}
 #pragma endregion
-			if (InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow())) {
+				}
+#pragma region Gizmos
+				bool mouseSelectEntity = true;
 				if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
 				{
-					EntityManager::DeleteEntity(_SelectedEntity);
+					if (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected) {
+						ImGuizmo::SetOrthographic(false);
+						ImGuizmo::SetDrawlist();
+						ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
+						glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
+						glm::mat4 cameraProjection = _SceneCamera->GetProjection();
+						const auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
+						if (_SelectedEntity.HasComponentData<Transform>()) {
+							auto transform = _SelectedEntity.GetComponentData<Transform>();
+							GlobalTransform parentGlobalTransform;
+							Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
+							if (!parentEntity.IsNull())
+							{
+								parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
+							}
+							auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
+							ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
+							if (ImGuizmo::IsUsing()) {
+								transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
+								_SelectedEntity.SetComponentData(transform);
+								transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+								mouseSelectEntity = false;
+							}
+						}
+						else if (_SelectedEntity.HasComponentData<GlobalTransform>())
+						{
+							auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
+							ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
+							if (ImGuizmo::IsUsing()) {
+								_SelectedEntity.SetComponentData(globalTransform);
+								mouseSelectEntity = false;
+							}
+						}
+					}
 				}
+				if (mouseSelectEntity)
+				{
+					if (!_LeftMouseButtonHold && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+					{
+						Entity focusedEntity = MouseEntitySelection(mousePosition);
+						Entity rootEntity = EntityManager::GetRoot(focusedEntity);
+						if (focusedEntity.Index == 0)
+						{
+							_SelectedEntity.Index = 0;
+						}
+						else if (_SelectedEntity == rootEntity)
+						{
+							_SelectedEntity = focusedEntity;
+						}
+						else
+						{
+							_SelectedEntity = rootEntity;
+						}
+						_LeftMouseButtonHold = true;
+					}
+				}
+				HighLightEntity(_SelectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
+#pragma endregion
+
 			}
 		}
 		ImGui::EndChild();
@@ -917,7 +963,12 @@ void EditorManager::LateUpdate()
 	ImGui::PopStyleVar();
 	_SceneCameraResolutionX = viewPortSize.x;
 	_SceneCameraResolutionY = viewPortSize.y;
-
+	if (InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow())) {
+		if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
+		{
+			EntityManager::DeleteEntity(_SelectedEntity);
+		}
+	}
 #pragma endregion
 #pragma region Logs and errors
 	if (_EnableConsole) {

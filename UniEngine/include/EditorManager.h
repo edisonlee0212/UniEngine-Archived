@@ -47,7 +47,6 @@ namespace UniEngine {
 		static std::unique_ptr<RenderTarget> _SceneCameraEntityRecorder;
 		static std::unique_ptr<GLTexture2D> _SceneCameraEntityRecorderTexture;
 		static std::unique_ptr<GLRenderBuffer> _SceneCameraEntityRecorderRenderBuffer;
-		static Entity _FocusedEntity;
 		static std::unique_ptr<CameraComponent> _SceneCamera;
 		static float _SceneCameraYawAngle;
 		static float _SceneCameraPitchAngle;
@@ -60,12 +59,17 @@ namespace UniEngine {
 		static float _LastScrollY;
 		static bool _StartMouse;
 		static bool _StartScroll;
-		static bool _EscapeHold;
+		static bool _LeftMouseButtonHold;
+		static bool _RightMouseButtonHold;
 #pragma endregion
 		static bool DrawEntityMenu(bool enabled, Entity& entity);
 		static void DrawEntityNode(Entity& entity);
 		static void InspectComponentData(ComponentBase* data, ComponentType type, bool isRoot);
+		static Entity MouseEntitySelection(const glm::vec2& mousePosition);
+		static void HighLightEntityPrePassHelper(const Entity& entity);
+		static void HighLightEntityHelper(const Entity& entity);
 	public:
+		static void HighLightEntity(const Entity& entity, const glm::vec4& color);
 		static void LateUpdate();
 		template<typename T1 = ComponentBase>
 		static void RegisterComponentDataInspector(const std::function<void(ComponentBase* data, bool isRoot)>& func);
