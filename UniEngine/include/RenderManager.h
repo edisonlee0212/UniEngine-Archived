@@ -62,21 +62,20 @@ namespace UniEngine {
 		int emissiveEnabled = 0;
 		int displacementEnabled = 0;
 
-		glm::vec4 albedoColorVal;
-		float shininessVal;
-		float metallicVal;
-		float roughnessVal;
-		float aoVal;
-		float dispScale;
+		glm::vec4 albedoColorVal = glm::vec4(1.0f);
+		float shininessVal = 32.0f;
+		float metallicVal = 0.5f;
+		float roughnessVal = 0.5f;
+		float aoVal = 1.0f;
+		float dispScale = 0.0f;
 		
-		int receiveShadow;
+		int receiveShadow = true;
 		int enableShadow = true;
-		int alphaDiscardEnabled;
-		float alphaDiscardOffset;
+		int alphaDiscardEnabled = true;
+		float alphaDiscardOffset = 0.1f;
 
 		GLuint64 environmentalMap = 0;
 		int environmentalMapEnabled = 0;
-
 	};
 	
 	class UNIENGINE_API RenderManager : public Singleton<RenderManager>

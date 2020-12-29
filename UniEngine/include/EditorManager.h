@@ -42,8 +42,11 @@ namespace UniEngine {
 		static glm::vec3 _SceneCameraPosition;
 		static std::unique_ptr<GLProgram> _SceneHighlightPrePassProgram;
 		static std::unique_ptr<GLProgram> _SceneHighlightProgram;
+		static std::unique_ptr<GLProgram> _SceneHighlightPrePassInstancedProgram;
+		static std::unique_ptr<GLProgram> _SceneHighlightInstancedProgram;
 
 		static std::unique_ptr<GLProgram> _SceneCameraEntityRecorderProgram;
+		static std::unique_ptr<GLProgram> _SceneCameraEntityInstancedRecorderProgram;
 		static std::unique_ptr<RenderTarget> _SceneCameraEntityRecorder;
 		static std::unique_ptr<GLTexture2D> _SceneCameraEntityRecorderTexture;
 		static std::unique_ptr<GLRenderBuffer> _SceneCameraEntityRecorderRenderBuffer;
@@ -81,7 +84,7 @@ namespace UniEngine {
 		static void Destroy();
 		static void PreUpdate();
 		static void Update();
-		static Entity GetSelectedEntity() { return _SelectedEntity; }
+		static Entity GetSelectedEntity();
 		static void SetSelectedEntity(Entity entity);
 
 		template<typename T = ResourceBehaviour>

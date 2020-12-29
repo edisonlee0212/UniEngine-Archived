@@ -33,7 +33,7 @@ void main()
 		normal = normalize(TBN * normal); 
 	}
 
-	vec4 albedo;
+	vec4 albedo = UE_PBR_ALBEDO;
 	float roughness = UE_PBR_ROUGHNESS;
 	gNormalShininess.a = UE_PBR_SHININESS;
 	float metallic = UE_PBR_METALLIC;

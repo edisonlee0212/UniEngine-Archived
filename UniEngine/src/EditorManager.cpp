@@ -32,6 +32,7 @@ glm::quat EditorManager::_SceneCameraRotation = glm::quat(glm::radians(glm::vec3
 glm::vec3 EditorManager::_SceneCameraPosition = glm::vec3(0, 5, 10);
 std::unique_ptr<CameraComponent> EditorManager::_SceneCamera;
 std::unique_ptr<GLProgram> EditorManager::_SceneCameraEntityRecorderProgram;
+std::unique_ptr<GLProgram> EditorManager::_SceneCameraEntityInstancedRecorderProgram;
 std::unique_ptr<RenderTarget> EditorManager::_SceneCameraEntityRecorder;
 std::unique_ptr<GLTexture2D> EditorManager::_SceneCameraEntityRecorderTexture;
 std::unique_ptr<GLRenderBuffer> EditorManager::_SceneCameraEntityRecorderRenderBuffer;
@@ -54,6 +55,8 @@ bool EditorManager::_LeftMouseButtonHold = false;
 bool EditorManager::_RightMouseButtonHold = false;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightPrePassProgram;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightProgram;
+std::unique_ptr<GLProgram> EditorManager::_SceneHighlightPrePassInstancedProgram;
+std::unique_ptr<GLProgram> EditorManager::_SceneHighlightInstancedProgram;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	bool deleted = false;
@@ -150,7 +153,6 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
 		auto& mmc = entity.GetPrivateComponent<MeshRenderer>();
 		if (mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
 		{
-
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 			auto* mesh = mmc->Mesh.get();
 			mesh->Enable();
@@ -159,8 +161,34 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
 			mesh->VAO()->DisableAttributeArray(14);
 			mesh->VAO()->DisableAttributeArray(15);
 			_SceneHighlightPrePassProgram->SetFloat4x4("model", ltw.Value);
-
 			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+		}
+	}
+	if(entity.HasPrivateComponent<Particles>())
+	{
+		auto& immc = entity.GetPrivateComponent<Particles>();
+		if (immc->IsEnabled() && immc->Material != nullptr && immc->Mesh != nullptr)
+		{
+			auto count = immc->Matrices.size();
+			std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
+			matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+			auto* mesh = immc->Mesh.get();
+			mesh->Enable();
+			mesh->VAO()->EnableAttributeArray(12);
+			mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+			mesh->VAO()->EnableAttributeArray(13);
+			mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+			mesh->VAO()->EnableAttributeArray(14);
+			mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+			mesh->VAO()->EnableAttributeArray(15);
+			mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+			mesh->VAO()->SetAttributeDivisor(12, 1);
+			mesh->VAO()->SetAttributeDivisor(13, 1);
+			mesh->VAO()->SetAttributeDivisor(14, 1);
+			mesh->VAO()->SetAttributeDivisor(15, 1);
+			_SceneHighlightPrePassInstancedProgram->SetFloat4x4("model", ltw.Value);
+			glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 		}
 	}
 }
@@ -178,7 +206,6 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 		auto& mmc = entity.GetPrivateComponent<MeshRenderer>();
 		if (mmc->IsEnabled() && mmc->Material != nullptr && mmc->Mesh != nullptr)
 		{
-
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 			auto* mesh = mmc->Mesh.get();
 			mesh->Enable();
@@ -189,6 +216,33 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 			_SceneHighlightProgram->SetFloat4x4("model", ltw.Value);
 			_SceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
 			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+		}
+	}
+	if (entity.HasPrivateComponent<Particles>())
+	{
+		auto& immc = entity.GetPrivateComponent<Particles>();
+		if (immc->IsEnabled() && immc->Material != nullptr && immc->Mesh != nullptr)
+		{
+			auto count = immc->Matrices.size();
+			std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
+			matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+			auto* mesh = immc->Mesh.get();
+			mesh->Enable();
+			mesh->VAO()->EnableAttributeArray(12);
+			mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+			mesh->VAO()->EnableAttributeArray(13);
+			mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+			mesh->VAO()->EnableAttributeArray(14);
+			mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+			mesh->VAO()->EnableAttributeArray(15);
+			mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+			mesh->VAO()->SetAttributeDivisor(12, 1);
+			mesh->VAO()->SetAttributeDivisor(13, 1);
+			mesh->VAO()->SetAttributeDivisor(14, 1);
+			mesh->VAO()->SetAttributeDivisor(15, 1);
+			_SceneHighlightInstancedProgram->SetFloat4x4("model", ltw.Value);
+			glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 		}
 	}
 }
@@ -211,7 +265,7 @@ void EditorManager::HighLightEntity(const Entity& entity, const glm::vec4& color
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
 	_SceneHighlightPrePassProgram->Bind();
-	_SceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.0f));
+	_SceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.5f));
 	HighLightEntityPrePassHelper(entity);
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	glStencilMask(0x00);
@@ -256,8 +310,26 @@ void UniEngine::EditorManager::Init()
 	_SceneCameraEntityRecorderProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader
-		);
+	);
+	
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
+	vertShader->Compile(vertShaderCode);
+	_SceneCameraEntityInstancedRecorderProgram = std::make_unique<GLProgram>(
+		vertShader,
+		fragShader
+	);
 
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
+	vertShader->Compile(vertShaderCode);
+	
 	fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
 
@@ -272,6 +344,18 @@ void UniEngine::EditorManager::Init()
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
+	vertShader->Compile(vertShaderCode);
+	_SceneHighlightPrePassInstancedProgram = std::make_unique<GLProgram>(
+		vertShader,
+		fragShader
+		);
+
+	
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
 
 	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
@@ -282,6 +366,19 @@ void UniEngine::EditorManager::Init()
 		fragShader
 		);
 
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
+
+	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
+	vertShader->Compile(vertShaderCode);
+
+	_SceneHighlightInstancedProgram = std::make_unique<GLProgram>(
+		vertShader,
+		fragShader
+		);
+	
 	RegisterComponentDataInspector<GlobalTransform>([](ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
@@ -622,7 +719,12 @@ void UniEngine::EditorManager::Update()
 
 }
 
-void EditorManager::LateUpdate()
+Entity EditorManager::GetSelectedEntity()
+{
+	return _SelectedEntity;
+}
+
+void EditorManager:: LateUpdate()
 {
 	if (_LeftMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
 	{
@@ -835,9 +937,9 @@ void EditorManager::LateUpdate()
 				}
 				ImGui::EndDragDropTarget();
 			}
+			glm::vec2 mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
 			if (ImGui::IsWindowFocused())
 			{
-				glm::vec2 mousePosition;
 				bool valid = InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), mousePosition);
 				float xOffset = 0;
 				float yOffset = 0;
@@ -891,70 +993,67 @@ void EditorManager::LateUpdate()
 					}
 #pragma endregion
 				}
-#pragma region Gizmos
-				bool mouseSelectEntity = true;
-				if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
-				{
-					if (_LocalPositionSelected || _LocalRotationSelected || _LocalScaleSelected) {
-						ImGuizmo::SetOrthographic(false);
-						ImGuizmo::SetDrawlist();
-						ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
-						glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
-						glm::mat4 cameraProjection = _SceneCamera->GetProjection();
-						const auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
-						if (_SelectedEntity.HasComponentData<Transform>()) {
-							auto transform = _SelectedEntity.GetComponentData<Transform>();
-							GlobalTransform parentGlobalTransform;
-							Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
-							if (!parentEntity.IsNull())
-							{
-								parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
-							}
-							auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
-							ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
-							if (ImGuizmo::IsUsing()) {
-								transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
-								_SelectedEntity.SetComponentData(transform);
-								transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
-								mouseSelectEntity = false;
-							}
-						}
-						else if (_SelectedEntity.HasComponentData<GlobalTransform>())
-						{
-							auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
-							ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
-							if (ImGuizmo::IsUsing()) {
-								_SelectedEntity.SetComponentData(globalTransform);
-								mouseSelectEntity = false;
-							}
-						}
-					}
-				}
-				if (mouseSelectEntity)
-				{
-					if (!_LeftMouseButtonHold && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
-					{
-						Entity focusedEntity = MouseEntitySelection(mousePosition);
-						Entity rootEntity = EntityManager::GetRoot(focusedEntity);
-						if (focusedEntity.Index == 0)
-						{
-							_SelectedEntity.Index = 0;
-						}
-						else if (_SelectedEntity == rootEntity)
-						{
-							_SelectedEntity = focusedEntity;
-						}
-						else
-						{
-							_SelectedEntity = rootEntity;
-						}
-						_LeftMouseButtonHold = true;
-					}
-				}
-				HighLightEntity(_SelectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
-#pragma endregion
-
 			}
+#pragma region Gizmos
+			bool mouseSelectEntity = true;
+			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
+			{
+				ImGuizmo::SetOrthographic(false);
+				ImGuizmo::SetDrawlist();
+				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
+				glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
+				glm::mat4 cameraProjection = _SceneCamera->GetProjection();
+				const auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
+				if (_SelectedEntity.HasComponentData<Transform>()) {
+					auto transform = _SelectedEntity.GetComponentData<Transform>();
+					GlobalTransform parentGlobalTransform;
+					Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
+					if (!parentEntity.IsNull())
+					{
+						parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
+					}
+					auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
+					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
+					if (ImGuizmo::IsUsing()) {
+						transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
+						_SelectedEntity.SetComponentData(transform);
+						transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+						mouseSelectEntity = false;
+					}
+				}
+				else if (_SelectedEntity.HasComponentData<GlobalTransform>())
+				{
+					auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
+					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
+					if (ImGuizmo::IsUsing()) {
+						_SelectedEntity.SetComponentData(globalTransform);
+						mouseSelectEntity = false;
+					}
+				}
+			}
+			if (mouseSelectEntity)
+			{
+				if (!_LeftMouseButtonHold && !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x || mousePosition.y > viewPortSize.y) && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+				{
+					Entity focusedEntity = MouseEntitySelection(mousePosition);
+					Entity rootEntity = EntityManager::GetRoot(focusedEntity);
+					if (focusedEntity.Index == 0)
+					{
+						_SelectedEntity.Index = 0;
+					}
+					else if (_SelectedEntity == rootEntity)
+					{
+						_SelectedEntity = focusedEntity;
+					}
+					else
+					{
+						_SelectedEntity = rootEntity;
+					}
+					_LeftMouseButtonHold = true;
+				}
+			}
+			HighLightEntity(_SelectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
+#pragma endregion
 		}
 		ImGui::EndChild();
 		_SceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));

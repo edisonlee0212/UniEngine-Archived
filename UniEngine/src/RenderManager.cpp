@@ -1030,11 +1030,13 @@ void UniEngine::RenderManager::PreUpdate()
 		cameraTransform.Value = glm::translate(EditorManager::_SceneCameraPosition) * glm::mat4_cast(EditorManager::_SceneCameraRotation);
 
 #pragma region For entity selection
-		const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
-		if (owners) {
-			EditorManager::_SceneCameraEntityRecorder->Bind();
+		EditorManager::_SceneCameraEntityRecorder->Bind();
+		const std::vector<Entity>* mmcowners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
+		const std::vector<Entity>* immcowners = EntityManager::GetPrivateComponentOwnersList<Particles>();
+		if (mmcowners) {
+			
 			EditorManager::_SceneCameraEntityRecorderProgram->Bind();
-			for (auto owner : *owners) {
+			for (auto owner : *mmcowners) {
 				if (!owner.Enabled()) continue;
 				auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 				if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
@@ -1051,6 +1053,36 @@ void UniEngine::RenderManager::PreUpdate()
 				glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 			}
 			GLVAO::BindDefault();
+		}
+		if (immcowners) {
+			EditorManager::_SceneCameraEntityInstancedRecorderProgram->Bind();
+			for (auto owner : *immcowners) {
+				if (!owner.Enabled()) continue;
+				auto& immc = owner.GetPrivateComponent<Particles>();
+				if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr) continue;
+				if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
+				auto count = immc->Matrices.size();
+				std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
+				matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+				auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).Value;
+				auto* mesh = immc->Mesh.get();
+				mesh->Enable();
+				mesh->VAO()->EnableAttributeArray(12);
+				mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+				mesh->VAO()->EnableAttributeArray(13);
+				mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+				mesh->VAO()->EnableAttributeArray(14);
+				mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+				mesh->VAO()->EnableAttributeArray(15);
+				mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+				mesh->VAO()->SetAttributeDivisor(12, 1);
+				mesh->VAO()->SetAttributeDivisor(13, 1);
+				mesh->VAO()->SetAttributeDivisor(14, 1);
+				mesh->VAO()->SetAttributeDivisor(15, 1);
+				EditorManager::_SceneCameraEntityInstancedRecorderProgram->SetInt("EntityIndex", owner.Index);
+				EditorManager::_SceneCameraEntityInstancedRecorderProgram->SetFloat4x4("model", ltw);
+				glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+			}
 		}
 #pragma endregion
 		RenderToCameraDeferred(EditorManager::_SceneCamera, cameraTransform, minBound, maxBound, false);
@@ -1315,6 +1347,8 @@ void RenderManager::LateUpdate()
 #pragma endregion
 #pragma region RenderAPI
 #pragma region Internal
+
+
 void RenderManager::MaterialPropertySetter(Material* material, bool disableBlending)
 {
 	switch (material->PolygonMode)
@@ -1361,6 +1395,8 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 
 void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program)
 {
+	_MaterialSettingsBlock = MaterialSettingsBlock();
+	
 	_MaterialSettingsBlock.alphaDiscardEnabled = material->AlphaDiscardEnabled;
 	_MaterialSettingsBlock.alphaDiscardOffset = material->AlphaDiscardOffset;
 	_MaterialSettingsBlock.dispScale = material->DisplacementMapScale;
@@ -1370,18 +1406,6 @@ void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program
 	_MaterialSettingsBlock.roughnessVal = material->Roughness;
 	_MaterialSettingsBlock.aoVal = material->AmbientOcclusion;
 	
-	_MaterialSettingsBlock.albedoEnabled = false;
-	_MaterialSettingsBlock.normalEnabled = false;
-	_MaterialSettingsBlock.metallicEnabled = false;
-	_MaterialSettingsBlock.roughnessEnabled = false;
-	_MaterialSettingsBlock.aoEnabled = false;
-	
-	_MaterialSettingsBlock.ambientEnabled = false;
-	_MaterialSettingsBlock.diffuseEnabled = false;
-	_MaterialSettingsBlock.specularEnabled = false;
-	_MaterialSettingsBlock.emissiveEnabled = false;
-	_MaterialSettingsBlock.displacementEnabled = false;
-
 	for(const auto& i : material->_Textures)
 	{
 		if (!i.second || !i.second->Texture()) continue;
