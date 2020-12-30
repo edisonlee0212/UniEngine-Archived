@@ -44,7 +44,7 @@ void main()
         offset = UE_CAMERA_PROJECTION * offset; // from view to clip-space
         offset.xyz /= offset.w; // perspective divide
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
-        if(texture(gNormalShininess, offset.xy).xyz == vec3(0.0)) continue;
+        if(texture(gPositionShadow, offset.xy).xyz == vec3(0.0)) continue;
         validAmount = validAmount + 1;
         // get sample depth
         float sampleDepth = vec3(UE_CAMERA_VIEW * texture(gPositionShadow, offset.xy)).z; // get depth value of kernel sample
@@ -54,7 +54,7 @@ void main()
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
     }
     if(validAmount == 0){
-        FragColor = 1.0;
+        FragColor = 0.0;
     }else{
         FragColor = occlusion / validAmount;
     }

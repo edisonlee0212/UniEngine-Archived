@@ -20,8 +20,10 @@ namespace UniEngine
 		int _SSAOSampleSize = 32;
 
 		std::unique_ptr<GLTexture2D> _OriginalColor;
+		std::unique_ptr<GLTexture2D> _Position;
 		std::unique_ptr<GLTexture2D> _SSAOPosition;
 		std::unique_ptr<GLTexture2D> _SSAOBlur;
+		std::unique_ptr<GLProgram> _PositionReconstructProgram;
 		std::unique_ptr<GLProgram> _GeometryProgram;
 		std::unique_ptr<GLProgram> _BlurProgram;
 		std::unique_ptr<GLProgram> _CombineProgram;

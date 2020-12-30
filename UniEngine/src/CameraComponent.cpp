@@ -373,7 +373,7 @@ void UniEngine::CameraInfoBlock::UpdateMatrices(CameraComponent* camera, glm::ve
 	Projection = glm::perspective(glm::radians(camera->FOV * 0.5f), ratio, camera->NearDistance, camera->FarDistance);
 	Position = glm::vec4(position, 0);
 	View = glm::lookAt(position, position + front, up);
-	ReservedParameters = glm::vec4(camera->NearDistance, camera->FarDistance, camera->FOV, 0);
+	ReservedParameters = glm::vec4(camera->NearDistance, camera->FarDistance, glm::tan(camera->FOV * 0.5f), camera->_ResolutionX / camera->_ResolutionY);
 	BackGroundColor = glm::vec4(camera->ClearColor, 1.0f);
 	if (camera->SkyBox) {
 		Skybox = camera->SkyBox->Texture()->GetHandle();

@@ -16,6 +16,13 @@ void UniEngine::SSAO::Init()
 	_OriginalColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_OriginalColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+	_Position = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
+	_Position->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+	_Position->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_Position->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_Position->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_Position->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	
 	_SSAOPosition = std::make_unique<GLTexture2D>(0, GL_R32F, 1, 1, false);
 	_SSAOPosition->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
 	_SSAOPosition->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -31,11 +38,25 @@ void UniEngine::SSAO::Init()
 	_SSAOBlur->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	_SSAOBlur->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-
 	std::string vertShaderCode = std::string("#version 460 core\n") +
-		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+		*Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThroughViewRay.vert"));
 
 	std::string fragShaderCode = std::string("#version 460 core\n") +
+		*Default::ShaderIncludes::Uniform +
+		"\n" +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PositionReconstruct.frag"));
+
+	_PositionReconstructProgram = std::make_unique<GLProgram>(
+		std::make_shared<GLShader>(ShaderType::Vertex, vertShaderCode),
+		std::make_shared<GLShader>(ShaderType::Fragment, fragShaderCode)
+		);
+
+	vertShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+
+	fragShaderCode = std::string("#version 460 core\n") +
 		*Default::ShaderIncludes::Uniform +
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
@@ -45,6 +66,9 @@ void UniEngine::SSAO::Init()
 		std::make_shared<GLShader>(ShaderType::Fragment, fragShaderCode)
 		);
 
+	vertShaderCode = std::string("#version 460 core\n") +
+		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+	
 	fragShaderCode = std::string("#version 460 core\n") +
 		*Default::ShaderIncludes::Uniform +
 		"\n" +
@@ -69,6 +93,7 @@ void UniEngine::SSAO::Init()
 void UniEngine::SSAO::ResizeResolution(int x, int y)
 {
 	_OriginalColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
+	_Position->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
 	_SSAOPosition->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
 	_SSAOBlur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
 }
@@ -82,12 +107,21 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 	unsigned int enums[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	Default::GLPrograms::ScreenVAO->Bind();
 
+	_PositionReconstructProgram->Bind();
+	renderTarget.AttachTexture(_Position.get(), GL_COLOR_ATTACHMENT0);
+	renderTarget.Bind();
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	cameraComponent->_DepthStencilBuffer->Bind(0);
+	_PositionReconstructProgram->SetInt("inputTex", 0);
+	
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	
 	_GeometryProgram->Bind();
 	renderTarget.AttachTexture(_OriginalColor.get(), GL_COLOR_ATTACHMENT0);
 	renderTarget.AttachTexture(_SSAOPosition.get(), GL_COLOR_ATTACHMENT1);
-	renderTarget.Bind();
 	glDrawBuffers(2, enums);
 	cameraComponent->_ColorTexture->Texture()->Bind(0);
+	//_Position->Bind(1);
 	cameraComponent->_GPositionBuffer->Bind(1);
 	cameraComponent->_GNormalBuffer->Bind(2);
 	_GeometryProgram->SetInt("image", 0);
@@ -139,12 +173,15 @@ void UniEngine::SSAO::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 		ImGui::DragFloat("Intensity##SSAO", &_Intensity, 0.001f, 0.001f, 1.0f);
 		ImGui::DragInt("Diffusion##SSAO", &_Diffusion, 1.0f, 1, 64);
 		_Bezier2D.Graph("Bezier##SSAO");
-		if(ImGui::TreeNode("Debug##SSAO"))
-		{
-			ImGui::Image((ImTextureID)_OriginalColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::Image((ImTextureID)_SSAOPosition->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::Image((ImTextureID)_SSAOBlur->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		}
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("Debug##SSAO"))
+	{
+		ImGui::Image((ImTextureID)cameraComponent->_GPositionBuffer->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_Position->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_OriginalColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_SSAOPosition->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_SSAOBlur->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::TreePop();
 	}
 }
