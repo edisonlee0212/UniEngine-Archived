@@ -15,27 +15,27 @@ void UniEngine::MeshRenderer::RenderBound(glm::vec4& color) const
 
 void UniEngine::MeshRenderer::OnGui()
 {
-	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
-	ImGui::Checkbox("Receive shadow", &ReceiveShadow);
-	ImGui::Checkbox("Cast shadow", &CastShadow);
-	ImGui::Text("Material: ");
+	ImGui::Checkbox("Forward Rendering##MeshRenderer", &ForwardRendering);
+	ImGui::Checkbox("Receive shadow##MeshRenderer", &ReceiveShadow);
+	ImGui::Checkbox("Cast shadow##MeshRenderer", &CastShadow);
+	ImGui::Text("Material:");
 	ImGui::SameLine();
 	EditorManager::DragAndDrop(Material);
 	if (Material) {
-		if (ImGui::TreeNode("Material##1")) {
+		if (ImGui::TreeNode("Material##MeshRenderer")) {
 			Material->OnGui();
 			ImGui::TreePop();
 		}
 	}
-	ImGui::Text("Mesh: ");
+	ImGui::Text("Mesh:");
 	ImGui::SameLine();
 	EditorManager::DragAndDrop(Mesh);
 	if (Mesh) {
-		if (ImGui::TreeNode("Mesh##1")) {
-			ImGui::Checkbox("Display bounds", &DisplayBound);
+		if (ImGui::TreeNode("Mesh##MeshRenderer")) {
+			ImGui::Checkbox("Display bounds##MeshRenderer", &DisplayBound);
 			if (DisplayBound)
 			{
-				ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
+				ImGui::ColorEdit4("Color:##MeshRenderer", (float*)(void*)&DisplayBoundColor);
 				RenderBound(DisplayBoundColor);
 			}
 			Mesh->OnGui();

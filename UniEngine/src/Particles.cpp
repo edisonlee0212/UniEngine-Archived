@@ -41,36 +41,36 @@ void UniEngine::Particles::RecalculateBoundingBox()
 
 void UniEngine::Particles::OnGui()
 {
-	ImGui::Checkbox("Forward Rendering", &ForwardRendering);
-	ImGui::Checkbox("Receive shadow", &ReceiveShadow);
-	ImGui::Checkbox("Cast shadow", &CastShadow);
-	ImGui::Text(("Instance count: " + std::to_string(Matrices.size())).c_str());
-	ImGui::Checkbox("Display bounds", &DisplayBound);
-	if(ImGui::Button("Calculate bounds"))
+	ImGui::Checkbox("Forward Rendering##Particles", &ForwardRendering);
+	ImGui::Checkbox("Receive shadow##Particles", &ReceiveShadow);
+	ImGui::Checkbox("Cast shadow##Particles", &CastShadow);
+	ImGui::Text(("Instance count:##Particles" + std::to_string(Matrices.size())).c_str());
+	ImGui::Checkbox("Display bounds##Particles", &DisplayBound);
+	if(ImGui::Button("Calculate bounds##Particles"))
 	{
 		RecalculateBoundingBox();
 	}
 	if (DisplayBound)
 	{
 		RecalculateBoundingBox();
-		ImGui::ColorEdit4("Color: ", (float*)(void*)&DisplayBoundColor);
+		ImGui::ColorEdit4("Color:##Particles", (float*)(void*)&DisplayBoundColor);
 		auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
 		RenderManager::DrawGizmoCube(DisplayBoundColor, transform * glm::translate(BoundingBox.Center()) * glm::scale(BoundingBox.Size()), 1);
 	}
-	ImGui::Text("Material: ");
+	ImGui::Text("Material:##Particles");
 	ImGui::SameLine();
 	EditorManager::DragAndDrop(Material);
 	if (Material) {
-		if (ImGui::TreeNode("Material##2")) {
+		if (ImGui::TreeNode("Material##Particles")) {
 			Material->OnGui();
 			ImGui::TreePop();
 		}
 	}
-	ImGui::Text("Mesh: ");
+	ImGui::Text("Mesh:##Particles");
 	ImGui::SameLine();
 	EditorManager::DragAndDrop(Mesh);
 	if (Mesh) {
-		if (ImGui::TreeNode("Mesh##2")) {
+		if (ImGui::TreeNode("Mesh##Particles")) {
 			Mesh->OnGui();
 			ImGui::TreePop();
 		}
