@@ -34,7 +34,7 @@ namespace UniEngine {
 		static bool _EnableConsoleLogs;
 		static bool _EnableConsoleErrors;
 		static bool _EnableConsoleWarnings;
-		
+		static bool _SceneWindowFocused;
 #pragma region Scene Camera
 		friend class RenderManager;
 		friend class InputManager;

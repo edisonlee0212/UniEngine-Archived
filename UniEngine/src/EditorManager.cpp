@@ -53,6 +53,7 @@ bool EditorManager::_EnableConsoleErrors = true;
 bool EditorManager::_EnableConsoleWarnings = false;
 bool EditorManager::_LeftMouseButtonHold = false;
 bool EditorManager::_RightMouseButtonHold = false;
+bool EditorManager::_SceneWindowFocused = false;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightPrePassProgram;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightProgram;
 std::unique_ptr<GLProgram> EditorManager::_SceneHighlightPrePassInstancedProgram;
@@ -938,7 +939,7 @@ void EditorManager:: LateUpdate()
 				ImGui::EndDragDropTarget();
 			}
 			glm::vec2 mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
-			if (ImGui::IsWindowFocused())
+			if (_SceneWindowFocused)
 			{
 				bool valid = InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), mousePosition);
 				float xOffset = 0;
@@ -994,7 +995,7 @@ void EditorManager:: LateUpdate()
 #pragma endregion
 				}
 			}
-#pragma region Gizmos
+#pragma region Gizmos and Entity Selection
 			bool mouseSelectEntity = true;
 			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
 			{
@@ -1031,7 +1032,7 @@ void EditorManager:: LateUpdate()
 					}
 				}
 			}
-			if (mouseSelectEntity)
+			if (_SceneWindowFocused && mouseSelectEntity)
 			{
 				if (!_LeftMouseButtonHold && !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x || mousePosition.y > viewPortSize.y) && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
 				{
@@ -1054,6 +1055,17 @@ void EditorManager:: LateUpdate()
 			}
 			HighLightEntity(_SelectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
 #pragma endregion
+			if(ImGui::IsWindowFocused())
+			{
+				if (!_SceneWindowFocused) {
+					_SceneWindowFocused = true;
+					_RightMouseButtonHold = true;
+					_LeftMouseButtonHold = true;
+				}
+			}else
+			{
+				_SceneWindowFocused = false;
+			}
 		}
 		ImGui::EndChild();
 		_SceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
