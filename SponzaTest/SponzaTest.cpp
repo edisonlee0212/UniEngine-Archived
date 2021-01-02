@@ -62,7 +62,7 @@ int main()
 #pragma region PCSS test
 	if (testScene == BACKPACK) {
 		auto backpackModel = ResourceManager::LoadModel(
-			FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram, false,
+			true, FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes
 		);
 		backpackModel->Name = "Backpack";
@@ -74,7 +74,7 @@ int main()
 	}
 	else if (testScene == SPONZA_TEST) {
 		//1. Load models using Assimp including textures and meshes and transforms.
-		auto sponzaModel = ResourceManager::LoadModel(FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram, false,
+		auto sponzaModel = ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		sponzaModel->Name = "Sponza Scene";
 		Entity sponzaEntity = ResourceManager::ToEntity(archetype, sponzaModel);
@@ -221,7 +221,7 @@ void InitGround() {
 	auto mat = std::make_shared<Material>();
 	mat->SetProgram(Default::GLPrograms::StandardProgram);
 	
-	auto texture = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/floor.png"));
+	auto texture = ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/floor.png"));
 	mat->SetTexture(texture);
 	/*
 	auto textureD = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/bricks2.jpg"));

@@ -113,7 +113,7 @@ void UniEngine::Default::Load(World* world)
 		FileIO::GetResourcePath("Textures/Skyboxes/Default/negz.jpg"),
 	};
 
-	Textures::DefaultSkybox = ResourceManager::LoadCubemap(facesPath);
+	Textures::DefaultSkybox = ResourceManager::LoadCubemap(true, facesPath);
 	
 	auto skyboxvert = std::make_shared<GLShader>(ShaderType::Vertex);
 	std::string vertShaderCode = std::string("#version 460 core\n")
@@ -125,7 +125,7 @@ void UniEngine::Default::Load(World* world)
 		+ *ShaderIncludes::Uniform +
 		+"\n" + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Skybox.frag")));
 	skyboxfrag->Compile(fragShaderCode);
-	GLPrograms::SkyboxProgram = ResourceManager::LoadProgram(skyboxvert, skyboxfrag);
+	GLPrograms::SkyboxProgram = ResourceManager::LoadProgram(false, skyboxvert, skyboxfrag);
 	GLPrograms::SkyboxProgram->SetInt("skybox", 0);
 	GLPrograms::SkyboxProgram->Name = "Skybox";
 	skyboxfrag = std::make_shared<GLShader>(ShaderType::Fragment);
@@ -133,7 +133,7 @@ void UniEngine::Default::Load(World* world)
 		+ *ShaderIncludes::Uniform +
 		+"\n" + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BackGround.frag")));
 	skyboxfrag->Compile(fragShaderCode);
-	GLPrograms::BackGroundProgram = ResourceManager::LoadProgram(skyboxvert, skyboxfrag);
+	GLPrograms::BackGroundProgram = ResourceManager::LoadProgram(false, skyboxvert, skyboxfrag);
 	GLPrograms::BackGroundProgram->Name = "Background";
 #pragma endregion
 
@@ -162,20 +162,20 @@ void UniEngine::Default::Load(World* world)
 	auto screenfrag = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShaderCode = std::string("#version 460 core\n") + std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Screen.frag")));
 	screenfrag->Compile(fragShaderCode);
-	GLPrograms::ScreenProgram = ResourceManager::LoadProgram(screenvert, screenfrag);
+	GLPrograms::ScreenProgram = ResourceManager::LoadProgram(false, screenvert, screenfrag);
 	GLPrograms::ScreenProgram->Name = "Screen";
 #pragma endregion
 
 #pragma region Textures
-	Textures::MissingTexture = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/texture-missing.png"));
+	Textures::MissingTexture = ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/texture-missing.png"));
 	Textures::MissingTexture->Name = "Missing";
-	Textures::UV = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/uv-test.png"));
+	Textures::UV = ResourceManager::LoadTexture(true, FileIO::GetResourcePath("Textures/uv-test.png"));
 	Textures::UV->Name = "UV";
-	Textures::StandardTexture = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/white.png"));
+	Textures::StandardTexture = ResourceManager::LoadTexture(true, FileIO::GetResourcePath("Textures/white.png"));
 	Textures::StandardTexture->Name = "Default";
-	Textures::ObjectIcon = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/object.png"));
+	Textures::ObjectIcon = ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/object.png"));
 	Textures::ObjectIcon->Name = "Icon";
-	Textures::Border = ResourceManager::LoadTexture(FileIO::GetResourcePath("Textures/border.png"));
+	Textures::Border = ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/border.png"));
 	Textures::Border->Name = "Border";
 #pragma endregion
 #pragma region Standard Shader
@@ -193,7 +193,7 @@ void UniEngine::Default::Load(World* world)
 	standardVert->Compile(vertShaderCode);
 	auto standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
 	standardFrag->Compile(fragShaderCode);
-	GLPrograms::StandardProgram = ResourceManager::LoadProgram(standardVert, standardFrag);
+	GLPrograms::StandardProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
 	GLPrograms::StandardProgram->Name = "Standard";
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
@@ -204,7 +204,7 @@ void UniEngine::Default::Load(World* world)
 	standardVert->Compile(vertShaderCode);
 	standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
 	standardFrag->Compile(fragShaderCode);
-	GLPrograms::StandardInstancedProgram = ResourceManager::LoadProgram(standardVert, standardFrag);
+	GLPrograms::StandardInstancedProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
 	GLPrograms::StandardInstancedProgram->Name = "Standard Instanced";
 #pragma endregion
 #pragma region Gizmo Shader
@@ -222,7 +222,7 @@ void UniEngine::Default::Load(World* world)
 	standardVert->Compile(vertShaderCode);
 	standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
 	standardFrag->Compile(fragShaderCode);
-	GLPrograms::GizmoProgram = ResourceManager::LoadProgram(standardVert, standardFrag);
+	GLPrograms::GizmoProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
 	GLPrograms::GizmoProgram->Name = "Gizmo";
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *ShaderIncludes::Uniform +
@@ -233,74 +233,67 @@ void UniEngine::Default::Load(World* world)
 	standardVert->Compile(vertShaderCode);
 	standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
 	standardFrag->Compile(fragShaderCode);
-	GLPrograms::GizmoInstancedProgram = ResourceManager::LoadProgram(standardVert, standardFrag);
+	GLPrograms::GizmoInstancedProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
 	GLPrograms::GizmoInstancedProgram->Name = "Gizmo Instanced";
 #pragma endregion
 
 #pragma region Models & Primitives
 	{
-		auto model = ResourceManager::LoadModel(FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram, false,
+		auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Quad = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		ResourceManager::Push(Primitives::Quad);
-		ResourceManager::Remove<Model>(model->GetHashCode());
 		Primitives::Quad->Name = "Quad";
 	}
 	{
-		auto model = ResourceManager::LoadModel(FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram, false,
+		auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Sphere = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		ResourceManager::Push(Primitives::Sphere);
-		ResourceManager::Remove<Model>(model->GetHashCode());
 		Primitives::Sphere->Name = "Sphere";
 	}
 	{
-		auto model = ResourceManager::LoadModel(FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram, false,
+		auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Cube = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		ResourceManager::Push(Primitives::Cube);
-		ResourceManager::Remove<Model>(model->GetHashCode());
 		Primitives::Cube->Name = "Cube";
 	}
 	{
-		auto model = ResourceManager::LoadModel(FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram, false,
+		auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Cone = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		ResourceManager::Push(Primitives::Cone);
-		ResourceManager::Remove<Model>(model->GetHashCode());
 		Primitives::Cone->Name = "Cone";
 	}
 	{
-		auto model = ResourceManager::LoadModel(FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram, false,
+		auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Cylinder = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		ResourceManager::Push(Primitives::Cylinder);
-		ResourceManager::Remove<Model>(model->GetHashCode());
 		Primitives::Cylinder->Name = "Cylinder";
 	}
 	{
-		auto model = ResourceManager::LoadModel(FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram, false,
+		auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Ring = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		ResourceManager::Push(Primitives::Ring);
-		ResourceManager::Remove<Model>(model->GetHashCode());
 		Primitives::Ring->Name = "Ring";
 	}	
 	{
-		auto model = ResourceManager::LoadModel(FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram, false,
+		auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
 		Primitives::Monkey = model->RootNode()->Children[0]->_MeshMaterials[0].second;
 		ResourceManager::Push(Primitives::Monkey);
-		ResourceManager::Remove<Model>(model->GetHashCode());
 		Primitives::Monkey->Name = "Monkey";
 	}
 #pragma endregion
 
-	Materials::StandardMaterial = ResourceManager::LoadMaterial(GLPrograms::StandardProgram);
+	Materials::StandardMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardProgram);
 	Materials::StandardMaterial->Name = "Standard";
 	Materials::StandardMaterial->SetTexture(Textures::StandardTexture);
 
-	Materials::StandardInstancedMaterial = ResourceManager::LoadMaterial(GLPrograms::StandardInstancedProgram);
+	Materials::StandardInstancedMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardInstancedProgram);
 	Materials::StandardInstancedMaterial->SetTexture(Textures::StandardTexture);
-	Materials::StandardMaterial->Name = "Standard Instanced";
+	Materials::StandardInstancedMaterial->Name = "Standard Instanced";
 }

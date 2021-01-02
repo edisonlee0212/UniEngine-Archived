@@ -15,7 +15,7 @@ void ResourceManager::Remove(size_t id, size_t hashCode)
 	_Resources[id].second.erase(hashCode);
 }
 
-std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
+std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(bool addResource, std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
 {
 	stbi_set_flip_vertically_on_load(true);
 	// read file via ASSIMP
@@ -33,7 +33,7 @@ std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(std::string const&
 	auto retVal = std::make_shared<Model>();
 	retVal->Name = path.substr(path.find_last_of("/\\") + 1);
 	ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
-	Push(retVal);
+	if(addResource) Push(retVal);
 	return retVal;
 }
 
@@ -211,7 +211,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::ALBEDO);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::ALBEDO);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -232,7 +232,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::NORMAL);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::NORMAL);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -253,7 +253,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::EMISSIVE);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::EMISSIVE);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -274,7 +274,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::METALLIC);
+			auto texture2D = LoadTexture(false,directory + "/" + str.C_Str(), TextureType::METALLIC);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -295,7 +295,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::ROUGHNESS);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::ROUGHNESS);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -316,7 +316,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::AO);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::AO);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -338,7 +338,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DIFFUSE);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::DIFFUSE);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -359,7 +359,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::SPECULAR);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::SPECULAR);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -380,7 +380,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::NORMAL);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::NORMAL);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -401,7 +401,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(directory + "/" + str.C_Str(), TextureType::DISPLACEMENT);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::DISPLACEMENT);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -430,7 +430,7 @@ void UniEngine::ResourceManager::AttachChildren(EntityArchetype archetype, std::
 	}
 }
 
-std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& path, TextureType type)
+std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const std::string& path, TextureType type)
 {
 	stbi_set_flip_vertically_on_load(true);
 	auto retVal = std::make_shared<Texture2D>(type);
@@ -472,12 +472,12 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const std::string& path,
 	}
 	retVal->_Icon = retVal;
 	retVal->Name = path.substr(path.find_last_of("/\\") + 1);
-	Push(retVal);
+	if(addResource) Push(retVal);
 	return retVal;
 }
 
 
-std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(const std::vector<std::string>& paths)
+std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const std::vector<std::string>& paths)
 {
 	int width, height, nrComponents;
 	auto size = paths.size();
@@ -528,31 +528,31 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(const std::vector<std::str
 	retVal->_Texture = std::move(texture);
 	retVal->_Paths = paths;
 	retVal->Name = paths[0].substr(paths[0].find_last_of("/\\") + 1);
-	Push(retVal);
+	if(addResource) Push(retVal);
 	return retVal;
 }
 
-std::shared_ptr<Material> ResourceManager::LoadMaterial(const std::shared_ptr<GLProgram>& program)
+std::shared_ptr<Material> ResourceManager::LoadMaterial(bool addResource, const std::shared_ptr<GLProgram>& program)
 {
 	auto retVal = std::make_shared<Material>();
 	retVal->Shininess = 32.0f;
 	retVal->SetProgram(program);
-	Push(retVal);
+	if(addResource) Push(retVal);
 	return retVal;
 }
 
-std::shared_ptr<GLProgram> ResourceManager::LoadProgram(const std::shared_ptr<GLShader>& vertex,
+std::shared_ptr<GLProgram> ResourceManager::LoadProgram(bool addResource, const std::shared_ptr<GLShader>& vertex,
 	const std::shared_ptr<GLShader>& fragment)
 {
 	auto retVal = std::make_shared<GLProgram>();
 	retVal->Attach(vertex);
 	retVal->Attach(fragment);
 	retVal->Link();
-	Push(retVal);
+	if(addResource) Push(retVal);
 	return retVal;
 }
 
-std::shared_ptr<GLProgram> ResourceManager::LoadProgram(const std::shared_ptr<GLShader>& vertex,
+std::shared_ptr<GLProgram> ResourceManager::LoadProgram(bool addResource, const std::shared_ptr<GLShader>& vertex,
 	const std::shared_ptr<GLShader>& geometry, const std::shared_ptr<GLShader>& fragment)
 {
 	auto retVal = std::make_shared<GLProgram>();
@@ -560,7 +560,7 @@ std::shared_ptr<GLProgram> ResourceManager::LoadProgram(const std::shared_ptr<GL
 	retVal->Attach(geometry);
 	retVal->Attach(fragment);
 	retVal->Link();
-	Push(retVal);
+	if(addResource) Push(retVal);
 	return retVal;
 }
 
@@ -613,7 +613,7 @@ void ResourceManager::LateUpdate()
 						const std::string path = result.value();
 						if (!path.empty())
 						{
-							LoadModel(path, Default::GLPrograms::StandardProgram);
+							LoadModel(true, path, Default::GLPrograms::StandardProgram);
 							Debug::Log("Loaded model from \"" + path);
 						}
 					}
@@ -626,7 +626,7 @@ void ResourceManager::LateUpdate()
 						const std::string path = result.value();
 						if (!path.empty())
 						{
-							LoadTexture(path);
+							LoadTexture(true, path);
 							Debug::Log("Loaded texture from \"" + path);
 						}
 					}
