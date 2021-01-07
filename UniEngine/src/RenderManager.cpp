@@ -443,9 +443,7 @@ void RenderManager::Init()
 		);
 #pragma endregion
 #pragma endregion
-	_MaterialSettingsBlock.directionalShadowMap = _DirectionalLightShadowMap->DepthMapArray()->GetHandle();
-	_MaterialSettingsBlock.pointShadowMap = _PointLightShadowMap->DepthMapArray()->GetHandle();
-	_MaterialSettingsBlock.spotShadowMap = _SpotLightShadowMap->DepthMap()->GetHandle();
+	
 #pragma region GBuffer
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
@@ -1405,6 +1403,10 @@ void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program
 	_MaterialSettingsBlock.metallicVal = material->Metallic;
 	_MaterialSettingsBlock.roughnessVal = material->Roughness;
 	_MaterialSettingsBlock.aoVal = material->AmbientOcclusion;
+	
+	_MaterialSettingsBlock.directionalShadowMap = _DirectionalLightShadowMap->DepthMapArray()->GetHandle();
+	_MaterialSettingsBlock.pointShadowMap = _PointLightShadowMap->DepthMapArray()->GetHandle();
+	_MaterialSettingsBlock.spotShadowMap = _SpotLightShadowMap->DepthMap()->GetHandle();
 	
 	for(const auto& i : material->_Textures)
 	{

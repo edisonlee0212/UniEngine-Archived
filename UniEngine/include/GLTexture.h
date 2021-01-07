@@ -44,16 +44,18 @@ namespace UniEngine {
 		static GLint _MaxAllowedTexture;
 	protected:
 		bool _Resident = false;
+		GLuint64 _Handle = 0;
 		GLenum _Type;
 		GLenum _Format;
 	public:
 		static GLint GetMaxAllowedTexture() {
 			return _MaxAllowedTexture;
 		}
-		GLuint64 GetHandle() const
+		GLuint64 GetHandle()
 		{
 			Bind(0);
-			return glGetTextureHandleARB(_ID);
+			if (!_Resident) MakeResident();
+			return _Handle;
 		}
 		bool IsResident() const
 		{
@@ -62,7 +64,8 @@ namespace UniEngine {
 		void MakeResident()
 		{
 			Bind(0);
-			glMakeTextureHandleResidentARB(glGetTextureHandleARB(_ID));
+			_Handle = glGetTextureHandleARB(_ID);
+			glMakeTextureHandleResidentARB(_Handle);
 			_Resident = true;
 		}
 		void MakeNonResident()
@@ -77,34 +80,37 @@ namespace UniEngine {
 			glClearTexImage(_ID, level, _Format, _Type, nullptr);
 		}
 
-		void SetInt(GLenum pname, GLint param) const
+		void SetInt(GLenum pname, GLint param)
 		{
 			if (_Resident) {
-				Debug::Error("Texture is resident!");
-				return;
+				MakeNonResident();
+				_Resident = true;
 			}
 			Bind(0);
 			glTextureParameteri(_ID, pname, param);
+			if (_Resident) MakeResident();
 		}
 
-		void SetFloat(GLenum pname, GLfloat param) const
+		void SetFloat(GLenum pname, GLfloat param)
 		{
 			if (_Resident) {
-				Debug::Error("Texture is resident!");
-				return;
+				MakeNonResident();
+				_Resident = true;
 			}
 			Bind(0);
 			glTextureParameterf(_ID, pname, param);
+			if (_Resident) MakeResident();
 		}
 
-		void SetFloat4(GLenum pname, GLfloat* params) const
+		void SetFloat4(GLenum pname, GLfloat* params) 
 		{
 			if (_Resident) {
-				Debug::Error("Texture is resident!");
-				return;
+				MakeNonResident();
+				_Resident = true;
 			}
 			Bind(0);
 			glTextureParameterfv(_ID, pname, params);
+			if (_Resident) MakeResident();
 		}
 
 		void GenerateMipMap() const
