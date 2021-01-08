@@ -6,7 +6,7 @@
 void UniEngine::Bloom::Init()
 {
 	_Name = "Bloom";
-	_Bezier2D = { 1.0f, 0.0f, 0.9f, 1.0f };
+	BezierGraph = { 1.0f, 0.0f, 0.9f, 1.0f };
 	_Type = PostProcessingLayerType::Bloom;
 	_BrightColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
 	_BrightColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
@@ -76,7 +76,7 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent
 	glDrawBuffers(2, enums);
 	cameraComponent->_ColorTexture->_Texture->Bind(0);
 	_SeparateProgram->SetInt("image", 0);
-	_SeparateProgram->SetFloat("threshold", _Threshold);
+	_SeparateProgram->SetFloat("threshold", Threshold);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	_FilterProgram->Bind();
@@ -86,10 +86,10 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent
 	_FilterProgram->SetInt("image", 0);
 	_FilterProgram->SetBool("horizontal", false);
 	_FilterProgram->SetFloat("sampleScale", 1.0f);
-	_FilterProgram->SetFloat4("bezier", _Bezier2D.ControlPoints[0], _Bezier2D.ControlPoints[1], _Bezier2D.ControlPoints[2], _Bezier2D.ControlPoints[3]);
-	_FilterProgram->SetInt("diffusion", _Diffusion);
-	_FilterProgram->SetFloat("clamp", _Clamp);
-	_FilterProgram->SetFloat("intensity", _Intensity);
+	_FilterProgram->SetFloat4("bezier", BezierGraph.ControlPoints[0], BezierGraph.ControlPoints[1], BezierGraph.ControlPoints[2], BezierGraph.ControlPoints[3]);
+	_FilterProgram->SetInt("diffusion", Diffusion);
+	_FilterProgram->SetFloat("clamp", Clamp);
+	_FilterProgram->SetFloat("intensity", Intensity);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	renderTarget.AttachTexture(_BrightColor.get(), GL_COLOR_ATTACHMENT0);
@@ -112,11 +112,11 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent
 void UniEngine::Bloom::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 {
 	if (ImGui::TreeNode("Bloom Settings")) {
-		ImGui::DragFloat("Intensity##Bloom", &_Intensity, 0.001f, 0.001f, 1.0f);
-		ImGui::DragInt("Diffusion##Bloom", &_Diffusion, 1.0f, 1, 64);
-		ImGui::DragFloat("Threshold##Bloom", &_Threshold, 0.01f, 0.0f, 5.0f);
-		ImGui::DragFloat("Clamp##Bloom", &_Clamp, 0.01f, 0.0f, 5.0f);
-		_Bezier2D.Graph("Bezier##Bloom");
+		ImGui::DragFloat("Intensity##Bloom", &Intensity, 0.001f, 0.001f, 1.0f);
+		ImGui::DragInt("Diffusion##Bloom", &Diffusion, 1.0f, 1, 64);
+		ImGui::DragFloat("Threshold##Bloom", &Threshold, 0.01f, 0.0f, 5.0f);
+		ImGui::DragFloat("Clamp##Bloom", &Clamp, 0.01f, 0.0f, 5.0f);
+		BezierGraph.Graph("Bezier##Bloom");
 		if (ImGui::TreeNode("Debug##Bloom"))
 		{
 			ImGui::Image((ImTextureID)_FlatColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));

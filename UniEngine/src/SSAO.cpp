@@ -7,7 +7,7 @@
 void UniEngine::SSAO::Init()
 {
 	_Name = "SSAO";
-	_Bezier2D = { 1.0f, 0.0f, 0.9f, 1.0f };
+	Graph = { 1.0f, 0.0f, 0.9f, 1.0f };
 	_Type = PostProcessingLayerType::SSAO;
 	_OriginalColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
 	_OriginalColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
@@ -127,10 +127,10 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 	_GeometryProgram->SetInt("image", 0);
 	_GeometryProgram->SetInt("gPositionShadow", 1);
 	_GeometryProgram->SetInt("gNormalShininess", 2);
-	_GeometryProgram->SetFloat("radius", _SSAOKernelRadius);
-	_GeometryProgram->SetFloat("bias", _SSAOKernelBias);
-	_GeometryProgram->SetFloat("noiseScale", _SSAOScale);
-	_GeometryProgram->SetInt("kernelSize", _SSAOSampleSize);
+	_GeometryProgram->SetFloat("radius", SSAOKernelRadius);
+	_GeometryProgram->SetFloat("bias", SSAOKernelBias);
+	_GeometryProgram->SetFloat("noiseScale", SSAOScale);
+	_GeometryProgram->SetInt("kernelSize", SSAOSampleSize);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -139,11 +139,11 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_SSAOPosition->Bind(0);
 	_BlurProgram->SetInt("image", 0);
-	_BlurProgram->SetFloat("sampleScale", _BlurScale);
+	_BlurProgram->SetFloat("sampleScale", BlurScale);
 	_BlurProgram->SetBool("horizontal", false);
-	_BlurProgram->SetFloat4("bezier", _Bezier2D.ControlPoints[0], _Bezier2D.ControlPoints[1], _Bezier2D.ControlPoints[2], _Bezier2D.ControlPoints[3]);
-	_BlurProgram->SetInt("diffusion", _Diffusion);
-	_BlurProgram->SetFloat("intensity", _Intensity);
+	_BlurProgram->SetFloat4("bezier", Graph.ControlPoints[0], Graph.ControlPoints[1], Graph.ControlPoints[2], Graph.ControlPoints[3]);
+	_BlurProgram->SetInt("diffusion", Diffusion);
+	_BlurProgram->SetFloat("intensity", Intensity);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	renderTarget.AttachTexture(_SSAOPosition.get(), GL_COLOR_ATTACHMENT0);
@@ -166,13 +166,13 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 void UniEngine::SSAO::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 {
 	if (ImGui::TreeNode("SSAO Settings")) {
-		ImGui::DragFloat("Radius##SSAO", &_SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
-		ImGui::DragFloat("Bias##SSAO", &_SSAOKernelBias, 0.001f, 0.0f, 1.0f);
-		ImGui::DragInt("Sample Size##SSAO", &_SSAOSampleSize, 1, 1, 64);
-		ImGui::DragFloat("Blur Scale##SSAO", &_BlurScale, 0.001f, 0.01f, 1.0f);
-		ImGui::DragFloat("Intensity##SSAO", &_Intensity, 0.001f, 0.001f, 1.0f);
-		ImGui::DragInt("Diffusion##SSAO", &_Diffusion, 1.0f, 1, 64);
-		_Bezier2D.Graph("Bezier##SSAO");
+		ImGui::DragFloat("Radius##SSAO", &SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
+		ImGui::DragFloat("Bias##SSAO", &SSAOKernelBias, 0.001f, 0.0f, 1.0f);
+		ImGui::DragInt("Sample Size##SSAO", &SSAOSampleSize, 1, 1, 64);
+		ImGui::DragFloat("Blur Scale##SSAO", &BlurScale, 0.001f, 0.01f, 1.0f);
+		ImGui::DragFloat("Intensity##SSAO", &Intensity, 0.001f, 0.001f, 1.0f);
+		ImGui::DragInt("Diffusion##SSAO", &Diffusion, 1.0f, 1, 64);
+		Graph.Graph("Bezier##SSAO");
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Debug##SSAO"))
