@@ -461,5 +461,8 @@
     <ClCompile Include="src\SSAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Submodules\ImGui\imgui_tables.cpp">
+      <Filter>Source Files\External\ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
