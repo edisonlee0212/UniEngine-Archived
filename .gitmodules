@@ -1,9 +1,6 @@
 [submodule "Submodules/ImGui"]
 	path = Submodules/ImGui
 	url = https://github.com/ocornut/imgui.git
-[submodule "Submodules/glfw"]
-	path = Submodules/glfw
-	url = https://github.com/glfw/glfw.git
 [submodule "Submodules/stb"]
 	path = Submodules/stb
 	url = https://github.com/nothings/stb.git
