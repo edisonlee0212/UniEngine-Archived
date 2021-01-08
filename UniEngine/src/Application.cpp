@@ -119,62 +119,53 @@ void UniEngine::Application::Init(bool fullScreen)
 
 void UniEngine::Application::PreUpdateInternal()
 {
-	if (!_Initialized) {
-		return;
-	}
+	if (!_Initialized) return;
 	glfwPollEvents();
-
-	for (const auto& i : _ExternalPreUpdateFunctions) i();
-
 	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
-
 	_World->_Time->_DeltaTime = _World->_Time->_LastFrameTime - _World->_Time->_FrameStartTime;
 	_World->SetFrameStartTime(glfwGetTime());
-	if (_Playing) {
-		_World->_Time->_FixedDeltaTime += _World->_Time->_DeltaTime;
-		_World->PreUpdate();
-	}
 
 	EditorManager::PreUpdate();
 	WindowManager::PreUpdate();
 	InputManager::PreUpdate();
 	RenderManager::PreUpdate();
-
+	
+	for (const auto& i : _ExternalPreUpdateFunctions) i();
+	if (_Playing) {
+		_World->_Time->_FixedDeltaTime += _World->_Time->_DeltaTime;
+		_World->PreUpdate();
+	}
 }
 
 void UniEngine::Application::UpdateInternal()
 {
-	if (!_Initialized) {
-		return;
-	}
-
+	if (!_Initialized) return;
+	
+	EditorManager::Update();
+	InputManager::Update();
+	
 	for (const auto& i : _ExternalUpdateFunctions) i();
-
 	if (_Playing) {
 		_World->Update();
 	}
-	EditorManager::Update();
-	InputManager::Update();
 }
 
 bool UniEngine::Application::LateUpdateInternal()
 {
-	if (!_Initialized) {
-		return false;
-	}
-
-	for (const auto& i : _ExternalLateUpdateFunctions) i();
-
-	if (_Playing) {
-		_World->LateUpdate();
-	}
+	if (!_Initialized) return false;
+	
 	InputManager::LateUpdate();
 	ResourceManager::LateUpdate();
 	WindowManager::LateUpdate();
 	RenderManager::LateUpdate();
 	TransformManager::LateUpdate();
-
 	EditorManager::LateUpdate();
+	for (const auto& i : _ExternalLateUpdateFunctions) i();
+
+	if (_Playing) {
+		_World->LateUpdate();
+	}
+	
 	//Swap Window's framebuffer
 	WindowManager::Swap();
 	_World->_Time->_LastFrameTime = glfwGetTime();
