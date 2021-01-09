@@ -24,14 +24,13 @@ int main()
 #pragma endregion
 
 #pragma region Light
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Transform(), GlobalTransform(), DirectionalLight());
 	GlobalTransform ltw;
 	ltw.SetEulerRotation(glm::vec3(90, 0, 0));
-	DirectionalLight dlc;
-	dlc.lightSize = 1.0f;
-	Entity dle = EntityManager::CreateEntity(dlarc);
+	auto dlc = std::make_unique<DirectionalLight>();
+	dlc->lightSize = 1.0f;
+	Entity dle = EntityManager::CreateEntity("Directional Light");
 	dle.SetName("Dir Light");
-	EntityManager::SetComponentData<DirectionalLight>(dle, dlc);
+	EntityManager::SetPrivateComponent(dle, std::move(dlc));
 	dle.SetComponentData(ltw);
 #pragma endregion
 

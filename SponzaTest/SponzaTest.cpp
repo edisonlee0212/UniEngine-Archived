@@ -140,7 +140,6 @@ int main()
 	plc->quadratic = 0.032f;
 	plc->farPlane = 200.0f;
 	plc->diffuse = glm::vec3(3.0f);
-	plc->specular = glm::vec3(5.0f);
 	Entity ple = EntityManager::CreateEntity("Point Light");
 	transform.SetPosition(glm::vec3(0, 20, 0));
 	EntityManager::SetPrivateComponent(ple, std::move(plc));

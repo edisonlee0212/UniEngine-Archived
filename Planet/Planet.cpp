@@ -76,18 +76,16 @@ int main()
 #pragma endregion
 
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", Transform(), GlobalTransform(), DirectionalLight());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", Transform(), GlobalTransform(), PointLight());
 	auto sharedMat = std::make_shared<Material>();
 	sharedMat->SetTexture(Default::Textures::StandardTexture);
 
 	Transform ltw;
-	DirectionalLight dlc;
-	dlc.diffuse = glm::vec3(1.0f);
-	dlc.specular = glm::vec3(0.5f);
-	Entity dle = EntityManager::CreateEntity(dlarc);
+	auto dlc = std::make_unique<DirectionalLight>();
+	dlc->diffuse = glm::vec3(1.0f);
+	dlc->specular = glm::vec3(0.5f);
+	Entity dle = EntityManager::CreateEntity("Directional Light");
 	dle.SetName("Directional Light 1");
-	EntityManager::SetComponentData<DirectionalLight>(dle, dlc);
+	EntityManager::SetPrivateComponent(dle, std::move(dlc));
 	
 	auto plmmc = std::make_unique<MeshRenderer>();
 	auto plmmc2 = std::make_unique<MeshRenderer>();
@@ -97,29 +95,29 @@ int main()
 	plmmc2->Material = sharedMat;
 	ltw.SetScale(glm::vec3(0.5f));
 
-	PointLight plc;
-	plc.constant = 1.0f;
-	plc.linear = 0.09f;
-	plc.quadratic = 0.032f;
-	plc.farPlane = 70.0f;
-	plc.diffuse = glm::vec3(1.0f);
-	plc.diffuseBrightness = 5;
-	plc.specularBrightness = 2;
-	plc.specular = glm::vec3(1.0f);
-	Entity ple = EntityManager::CreateEntity(plarc);
-	EntityManager::SetComponentData<PointLight>(ple, plc);
+	auto plc = std::make_unique<PointLight>();
+	plc->constant = 1.0f;
+	plc->linear = 0.09f;
+	plc->quadratic = 0.032f;
+	plc->farPlane = 70.0f;
+	plc->diffuse = glm::vec3(1.0f);
+	plc->diffuseBrightness = 5;
+	plc->specularBrightness = 2;
+	plc->specular = glm::vec3(1.0f);
+	Entity ple = EntityManager::CreateEntity("Point Light 1");
+	EntityManager::SetPrivateComponent(ple, std::move(plc));
 	EntityManager::SetComponentData(ple, ltw);
-	ple.SetName("Point Light 1");
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
-
-	plc.constant = 1.0f;
-	plc.linear = 0.09f;
-	plc.quadratic = 0.032f;
-	plc.farPlane = 70.0f;
-	plc.diffuse = glm::vec3(1.0f);
-	plc.specular = glm::vec3(1.0f);
-	Entity ple2 = EntityManager::CreateEntity(plarc);
-	EntityManager::SetComponentData<PointLight>(ple2, plc);
+	
+	plc = std::make_unique<PointLight>();
+	plc->constant = 1.0f;
+	plc->linear = 0.09f;
+	plc->quadratic = 0.032f;
+	plc->farPlane = 70.0f;
+	plc->diffuse = glm::vec3(1.0f);
+	plc->specular = glm::vec3(1.0f);
+	Entity ple2 = EntityManager::CreateEntity("Point Light 2");
+	EntityManager::SetPrivateComponent(ple2, std::move(plc));
 	EntityManager::SetComponentData(ple2, ltw);
 	ple2.SetName("Point Light 2");
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple2, std::move(plmmc2));

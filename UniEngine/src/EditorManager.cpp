@@ -857,7 +857,7 @@ void EditorManager:: LateUpdate()
 							}
 							ImGui::PopID();
 							if (!skip) {
-								if (ImGui::TreeNode(("Component Settings##" + std::to_string(i)).c_str())) {
+								if (ImGui::TreeNodeEx(("Component Settings##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 									data.PrivateComponentData->OnGui();
 									ImGui::TreePop();
 								}

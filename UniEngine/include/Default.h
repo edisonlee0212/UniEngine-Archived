@@ -34,9 +34,9 @@ namespace UniEngine {
 
 			const static size_t MaxMaterialsAmount = 1;
 			const static size_t MaxKernelAmount = 64;
-			const static size_t MaxDirectionalLightAmount = 4;
-			const static size_t MaxPointLightAmount = 16;
-			const static size_t MaxSpotLightAmount = 16;
+			const static size_t MaxDirectionalLightAmount = 128;
+			const static size_t MaxPointLightAmount = 128;
+			const static size_t MaxSpotLightAmount = 128;
 			const static size_t ShadowCascadeAmount = 4;
 		};
 

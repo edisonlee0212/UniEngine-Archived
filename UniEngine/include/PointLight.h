@@ -25,10 +25,9 @@ namespace UniEngine {
 		float bias = 0.05f;
 		glm::vec3 diffuse = glm::vec3(1.0f);
 		float diffuseBrightness = 0.8f;
-		glm::vec3 specular = glm::vec3(1.0f);
-		float specularBrightness = 0.2f;
 		float lightSize = 0.1f;
 		void OnGui() override;
+		void Init() override;
 	};
 
 	

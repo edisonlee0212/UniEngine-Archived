@@ -20,11 +20,10 @@ namespace UniEngine {
 		bool CastShadow = true;
 		glm::vec3 diffuse = glm::vec3(1.0f);
 		float diffuseBrightness = 0.8f;
-		glm::vec3 specular = glm::vec3(1.0f);
-		float specularBrightness = 0.1f;
 		float bias = 0.1f;
 		float normalOffset = 0.001f;
 		float lightSize = 0.01f;
+		void Init() override;
 		void OnGui() override;
 	};
 

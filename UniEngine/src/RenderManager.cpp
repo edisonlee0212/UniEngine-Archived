@@ -550,7 +550,7 @@ void UniEngine::RenderManager::PreUpdate()
 						glm::vec3 center;
 						_DirectionalLights[enabledSize].direction = glm::vec4(lightDir, 0.0f);
 						_DirectionalLights[enabledSize].diffuse = glm::vec4(dlc->diffuse * dlc->diffuseBrightness, dlc->CastShadow);
-						_DirectionalLights[enabledSize].specular = glm::vec4(dlc->specular * dlc->specularBrightness, 1);
+						_DirectionalLights[enabledSize].specular = glm::vec4(0.0f);
 						for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
 							//2.	计算Cascade Split所需信息
 							float splitStart = 0;
@@ -748,7 +748,7 @@ void UniEngine::RenderManager::PreUpdate()
 						_PointLights[enabledSize].constantLinearQuadFarPlane.y = plc->linear;
 						_PointLights[enabledSize].constantLinearQuadFarPlane.z = plc->quadratic;
 						_PointLights[enabledSize].diffuse = glm::vec4(plc->diffuse * plc->diffuseBrightness, plc->CastShadow);
-						_PointLights[enabledSize].specular = glm::vec4(plc->specular * plc->specularBrightness, 0);
+						_PointLights[enabledSize].specular = glm::vec4(0);
 						_PointLights[enabledSize].constantLinearQuadFarPlane.w = plc->farPlane;
 
 						glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), _PointLightShadowMap->GetResolutionRatio(), 1.0f, _PointLights[enabledSize].constantLinearQuadFarPlane.w);
@@ -876,7 +876,7 @@ void UniEngine::RenderManager::PreUpdate()
 						_SpotLights[enabledSize].constantLinearQuadFarPlane.z = slc->quadratic;
 						_SpotLights[enabledSize].constantLinearQuadFarPlane.w = slc->farPlane;
 						_SpotLights[enabledSize].diffuse = glm::vec4(slc->diffuse * slc->diffuseBrightness, slc->CastShadow);
-						_SpotLights[enabledSize].specular = glm::vec4(slc->specular * slc->specularBrightness, 0);
+						_SpotLights[enabledSize].specular = glm::vec4(0);
 
 						glm::mat4 shadowProj = glm::perspective(glm::radians(slc->outerDegrees * 2.0f), _SpotLightShadowMap->GetResolutionRatio(), 1.0f, _SpotLights[enabledSize].constantLinearQuadFarPlane.w);
 						_SpotLights[enabledSize].lightSpaceMatrix = shadowProj * glm::lookAt(position, position + front, up);

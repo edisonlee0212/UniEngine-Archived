@@ -24,7 +24,7 @@ UniEngine::RigidBody::RigidBody()
 	_Material = PhysicsSimulationManager::_DefaultMaterial;
 	_ShapeTransform = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
 	_MassCenter = PxVec3(0.0f);
-	_DrawBounds = true;
+	_DrawBounds = false;
 	_IsStatic = false;
 	PxTransform localTm(PxVec3(0, 0, 0));
 	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform(localTm));
