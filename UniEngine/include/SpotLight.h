@@ -13,9 +13,10 @@ namespace UniEngine {
 		glm::vec4 specular;
 		glm::ivec4 viewPort;
 	};
-	struct UNIENGINE_API SpotLight :
-		ComponentBase
+	class UNIENGINE_API SpotLight :
+		public PrivateComponentBase
 	{
+	public:
 		float innerDegrees = 20;
 		float outerDegrees = 30;
 		float constant = 1.0f;
@@ -28,6 +29,7 @@ namespace UniEngine {
 		glm::vec3 specular = glm::vec3(1.0f);
 		float specularBrightness = 0.2f;
 		float lightSize = 0.1f;
+		void OnGui() override;
 	};
 
 }

@@ -13,9 +13,10 @@ namespace UniEngine {
 		glm::ivec4 viewPort;
 	};
 
-	struct UNIENGINE_API PointLight :
-		ComponentBase
+	class UNIENGINE_API PointLight :
+		public PrivateComponentBase
 	{
+	public:
 		float constant = 1.0f;
 		float linear = 0.07f;
 		float quadratic = 0.0015f;
@@ -26,6 +27,7 @@ namespace UniEngine {
 		glm::vec3 specular = glm::vec3(1.0f);
 		float specularBrightness = 0.2f;
 		float lightSize = 0.1f;
+		void OnGui() override;
 	};
 
 	

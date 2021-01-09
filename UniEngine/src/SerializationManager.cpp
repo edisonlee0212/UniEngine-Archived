@@ -92,7 +92,7 @@ void UniEngine::SerializationManager::Init()
 		}
 		}
 	);
-
+	/*
 	RegisterComponentDataSerializerDeserializer<SpotLight>(
 		{
 		[](ComponentBase* data)
@@ -202,6 +202,7 @@ void UniEngine::SerializationManager::Init()
 		}
 		}
 	);
+	*/
 	RegisterComponentDataSerializerDeserializer<CameraLayerMask>(
 		{
 		[](ComponentBase* data)

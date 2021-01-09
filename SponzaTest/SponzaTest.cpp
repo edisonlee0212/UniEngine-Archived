@@ -111,24 +111,20 @@ int main()
 	}
 #pragma endregion
 #pragma region Lights
-	EntityArchetype dlarc = EntityManager::CreateEntityArchetype("Directional Light", GlobalTransform(), Transform(), DirectionalLight());
-	EntityArchetype plarc = EntityManager::CreateEntityArchetype("Point Light", GlobalTransform(), Transform(), PointLight());
 	transform.SetEulerRotation(glm::radians(glm::vec3(70, 0, 0)));
 	
-	DirectionalLight dlc;
-	dlc.diffuseBrightness = 1.0f;
-	dlc.lightSize = 1.0f;
-	Entity dle = EntityManager::CreateEntity(dlarc);
-	dle.SetName("Dir Light");
-	EntityManager::SetComponentData(dle, dlc);
+	auto dlc = std::make_unique<DirectionalLight>();
+	dlc->diffuseBrightness = 1.0f;
+	dlc->lightSize = 1.0f;
+	Entity dle = EntityManager::CreateEntity("Directional Light");
+	EntityManager::SetPrivateComponent(dle, std::move(dlc));
 	EntityManager::SetComponentData(dle, transform);
 
 
-	DirectionalLight dlc2;
-	dlc2.lightSize = 1.0f;
-	Entity dle2 = EntityManager::CreateEntity(dlarc);
-	dle2.SetName("Dir Light");
-	EntityManager::SetComponentData<DirectionalLight>(dle2, dlc2);
+	auto dlc2 = std::make_unique<DirectionalLight>();
+	dlc2->lightSize = 1.0f;
+	Entity dle2 = EntityManager::CreateEntity("Directional Light 2");
+	EntityManager::SetPrivateComponent(dle2, std::move(dlc2));
 	transform.SetEulerRotation(glm::radians(glm::vec3(30, 60, 0)));
 	EntityManager::SetComponentData(dle2, transform);
 
@@ -138,17 +134,16 @@ int main()
 	plmmc->Material = sharedMat;
 	transform.SetScale(glm::vec3(0.5f));
 
-	PointLight plc;
-	plc.constant = 1.0f;
-	plc.linear = 0.09f;
-	plc.quadratic = 0.032f;
-	plc.farPlane = 200.0f;
-	plc.diffuse = glm::vec3(3.0f);
-	plc.specular = glm::vec3(5.0f);
-	Entity ple = EntityManager::CreateEntity(plarc);
-	ple.SetName("Point Light");
+	auto plc = std::make_unique<PointLight>();
+	plc->constant = 1.0f;
+	plc->linear = 0.09f;
+	plc->quadratic = 0.032f;
+	plc->farPlane = 200.0f;
+	plc->diffuse = glm::vec3(3.0f);
+	plc->specular = glm::vec3(5.0f);
+	Entity ple = EntityManager::CreateEntity("Point Light");
 	transform.SetPosition(glm::vec3(0, 20, 0));
-	EntityManager::SetComponentData<PointLight>(ple, plc);
+	EntityManager::SetPrivateComponent(ple, std::move(plc));
 	EntityManager::SetComponentData(ple, transform);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 
