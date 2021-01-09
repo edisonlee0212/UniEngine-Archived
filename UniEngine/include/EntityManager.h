@@ -1959,7 +1959,7 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	auto& Entity::GetPrivateComponent() const
+	std::unique_ptr<T>& Entity::GetPrivateComponent() const
 	{
 		try {
 			return EntityManager::GetPrivateComponent<T>(*this);
