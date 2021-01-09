@@ -9,7 +9,7 @@
 using namespace UniEngine;
 #pragma region Global Var
 bool RenderManager::_EnableRenderMenu = false;
-bool RenderManager::_EnableInfoWindow = true;
+bool RenderManager::_EnableInfoWindow = false;
 #pragma region Shadow
 #pragma region DirectionalMap
 GLUBO* RenderManager::_ShadowCascadeInfoBlock;
@@ -1265,15 +1265,13 @@ void RenderManager::LateUpdate()
 
 	ImGui::Begin("Camera");
 	{
-		viewPortSize = ImGui::GetWindowSize();
-		ImVec2 overlayPos;
 		static int corner = 1;
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
 			// Get the size of the child (i.e. the whole draw size of the windows).
-			overlayPos = ImGui::GetWindowPos();
+			ImVec2 overlayPos = ImGui::GetWindowPos();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			bool cameraActive = false;
 			if (_MainCameraComponent != nullptr) {
