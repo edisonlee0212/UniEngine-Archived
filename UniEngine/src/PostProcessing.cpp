@@ -7,28 +7,30 @@ void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
 	if (!layer) return;
 	layer->Init();
 	layer->ResizeResolution(_ResolutionX, _ResolutionY);
-	_Layers[layer->_Type] = std::move(layer);
-	
+	_Layers[layer->_Name] = std::move(layer);
 }
 
 PostProcessing::PostProcessing()
 {
 	ResizeResolution(1, 1);
-	_Layers[PostProcessingLayerType::SSAO] = nullptr;
-	_Layers[PostProcessingLayerType::Bloom] = nullptr;
 	SetEnabled(true);
 }
 
 void PostProcessing::Process()
 {
 	auto& cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
-	if(_Layers[PostProcessingLayerType::SSAO] && _Layers[PostProcessingLayerType::SSAO]->_Enabled)
+	if(_Layers["SSAO"] && _Layers["SSAO"]->Enabled)
 	{
-		_Layers[PostProcessingLayerType::SSAO]->Process(cameraComponent, *this);
+		_Layers["SSAO"]->Process(cameraComponent, *this);
 	}
-	if (_Layers[PostProcessingLayerType::Bloom] && _Layers[PostProcessingLayerType::Bloom]->_Enabled)
+	if (_Layers["Bloom"] && _Layers["Bloom"]->Enabled)
 	{
-		_Layers[PostProcessingLayerType::Bloom]->Process(cameraComponent, *this);
+		_Layers["Bloom"]->Process(cameraComponent, *this);
+	}
+
+	if (_Layers["GreyScale"] && _Layers["GreyScale"]->Enabled)
+	{
+		_Layers["GreyScale"]->Process(cameraComponent, *this);
 	}
 }
 
@@ -39,7 +41,7 @@ void PostProcessing::ResizeResolution(int x, int y)
 	_ResolutionY = y;
 	for (auto& layer : _Layers)
 	{
-		if (layer.second && layer.second->_Enabled) layer.second->ResizeResolution(x, y);
+		if (layer.second) layer.second->ResizeResolution(x, y);
 	}
 }
 
@@ -49,8 +51,8 @@ void PostProcessing::OnGui()
 	for (auto& layer : _Layers)
 	{
 		if (layer.second) {
-			ImGui::Checkbox(layer.second->_Name.c_str(), &layer.second->_Enabled);
-			if(layer.second->_Enabled) layer.second->OnGui(cameraComponent);
+			ImGui::Checkbox(layer.second->_Name.c_str(), &layer.second->Enabled);
+			if(layer.second->Enabled) layer.second->OnGui(cameraComponent);
 		}
 	}
 }

@@ -50,6 +50,7 @@ namespace UniEngine {
 		friend class PostProcessing;
 		friend class Bloom;
 		friend class SSAO;
+		friend class GreyScale;
 		std::shared_ptr<Texture2D> _ColorTexture;
 		std::unique_ptr<GLTexture2D> _DepthStencilBuffer;
 		std::unique_ptr<RenderTarget> _GBuffer;

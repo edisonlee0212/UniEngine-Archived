@@ -5,19 +5,13 @@
 #include "RenderTarget.h"
 namespace UniEngine
 {
-	enum class PostProcessingLayerType
-	{
-		SSAO,
-		Bloom
-	};
 	class UNIENGINE_API PostProcessingLayer
 	{
 		friend class PostProcessing;
 	protected:
-		bool _Enabled = true;
-		PostProcessingLayerType _Type;
 		std::string _Name = "";
 	public:
+		bool Enabled = false;
 		virtual void Init() = 0;
 		virtual void ResizeResolution(int x, int y) = 0;
 		virtual void Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const = 0;
@@ -26,7 +20,7 @@ namespace UniEngine
 	
 	class UNIENGINE_API PostProcessing final : public PrivateComponentBase, public RenderTarget
 	{
-		std::map<PostProcessingLayerType, std::unique_ptr<PostProcessingLayer>> _Layers;
+		std::map<std::string, std::unique_ptr<PostProcessingLayer>> _Layers;
 	public:
 		void PushLayer(std::unique_ptr<PostProcessingLayer> layer);
 		PostProcessing();

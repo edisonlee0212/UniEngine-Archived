@@ -7,7 +7,6 @@ void UniEngine::Bloom::Init()
 {
 	_Name = "Bloom";
 	BezierGraph = { 1.0f, 0.0f, 0.9f, 1.0f };
-	_Type = PostProcessingLayerType::Bloom;
 	_BrightColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
 	_BrightColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
 	_BrightColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);

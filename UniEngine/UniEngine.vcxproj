@@ -123,6 +123,7 @@
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\Bezier.h" />
     <ClInclude Include="include\Bloom.h" />
+    <ClInclude Include="include\GreyScale.h" />
     <ClInclude Include="include\PostProcessing.h" />
     <ClInclude Include="include\ResourceBehaviour.h" />
     <ClInclude Include="include\ResourceManager.h" />
@@ -151,7 +152,6 @@
     <ClInclude Include="include\InputManager.h" />
     <ClInclude Include="include\JobManager.h" />
     <ClInclude Include="include\Material.h" />
-    <ClInclude Include="include\Mathemetics.h" />
     <ClInclude Include="include\Memory.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\MeshRenderer.h" />
@@ -255,6 +255,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Bezier.cpp" />
     <ClCompile Include="src\Bloom.cpp" />
+    <ClCompile Include="src\GreyScale.cpp" />
     <ClCompile Include="src\PostProcessing.cpp" />
     <ClCompile Include="src\ResourceManager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>

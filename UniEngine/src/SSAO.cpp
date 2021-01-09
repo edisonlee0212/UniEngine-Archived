@@ -8,7 +8,6 @@ void UniEngine::SSAO::Init()
 {
 	_Name = "SSAO";
 	Graph = { 1.0f, 0.0f, 0.9f, 1.0f };
-	_Type = PostProcessingLayerType::SSAO;
 	_OriginalColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
 	_OriginalColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
 	_OriginalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
