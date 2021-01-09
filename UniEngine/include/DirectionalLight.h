@@ -17,6 +17,7 @@ namespace UniEngine {
 		public PrivateComponentBase
 	{
 	public:
+		bool CastShadow = true;
 		glm::vec3 diffuse = glm::vec3(1.0f);
 		float diffuseBrightness = 0.8f;
 		glm::vec3 specular = glm::vec3(1.0f);

@@ -17,6 +17,7 @@ namespace UniEngine {
 		public PrivateComponentBase
 	{
 	public:
+		bool CastShadow = true;
 		float innerDegrees = 20;
 		float outerDegrees = 30;
 		float constant = 1.0f;

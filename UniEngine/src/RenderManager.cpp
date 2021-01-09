@@ -540,15 +540,16 @@ void UniEngine::RenderManager::PreUpdate()
 					size = directionalLightEntities->size();
 					size_t enabledSize = 0;
 					for (int i = 0; i < size; i++) {
-						const auto& dlc = directionalLightEntities->at(i).GetPrivateComponent<DirectionalLight>();
 						Entity lightEntity = directionalLightEntities->at(i);
 						if (!lightEntity.Enabled()) continue;
+						const auto& dlc = lightEntity.GetPrivateComponent<DirectionalLight>();
+						if (!dlc->IsEnabled()) continue;
 						glm::quat rotation = lightEntity.GetComponentData<GlobalTransform>().GetRotation();
 						glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 						float planeDistance = 0;
 						glm::vec3 center;
 						_DirectionalLights[enabledSize].direction = glm::vec4(lightDir, 0.0f);
-						_DirectionalLights[enabledSize].diffuse = glm::vec4(dlc->diffuse * dlc->diffuseBrightness, 1);
+						_DirectionalLights[enabledSize].diffuse = glm::vec4(dlc->diffuse * dlc->diffuseBrightness, dlc->CastShadow);
 						_DirectionalLights[enabledSize].specular = glm::vec4(dlc->specular * dlc->specularBrightness, 1);
 						for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
 							//2.	计算Cascade Split所需信息
@@ -702,7 +703,8 @@ void UniEngine::RenderManager::PreUpdate()
 									if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 									MaterialPropertySetter(immc.get()->Material.get(), true);
 									size_t count = immc->Matrices.size();
-									std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+									std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
+									matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
 									auto mesh = immc->Mesh;
 									_DirectionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).Value);
 									mesh->Enable();
@@ -742,11 +744,10 @@ void UniEngine::RenderManager::PreUpdate()
 						if (!plc->IsEnabled()) continue;
 						glm::vec3 position = EntityManager::GetComponentData<GlobalTransform>(lightEntity).Value[3];
 						_PointLights[enabledSize].position = glm::vec4(position, 0);
-
 						_PointLights[enabledSize].constantLinearQuadFarPlane.x = plc->constant;
 						_PointLights[enabledSize].constantLinearQuadFarPlane.y = plc->linear;
 						_PointLights[enabledSize].constantLinearQuadFarPlane.z = plc->quadratic;
-						_PointLights[enabledSize].diffuse = glm::vec4(plc->diffuse * plc->diffuseBrightness, 0);
+						_PointLights[enabledSize].diffuse = glm::vec4(plc->diffuse * plc->diffuseBrightness, plc->CastShadow);
 						_PointLights[enabledSize].specular = glm::vec4(plc->specular * plc->specularBrightness, 0);
 						_PointLights[enabledSize].constantLinearQuadFarPlane.w = plc->farPlane;
 
@@ -860,9 +861,10 @@ void UniEngine::RenderManager::PreUpdate()
 					size = spotLightEntities->size();
 					size_t enabledSize = 0;
 					for (int i = 0; i < size; i++) {
-						const auto& slc = spotLightEntities->at(i).GetPrivateComponent<SpotLight>();
 						Entity lightEntity = spotLightEntities->at(i);
 						if (!lightEntity.Enabled()) continue;
+						const auto& slc = lightEntity.GetPrivateComponent<SpotLight>();
+						if (!slc->IsEnabled()) continue;
 						auto ltw = EntityManager::GetComponentData<GlobalTransform>(lightEntity);
 						glm::vec3 position = ltw.Value[3];
 						glm::vec3 front = ltw.GetRotation() * glm::vec3(0, 0, -1);
@@ -873,7 +875,7 @@ void UniEngine::RenderManager::PreUpdate()
 						_SpotLights[enabledSize].constantLinearQuadFarPlane.y = slc->linear;
 						_SpotLights[enabledSize].constantLinearQuadFarPlane.z = slc->quadratic;
 						_SpotLights[enabledSize].constantLinearQuadFarPlane.w = slc->farPlane;
-						_SpotLights[enabledSize].diffuse = glm::vec4(slc->diffuse * slc->diffuseBrightness, 0);
+						_SpotLights[enabledSize].diffuse = glm::vec4(slc->diffuse * slc->diffuseBrightness, slc->CastShadow);
 						_SpotLights[enabledSize].specular = glm::vec4(slc->specular * slc->specularBrightness, 0);
 
 						glm::mat4 shadowProj = glm::perspective(glm::radians(slc->outerDegrees * 2.0f), _SpotLightShadowMap->GetResolutionRatio(), 1.0f, _SpotLights[enabledSize].constantLinearQuadFarPlane.w);

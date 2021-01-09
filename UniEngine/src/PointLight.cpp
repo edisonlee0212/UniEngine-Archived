@@ -4,6 +4,7 @@ using namespace UniEngine;
 
 void PointLight::OnGui()
 {
+	ImGui::Checkbox("Cast Shadow", &CastShadow);
 	ImGui::ColorEdit3("Diffuse", &diffuse[0]);
 	ImGui::DragFloat("Diffuse Brightness", &diffuseBrightness, 0.1f, 0.0f, 999.0f);
 	ImGui::ColorEdit3("Specular", &specular[0]);
