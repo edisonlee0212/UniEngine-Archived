@@ -16,15 +16,13 @@ float EditorManager::_SceneCameraYawAngle = -90;
 float EditorManager::_SceneCameraPitchAngle = 0;
 bool EditorManager::_Enabled = false;
 EntityArchetype EditorManager::_BasicEntityArchetype;
-std::map<size_t, std::function<void(ComponentBase* data, bool isRoot)>> EditorManager::_ComponentDataInspectorMap;
+std::map<size_t, std::function<void(Entity entity, ComponentBase* data, bool isRoot)>> EditorManager::_ComponentDataInspectorMap;
 std::vector<std::pair<size_t, std::function<void(Entity owner)>>> EditorManager::_PrivateComponentMenuList;
 std::vector<std::pair<size_t, std::function<void(Entity owner)>>> EditorManager::_ComponentDataMenuList;
 unsigned int EditorManager::_ConfigFlags = 0;
 int EditorManager::_SelectedHierarchyDisplayMode = 1;
 Entity EditorManager::_SelectedEntity;
 bool EditorManager::_EnableConsole = true;
-Transform* EditorManager::_PreviouslyStoredTransform;
-GlobalTransform* EditorManager::_PreviouslyStoredGlobalTransform;
 glm::vec3 EditorManager::_PreviouslyStoredPosition;
 glm::vec3 EditorManager::_PreviouslyStoredRotation;
 glm::vec3 EditorManager::_PreviouslyStoredScale;
@@ -88,36 +86,11 @@ inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entit
 	return deleted;
 }
 
-void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
-{
-	std::string title = std::to_string(entity.Index) + ": ";
-	title += entity.GetName();
-	bool enabled = entity.Enabled();
-	if (enabled) {
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
-	}
 
-	bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
-	if (enabled) {
-		ImGui::PopStyleColor();
-	}
-	if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
-		_SelectedEntity = entity;
-	}
-	const bool deleted = DrawEntityMenu(enabled, entity);
-	if (opened && !deleted) {
-		ImGui::TreePush();
-		EntityManager::ForEachChild(entity, [](Entity child) {
-			DrawEntityNode(child);
-			});
-		ImGui::TreePop();
-	}
-}
-
-void UniEngine::EditorManager::InspectComponentData(ComponentBase* data, ComponentType type, bool isRoot)
+void UniEngine::EditorManager::InspectComponentData(Entity entity, ComponentBase* data, ComponentType type, bool isRoot)
 {
 	if (_ComponentDataInspectorMap.find(type.TypeID) != _ComponentDataInspectorMap.end()) {
-		_ComponentDataInspectorMap.at(type.TypeID)(data, isRoot);
+		_ComponentDataInspectorMap.at(type.TypeID)(entity, data, isRoot);
 	}
 }
 
@@ -380,12 +353,15 @@ void UniEngine::EditorManager::Init()
 		fragShader
 		);
 	
-	RegisterComponentDataInspector<GlobalTransform>([](ComponentBase* data, bool isRoot)
+	RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
 			GlobalTransform* ltw = reinterpret_cast<GlobalTransform*>(data);
-			if (ltw != _PreviouslyStoredGlobalTransform) {
-				_PreviouslyStoredGlobalTransform = ltw;
+			static Entity previousEntity;
+			static GlobalTransform* previouslyStoredGlobalTransform = nullptr;
+			if (previousEntity != entity) {
+				previousEntity = entity;
+				previouslyStoredGlobalTransform = ltw;
 				_LocalPositionSelected = true;
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
@@ -420,13 +396,16 @@ void UniEngine::EditorManager::Init()
 	);
 
 
-	RegisterComponentDataInspector<Transform>([](ComponentBase* data, bool isRoot)
+	RegisterComponentDataInspector<Transform>([](Entity entity, ComponentBase* data, bool isRoot)
 		{
 			std::stringstream stream;
 			auto ltp = static_cast<Transform*>(static_cast<void*>(data));
 			bool edited = false;
-			if (ltp != _PreviouslyStoredTransform) {
-				_PreviouslyStoredTransform = ltp;
+			static Entity previousEntity;
+			static Transform* previouslyStoredTransform = nullptr;
+			if (previousEntity != entity) {
+				previousEntity = entity;
+				previouslyStoredTransform = ltp;
 				ltp->Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 				_PreviouslyStoredRotation = glm::degrees(_PreviouslyStoredRotation);
 				_LocalPositionSelected = true;
@@ -652,7 +631,51 @@ Entity EditorManager::GetSelectedEntity()
 	return _SelectedEntity;
 }
 
-void EditorManager:: LateUpdate()
+void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
+{
+	std::string title = std::to_string(entity.Index) + ": ";
+	title += entity.GetName();
+	bool enabled = entity.Enabled();
+	if (enabled) {
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
+	}
+	bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (_SelectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
+	if (ImGui::BeginDragDropSource())
+	{
+		const std::string hash = std::to_string(std::hash<std::string>{}(typeid(Entity).name()));
+		ImGui::SetDragDropPayload(hash.c_str(), &entity, sizeof(Entity));
+		ImGui::TextColored(ImVec4(0, 0, 1, 1), title.c_str());
+		ImGui::EndDragDropSource();
+	}
+	if (ImGui::BeginDragDropTarget())
+	{
+		const std::string hash = std::to_string(std::hash<std::string>{}(typeid(Entity).name()));
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(hash.c_str()))
+		{
+			IM_ASSERT(payload->DataSize == sizeof(Entity));
+			Entity payload_n = *static_cast<Entity*>(payload->Data);
+			EntityManager::SetParent(payload_n, entity);
+		}
+		ImGui::EndDragDropTarget();
+	}
+	if (enabled) {
+		ImGui::PopStyleColor();
+	}
+	if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+		_SelectedEntity = entity;
+	}
+	const bool deleted = DrawEntityMenu(enabled, entity);
+	if (opened && !deleted) {
+		ImGui::TreePush();
+		EntityManager::ForEachChild(entity, [](Entity child) {
+			DrawEntityNode(child);
+			});
+		ImGui::TreePop();
+	}
+}
+
+
+void EditorManager::LateUpdate()
 {
 	if (_LeftMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
 	{
@@ -666,6 +689,18 @@ void EditorManager:: LateUpdate()
 #pragma region Entity Explorer
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Explorer");
+		if (ImGui::BeginDragDropTarget())
+		{
+			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(Entity).name()));
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(hash.c_str()))
+			{
+				IM_ASSERT(payload->DataSize == sizeof(Entity));
+				Entity payload_n = *static_cast<Entity*>(payload->Data);
+				auto parent = EntityManager::GetParent(payload_n);
+				if(!parent.IsNull()) EntityManager::RemoveChild(payload_n, parent);
+			}
+			ImGui::EndDragDropTarget();
+		}
 		if (ImGui::BeginPopupContextWindow("DataComponentInspectorPopup"))
 		{
 			if (ImGui::Button("Create new entity"))
@@ -680,7 +715,6 @@ void EditorManager:: LateUpdate()
 		if (_SelectedHierarchyDisplayMode == 0) {
 			EntityManager::UnsafeForEachEntityStorage([](int i, EntityComponentStorage storage) {
 				ImGui::Separator();
-
 				std::string title = std::to_string(i) + ". " + storage.ArchetypeInfo->Name;
 				if (ImGui::CollapsingHeader(title.c_str())) {
 					ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
@@ -770,7 +804,7 @@ void EditorManager:: LateUpdate()
 								ImGui::EndPopup();
 							}
 							ImGui::PopID();
-							InspectComponentData(static_cast<ComponentBase*>(data), type, EntityManager::GetParent(_SelectedEntity).IsNull());
+							InspectComponentData(_SelectedEntity, static_cast<ComponentBase*>(data), type, EntityManager::GetParent(_SelectedEntity).IsNull());
 							ImGui::Separator();
 							i++;
 						}

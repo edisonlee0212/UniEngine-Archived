@@ -24,7 +24,9 @@ glm::vec2 Texture2D::GetResolution() const
 	return { _Texture->_Width, _Texture->_Height };
 }
 
-void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY) const
+
+
+void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY, bool greyScale) const
 {
 	const auto resolutionX = _Texture->_Width;
 	const auto resolutionY = _Texture->_Height;
@@ -50,19 +52,30 @@ void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY) co
 		stbi_write_png(path.c_str(), resizeX, resizeY, 3, pixels.data(), resizeX * 3);
 	}
 	else {
-		pixels.resize(resolutionX * resolutionY * 3);
-		for (int i = 0; i < resolutionX * resolutionY; i++)
+		if (!greyScale) {
+			pixels.resize(resolutionX * resolutionY * 3);
+			for (int i = 0; i < resolutionX * resolutionY; i++)
+			{
+				pixels[i * 3] = glm::clamp<int>(int(255.99f * dst[i * 3]), 0, 255);
+				pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * dst[i * 3 + 1]), 0, 255);
+				pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * dst[i * 3 + 2]), 0, 255);
+			}
+			stbi_flip_vertically_on_write(true);
+			stbi_write_png(path.c_str(), resolutionX, resolutionY, 3, pixels.data(), resolutionX * 3);
+		}else
 		{
-			pixels[i * 3] = glm::clamp<int>(int(255.99f * dst[i * 3]), 0, 255);
-			pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * dst[i * 3 + 1]), 0, 255);
-			pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * dst[i * 3 + 2]), 0, 255);
+			pixels.resize(resolutionX * resolutionY);
+			for (int i = 0; i < resolutionX * resolutionY; i++)
+			{
+				pixels[i] = glm::clamp<int>(int(255.99f * (dst[i * 3] + dst[i * 3 + 1] + dst[i * 3 + 2]) / 3.0f), 0, 255);
+			}
+			stbi_flip_vertically_on_write(true);
+			stbi_write_png(path.c_str(), resolutionX, resolutionY, 1, pixels.data(), resolutionX);
 		}
-		stbi_flip_vertically_on_write(true);
-		stbi_write_png(path.c_str(), resolutionX, resolutionY, 3, pixels.data(), resolutionX * 3);
 	}
 }
 
-void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY) const
+void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY, bool greyScale) const
 {
 	const auto resolutionX = _Texture->_Width;
 	const auto resolutionY = _Texture->_Height;
@@ -88,15 +101,27 @@ void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY) co
 		stbi_write_jpg(path.c_str(), resizeX, resizeY, 3, pixels.data(), 100);
 	}
 	else {
-		pixels.resize(resolutionX * resolutionY * 3);
-		for (int i = 0; i < resolutionX * resolutionY; i++)
-		{
-			pixels[i * 3] = glm::clamp<int>(int(255.99f * dst[i * 3]), 0, 255);
-			pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * dst[i * 3 + 1]), 0, 255);
-			pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * dst[i * 3 + 2]), 0, 255);
+		if (greyScale) {
+			pixels.resize(resolutionX * resolutionY * 3);
+			for (int i = 0; i < resolutionX * resolutionY; i++)
+			{
+				pixels[i * 3] = glm::clamp<int>(int(255.99f * dst[i * 3]), 0, 255);
+				pixels[i * 3 + 1] = glm::clamp<int>(int(255.99f * dst[i * 3 + 1]), 0, 255);
+				pixels[i * 3 + 2] = glm::clamp<int>(int(255.99f * dst[i * 3 + 2]), 0, 255);
+			}
+			stbi_flip_vertically_on_write(true);
+			stbi_write_jpg(path.c_str(), resolutionX, resolutionY, 3, pixels.data(), 100);
 		}
-		stbi_flip_vertically_on_write(true);
-		stbi_write_jpg(path.c_str(), resolutionX, resolutionY, 3, pixels.data(), 100);
+		else
+		{
+			pixels.resize(resolutionX * resolutionY);
+			for (int i = 0; i < resolutionX * resolutionY; i++)
+			{
+				pixels[i] = glm::clamp<int>(int(255.99f * (dst[i * 3] + dst[i * 3 + 1] + dst[i * 3 + 2]) / 3.0f), 0, 255);
+			}
+			stbi_flip_vertically_on_write(true);
+			stbi_write_jpg(path.c_str(), resolutionX, resolutionY, 1, pixels.data(), 100);
+		}
 	}
 }
 

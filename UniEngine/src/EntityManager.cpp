@@ -376,6 +376,14 @@ void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& par
 	if (_EntityInfos->at(childIndex).Parent.Index != 0) {
 		RemoveChild(entity, _Entities->at(_EntityInfos->at(childIndex).Parent.Index));
 	}
+	if(entity.HasComponentData<Transform>() && entity.HasComponentData<GlobalTransform>() && parent.HasComponentData<GlobalTransform>())
+	{
+		const auto childGlobalTransform = entity.GetComponentData<GlobalTransform>();
+		const auto parentGlobalTransform = parent.GetComponentData<GlobalTransform>();
+		Transform childTransform;
+		childTransform.Value = glm::inverse(parentGlobalTransform.Value) * childGlobalTransform.Value;
+		entity.SetComponentData(childTransform);
+	}
 	_EntityInfos->at(childIndex).Parent = parent;
 	_EntityInfos->at(parentIndex).Children.push_back(entity);
 	for (int i = 0; i < _ParentRoots->size(); i++) {
@@ -469,6 +477,13 @@ void UniEngine::EntityManager::RemoveChild(const Entity& entity, const Entity& p
 			if (_ParentRoots->at(i) == _Entities->at(parentIndex)) _ParentRoots->erase(_ParentRoots->begin() + i);
 			break;
 		}
+	}
+	if (entity.HasComponentData<Transform>() && entity.HasComponentData<GlobalTransform>())
+	{
+		const auto childGlobalTransform = entity.GetComponentData<GlobalTransform>();
+		Transform childTransform;
+		childTransform.Value = childGlobalTransform.Value;
+		entity.SetComponentData(childTransform);
 	}
 }
 
