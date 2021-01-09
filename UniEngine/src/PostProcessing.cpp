@@ -35,7 +35,6 @@ void PostProcessing::Process()
 void PostProcessing::ResizeResolution(int x, int y)
 {
 	if(_ResolutionX == x && _ResolutionY == y) return;
-	if (x <= 0 || y <= 0) return;
 	_ResolutionX = x;
 	_ResolutionY = y;
 	for (auto& layer : _Layers)

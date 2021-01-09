@@ -231,7 +231,7 @@ void UniEngine::CameraComponent::Deserialize(const YAML::Node& in)
 
 void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 {
-	if (!AllowAutoResize || _ResolutionX == x && _ResolutionY == y) return;
+	if (_ResolutionX == x && _ResolutionY == y) return;
 	_ResolutionX = x > 0 ? x : 1;
 	_ResolutionY = y > 0 ? y : 1;
 	_GBuffer->SetResolution(_ResolutionX, _ResolutionY);
@@ -243,12 +243,12 @@ void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 
 	
 
-	_ColorTexture->_Texture->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, x, y);
-	_DepthStencilBuffer->ReSize(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, x, y);
+	_ColorTexture->_Texture->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
+	_DepthStencilBuffer->ReSize(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, _ResolutionX, _ResolutionY);
 
 	if(GetOwner().HasPrivateComponent<PostProcessing>())
 	{
-		GetOwner().GetPrivateComponent<PostProcessing>()->ResizeResolution(x, y);
+		GetOwner().GetPrivateComponent<PostProcessing>()->ResizeResolution(_ResolutionX, _ResolutionY);
 	}
 }
 

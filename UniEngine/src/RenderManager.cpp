@@ -509,7 +509,7 @@ void UniEngine::RenderManager::PreUpdate()
 	_Triangles = 0;
 	_DrawCall = 0;
 	if (_MainCameraComponent != nullptr) {
-		_MainCameraComponent->ResizeResolution(_MainCameraResolutionX, _MainCameraResolutionY);
+		if(_MainCameraComponent->AllowAutoResize) _MainCameraComponent->ResizeResolution(_MainCameraResolutionX, _MainCameraResolutionY);
 	}
 	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
 	if (cameraEntities != nullptr)
