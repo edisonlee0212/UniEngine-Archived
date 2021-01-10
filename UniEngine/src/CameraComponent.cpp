@@ -361,6 +361,10 @@ void UniEngine::CameraComponent::OnGui()
 		{
 			StoreToJpg("screenshot.jpg");
 		}
+		if (ImGui::Button("Take GreyScale"))
+		{
+			StoreToJpg("greyscale.jpg");
+		}
 		ImGui::TreePop();
 	}
 }
