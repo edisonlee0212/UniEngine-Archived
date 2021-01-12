@@ -68,8 +68,8 @@ namespace UniEngine {
 		float NearDistance = 0.1f;
 		float FarDistance = 500.0f;
 		float FOV = 90;
-		void StoreToJpg(const std::string& path, int resizeX = -1, int resizeY = -1) const;
-		void StoreToPng(const std::string& path, int resizeX = -1, int resizeY = -1) const;
+		void StoreToJpg(const std::string& path, int resizeX = -1, int resizeY = -1, bool greyScale = false) const;
+		void StoreToPng(const std::string& path, int resizeX = -1, int resizeY = -1, bool greyScale = false) const;
 		
 		
 		static void CalculatePlanes(std::vector<Plane>& planes, glm::mat4 projection, glm::mat4 view);

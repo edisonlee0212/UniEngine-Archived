@@ -101,7 +101,7 @@ void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY, bo
 		stbi_write_jpg(path.c_str(), resizeX, resizeY, 3, pixels.data(), 100);
 	}
 	else {
-		if (greyScale) {
+		if (!greyScale) {
 			pixels.resize(resolutionX * resolutionY * 3);
 			for (int i = 0; i < resolutionX * resolutionY; i++)
 			{

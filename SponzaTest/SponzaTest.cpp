@@ -4,7 +4,6 @@
 #include "CameraControlSystem.h"
 #include "Bloom.h"
 #include "SSAO.h"
-#include "GreyScale.h"
 #include "PostProcessing.h"
 using namespace UniEngine;
 void LightSettingMenu();
@@ -47,7 +46,6 @@ int main()
 	auto postProcessing = std::make_unique<PostProcessing>();
 	postProcessing->PushLayer(std::make_unique<Bloom>());
 	postProcessing->PushLayer(std::make_unique<SSAO>());
-	postProcessing->PushLayer(std::make_unique<GreyScale>());
 	EntityManager::SetPrivateComponent(RenderManager::GetMainCamera()->GetOwner(), std::move(postProcessing));
 	Entity newCam = EntityManager::CreateEntity(archetype, "Camera");
 	newCam.SetPrivateComponent(std::make_unique<CameraComponent>());
