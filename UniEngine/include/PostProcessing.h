@@ -23,6 +23,8 @@ namespace UniEngine
 		std::map<std::string, std::unique_ptr<PostProcessingLayer>> _Layers;
 	public:
 		void PushLayer(std::unique_ptr<PostProcessingLayer> layer);
+		void RemoveLayer(const std::string& layerName);
+		void SetEnableLayer(const std::string& layerName, bool enabled);
 		PostProcessing();
 		void Process();
 		void ResizeResolution(int x, int y);

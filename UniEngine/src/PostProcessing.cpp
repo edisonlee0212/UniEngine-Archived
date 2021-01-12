@@ -10,6 +10,16 @@ void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
 	_Layers[layer->_Name] = std::move(layer);
 }
 
+void PostProcessing::RemoveLayer(const std::string& layerName)
+{
+	if (_Layers[layerName]) _Layers.erase(layerName);
+}
+
+void PostProcessing::SetEnableLayer(const std::string& layerName, bool enabled)
+{
+	if (_Layers[layerName]) _Layers[layerName]->Enabled = enabled;
+}
+
 PostProcessing::PostProcessing()
 {
 	ResizeResolution(1, 1);
