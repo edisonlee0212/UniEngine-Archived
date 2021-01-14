@@ -25,14 +25,14 @@ void UniEngine::Plane::Normalize()
 	d /= mag;
 }
 
-void UniEngine::CameraComponent::StoreToJpg(const std::string& path, int resizeX, int resizeY, bool greyScale) const
+void UniEngine::CameraComponent::StoreToJpg(const std::string& path, int resizeX, int resizeY) const
 {
-	_ColorTexture->StoreToJpg(path, resizeX, resizeY, greyScale);
+	_ColorTexture->StoreToPng(path, resizeX, resizeY);
 }
 
-void UniEngine::CameraComponent::StoreToPng(const std::string& path, int resizeX, int resizeY, bool greyScale) const
+void UniEngine::CameraComponent::StoreToPng(const std::string& path, int resizeX, int resizeY, bool alphaChannel) const
 {
-	_ColorTexture->StoreToPng(path, resizeX, resizeY, greyScale);
+	_ColorTexture->StoreToPng(path, resizeX, resizeY, alphaChannel);
 }
 
 void UniEngine::CameraComponent::CalculatePlanes(std::vector<Plane>& planes, glm::mat4 projection, glm::mat4 view)
@@ -361,9 +361,9 @@ void UniEngine::CameraComponent::OnGui()
 		{
 			StoreToJpg("screenshot.jpg");
 		}
-		if (ImGui::Button("Take GreyScale"))
+		if (ImGui::Button("Take Screenshot (with alpha)"))
 		{
-			StoreToJpg("greyscale.jpg", -1, -1, true);
+			StoreToPng("greyscale.png", -1, -1, true);
 		}
 		ImGui::TreePop();
 	}

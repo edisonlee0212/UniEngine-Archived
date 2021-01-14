@@ -30,8 +30,8 @@ namespace UniEngine {
         void SetType(TextureType type);
         TextureType GetType() const;
         glm::vec2 GetResolution() const;
-        void StoreToPng(const std::string& path, int resizeX = -1, int resizeY = -1, bool greyScale = false) const;
-        void StoreToJpg(const std::string& path, int resizeX = -1, int resizeY = -1, bool greyScale = false) const;
+        void StoreToPng(const std::string& path, int resizeX = -1, int resizeY = -1, bool alphaChannel = false, unsigned compressionLevel = 8) const;
+        void StoreToJpg(const std::string& path, int resizeX = -1, int resizeY = -1, unsigned quality = 100) const;
         std::shared_ptr<GLTexture2D> Texture() const;
         std::string Path() const;
 	};
