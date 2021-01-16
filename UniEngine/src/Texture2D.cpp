@@ -38,7 +38,7 @@ void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY, bo
 	_Texture->Bind(0);
 	glGetTexImage(GL_TEXTURE_2D, 0, (alphaChannel ? GL_RGBA : GL_RGB), GL_FLOAT, (void*)dst.data());
 	std::vector<uint8_t> pixels;
-	if (resizeX > 0 && resizeY > 0)
+	if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
 	{
 		std::vector<float> res;
 		res.resize(resizeX * resizeY * channels);
@@ -56,7 +56,6 @@ void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY, bo
 		stbi_write_png(path.c_str(), resizeX, resizeY, channels, pixels.data(), resizeX * channels);
 	}
 	else {
-
 		pixels.resize(resolutionX * resolutionY * channels);
 		for (int i = 0; i < resolutionX * resolutionY; i++)
 		{
@@ -80,7 +79,7 @@ void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY, un
 	_Texture->Bind(0);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, (void*)dst.data());
 	std::vector<uint8_t> pixels;
-	if (resizeX > 0 && resizeY > 0)
+	if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
 	{
 		std::vector<float> res;
 		res.resize(resizeX * resizeY * 3);
@@ -97,7 +96,6 @@ void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY, un
 		stbi_write_jpg(path.c_str(), resizeX, resizeY, 3, pixels.data(), quality);
 	}
 	else {
-
 		pixels.resize(resolutionX * resolutionY * 3);
 		for (int i = 0; i < resolutionX * resolutionY; i++)
 		{
