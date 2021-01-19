@@ -133,6 +133,9 @@ namespace UniEngine {
 			_Format = format;
 		}
 		~GLTexture() override {
+			if (_Resident) {
+				MakeNonResident();
+			}
 			glDeleteTextures(1, &_ID);
 		}
 	};
