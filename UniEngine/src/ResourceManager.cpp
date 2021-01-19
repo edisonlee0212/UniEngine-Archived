@@ -464,15 +464,16 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const 
 		retVal->_Texture->GenerateMipMap();
 		retVal->_Texture->MakeResident();
 		stbi_image_free(data);
+		
 	}
-	else
-	{
+	else {
 		Debug::Log("Texture failed to load at path: " + filename);
 		stbi_image_free(data);
+		return nullptr;
 	}
 	retVal->_Icon = retVal;
 	retVal->Name = path.substr(path.find_last_of("/\\") + 1);
-	if(addResource) Push(retVal);
+	if (addResource) Push(retVal);
 	return retVal;
 }
 
@@ -515,6 +516,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 		{
 			std::cout << "Cubemap texture failed to load at path: " << paths[i] << std::endl;
 			stbi_image_free(data);
+			return nullptr;
 		}
 	}
 	texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
