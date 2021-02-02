@@ -9,6 +9,11 @@ inline bool UniEngine::Entity::Enabled() const
 	return EntityManager::IsEntityEnabled(*this);
 }
 
+void Entity::SetStatic(bool value) const
+{
+	EntityManager::SetStatic(*this, value);
+}
+
 inline void UniEngine::Entity::SetEnabled(bool value) const
 {
 	EntityManager::SetEnable(*this, value);
@@ -22,6 +27,11 @@ void Entity::SetEnabledSingle(bool value) const
 bool Entity::IsNull() const
 {
 	return Index == 0;
+}
+
+bool Entity::IsStatic() const
+{
+	return EntityManager::IsEntityStatic(*this);
 }
 
 bool UniEngine::Entity::IsDeleted() const

@@ -1,6 +1,6 @@
 #pragma once
 #include "UniEngineAPI.h"
-
+#include "Transforms.h"
 #include "Singleton.h"
 #include "Debug.h"
 #include "JobManager.h"
@@ -8,7 +8,7 @@
 namespace UniEngine {
 	UNIENGINE_API bool ComponentTypeComparator(ComponentType a, ComponentType b);
 #pragma region EntityManager
-	class UNIENGINE_API EntityManager final : public Singleton<EntityManager> {
+	class UNIENGINE_API EntityManager final : public Singleton<EntityManager>{
 		friend class PrivateComponentStorage;
 		friend class TransformManager;
 		friend class EditorManager;
@@ -34,7 +34,7 @@ namespace UniEngine {
 		static bool CheckComponentTypes(T arg);
 		template<typename T = ComponentBase, typename... Ts>
 		static bool CheckComponentTypes(T arg, Ts... args);
-		
+
 		template<typename T = ComponentBase>
 		static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg);
 		template<typename T = ComponentBase, typename... Ts>
@@ -43,6 +43,7 @@ namespace UniEngine {
 		static std::vector<ComponentType> CollectComponentTypes(T arg, Ts... args);
 		static void DeleteEntityInternal(Entity entity);
 		static void RefreshEntityQueryInfos(size_t index);
+		static void EraseDuplicates(std::vector<ComponentType>& types);
 #pragma region ForEach
 		template<typename T1 = ComponentBase>
 		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*)>& func, bool checkEnable = true);
@@ -88,8 +89,11 @@ namespace UniEngine {
 		static size_t GetEntityAmount(EntityQuery entityQuery);
 		//Enable or Disable an Entity. Note that the disable action will recursively disable the children of current entity. 
 		static void SetEnable(const Entity& entity, bool value);
+		static void SetStatic(const Entity& entity, bool value);
+
 		static void SetEnableSingle(const Entity& entity, bool value);
 		static bool IsEntityEnabled(const Entity& entity);
+		static bool IsEntityStatic(const Entity& entity);
 
 		static bool IsEntityDeleted(size_t index);
 		static bool IsEntityValid(const Entity& entity);
@@ -101,17 +105,17 @@ namespace UniEngine {
 		static void UnsafeForEachComponent(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func);
 		static void UnsafeForEachEntityStorage(const std::function<void(int i, EntityComponentStorage storage)>& func);
 
-		static void SetComponentData(Entity entity, size_t id, size_t size, ComponentBase* data);
+		static void SetComponentData(const Entity& entity, size_t id, size_t size, ComponentBase* data);
 		friend class SerializationManager;
-		static ComponentBase* GetComponentDataPointer(Entity entity, size_t id);
-		static EntityArchetype CreateEntityArchetype(const std::string& name, std::vector<ComponentType>& types);
+		static ComponentBase* GetComponentDataPointer(const Entity& entity, size_t id);
+		static EntityArchetype CreateEntityArchetype(const std::string& name, const std::vector<ComponentType>& types);
 		static void SetPrivateComponent(const Entity& entity, const std::string& name, size_t id, PrivateComponentBase* ptr);
 		static bool IsEntityArchetypeValid(const EntityArchetype& archetype);
 	public:
 		static Entity GetRoot(const Entity& entity);
 		static Entity GetEntity(size_t index);
 		static EntityArchetype GetEntityArchetype(const Entity& entity);
-		
+
 		template <typename T>
 		static const std::vector<Entity>* GetPrivateComponentOwnersList();
 		static void ForEachPrivateComponent(const Entity& entity, const std::function<void(PrivateComponentElement& data)>& func);
@@ -123,7 +127,7 @@ namespace UniEngine {
 		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);
 
 		static Entity CreateEntity(std::string name = "New Entity");
-		
+
 		static Entity CreateEntity(EntityArchetype archetype, std::string name = "New Entity");
 		static void DeleteEntity(const Entity& entity);
 
@@ -148,7 +152,7 @@ namespace UniEngine {
 		static T RemoveComponentData(const Entity& entity);
 
 		static void RemoveComponentData(const Entity& entity, size_t typeID);
-		
+
 		template<typename T = ComponentBase>
 		static void SetComponentData(const Entity& entity, T value);
 
@@ -159,7 +163,7 @@ namespace UniEngine {
 		static T GetComponentData(const Entity& entity);
 
 
-		
+
 		template<typename T = ComponentBase>
 		static bool HasComponentData(const Entity& entity);
 
@@ -168,7 +172,7 @@ namespace UniEngine {
 		template<typename T = ComponentBase>
 		static bool HasComponentData(size_t index);
 
-		
+
 		template <typename T = PrivateComponentBase>
 		static std::unique_ptr<T>& GetPrivateComponent(const Entity& entity);
 		template <typename T = PrivateComponentBase>
@@ -179,7 +183,7 @@ namespace UniEngine {
 		static bool HasPrivateComponent(const Entity& entity);
 
 		static void RemovePrivateComponent(const Entity& entity, size_t typeId);
-		
+
 		static EntityQuery CreateEntityQuery();
 		template<typename T = ComponentBase, typename... Ts>
 		static void SetEntityQueryAllFilters(const EntityQuery& entityQuery, T arg, Ts... args);
@@ -247,23 +251,16 @@ namespace UniEngine {
 	std::vector<ComponentType> EntityManager::CollectComponentTypes(T arg, Ts ...args)
 	{
 		std::vector<ComponentType> retVal = std::vector<ComponentType>();
+		retVal.push_back(typeof<Transform>());
+		retVal.push_back(typeof<GlobalTransform>());
 		CollectComponentTypes(&retVal, arg, args...);
-		std::sort(retVal.begin(), retVal.end(), ComponentTypeComparator);
+		std::sort(retVal.begin() + 2, retVal.end(), ComponentTypeComparator);
 		size_t offset = 0;
-		ComponentType prev = retVal[0];
-		//Erase duplicates
-		for (size_t i = 1; i < retVal.size(); i++) {
-			if (retVal[i] == prev) {
-				retVal.erase(retVal.begin() + i);
-				i--;
-			}
-			else {
-				prev = retVal[i];
-			}
-		}
-		for (size_t i = 0; i < retVal.size(); i++) {
-			retVal[i].Offset = offset;
-			offset += retVal[i].Size;
+		EraseDuplicates(retVal);
+		for (auto& i : retVal)
+		{
+			i.Offset = offset;
+			offset += i.Size;
 		}
 		return retVal;
 	}
@@ -283,47 +280,47 @@ namespace UniEngine {
 				found1 = true;
 			}
 		}
-		if (found1) {
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			size_t chunkAmount = entityCount / capacity;
-			size_t remainder = entityCount % capacity;
-			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-			std::vector<Entity>* entities = &chunkArray->Entities;
-			std::vector<std::shared_future<void>> results;
-			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-				void* data = chunkArray->Chunks[chunkIndex].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, checkEnable](int id)
-						{
-							for (size_t i = 0; i < capacity; i++) {
-								size_t index = i + chunkIndex * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
-								);
-							}
+		if (!found1) return;
+		size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+		size_t chunkAmount = entityCount / capacity;
+		size_t remainder = entityCount % capacity;
+		ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+		std::vector<Entity>* entities = &chunkArray->Entities;
+		std::vector<std::shared_future<void>> results;
+		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+			void* data = chunkArray->Chunks[chunkIndex].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, checkEnable](int id)
+					{
+						for (size_t i = 0; i < capacity; i++) {
+							size_t index = i + chunkIndex * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
+							);
 						}
-				).share());
-			}
-			if (remainder != 0) {
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
-						{
-							for (size_t i = 0; i < remainder; i++) {
-								size_t index = i + chunkAmount * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
-								);
-							}
-						}
-				).share());
-			}
-			for (const auto& i : results) i.wait();
+					}
+			).share());
 		}
+		if (remainder != 0) {
+			void* data = chunkArray->Chunks[chunkAmount].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
+					{
+						for (size_t i = 0; i < remainder; i++) {
+							size_t index = i + chunkAmount * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
+							);
+						}
+					}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
+
 	}
 	template<typename T1, typename T2>
 	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*)>& func, bool checkEnable)
@@ -347,49 +344,49 @@ namespace UniEngine {
 			}
 		}
 
-		if (found1 && found2) {
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			size_t chunkAmount = entityCount / capacity;
-			size_t remainder = entityCount % capacity;
-			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-			std::vector<Entity>* entities = &chunkArray->Entities;
-			std::vector<std::shared_future<void>> results;
-			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-				void* data = chunkArray->Chunks[chunkIndex].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
-						{
-							for (size_t i = 0; i < capacity; i++) {
-								size_t index = i + chunkIndex * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
-								);
-							}
+		if (!found1 || !found2) return;
+		size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+		size_t chunkAmount = entityCount / capacity;
+		size_t remainder = entityCount % capacity;
+		ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+		std::vector<Entity>* entities = &chunkArray->Entities;
+		std::vector<std::shared_future<void>> results;
+		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+			void* data = chunkArray->Chunks[chunkIndex].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
+					{
+						for (size_t i = 0; i < capacity; i++) {
+							size_t index = i + chunkIndex * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
+							);
 						}
-				).share());
-			}
-			if (remainder != 0) {
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
-						{
-							for (size_t i = 0; i < remainder; i++) {
-								size_t index = i + chunkAmount * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
-								);
-							}
-						}
-				).share());
-			}
-			for (const auto& i : results) i.wait();
+					}
+			).share());
 		}
+		if (remainder != 0) {
+			void* data = chunkArray->Chunks[chunkAmount].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
+					{
+						for (size_t i = 0; i < remainder; i++) {
+							size_t index = i + chunkAmount * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
+							);
+						}
+					}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
+
 	}
 	template<typename T1, typename T2, typename T3>
 	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*)>& func, bool checkEnable) {
@@ -418,51 +415,51 @@ namespace UniEngine {
 				found3 = true;
 			}
 		}
-		if (found1 && found2 && found3) {
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			size_t chunkAmount = entityCount / capacity;
-			size_t remainder = entityCount % capacity;
-			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-			std::vector<Entity>* entities = &chunkArray->Entities;
-			std::vector<std::shared_future<void>> results;
-			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-				void* data = chunkArray->Chunks[chunkIndex].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
-						{
-							for (size_t i = 0; i < capacity; i++) {
-								size_t index = i + chunkIndex * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
-								);
-							}
+		if (!found1 || !found2 || !found3) return;
+		size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+		size_t chunkAmount = entityCount / capacity;
+		size_t remainder = entityCount % capacity;
+		ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+		std::vector<Entity>* entities = &chunkArray->Entities;
+		std::vector<std::shared_future<void>> results;
+		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+			void* data = chunkArray->Chunks[chunkIndex].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
+					{
+						for (size_t i = 0; i < capacity; i++) {
+							size_t index = i + chunkIndex * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
+							);
 						}
-				).share());
-			}
-			if (remainder != 0) {
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
-						{
-							for (size_t i = 0; i < remainder; i++) {
-								size_t index = i + chunkAmount * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
-								);
-							}
-						}
-				).share());
-			}
-			for (const auto& i : results) i.wait();
+					}
+			).share());
 		}
+		if (remainder != 0) {
+			void* data = chunkArray->Chunks[chunkAmount].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
+					{
+						for (size_t i = 0; i < remainder; i++) {
+							size_t index = i + chunkAmount * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size)
+							);
+						}
+					}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
+
 	}
 	template<typename T1, typename T2, typename T3, typename T4>
 	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*)>& func, bool checkEnable) {
@@ -498,53 +495,53 @@ namespace UniEngine {
 				found4 = true;
 			}
 		}
-		if (found1 && found2 && found3 && found4) {
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			size_t chunkAmount = entityCount / capacity;
-			size_t remainder = entityCount % capacity;
-			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-			std::vector<Entity>* entities = &chunkArray->Entities;
-			std::vector<std::shared_future<void>> results;
-			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-				void* data = chunkArray->Chunks[chunkIndex].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
-						{
-							for (size_t i = 0; i < capacity; i++) {
-								size_t index = i + chunkIndex * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
-								);
-							}
+		if (!found1 || !found2 || !found3 || !found4) return;
+		size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+		size_t chunkAmount = entityCount / capacity;
+		size_t remainder = entityCount % capacity;
+		ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+		std::vector<Entity>* entities = &chunkArray->Entities;
+		std::vector<std::shared_future<void>> results;
+		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+			void* data = chunkArray->Chunks[chunkIndex].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
+					{
+						for (size_t i = 0; i < capacity; i++) {
+							size_t index = i + chunkIndex * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
+							);
 						}
-				).share());
-			}
-			if (remainder != 0) {
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
-						{
-							for (size_t i = 0; i < remainder; i++) {
-								size_t index = i + chunkAmount * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
-								);
-							}
-						}
-				).share());
-			}
-			for (const auto& i : results) i.wait();
+					}
+			).share());
 		}
+		if (remainder != 0) {
+			void* data = chunkArray->Chunks[chunkAmount].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
+					{
+						for (size_t i = 0; i < remainder; i++) {
+							size_t index = i + chunkAmount * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size)
+							);
+						}
+					}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
+
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
 	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*)>& func, bool checkEnable) {
@@ -587,55 +584,55 @@ namespace UniEngine {
 				found5 = true;
 			}
 		}
-		if (found1 && found2 && found3 && found4 && found5) {
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			size_t chunkAmount = entityCount / capacity;
-			size_t remainder = entityCount % capacity;
-			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-			std::vector<Entity>* entities = &chunkArray->Entities;
-			std::vector<std::shared_future<void>> results;
-			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-				void* data = chunkArray->Chunks[chunkIndex].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
-						{
-							for (size_t i = 0; i < capacity; i++) {
-								size_t index = i + chunkIndex * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size)
-								);
-							}
+		if (!found1 || !found2 || !found3 || !found4 || !found5) return;
+		size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+		size_t chunkAmount = entityCount / capacity;
+		size_t remainder = entityCount % capacity;
+		ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+		std::vector<Entity>* entities = &chunkArray->Entities;
+		std::vector<std::shared_future<void>> results;
+		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+			void* data = chunkArray->Chunks[chunkIndex].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
+					{
+						for (size_t i = 0; i < capacity; i++) {
+							size_t index = i + chunkIndex * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+								(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size)
+							);
 						}
-				).share());
-			}
-			if (remainder != 0) {
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
-						{
-							for (int i = 0; i < remainder; i++) {
-								int index = i + chunkAmount * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size)
-								);
-							}
-						}
-				).share());
-			}
-			for (const auto& i : results) i.wait();
+					}
+			).share());
 		}
+		if (remainder != 0) {
+			void* data = chunkArray->Chunks[chunkAmount].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
+					{
+						for (int i = 0; i < remainder; i++) {
+							int index = i + chunkAmount * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+								(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size)
+							);
+						}
+					}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
+
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*)>& func, bool checkEnable) {
@@ -685,57 +682,57 @@ namespace UniEngine {
 				found6 = true;
 			}
 		}
-		if (found1 && found2 && found3 && found4 && found5 && found6) {
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			size_t chunkAmount = entityCount / capacity;
-			size_t remainder = entityCount % capacity;
-			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-			std::vector<Entity>* entities = &chunkArray->Entities;
-			std::vector<std::shared_future<void>> results;
-			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-				void* data = chunkArray->Chunks[chunkIndex].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
-						{
-							for (size_t i = 0; i < capacity; i++) {
-								size_t index = i + chunkIndex * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size)
-								);
-							}
+		if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6) return;
+		size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+		size_t chunkAmount = entityCount / capacity;
+		size_t remainder = entityCount % capacity;
+		ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+		std::vector<Entity>* entities = &chunkArray->Entities;
+		std::vector<std::shared_future<void>> results;
+		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+			void* data = chunkArray->Chunks[chunkIndex].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
+					{
+						for (size_t i = 0; i < capacity; i++) {
+							size_t index = i + chunkIndex * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+								(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+								(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size)
+							);
 						}
-				).share());
-			}
-			if (remainder != 0) {
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
-						{
-							for (size_t i = 0; i < remainder; i++) {
-								size_t index = i + chunkAmount * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size)
-								);
-							}
-						}
-				).share());
-			}
-			for (const auto& i : results) i.wait();
+					}
+			).share());
 		}
+		if (remainder != 0) {
+			void* data = chunkArray->Chunks[chunkAmount].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
+					{
+						for (size_t i = 0; i < remainder; i++) {
+							size_t index = i + chunkAmount * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+								(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+								(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size)
+							);
+						}
+					}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
+
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*)>& func, bool checkEnable) {
@@ -792,59 +789,59 @@ namespace UniEngine {
 				found7 = true;
 			}
 		}
-		if (found1 && found2 && found3 && found4 && found5 && found6 && found7) {
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
-			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-			std::vector<Entity>* entities = &chunkArray->Entities;
-			std::vector<std::shared_future<void>> results;
-			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-				void* data = chunkArray->Chunks[chunkIndex].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
-						{
-							for (size_t i = 0; i < capacity; i++) {
-								size_t index = i + chunkIndex * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
-									(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size)
-								);
-							}
+		if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6 || !found7) return;
+		size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+		int chunkAmount = entityCount / capacity;
+		int remainder = entityCount % capacity;
+		ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+		std::vector<Entity>* entities = &chunkArray->Entities;
+		std::vector<std::shared_future<void>> results;
+		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+			void* data = chunkArray->Chunks[chunkIndex].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
+					{
+						for (size_t i = 0; i < capacity; i++) {
+							size_t index = i + chunkIndex * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+								(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+								(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
+								(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size)
+							);
 						}
-				).share());
-			}
-			if (remainder != 0) {
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
-						{
-							for (size_t i = 0; i < remainder; i++) {
-								size_t index = i + chunkAmount * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
-									(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size)
-								);
-							}
-						}
-				).share());
-			}
-			for (const auto& i : results) i.wait();
+					}
+			).share());
 		}
+		if (remainder != 0) {
+			void* data = chunkArray->Chunks[chunkAmount].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
+					{
+						for (size_t i = 0; i < remainder; i++) {
+							size_t index = i + chunkAmount * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+								(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+								(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
+								(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size)
+							);
+						}
+					}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
+
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1*, T2*, T3*, T4*, T5*, T6*, T7*, T8*)>& func, bool checkEnable) {
@@ -908,61 +905,61 @@ namespace UniEngine {
 				found8 = true;
 			}
 		}
-		if (found1 && found2 && found3 && found4 && found5 && found6 && found7 && found8) {
-			size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-			int chunkAmount = entityCount / capacity;
-			int remainder = entityCount % capacity;
-			ComponentDataChunkArray* chunkArray = storage.ChunkArray;
-			std::vector<Entity>* entities = &chunkArray->Entities;
-			std::vector<std::shared_future<void>> results;
-			for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-				void* data = chunkArray->Chunks[chunkIndex].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
-						{
-							for (size_t i = 0; i < capacity; i++) {
-								size_t index = i + chunkIndex * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
-									(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size),
-									(T8*)((char*)data + targetType8.Offset * capacity + (i % capacity) * targetType8.Size)
-								);
-							}
+		if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6 || !found7 || !found8) return;
+		size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
+		int chunkAmount = entityCount / capacity;
+		int remainder = entityCount % capacity;
+		ComponentDataChunkArray* chunkArray = storage.ChunkArray;
+		std::vector<Entity>* entities = &chunkArray->Entities;
+		std::vector<std::shared_future<void>> results;
+		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
+			void* data = chunkArray->Chunks[chunkIndex].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
+					{
+						for (size_t i = 0; i < capacity; i++) {
+							size_t index = i + chunkIndex * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+								(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+								(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
+								(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size),
+								(T8*)((char*)data + targetType8.Offset * capacity + (i % capacity) * targetType8.Size)
+							);
 						}
-				).share());
-			}
-			if (remainder != 0) {
-				void* data = chunkArray->Chunks[chunkAmount].Data;
-				results.push_back(
-					JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
-						{
-							for (size_t i = 0; i < remainder; i++) {
-								size_t index = i + chunkAmount * capacity;
-								Entity entity = entities->at(index);
-								if (checkEnable && !entity.Enabled()) continue;
-								func((int)index, entity,
-									(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
-									(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
-									(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
-									(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
-									(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
-									(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
-									(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size),
-									(T8*)((char*)data + targetType8.Offset * capacity + (i % capacity) * targetType8.Size)
-								);
-							}
-						}
-				).share());
-			}
-			for (const auto& i : results) i.wait();
+					}
+			).share());
 		}
+		if (remainder != 0) {
+			void* data = chunkArray->Chunks[chunkAmount].Data;
+			results.push_back(
+				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
+					{
+						for (size_t i = 0; i < remainder; i++) {
+							size_t index = i + chunkAmount * capacity;
+							Entity entity = entities->at(index);
+							if (checkEnable && !entity.Enabled()) continue;
+							func((int)index, entity,
+								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
+								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
+								(T3*)((char*)data + targetType3.Offset * capacity + (i % capacity) * targetType3.Size),
+								(T4*)((char*)data + targetType4.Offset * capacity + (i % capacity) * targetType4.Size),
+								(T5*)((char*)data + targetType5.Offset * capacity + (i % capacity) * targetType5.Size),
+								(T6*)((char*)data + targetType6.Offset * capacity + (i % capacity) * targetType6.Size),
+								(T7*)((char*)data + targetType7.Offset * capacity + (i % capacity) * targetType7.Size),
+								(T8*)((char*)data + targetType8.Offset * capacity + (i % capacity) * targetType8.Size)
+							);
+						}
+					}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
+
 	}
 #pragma endregion
 #pragma region Others
@@ -991,14 +988,14 @@ namespace UniEngine {
 	}
 
 	template<typename T, typename ...Ts>
-	inline EntityArchetype EntityManager::CreateEntityArchetype(std::string name, T arg, Ts ...args)
+	EntityArchetype EntityManager::CreateEntityArchetype(std::string name, T arg, Ts ...args)
 	{
-		if(!CheckComponentTypes(arg, args...))
+		if (!CheckComponentTypes(arg, args...))
 		{
 			Debug::Error("CreateEntityArchetype failed: Standard Layout");
 			return EntityArchetype();
 		}
-		EntityArchetypeInfo* info = new EntityArchetypeInfo();
+		auto* info = new EntityArchetypeInfo();
 		info->Name = name;
 		info->EntityCount = 0;
 		info->ComponentTypes = CollectComponentTypes(arg, args...);
@@ -1041,6 +1038,15 @@ namespace UniEngine {
 	void EntityManager::AddComponentData(const Entity& entity, T value)
 	{
 		if (!entity.IsValid()) return;
+		size_t id = typeid(T).hash_code();
+		if (id == typeid(Transform).hash_code())
+		{
+			return;
+		}
+		if (id == typeid(GlobalTransform).hash_code())
+		{
+			return;
+		}
 		EntityInfo& entityInfo = _EntityInfos->at(entity.Index);
 #pragma region Check if componentdata already exists. If yes, go to SetComponentData
 		if (_Entities->at(entity.Index) != entity) {
@@ -1051,7 +1057,7 @@ namespace UniEngine {
 		size_t chunkIndex = entityInfo.ChunkArrayIndex / archetypeInfo->ChunkCapacity;
 		size_t chunkPointer = entityInfo.ChunkArrayIndex % archetypeInfo->ChunkCapacity;
 		ComponentDataChunk chunk = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-		size_t id = typeid(T).hash_code();
+		
 		for (const auto& type : archetypeInfo->ComponentTypes)
 		{
 			if (type.TypeID == id)
@@ -1068,22 +1074,15 @@ namespace UniEngine {
 		newArchetypeInfo->ComponentTypes = archetypeInfo->ComponentTypes;
 		newArchetypeInfo->ComponentTypes.push_back(typeof<T>());
 #pragma region Sort types and check duplicate
-		std::sort(newArchetypeInfo->ComponentTypes.begin(), newArchetypeInfo->ComponentTypes.end(), ComponentTypeComparator);
+		std::sort(newArchetypeInfo->ComponentTypes.begin() + 2, newArchetypeInfo->ComponentTypes.end(), ComponentTypeComparator);
 		size_t offset = 0;
 		ComponentType prev = newArchetypeInfo->ComponentTypes[0];
 		//Erase duplicates
-		for (size_t i = 1; i < newArchetypeInfo->ComponentTypes.size(); i++) {
-			if (newArchetypeInfo->ComponentTypes[i] == prev) {
-				newArchetypeInfo->ComponentTypes.erase(newArchetypeInfo->ComponentTypes.begin() + i);
-				i--;
-			}
-			else {
-				prev = newArchetypeInfo->ComponentTypes[i];
-			}
-		}
-		for (size_t i = 0; i < newArchetypeInfo->ComponentTypes.size(); i++) {
-			newArchetypeInfo->ComponentTypes[i].Offset = offset;
-			offset += newArchetypeInfo->ComponentTypes[i].Size;
+		EraseDuplicates(newArchetypeInfo->ComponentTypes);
+		for (auto& i : newArchetypeInfo->ComponentTypes)
+		{
+			i.Offset = offset;
+			offset += i.Size;
 		}
 
 		newArchetypeInfo->EntitySize = newArchetypeInfo->ComponentTypes.back().Offset + newArchetypeInfo->ComponentTypes.back().Size;
@@ -1145,13 +1144,22 @@ namespace UniEngine {
 	T EntityManager::RemoveComponentData(const Entity& entity)
 	{
 		if (!entity.IsValid()) return T();
+		size_t id = typeid(T).hash_code();
+		if (id == typeid(Transform).hash_code())
+		{
+			return T();
+		}
+		if (id == typeid(GlobalTransform).hash_code())
+		{
+			return T();
+		}
 		EntityInfo& entityInfo = _EntityInfos->at(entity.Index);
 		if (_Entities->at(entity.Index) != entity) {
 			Debug::Error("Entity version mismatch!");
 			return T();
 		}
 		EntityArchetypeInfo* archetypeInfo = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ArchetypeInfo;
-		if(archetypeInfo->ComponentTypes.size() <= 1)
+		if (archetypeInfo->ComponentTypes.size() <= 1)
 		{
 			Debug::Error("Remove Component Data failed: Entity must have at least 1 data component!");
 			return T();
@@ -1164,36 +1172,25 @@ namespace UniEngine {
 		bool found = false;
 		for (int i = 0; i < newArchetypeInfo->ComponentTypes.size(); i++)
 		{
-			if (newArchetypeInfo->ComponentTypes[i].TypeID == typeid(T).hash_code())
+			if (newArchetypeInfo->ComponentTypes[i].TypeID == id)
 			{
 				newArchetypeInfo->ComponentTypes.erase(newArchetypeInfo->ComponentTypes.begin() + i);
 				found = true;
 				break;
 			}
 		}
-		if(!found)
+		if (!found)
 		{
 			delete newArchetypeInfo;
 			Debug::Error("Failed to remove component data: Component not found");
 			return T();
 		}
-#pragma region Sort types and check duplicate
-		std::sort(newArchetypeInfo->ComponentTypes.begin(), newArchetypeInfo->ComponentTypes.end(), ComponentTypeComparator);
+#pragma region Sort types
 		size_t offset = 0;
-		ComponentType prev = newArchetypeInfo->ComponentTypes[0];
-		//Erase duplicates
-		for (size_t i = 1; i < newArchetypeInfo->ComponentTypes.size(); i++) {
-			if (newArchetypeInfo->ComponentTypes[i] == prev) {
-				newArchetypeInfo->ComponentTypes.erase(newArchetypeInfo->ComponentTypes.begin() + i);
-				i--;
-			}
-			else {
-				prev = newArchetypeInfo->ComponentTypes[i];
-			}
-		}
-		for (size_t i = 0; i < newArchetypeInfo->ComponentTypes.size(); i++) {
-			newArchetypeInfo->ComponentTypes[i].Offset = offset;
-			offset += newArchetypeInfo->ComponentTypes[i].Size;
+		for (auto& i : newArchetypeInfo->ComponentTypes)
+		{
+			i.Offset = offset;
+			offset += i.Size;
 		}
 
 		newArchetypeInfo->EntitySize = newArchetypeInfo->ComponentTypes.back().Offset + newArchetypeInfo->ComponentTypes.back().Size;
@@ -1252,7 +1249,7 @@ namespace UniEngine {
 		return retVal;
 	}
 
-	
+
 
 	template<typename T>
 	void EntityManager::SetComponentData(const Entity& entity, T value)
@@ -1266,7 +1263,18 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
-			bool found = false;
+			if (id == typeid(Transform).hash_code())
+			{
+				const auto& type = chunkInfo->ComponentTypes[0];
+				chunk.SetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size), value);
+				return;
+			}
+			if (id == typeid(GlobalTransform).hash_code())
+			{
+				const auto& type = chunkInfo->ComponentTypes[1];
+				chunk.SetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size), value);
+				return;
+			}
 			for (const auto& type : chunkInfo->ComponentTypes)
 			{
 				if (type.TypeID == id)
@@ -1292,7 +1300,18 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
-			bool found = false;
+			if (id == typeid(Transform).hash_code())
+			{
+				const auto& type = chunkInfo->ComponentTypes[0];
+				chunk.SetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size), value);
+				return;
+			}
+			if (id == typeid(GlobalTransform).hash_code())
+			{
+				const auto& type = chunkInfo->ComponentTypes[1];
+				chunk.SetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size), value);
+				return;
+			}
 			for (const auto& type : chunkInfo->ComponentTypes)
 			{
 				if (type.TypeID == id)
@@ -1317,6 +1336,16 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
+			if (id == typeid(Transform).hash_code())
+			{
+				const auto& type = chunkInfo->ComponentTypes[0];
+				return chunk.GetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size));
+			}
+			if (id == typeid(GlobalTransform).hash_code())
+			{
+				const auto& type = chunkInfo->ComponentTypes[1];
+				return chunk.GetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size));
+			}
 			for (const auto& type : chunkInfo->ComponentTypes)
 			{
 				if (type.TypeID == id)
@@ -1341,6 +1370,14 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
+			if (id == typeid(Transform).hash_code())
+			{
+				return true;
+			}
+			if (id == typeid(GlobalTransform).hash_code())
+			{
+				return true;
+			}
 			for (const auto& type : chunkInfo->ComponentTypes)
 			{
 				if (type.TypeID == id)
@@ -1364,6 +1401,16 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
+			if (id == typeid(Transform).hash_code())
+			{
+				const auto& type = chunkInfo->ComponentTypes[0];
+				return chunk.GetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size));
+			}
+			if (id == typeid(GlobalTransform).hash_code())
+			{
+				const auto& type = chunkInfo->ComponentTypes[1];
+				return chunk.GetData<T>((size_t)(type.Offset * chunkInfo->ChunkCapacity + chunkPointer * type.Size));
+			}
 			for (const auto& type : chunkInfo->ComponentTypes)
 			{
 				if (type.TypeID == id)
@@ -1390,6 +1437,14 @@ namespace UniEngine {
 			size_t chunkPointer = info.ChunkArrayIndex % chunkInfo->ChunkCapacity;
 			ComponentDataChunk chunk = _EntityComponentStorage->at(info.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
 			size_t id = typeid(T).hash_code();
+			if (id == typeid(Transform).hash_code())
+			{
+				return true;
+			}
+			if (id == typeid(GlobalTransform).hash_code())
+			{
+				return true;
+			}
 			for (const auto& type : chunkInfo->ComponentTypes)
 			{
 				if (type.TypeID == id)
@@ -1402,7 +1457,7 @@ namespace UniEngine {
 		Debug::Error("Entity already deleted!");
 		return false;
 	}
-	
+
 	template <typename T>
 	std::unique_ptr<T>& EntityManager::GetPrivateComponent(const Entity& entity)
 	{
@@ -1455,7 +1510,7 @@ namespace UniEngine {
 				_EntityInfos->at(entity.Index).PrivateComponentElements.erase(_EntityInfos->at(entity.Index).PrivateComponentElements.begin() + i);
 			}
 		}
-		
+
 		return;
 	}
 	template <typename T>
@@ -1472,7 +1527,7 @@ namespace UniEngine {
 		return false;
 	}
 
-	
+
 
 	template<typename T, typename ...Ts>
 	void EntityManager::SetEntityQueryAllFilters(const EntityQuery& entityQuery, T arg, Ts ...args)
@@ -1488,7 +1543,7 @@ namespace UniEngine {
 	}
 
 	template<typename T, typename ...Ts>
-	inline void EntityManager::SetEntityQueryAnyFilters(const EntityQuery& entityQuery, T arg, Ts ...args)
+	void EntityManager::SetEntityQueryAnyFilters(const EntityQuery& entityQuery, T arg, Ts ...args)
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
@@ -1501,7 +1556,7 @@ namespace UniEngine {
 	}
 
 	template<typename T, typename ...Ts>
-	inline void EntityManager::SetEntityQueryNoneFilters(const EntityQuery& entityQuery, T arg, Ts ...args)
+	void EntityManager::SetEntityQueryNoneFilters(const EntityQuery& entityQuery, T arg, Ts ...args)
 	{
 		if (entityQuery.IsNull()) return;
 		size_t index = entityQuery.Index;
@@ -1921,7 +1976,7 @@ namespace UniEngine {
 	{
 		return _EntityPrivateComponentStorage->GetOwnersList<T>();
 	}
-	
+
 	template <typename T>
 	void Entity::SetComponentData(T value) const
 	{
@@ -1963,7 +2018,8 @@ namespace UniEngine {
 	{
 		try {
 			return EntityManager::GetPrivateComponent<T>(*this);
-		}catch(int e)
+		}
+		catch (int e)
 		{
 			throw;
 		}

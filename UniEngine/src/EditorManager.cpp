@@ -355,51 +355,22 @@ void UniEngine::EditorManager::Init()
 	
 	RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentBase* data, bool isRoot)
 		{
-			std::stringstream stream;
-			GlobalTransform* ltw = reinterpret_cast<GlobalTransform*>(data);
-			static Entity previousEntity;
-			static GlobalTransform* previouslyStoredGlobalTransform = nullptr;
-			if (previousEntity != entity) {
-				previousEntity = entity;
-				previouslyStoredGlobalTransform = ltw;
-				_LocalPositionSelected = true;
-				_LocalRotationSelected = false;
-				_LocalScaleSelected = false;
-			}
+			auto* ltw = reinterpret_cast<GlobalTransform*>(data);
 			glm::vec3 er;
 			glm::vec3 t;
 			glm::vec3 s;
 			ltw->Decompose(t, er, s);
 			er = glm::degrees(er);
-			ImGui::DragFloat3("##Global Position", &t.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::SameLine();
-			if (ImGui::Selectable("Position##Global", &_LocalPositionSelected) && _LocalPositionSelected)
-			{
-				_LocalRotationSelected = false;
-				_LocalScaleSelected = false;
-			}
-			ImGui::DragFloat3("##Global Rotation", &er.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::SameLine();
-			if (ImGui::Selectable("Rotation##Global", &_LocalRotationSelected) && _LocalRotationSelected)
-			{
-				_LocalPositionSelected = false;
-				_LocalScaleSelected = false;
-			}
-			ImGui::DragFloat3("##Global Scale", &s.x, 1, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-			ImGui::SameLine();
-			if (ImGui::Selectable("Scale##Global", &_LocalScaleSelected) && _LocalScaleSelected)
-			{
-				_LocalRotationSelected = false;
-				_LocalPositionSelected = false;
-			}
+			ImGui::InputFloat3("Position##Global", &t.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat3("Rotation##Global", &er.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputFloat3("Scale##Global", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		}
 	);
 
 
 	RegisterComponentDataInspector<Transform>([](Entity entity, ComponentBase* data, bool isRoot)
 		{
-			std::stringstream stream;
-			auto ltp = static_cast<Transform*>(static_cast<void*>(data));
+			auto* ltp = static_cast<Transform*>(static_cast<void*>(data));
 			bool edited = false;
 			static Entity previousEntity;
 			static Transform* previouslyStoredTransform = nullptr;
@@ -412,21 +383,22 @@ void UniEngine::EditorManager::Init()
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}
-			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f)) edited = true;
+			const bool editable = !entity.IsStatic();
+			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f, 0, 0, "%.3f", editable ? 0 : ImGuiInputTextFlags_ReadOnly)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Position##Local", &_LocalPositionSelected) && _LocalPositionSelected)
 			{
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}
-			if (ImGui::DragFloat3("##Local Rotation", &_PreviouslyStoredRotation.x, 1.0f)) edited = true;
+			if (ImGui::DragFloat3("##Local Rotation", &_PreviouslyStoredRotation.x, 1.0f, 0, 0, "%.3f", editable ? 0 : ImGuiInputTextFlags_ReadOnly)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Rotation##Local", &_LocalRotationSelected) && _LocalRotationSelected)
 			{
 				_LocalPositionSelected = false;
 				_LocalScaleSelected = false;
 			}
-			if (ImGui::DragFloat3("##Local Scale", &_PreviouslyStoredScale.x, 0.01f)) edited = true;
+			if (ImGui::DragFloat3("##Local Scale", &_PreviouslyStoredScale.x, 0.01f, 0, 0, "%.3f", editable ? 0 : ImGuiInputTextFlags_ReadOnly)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Scale##Local", &_LocalScaleSelected) && _LocalScaleSelected)
 			{
@@ -512,56 +484,6 @@ void UniEngine::EditorManager::Init()
 			if (ImGui::SmallButton("Particles"))
 			{
 				owner.SetPrivateComponent(std::make_unique<Particles>());
-			}
-		}
-	);
-
-	RegisterComponentDataMenu<GlobalTransform>([](Entity owner)
-		{
-			if (owner.HasComponentData<GlobalTransform>()) return;
-			if (ImGui::SmallButton("GlobalTransform"))
-			{
-				EntityManager::AddComponentData(owner, GlobalTransform());
-			}
-		}
-	);
-
-	RegisterComponentDataMenu<Transform>([](Entity owner)
-		{
-			if (owner.HasComponentData<Transform>()) return;
-			if (ImGui::SmallButton("Transform"))
-			{
-				EntityManager::AddComponentData(owner, Transform());
-			}
-		}
-	);
-
-	RegisterComponentDataMenu<PointLight>([](Entity owner)
-		{
-			if (owner.HasComponentData<PointLight>()) return;
-			if (ImGui::SmallButton("PointLight"))
-			{
-				EntityManager::AddComponentData(owner, PointLight());
-			}
-		}
-	);
-
-	RegisterComponentDataMenu<SpotLight>([](Entity owner)
-		{
-			if (owner.HasComponentData<SpotLight>()) return;
-			if (ImGui::SmallButton("SpotLight"))
-			{
-				EntityManager::AddComponentData(owner, SpotLight());
-			}
-		}
-	);
-
-	RegisterComponentDataMenu<DirectionalLight>([](Entity owner)
-		{
-			if (owner.HasComponentData<DirectionalLight>()) return;
-			if (ImGui::SmallButton("DirectionalLight"))
-			{
-				EntityManager::AddComponentData(owner, DirectionalLight());
 			}
 		}
 	);
@@ -765,10 +687,20 @@ void EditorManager::LateUpdate()
 			std::string title = std::to_string(_SelectedEntity.Index) + ": ";
 			title += _SelectedEntity.GetName();
 			bool enabled = _SelectedEntity.Enabled();
-			ImGui::Checkbox(title.c_str(), &enabled);
-			if (_SelectedEntity.Enabled() != enabled)
+			if (ImGui::Checkbox((title + "##EnabledCheckbox").c_str(), &enabled)) {
+				if (_SelectedEntity.Enabled() != enabled)
+				{
+					_SelectedEntity.SetEnabled(enabled);
+				}
+			}
+			ImGui::SameLine( );
+			bool isStatic = _SelectedEntity.IsStatic();
+			if(ImGui::Checkbox("Static", &isStatic))
 			{
-				_SelectedEntity.SetEnabled(enabled);
+				if (_SelectedEntity.IsStatic() != isStatic)
+				{
+					_SelectedEntity.SetStatic(isStatic);
+				}
 			}
 			bool deleted = DrawEntityMenu(_SelectedEntity.Enabled(), _SelectedEntity);
 			ImGui::Separator();
@@ -958,7 +890,7 @@ void EditorManager::LateUpdate()
 			}
 #pragma region Gizmos and Entity Selection
 			bool mouseSelectEntity = true;
-			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted())
+			if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted() && !_SelectedEntity.IsStatic())
 			{
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();

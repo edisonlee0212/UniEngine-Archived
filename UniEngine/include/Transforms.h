@@ -1,7 +1,6 @@
 #pragma once
 #include <gtx/matrix_decompose.hpp>
-
-#include "Core.h"
+#include "Entity.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
 	struct UNIENGINE_API GlobalTransform : ComponentBase {

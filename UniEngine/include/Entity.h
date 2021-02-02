@@ -53,11 +53,11 @@ namespace UniEngine {
 		}
 
 		bool Enabled() const;
-
+		void SetStatic(bool value) const;
 		void SetEnabled(bool value) const;
 		void SetEnabledSingle(bool value) const;
 		bool IsNull() const;
-
+		bool IsStatic() const;
 		bool IsDeleted() const;
 		bool IsValid() const;
 		template<typename T = ComponentBase>
@@ -188,6 +188,7 @@ namespace UniEngine {
 		friend class PrivateComponentStorage;
 		std::string Name;
 		size_t Version;
+		bool Static = false;
 		bool Enabled = true;
 		Entity Parent;
 		std::vector<PrivateComponentElement> PrivateComponentElements;
