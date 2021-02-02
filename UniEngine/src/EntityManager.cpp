@@ -319,6 +319,12 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 			chunk.ClearData(offset, i.Size);
 		}
 	}
+
+	const Transform transform;
+	const GlobalTransform globalTransform;
+	retVal.SetComponentData(transform);
+	retVal.SetComponentData(globalTransform);
+	
 	return retVal;
 }
 
