@@ -13,9 +13,9 @@ namespace UniEngine {
 
 		glm::vec3 Center() const;
 
-		bool InBound(glm::vec3 position) const;
+		bool InBound(const glm::vec3& position) const;
 
-		void ApplyTransform(glm::mat4 transform);
+		void ApplyTransform(const glm::mat4& transform);
 
 		void PopulateCorners(std::vector<glm::vec3>& corners) const;
 	};
@@ -59,7 +59,7 @@ namespace UniEngine {
 		World& operator=(const World&) = delete;
 		void RegisterFixedUpdateFunction(const std::function<void()>& func);
 		Bound GetBound() const;
-		void SetBound(Bound value);
+		void SetBound(const Bound& value);
 		void SetFrameStartTime(double time) const;
 		void SetTimeStep(float timeStep) const;
 		size_t GetIndex() const;

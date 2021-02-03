@@ -6,7 +6,9 @@
 void UniEngine::Bloom::Init()
 {
 	_Name = "Bloom";
-	BezierGraph = { 1.0f, 0.0f, 0.9f, 1.0f };
+	BezierGraph = BezierCubic2D();
+	BezierGraph.ControlPoints[1] = glm::vec2(1, 0);
+	BezierGraph.ControlPoints[2] = glm::vec2(0.9, 1.0);
 	_BrightColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
 	_BrightColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
 	_BrightColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -85,7 +87,7 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent
 	_FilterProgram->SetInt("image", 0);
 	_FilterProgram->SetBool("horizontal", false);
 	_FilterProgram->SetFloat("sampleScale", 1.0f);
-	_FilterProgram->SetFloat4("bezier", BezierGraph.ControlPoints[0], BezierGraph.ControlPoints[1], BezierGraph.ControlPoints[2], BezierGraph.ControlPoints[3]);
+	_FilterProgram->SetFloat4("bezier", BezierGraph.ControlPoints[1][0], BezierGraph.ControlPoints[1][1], BezierGraph.ControlPoints[2][0], BezierGraph.ControlPoints[2][1]);
 	_FilterProgram->SetInt("diffusion", Diffusion);
 	_FilterProgram->SetFloat("clamp", Clamp);
 	_FilterProgram->SetFloat("intensity", Intensity);

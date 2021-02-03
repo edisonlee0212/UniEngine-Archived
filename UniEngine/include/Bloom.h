@@ -19,7 +19,7 @@ namespace UniEngine
 		float Threshold = 1.0f;
 		float Clamp = 0.0f;
 		int Diffusion = 16;
-		Bezier2D BezierGraph;
+		BezierCubic2D BezierGraph;
 		void Init() override;
 		void ResizeResolution(int x, int y) override;
 		void Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const override;

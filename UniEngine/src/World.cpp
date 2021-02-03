@@ -35,7 +35,7 @@ Bound UniEngine::World::GetBound() const
 	return _WorldBound;
 }
 
-void UniEngine::World::SetBound(Bound value)
+void UniEngine::World::SetBound(const Bound& value)
 {
 	_WorldBound = value;
 }
@@ -56,7 +56,7 @@ glm::vec3 Bound::Center() const
 	return (Max + Min) / 2.0f;
 }
 
-bool Bound::InBound(glm::vec3 position) const
+bool Bound::InBound(const glm::vec3& position) const
 {
 	glm::vec3 center = (Min + Max) / 2.0f;
 	glm::vec3 size = (Max - Min) / 2.0f;
@@ -66,7 +66,7 @@ bool Bound::InBound(glm::vec3 position) const
 	return true;
 }
 
-void Bound::ApplyTransform(glm::mat4 transform)
+void Bound::ApplyTransform(const glm::mat4& transform)
 {
 	std::vector<glm::vec3> corners;
 	PopulateCorners(corners);

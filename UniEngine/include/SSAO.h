@@ -20,7 +20,7 @@ namespace UniEngine
 		float Intensity = 0.07f;
 		int Diffusion = 16;
 		float BlurScale = 0.25f;
-		Bezier2D Graph;
+		BezierCubic2D Graph;
 		float SSAOKernelRadius = 0.1f;
 		float SSAOKernelBias = 0.03f;
 		float SSAOScale = 0.25f;

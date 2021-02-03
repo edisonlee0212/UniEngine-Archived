@@ -7,7 +7,9 @@
 void UniEngine::SSAO::Init()
 {
 	_Name = "SSAO";
-	Graph = { 1.0f, 0.0f, 0.9f, 1.0f };
+	Graph = BezierCubic2D();
+	Graph.ControlPoints[1] = glm::vec2(1, 0);
+	Graph.ControlPoints[2] = glm::vec2(0.9, 1.0);
 	_OriginalColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
 	_OriginalColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
 	_OriginalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -140,7 +142,7 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 	_BlurProgram->SetInt("image", 0);
 	_BlurProgram->SetFloat("sampleScale", BlurScale);
 	_BlurProgram->SetBool("horizontal", false);
-	_BlurProgram->SetFloat4("bezier", Graph.ControlPoints[0], Graph.ControlPoints[1], Graph.ControlPoints[2], Graph.ControlPoints[3]);
+	_BlurProgram->SetFloat4("bezier", Graph.ControlPoints[1][0], Graph.ControlPoints[1][1], Graph.ControlPoints[2][0], Graph.ControlPoints[2][1]);
 	_BlurProgram->SetInt("diffusion", Diffusion);
 	_BlurProgram->SetFloat("intensity", Intensity);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
