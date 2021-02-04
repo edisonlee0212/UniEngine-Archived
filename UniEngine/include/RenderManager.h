@@ -98,7 +98,7 @@ namespace UniEngine {
 		friend class RenderTarget;
 		static size_t _Triangles;
 		static size_t _DrawCall;
-		static MaterialSettingsBlock _MaterialSettingsBlock;
+		
 		static std::unique_ptr<GLUBO> _MaterialSettingsBuffer;
 #pragma endregion
 #pragma region Shadow
@@ -109,7 +109,7 @@ namespace UniEngine {
 		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
 		static size_t _ShadowMapResolution;
 		static GLUBO* _ShadowCascadeInfoBlock;
-		static LightSettingsBlock _LightSettings;
+		
 
 		static DirectionalLightInfo _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
 		static PointLightInfo _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
@@ -128,12 +128,11 @@ namespace UniEngine {
 		static std::unique_ptr<PointLightShadowMap> _PointLightShadowMap;
 		static std::unique_ptr<SpotLightShadowMap> _SpotLightShadowMap;
 		
-		static bool _StableFit;
+		
 		static float _MaxShadowDistance;
 #pragma endregion
 #pragma endregion
-		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
-		static void ApplyMaterialSettings(Material* material, GLProgram* program);
+		
 		static void DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model);
 		static void DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count);
 
@@ -144,6 +143,11 @@ namespace UniEngine {
 		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix);
 		static float Lerp(float a, float b, float f);
 	public:
+		static bool StableFit;
+		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
+		static void ApplyMaterialSettings(Material* material, GLProgram* program);
+		static LightSettingsBlock LightSettings;
+		static MaterialSettingsBlock MaterialSettings;
 		static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void RenderBackGround(const std::unique_ptr<CameraComponent>& cameraComponent);
 		static void RenderToCameraForward(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
@@ -155,7 +159,6 @@ namespace UniEngine {
 		static void SetShadowMapResolution(size_t value);
 		static void SetPCSSPCFSampleAmount(int value);
 		static void SetPCSSBSAmount(int value);
-		static void SetStableFit(bool value);
 		static void SetSeamFixRatio(float value);
 		static void SetMaxShadowDistance(float value);
 		static void SetPCSSScaleFactor(float value);

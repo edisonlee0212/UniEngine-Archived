@@ -13,10 +13,10 @@ bool RenderManager::_EnableInfoWindow = false;
 #pragma region Shadow
 #pragma region DirectionalMap
 GLUBO* RenderManager::_ShadowCascadeInfoBlock;
-LightSettingsBlock RenderManager::_LightSettings;
+LightSettingsBlock RenderManager::LightSettings;
 float RenderManager::_ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
 float RenderManager::_MaxShadowDistance = 500;
-bool RenderManager::_StableFit = true;
+bool RenderManager::StableFit = true;
 #pragma endregion
 size_t RenderManager::_ShadowMapResolution = 4096;
 bool RenderManager::_EnableLightMenu = true;
@@ -39,7 +39,7 @@ std::unique_ptr<GLProgram> RenderManager::_SpotLightInstancedProgram;
 
 #pragma endregion
 #pragma region Render
-MaterialSettingsBlock RenderManager::_MaterialSettingsBlock;
+MaterialSettingsBlock RenderManager::MaterialSettings;
 std::unique_ptr<GLUBO> RenderManager::_MaterialSettingsBuffer;
 CameraComponent* RenderManager::_MainCameraComponent;
 int RenderManager::_MainCameraResolutionX = 1;
@@ -86,7 +86,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			_MaterialSettingsBlock.receiveShadow = mmc->ReceiveShadow;
+			MaterialSettings.receiveShadow = mmc->ReceiveShadow;
 			DeferredPrepass(
 				mmc->Mesh.get(),
 				mmc->Material.get(),
@@ -121,7 +121,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			_MaterialSettingsBlock.receiveShadow = immc->ReceiveShadow;
+			MaterialSettings.receiveShadow = immc->ReceiveShadow;
 			DeferredPrepassInstanced(
 				immc->Mesh.get(),
 				immc->Material.get(),
@@ -532,7 +532,7 @@ void UniEngine::RenderManager::PreUpdate()
 				auto ltw = mainCameraEntity.GetComponentData<GlobalTransform>();
 				glm::vec3 mainCameraPos = ltw.GetPosition();
 				glm::quat mainCameraRot = ltw.GetRotation();
-				_ShadowCascadeInfoBlock->SubData(0, sizeof(LightSettingsBlock), &_LightSettings);
+				_ShadowCascadeInfoBlock->SubData(0, sizeof(LightSettingsBlock), &LightSettings);
 				const std::vector<Entity>* directionalLightEntities = EntityManager::GetPrivateComponentOwnersList<DirectionalLight>();
 				size_t size = 0;
 				//1.	利用EntityManager找到场景内所有Light instance。
@@ -557,14 +557,14 @@ void UniEngine::RenderManager::PreUpdate()
 							float splitEnd = _MaxShadowDistance;
 							if (split != 0) splitStart = _MaxShadowDistance * _ShadowCascadeSplit[split - 1];
 							if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = _MaxShadowDistance * _ShadowCascadeSplit[split];
-							_LightSettings.SplitDistance[split] = splitEnd;
+							LightSettings.SplitDistance[split] = splitEnd;
 							glm::mat4 lightProjection, lightView;
 							float max = 0;
 							glm::vec3 lightPos;
 							glm::vec3 cornerPoints[8];
 							mainCamera->CalculateFrustumPoints(splitStart, splitEnd, mainCameraPos, mainCameraRot, cornerPoints);
 							glm::vec3 cameraFrustumCenter = (mainCameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) + mainCameraPos;
-							if (_StableFit) {
+							if (StableFit) {
 								//Less detail but no shimmering when rotating the camera.
 								//max = glm::distance(cornerPoints[4], cameraFrustumCenter);
 								max = splitEnd;
@@ -651,7 +651,7 @@ void UniEngine::RenderManager::PreUpdate()
 					if (enabledSize != 0) {
 						_DirectionalLightBlock->SubData(16, enabledSize * sizeof(DirectionalLightInfo), &_DirectionalLights[0]);
 					}
-					if (_MaterialSettingsBlock.enableShadow) {
+					if (MaterialSettings.enableShadow) {
 						_DirectionalLightShadowMap->Bind();
 						_DirectionalLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
 						glClear(GL_DEPTH_BUFFER_BIT);
@@ -779,7 +779,7 @@ void UniEngine::RenderManager::PreUpdate()
 					}
 					_PointLightBlock->SubData(0, 4, &enabledSize);
 					if (enabledSize != 0)_PointLightBlock->SubData(16, enabledSize * sizeof(PointLightInfo), &_PointLights[0]);
-					if (_MaterialSettingsBlock.enableShadow) {
+					if (MaterialSettings.enableShadow) {
 #pragma region PointLight Shadowmap Pass
 						_PointLightShadowMap->Bind();
 						_PointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
@@ -901,7 +901,7 @@ void UniEngine::RenderManager::PreUpdate()
 					}
 					_SpotLightBlock->SubData(0, 4, &enabledSize);
 					if (enabledSize != 0)_SpotLightBlock->SubData(16, enabledSize * sizeof(SpotLightInfo), &_SpotLights[0]);
-					if (_MaterialSettingsBlock.enableShadow) {
+					if (MaterialSettings.enableShadow) {
 #pragma region SpotLight Shadowmap Pass
 						_SpotLightShadowMap->Bind();
 						_SpotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
@@ -1128,23 +1128,17 @@ void UniEngine::RenderManager::SetShadowMapResolution(size_t value)
 
 void UniEngine::RenderManager::SetPCSSPCFSampleAmount(int value)
 {
-	_LightSettings.PCSSPCFSampleAmount = glm::clamp(value, 0, 16);
+	LightSettings.PCSSPCFSampleAmount = glm::clamp(value, 0, 16);
 }
 
 
 void UniEngine::RenderManager::SetPCSSBSAmount(int value)
 {
-	_LightSettings.PCSSBSAmount = glm::clamp(value, 0, 16);
+	LightSettings.PCSSBSAmount = glm::clamp(value, 0, 16);
 }
-
-void UniEngine::RenderManager::SetStableFit(bool value)
-{
-	_StableFit = true;
-}
-
 void UniEngine::RenderManager::SetSeamFixRatio(float value)
 {
-	_LightSettings.SeamFixRatio = value;
+	LightSettings.SeamFixRatio = value;
 }
 
 void UniEngine::RenderManager::SetMaxShadowDistance(float value)
@@ -1154,32 +1148,32 @@ void UniEngine::RenderManager::SetMaxShadowDistance(float value)
 
 void UniEngine::RenderManager::SetVSMMaxVariance(float value)
 {
-	_LightSettings.VSMMaxVariance = value;
+	LightSettings.VSMMaxVariance = value;
 }
 
 void UniEngine::RenderManager::SetLightBleedControlFactor(float value)
 {
-	_LightSettings.LightBleedFactor = value;
+	LightSettings.LightBleedFactor = value;
 }
 
 void UniEngine::RenderManager::SetPCSSScaleFactor(float value)
 {
-	_LightSettings.PCSSScaleFactor = value;
+	LightSettings.PCSSScaleFactor = value;
 }
 
 void UniEngine::RenderManager::SetEVSMExponent(float value)
 {
-	_LightSettings.EVSMExponent = value;
+	LightSettings.EVSMExponent = value;
 }
 
 void UniEngine::RenderManager::SetAmbientLight(float value)
 {
-	_LightSettings.AmbientLight = value;
+	LightSettings.AmbientLight = value;
 }
 
 void RenderManager::SetEnableShadow(bool value)
 {
-	_MaterialSettingsBlock.enableShadow = value;
+	MaterialSettings.enableShadow = value;
 }
 
 glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)
@@ -1223,15 +1217,15 @@ void RenderManager::LateUpdate()
 	{
 		ImGui::Begin("Light Manager");
 		if (ImGui::TreeNode("Environment Lighting")) {
-			ImGui::DragFloat("Brightness", &_LightSettings.AmbientLight, 0.01f, 0.0f, 2.0f);
+			ImGui::DragFloat("Brightness", &LightSettings.AmbientLight, 0.01f, 0.0f, 2.0f);
 			ImGui::TreePop();
 		}
-		bool enableShadow = _MaterialSettingsBlock.enableShadow;
+		bool enableShadow = MaterialSettings.enableShadow;
 		if(ImGui::Checkbox("Enable shadow", &enableShadow))
 		{
-			_MaterialSettingsBlock.enableShadow = enableShadow;
+			MaterialSettings.enableShadow = enableShadow;
 		}
-		if (_MaterialSettingsBlock.enableShadow && ImGui::TreeNode("Shadow")) {
+		if (MaterialSettings.enableShadow && ImGui::TreeNode("Shadow")) {
 			if (ImGui::TreeNode("Distance"))
 			{
 				ImGui::DragFloat("Max shadow distance", &_MaxShadowDistance, 1.0f, 0.1f);
@@ -1242,13 +1236,13 @@ void RenderManager::LateUpdate()
 				ImGui::TreePop();
 			}
 			if (ImGui::TreeNode("PCSS")) {
-				ImGui::DragFloat("PCSS Factor", &_LightSettings.PCSSScaleFactor, 0.01f, 0.0f);
-				ImGui::DragInt("Blocker search side amount", &_LightSettings.PCSSBSAmount, 1, 1, 8);
-				ImGui::DragInt("PCF Sample Size", &_LightSettings.PCSSPCFSampleAmount, 1, 1, 64);
+				ImGui::DragFloat("PCSS Factor", &LightSettings.PCSSScaleFactor, 0.01f, 0.0f);
+				ImGui::DragInt("Blocker search side amount", &LightSettings.PCSSBSAmount, 1, 1, 8);
+				ImGui::DragInt("PCF Sample Size", &LightSettings.PCSSPCFSampleAmount, 1, 1, 64);
 				ImGui::TreePop();
 			}
-			ImGui::DragFloat("Seam fix ratio", &_LightSettings.SeamFixRatio, 0.001f, 0.0f, 0.1f);
-			ImGui::Checkbox("Stable fit", &_StableFit);
+			ImGui::DragFloat("Seam fix ratio", &LightSettings.SeamFixRatio, 0.001f, 0.0f, 0.1f);
+			ImGui::Checkbox("Stable fit", &StableFit);
 			ImGui::TreePop();
 		}
 		ImGui::End();
@@ -1377,20 +1371,20 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 
 void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program)
 {
-	_MaterialSettingsBlock = MaterialSettingsBlock();
+	MaterialSettings = MaterialSettingsBlock();
 	
-	_MaterialSettingsBlock.alphaDiscardEnabled = material->AlphaDiscardEnabled;
-	_MaterialSettingsBlock.alphaDiscardOffset = material->AlphaDiscardOffset;
-	_MaterialSettingsBlock.dispScale = material->DisplacementMapScale;
-	_MaterialSettingsBlock.albedoColorVal = glm::vec4(material->AlbedoColor, 1.0f);
-	_MaterialSettingsBlock.shininessVal = material->Shininess;
-	_MaterialSettingsBlock.metallicVal = material->Metallic;
-	_MaterialSettingsBlock.roughnessVal = material->Roughness;
-	_MaterialSettingsBlock.aoVal = material->AmbientOcclusion;
+	MaterialSettings.alphaDiscardEnabled = material->AlphaDiscardEnabled;
+	MaterialSettings.alphaDiscardOffset = material->AlphaDiscardOffset;
+	MaterialSettings.dispScale = material->DisplacementMapScale;
+	MaterialSettings.albedoColorVal = glm::vec4(material->AlbedoColor, 1.0f);
+	MaterialSettings.shininessVal = material->Shininess;
+	MaterialSettings.metallicVal = material->Metallic;
+	MaterialSettings.roughnessVal = material->Roughness;
+	MaterialSettings.aoVal = material->AmbientOcclusion;
 	
-	_MaterialSettingsBlock.directionalShadowMap = _DirectionalLightShadowMap->DepthMapArray()->GetHandle();
-	_MaterialSettingsBlock.pointShadowMap = _PointLightShadowMap->DepthMapArray()->GetHandle();
-	_MaterialSettingsBlock.spotShadowMap = _SpotLightShadowMap->DepthMap()->GetHandle();
+	MaterialSettings.directionalShadowMap = _DirectionalLightShadowMap->DepthMapArray()->GetHandle();
+	MaterialSettings.pointShadowMap = _PointLightShadowMap->DepthMapArray()->GetHandle();
+	MaterialSettings.spotShadowMap = _SpotLightShadowMap->DepthMap()->GetHandle();
 	
 	for(const auto& i : material->_Textures)
 	{
@@ -1398,48 +1392,48 @@ void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program
 		switch (i.second->_Type)
 		{
 		case TextureType::ALBEDO:
-			_MaterialSettingsBlock.albedoMap = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.albedoEnabled = static_cast<int>(true);
+			MaterialSettings.albedoMap = i.second->Texture()->GetHandle();
+			MaterialSettings.albedoEnabled = static_cast<int>(true);
 			break;
 		case TextureType::NORMAL:
-			_MaterialSettingsBlock.normalMap = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.normalEnabled = static_cast<int>(true);
+			MaterialSettings.normalMap = i.second->Texture()->GetHandle();
+			MaterialSettings.normalEnabled = static_cast<int>(true);
 			break;
 		case TextureType::METALLIC:
-			_MaterialSettingsBlock.metallicMap = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.metallicEnabled = static_cast<int>(true);
+			MaterialSettings.metallicMap = i.second->Texture()->GetHandle();
+			MaterialSettings.metallicEnabled = static_cast<int>(true);
 			break;
 		case TextureType::ROUGHNESS:
-			_MaterialSettingsBlock.roughnessMap = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.roughnessEnabled = static_cast<int>(true);
+			MaterialSettings.roughnessMap = i.second->Texture()->GetHandle();
+			MaterialSettings.roughnessEnabled = static_cast<int>(true);
 			break;
 		case TextureType::AO:
-			_MaterialSettingsBlock.aoMap = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.aoEnabled = static_cast<int>(true);
+			MaterialSettings.aoMap = i.second->Texture()->GetHandle();
+			MaterialSettings.aoEnabled = static_cast<int>(true);
 			break;
 		case TextureType::AMBIENT:
-			_MaterialSettingsBlock.ambient = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.ambientEnabled = static_cast<int>(true);
+			MaterialSettings.ambient = i.second->Texture()->GetHandle();
+			MaterialSettings.ambientEnabled = static_cast<int>(true);
 			break;
 		case TextureType::DIFFUSE:
-			_MaterialSettingsBlock.diffuse = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.diffuseEnabled = static_cast<int>(true);
+			MaterialSettings.diffuse = i.second->Texture()->GetHandle();
+			MaterialSettings.diffuseEnabled = static_cast<int>(true);
 			break;
 		case TextureType::SPECULAR:
-			_MaterialSettingsBlock.specular = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.specularEnabled = static_cast<int>(true);
+			MaterialSettings.specular = i.second->Texture()->GetHandle();
+			MaterialSettings.specularEnabled = static_cast<int>(true);
 			break;
 		case TextureType::EMISSIVE:
-			_MaterialSettingsBlock.emissive = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.emissiveEnabled = static_cast<int>(true);
+			MaterialSettings.emissive = i.second->Texture()->GetHandle();
+			MaterialSettings.emissiveEnabled = static_cast<int>(true);
 			break;
 		case TextureType::DISPLACEMENT:
-			_MaterialSettingsBlock.displacement = i.second->Texture()->GetHandle();
-			_MaterialSettingsBlock.displacementEnabled = static_cast<int>(true);
+			MaterialSettings.displacement = i.second->Texture()->GetHandle();
+			MaterialSettings.displacementEnabled = static_cast<int>(true);
 			break;
 		}
 	}
-	_MaterialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &_MaterialSettingsBlock);
+	_MaterialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &MaterialSettings);
 }
 
 void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
@@ -1534,7 +1528,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	for (auto j : material->_Float4x4PropertyList) {
 		program->SetFloat4x4(j.Name, j.Value);
 	}
-	_MaterialSettingsBlock.receiveShadow = receiveShadow;
+	MaterialSettings.receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
 	ApplyMaterialSettings(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
@@ -1562,7 +1556,7 @@ void UniEngine::RenderManager::DrawMesh(
 	for (auto j : material->_Float4x4PropertyList) {
 		program->SetFloat4x4(j.Name, j.Value);
 	}
-	_MaterialSettingsBlock.receiveShadow = receiveShadow;
+	MaterialSettings.receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
 	ApplyMaterialSettings(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);

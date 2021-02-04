@@ -82,7 +82,6 @@ int main()
 	Transform ltw;
 	auto dlc = std::make_unique<DirectionalLight>();
 	dlc->diffuse = glm::vec3(1.0f);
-	dlc->specular = glm::vec3(0.5f);
 	Entity dle = EntityManager::CreateEntity("Directional Light");
 	dle.SetName("Directional Light 1");
 	EntityManager::SetPrivateComponent(dle, std::move(dlc));
@@ -102,8 +101,6 @@ int main()
 	plc->farPlane = 70.0f;
 	plc->diffuse = glm::vec3(1.0f);
 	plc->diffuseBrightness = 5;
-	plc->specularBrightness = 2;
-	plc->specular = glm::vec3(1.0f);
 	Entity ple = EntityManager::CreateEntity("Point Light 1");
 	EntityManager::SetPrivateComponent(ple, std::move(plc));
 	EntityManager::SetComponentData(ple, ltw);
@@ -115,7 +112,6 @@ int main()
 	plc->quadratic = 0.032f;
 	plc->farPlane = 70.0f;
 	plc->diffuse = glm::vec3(1.0f);
-	plc->specular = glm::vec3(1.0f);
 	Entity ple2 = EntityManager::CreateEntity("Point Light 2");
 	EntityManager::SetPrivateComponent(ple2, std::move(plc));
 	EntityManager::SetComponentData(ple2, ltw);
