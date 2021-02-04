@@ -36,8 +36,7 @@ namespace UniEngine {
 #pragma region Scene Camera
 		friend class RenderManager;
 		friend class InputManager;
-		static glm::quat _SceneCameraRotation;
-		static glm::vec3 _SceneCameraPosition;
+		
 		static std::unique_ptr<GLProgram> _SceneHighlightPrePassProgram;
 		static std::unique_ptr<GLProgram> _SceneHighlightProgram;
 		static std::unique_ptr<GLProgram> _SceneHighlightPrePassInstancedProgram;
@@ -70,6 +69,8 @@ namespace UniEngine {
 		static void HighLightEntityPrePassHelper(const Entity& entity);
 		static void HighLightEntityHelper(const Entity& entity);
 	public:
+		static glm::quat SceneCameraRotation;
+		static glm::vec3 SceneCameraPosition;
 		static void HighLightEntity(const Entity& entity, const glm::vec4& color);
 		static void LateUpdate();
 		template<typename T1 = ComponentBase>
@@ -84,7 +85,7 @@ namespace UniEngine {
 		static void Update();
 		static Entity GetSelectedEntity();
 		static void SetSelectedEntity(Entity entity);
-
+		static std::unique_ptr<CameraComponent>& GetSceneCamera();
 		template<typename T = ResourceBehaviour>
 		static bool DragAndDrop(std::shared_ptr<T>& target);
 		template<typename T = ResourceBehaviour>

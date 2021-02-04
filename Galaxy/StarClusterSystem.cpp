@@ -67,6 +67,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];
+		starEntity.SetStatic(true);
 		index.Value = i;
 		seed.Value = glm::linearRand(0.0, 1.0);
 		proportion.Value = seed.Value;
@@ -100,11 +101,12 @@ void Galaxy::StarClusterSystem::Update()
 	);
 	//2. Apply position and size to the transform which will later be used for rendering.
 	float size = _Size;
-	EntityManager::ForEach<StarPosition, GlobalTransform>(
+	EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
 		_StarQuery,
-		[size](int i, Entity entity, StarPosition* position, GlobalTransform* ltw)
+		[size](int i, Entity entity, StarPosition* position, GlobalTransform* globalTransform, Transform* transform)
 		{
-			ltw->Value = glm::translate(glm::vec3(position->Value) / 20.0f) * glm::scale(size * glm::vec3(1.0f));
+			globalTransform->Value = glm::translate(glm::vec3(position->Value) / 20.0f) * glm::scale(size * glm::vec3(1.0f));
+			transform->Value = globalTransform->Value;
 		}, false
 	);
 

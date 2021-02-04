@@ -26,8 +26,8 @@ bool EditorManager::_EnableConsole = true;
 glm::vec3 EditorManager::_PreviouslyStoredPosition;
 glm::vec3 EditorManager::_PreviouslyStoredRotation;
 glm::vec3 EditorManager::_PreviouslyStoredScale;
-glm::quat EditorManager::_SceneCameraRotation = glm::quat(glm::radians(glm::vec3(-14.0f, 0.0f, 0.0f)));
-glm::vec3 EditorManager::_SceneCameraPosition = glm::vec3(0, 5, 10);
+glm::quat EditorManager::SceneCameraRotation = glm::quat(glm::radians(glm::vec3(-14.0f, 0.0f, 0.0f)));
+glm::vec3 EditorManager::SceneCameraPosition = glm::vec3(0, 5, 10);
 std::unique_ptr<CameraComponent> EditorManager::_SceneCamera;
 std::unique_ptr<GLProgram> EditorManager::_SceneCameraEntityRecorderProgram;
 std::unique_ptr<GLProgram> EditorManager::_SceneCameraEntityInstancedRecorderProgram;
@@ -225,8 +225,8 @@ void EditorManager::HighLightEntity(const Entity& entity, const glm::vec4& color
 {
 	if (!entity.IsValid() || entity.IsDeleted() || !entity.Enabled()) return;
 	CameraComponent::_CameraInfoBlock.UpdateMatrices(_SceneCamera.get(),
-		_SceneCameraPosition,
-		_SceneCameraRotation
+		SceneCameraPosition,
+		SceneCameraRotation
 	);
 	CameraComponent::_CameraInfoBlock.UploadMatrices(_SceneCamera.get());
 	_SceneCamera->Bind();
@@ -370,35 +370,47 @@ void UniEngine::EditorManager::Init()
 
 	RegisterComponentDataInspector<Transform>([](Entity entity, ComponentBase* data, bool isRoot)
 		{
+			static Entity previousEntity;
+			if(entity.IsStatic())
+			{
+				previousEntity.Index = previousEntity.Version = 0;
+				auto* ltp = static_cast<Transform*>(static_cast<void*>(data));
+				glm::vec3 er;
+				glm::vec3 t;
+				glm::vec3 s;
+				ltp->Decompose(t, er, s);
+				er = glm::degrees(er);
+				ImGui::InputFloat3("Position##Local", &t.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputFloat3("Rotation##Local", &er.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputFloat3("Scale##Local", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+				return;
+			}
 			auto* ltp = static_cast<Transform*>(static_cast<void*>(data));
 			bool edited = false;
-			static Entity previousEntity;
-			static Transform* previouslyStoredTransform = nullptr;
+			
 			if (previousEntity != entity) {
 				previousEntity = entity;
-				previouslyStoredTransform = ltp;
 				ltp->Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
 				_PreviouslyStoredRotation = glm::degrees(_PreviouslyStoredRotation);
 				_LocalPositionSelected = true;
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}
-			const bool editable = !entity.IsStatic();
-			if (ImGui::DragFloat3("##Local Position", &_PreviouslyStoredPosition.x, 0.1f, 0, 0, "%.3f", editable ? 0 : ImGuiInputTextFlags_ReadOnly)) edited = true;
+			if (ImGui::DragFloat3("##LocalPosition", &_PreviouslyStoredPosition.x, 0.1f, 0, 0)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Position##Local", &_LocalPositionSelected) && _LocalPositionSelected)
 			{
 				_LocalRotationSelected = false;
 				_LocalScaleSelected = false;
 			}
-			if (ImGui::DragFloat3("##Local Rotation", &_PreviouslyStoredRotation.x, 1.0f, 0, 0, "%.3f", editable ? 0 : ImGuiInputTextFlags_ReadOnly)) edited = true;
+			if (ImGui::DragFloat3("##LocalRotation", &_PreviouslyStoredRotation.x, 1.0f, 0, 0)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Rotation##Local", &_LocalRotationSelected) && _LocalRotationSelected)
 			{
 				_LocalPositionSelected = false;
 				_LocalScaleSelected = false;
 			}
-			if (ImGui::DragFloat3("##Local Scale", &_PreviouslyStoredScale.x, 0.01f, 0, 0, "%.3f", editable ? 0 : ImGuiInputTextFlags_ReadOnly)) edited = true;
+			if (ImGui::DragFloat3("##LocalScale", &_PreviouslyStoredScale.x, 0.01f, 0, 0)) edited = true;
 			ImGui::SameLine();
 			if (ImGui::Selectable("Scale##Local", &_LocalScaleSelected) && _LocalScaleSelected)
 			{
@@ -854,25 +866,25 @@ void EditorManager::LateUpdate()
 					}
 					if(_RightMouseButtonHold)
 					{
-						glm::vec3 front = _SceneCameraRotation * glm::vec3(0, 0, -1);
-						glm::vec3 right = _SceneCameraRotation * glm::vec3(1, 0, 0);
+						glm::vec3 front = SceneCameraRotation * glm::vec3(0, 0, -1);
+						glm::vec3 right = SceneCameraRotation * glm::vec3(1, 0, 0);
 						if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow())) {
-							_SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+							SceneCameraPosition += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow())) {
-							_SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+							SceneCameraPosition -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow())) {
-							_SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+							SceneCameraPosition -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow())) {
-							_SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+							SceneCameraPosition += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow())) {
-							_SceneCameraPosition.y += _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
+							SceneCameraPosition.y += _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, WindowManager::GetWindow())) {
-							_SceneCameraPosition.y -= _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
+							SceneCameraPosition.y -= _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
 						}
 						if (xOffset != 0 || yOffset != 0) {
 							_SceneCameraYawAngle += xOffset * _Sensitivity;
@@ -882,7 +894,7 @@ void EditorManager::LateUpdate()
 							if (_SceneCameraPitchAngle < -89.0f)
 								_SceneCameraPitchAngle = -89.0f;
 
-							_SceneCameraRotation = CameraComponent::ProcessMouseMovement(_SceneCameraYawAngle, _SceneCameraPitchAngle, false);
+							SceneCameraRotation = CameraComponent::ProcessMouseMovement(_SceneCameraYawAngle, _SceneCameraPitchAngle, false);
 						}
 					}
 #pragma endregion
@@ -895,7 +907,7 @@ void EditorManager::LateUpdate()
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
 				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
-				glm::mat4 cameraView = glm::inverse(glm::translate(_SceneCameraPosition) * glm::mat4_cast(_SceneCameraRotation));
+				glm::mat4 cameraView = glm::inverse(glm::translate(SceneCameraPosition) * glm::mat4_cast(SceneCameraRotation));
 				glm::mat4 cameraProjection = _SceneCamera->GetProjection();
 				const auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
 				if (_SelectedEntity.HasComponentData<Transform>()) {
@@ -1031,6 +1043,11 @@ void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
 {
 	if (entity.IsNull() || entity.IsDeleted()) return;
 	_SelectedEntity = entity;
+}
+
+std::unique_ptr<CameraComponent>& EditorManager::GetSceneCamera()
+{
+	return _SceneCamera;
 }
 
 bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceBehaviour>& target)
