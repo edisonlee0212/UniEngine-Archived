@@ -990,11 +990,11 @@ void UniEngine::RenderManager::PreUpdate()
 			if (cameraComponent->IsEnabled())
 			{
 				auto ltw = cameraEntity.GetComponentData<GlobalTransform>();
-				CameraComponent::_CameraInfoBlock.UpdateMatrices(cameraComponent.get(),
+				CameraComponent::CameraInfoBlock.UpdateMatrices(cameraComponent.get(),
 					ltw.GetPosition(),
 					ltw.GetRotation()
 				);
-				CameraComponent::_CameraInfoBlock.UploadMatrices(cameraComponent.get());
+				CameraComponent::CameraInfoBlock.UploadMatrices(cameraComponent.get());
 				const auto cameraTransform = cameraEntity.GetComponentData<GlobalTransform>();				
 				RenderToCameraDeferred(cameraComponent, cameraTransform, minBound, maxBound, false);
 				RenderBackGround(cameraComponent);
@@ -1005,11 +1005,11 @@ void UniEngine::RenderManager::PreUpdate()
 #pragma endregion
 #pragma region Render to scene camera
 	if (EditorManager::_Enabled && EditorManager::_SceneCamera->IsEnabled()) {
-		CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+		CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 			EditorManager::SceneCameraPosition,
 			EditorManager::SceneCameraRotation
 		);
-		CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+		CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 		GlobalTransform cameraTransform;
 		cameraTransform.Value = glm::translate(EditorManager::SceneCameraPosition) * glm::mat4_cast(EditorManager::SceneCameraRotation);
 
@@ -1084,11 +1084,11 @@ void UniEngine::RenderManager::PreUpdate()
 				auto minBound = glm::vec3((int)INT_MAX);
 				auto maxBound = glm::vec3((int)INT_MIN);
 				auto ltw = mainCameraEntity.GetComponentData<GlobalTransform>();
-				CameraComponent::_CameraInfoBlock.UpdateMatrices(mainCamera,
+				CameraComponent::CameraInfoBlock.UpdateMatrices(mainCamera,
 					ltw.GetPosition(),
 					ltw.GetRotation()
 				);
-				CameraComponent::_CameraInfoBlock.UploadMatrices(mainCamera);
+				CameraComponent::CameraInfoBlock.UploadMatrices(mainCamera);
 				GlobalTransform cameraTransform = mainCameraEntity.GetComponentData<GlobalTransform>();
 				auto& mainCameraComponent = mainCameraEntity.GetPrivateComponent<CameraComponent>();
 				RenderToCameraDeferred(mainCameraComponent, cameraTransform, minBound, maxBound, true);
@@ -1638,11 +1638,11 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 void UniEngine::RenderManager::DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model, float size)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	DrawGizmoInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
@@ -1650,11 +1650,11 @@ void UniEngine::RenderManager::DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 colo
 void RenderManager::DrawGizmoRay(glm::vec4 color, glm::vec3 start, glm::vec3 end, float width)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 
 	glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1669,11 +1669,11 @@ void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<std::pair<glm::ve
 {
 	if (connections.empty()) return;
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	std::vector<glm::mat4> models;
 	models.resize(connections.size());
@@ -1695,11 +1695,11 @@ void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<Ray>& rays, float
 {
 	if(rays.empty()) return;
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	std::vector<glm::mat4> models;
 	models.resize(rays.size());
@@ -1718,11 +1718,11 @@ void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<Ray>& rays, float
 void RenderManager::DrawGizmoRay(glm::vec4 color, Ray& ray, float width)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 
 	glm::quat rotation = glm::quatLookAt(ray.Direction, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1738,11 +1738,11 @@ void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
 	{
 		if (cameraComponent == EditorManager::_SceneCamera.get()) return;
 		if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-		CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+		CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 			EditorManager::SceneCameraPosition,
 			EditorManager::SceneCameraRotation
 		);
-		CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+		CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 		EditorManager::_SceneCamera->Bind();
 		DrawMesh(mesh, material, model, receiveShadow);
 	}
@@ -1756,11 +1756,11 @@ void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
 	glm::vec3 skew;
 	glm::vec4 perspective;
 	glm::decompose(ltw.Value, scale, rotation, trans, skew, perspective);
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(cameraComponent,
+	CameraComponent::CameraInfoBlock.UpdateMatrices(cameraComponent,
 		trans,
 		rotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(cameraComponent);
+	CameraComponent::CameraInfoBlock.UploadMatrices(cameraComponent);
 	cameraComponent->Bind();
 	DrawMesh(mesh, material, model, receiveShadow);
 }
@@ -1771,11 +1771,11 @@ void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 
 	{
 		if (cameraComponent == EditorManager::_SceneCamera.get()) return;
 		if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-		CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+		CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 			EditorManager::SceneCameraPosition,
 			EditorManager::SceneCameraRotation
 		);
-		CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+		CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 		EditorManager::_SceneCamera->Bind();
 		DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
 	}
@@ -1789,11 +1789,11 @@ void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 
 	glm::vec3 skew;
 	glm::vec4 perspective;
 	glm::decompose(ltw.Value, scale, rotation, trans, skew, perspective);
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(cameraComponent,
+	CameraComponent::CameraInfoBlock.UpdateMatrices(cameraComponent,
 		trans,
 		rotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(cameraComponent);
+	CameraComponent::CameraInfoBlock.UploadMatrices(cameraComponent);
 	cameraComponent->Bind();
 	DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
 }
@@ -1817,11 +1817,11 @@ void RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 cen
 	{
 		if (cameraComponent == EditorManager::_SceneCamera.get()) return;
 		if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-		CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+		CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 			EditorManager::SceneCameraPosition,
 			EditorManager::SceneCameraRotation
 		);
-		CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+		CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 		EditorManager::_SceneCamera->Bind();
 		DrawTexture2D(texture->Texture().get(), depth, center, size);
 	}
@@ -1863,11 +1863,11 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 void UniEngine::RenderManager::DrawGizmoPoint(glm::vec4 color, glm::mat4 model, float size)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	DrawGizmo(Default::Primitives::Sphere.get(), color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
@@ -1875,11 +1875,11 @@ void UniEngine::RenderManager::DrawGizmoPoint(glm::vec4 color, glm::mat4 model, 
 void UniEngine::RenderManager::DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model, float size)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	DrawGizmoInstanced(Default::Primitives::Sphere.get(), color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
@@ -1887,11 +1887,11 @@ void UniEngine::RenderManager::DrawGizmoPointInstanced(glm::vec4 color, glm::mat
 void UniEngine::RenderManager::DrawGizmoCube(glm::vec4 color, glm::mat4 model, float size)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	DrawGizmo(Default::Primitives::Cube.get(), color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
@@ -1899,11 +1899,11 @@ void UniEngine::RenderManager::DrawGizmoCube(glm::vec4 color, glm::mat4 model, f
 void UniEngine::RenderManager::DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model, float size)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	DrawGizmoInstanced(Default::Primitives::Cube.get(), color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
@@ -1911,11 +1911,11 @@ void UniEngine::RenderManager::DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4
 void UniEngine::RenderManager::DrawGizmoQuad(glm::vec4 color, glm::mat4 model, float size)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	DrawGizmo(Default::Primitives::Quad.get(), color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
@@ -1923,11 +1923,11 @@ void UniEngine::RenderManager::DrawGizmoQuad(glm::vec4 color, glm::mat4 model, f
 void UniEngine::RenderManager::DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model, float size)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	DrawGizmoInstanced(Default::Primitives::Quad.get(), color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
@@ -1935,11 +1935,11 @@ void UniEngine::RenderManager::DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4
 void UniEngine::RenderManager::DrawGizmoMesh(Mesh* mesh, glm::vec4 color, glm::mat4 model, float size)
 {
 	if (!EditorManager::_Enabled || !EditorManager::_SceneCamera->IsEnabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(EditorManager::_SceneCamera.get(),
 		EditorManager::SceneCameraPosition,
 		EditorManager::SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(EditorManager::_SceneCamera.get());
 	EditorManager::_SceneCamera->Bind();
 	DrawGizmo(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }

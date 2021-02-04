@@ -224,11 +224,11 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 void EditorManager::HighLightEntity(const Entity& entity, const glm::vec4& color)
 {
 	if (!entity.IsValid() || entity.IsDeleted() || !entity.Enabled()) return;
-	CameraComponent::_CameraInfoBlock.UpdateMatrices(_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(_SceneCamera.get(),
 		SceneCameraPosition,
 		SceneCameraRotation
 	);
-	CameraComponent::_CameraInfoBlock.UploadMatrices(_SceneCamera.get());
+	CameraComponent::CameraInfoBlock.UploadMatrices(_SceneCamera.get());
 	_SceneCamera->Bind();
 	glEnable(GL_STENCIL_TEST);
 	glEnable(GL_BLEND);

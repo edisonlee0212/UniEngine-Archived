@@ -59,11 +59,11 @@ namespace UniEngine {
 		std::unique_ptr<GLTexture2D> _GNormalBuffer;
 		std::unique_ptr<GLTexture2D> _GColorSpecularBuffer;
 		std::unique_ptr<GLTexture2D> _GMetallicRoughnessAO;
-		static CameraInfoBlock _CameraInfoBlock;
+		
 		static std::unique_ptr<GLUBO> _CameraUniformBufferBlock;
 		bool _IsMainCamera = false;
 	public:
-
+		static CameraInfoBlock CameraInfoBlock;
 		bool AllowAutoResize = true;
 		float NearDistance = 0.1f;
 		float FarDistance = 500.0f;

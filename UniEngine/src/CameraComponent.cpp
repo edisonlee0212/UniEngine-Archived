@@ -5,7 +5,7 @@
 #include "Ray.h"
 #include "Transforms.h"
 #include "PostProcessing.h"
-UniEngine::CameraInfoBlock UniEngine::CameraComponent::_CameraInfoBlock;
+UniEngine::CameraInfoBlock UniEngine::CameraComponent::CameraInfoBlock;
 std::unique_ptr<UniEngine::GLUBO> UniEngine::CameraComponent::_CameraUniformBufferBlock;
 UniEngine::CameraLayerMask::CameraLayerMask()
 {
@@ -135,12 +135,12 @@ glm::mat4 UniEngine::CameraComponent::GetProjection() const
 
 glm::vec3 UniEngine::CameraComponent::Project(GlobalTransform& ltw, glm::vec3 position)
 {
-	return _CameraInfoBlock.Projection * _CameraInfoBlock.View * glm::vec4(position, 1.0f);
+	return CameraInfoBlock.Projection * CameraInfoBlock.View * glm::vec4(position, 1.0f);
 }
 
 glm::vec3 UniEngine::CameraComponent::UnProject(GlobalTransform& ltw, glm::vec3 position) const
 {
-	glm::mat4 inversed = glm::inverse(_CameraInfoBlock.Projection * _CameraInfoBlock.View);
+	glm::mat4 inversed = glm::inverse(CameraInfoBlock.Projection * CameraInfoBlock.View);
 	glm::vec4 start = glm::vec4(
 		position, 1.0f);
 	start = inversed * start;
@@ -196,7 +196,7 @@ UniEngine::Ray UniEngine::CameraComponent::ScreenPointToRay(GlobalTransform& ltw
 void UniEngine::CameraComponent::GenerateMatrices()
 {
 	_CameraUniformBufferBlock = std::make_unique<GLUBO>();
-	_CameraUniformBufferBlock->SetData(sizeof(_CameraInfoBlock), nullptr, GL_STREAM_DRAW);
+	_CameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), nullptr, GL_STREAM_DRAW);
 	_CameraUniformBufferBlock->SetBase(0);
 }
 
