@@ -22,6 +22,8 @@ namespace UniEngine
 	{
 		std::map<std::string, std::unique_ptr<PostProcessingLayer>> _Layers;
 	public:
+		template <typename T>
+		T* GetLayer();
 		void PushLayer(std::unique_ptr<PostProcessingLayer> layer);
 		void RemoveLayer(const std::string& layerName);
 		void SetEnableLayer(const std::string& layerName, bool enabled);
@@ -30,4 +32,17 @@ namespace UniEngine
 		void ResizeResolution(int x, int y);
 		void OnGui() override;
 	};
+
+	template <typename T>
+	T* PostProcessing::GetLayer()
+	{
+		for(auto& layer : _Layers)
+		{
+			if(dynamic_cast<T*>(layer.second.get()))
+			{
+				return dynamic_cast<T*>(layer.second.get());
+			}
+		}
+		return nullptr;
+	}
 }

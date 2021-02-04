@@ -124,11 +124,12 @@ namespace UniEngine {
 		static void Detach();
 		static void Attach(std::unique_ptr<World>& world);
 		template<typename T = ComponentBase, typename... Ts>
-		static EntityArchetype CreateEntityArchetype(std::string name, T arg, Ts... args);
+		static EntityArchetype CreateEntityArchetype(const std::string& name, T arg, Ts... args);
 
-		static Entity CreateEntity(std::string name = "New Entity");
+		static Entity CreateEntity(const std::string& name = "New Entity");
 
-		static Entity CreateEntity(EntityArchetype archetype, std::string name = "New Entity");
+		static Entity CreateEntity(EntityArchetype archetype, const std::string& name = "New Entity");
+		static std::vector<Entity> CreateEntities(EntityArchetype archetype, const size_t& amount, const std::string& name = "New Entity");
 		static void DeleteEntity(const Entity& entity);
 
 		static std::string GetEntityName(const Entity& entity);
@@ -988,7 +989,7 @@ namespace UniEngine {
 	}
 
 	template<typename T, typename ...Ts>
-	EntityArchetype EntityManager::CreateEntityArchetype(std::string name, T arg, Ts ...args)
+	EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, T arg, Ts ...args)
 	{
 		if (!CheckComponentTypes(arg, args...))
 		{

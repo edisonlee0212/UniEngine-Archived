@@ -254,7 +254,7 @@ void UniEngine::EntityManager::Attach(std::unique_ptr<World>& world)
 }
 
 
-Entity EntityManager::CreateEntity(std::string name)
+Entity EntityManager::CreateEntity(const std::string& name)
 {
 	if (!_CurrentAttachedWorldEntityStorage)
 	{
@@ -264,7 +264,7 @@ Entity EntityManager::CreateEntity(std::string name)
 	return CreateEntity(_BasicArchetype, name);
 }
 
-Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::string name)
+Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, const std::string& name)
 {
 	if (!_CurrentAttachedWorldEntityStorage)
 	{
@@ -276,7 +276,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 	EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
 	EntityArchetypeInfo* info = storage.ArchetypeInfo;
 	if (info->EntityCount == info->EntityAliveCount) {
-		size_t chunkIndex = info->EntityCount / info->ChunkCapacity;
+		size_t chunkIndex = info->EntityCount + 1 / info->ChunkCapacity;
 		if (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 			//Allocate new chunk;
 			ComponentDataChunk chunk;
@@ -288,9 +288,6 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 		retVal.Version = 1;
 		EntityInfo entityInfo;
 		entityInfo.Name = name;
-		entityInfo.Version = 1;
-		entityInfo.Parent = Entity();
-		entityInfo.Enabled = true;
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
 		entityInfo.ChunkArrayIndex = info->EntityCount;
 		storage.ChunkArray->Entities.push_back(retVal);
@@ -325,6 +322,55 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, std::st
 	retVal.SetComponentData(transform);
 	retVal.SetComponentData(globalTransform);
 	
+	return retVal;
+}
+
+std::vector<Entity> EntityManager::CreateEntities(EntityArchetype archetype, const size_t& amount, const std::string& name)
+{
+	if (!_CurrentAttachedWorldEntityStorage)
+	{
+		Debug::Error("EntityManager not attached to any world!");
+		return std::vector<Entity>();
+	}
+	if (archetype.IsValid()) return std::vector<Entity>();
+	
+	EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
+	EntityArchetypeInfo* info = storage.ArchetypeInfo;
+	info->EntityCount += amount;
+	info->EntityAliveCount += amount;
+	size_t chunkIndex = info->EntityCount + 1 / info->ChunkCapacity;
+	while (storage.ChunkArray->Chunks.size() <= chunkIndex) {
+		//Allocate new chunk;
+		ComponentDataChunk chunk;
+		chunk.Data = (void*)calloc(1, ARCHETYPECHUNK_SIZE);
+		storage.ChunkArray->Chunks.push_back(chunk);
+	}
+	const size_t originalSize = _Entities->size();
+	_Entities->resize(originalSize + amount);
+	_EntityInfos->resize(originalSize + amount);
+	
+	for(int i = 0; i < amount; i++)
+	{
+		auto& entity = _Entities->at(originalSize + i);
+		entity.Index = originalSize + i;
+		entity.Version = 1;
+		
+		auto& entityInfo = _EntityInfos->at(originalSize + i);
+		entityInfo.Name = name;
+		entityInfo.ArchetypeInfoIndex = archetype.Index;
+		entityInfo.ChunkArrayIndex = info->EntityCount - amount + i;
+	}
+	std::vector<Entity> retVal;
+	storage.ChunkArray->Entities.insert(storage.ChunkArray->Entities.end(), _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
+	const Transform transform;
+	const GlobalTransform globalTransform;
+	for (int i = 0; i < amount; i++)
+	{
+		auto& entity = _Entities->at(originalSize + i);
+		entity.SetComponentData(transform);
+		entity.SetComponentData(globalTransform);
+	}
+	retVal.insert(retVal.begin(), _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
 	return retVal;
 }
 

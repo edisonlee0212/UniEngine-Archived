@@ -187,10 +187,10 @@ namespace UniEngine {
 	struct EntityInfo {
 		friend class PrivateComponentStorage;
 		std::string Name;
-		size_t Version;
+		size_t Version = 1;
 		bool Static = false;
 		bool Enabled = true;
-		Entity Parent;
+		Entity Parent = Entity();
 		std::vector<PrivateComponentElement> PrivateComponentElements;
 		std::vector<Entity> Children;
 		size_t ArchetypeInfoIndex;
