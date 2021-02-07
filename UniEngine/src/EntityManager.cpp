@@ -364,12 +364,44 @@ std::vector<Entity> EntityManager::CreateEntities(EntityArchetype archetype, con
 	storage.ChunkArray->Entities.insert(storage.ChunkArray->Entities.end(), _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
 	const Transform transform;
 	const GlobalTransform globalTransform;
-	for (int i = 0; i < amount; i++)
+
+	const int threadSize = JobManager::GetThreadPool().Size();
+	int perThreadAmount = amount / threadSize;
+	int reminder = amount % threadSize;
+	if(perThreadAmount > 0)
 	{
-		auto& entity = _Entities->at(originalSize + i);
-		entity.SetComponentData(transform);
-		entity.SetComponentData(globalTransform);
+		std::vector<std::shared_future<void>> results;
+		for(int i = 0; i < threadSize; i++)
+		{
+			results.push_back(
+				JobManager::GetThreadPool().Push([i, perThreadAmount, originalSize](int id)
+					{
+						const Transform transform;
+						const GlobalTransform globalTransform;
+						for (int index = originalSize + i * perThreadAmount; index < originalSize + (i + 1) * perThreadAmount; index++) {
+							auto& entity = _Entities->at(index);
+							entity.SetComponentData(transform);
+							entity.SetComponentData(globalTransform);
+						}
+					}
+			).share());
+		}
+		results.push_back(
+			JobManager::GetThreadPool().Push([perThreadAmount, originalSize, &amount, threadSize](int id)
+				{
+					const Transform transform;
+					const GlobalTransform globalTransform;
+					for (int index = originalSize + threadSize * perThreadAmount; index < originalSize + amount; index++) {
+						auto& entity = _Entities->at(index);
+						entity.SetComponentData(transform);
+						entity.SetComponentData(globalTransform);
+					}
+				}
+		).share());
+		for (const auto& i : results) i.wait();
 	}
+
+	
 	retVal.insert(retVal.begin(), _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
 	return retVal;
 }

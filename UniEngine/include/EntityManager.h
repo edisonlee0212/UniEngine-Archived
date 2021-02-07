@@ -296,7 +296,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							size_t index = i + chunkIndex * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
 							);
@@ -312,7 +312,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							size_t index = i + chunkAmount * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size)
 							);
@@ -360,7 +360,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							size_t index = i + chunkIndex * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
@@ -377,7 +377,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							size_t index = i + chunkAmount * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size)
@@ -431,7 +431,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							size_t index = i + chunkIndex * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -449,7 +449,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							size_t index = i + chunkAmount * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -511,7 +511,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							size_t index = i + chunkIndex * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -530,7 +530,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							size_t index = i + chunkAmount * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -600,7 +600,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							size_t index = i + chunkIndex * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -620,7 +620,7 @@ namespace UniEngine {
 						for (int i = 0; i < remainder; i++) {
 							int index = i + chunkAmount * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -698,7 +698,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							size_t index = i + chunkIndex * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -719,7 +719,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							size_t index = i + chunkAmount * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -805,7 +805,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							size_t index = i + chunkIndex * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -827,7 +827,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							size_t index = i + chunkAmount * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -921,7 +921,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							size_t index = i + chunkIndex * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
@@ -944,7 +944,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							size_t index = i + chunkAmount * capacity;
 							Entity entity = entities->at(index);
-							if (checkEnable && !entity.Enabled()) continue;
+							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
 							func((int)index, entity,
 								(T1*)((char*)data + targetType1.Offset * capacity + (i % capacity) * targetType1.Size),
 								(T2*)((char*)data + targetType2.Offset * capacity + (i % capacity) * targetType2.Size),
