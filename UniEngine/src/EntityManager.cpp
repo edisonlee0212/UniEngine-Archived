@@ -349,12 +349,8 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 	}
 	std::vector<Entity> retVal;
 	storage.ChunkArray->Entities.insert(storage.ChunkArray->Entities.end(), _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
-	const Transform transform;
-	const GlobalTransform globalTransform;
-
 	const int threadSize = JobManager::GetThreadPool().Size();
 	int perThreadAmount = amount / threadSize;
-	int reminder = amount % threadSize;
 	if(perThreadAmount > 0)
 	{
 		std::vector<std::shared_future<void>> results;
