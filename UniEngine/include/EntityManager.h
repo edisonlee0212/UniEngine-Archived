@@ -41,79 +41,79 @@ namespace UniEngine {
 		static size_t CollectComponentTypes(std::vector<ComponentType>* componentTypes, T arg, Ts... args);
 		template<typename T = ComponentBase, typename... Ts>
 		static std::vector<ComponentType> CollectComponentTypes(T arg, Ts... args);
-		static void DeleteEntityInternal(Entity entity);
-		static void RefreshEntityQueryInfos(size_t index);
+		static void DeleteEntityInternal(const Entity& entity);
+		static void RefreshEntityQueryInfos(const size_t& index);
 		static void EraseDuplicates(std::vector<ComponentType>& types);
 #pragma region ForEach
 		template<typename T1 = ComponentBase>
-		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable = true);
+		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable = true);
+		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
-		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable = true);
+		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase>
-		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable = true);
+		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase>
-		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable = true);
+		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase>
-		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable = true);
+		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase>
-		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
+		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
-		static void ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
+		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
 
 #pragma endregion
 		template<typename T = ComponentBase>
-		static void GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>& container);
-		static void GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>& container);
-		static size_t SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2);
+		static void GetComponentDataArrayStorage(const EntityComponentStorage& storage, std::vector<T>& container);
+		static void GetEntityStorage(const EntityComponentStorage& storage, std::vector<Entity>& container);
+		static size_t SwapEntity(const EntityComponentStorage& storage, size_t index1, size_t index2);
 
 		template<typename T = ComponentBase>
-		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T>& container);
+		static void GetComponentDataArray(const EntityQuery& entityQuery, std::vector<T>& container);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container, const std::function<bool(T2&)>& filterFunc);
+		static void GetComponentDataArray(const EntityQuery& entityQuery, std::vector<T1>& container, const std::function<bool(const T2&)>& filterFunc);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
-		static void GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container, const std::function<bool(T2&, T3&)>& filterFunc);
+		static void GetComponentDataArray(const EntityQuery& entityQuery, std::vector<T1>& container, const std::function<bool(const T2&, const T3&)>& filterFunc);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static void GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>& container);
+		static void GetComponentDataArray(const EntityQuery& entityQuery, const T1& filter, std::vector<T2>& container);
 
 
-		static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container);
+		static void GetEntityArray(const EntityQuery& entityQuery, std::vector<Entity>& container);
 		template<typename T1 = ComponentBase>
-		static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container, const std::function<bool(Entity, T1&)>& filterFunc);
+		static void GetEntityArray(const EntityQuery& entityQuery, std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&)>& filterFunc);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static void GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container, const std::function<bool(Entity, T1&, T2&)>& filterFunc);
+		static void GetEntityArray(const EntityQuery& entityQuery, std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&, const T2&)>& filterFunc);
 		template<typename T1 = ComponentBase>
-		static void GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container);
+		static void GetEntityArray(const EntityQuery& entityQuery, const T1& filter, std::vector<Entity>& container);
 
 		static size_t GetEntityAmount(EntityQuery entityQuery);
 		//Enable or Disable an Entity. Note that the disable action will recursively disable the children of current entity. 
-		static void SetEnable(const Entity& entity, bool value);
-		static void SetStatic(const Entity& entity, bool value);
+		static void SetEnable(const Entity& entity, const bool& value);
+		static void SetStatic(const Entity& entity, const bool& value);
 
-		static void SetEnableSingle(const Entity& entity, bool value);
+		static void SetEnableSingle(const Entity& entity, const bool& value);
 		static bool IsEntityEnabled(const Entity& entity);
 		static bool IsEntityStatic(const Entity& entity);
 
-		static bool IsEntityDeleted(size_t index);
+		static bool IsEntityDeleted(const size_t& index);
 		static bool IsEntityValid(const Entity& entity);
 		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
-		static std::vector<EntityComponentStorage> UnsafeQueryStorage(EntityQuery entityQuery);
-		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype);
+		static std::vector<EntityComponentStorage> UnsafeQueryStorage(const EntityQuery& entityQuery);
+		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(const EntityArchetype& entityArchetype);
 		static std::vector<Entity>* UnsafeGetAllEntities();
 		static std::vector<Entity>* UnsafeGetParentRoots();
-		static void UnsafeForEachComponent(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func);
-		static void UnsafeForEachEntityStorage(const std::function<void(int i, EntityComponentStorage storage)>& func);
+		static void UnsafeForEachComponent(const Entity& entity, const std::function<void(const ComponentType& type, void* data)>& func);
+		static void UnsafeForEachEntityStorage(const std::function<void(int i, const EntityComponentStorage& storage)>& func);
 
 		static void SetComponentData(const Entity& entity, size_t id, size_t size, ComponentBase* data);
 		friend class SerializationManager;
-		static ComponentBase* GetComponentDataPointer(const Entity& entity, size_t id);
+		static ComponentBase* GetComponentDataPointer(const Entity& entity, const size_t& id);
 		static EntityArchetype CreateEntityArchetype(const std::string& name, const std::vector<ComponentType>& types);
-		static void SetPrivateComponent(const Entity& entity, const std::string& name, size_t id, PrivateComponentBase* ptr);
+		static void SetPrivateComponent(const Entity& entity, const std::string& name, const size_t& id, PrivateComponentBase* ptr);
 		static bool IsEntityArchetypeValid(const EntityArchetype& archetype);
 	public:
 		static Entity GetRoot(const Entity& entity);
-		static Entity GetEntity(size_t index);
+		static Entity GetEntity(const size_t& index);
 		static EntityArchetype GetEntityArchetype(const Entity& entity);
 
 		template <typename T>
@@ -128,8 +128,8 @@ namespace UniEngine {
 
 		static Entity CreateEntity(const std::string& name = "New Entity");
 
-		static Entity CreateEntity(EntityArchetype archetype, const std::string& name = "New Entity");
-		static std::vector<Entity> CreateEntities(EntityArchetype archetype, const size_t& amount, const std::string& name = "New Entity");
+		static Entity CreateEntity(const EntityArchetype& archetype, const std::string& name = "New Entity");
+		static std::vector<Entity> CreateEntities(const EntityArchetype& archetype, const size_t& amount, const std::string& name = "New Entity");
 		static void DeleteEntity(const Entity& entity);
 
 		static std::string GetEntityName(const Entity& entity);
@@ -147,18 +147,18 @@ namespace UniEngine {
 		static size_t GetParentHierarchyVersion();
 
 		template<typename T = ComponentBase>
-		static void AddComponentData(const Entity& entity, T value);
+		static void AddComponentData(const Entity& entity, const T& value);
 
 		template<typename T = ComponentBase>
 		static T RemoveComponentData(const Entity& entity);
 
-		static void RemoveComponentData(const Entity& entity, size_t typeID);
+		static void RemoveComponentData(const Entity& entity, const size_t& typeID);
 
 		template<typename T = ComponentBase>
-		static void SetComponentData(const Entity& entity, T value);
+		static void SetComponentData(const Entity& entity, const T& value);
 
 		template<typename T = ComponentBase>
-		static void SetComponentData(size_t index, T value);
+		static void SetComponentData(const size_t& index, const T& value);
 
 		template<typename T = ComponentBase>
 		static T GetComponentData(const Entity& entity);
@@ -169,9 +169,9 @@ namespace UniEngine {
 		static bool HasComponentData(const Entity& entity);
 
 		template<typename T = ComponentBase>
-		static T GetComponentData(size_t index);
+		static T GetComponentData(const size_t& index);
 		template<typename T = ComponentBase>
-		static bool HasComponentData(size_t index);
+		static bool HasComponentData(const size_t& index);
 
 
 		template <typename T = PrivateComponentBase>
@@ -183,7 +183,7 @@ namespace UniEngine {
 		template <typename T = PrivateComponentBase>
 		static bool HasPrivateComponent(const Entity& entity);
 
-		static void RemovePrivateComponent(const Entity& entity, size_t typeId);
+		static void RemovePrivateComponent(const Entity& entity, const size_t& typeId);
 
 		static EntityQuery CreateEntityQuery();
 		template<typename T = ComponentBase, typename... Ts>
@@ -268,7 +268,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma region ForEachStorage
 	template<typename T1>
-	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable)
+	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable)
 	{
 		auto targetType1 = typeof<T1>();
 		const auto entityCount = storage.ArchetypeInfo->EntityAliveCount;
@@ -326,7 +326,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2>
-	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable)
+	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable)
 	{
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
@@ -396,7 +396,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3>
-	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -475,7 +475,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4>
-	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -565,7 +565,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -666,7 +666,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -778,7 +778,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -901,7 +901,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-	void EntityManager::ForEachStorage(EntityComponentStorage storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -1037,7 +1037,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma region Others
 	template<typename T>
-	void EntityManager::GetComponentDataArrayStorage(EntityComponentStorage storage, std::vector<T>& container)
+	void EntityManager::GetComponentDataArrayStorage(const EntityComponentStorage& storage, std::vector<T>& container)
 	{
 		auto targetType = typeof<T>();
 		for (const auto& type : storage.ArchetypeInfo->ComponentTypes)
@@ -1108,7 +1108,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma region GetSetHas
 	template <typename T>
-	void EntityManager::AddComponentData(const Entity& entity, T value)
+	void EntityManager::AddComponentData(const Entity& entity, const T& value)
 	{
 		if (!entity.IsValid()) return;
 		const auto id = typeid(T).hash_code();
@@ -1325,7 +1325,7 @@ namespace UniEngine {
 
 
 	template<typename T>
-	void EntityManager::SetComponentData(const Entity& entity, T value)
+	void EntityManager::SetComponentData(const Entity& entity, const T& value)
 	{
 		if (!entity.IsValid()) return;
 		EntityInfo& info = _EntityInfos->at(entity.Index);
@@ -1362,7 +1362,7 @@ namespace UniEngine {
 		Debug::Error("Entity version mismatch!");
 	}
 	template<typename T>
-	void EntityManager::SetComponentData(size_t index, T value)
+	void EntityManager::SetComponentData(const size_t& index, const T& value)
 	{
 		if (index > _EntityInfos->size()) return;
 		EntityInfo& info = _EntityInfos->at(index);
@@ -1464,7 +1464,7 @@ namespace UniEngine {
 		return false;
 	}
 	template<typename T>
-	T EntityManager::GetComponentData(size_t index)
+	T EntityManager::GetComponentData(const size_t& index)
 	{
 		if (index > _EntityInfos->size()) return T();
 		EntityInfo& info = _EntityInfos->at(index);
@@ -1498,7 +1498,7 @@ namespace UniEngine {
 		return T();
 	}
 	template<typename T>
-	bool EntityManager::HasComponentData(size_t index)
+	bool EntityManager::HasComponentData(const size_t& index)
 	{
 		if (index > _EntityInfos->size()) return false;
 		EntityInfo& info = _EntityInfos->at(index);
@@ -1733,7 +1733,7 @@ namespace UniEngine {
 	}
 #pragma endregion
 	template<typename T>
-	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T>& container)
+	void EntityManager::GetComponentDataArray(const EntityQuery& entityQuery, std::vector<T>& container)
 	{
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
@@ -1747,8 +1747,8 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2>
-	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container,
-		const std::function<bool(T2&)>& filterFunc)
+	void EntityManager::GetComponentDataArray(const EntityQuery& entityQuery, std::vector<T1>& container,
+		const std::function<bool(const T2&)>& filterFunc)
 	{
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
@@ -1795,8 +1795,8 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2, typename T3>
-	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, std::vector<T1>& container,
-		const std::function<bool(T2&, T3&)>& filterFunc)
+	void EntityManager::GetComponentDataArray(const EntityQuery& entityQuery, std::vector<T1>& container,
+		const std::function<bool(const T2&, const T3&)>& filterFunc)
 	{
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
@@ -1845,7 +1845,7 @@ namespace UniEngine {
 	}
 
 	template<typename T1, typename T2>
-	void EntityManager::GetComponentDataArray(EntityQuery entityQuery, T1 filter, std::vector<T2>& container)
+	void EntityManager::GetComponentDataArray(const EntityQuery& entityQuery, const T1& filter, std::vector<T2>& container)
 	{
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
@@ -1892,8 +1892,8 @@ namespace UniEngine {
 	}
 
 	template <typename T1>
-	void EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container,
-		const std::function<bool(Entity, T1&)>& filterFunc)
+	void EntityManager::GetEntityArray(const EntityQuery& entityQuery, std::vector<Entity>& container,
+		const std::function<bool(const Entity&, const T1&)>& filterFunc)
 	{
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
@@ -1940,8 +1940,8 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2>
-	void EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container,
-		const std::function<bool(Entity, T1&, T2&)>& filterFunc)
+	void EntityManager::GetEntityArray(const EntityQuery& entityQuery, std::vector<Entity>& container,
+		const std::function<bool(const Entity&, const T1&, const T2&)>& filterFunc)
 	{
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
@@ -1991,7 +1991,7 @@ namespace UniEngine {
 
 
 	template<typename T1>
-	void EntityManager::GetEntityArray(EntityQuery entityQuery, T1 filter, std::vector<Entity>& container)
+	void EntityManager::GetEntityArray(const EntityQuery& entityQuery, const T1& filter, std::vector<Entity>& container)
 	{
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
@@ -2043,7 +2043,7 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	void Entity::SetComponentData(T value) const
+	void Entity::SetComponentData(const T& value) const
 	{
 		EntityManager::SetComponentData(*this, value);
 	}
@@ -2116,31 +2116,38 @@ namespace UniEngine {
 
 	template <typename T1, typename T2>
 	void EntityQuery::ToComponentDataArray(std::vector<T1>& container,
-		const std::function<bool(T2&)>& filterFunc)
+		const std::function<bool(const T2&)>& filterFunc)
 	{
 		EntityManager::GetComponentDataArray(*this, container, filterFunc);
 	}
 
 	template <typename T1, typename T2, typename T3>
 	void EntityQuery::ToComponentDataArray(std::vector<T1>& container,
-		const std::function<bool(T2&, T3&)>& filterFunc)
+		const std::function<bool(const T2&, const T3&)>& filterFunc)
 	{
 		EntityManager::GetComponentDataArray(*this, container, filterFunc);
 	}
 
 	template<typename T1, typename T2>
-	void EntityQuery::ToComponentDataArray(T1 filter, std::vector<T2>& container)
+	void EntityQuery::ToComponentDataArray(const T1& filter, std::vector<T2>& container)
 	{
 		EntityManager::GetComponentDataArray(*this, filter, container);
 	}
 	template<typename T1>
-	void EntityQuery::ToEntityArray(T1 filter, std::vector<Entity>& container)
+	void EntityQuery::ToEntityArray(const T1& filter, std::vector<Entity>& container)
 	{
 		EntityManager::GetEntityArray(*this, filter, container);
 	}
 
 	template <typename T1>
-	void EntityQuery::ToEntityArray(std::vector<Entity>& container, const std::function<bool(Entity, T1&)>& filterFunc)
+	void EntityQuery::ToEntityArray(std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&)>& filterFunc)
+	{
+		EntityManager::GetEntityArray<T1>(*this, container, filterFunc);
+	}
+
+	template <typename T1, typename T2>
+	void EntityQuery::ToEntityArray(std::vector<Entity>& container,
+		const std::function<bool(const Entity&, const T1&, const T2&)>& filterFunc)
 	{
 		EntityManager::GetEntityArray<T1>(*this, container, filterFunc);
 	}

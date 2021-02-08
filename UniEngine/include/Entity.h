@@ -5,14 +5,14 @@ namespace UniEngine {
 #pragma region EntityManager
 #pragma region Entity
 	struct UNIENGINE_API ComponentType final {
-		std::string Name;
-		size_t TypeID;
+		std::string Name = "";
+		size_t TypeID = 0;
 		//Size of component
-		size_t Size;
+		size_t Size = 0;
 		//Starting point of the component, this part is not comparable
-		size_t Offset;
+		size_t Offset = 0;
 		ComponentType() = default;
-		ComponentType(const std::string& name, size_t id, size_t size)
+		ComponentType(const std::string& name, const size_t& id, const size_t& size)
 		{
 			Name = name;
 			TypeID = id;
@@ -47,21 +47,22 @@ namespace UniEngine {
 		bool operator !=(const Entity& other) const {
 			return (other.Index != Index) || (other.Version != Version);
 		}
+		
 		size_t operator() (Entity const& key) const
 		{
 			return static_cast<size_t>(Index);
 		}
-
-		bool Enabled() const;
-		void SetStatic(bool value) const;
-		void SetEnabled(bool value) const;
-		void SetEnabledSingle(bool value) const;
+		
+		bool IsEnabled() const;
+		void SetStatic(const bool& value) const;
+		void SetEnabled(const bool& value) const;
+		void SetEnabledSingle(const bool& value) const;
 		bool IsNull() const;
 		bool IsStatic() const;
 		bool IsDeleted() const;
 		bool IsValid() const;
 		template<typename T = ComponentBase>
-		void SetComponentData(T value) const;
+		void SetComponentData(const T& value) const;
 		template<typename T = ComponentBase>
 		T GetComponentData() const;
 		template<typename T = ComponentBase>
@@ -77,7 +78,7 @@ namespace UniEngine {
 		bool HasPrivateComponent() const;
 		
 		inline std::string GetName() const;
-		inline void SetName(std::string name) const;
+		inline void SetName(const std::string& name) const;
 	};
 #pragma region Storage
 
@@ -135,20 +136,20 @@ namespace UniEngine {
 		{
 			return T(*reinterpret_cast<T*>(static_cast<char*>(Data) + offset));
 		}
-		ComponentBase* GetDataPointer(size_t offset) const
+		ComponentBase* GetDataPointer(const size_t& offset) const
 		{
 			return reinterpret_cast<ComponentBase*>(static_cast<char*>(Data) + offset);
 		}
 		template<typename T>
-		void SetData(size_t offset, T data)
+		void SetData(const size_t& offset, const T& data)
 		{
 			*reinterpret_cast<T*>(static_cast<char*>(Data) + offset) = data;
 		}
-		void SetData(size_t offset, size_t size, ComponentBase* data) const
+		void SetData(const size_t& offset, const size_t& size, ComponentBase* data) const
 		{
 			memcpy(static_cast<void*>(static_cast<char*>(Data) + offset), data, size);
 		}
-		void ClearData(size_t offset, size_t size) const
+		void ClearData(const size_t& offset, const size_t& size) const
 		{
 			memset(static_cast<void*>(static_cast<char*>(Data) + offset), 0, size);
 		}
@@ -173,7 +174,7 @@ namespace UniEngine {
 		std::string Name;
 		size_t TypeID;
 		std::unique_ptr<PrivateComponentBase> PrivateComponentData;
-		PrivateComponentElement(const std::string& name, size_t id, std::unique_ptr<PrivateComponentBase> data, Entity owner)
+		PrivateComponentElement(const std::string& name, const size_t& id, std::unique_ptr<PrivateComponentBase> data, const Entity& owner)
 		{
 			Name = name;
 			TypeID = id;
@@ -181,7 +182,7 @@ namespace UniEngine {
 			PrivateComponentData->_Owner = owner;
 			PrivateComponentData->Init();
 		}
-		void ResetOwner(Entity newOwner) const { PrivateComponentData->_Owner = newOwner; }
+		void ResetOwner(const Entity& newOwner) const { PrivateComponentData->_Owner = newOwner; }
 	};
 	
 	struct EntityInfo {
@@ -222,7 +223,7 @@ namespace UniEngine {
 		bool operator !=(const EntityQuery& other) const {
 			return other.Index != Index;
 		}
-		size_t operator() (EntityQuery const& key) const
+		size_t operator() (const EntityQuery& key) const
 		{
 			return Index;
 		}
@@ -241,16 +242,18 @@ namespace UniEngine {
 		template<typename T1 = ComponentBase>
 		void ToComponentDataArray(std::vector<T1>& container);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(T2&)>& filterFunc);
+		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(const T2&)>& filterFunc);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
-		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(T2&, T3&)>& filterFunc);
+		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(const T2&, const T3&)>& filterFunc);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		void ToComponentDataArray(T1 filter, std::vector<T2>& container);
+		void ToComponentDataArray(const T1& filter, std::vector<T2>& container);
 		void ToEntityArray(std::vector<Entity>& container) const;
 		template<typename T1 = ComponentBase>
-		void ToEntityArray(T1 filter, std::vector<Entity>& container);
+		void ToEntityArray(const T1& filter, std::vector<Entity>& container);
 		template<typename T1 = ComponentBase>
-		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(Entity, T1&)>& filterFunc);
+		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&)>& filterFunc);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&, const T2&)>& filterFunc);
 		size_t GetEntityAmount() const;
 	};
 

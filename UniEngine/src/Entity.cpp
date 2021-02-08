@@ -4,22 +4,22 @@
 
 #include "EntityManager.h"
 using namespace UniEngine;
-inline bool UniEngine::Entity::Enabled() const
+inline bool UniEngine::Entity::IsEnabled() const
 {
 	return EntityManager::IsEntityEnabled(*this);
 }
 
-void Entity::SetStatic(bool value) const
+void Entity::SetStatic(const bool& value) const
 {
 	EntityManager::SetStatic(*this, value);
 }
 
-inline void UniEngine::Entity::SetEnabled(bool value) const
+inline void UniEngine::Entity::SetEnabled(const bool& value) const
 {
 	EntityManager::SetEnable(*this, value);
 }
 
-void Entity::SetEnabledSingle(bool value) const
+void Entity::SetEnabledSingle(const bool& value) const
 {
 	EntityManager::SetEnableSingle(*this, value);
 }
@@ -50,7 +50,7 @@ inline std::string Entity::GetName() const
 	return EntityManager::GetEntityName(*this);
 }
 
-inline void Entity::SetName(std::string name) const
+inline void Entity::SetName(const std::string& name) const
 {
 	return EntityManager::SetEntityName(*this, std::move(name));
 }

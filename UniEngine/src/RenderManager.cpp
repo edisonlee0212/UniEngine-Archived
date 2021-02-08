@@ -65,7 +65,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 		auto& program = _GBufferPrepass;
 		program->Bind();
 		for (auto owner : *owners) {
-			if (!owner.Enabled()) continue;
+			if (!owner.IsEnabled()) continue;
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || mmc->ForwardRendering) continue;
 			if (mmc->Material->BlendingMode != MaterialBlendingMode::OFF) continue;
@@ -100,7 +100,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 		auto& program = _GBufferInstancedPrepass;
 		program->Bind();
 		for (auto owner : *owners) {
-			if (!owner.Enabled()) continue;
+			if (!owner.IsEnabled()) continue;
 			auto& immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || immc->ForwardRendering) continue;
 			if (immc->Material->BlendingMode != MaterialBlendingMode::OFF) continue;
@@ -191,7 +191,7 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 	const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners) {
 		for (auto owner : *owners) {
-			if (!owner.Enabled()) continue;
+			if (!owner.IsEnabled()) continue;
 			auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 			if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr || !mmc->ForwardRendering && mmc->Material->BlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
@@ -226,7 +226,7 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 	owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 	if (owners) {
 		for (auto owner : *owners) {
-			if (!owner.Enabled()) continue;
+			if (!owner.IsEnabled()) continue;
 			auto& immc = owner.GetPrivateComponent<Particles>();
 			if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr || !immc->ForwardRendering && immc->Material->BlendingMode == MaterialBlendingMode::OFF) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
@@ -515,7 +515,7 @@ void UniEngine::RenderManager::PreUpdate()
 	if (cameraEntities != nullptr)
 	{
 		for (auto cameraEntity : *cameraEntities) {
-			if (!cameraEntity.Enabled()) continue;
+			if (!cameraEntity.IsEnabled()) continue;
 			auto& cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
 			if(cameraComponent->IsEnabled()) cameraComponent->Clear();
 		}
@@ -525,7 +525,7 @@ void UniEngine::RenderManager::PreUpdate()
 	glm::vec3 minBound = worldBound.Min;
 	if (_MainCameraComponent != nullptr) {
 		auto mainCameraEntity = _MainCameraComponent->GetOwner();
-		if (mainCameraEntity.Enabled()) {
+		if (mainCameraEntity.IsEnabled()) {
 			auto& mainCamera = _MainCameraComponent;
 #pragma region Shadow
 			if (_MainCameraComponent->IsEnabled()) {
@@ -541,7 +541,7 @@ void UniEngine::RenderManager::PreUpdate()
 					size_t enabledSize = 0;
 					for (int i = 0; i < size; i++) {
 						Entity lightEntity = directionalLightEntities->at(i);
-						if (!lightEntity.Enabled()) continue;
+						if (!lightEntity.IsEnabled()) continue;
 						const auto& dlc = lightEntity.GetPrivateComponent<DirectionalLight>();
 						if (!dlc->IsEnabled()) continue;
 						glm::quat rotation = lightEntity.GetComponentData<GlobalTransform>().GetRotation();
@@ -659,7 +659,7 @@ void UniEngine::RenderManager::PreUpdate()
 						_DirectionalLightProgram->Bind();
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = directionalLightEntities->at(i);
-							if (!lightEntity.Enabled()) continue;
+							if (!lightEntity.IsEnabled()) continue;
 							/*
 							glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(),
 								0, _DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y,
@@ -670,7 +670,7 @@ void UniEngine::RenderManager::PreUpdate()
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 							if (owners) {
 								for (auto owner : *owners) {
-									if (!owner.Enabled()) continue;
+									if (!owner.IsEnabled()) continue;
 									auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 									if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 									MaterialPropertySetter(mmc.get()->Material.get(), true);
@@ -692,13 +692,13 @@ void UniEngine::RenderManager::PreUpdate()
 						_DirectionalLightInstancedProgram->Bind();
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = directionalLightEntities->at(i);
-							if (!lightEntity.Enabled()) continue;
+							if (!lightEntity.IsEnabled()) continue;
 							glViewport(_DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y, _DirectionalLights[enabledSize].viewPort.z, _DirectionalLights[enabledSize].viewPort.w);
 							_DirectionalLightInstancedProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 							if (owners) {
 								for (auto owner : *owners) {
-									if (!owner.Enabled()) continue;
+									if (!owner.IsEnabled()) continue;
 									auto& immc = owner.GetPrivateComponent<Particles>();
 									if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 									MaterialPropertySetter(immc.get()->Material.get(), true);
@@ -739,7 +739,7 @@ void UniEngine::RenderManager::PreUpdate()
 					size_t enabledSize = 0;
 					for (int i = 0; i < size; i++) {
 						Entity lightEntity = pointLightEntities->at(i);
-						if (!lightEntity.Enabled()) continue;
+						if (!lightEntity.IsEnabled()) continue;
 						const auto& plc = lightEntity.GetPrivateComponent<PointLight>();
 						if (!plc->IsEnabled()) continue;
 						glm::vec3 position = EntityManager::GetComponentData<GlobalTransform>(lightEntity).Value[3];
@@ -788,13 +788,13 @@ void UniEngine::RenderManager::PreUpdate()
 						enabledSize = 0;
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = pointLightEntities->at(i);
-							if (!lightEntity.Enabled()) continue;
+							if (!lightEntity.IsEnabled()) continue;
 							glViewport(_PointLights[enabledSize].viewPort.x, _PointLights[enabledSize].viewPort.y, _PointLights[enabledSize].viewPort.z, _PointLights[enabledSize].viewPort.w);
 							_PointLightProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 							if (owners) {
 								for (auto owner : *owners) {
-									if (!owner.Enabled()) continue;
+									if (!owner.IsEnabled()) continue;
 									auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 									if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 									MaterialPropertySetter(mmc.get()->Material.get(), true);
@@ -814,13 +814,13 @@ void UniEngine::RenderManager::PreUpdate()
 						_PointLightInstancedProgram->Bind();
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = pointLightEntities->at(i);
-							if (!lightEntity.Enabled()) continue;
+							if (!lightEntity.IsEnabled()) continue;
 							glViewport(_PointLights[enabledSize].viewPort.x, _PointLights[enabledSize].viewPort.y, _PointLights[enabledSize].viewPort.z, _PointLights[enabledSize].viewPort.w);
 							_PointLightInstancedProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 							if (owners) {
 								for (auto owner : *owners) {
-									if (!owner.Enabled()) continue;
+									if (!owner.IsEnabled()) continue;
 									auto& immc = owner.GetPrivateComponent<Particles>();
 									if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 									MaterialPropertySetter(immc.get()->Material.get(), true);
@@ -862,7 +862,7 @@ void UniEngine::RenderManager::PreUpdate()
 					size_t enabledSize = 0;
 					for (int i = 0; i < size; i++) {
 						Entity lightEntity = spotLightEntities->at(i);
-						if (!lightEntity.Enabled()) continue;
+						if (!lightEntity.IsEnabled()) continue;
 						const auto& slc = lightEntity.GetPrivateComponent<SpotLight>();
 						if (!slc->IsEnabled()) continue;
 						auto ltw = EntityManager::GetComponentData<GlobalTransform>(lightEntity);
@@ -910,13 +910,13 @@ void UniEngine::RenderManager::PreUpdate()
 						enabledSize = 0;
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = spotLightEntities->at(i);
-							if (!lightEntity.Enabled()) continue;
+							if (!lightEntity.IsEnabled()) continue;
 							glViewport(_SpotLights[enabledSize].viewPort.x, _SpotLights[enabledSize].viewPort.y, _SpotLights[enabledSize].viewPort.z, _SpotLights[enabledSize].viewPort.w);
 							_SpotLightProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 							if (owners) {
 								for (auto owner : *owners) {
-									if (!owner.Enabled()) continue;
+									if (!owner.IsEnabled()) continue;
 									auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 									if (!mmc->IsEnabled() || !mmc->CastShadow || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 									MaterialPropertySetter(mmc.get()->Material.get(), true);
@@ -936,13 +936,13 @@ void UniEngine::RenderManager::PreUpdate()
 						_SpotLightInstancedProgram->Bind();
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = spotLightEntities->at(i);
-							if (!lightEntity.Enabled()) continue;
+							if (!lightEntity.IsEnabled()) continue;
 							glViewport(_SpotLights[enabledSize].viewPort.x, _SpotLights[enabledSize].viewPort.y, _SpotLights[enabledSize].viewPort.z, _SpotLights[enabledSize].viewPort.w);
 							_SpotLightInstancedProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 							if (owners) {
 								for (auto owner : *owners) {
-									if (!owner.Enabled()) continue;
+									if (!owner.IsEnabled()) continue;
 									auto& immc = owner.GetPrivateComponent<Particles>();
 									if (!immc->IsEnabled() || !immc->CastShadow || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 									MaterialPropertySetter(immc.get()->Material.get(), true);
@@ -984,7 +984,7 @@ void UniEngine::RenderManager::PreUpdate()
 	if (cameraEntities != nullptr)
 	{
 		for (auto cameraEntity : *cameraEntities) {
-			if (!cameraEntity.Enabled()) continue;
+			if (!cameraEntity.IsEnabled()) continue;
 			auto& cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
 			if (_MainCameraComponent && cameraComponent.get() == _MainCameraComponent) continue;
 			if (cameraComponent->IsEnabled())
@@ -1021,7 +1021,7 @@ void UniEngine::RenderManager::PreUpdate()
 			
 			EditorManager::_SceneCameraEntityRecorderProgram->Bind();
 			for (auto owner : *mmcowners) {
-				if (!owner.Enabled()) continue;
+				if (!owner.IsEnabled()) continue;
 				auto& mmc = owner.GetPrivateComponent<MeshRenderer>();
 				if (!mmc->IsEnabled() || mmc->Material == nullptr || mmc->Mesh == nullptr) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
@@ -1041,7 +1041,7 @@ void UniEngine::RenderManager::PreUpdate()
 		if (immcowners) {
 			EditorManager::_SceneCameraEntityInstancedRecorderProgram->Bind();
 			for (auto owner : *immcowners) {
-				if (!owner.Enabled()) continue;
+				if (!owner.IsEnabled()) continue;
 				auto& immc = owner.GetPrivateComponent<Particles>();
 				if (!immc->IsEnabled() || immc->Material == nullptr || immc->Mesh == nullptr) continue;
 				if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).Value & CameraLayer_MainCamera)) continue;
@@ -1078,7 +1078,7 @@ void UniEngine::RenderManager::PreUpdate()
 #pragma region Render to main Camera and calculate bounds.
 	if (_MainCameraComponent != nullptr) {
 		auto mainCameraEntity = _MainCameraComponent->GetOwner();
-		if (mainCameraEntity.Enabled()) {
+		if (mainCameraEntity.IsEnabled()) {
 			auto& mainCamera = _MainCameraComponent;
 			if (_MainCameraComponent->IsEnabled()) {
 				auto minBound = glm::vec3((int)INT_MAX);
@@ -1193,7 +1193,7 @@ void RenderManager::LateUpdate()
 	if (postProcessingEntities != nullptr)
 	{
 		for (auto postProcessingEntity : *postProcessingEntities) {
-			if (!postProcessingEntity.Enabled()) continue;
+			if (!postProcessingEntity.IsEnabled()) continue;
 			auto& postProcessing = postProcessingEntity.GetPrivateComponent<PostProcessing>();
 			if(postProcessing->IsEnabled()) postProcessing->Process();
 		}
@@ -1270,7 +1270,7 @@ void RenderManager::LateUpdate()
 			bool cameraActive = false;
 			if (_MainCameraComponent != nullptr) {
 				auto entity = _MainCameraComponent->GetOwner();
-				if (entity.Enabled() && _MainCameraComponent->IsEnabled())
+				if (entity.IsEnabled() && _MainCameraComponent->IsEnabled())
 				{
 					auto id = _MainCameraComponent->GetTexture()->Texture()->ID();
 					ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
@@ -1748,7 +1748,7 @@ void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
 	}
 	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
 	const auto entity = cameraComponent->GetOwner();
-	if (!entity.Enabled()) return;
+	if (!entity.IsEnabled()) return;
 	const auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 	glm::vec3 scale;
 	glm::vec3 trans;
@@ -1781,7 +1781,7 @@ void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 
 	}
 	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
 	const auto entity = cameraComponent->GetOwner();
-	if (!entity.Enabled()) return;
+	if (!entity.IsEnabled()) return;
 	const auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 	glm::vec3 scale;
 	glm::vec3 trans;
@@ -1827,7 +1827,7 @@ void RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 cen
 	}
 	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
 	const auto entity = cameraComponent->GetOwner();
-	if (!entity.Enabled()) return;
+	if (!entity.IsEnabled()) return;
 	cameraComponent->Bind();
 	DrawTexture2D(texture->Texture().get(), depth, center, size);
 }

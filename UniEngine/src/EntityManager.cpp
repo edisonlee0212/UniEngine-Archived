@@ -20,7 +20,7 @@ bool UniEngine::ComponentTypeComparator(const ComponentType& a, const ComponentT
 	return a.TypeID < b.TypeID;
 }
 
-void UniEngine::EntityManager::UnsafeForEachComponent(const Entity& entity, const std::function<void(ComponentType type, void* data)>& func)
+void UniEngine::EntityManager::UnsafeForEachComponent(const Entity& entity, const std::function<void(const ComponentType& type, void* data)>& func)
 {
 	if (!entity.IsValid()) return;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
@@ -49,7 +49,7 @@ void EntityManager::ForEachPrivateComponent(const Entity& entity,
 	}
 }
 
-void UniEngine::EntityManager::UnsafeForEachEntityStorage(const std::function<void(int i, EntityComponentStorage storage)>& func)
+void UniEngine::EntityManager::UnsafeForEachEntityStorage(const std::function<void(int i, const EntityComponentStorage& storage)>& func)
 {
 	for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
 		if (_EntityComponentStorage->at(i).ArchetypeInfo->EntityAliveCount != 0) {
@@ -58,7 +58,7 @@ void UniEngine::EntityManager::UnsafeForEachEntityStorage(const std::function<vo
 	}
 }
 
-void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
+void UniEngine::EntityManager::DeleteEntityInternal(const Entity& entity)
 {
 	EntityInfo& info = _EntityInfos->at(entity.Index);
 	Entity actualEntity = _Entities->at(entity.Index);
@@ -87,7 +87,7 @@ void UniEngine::EntityManager::DeleteEntityInternal(Entity entity)
 	_Entities->at(entity.Index) = actualEntity;
 }
 
-void UniEngine::EntityManager::RefreshEntityQueryInfos(size_t index)
+void UniEngine::EntityManager::RefreshEntityQueryInfos(const size_t& index)
 {
 	_EntityQueryInfos->at(index).QueriedStorage.clear();
 	//Select storage with every contained.
@@ -157,18 +157,16 @@ void EntityManager::EraseDuplicates(std::vector<ComponentType>& types)
 	}
 }
 
-void UniEngine::EntityManager::GetEntityStorage(EntityComponentStorage storage, std::vector<Entity>& container)
+void UniEngine::EntityManager::GetEntityStorage(const EntityComponentStorage& storage, std::vector<Entity>& container)
 {
 	const size_t amount = storage.ArchetypeInfo->EntityAliveCount;
 	if (amount == 0) return;
 	container.resize(container.size() + amount);
 	const size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-	size_t chunkAmount = amount / capacity;
-	size_t remainAmount = amount % capacity;
 	memcpy(&container.at(container.size() - amount), storage.ChunkArray->Entities.data(), amount * sizeof(Entity));
 }
 
-size_t UniEngine::EntityManager::SwapEntity(EntityComponentStorage storage, size_t index1, size_t index2)
+size_t UniEngine::EntityManager::SwapEntity(const EntityComponentStorage& storage, size_t index1, size_t index2)
 {
 	if (index1 == index2) return -1;
 	auto info = storage.ArchetypeInfo;
@@ -254,7 +252,7 @@ Entity EntityManager::CreateEntity(const std::string& name)
 	return CreateEntity(_BasicArchetype, name);
 }
 
-Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, const std::string& name)
+Entity UniEngine::EntityManager::CreateEntity(const EntityArchetype& archetype, const std::string& name)
 {
 	if (!_CurrentAttachedWorldEntityStorage)
 	{
@@ -314,7 +312,7 @@ Entity UniEngine::EntityManager::CreateEntity(EntityArchetype archetype, const s
 	return retVal;
 }
 
-std::vector<Entity> EntityManager::CreateEntities(EntityArchetype archetype, const size_t& amount, const std::string& name)
+std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archetype, const size_t& amount, const std::string& name)
 {
 	if (!_CurrentAttachedWorldEntityStorage)
 	{
@@ -592,7 +590,7 @@ size_t UniEngine::EntityManager::GetParentHierarchyVersion()
 	return _CurrentAttachedWorldEntityStorage->ParentHierarchyVersion;
 }
 
-void EntityManager::RemoveComponentData(const Entity& entity, size_t typeID)
+void EntityManager::RemoveComponentData(const Entity& entity, const size_t& typeID)
 {
 	if (!entity.IsValid()) return;
 	if (typeID == typeid(Transform).hash_code())
@@ -737,7 +735,7 @@ void EntityManager::SetComponentData(const Entity& entity, size_t id, size_t siz
 	}
 }
 
-ComponentBase* EntityManager::GetComponentDataPointer(const Entity& entity, size_t id)
+ComponentBase* EntityManager::GetComponentDataPointer(const Entity& entity, const size_t& id)
 {
 	if (!entity.IsValid()) return nullptr;
 	EntityInfo& info = _EntityInfos->at(entity.Index);
@@ -826,7 +824,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, co
 	return retVal;
 }
 
-void EntityManager::SetPrivateComponent(const Entity& entity, const std::string& name, size_t id,
+void EntityManager::SetPrivateComponent(const Entity& entity, const std::string& name, const size_t& id,
 	PrivateComponentBase* ptr)
 {
 	if (!entity.IsValid()) return;
@@ -866,13 +864,13 @@ Entity EntityManager::GetRoot(const Entity& entity)
 	return retVal;
 }
 
-Entity EntityManager::GetEntity(size_t index)
+Entity EntityManager::GetEntity(const size_t& index)
 {
 	if (index > 0 && index < _Entities->size()) return _Entities->at(index);
 	return Entity();
 }
 
-void EntityManager::RemovePrivateComponent(const Entity& entity, size_t typeId)
+void EntityManager::RemovePrivateComponent(const Entity& entity, const size_t& typeId)
 {
 	if (!entity.IsValid()) return;
 	bool found = false;
@@ -896,7 +894,7 @@ EntityArchetype UniEngine::EntityManager::GetEntityArchetype(const Entity& entit
 	return retVal;
 }
 
-void UniEngine::EntityManager::SetEnable(const Entity& entity, bool value) {
+void UniEngine::EntityManager::SetEnable(const Entity& entity, const bool& value) {
 	if (!entity.IsValid()) return;
 	if (_EntityInfos->at(entity.Index).Enabled != value)
 	{
@@ -919,13 +917,13 @@ void UniEngine::EntityManager::SetEnable(const Entity& entity, bool value) {
 	}
 }
 
-void EntityManager::SetStatic(const Entity& entity, bool value)
+void EntityManager::SetStatic(const Entity& entity, const bool& value)
 {
 	if (!entity.IsValid()) return;
 	_EntityInfos->at(entity.Index).Static = value;
 }
 
-void EntityManager::SetEnableSingle(const Entity& entity, bool value)
+void EntityManager::SetEnableSingle(const Entity& entity, const bool& value)
 {
 	if (!entity.IsValid()) return;
 	if (_EntityInfos->at(entity.Index).Enabled != value)
@@ -956,7 +954,7 @@ bool EntityManager::IsEntityStatic(const Entity& entity)
 	return _EntityInfos->at(entity.Index).Static;
 }
 
-bool UniEngine::EntityManager::IsEntityDeleted(size_t index)
+bool UniEngine::EntityManager::IsEntityDeleted(const size_t& index)
 {
 	return _Entities->at(index).Version == 0;
 }
@@ -980,7 +978,7 @@ EntityQuery UniEngine::EntityManager::CreateEntityQuery()
 	return retVal;
 }
 
-std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorage(EntityQuery entityQuery)
+std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorage(const EntityQuery& entityQuery)
 {
 	if (entityQuery.IsNull()) return std::vector<EntityComponentStorage>();
 	const size_t index = entityQuery.Index;
@@ -991,7 +989,7 @@ std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorage
 	return _EntityQueryInfos->at(index).QueriedStorage;
 }
 
-ComponentDataChunkArray* UniEngine::EntityManager::UnsafeGetEntityComponentDataChunkArray(EntityArchetype entityArchetype)
+ComponentDataChunkArray* UniEngine::EntityManager::UnsafeGetEntityComponentDataChunkArray(const EntityArchetype& entityArchetype)
 {
 	if (entityArchetype.IsNull()) return nullptr;
 	return _EntityComponentStorage->at(entityArchetype.Index).ChunkArray;
@@ -1018,7 +1016,7 @@ std::string EntityManager::GetEntityArchetypeName(const EntityArchetype& entityA
 	return _CurrentAttachedWorldEntityStorage->EntityComponentStorage[entityArchetype.Index].ArchetypeInfo->Name;
 }
 
-void UniEngine::EntityManager::GetEntityArray(EntityQuery entityQuery, std::vector<Entity>& container)
+void UniEngine::EntityManager::GetEntityArray(const EntityQuery& entityQuery, std::vector<Entity>& container)
 {
 	if (entityQuery.IsNull()) return;
 	const size_t index = entityQuery.Index;

@@ -116,7 +116,7 @@ Entity EditorManager::MouseEntitySelection(const glm::vec2& mousePosition)
 
 void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
 {
-	if (!entity.IsValid() || entity.IsDeleted() || !entity.Enabled()) return;
+	if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled()) return;
 	EntityManager::ForEachChild(entity, [](Entity child)
 		{
 			HighLightEntityPrePassHelper(child);
@@ -169,7 +169,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
 
 void EditorManager::HighLightEntityHelper(const Entity& entity)
 {
-	if (!entity.IsValid() || entity.IsDeleted() || !entity.Enabled()) return;
+	if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled()) return;
 	EntityManager::ForEachChild(entity, [](Entity child)
 		{
 			HighLightEntityHelper(child);
@@ -223,7 +223,7 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 
 void EditorManager::HighLightEntity(const Entity& entity, const glm::vec4& color)
 {
-	if (!entity.IsValid() || entity.IsDeleted() || !entity.Enabled()) return;
+	if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled()) return;
 	CameraComponent::CameraInfoBlock.UpdateMatrices(_SceneCamera.get(),
 		SceneCameraPosition,
 		SceneCameraRotation
@@ -569,7 +569,7 @@ void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
 {
 	std::string title = std::to_string(entity.Index) + ": ";
 	title += entity.GetName();
-	bool enabled = entity.Enabled();
+	bool enabled = entity.IsEnabled();
 	if (enabled) {
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
 	}
@@ -658,7 +658,7 @@ void EditorManager::LateUpdate()
 						Entity entity = storage.ChunkArray->Entities.at(j);
 						std::string title = std::to_string(entity.Index) + ": ";
 						title += entity.GetName();
-						bool enabled = entity.Enabled();
+						bool enabled = entity.IsEnabled();
 						if (enabled) {
 							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
 						}
@@ -698,9 +698,9 @@ void EditorManager::LateUpdate()
 		if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted()) {
 			std::string title = std::to_string(_SelectedEntity.Index) + ": ";
 			title += _SelectedEntity.GetName();
-			bool enabled = _SelectedEntity.Enabled();
+			bool enabled = _SelectedEntity.IsEnabled();
 			if (ImGui::Checkbox((title + "##EnabledCheckbox").c_str(), &enabled)) {
-				if (_SelectedEntity.Enabled() != enabled)
+				if (_SelectedEntity.IsEnabled() != enabled)
 				{
 					_SelectedEntity.SetEnabled(enabled);
 				}
@@ -714,7 +714,7 @@ void EditorManager::LateUpdate()
 					_SelectedEntity.SetStatic(isStatic);
 				}
 			}
-			bool deleted = DrawEntityMenu(_SelectedEntity.Enabled(), _SelectedEntity);
+			bool deleted = DrawEntityMenu(_SelectedEntity.IsEnabled(), _SelectedEntity);
 			ImGui::Separator();
 			if (!deleted) {
 				if (ImGui::CollapsingHeader("Data components", ImGuiTreeNodeFlags_DefaultOpen)) {
