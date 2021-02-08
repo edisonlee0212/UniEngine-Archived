@@ -49,7 +49,7 @@ namespace UniEngine {
 		}
 		size_t operator() (Entity const& key) const
 		{
-			return (size_t)Index;
+			return static_cast<size_t>(Index);
 		}
 
 		bool Enabled() const;
@@ -187,7 +187,7 @@ namespace UniEngine {
 	struct EntityInfo {
 		friend class PrivateComponentStorage;
 		std::string Name;
-		size_t Version = 1;
+		unsigned Version = 1;
 		bool Static = false;
 		bool Enabled = true;
 		Entity Parent = Entity();
@@ -211,7 +211,7 @@ namespace UniEngine {
 		size_t EntityAliveCount = 0;
 		template<typename T>
 		bool HasType();
-		bool HasType(size_t typeID);
+		bool HasType(const size_t& typeID);
 	};
 
 	struct UNIENGINE_API EntityQuery final {
@@ -251,7 +251,7 @@ namespace UniEngine {
 		void ToEntityArray(T1 filter, std::vector<Entity>& container);
 		template<typename T1 = ComponentBase>
 		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(Entity, T1&)>& filterFunc);
-		size_t GetEntityAmount();
+		size_t GetEntityAmount() const;
 	};
 
 
@@ -266,7 +266,7 @@ namespace UniEngine {
 		std::vector<ComponentType> AllComponentTypes;
 		std::vector<ComponentType> AnyComponentTypes;
 		std::vector<ComponentType> NoneComponentTypes;
-		std::vector<EntityComponentStorage> QueriedStorages;
+		std::vector<EntityComponentStorage> QueriedStorage;
 	};
 #pragma endregion
 #pragma endregion

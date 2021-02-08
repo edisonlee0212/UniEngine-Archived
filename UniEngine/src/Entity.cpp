@@ -65,7 +65,7 @@ std::string EntityArchetype::GetName() const
 	return EntityManager::GetEntityArchetypeName(*this);
 }
 
-bool EntityArchetypeInfo::HasType(size_t typeID)
+bool EntityArchetypeInfo::HasType(const size_t& typeID)
 {
 	for (const auto& type : ComponentTypes)
 	{

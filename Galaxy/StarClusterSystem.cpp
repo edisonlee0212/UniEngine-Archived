@@ -94,19 +94,19 @@ void Galaxy::StarClusterSystem::Update()
 	float timer = Application::EngineTime();
 	//1. Calculate position (double precision) for each star
 	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery,
-		[time](int i, Entity entity, StarSeed* seed, StarPosition* position, StarOrbit* orbit, StarOrbitOffset* offset)
+		[time](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
 		{
-			position->Value = orbit->GetPoint(offset->Value, seed->Value * 360.0f + time, true);
+			position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + time, true);
 		}, false
 	);
 	//2. Apply position and size to the transform which will later be used for rendering.
 	float size = _Size;
 	EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
 		_StarQuery,
-		[size](int i, Entity entity, StarPosition* position, GlobalTransform* globalTransform, Transform* transform)
+		[size](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
 		{
-			globalTransform->Value = glm::translate(glm::vec3(position->Value) / 20.0f) * glm::scale(size * glm::vec3(1.0f));
-			transform->Value = globalTransform->Value;
+			globalTransform.Value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(size * glm::vec3(1.0f));
+			transform.Value = globalTransform.Value;
 		}, false
 	);
 
@@ -116,7 +116,7 @@ void Galaxy::StarClusterSystem::Update()
 	auto& imr = _StarCluster.GetPrivateComponent<Particles>();
 	imr->Matrices.resize(0);
 	_StarQuery.ToComponentDataArray(*(std::vector<GlobalTransform>*)(void*)&imr->Matrices);
-	Debug::Log("Calculation Time: " + std::to_string(Application::EngineTime() - timer));
+	//Debug::Log("Calculation Time: " + std::to_string(Application::EngineTime() - timer));
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

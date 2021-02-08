@@ -7,7 +7,7 @@ namespace UniEngine {
 		public Singleton<TransformManager>
 	{
 		static EntityQuery _TransformQuery;
-		static void CalculateLtwRecursive(GlobalTransform* pltw, Entity entity);
+		static void CalculateLtwRecursive(const GlobalTransform& pltw, Entity entity);
 	public:
 		static void Init();
 		static void LateUpdate();
