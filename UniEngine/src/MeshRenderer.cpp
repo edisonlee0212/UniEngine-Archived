@@ -2,7 +2,7 @@
 #include "MeshRenderer.h"
 #include "UniEngine.h"
 #include "RenderManager.h"
-
+#include "SerializationManager.h"
 void UniEngine::MeshRenderer::RenderBound(glm::vec4& color) const
 {
 	const auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
@@ -51,4 +51,18 @@ UniEngine::MeshRenderer::MeshRenderer()
 
 UniEngine::MeshRenderer::~MeshRenderer()
 {
+}
+
+void UniEngine::MeshRenderer::Serialize(YAML::Emitter& out)
+{
+	out << YAML::Key << "ForwardRendering" << ForwardRendering;
+	out << YAML::Key << "CastShadow" << CastShadow;
+	out << YAML::Key << "ReceiveShadow" << ReceiveShadow;
+}
+
+void UniEngine::MeshRenderer::Deserialize(const YAML::Node& in)
+{
+	ForwardRendering = in["ForwardRendering"].as<bool>();
+	CastShadow = in["CastShadow"].as<bool>();
+	ReceiveShadow = in["ReceiveShadow"].as<bool>();
 }

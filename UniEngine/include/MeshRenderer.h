@@ -20,6 +20,8 @@ namespace UniEngine {
 		void OnGui() override;
 		MeshRenderer();
 		~MeshRenderer() override;
+		void Serialize(YAML::Emitter& out) override;
+		void Deserialize(const YAML::Node& in) override;
 	};
 }
 

@@ -37,10 +37,10 @@ bool UniEngine::BezierCubic2D::Graph(const std::string& label)
     bool changed = false;
     // header and spacing
     if (ImGui::TreeNode(label.c_str())) {
-        if(!Fixed) changed = changed || ImGui::SliderFloat2("P0", &ControlPoints[0].x, 0, 1, "%.3f", 1.0f);
-        changed = changed || ImGui::SliderFloat2("P1", &ControlPoints[1].x, 0, 1, "%.3f", 1.0f);
-        changed = changed || ImGui::SliderFloat2("P2", &ControlPoints[2].x, 0, 1, "%.3f", 1.0f);
-        if(!Fixed) changed = changed || ImGui::SliderFloat2("P3", &ControlPoints[3].x, 0, 1, "%.3f", 1.0f);
+        if(!Fixed && ImGui::SliderFloat2("P0", &ControlPoints[0].x, 0, 1, "%.3f", 1.0f)) changed = true;
+		if(ImGui::SliderFloat2("P1", &ControlPoints[1].x, 0, 1, "%.3f", 1.0f)) changed = true;
+        if (ImGui::SliderFloat2("P2", &ControlPoints[2].x, 0, 1, "%.3f", 1.0f))changed = true;
+        if(!Fixed && ImGui::SliderFloat2("P3", &ControlPoints[3].x, 0, 1, "%.3f", 1.0f)) changed = true;
         int hovered = ImGui::IsItemActive() || ImGui::IsItemHovered(); // IsItemDragged() ?
         ImGui::Dummy(ImVec2(0, 3));
 
