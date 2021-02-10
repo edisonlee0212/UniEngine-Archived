@@ -345,10 +345,10 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 		auto& entityInfo = _EntityInfos->at(originalSize + i);
 		entityInfo.Name = name;
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
-		entityInfo.ChunkArrayIndex = info->EntityCount - amount + i;
+		entityInfo.ChunkArrayIndex = info->EntityAliveCount - amount + i;
 	}
 	std::vector<Entity> retVal;
-	storage.ChunkArray->Entities.insert(storage.ChunkArray->Entities.end(), _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
+	storage.ChunkArray->Entities.insert(storage.ChunkArray->Entities.begin() + info->EntityAliveCount - amount, _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
 	const int threadSize = JobManager::GetThreadPool().Size();
 	int perThreadAmount = amount / threadSize;
 	if(perThreadAmount > 0)
