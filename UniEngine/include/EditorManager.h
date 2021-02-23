@@ -47,7 +47,7 @@ namespace UniEngine {
 		static std::unique_ptr<RenderTarget> _SceneCameraEntityRecorder;
 		static std::unique_ptr<GLTexture2D> _SceneCameraEntityRecorderTexture;
 		static std::unique_ptr<GLRenderBuffer> _SceneCameraEntityRecorderRenderBuffer;
-		static std::unique_ptr<CameraComponent> _SceneCamera;
+		
 		static float _SceneCameraYawAngle;
 		static float _SceneCameraPitchAngle;
 		static int _SceneCameraResolutionX;
@@ -69,6 +69,7 @@ namespace UniEngine {
 		static void HighLightEntityPrePassHelper(const Entity& entity);
 		static void HighLightEntityHelper(const Entity& entity);
 	public:
+		static std::unique_ptr<CameraComponent> SceneCamera;
 		static glm::quat SceneCameraRotation;
 		static glm::vec3 SceneCameraPosition;
 		static void HighLightEntity(const Entity& entity, const glm::vec4& color);

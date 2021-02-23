@@ -28,7 +28,7 @@ glm::vec3 EditorManager::_PreviouslyStoredRotation;
 glm::vec3 EditorManager::_PreviouslyStoredScale;
 glm::quat EditorManager::SceneCameraRotation = glm::quat(glm::radians(glm::vec3(-14.0f, 0.0f, 0.0f)));
 glm::vec3 EditorManager::SceneCameraPosition = glm::vec3(0, 5, 10);
-std::unique_ptr<CameraComponent> EditorManager::_SceneCamera;
+std::unique_ptr<CameraComponent> EditorManager::SceneCamera;
 std::unique_ptr<GLProgram> EditorManager::_SceneCameraEntityRecorderProgram;
 std::unique_ptr<GLProgram> EditorManager::_SceneCameraEntityInstancedRecorderProgram;
 std::unique_ptr<RenderTarget> EditorManager::_SceneCameraEntityRecorder;
@@ -224,12 +224,12 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 void EditorManager::HighLightEntity(const Entity& entity, const glm::vec4& color)
 {
 	if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled()) return;
-	CameraComponent::CameraInfoBlock.UpdateMatrices(_SceneCamera.get(),
+	CameraComponent::CameraInfoBlock.UpdateMatrices(SceneCamera.get(),
 		SceneCameraPosition,
 		SceneCameraRotation
 	);
-	CameraComponent::CameraInfoBlock.UploadMatrices(_SceneCamera.get());
-	_SceneCamera->Bind();
+	CameraComponent::CameraInfoBlock.UploadMatrices(SceneCamera.get());
+	SceneCamera->Bind();
 	glEnable(GL_STENCIL_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -502,8 +502,8 @@ void UniEngine::EditorManager::Init()
 	_SelectedEntity.Index = 0;
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;
 	_ConfigFlags += EntityEditorSystem_EnableEntityInspector;
-	_SceneCamera = std::make_unique<CameraComponent>();
-	_SceneCamera->DrawSkyBox = false;
+	SceneCamera = std::make_unique<CameraComponent>();
+	SceneCamera->DrawSkyBox = false;
 }
 
 void UniEngine::EditorManager::Destroy()
@@ -543,14 +543,14 @@ void EditorManager::PreUpdate()
 		}
 		ImGui::EndMainMenuBar();
 	}
-	const auto resolution = _SceneCamera->_GBuffer->GetResolution();
+	const auto resolution = SceneCamera->_GBuffer->GetResolution();
 	if (_SceneCameraResolutionX != 0 && _SceneCameraResolutionY != 0 && (resolution.x != _SceneCameraResolutionX || resolution.y != _SceneCameraResolutionY)) {
-		_SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
+		SceneCamera->ResizeResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 		_SceneCameraEntityRecorderTexture->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, _SceneCameraResolutionX, _SceneCameraResolutionY);
 		_SceneCameraEntityRecorderRenderBuffer->AllocateStorage(GL_DEPTH24_STENCIL8, _SceneCameraResolutionX, _SceneCameraResolutionY);
 		_SceneCameraEntityRecorder->SetResolution(_SceneCameraResolutionX, _SceneCameraResolutionY);
 	}
-	_SceneCamera->Clear();
+	SceneCamera->Clear();
 	_SceneCameraEntityRecorder->Clear();
 }
 
@@ -814,7 +814,7 @@ void EditorManager::LateUpdate()
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
-			ImGui::Image((ImTextureID)_SceneCamera->GetTexture()->Texture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)SceneCamera->GetTexture()->Texture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
 			{
 				const std::string modelTypeHash = std::to_string(std::hash<std::string>{}(typeid(Model).name()));
@@ -908,7 +908,7 @@ void EditorManager::LateUpdate()
 				ImGuizmo::SetDrawlist();
 				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
 				glm::mat4 cameraView = glm::inverse(glm::translate(SceneCameraPosition) * glm::mat4_cast(SceneCameraRotation));
-				glm::mat4 cameraProjection = _SceneCamera->GetProjection();
+				glm::mat4 cameraProjection = SceneCamera->GetProjection();
 				const auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
 				if (_SelectedEntity.HasComponentData<Transform>()) {
 					auto transform = _SelectedEntity.GetComponentData<Transform>();
@@ -973,7 +973,7 @@ void EditorManager::LateUpdate()
 			}
 		}
 		ImGui::EndChild();
-		_SceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
+		SceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
@@ -1047,7 +1047,7 @@ void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
 
 std::unique_ptr<CameraComponent>& EditorManager::GetSceneCamera()
 {
-	return _SceneCamera;
+	return SceneCamera;
 }
 
 bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceBehaviour>& target)
