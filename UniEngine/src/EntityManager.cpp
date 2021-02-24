@@ -286,12 +286,11 @@ Entity UniEngine::EntityManager::CreateEntity(const EntityArchetype& archetype, 
 		_Entities->at(retVal.Index) = retVal;
 		storage.ArchetypeInfo->EntityAliveCount++;
 		//Reset all component data
-		EntityArchetypeInfo* chunkInfo = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ArchetypeInfo;
-		const size_t chunkIndex = entityInfo.ChunkArrayIndex / chunkInfo->ChunkCapacity;
-		const size_t chunkPointer = entityInfo.ChunkArrayIndex % chunkInfo->ChunkCapacity;
+		const size_t chunkIndex = entityInfo.ChunkArrayIndex / info->ChunkCapacity;
+		const size_t chunkPointer = entityInfo.ChunkArrayIndex % info->ChunkCapacity;
 		const ComponentDataChunk chunk = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
-		for (const auto& i : chunkInfo->ComponentTypes) {
-			const size_t offset = i.Offset * chunkInfo->ChunkCapacity + chunkPointer * i.Size;
+		for (const auto& i : info->ComponentTypes) {
+			const size_t offset = i.Offset * info->ChunkCapacity + chunkPointer * i.Size;
 			chunk.ClearData(offset, i.Size);
 		}
 	}
@@ -312,11 +311,33 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 		return std::vector<Entity>();
 	}
 	if (archetype.IsValid()) return std::vector<Entity>();
-	
+	std::vector<Entity> retVal;
 	EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
 	EntityArchetypeInfo* info = storage.ArchetypeInfo;
-	info->EntityCount += amount;
-	info->EntityAliveCount += amount;
+	auto remainAmount = amount;
+	while(remainAmount > 0 && info->EntityAliveCount != info->EntityCount)
+	{
+		remainAmount--;
+		Entity entity = storage.ChunkArray->Entities.at(info->EntityAliveCount);
+		EntityInfo& entityInfo = _EntityInfos->at(entity.Index);
+		entityInfo.Enabled = true;
+		entityInfo.Name = name;
+		entity.Version = entityInfo.Version;
+		storage.ChunkArray->Entities[entityInfo.ChunkArrayIndex] = entity;
+		_Entities->at(entity.Index) = entity;
+		info->EntityAliveCount++;
+		//Reset all component data
+		const size_t chunkIndex = entityInfo.ChunkArrayIndex / info->ChunkCapacity;
+		const size_t chunkPointer = entityInfo.ChunkArrayIndex % info->ChunkCapacity;
+		const ComponentDataChunk chunk = _EntityComponentStorage->at(entityInfo.ArchetypeInfoIndex).ChunkArray->Chunks[chunkIndex];
+		for (const auto& i : info->ComponentTypes) {
+			const size_t offset = i.Offset * info->ChunkCapacity + chunkPointer * i.Size;
+			chunk.ClearData(offset, i.Size);
+		}
+	}
+	if (remainAmount == 0) return retVal;
+	info->EntityCount += remainAmount;
+	info->EntityAliveCount += remainAmount;
 	const size_t chunkIndex = info->EntityCount + 1 / info->ChunkCapacity;
 	while (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 		//Allocate new chunk;
@@ -325,10 +346,10 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 		storage.ChunkArray->Chunks.push_back(chunk);
 	}
 	const size_t originalSize = _Entities->size();
-	_Entities->resize(originalSize + amount);
-	_EntityInfos->resize(originalSize + amount);
+	_Entities->resize(originalSize + remainAmount);
+	_EntityInfos->resize(originalSize + remainAmount);
 	
-	for(int i = 0; i < amount; i++)
+	for(int i = 0; i < remainAmount; i++)
 	{
 		auto& entity = _Entities->at(originalSize + i);
 		entity.Index = originalSize + i;
@@ -337,12 +358,12 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 		auto& entityInfo = _EntityInfos->at(originalSize + i);
 		entityInfo.Name = name;
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
-		entityInfo.ChunkArrayIndex = info->EntityAliveCount - amount + i;
+		entityInfo.ChunkArrayIndex = info->EntityAliveCount - remainAmount + i;
 	}
-	std::vector<Entity> retVal;
-	storage.ChunkArray->Entities.insert(storage.ChunkArray->Entities.begin() + info->EntityAliveCount - amount, _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
+	
+	storage.ChunkArray->Entities.insert(storage.ChunkArray->Entities.end(), _Entities->begin() + originalSize, _Entities->end());
 	const int threadSize = JobManager::GetThreadPool().Size();
-	int perThreadAmount = amount / threadSize;
+	int perThreadAmount = remainAmount / threadSize;
 	if(perThreadAmount > 0)
 	{
 		std::vector<std::shared_future<void>> results;
@@ -362,11 +383,11 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 			).share());
 		}
 		results.push_back(
-			JobManager::GetThreadPool().Push([perThreadAmount, originalSize, &amount, threadSize](int id)
+			JobManager::GetThreadPool().Push([perThreadAmount, originalSize, &remainAmount, threadSize](int id)
 				{
 					const Transform transform;
 					const GlobalTransform globalTransform;
-					for (int index = originalSize + perThreadAmount * threadSize; index < originalSize + amount; index++) {
+					for (int index = originalSize + perThreadAmount * threadSize; index < originalSize + remainAmount; index++) {
 						auto& entity = _Entities->at(index);
 						entity.SetComponentData(transform);
 						entity.SetComponentData(globalTransform);
@@ -376,8 +397,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 		for (const auto& i : results) i.wait();
 	}
 
-	
-	retVal.insert(retVal.begin(), _Entities->begin() + originalSize, _Entities->begin() + originalSize + amount);
+	retVal.insert(retVal.end(), _Entities->begin() + originalSize, _Entities->end());
 	return retVal;
 }
 
