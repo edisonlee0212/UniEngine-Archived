@@ -395,13 +395,11 @@ void UniEngine::EntityManager::DeleteEntity(const Entity& entity)
 	}
 	//DO NOT CHANGE CODE HERE!
 	auto children = _EntityInfos->at(entityIndex).Children;
-	for (auto child : children) {
+	for (const auto& child : children) {
 		DeleteEntity(child);
 	}
-	_EntityInfos->at(entityIndex).Children.clear();
 	if (_EntityInfos->at(entityIndex).Parent.Index != 0) RemoveChild(entity, _EntityInfos->at(entityIndex).Parent);
 	DeleteEntityInternal(entity);
-
 	_CurrentAttachedWorldEntityStorage->ParentHierarchyVersion++;
 }
 
