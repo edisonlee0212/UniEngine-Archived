@@ -22,7 +22,6 @@ namespace UniEngine {
 #pragma region Data Storage
 		static WorldEntityStorage* _CurrentAttachedWorldEntityStorage;
 		static std::vector<Entity>* _Entities;
-		static std::vector<Entity>* _ParentRoots;
 		static std::vector<EntityInfo>* _EntityInfos;
 		static std::vector<EntityComponentStorage>* _EntityComponentStorage;
 		static PrivateComponentStorage* _EntityPrivateComponentStorage;
@@ -101,7 +100,6 @@ namespace UniEngine {
 		static std::vector<EntityComponentStorage> UnsafeQueryStorage(const EntityQuery& entityQuery);
 		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(const EntityArchetype& entityArchetype);
 		static std::vector<Entity>* UnsafeGetAllEntities();
-		static std::vector<Entity>* UnsafeGetParentRoots();
 		static void UnsafeForEachComponent(const Entity& entity, const std::function<void(const ComponentType& type, void* data)>& func);
 		static void UnsafeForEachEntityStorage(const std::function<void(int i, const EntityComponentStorage& storage)>& func);
 
@@ -143,7 +141,6 @@ namespace UniEngine {
 		static void ForEachChild(const Entity& entity, const std::function<void(Entity child)>& func);
 
 		static void RemoveChild(const Entity& entity, const Entity& parent);
-		static void GetParentRoots(std::vector<Entity>& container);
 		static size_t GetParentHierarchyVersion();
 
 		template<typename T = ComponentBase>
