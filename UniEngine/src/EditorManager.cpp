@@ -138,7 +138,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
 			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 		}
 	}
-	if(entity.HasPrivateComponent<Particles>())
+	if (entity.HasPrivateComponent<Particles>())
 	{
 		auto& immc = entity.GetPrivateComponent<Particles>();
 		if (immc->IsEnabled() && immc->Material != nullptr && immc->Mesh != nullptr)
@@ -284,8 +284,8 @@ void UniEngine::EditorManager::Init()
 	_SceneCameraEntityRecorderProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader
-	);
-	
+		);
+
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
@@ -295,7 +295,7 @@ void UniEngine::EditorManager::Init()
 	_SceneCameraEntityInstancedRecorderProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader
-	);
+		);
 
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
@@ -303,7 +303,7 @@ void UniEngine::EditorManager::Init()
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
 	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->Compile(vertShaderCode);
-	
+
 	fragShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
 
@@ -326,7 +326,7 @@ void UniEngine::EditorManager::Init()
 		fragShader
 		);
 
-	
+
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
@@ -352,7 +352,7 @@ void UniEngine::EditorManager::Init()
 		vertShader,
 		fragShader
 		);
-	
+
 	RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentBase* data, bool isRoot)
 		{
 			auto* ltw = reinterpret_cast<GlobalTransform*>(data);
@@ -371,7 +371,7 @@ void UniEngine::EditorManager::Init()
 	RegisterComponentDataInspector<Transform>([](Entity entity, ComponentBase* data, bool isRoot)
 		{
 			static Entity previousEntity;
-			if(entity.IsStatic())
+			if (entity.IsStatic())
 			{
 				previousEntity.Index = previousEntity.Version = 0;
 				auto* ltp = static_cast<Transform*>(static_cast<void*>(data));
@@ -387,7 +387,7 @@ void UniEngine::EditorManager::Init()
 			}
 			auto* ltp = static_cast<Transform*>(static_cast<void*>(data));
 			bool edited = false;
-			
+
 			if (previousEntity != entity) {
 				previousEntity = entity;
 				ltp->Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
@@ -451,7 +451,7 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
-	
+
 	RegisterPrivateComponentMenu<CameraComponent>([](Entity owner)
 		{
 			if (owner.HasPrivateComponent<CameraComponent>()) return;
@@ -631,7 +631,7 @@ void EditorManager::LateUpdate()
 				IM_ASSERT(payload->DataSize == sizeof(Entity));
 				Entity payload_n = *static_cast<Entity*>(payload->Data);
 				auto parent = EntityManager::GetParent(payload_n);
-				if(!parent.IsNull()) EntityManager::RemoveChild(payload_n, parent);
+				if (!parent.IsNull()) EntityManager::RemoveChild(payload_n, parent);
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -705,9 +705,9 @@ void EditorManager::LateUpdate()
 					_SelectedEntity.SetEnabled(enabled);
 				}
 			}
-			ImGui::SameLine( );
+			ImGui::SameLine();
 			bool isStatic = _SelectedEntity.IsStatic();
-			if(ImGui::Checkbox("Static", &isStatic))
+			if (ImGui::Checkbox("Static", &isStatic))
 			{
 				if (_SelectedEntity.IsStatic() != isStatic)
 				{
@@ -864,7 +864,7 @@ void EditorManager::LateUpdate()
 						InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow())) {
 						_RightMouseButtonHold = true;
 					}
-					if(_RightMouseButtonHold)
+					if (_RightMouseButtonHold)
 					{
 						glm::vec3 front = SceneCameraRotation * glm::vec3(0, 0, -1);
 						glm::vec3 right = SceneCameraRotation * glm::vec3(1, 0, 0);
@@ -910,31 +910,21 @@ void EditorManager::LateUpdate()
 				glm::mat4 cameraView = glm::inverse(glm::translate(SceneCameraPosition) * glm::mat4_cast(SceneCameraRotation));
 				glm::mat4 cameraProjection = SceneCamera->GetProjection();
 				const auto op = _LocalPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : _LocalRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
-				if (_SelectedEntity.HasComponentData<Transform>()) {
-					auto transform = _SelectedEntity.GetComponentData<Transform>();
-					GlobalTransform parentGlobalTransform;
-					Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
-					if (!parentEntity.IsNull())
-					{
-						parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
-					}
-					auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
-					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
-					if (ImGuizmo::IsUsing()) {
-						transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
-						_SelectedEntity.SetComponentData(transform);
-						transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
-						mouseSelectEntity = false;
-					}
-				}
-				else if (_SelectedEntity.HasComponentData<GlobalTransform>())
+
+				auto transform = _SelectedEntity.GetComponentData<Transform>();
+				GlobalTransform parentGlobalTransform;
+				Entity parentEntity = EntityManager::GetParent(_SelectedEntity);
+				if (!parentEntity.IsNull())
 				{
-					auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
-					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
-					if (ImGuizmo::IsUsing()) {
-						_SelectedEntity.SetComponentData(globalTransform);
-						mouseSelectEntity = false;
-					}
+					parentGlobalTransform = EntityManager::GetParent(_SelectedEntity).GetComponentData<GlobalTransform>();
+				}
+				auto globalTransform = _SelectedEntity.GetComponentData<GlobalTransform>();
+				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
+				if (ImGuizmo::IsUsing()) {
+					transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
+					_SelectedEntity.SetComponentData(transform);
+					transform.Decompose(_PreviouslyStoredPosition, _PreviouslyStoredRotation, _PreviouslyStoredScale);
+					mouseSelectEntity = false;
 				}
 			}
 			if (_SceneWindowFocused && mouseSelectEntity)
@@ -960,14 +950,15 @@ void EditorManager::LateUpdate()
 			}
 			HighLightEntity(_SelectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
 #pragma endregion
-			if(ImGui::IsWindowFocused())
+			if (ImGui::IsWindowFocused())
 			{
 				if (!_SceneWindowFocused) {
 					_SceneWindowFocused = true;
 					_RightMouseButtonHold = true;
 					_LeftMouseButtonHold = true;
 				}
-			}else
+			}
+			else
 			{
 				_SceneWindowFocused = false;
 			}

@@ -136,7 +136,7 @@ namespace UniEngine {
 
 		static void SetEntityName(const Entity& entity, const std::string& name);
 
-		static void SetParent(const Entity& entity, const Entity& parent);
+		static void SetParent(const Entity& entity, const Entity& parent, const bool& recalculateTransform = true);
 		static Entity GetParent(const Entity& entity);
 		static std::vector<Entity> GetChildren(const Entity& entity);
 		static size_t GetChildrenAmount(const Entity& entity);

@@ -446,7 +446,7 @@ void EntityManager::SetEntityName(const Entity& entity, const std::string& name)
 	_EntityInfos->at(index).Name = "Unnamed";
 }
 
-void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& parent)
+void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& parent, const bool& recalculateTransform)
 {
 	if (!entity.IsValid() || !parent.IsValid()) return;
 	_CurrentAttachedWorldEntityStorage->ParentHierarchyVersion++;
@@ -463,7 +463,7 @@ void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& par
 	if (_EntityInfos->at(childIndex).Parent.Index != 0) {
 		RemoveChild(entity, _Entities->at(_EntityInfos->at(childIndex).Parent.Index));
 	}
-	if(entity.HasComponentData<Transform>() && entity.HasComponentData<GlobalTransform>() && parent.HasComponentData<GlobalTransform>())
+	if(recalculateTransform)
 	{
 		const auto childGlobalTransform = entity.GetComponentData<GlobalTransform>();
 		const auto parentGlobalTransform = parent.GetComponentData<GlobalTransform>();
@@ -565,13 +565,12 @@ void UniEngine::EntityManager::RemoveChild(const Entity& entity, const Entity& p
 			break;
 		}
 	}
-	if (entity.HasComponentData<Transform>() && entity.HasComponentData<GlobalTransform>())
-	{
-		const auto childGlobalTransform = entity.GetComponentData<GlobalTransform>();
-		Transform childTransform;
-		childTransform.Value = childGlobalTransform.Value;
-		entity.SetComponentData(childTransform);
-	}
+	
+	const auto childGlobalTransform = entity.GetComponentData<GlobalTransform>();
+	Transform childTransform;
+	childTransform.Value = childGlobalTransform.Value;
+	entity.SetComponentData(childTransform);
+	
 }
 
 void UniEngine::EntityManager::GetParentRoots(std::vector<Entity>& container)
