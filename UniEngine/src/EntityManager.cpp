@@ -315,6 +315,8 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 	EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
 	EntityArchetypeInfo* info = storage.ArchetypeInfo;
 	auto remainAmount = amount;
+	const Transform transform;
+	const GlobalTransform globalTransform;
 	while(remainAmount > 0 && info->EntityAliveCount != info->EntityCount)
 	{
 		remainAmount--;
@@ -334,6 +336,9 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 			const size_t offset = i.Offset * info->ChunkCapacity + chunkPointer * i.Size;
 			chunk.ClearData(offset, i.Size);
 		}
+		retVal.push_back(entity);
+		entity.SetComponentData(transform);
+		entity.SetComponentData(globalTransform);
 	}
 	if (remainAmount == 0) return retVal;
 	info->EntityCount += remainAmount;
