@@ -361,6 +361,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 		entity.Version = 1;
 		
 		auto& entityInfo = _EntityInfos->at(originalSize + i);
+		entityInfo = EntityInfo();
 		entityInfo.Name = name;
 		entityInfo.ArchetypeInfoIndex = archetype.Index;
 		entityInfo.ChunkArrayIndex = info->EntityAliveCount - remainAmount + i;
