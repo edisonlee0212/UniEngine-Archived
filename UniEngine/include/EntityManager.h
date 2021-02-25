@@ -294,7 +294,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size)
 							);
@@ -311,7 +311,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size)
 							);
@@ -361,7 +361,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size)
@@ -380,7 +380,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size)
@@ -437,7 +437,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -458,7 +458,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -524,7 +524,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -547,7 +547,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -622,7 +622,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -647,7 +647,7 @@ namespace UniEngine {
 						for (int i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -731,7 +731,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -758,7 +758,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -851,7 +851,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -880,7 +880,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -982,7 +982,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
@@ -1013,7 +1013,7 @@ namespace UniEngine {
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
-							if (checkEnable && !_EntityInfos->at(index).Enabled) continue;
+							if (checkEnable && !_EntityInfos->at(entity.Index).Enabled) continue;
 							func(static_cast<int>(index), entity,
 								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.Size),
 								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.Size),
