@@ -1931,15 +1931,16 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList.size();
 		std::vector<std::vector<T1>> collectedDataLists;
-		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
+		const auto threadSize = JobManager::PrimaryWorkers().Size();
+		for (int i = 0; i < threadSize; i++) {
 			collectedDataLists.push_back(std::vector<T1>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T1>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc](int id) {
-				for (int j = 0; j < size / 8; j++) {
-					if (filterFunc(componentDataList[j * 8 + i])) {
-						collectedDataList->push_back(targetDataList[j * 8 + i]);
+			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc, threadSize](int id) {
+				for (int j = 0; j < size / threadSize; j++) {
+					if (filterFunc(componentDataList[j * threadSize + i])) {
+						collectedDataList->push_back(targetDataList[j * threadSize + i]);
 					}
 				}
 				}).share());
@@ -1953,7 +1954,7 @@ namespace UniEngine {
 		}
 
 
-		const size_t remainder = size % 8;
+		const size_t remainder = size % threadSize;
 		for (int i = 0; i < remainder; i++) {
 			if (filterFunc(componentDataList[size - remainder + i])) {
 				container.push_back(targetDataList[size - remainder + i]);
@@ -1981,15 +1982,16 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList1.size();
 		std::vector<std::vector<T1>> collectedDataLists;
-		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
+		const auto threadSize = JobManager::PrimaryWorkers().Size();
+		for (int i = 0; i < threadSize; i++) {
 			collectedDataLists.push_back(std::vector<T1>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T1>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList1, &componentDataList2, size, collectedDataList, i, filterFunc](int id) {
-				for (int j = 0; j < size / 8; j++) {
-					if (filterFunc(componentDataList1[j * 8 + i], componentDataList2[j * 8 + i])) {
-						collectedDataList->push_back(targetDataList[j * 8 + i]);
+			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList1, &componentDataList2, size, collectedDataList, i, filterFunc, threadSize](int id) {
+				for (int j = 0; j < size / threadSize; j++) {
+					if (filterFunc(componentDataList1[j * threadSize + i], componentDataList2[j * threadSize + i])) {
+						collectedDataList->push_back(targetDataList[j * threadSize + i]);
 					}
 				}
 				}).share());
@@ -2003,7 +2005,7 @@ namespace UniEngine {
 		}
 
 
-		const size_t remainder = size % 8;
+		const size_t remainder = size % threadSize;
 		for (int i = 0; i < remainder; i++) {
 			if (filterFunc(componentDataList1[size - remainder + i], componentDataList2[size - remainder + i])) {
 				container.push_back(targetDataList[size - remainder + i]);
@@ -2028,15 +2030,16 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList.size();
 		std::vector<std::vector<T2>> collectedDataLists;
-		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
+		const auto threadSize = JobManager::PrimaryWorkers().Size();
+		for (int i = 0; i < threadSize; i++) {
 			collectedDataLists.push_back(std::vector<T2>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T2>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList, size, filter, collectedDataList, i](int id) {
-				for (int j = 0; j < size / 8; j++) {
-					if (filter == componentDataList[j * 8 + i]) {
-						collectedDataList->push_back(targetDataList[j * 8 + i]);
+			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList, size, filter, collectedDataList, i, threadSize](int id) {
+				for (int j = 0; j < size / threadSize; j++) {
+					if (filter == componentDataList[j * threadSize + i]) {
+						collectedDataList->push_back(targetDataList[j * threadSize + i]);
 					}
 				}
 				}).share());
@@ -2050,7 +2053,7 @@ namespace UniEngine {
 		}
 
 
-		const size_t remainder = size % 8;
+		const size_t remainder = size % threadSize;
 		for (int i = 0; i < remainder; i++) {
 			if (filter == componentDataList[size - remainder + i]) {
 				container.push_back(targetDataList[size - remainder + i]);
@@ -2076,15 +2079,16 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
+		const auto threadSize = JobManager::PrimaryWorkers().Size();
+		for (int i = 0; i < threadSize; i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
-			futures.push_back(JobManager::PrimaryWorkers().Push([&allEntities, &componentDataList, size, collectedEntityList, i, filterFunc](int id) {
-				for (int j = 0; j < size / 8; j++) {
-					if (filterFunc(allEntities[j * 8 + i], componentDataList[j * 8 + i])) {
-						collectedEntityList->push_back(allEntities[j * 8 + i]);
+			futures.push_back(JobManager::PrimaryWorkers().Push([&allEntities, &componentDataList, size, collectedEntityList, i, filterFunc, threadSize](int id) {
+				for (int j = 0; j < size / threadSize; j++) {
+					if (filterFunc(allEntities[j * threadSize + i], componentDataList[j * threadSize + i])) {
+						collectedEntityList->push_back(allEntities[j * threadSize + i]);
 					}
 				}
 				}).share());
@@ -2098,7 +2102,7 @@ namespace UniEngine {
 		}
 
 
-		const size_t remainder = size % 8;
+		const size_t remainder = size % threadSize;
 		for (int i = 0; i < remainder; i++) {
 			if (filterFunc(allEntities[size - remainder + i], componentDataList[size - remainder + i])) {
 				container.push_back(allEntities[size - remainder + i]);
@@ -2126,15 +2130,16 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
+		const auto threadSize = JobManager::PrimaryWorkers().Size();
+		for (int i = 0; i < threadSize; i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
 			futures.push_back(JobManager::PrimaryWorkers().Push([&allEntities, &componentDataList1, &componentDataList2, size, collectedEntityList, i, filterFunc](int id) {
-				for (int j = 0; j < size / 8; j++) {
-					if (filterFunc(allEntities[j * 8 + i], componentDataList1[j * 8 + i], componentDataList2[j * 8 + i])) {
-						collectedEntityList->push_back(allEntities[j * 8 + i]);
+				for (int j = 0; j < size / threadSize; j++) {
+					if (filterFunc(allEntities[j * threadSize + i], componentDataList1[j * threadSize + i], componentDataList2[j * threadSize + i])) {
+						collectedEntityList->push_back(allEntities[j * threadSize + i]);
 					}
 				}
 				}).share());
@@ -2148,7 +2153,7 @@ namespace UniEngine {
 		}
 
 
-		const size_t remainder = size % 8;
+		const size_t remainder = size % threadSize;
 		for (int i = 0; i < remainder; i++) {
 			if (filterFunc(allEntities[size - remainder + i], componentDataList1[size - remainder + i], componentDataList2[size - remainder + i])) {
 				container.push_back(allEntities[size - remainder + i]);
@@ -2173,15 +2178,16 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
+		const auto threadSize = JobManager::PrimaryWorkers().Size();
+		for (int i = 0; i < threadSize; i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
-			futures.push_back(JobManager::PrimaryWorkers().Push([&allEntities, &componentDataList, size, filter, collectedEntityList, i](int id) {
-				for (int j = 0; j < size / 8; j++) {
-					if (filter == componentDataList[j * 8 + i]) {
-						collectedEntityList->push_back(allEntities[j * 8 + i]);
+			futures.push_back(JobManager::PrimaryWorkers().Push([&allEntities, &componentDataList, size, filter, collectedEntityList, i, threadSize](int id) {
+				for (int j = 0; j < size / threadSize; j++) {
+					if (filter == componentDataList[j * threadSize + i]) {
+						collectedEntityList->push_back(allEntities[j * threadSize + i]);
 					}
 				}
 				}).share());
@@ -2195,7 +2201,7 @@ namespace UniEngine {
 		}
 
 
-		const size_t remainder = size % 8;
+		const size_t remainder = size % threadSize;
 		for (int i = 0; i < remainder; i++) {
 			if (filter == componentDataList[size - remainder + i]) {
 				container.push_back(allEntities[size - remainder + i]);
