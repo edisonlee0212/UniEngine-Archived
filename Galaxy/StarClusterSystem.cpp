@@ -63,7 +63,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
-	size_t starAmount = 60000;
+	size_t starAmount = 600;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];
@@ -117,6 +117,7 @@ void Galaxy::StarClusterSystem::Update()
 		_CopyPositionTimer = Application::EngineTime() - _CopyPositionTimer;
 
 		_CalcPositionTimer = Application::EngineTime();
+		
 		//Generate a parallel task to calculate position (double precision) for each star
 		std::packaged_task<void(const EntityQuery&, bool)> task =
 			EntityManager::CreateParallelTask<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
@@ -130,6 +131,7 @@ void Galaxy::StarClusterSystem::Update()
 		_CurrentStatus = task.get_future();
 		//Dispatch the task
 		task(_StarQuery, false);
+		Debug::Log("Task dispatched");
 	}
 }
 
