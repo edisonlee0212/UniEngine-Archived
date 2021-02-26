@@ -190,7 +190,7 @@ namespace UniEngine {
 		template<typename T = ComponentBase, typename... Ts>
 		static void SetEntityQueryNoneFilters(const EntityQuery& entityQuery, T arg, Ts... args);
 
-
+		//For implicit parallel task dispatching
 		template<typename T1 = ComponentBase>
 		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
@@ -207,7 +207,25 @@ namespace UniEngine {
 		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
 		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
+		//For explicit parallel task dispatching
+		template<typename T1 = ComponentBase>
+		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&)>& func);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&)>& func);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
+		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase>
+		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase>
+		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase>
+		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase>
+		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func);
+		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
+		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func);
 
+		
 		static void ForAllEntities(const std::function<void(int i, Entity entity)>& func);
 		static void ForAllRootParent(const std::function<void(int i, Entity rootParent)>& func);
 		static std::string GetEntityArchetypeName(const EntityArchetype& entityArchetype);
@@ -1044,14 +1062,14 @@ namespace UniEngine {
 				targetType = type;
 				size_t amount = storage.ArchetypeInfo->EntityAliveCount;
 				if (amount == 0) return;
-				container.resize(container.size() + amount);
+				container.resize(amount);
 				const auto capacity = storage.ArchetypeInfo->ChunkCapacity;
 				const auto chunkAmount = amount / capacity;
 				const auto remainAmount = amount % capacity;
 				for (size_t i = 0; i < chunkAmount; i++) {
-					memcpy(&container.at(container.size() - remainAmount - capacity * (chunkAmount - i)), reinterpret_cast<void*>(static_cast<char*>(storage.ChunkArray->Chunks[i].Data) + capacity * targetType.Offset), capacity * targetType.Size);
+					memcpy(&container.at(capacity * (chunkAmount - i)), reinterpret_cast<void*>(static_cast<char*>(storage.ChunkArray->Chunks[i].Data) + capacity * targetType.Offset), capacity * targetType.Size);
 				}
-				if (remainAmount > 0) memcpy(&container.at(container.size() - remainAmount), reinterpret_cast<void*>(static_cast<char*>(storage.ChunkArray->Chunks[chunkAmount].Data) + capacity * targetType.Offset), remainAmount * targetType.Size);
+				if (remainAmount > 0) memcpy(&container.at(amount - remainAmount), reinterpret_cast<void*>(static_cast<char*>(storage.ChunkArray->Chunks[chunkAmount].Data) + capacity * targetType.Offset), remainAmount * targetType.Size);
 			}
 		}
 	}
@@ -1727,6 +1745,158 @@ namespace UniEngine {
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
 			ForEachStorage(i, func, checkEnable);
 		}
+	}
+
+	template <typename T1>
+	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+		const std::function<void(int i, Entity entity, T1&)>& func)
+	{
+		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+			{
+				const size_t index = entityQuery.Index;
+				if (index > _EntityQueries->size()) {
+					Debug::Error("EntityQuery not exist!");
+					return;
+				}
+				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
+					ForEachStorage(i, func, checkEnable);
+				}
+			}
+		);
+		return task;
+	}
+
+	template <typename T1, typename T2>
+	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+		const std::function<void(int i, Entity entity, T1&, T2&)>& func)
+	{
+		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+			{
+				const size_t index = entityQuery.Index;
+				if (index > _EntityQueries->size()) {
+					Debug::Error("EntityQuery not exist!");
+					return;
+				}
+				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
+					ForEachStorage(i, func, checkEnable);
+				}
+			}
+		);
+		return task;
+	}
+
+	template <typename T1, typename T2, typename T3>
+	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func)
+	{
+		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+			{
+				const size_t index = entityQuery.Index;
+				if (index > _EntityQueries->size()) {
+					Debug::Error("EntityQuery not exist!");
+					return;
+				}
+				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
+					ForEachStorage(i, func, checkEnable);
+				}
+			}
+		);
+		return task;
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4>
+	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func)
+	{
+		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+			{
+				const size_t index = entityQuery.Index;
+				if (index > _EntityQueries->size()) {
+					Debug::Error("EntityQuery not exist!");
+					return;
+				}
+				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
+					ForEachStorage(i, func, checkEnable);
+				}
+			}
+		);
+		return task;
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5>
+	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func)
+	{
+		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+			{
+				const size_t index = entityQuery.Index;
+				if (index > _EntityQueries->size()) {
+					Debug::Error("EntityQuery not exist!");
+					return;
+				}
+				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
+					ForEachStorage(i, func, checkEnable);
+				}
+			}
+		);
+		return task;
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func)
+	{
+		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+			{
+				const size_t index = entityQuery.Index;
+				if (index > _EntityQueries->size()) {
+					Debug::Error("EntityQuery not exist!");
+					return;
+				}
+				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
+					ForEachStorage(i, func, checkEnable);
+				}
+			}
+		);
+		return task;
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func)
+	{
+		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+			{
+				const size_t index = entityQuery.Index;
+				if (index > _EntityQueries->size()) {
+					Debug::Error("EntityQuery not exist!");
+					return;
+				}
+				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
+					ForEachStorage(i, func, checkEnable);
+				}
+			}
+		);
+		return task;
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func)
+	{
+		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+			{
+				const size_t index = entityQuery.Index;
+				if (index > _EntityQueries->size()) {
+					Debug::Error("EntityQuery not exist!");
+					return;
+				}
+				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
+					ForEachStorage(i, func, checkEnable);
+				}
+			}
+		);
+		return task;
 	}
 #pragma endregion
 	template<typename T>

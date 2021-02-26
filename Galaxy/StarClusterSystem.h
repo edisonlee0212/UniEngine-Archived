@@ -260,13 +260,20 @@ namespace Galaxy {
 		std::vector<StarClusterPattern*> _Patterns;
 		EntityQuery _StarQuery;
 		EntityArchetype _StarArchetype;
+		float _ApplyPositionTimer;
+		float _CopyPositionTimer;
+		float _CalcPositionTimer;
+		float _CalcPositionResult;
 		float _Speed = 0.0f;
 		float _Size = 0.1f;
 		float _GalaxyTime = 0.0f;
+		std::future<void> _CurrentStatus;
+		bool _FirstTime = true;
 	public:
 		void OnCreate() override;
 		void Update() override;
 		void FixedUpdate() override;
+		void OnStartRunning() override;
 	};
 }
 

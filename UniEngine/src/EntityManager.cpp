@@ -160,9 +160,9 @@ void UniEngine::EntityManager::GetEntityStorage(const EntityComponentStorage& st
 {
 	const size_t amount = storage.ArchetypeInfo->EntityAliveCount;
 	if (amount == 0) return;
-	container.resize(container.size() + amount);
+	container.resize(amount);
 	const size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-	memcpy(&container.at(container.size() - amount), storage.ChunkArray->Entities.data(), amount * sizeof(Entity));
+	memcpy(container.data(), storage.ChunkArray->Entities.data(), amount * sizeof(Entity));
 }
 
 size_t UniEngine::EntityManager::SwapEntity(const EntityComponentStorage& storage, size_t index1, size_t index2)

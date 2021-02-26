@@ -63,7 +63,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
-	size_t starAmount = 600000;
+	size_t starAmount = 60000;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];
@@ -80,6 +80,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 		EntityManager::SetComponentData(starEntity, orbit);
 		EntityManager::SetComponentData(starEntity, cindex);
 	}
+	_FirstTime = true;
 }
 
 void Galaxy::StarClusterSystem::Update()
@@ -87,38 +88,56 @@ void Galaxy::StarClusterSystem::Update()
 	ImGui::Begin("Galaxy Control Panel");
 	ImGui::SliderFloat("Speed", &_Speed, 1.0f, 3000.0f);
 	ImGui::SliderFloat("Star Size", &_Size, 0.1f, 2.0f);
+	ImGui::SliderFloat("Apply", &_ApplyPositionTimer, 1.0f, 3000.0f);
+	ImGui::SliderFloat("Copy", &_CopyPositionTimer, 0.1f, 2.0f);
+	ImGui::SliderFloat("Calc", &_CalcPositionResult, 1.0f, 3000.0f);
 	ImGui::End();
 	_GalaxyTime += _World->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
 
-	float timer = Application::EngineTime();
-	//1. Calculate position (double precision) for each star
-	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(_StarQuery,
-		[time](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
-		{
-			position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + time, true);
-		}, false
-	);
-	//2. Apply position and size to the transform which will later be used for rendering.
-	float size = _Size;
-	EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
-		_StarQuery,
-		[size](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
-		{
-			globalTransform.Value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(size * glm::vec3(1.0f));
-			transform.Value = globalTransform.Value;
-		}, false
-	);
+	if(_FirstTime || _CurrentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	{
+		_CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
+		_FirstTime = false;
+		_ApplyPositionTimer = Application::EngineTime();
+		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
+			_StarQuery,
+			[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
+			{
+				//Code here will be exec in parallel
+				globalTransform.Value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
+				transform.Value = globalTransform.Value;
+			}
+		);
+		_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
 
-	
-	
-	//3. Setup transforms for particles component for the entity for actual rendering.
-	auto& imr = _StarCluster.GetPrivateComponent<Particles>();
-	imr->Matrices.resize(0);
-	_StarQuery.ToComponentDataArray(*(std::vector<GlobalTransform>*)(void*)&imr->Matrices);
-	//Debug::Log("Calculation Time: " + std::to_string(Application::EngineTime() - timer));
+		_CopyPositionTimer = Application::EngineTime();
+		auto& imr = _StarCluster.GetPrivateComponent<Particles>();
+		_StarQuery.ToComponentDataArray(*(std::vector<GlobalTransform>*)(void*) & imr->Matrices);
+		_CopyPositionTimer = Application::EngineTime() - _CopyPositionTimer;
+
+		_CalcPositionTimer = Application::EngineTime();
+		//Generate a parallel task to calculate position (double precision) for each star
+		std::packaged_task<void(const EntityQuery&, bool)> task =
+			EntityManager::CreateParallelTask<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
+				[time](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
+				{
+					//Code here will be exec in parallel
+					position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + time, true);
+				}
+		);
+		//Retrieve std::future for the task
+		_CurrentStatus = task.get_future();
+		//Dispatch the task
+		task(_StarQuery, false);
+	}
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()
 {
+}
+
+void Galaxy::StarClusterSystem::OnStartRunning()
+{
+	_FirstTime = true;
 }

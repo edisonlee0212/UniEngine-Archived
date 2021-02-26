@@ -44,7 +44,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	_Initialized = false;
 	WindowManager::Init("UniEngine", fullScreen);
 	InputManager::Init();
-	JobManager::Resize(std::thread::hardware_concurrency());
+	JobManager::Resize(std::thread::hardware_concurrency() - 2);
 
 #pragma region OpenGL
 	// glad: load all OpenGL function pointers
