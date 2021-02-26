@@ -63,7 +63,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
-	size_t starAmount = 60000;
+	size_t starAmount = 600000;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];

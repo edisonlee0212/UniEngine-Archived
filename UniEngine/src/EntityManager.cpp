@@ -256,7 +256,7 @@ Entity UniEngine::EntityManager::CreateEntity(const EntityArchetype& archetype, 
 	EntityComponentStorage storage = _EntityComponentStorage->at(archetype.Index);
 	EntityArchetypeInfo* info = storage.ArchetypeInfo;
 	if (info->EntityCount == info->EntityAliveCount) {
-		const size_t chunkIndex = info->EntityCount + 1 / info->ChunkCapacity;
+		const size_t chunkIndex = info->EntityCount / info->ChunkCapacity + 1;
 		if (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 			//Allocate new chunk;
 			ComponentDataChunk chunk;
@@ -343,7 +343,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 	if (remainAmount == 0) return retVal;
 	info->EntityCount += remainAmount;
 	info->EntityAliveCount += remainAmount;
-	const size_t chunkIndex = info->EntityCount + 1 / info->ChunkCapacity;
+	const size_t chunkIndex = info->EntityCount / info->ChunkCapacity + 1;
 	while (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 		//Allocate new chunk;
 		ComponentDataChunk chunk;
