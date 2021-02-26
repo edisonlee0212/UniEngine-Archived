@@ -13,7 +13,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	imr->Material = std::make_shared<Material>();
 	imr->CastShadow = false;
 	imr->ReceiveShadow = false;
-	imr->Mesh = Default::Primitives::Sphere;
+	imr->Mesh = Default::Primitives::Cube;
 	imr->Material->SetProgram(Default::GLPrograms::StandardInstancedProgram);
 	imr->Material->SetTexture(Default::Textures::StandardTexture);
 	_StarCluster.SetPrivateComponent(std::move(imr));
@@ -63,6 +63,9 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
+	JobManager::ResizePrimaryWorkers(2);
+	JobManager::ResizeSecondaryWorkers(5);
+	
 	size_t starAmount = 60000;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
@@ -113,8 +116,14 @@ void Galaxy::StarClusterSystem::Update()
 
 		_CopyPositionTimer = Application::EngineTime();
 		auto& imr = _StarCluster.GetPrivateComponent<Particles>();
-		imr->Matrices.resize(0);
-		_StarQuery.ToComponentDataArray(*(std::vector<GlobalTransform>*)(void*) & imr->Matrices);
+		imr->Matrices.resize(_StarQuery.GetEntityAmount());
+		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
+			JobManager::PrimaryWorkers(), _StarQuery,
+			[&](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
+			{
+				imr->Matrices[i] = globalTransform.Value;
+			}, false
+			);
 		_CopyPositionTimer = Application::EngineTime() - _CopyPositionTimer;
 
 		_CalcPositionTimer = Application::EngineTime();
@@ -124,7 +133,6 @@ void Galaxy::StarClusterSystem::Update()
 					EntityManager::CreateParallelTask<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
 						[time](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
 						{
-							while (1){}
 							//Code here will be exec in parallel
 							position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + time, true);
 						}

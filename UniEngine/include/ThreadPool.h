@@ -40,82 +40,24 @@ namespace UniEngine {
     }
 
     class ThreadPool {
-        friend class JobManager;
+
     public:
-        // wait for all computing threads to finish and stop all threads
-            // may be called asynchronously to not pause the calling thread while waiting
-            // if isWait == true, all the functions in the queue are run, otherwise the queue is cleared without running the functions
-        void FinishAll(bool isWait = false) {
-            if (!isWait) {
-                if (this->_IsStop)
-                    return;
-                this->_IsStop = true;
-                for (int i = 0, n = this->Size(); i < n; ++i) {
-                    *this->_Flags[i] = true;  // command the threads to stop
-                }
-                this->ClearQueue();  // empty the queue
-            }
-            else {
-                if (this->_IsDone || this->_IsStop)
-                    return;
-                this->_IsDone = true;  // give the waiting threads a command to finish
-            }
-            {
-                std::unique_lock<std::mutex> lock(this->_Mutex);
-                this->_ThreadPoolCondition.notify_all();  // stop all waiting threads
-            }
-            for (int i = 0; i < static_cast<int>(this->_Threads.size()); ++i) {  // wait for the computing threads to finish
-                if (this->_Threads[i]->joinable())
-                    this->_Threads[i]->join();
-            }
-            // if there were no threads in the pool but some functors in the queue, the functors are not deleted by the threads
-            // therefore delete them here
-            this->ClearQueue();
-            this->_Threads.clear();
-            this->_Flags.clear();
-        }
 
-        template<typename F, typename... Rest>
-        auto Push(F&& f, Rest&&... rest) ->std::future<decltype(f(0, rest...))> {
-            auto pck = std::make_shared<std::packaged_task<decltype(f(0, rest...))(int)>>(
-                std::bind(std::forward<F>(f), std::placeholders::_1, std::forward<Rest>(rest)...)
-                );
-            auto _f = new std::function<void(int id)>([pck](int id) {
-                (*pck)(id);
-                });
-            this->_ThreadPool.push(_f);
-            std::unique_lock<std::mutex> lock(this->_Mutex);
-            this->_ThreadPoolCondition.notify_one();
-            return pck->get_future();
-        }
-
-        // run the user's function that excepts argument int - id of the running thread. returned value is templatized
-        // operator returns std::future, where the user can get the result and rethrow the catched exceptins
-        template<typename F>
-        auto Push(F&& f) ->std::future<decltype(f(0))> {
-            auto pck = std::make_shared<std::packaged_task<decltype(f(0))(int)>>(std::forward<F>(f));
-            auto _f = new std::function<void(int id)>([pck](int id) {
-                (*pck)(id);
-                });
-            this->_ThreadPool.push(_f);
-            std::unique_lock<std::mutex> lock(this->_Mutex);
-            this->_ThreadPoolCondition.notify_one();
-            return pck->get_future();
-        }
-    	
-        // get the number of running threads in the pool
-        int Size() const { return static_cast<int>(this->_Threads.size()); }
-
-        // number of idle threads
-        int IdleAmount() const { return this->_WaitingThreadAmount; }
-    private:
         ThreadPool() { this->Init(); }
         ThreadPool(int nThreads) { this->Init(); this->Resize(nThreads); }
+
         // the destructor waits for all the functions in the queue to be finished
         ~ThreadPool() {
             this->FinishAll(true);
         }
+
+        // get the number of running threads in the pool
+        int Size() { return static_cast<int>(this->_Threads.size()); }
+
+        // number of idle threads
+        int IdleAmount() { return this->_WaitingThreadAmount; }
         std::thread& GetThread(int i) { return *this->_Threads[i]; }
+
         // change the number of threads in the pool
         // should be called from one thread, otherwise be careful to not interleave, also with this->stop()
         // nThreads must be >= 0
@@ -146,6 +88,7 @@ namespace UniEngine {
                 }
             }
         }
+
         // empty the queue
         void ClearQueue() {
             std::function<void(int id)>* _f;
@@ -163,11 +106,80 @@ namespace UniEngine {
                 f = *_f;
             return f;
         }
+
+        // wait for all computing threads to finish and stop all threads
+        // may be called asynchronously to not pause the calling thread while waiting
+        // if isWait == true, all the functions in the queue are run, otherwise the queue is cleared without running the functions
+        void FinishAll(bool isWait = false) {
+            if (!isWait) {
+                if (this->_IsStop)
+                    return;
+                this->_IsStop = true;
+                for (int i = 0, n = this->Size(); i < n; ++i) {
+                    *this->_Flags[i] = true;  // command the threads to stop
+                }
+                this->ClearQueue();  // empty the queue
+            }
+            else {
+                if (this->_IsDone || this->_IsStop)
+                    return;
+                this->_IsDone = true;  // give the waiting threads a command to finish
+            }
+            {
+                std::unique_lock<std::mutex> lock(this->_Mutex);
+                this->_ThreadPoolCondition.notify_all();  // stop all waiting threads
+            }
+            for (int i = 0; i < static_cast<int>(this->_Threads.size()); ++i) {  // wait for the computing threads to finish
+                if (this->_Threads[i]->joinable())
+                    this->_Threads[i]->join();
+            }
+            // if there were no threads in the pool but some functors in the queue, the functors are not deleted by the threads
+            // therefore delete them here
+            this->ClearQueue();
+            this->_Threads.clear();
+            this->_Flags.clear();
+            this->_WaitingThreadAmount = 0;
+        	this->_IsStop = false;
+        	this->_IsDone = false;
+        }
+
+        template<typename F, typename... Rest>
+        auto Push(F&& f, Rest&&... rest) ->std::future<decltype(f(0, rest...))> {
+            auto pck = std::make_shared<std::packaged_task<decltype(f(0, rest...))(int)>>(
+                std::bind(std::forward<F>(f), std::placeholders::_1, std::forward<Rest>(rest)...)
+                );
+            auto _f = new std::function<void(int id)>([pck](int id) {
+                (*pck)(id);
+                });
+            this->_ThreadPool.push(_f);
+            std::unique_lock<std::mutex> lock(this->_Mutex);
+            this->_ThreadPoolCondition.notify_one();
+            return pck->get_future();
+        }
+
+        // run the user's function that excepts argument int - id of the running thread. returned value is templatized
+        // operator returns std::future, where the user can get the result and rethrow the catched exceptins
+        template<typename F>
+        auto Push(F&& f) ->std::future<decltype(f(0))> {
+            auto pck = std::make_shared<std::packaged_task<decltype(f(0))(int)>>(std::forward<F>(f));
+            auto _f = new std::function<void(int id)>([pck](int id) {
+                (*pck)(id);
+                });
+            this->_ThreadPool.push(_f);
+            std::unique_lock<std::mutex> lock(this->_Mutex);
+            this->_ThreadPoolCondition.notify_one();
+            return pck->get_future();
+        }
+
+
+    private:
+
         // deleted
         ThreadPool(const ThreadPool&);// = delete;
         ThreadPool(ThreadPool&&);// = delete;
         ThreadPool& operator=(const ThreadPool&);// = delete;
         ThreadPool& operator=(ThreadPool&&);// = delete;
+
         void SetThread(int i) {
             std::shared_ptr<std::atomic<bool>> flag(this->_Flags[i]); // a copy of the shared ptr to the flag
             auto f = [this, i, flag/* a copy of the shared ptr to the flag */]() {
@@ -194,13 +206,16 @@ namespace UniEngine {
             };
             this->_Threads[i].reset(new std::thread(f)); // compiler may not support std::make_unique()
         }
+
         void Init() { this->_WaitingThreadAmount = 0; this->_IsStop = false; this->_IsDone = false; }
+
         std::vector<std::unique_ptr<std::thread>> _Threads;
         std::vector<std::shared_ptr<std::atomic<bool>>> _Flags;
         detail::ThreadQueue<std::function<void(int id)>*> _ThreadPool;
         std::atomic<bool> _IsDone;
         std::atomic<bool> _IsStop;
         std::atomic<int> _WaitingThreadAmount;  // how many threads are waiting
+
         std::mutex _Mutex;
         std::condition_variable _ThreadPoolCondition;
     };
