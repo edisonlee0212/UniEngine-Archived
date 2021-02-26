@@ -45,21 +45,21 @@ namespace UniEngine {
 		static void EraseDuplicates(std::vector<ComponentType>& types);
 #pragma region ForEach
 		template<typename T1 = ComponentBase>
-		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable = true);
+		static void ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable = true);
+		static void ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
-		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable = true);
+		static void ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase>
-		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable = true);
+		static void ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase>
-		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable = true);
+		static void ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase>
-		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable = true);
+		static void ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase>
-		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
+		static void ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
-		static void ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
+		static void ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
 
 #pragma endregion
 		template<typename T = ComponentBase>
@@ -192,38 +192,38 @@ namespace UniEngine {
 
 		//For implicit parallel task dispatching
 		template<typename T1 = ComponentBase>
-		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable = true);
+		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable = true);
+		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
-		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable = true);
+		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase>
-		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable = true);
+		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase>
-		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable = true);
+		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase>
-		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable = true);
+		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase>
-		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
+		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
-		static void ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
+		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
 		//For explicit parallel task dispatching
 		template<typename T1 = ComponentBase>
-		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&)>& func);
+		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&)>& func);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
-		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&)>& func);
+		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&)>& func);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
-		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func);
+		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase>
-		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func);
+		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase>
-		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func);
+		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase>
-		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func);
+		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase>
-		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func);
+		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase, typename T4 = ComponentBase, typename T5 = ComponentBase, typename T6 = ComponentBase, typename T7 = ComponentBase, typename T8 = ComponentBase>
-		static std::packaged_task<void(const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func);
+		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func);
 
 		
 		static void ForAllEntities(const std::function<void(int i, Entity entity)>& func);
@@ -283,7 +283,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma region ForEachStorage
 	template<typename T1>
-	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable)
+	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable)
 	{
 		auto targetType1 = typeof<T1>();
 		const auto entityCount = storage.ArchetypeInfo->EntityAliveCount;
@@ -306,7 +306,7 @@ namespace UniEngine {
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 			void* data = chunkArray->Chunks[chunkIndex].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						for (size_t i = 0; i < capacity; i++) {
@@ -323,7 +323,7 @@ namespace UniEngine {
 		if (remainder != 0) {
 			void* data = chunkArray->Chunks[chunkAmount].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						for (size_t i = 0; i < remainder; i++) {
@@ -341,7 +341,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2>
-	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable)
+	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable)
 	{
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
@@ -372,7 +372,7 @@ namespace UniEngine {
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 			void* data = chunkArray->Chunks[chunkIndex].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -391,7 +391,7 @@ namespace UniEngine {
 		if (remainder != 0) {
 			void* data = chunkArray->Chunks[chunkAmount].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -411,7 +411,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3>
-	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -447,7 +447,7 @@ namespace UniEngine {
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 			void* data = chunkArray->Chunks[chunkIndex].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -468,7 +468,7 @@ namespace UniEngine {
 		if (remainder != 0) {
 			void* data = chunkArray->Chunks[chunkAmount].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -490,7 +490,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4>
-	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -533,7 +533,7 @@ namespace UniEngine {
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 			void* data = chunkArray->Chunks[chunkIndex].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -556,7 +556,7 @@ namespace UniEngine {
 		if (remainder != 0) {
 			void* data = chunkArray->Chunks[chunkAmount].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -580,7 +580,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -630,7 +630,7 @@ namespace UniEngine {
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 			void* data = chunkArray->Chunks[chunkIndex].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -655,7 +655,7 @@ namespace UniEngine {
 		if (remainder != 0) {
 			void* data = chunkArray->Chunks[chunkAmount].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -681,7 +681,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -738,7 +738,7 @@ namespace UniEngine {
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 			void* data = chunkArray->Chunks[chunkIndex].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -765,7 +765,7 @@ namespace UniEngine {
 		if (remainder != 0) {
 			void* data = chunkArray->Chunks[chunkAmount].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -793,7 +793,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -857,7 +857,7 @@ namespace UniEngine {
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 			void* data = chunkArray->Chunks[chunkIndex].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -886,7 +886,7 @@ namespace UniEngine {
 		if (remainder != 0) {
 			void* data = chunkArray->Chunks[chunkAmount].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -916,7 +916,7 @@ namespace UniEngine {
 
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-	void EntityManager::ForEachStorage(const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable) {
+	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable) {
 		auto targetType1 = typeof<T1>();
 		auto targetType2 = typeof<T2>();
 		auto targetType3 = typeof<T3>();
@@ -987,7 +987,7 @@ namespace UniEngine {
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
 			void* data = chunkArray->Chunks[chunkIndex].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -1018,7 +1018,7 @@ namespace UniEngine {
 		if (remainder != 0) {
 			void* data = chunkArray->Chunks[chunkAmount].Data;
 			results.push_back(
-				JobManager::GetThreadPool().Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
+				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
 					{
 						auto* address1 = static_cast<char*>(data) + targetType1.Offset * capacity;
 						auto* address2 = static_cast<char*>(data) + targetType2.Offset * capacity;
@@ -1062,14 +1062,14 @@ namespace UniEngine {
 				targetType = type;
 				size_t amount = storage.ArchetypeInfo->EntityAliveCount;
 				if (amount == 0) return;
-				container.resize(amount);
+				container.resize(container.size() + amount);
 				const auto capacity = storage.ArchetypeInfo->ChunkCapacity;
 				const auto chunkAmount = amount / capacity;
 				const auto remainAmount = amount % capacity;
 				for (size_t i = 0; i < chunkAmount; i++) {
-					memcpy(&container.at(capacity * (chunkAmount - i)), reinterpret_cast<void*>(static_cast<char*>(storage.ChunkArray->Chunks[i].Data) + capacity * targetType.Offset), capacity * targetType.Size);
+					memcpy(&container.at(container.size() - remainAmount - capacity * (chunkAmount - i)), reinterpret_cast<void*>(static_cast<char*>(storage.ChunkArray->Chunks[i].Data) + capacity * targetType.Offset), capacity * targetType.Size);
 				}
-				if (remainAmount > 0) memcpy(&container.at(amount - remainAmount), reinterpret_cast<void*>(static_cast<char*>(storage.ChunkArray->Chunks[chunkAmount].Data) + capacity * targetType.Offset), remainAmount * targetType.Size);
+				if (remainAmount > 0) memcpy(&container.at(container.size() - remainAmount), reinterpret_cast<void*>(static_cast<char*>(storage.ChunkArray->Chunks[chunkAmount].Data) + capacity * targetType.Offset), remainAmount * targetType.Size);
 			}
 		}
 	}
@@ -1650,7 +1650,7 @@ namespace UniEngine {
 #pragma endregion
 #pragma region For Each
 	template<typename T1>
-	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable)
+	void EntityManager::ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable)
 	{
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
@@ -1659,11 +1659,11 @@ namespace UniEngine {
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-			ForEachStorage(i, func, checkEnable);
+			ForEachStorage(workers, i, func, checkEnable);
 		}
 	}
 	template<typename T1, typename T2>
-	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable) {
+	void EntityManager::ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1671,11 +1671,11 @@ namespace UniEngine {
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-			ForEachStorage(i, func, checkEnable);
+			ForEachStorage(workers, i, func, checkEnable);
 		}
 	}
 	template<typename T1, typename T2, typename T3>
-	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable) {
+	void EntityManager::ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1683,11 +1683,11 @@ namespace UniEngine {
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-			ForEachStorage(i, func, checkEnable);
+			ForEachStorage(workers, i, func, checkEnable);
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4>
-	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable) {
+	void EntityManager::ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1695,11 +1695,11 @@ namespace UniEngine {
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-			ForEachStorage(i, func, checkEnable);
+			ForEachStorage(workers, i, func, checkEnable);
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable) {
+	void EntityManager::ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1707,11 +1707,11 @@ namespace UniEngine {
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-			ForEachStorage(i, func, checkEnable);
+			ForEachStorage(workers, i, func, checkEnable);
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable) {
+	void EntityManager::ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1719,11 +1719,11 @@ namespace UniEngine {
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-			ForEachStorage(i, func, checkEnable);
+			ForEachStorage(workers, i, func, checkEnable);
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable) {
+	void EntityManager::ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1731,11 +1731,11 @@ namespace UniEngine {
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-			ForEachStorage(i, func, checkEnable);
+			ForEachStorage(workers, i, func, checkEnable);
 		}
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-	void EntityManager::ForEach(const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable) {
+	void EntityManager::ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable) {
 		if (entityQuery.IsNull()) return;
 		const size_t index = entityQuery.Index;
 		if (index > _EntityQueries->size()) {
@@ -1743,15 +1743,15 @@ namespace UniEngine {
 			return;
 		}
 		for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-			ForEachStorage(i, func, checkEnable);
+			ForEachStorage(workers, i, func, checkEnable);
 		}
 	}
 
 	template <typename T1>
-	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+	std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> EntityManager::CreateParallelTask(
 		const std::function<void(int i, Entity entity, T1&)>& func)
 	{
-		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+		std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
 			{
 				const size_t index = entityQuery.Index;
 				if (index > _EntityQueries->size()) {
@@ -1767,10 +1767,10 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2>
-	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+	std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> EntityManager::CreateParallelTask(
 		const std::function<void(int i, Entity entity, T1&, T2&)>& func)
 	{
-		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+		std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> task([func](ThreadPool& workers, const EntityQuery& entityQuery, bool checkEnable)
 			{
 				const size_t index = entityQuery.Index;
 				if (index > _EntityQueries->size()) {
@@ -1778,7 +1778,7 @@ namespace UniEngine {
 					return;
 				}
 				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-					ForEachStorage(i, func, checkEnable);
+					ForEachStorage(workers, i, func, checkEnable);
 				}
 			}
 		);
@@ -1786,10 +1786,10 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2, typename T3>
-	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+	std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> EntityManager::CreateParallelTask(
 		const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func)
 	{
-		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+		std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> task([func](ThreadPool& workers, const EntityQuery& entityQuery, bool checkEnable)
 			{
 				const size_t index = entityQuery.Index;
 				if (index > _EntityQueries->size()) {
@@ -1797,7 +1797,7 @@ namespace UniEngine {
 					return;
 				}
 				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-					ForEachStorage(i, func, checkEnable);
+					ForEachStorage(workers, i, func, checkEnable);
 				}
 			}
 		);
@@ -1805,10 +1805,10 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2, typename T3, typename T4>
-	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+	std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> EntityManager::CreateParallelTask(
 		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func)
 	{
-		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+		std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> task([func](ThreadPool& workers, const EntityQuery& entityQuery, bool checkEnable)
 			{
 				const size_t index = entityQuery.Index;
 				if (index > _EntityQueries->size()) {
@@ -1816,7 +1816,7 @@ namespace UniEngine {
 					return;
 				}
 				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-					ForEachStorage(i, func, checkEnable);
+					ForEachStorage(workers, i, func, checkEnable);
 				}
 			}
 		);
@@ -1824,10 +1824,10 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2, typename T3, typename T4, typename T5>
-	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+	std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> EntityManager::CreateParallelTask(
 		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func)
 	{
-		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+		std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> task([func](ThreadPool& workers, const EntityQuery& entityQuery, bool checkEnable)
 			{
 				const size_t index = entityQuery.Index;
 				if (index > _EntityQueries->size()) {
@@ -1835,7 +1835,7 @@ namespace UniEngine {
 					return;
 				}
 				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-					ForEachStorage(i, func, checkEnable);
+					ForEachStorage(workers, i, func, checkEnable);
 				}
 			}
 		);
@@ -1843,10 +1843,10 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+	std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> EntityManager::CreateParallelTask(
 		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func)
 	{
-		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+		std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> task([func](ThreadPool& workers, const EntityQuery& entityQuery, bool checkEnable)
 			{
 				const size_t index = entityQuery.Index;
 				if (index > _EntityQueries->size()) {
@@ -1854,7 +1854,7 @@ namespace UniEngine {
 					return;
 				}
 				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-					ForEachStorage(i, func, checkEnable);
+					ForEachStorage(workers, i, func, checkEnable);
 				}
 			}
 		);
@@ -1862,10 +1862,10 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+	std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> EntityManager::CreateParallelTask(
 		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func)
 	{
-		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+		std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> task([func](ThreadPool& workers, const EntityQuery& entityQuery, bool checkEnable)
 			{
 				const size_t index = entityQuery.Index;
 				if (index > _EntityQueries->size()) {
@@ -1873,7 +1873,7 @@ namespace UniEngine {
 					return;
 				}
 				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-					ForEachStorage(i, func, checkEnable);
+					ForEachStorage(workers, i, func, checkEnable);
 				}
 			}
 		);
@@ -1881,10 +1881,10 @@ namespace UniEngine {
 	}
 
 	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-	std::packaged_task<void(const EntityQuery&, bool)> EntityManager::CreateParallelTask(
+	std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> EntityManager::CreateParallelTask(
 		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func)
 	{
-		std::packaged_task<void(const EntityQuery&, bool)> task([func](const EntityQuery& entityQuery, bool checkEnable)
+		std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> task([func](ThreadPool& workers, const EntityQuery& entityQuery, bool checkEnable)
 			{
 				const size_t index = entityQuery.Index;
 				if (index > _EntityQueries->size()) {
@@ -1892,7 +1892,7 @@ namespace UniEngine {
 					return;
 				}
 				for (const auto& i : _EntityQueryInfos->at(index).QueriedStorage) {
-					ForEachStorage(i, func, checkEnable);
+					ForEachStorage(workers, i, func, checkEnable);
 				}
 			}
 		);
@@ -1931,12 +1931,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList.size();
 		std::vector<std::vector<T1>> collectedDataLists;
-		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
 			collectedDataLists.push_back(std::vector<T1>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T1>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(JobManager::GetThreadPool().Push([&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc](int id) {
+			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filterFunc(componentDataList[j * 8 + i])) {
 						collectedDataList->push_back(targetDataList[j * 8 + i]);
@@ -1981,12 +1981,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList1.size();
 		std::vector<std::vector<T1>> collectedDataLists;
-		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
 			collectedDataLists.push_back(std::vector<T1>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T1>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(JobManager::GetThreadPool().Push([&targetDataList, &componentDataList1, &componentDataList2, size, collectedDataList, i, filterFunc](int id) {
+			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList1, &componentDataList2, size, collectedDataList, i, filterFunc](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filterFunc(componentDataList1[j * 8 + i], componentDataList2[j * 8 + i])) {
 						collectedDataList->push_back(targetDataList[j * 8 + i]);
@@ -2028,12 +2028,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = componentDataList.size();
 		std::vector<std::vector<T2>> collectedDataLists;
-		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
 			collectedDataLists.push_back(std::vector<T2>());
 		}
 		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T2>* collectedDataList = &collectedDataLists[i];
-			futures.push_back(JobManager::GetThreadPool().Push([&targetDataList, &componentDataList, size, filter, collectedDataList, i](int id) {
+			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList, size, filter, collectedDataList, i](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filter == componentDataList[j * 8 + i]) {
 						collectedDataList->push_back(targetDataList[j * 8 + i]);
@@ -2076,12 +2076,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
-			futures.push_back(JobManager::GetThreadPool().Push([&allEntities, &componentDataList, size, collectedEntityList, i, filterFunc](int id) {
+			futures.push_back(JobManager::PrimaryWorkers().Push([&allEntities, &componentDataList, size, collectedEntityList, i, filterFunc](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filterFunc(allEntities[j * 8 + i], componentDataList[j * 8 + i])) {
 						collectedEntityList->push_back(allEntities[j * 8 + i]);
@@ -2126,12 +2126,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
-			futures.push_back(JobManager::GetThreadPool().Push([&allEntities, &componentDataList1, &componentDataList2, size, collectedEntityList, i, filterFunc](int id) {
+			futures.push_back(JobManager::PrimaryWorkers().Push([&allEntities, &componentDataList1, &componentDataList2, size, collectedEntityList, i, filterFunc](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filterFunc(allEntities[j * 8 + i], componentDataList1[j * 8 + i], componentDataList2[j * 8 + i])) {
 						collectedEntityList->push_back(allEntities[j * 8 + i]);
@@ -2173,12 +2173,12 @@ namespace UniEngine {
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
-		for (int i = 0; i < JobManager::GetThreadPool().Size(); i++) {
+		for (int i = 0; i < JobManager::PrimaryWorkers().Size(); i++) {
 			collectedEntityLists.push_back(std::vector<Entity>());
 		}
 		for (int i = 0; i < collectedEntityLists.size(); i++) {
 			std::vector<Entity>* collectedEntityList = &collectedEntityLists[i];
-			futures.push_back(JobManager::GetThreadPool().Push([&allEntities, &componentDataList, size, filter, collectedEntityList, i](int id) {
+			futures.push_back(JobManager::PrimaryWorkers().Push([&allEntities, &componentDataList, size, filter, collectedEntityList, i](int id) {
 				for (int j = 0; j < size / 8; j++) {
 					if (filter == componentDataList[j * 8 + i]) {
 						collectedEntityList->push_back(allEntities[j * 8 + i]);

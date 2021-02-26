@@ -63,7 +63,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitOffset offset;
 	StarOrbitProportion proportion;
 
-	size_t starAmount = 600;
+	size_t starAmount = 60000;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];
@@ -101,37 +101,40 @@ void Galaxy::StarClusterSystem::Update()
 		_FirstTime = false;
 		_ApplyPositionTimer = Application::EngineTime();
 		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
-			_StarQuery,
+			JobManager::PrimaryWorkers(), _StarQuery,
 			[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
 			{
 				//Code here will be exec in parallel
 				globalTransform.Value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
 				transform.Value = globalTransform.Value;
-			}
+			}, false
 		);
 		_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
 
 		_CopyPositionTimer = Application::EngineTime();
 		auto& imr = _StarCluster.GetPrivateComponent<Particles>();
+		imr->Matrices.resize(0);
 		_StarQuery.ToComponentDataArray(*(std::vector<GlobalTransform>*)(void*) & imr->Matrices);
 		_CopyPositionTimer = Application::EngineTime() - _CopyPositionTimer;
 
 		_CalcPositionTimer = Application::EngineTime();
-		
-		//Generate a parallel task to calculate position (double precision) for each star
-		std::packaged_task<void(const EntityQuery&, bool)> task =
-			EntityManager::CreateParallelTask<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
-				[time](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
-				{
-					//Code here will be exec in parallel
-					position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + time, true);
-				}
+		_CurrentStatus = std::async(std::launch::async, [=]()
+			{
+				auto task =
+					EntityManager::CreateParallelTask<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
+						[time](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
+						{
+							while (1){}
+							//Code here will be exec in parallel
+							position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + time, true);
+						}
+				);
+				//Retrieve std::future for the task
+				//Dispatch the task
+				task(JobManager::SecondaryWorkers(), _StarQuery, false);
+			}
 		);
-		//Retrieve std::future for the task
-		_CurrentStatus = task.get_future();
-		//Dispatch the task
-		task(_StarQuery, false);
-		Debug::Log("Task dispatched");
+		//Generate a parallel task to calculate position (double precision) for each star
 	}
 }
 

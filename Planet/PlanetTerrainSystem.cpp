@@ -34,7 +34,7 @@ void Planet::PlanetTerrainSystem::Update()
 			auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
 			//1. Scan and expand.
 			for (auto& chunk : planetTerrain->_Chunks) {
-				//futures.push_back(_ThreadPool->Push([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw); }).share());
+				//futures.push_back(_PrimaryWorkers->Push([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw); }).share());
 				CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw);
 			}
 		}

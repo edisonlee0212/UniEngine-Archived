@@ -2,14 +2,25 @@
 #include "JobManager.h"
 using namespace UniEngine;
 
-ThreadPool JobManager::_ThreadPool;
 
-inline ThreadPool& JobManager::GetThreadPool()
+void JobManager::ResizePrimaryWorkers(int size)
 {
-	return GetInstance()._ThreadPool;
+	GetInstance()._PrimaryWorkers.FinishAll(true);
+	GetInstance()._PrimaryWorkers.Resize(size);
 }
 
-inline void JobManager::Resize(int value)
+void JobManager::ResizeSecondaryWorkers(int size)
 {
-	return GetInstance()._ThreadPool.Resize(value);
+	GetInstance()._SecondaryWorkers.FinishAll(true);
+	GetInstance()._SecondaryWorkers.Resize(size);
+}
+
+ThreadPool& JobManager::PrimaryWorkers()
+{
+	return GetInstance()._PrimaryWorkers;
+}
+
+ThreadPool& JobManager::SecondaryWorkers()
+{
+	return GetInstance()._SecondaryWorkers;
 }

@@ -14,7 +14,7 @@ void UniEngine::TransformManager::Init()
 
 void UniEngine::TransformManager::LateUpdate()
 {
-	EntityManager::ForEach<Transform, GlobalTransform>(_TransformQuery, [](int i, Entity entity, Transform& ltp, GlobalTransform& ltw)
+	EntityManager::ForEach<Transform, GlobalTransform>(JobManager::PrimaryWorkers(), _TransformQuery, [](int i, Entity entity, Transform& ltp, GlobalTransform& ltw)
 		{
 			if (EntityManager::IsEntityStatic(entity) || !EntityManager::GetParent(entity).IsNull()) return;
 			ltw.Value = ltp.Value;

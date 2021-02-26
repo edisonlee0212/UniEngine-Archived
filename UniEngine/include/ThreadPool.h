@@ -40,76 +40,11 @@ namespace UniEngine {
     }
 
     class ThreadPool {
-
+        friend class JobManager;
     public:
-
-        ThreadPool() { this->Init(); }
-        ThreadPool(int nThreads) { this->Init(); this->Resize(nThreads); }
-
-        // the destructor waits for all the functions in the queue to be finished
-        ~ThreadPool() {
-            this->FinishAll(true);
-        }
-
-        // get the number of running threads in the pool
-        int Size() { return static_cast<int>(this->_Threads.size()); }
-
-        // number of idle threads
-        int IdleAmount() { return this->_WaitingThreadAmount; }
-        std::thread& GetThread(int i) { return *this->_Threads[i]; }
-
-        // change the number of threads in the pool
-        // should be called from one thread, otherwise be careful to not interleave, also with this->stop()
-        // nThreads must be >= 0
-        void Resize(int nThreads) {
-            if (!this->_IsStop && !this->_IsDone) {
-                int oldNThreads = static_cast<int>(this->_Threads.size());
-                if (oldNThreads <= nThreads) {  // if the number of threads is increased
-                    this->_Threads.resize(nThreads);
-                    this->_Flags.resize(nThreads);
-
-                    for (int i = oldNThreads; i < nThreads; ++i) {
-                        this->_Flags[i] = std::make_shared<std::atomic<bool>>(false);
-                        this->SetThread(i);
-                    }
-                }
-                else {  // the number of threads is decreased
-                    for (int i = oldNThreads - 1; i >= nThreads; --i) {
-                        *this->_Flags[i] = true;  // this thread will finish
-                        this->_Threads[i]->detach();
-                    }
-                    {
-                        // stop the detached threads that were waiting
-                        std::unique_lock<std::mutex> lock(this->_Mutex);
-                        this->_ThreadPoolCondition.notify_all();
-                    }
-                    this->_Threads.resize(nThreads);  // safe to delete because the threads are detached
-                    this->_Flags.resize(nThreads);  // safe to delete because the threads have copies of shared_ptr of the flags, not originals
-                }
-            }
-        }
-
-        // empty the queue
-        void ClearQueue() {
-            std::function<void(int id)>* _f;
-            while (this->_ThreadPool.pop(_f))
-                delete _f; // empty the queue
-        }
-
-        // pops a functional wrapper to the original function
-        std::function<void(int)> Pop() {
-            std::function<void(int id)>* _f = nullptr;
-            this->_ThreadPool.pop(_f);
-            std::unique_ptr<std::function<void(int id)>> func(_f); // at return, delete the function even if an exception occurred
-            std::function<void(int)> f;
-            if (_f)
-                f = *_f;
-            return f;
-        }
-
         // wait for all computing threads to finish and stop all threads
-        // may be called asynchronously to not pause the calling thread while waiting
-        // if isWait == true, all the functions in the queue are run, otherwise the queue is cleared without running the functions
+            // may be called asynchronously to not pause the calling thread while waiting
+            // if isWait == true, all the functions in the queue are run, otherwise the queue is cleared without running the functions
         void FinishAll(bool isWait = false) {
             if (!isWait) {
                 if (this->_IsStop)
@@ -167,16 +102,72 @@ namespace UniEngine {
             this->_ThreadPoolCondition.notify_one();
             return pck->get_future();
         }
+    	
+        // get the number of running threads in the pool
+        int Size() const { return static_cast<int>(this->_Threads.size()); }
 
-
+        // number of idle threads
+        int IdleAmount() const { return this->_WaitingThreadAmount; }
     private:
+        ThreadPool() { this->Init(); }
+        ThreadPool(int nThreads) { this->Init(); this->Resize(nThreads); }
+        // the destructor waits for all the functions in the queue to be finished
+        ~ThreadPool() {
+            this->FinishAll(true);
+        }
+        std::thread& GetThread(int i) { return *this->_Threads[i]; }
+        // change the number of threads in the pool
+        // should be called from one thread, otherwise be careful to not interleave, also with this->stop()
+        // nThreads must be >= 0
+        void Resize(int nThreads) {
+            if (!this->_IsStop && !this->_IsDone) {
+                int oldNThreads = static_cast<int>(this->_Threads.size());
+                if (oldNThreads <= nThreads) {  // if the number of threads is increased
+                    this->_Threads.resize(nThreads);
+                    this->_Flags.resize(nThreads);
 
+                    for (int i = oldNThreads; i < nThreads; ++i) {
+                        this->_Flags[i] = std::make_shared<std::atomic<bool>>(false);
+                        this->SetThread(i);
+                    }
+                }
+                else {  // the number of threads is decreased
+                    for (int i = oldNThreads - 1; i >= nThreads; --i) {
+                        *this->_Flags[i] = true;  // this thread will finish
+                        this->_Threads[i]->detach();
+                    }
+                    {
+                        // stop the detached threads that were waiting
+                        std::unique_lock<std::mutex> lock(this->_Mutex);
+                        this->_ThreadPoolCondition.notify_all();
+                    }
+                    this->_Threads.resize(nThreads);  // safe to delete because the threads are detached
+                    this->_Flags.resize(nThreads);  // safe to delete because the threads have copies of shared_ptr of the flags, not originals
+                }
+            }
+        }
+        // empty the queue
+        void ClearQueue() {
+            std::function<void(int id)>* _f;
+            while (this->_ThreadPool.pop(_f))
+                delete _f; // empty the queue
+        }
+
+        // pops a functional wrapper to the original function
+        std::function<void(int)> Pop() {
+            std::function<void(int id)>* _f = nullptr;
+            this->_ThreadPool.pop(_f);
+            std::unique_ptr<std::function<void(int id)>> func(_f); // at return, delete the function even if an exception occurred
+            std::function<void(int)> f;
+            if (_f)
+                f = *_f;
+            return f;
+        }
         // deleted
         ThreadPool(const ThreadPool&);// = delete;
         ThreadPool(ThreadPool&&);// = delete;
         ThreadPool& operator=(const ThreadPool&);// = delete;
         ThreadPool& operator=(ThreadPool&&);// = delete;
-
         void SetThread(int i) {
             std::shared_ptr<std::atomic<bool>> flag(this->_Flags[i]); // a copy of the shared ptr to the flag
             auto f = [this, i, flag/* a copy of the shared ptr to the flag */]() {
@@ -203,16 +194,13 @@ namespace UniEngine {
             };
             this->_Threads[i].reset(new std::thread(f)); // compiler may not support std::make_unique()
         }
-
         void Init() { this->_WaitingThreadAmount = 0; this->_IsStop = false; this->_IsDone = false; }
-
         std::vector<std::unique_ptr<std::thread>> _Threads;
         std::vector<std::shared_ptr<std::atomic<bool>>> _Flags;
         detail::ThreadQueue<std::function<void(int id)>*> _ThreadPool;
         std::atomic<bool> _IsDone;
         std::atomic<bool> _IsStop;
         std::atomic<int> _WaitingThreadAmount;  // how many threads are waiting
-
         std::mutex _Mutex;
         std::condition_variable _ThreadPoolCondition;
     };

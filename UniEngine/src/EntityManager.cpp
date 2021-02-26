@@ -160,9 +160,9 @@ void UniEngine::EntityManager::GetEntityStorage(const EntityComponentStorage& st
 {
 	const size_t amount = storage.ArchetypeInfo->EntityAliveCount;
 	if (amount == 0) return;
-	container.resize(amount);
+	container.resize(container.size() + amount);
 	const size_t capacity = storage.ArchetypeInfo->ChunkCapacity;
-	memcpy(container.data(), storage.ChunkArray->Entities.data(), amount * sizeof(Entity));
+	memcpy(&container.at(container.size() - amount), storage.ChunkArray->Entities.data(), amount * sizeof(Entity));
 }
 
 size_t UniEngine::EntityManager::SwapEntity(const EntityComponentStorage& storage, size_t index1, size_t index2)
@@ -368,7 +368,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 	}
 	
 	storage.ChunkArray->Entities.insert(storage.ChunkArray->Entities.end(), _Entities->begin() + originalSize, _Entities->end());
-	const int threadSize = JobManager::GetThreadPool().Size();
+	const int threadSize = JobManager::PrimaryWorkers().Size();
 	int perThreadAmount = remainAmount / threadSize;
 	if(perThreadAmount > 0)
 	{
@@ -376,7 +376,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 		for(int i = 0; i < threadSize; i++)
 		{
 			results.push_back(
-				JobManager::GetThreadPool().Push([i, perThreadAmount, originalSize](int id)
+				JobManager::PrimaryWorkers().Push([i, perThreadAmount, originalSize](int id)
 					{
 						const Transform transform;
 						const GlobalTransform globalTransform;
@@ -389,7 +389,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 			).share());
 		}
 		results.push_back(
-			JobManager::GetThreadPool().Push([perThreadAmount, originalSize, &remainAmount, threadSize](int id)
+			JobManager::PrimaryWorkers().Push([perThreadAmount, originalSize, &remainAmount, threadSize](int id)
 				{
 					const Transform transform;
 					const GlobalTransform globalTransform;
