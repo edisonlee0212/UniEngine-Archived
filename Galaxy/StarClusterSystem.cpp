@@ -66,7 +66,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	JobManager::ResizePrimaryWorkers(2);
 	JobManager::ResizeSecondaryWorkers(5);
 	
-	size_t starAmount = 60000;
+	size_t starAmount = 6000;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];

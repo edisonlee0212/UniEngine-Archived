@@ -4,6 +4,7 @@
 #include "UniEngine.h"
 #include "World.h"
 using namespace UniEngine;
+size_t UniEngine::EntityManager::_ArchetypeChunkSize = ARCHETYPECHUNK_SIZE;
 EntityArchetype EntityManager::_BasicArchetype;
 WorldEntityStorage* UniEngine::EntityManager::_CurrentAttachedWorldEntityStorage = nullptr;
 std::vector<EntityInfo>* UniEngine::EntityManager::_EntityInfos = nullptr;
@@ -55,6 +56,11 @@ void UniEngine::EntityManager::UnsafeForEachEntityStorage(const std::function<vo
 			func(i, _EntityComponentStorage->at(i));
 		}
 	}
+}
+
+size_t EntityManager::GetArchetypeChunkSize()
+{
+	return _ArchetypeChunkSize;
 }
 
 void UniEngine::EntityManager::DeleteEntityInternal(const Entity& entity)
@@ -260,7 +266,7 @@ Entity UniEngine::EntityManager::CreateEntity(const EntityArchetype& archetype, 
 		if (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 			//Allocate new chunk;
 			ComponentDataChunk chunk;
-			chunk.Data = static_cast<void*>(calloc(1, ARCHETYPECHUNK_SIZE));
+			chunk.Data = static_cast<void*>(calloc(1, _ArchetypeChunkSize));
 			storage.ChunkArray->Chunks.push_back(chunk);
 		}
 		retVal.Index = _Entities->size();
@@ -347,7 +353,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 	while (storage.ChunkArray->Chunks.size() <= chunkIndex) {
 		//Allocate new chunk;
 		ComponentDataChunk chunk;
-		chunk.Data = static_cast<void*>(calloc(1, ARCHETYPECHUNK_SIZE));
+		chunk.Data = static_cast<void*>(calloc(1, _ArchetypeChunkSize));
 		storage.ChunkArray->Chunks.push_back(chunk);
 	}
 	const size_t originalSize = _Entities->size();
@@ -620,7 +626,7 @@ void EntityManager::RemoveComponentData(const Entity& entity, const size_t& type
 	}
 
 	newArchetypeInfo->EntitySize = newArchetypeInfo->ComponentTypes.back().Offset + newArchetypeInfo->ComponentTypes.back().Size;
-	newArchetypeInfo->ChunkCapacity = ARCHETYPECHUNK_SIZE / newArchetypeInfo->EntitySize;
+	newArchetypeInfo->ChunkCapacity = _ArchetypeChunkSize / newArchetypeInfo->EntitySize;
 	int duplicateIndex = -1;
 	for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
 		EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
@@ -768,7 +774,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, co
 	}
 	info->ComponentTypes = actualTypes;
 	info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
-	info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
+	info->ChunkCapacity = _ArchetypeChunkSize / info->EntitySize;
 	int duplicateIndex = -1;
 	for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
 		EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
@@ -828,6 +834,11 @@ void EntityManager::SetPrivateComponent(const Entity& entity, const std::string&
 bool EntityManager::IsEntityArchetypeValid(const EntityArchetype& archetype)
 {
 	return archetype.IsNull() && _EntityComponentStorage->size() > archetype.Index;
+}
+
+EntityArchetypeInfo EntityManager::GetArchetypeInfo(const EntityArchetype& entityArchetype)
+{
+	return *_EntityComponentStorage->at(entityArchetype.Index).ArchetypeInfo;
 }
 
 Entity EntityManager::GetRoot(const Entity& entity)

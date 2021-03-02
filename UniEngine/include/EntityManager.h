@@ -17,7 +17,7 @@ namespace UniEngine {
 		friend struct EntityArchetype;
 		friend struct EntityQuery;
 		friend struct Entity;
-
+		static size_t _ArchetypeChunkSize;
 		static EntityArchetype _BasicArchetype;
 #pragma region Data Storage
 		static WorldEntityStorage* _CurrentAttachedWorldEntityStorage;
@@ -96,12 +96,9 @@ namespace UniEngine {
 
 		static bool IsEntityDeleted(const size_t& index);
 		static bool IsEntityValid(const Entity& entity);
-		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
-		static std::vector<EntityComponentStorage> UnsafeQueryStorage(const EntityQuery& entityQuery);
-		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(const EntityArchetype& entityArchetype);
-		static std::vector<Entity>* UnsafeGetAllEntities();
-		static void UnsafeForEachComponent(const Entity& entity, const std::function<void(const ComponentType& type, void* data)>& func);
-		static void UnsafeForEachEntityStorage(const std::function<void(int i, const EntityComponentStorage& storage)>& func);
+		
+		
+		
 
 		static void SetComponentData(const Entity& entity, size_t id, size_t size, ComponentBase* data);
 		friend class SerializationManager;
@@ -110,6 +107,19 @@ namespace UniEngine {
 		static void SetPrivateComponent(const Entity& entity, const std::string& name, const size_t& id, PrivateComponentBase* ptr);
 		static bool IsEntityArchetypeValid(const EntityArchetype& archetype);
 	public:
+#pragma region Unsafe
+		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
+		static std::vector<Entity>* UnsafeGetAllEntities();
+		static std::vector<EntityComponentStorage> UnsafeQueryStorage(const EntityQuery& entityQuery);
+		static ComponentDataChunkArray* UnsafeGetEntityComponentDataChunkArray(const EntityArchetype& entityArchetype);
+		static void UnsafeForEachComponent(const Entity& entity, const std::function<void(const ComponentType& type, void* data)>& func);
+		static void UnsafeForEachEntityStorage(const std::function<void(int i, const EntityComponentStorage& storage)>& func);
+#pragma endregion
+
+		static size_t GetArchetypeChunkSize();
+		
+		static EntityArchetypeInfo GetArchetypeInfo(const EntityArchetype& entityArchetype);
+		
 		static Entity GetRoot(const Entity& entity);
 		static Entity GetEntity(const size_t& index);
 		static EntityArchetype GetEntityArchetype(const Entity& entity);
@@ -1087,7 +1097,7 @@ namespace UniEngine {
 		info->EntityCount = 0;
 		info->ComponentTypes = CollectComponentTypes(arg, args...);
 		info->EntitySize = info->ComponentTypes.back().Offset + info->ComponentTypes.back().Size;
-		info->ChunkCapacity = ARCHETYPECHUNK_SIZE / info->EntitySize;
+		info->ChunkCapacity = _ArchetypeChunkSize / info->EntitySize;
 		int duplicateIndex = -1;
 		for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
 			EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
@@ -1174,7 +1184,7 @@ namespace UniEngine {
 		}
 
 		newArchetypeInfo->EntitySize = newArchetypeInfo->ComponentTypes.back().Offset + newArchetypeInfo->ComponentTypes.back().Size;
-		newArchetypeInfo->ChunkCapacity = ARCHETYPECHUNK_SIZE / newArchetypeInfo->EntitySize;
+		newArchetypeInfo->ChunkCapacity = _ArchetypeChunkSize / newArchetypeInfo->EntitySize;
 		int duplicateIndex = -1;
 		for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
 			EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
@@ -1282,7 +1292,7 @@ namespace UniEngine {
 		}
 
 		newArchetypeInfo->EntitySize = newArchetypeInfo->ComponentTypes.back().Offset + newArchetypeInfo->ComponentTypes.back().Size;
-		newArchetypeInfo->ChunkCapacity = ARCHETYPECHUNK_SIZE / newArchetypeInfo->EntitySize;
+		newArchetypeInfo->ChunkCapacity = _ArchetypeChunkSize / newArchetypeInfo->EntitySize;
 		int duplicateIndex = -1;
 		for (size_t i = 1; i < _EntityComponentStorage->size(); i++) {
 			EntityArchetypeInfo* compareInfo = _EntityComponentStorage->at(i).ArchetypeInfo;
