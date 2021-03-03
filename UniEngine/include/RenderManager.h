@@ -80,56 +80,55 @@ namespace UniEngine {
 	
 	class UNIENGINE_API RenderManager : public Singleton<RenderManager>
 	{
-		static CameraComponent* _MainCameraComponent;
+		CameraComponent* m_mainCameraComponent = nullptr;
 #pragma region Global Var
 #pragma region GUI
-		static bool m_enableLightMenu;
-		static bool m_enableRenderMenu;
-		static bool m_enableInfoWindow;
+		bool m_enableLightMenu = true;
+		bool m_enableRenderMenu = false;
+		bool m_enableInfoWindow = false;
 #pragma endregion
 #pragma region Render
-		static std::unique_ptr<GLUBO> m_kernelBlock;
-		static std::unique_ptr<GLProgram> m_gBufferInstancedPrepass;
-		static std::unique_ptr<GLProgram> m_gBufferPrepass;
-		static std::unique_ptr<GLProgram> m_gBufferLightingPass;
+		std::unique_ptr<GLUBO> m_kernelBlock;
+		std::unique_ptr<GLProgram> m_gBufferInstancedPrepass;
+		std::unique_ptr<GLProgram> m_gBufferPrepass;
+		std::unique_ptr<GLProgram> m_gBufferLightingPass;
 
-		static int m_mainCameraResolutionX;
-		static int m_mainCameraResolutionY;
+		int m_mainCameraResolutionX = 1;
+		int m_mainCameraResolutionY = 1;
 		friend class RenderTarget;
-		static size_t m_triangles;
-		static size_t m_drawCall;
+		size_t m_triangles = 0;
+		size_t m_drawCall = 0;
 		
-		static std::unique_ptr<GLUBO> m_materialSettingsBuffer;
+		std::unique_ptr<GLUBO> m_materialSettingsBuffer;
 #pragma endregion
 #pragma region Shadow
-		static GLUBO* m_directionalLightBlock;
-		static GLUBO* m_pointLightBlock;
-		static GLUBO* m_spotLightBlock;
+		GLUBO m_directionalLightBlock;
+		GLUBO m_pointLightBlock;
+		GLUBO m_spotLightBlock;
 
-		static float m_shadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
-		static size_t m_shadowMapResolution;
-		static GLUBO* m_shadowCascadeInfoBlock;
+		size_t m_shadowMapResolution = 4096;
+		GLUBO m_shadowCascadeInfoBlock;
 		
 
-		static DirectionalLightInfo m_directionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
-		static PointLightInfo m_pointLights[Default::ShaderIncludes::MaxPointLightAmount];
-		static SpotLightInfo m_spotLights[Default::ShaderIncludes::MaxSpotLightAmount];
+		DirectionalLightInfo m_directionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
+		PointLightInfo m_pointLights[Default::ShaderIncludes::MaxPointLightAmount];
+		SpotLightInfo m_spotLights[Default::ShaderIncludes::MaxSpotLightAmount];
 
-		static std::unique_ptr<GLProgram> m_directionalLightProgram;
-		static std::unique_ptr<GLProgram> m_directionalLightInstancedProgram;
-		static std::unique_ptr<GLProgram> m_pointLightProgram;
-		static std::unique_ptr<GLProgram> m_pointLightInstancedProgram;
-		static std::unique_ptr<GLProgram> m_spotLightProgram;
-		static std::unique_ptr<GLProgram> m_spotLightInstancedProgram;
+		std::unique_ptr<GLProgram> m_directionalLightProgram;
+		std::unique_ptr<GLProgram> m_directionalLightInstancedProgram;
+		std::unique_ptr<GLProgram> m_pointLightProgram;
+		std::unique_ptr<GLProgram> m_pointLightInstancedProgram;
+		std::unique_ptr<GLProgram> m_spotLightProgram;
+		std::unique_ptr<GLProgram> m_spotLightInstancedProgram;
 
 		
 		friend class EditorManager;
-		static std::unique_ptr<DirectionalLightShadowMap> m_directionalLightShadowMap;
-		static std::unique_ptr<PointLightShadowMap> m_pointLightShadowMap;
-		static std::unique_ptr<SpotLightShadowMap> m_spotLightShadowMap;
+		std::unique_ptr<DirectionalLightShadowMap> m_directionalLightShadowMap;
+		std::unique_ptr<PointLightShadowMap> m_pointLightShadowMap;
+		std::unique_ptr<SpotLightShadowMap> m_spotLightShadowMap;
 		
 		
-		static float m_maxShadowDistance;
+		
 #pragma endregion
 #pragma endregion
 		
@@ -143,11 +142,14 @@ namespace UniEngine {
 		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix);
 		static float Lerp(float a, float b, float f);
 	public:
-		static bool m_stableFit;
+		bool m_stableFit = true;
+		float m_maxShadowDistance = 500;
+		float m_shadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
+		LightSettingsBlock m_lightSettings;
+		MaterialSettingsBlock m_materialSettings;
+
 		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
 		static void ApplyMaterialSettings(Material* material, GLProgram* program);
-		static LightSettingsBlock m_lightSettings;
-		static MaterialSettingsBlock m_materialSettings;
 		static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void RenderBackGround(const std::unique_ptr<CameraComponent>& cameraComponent);
 		static void RenderToCameraForward(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
@@ -157,16 +159,7 @@ namespace UniEngine {
 #pragma region Shadow
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetShadowMapResolution(size_t value);
-		static void SetPcfSampleAmount(int value);
-		static void SetBlockerSearchAmount(int value);
-		static void SetSeamFixRatio(float value);
-		static void SetMaxShadowDistance(float value);
-		static void SetScaleFactor(float value);
-		static void SetVsmMaxVariance(float value);
-		static void SetLightBleedControlFactor(float value);
-		static void SetEvsmExponent(float value);
-		static void SetAmbientLight(float value);
-		static void SetEnableShadow(bool value);
+
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
 #pragma endregion
 #pragma region RenderAPI

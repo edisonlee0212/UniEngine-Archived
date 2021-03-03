@@ -12,10 +12,8 @@ int main()
 {
 	ComponentFactory::RegisterSerializable<PlanetTerrain>();
 	FileIO::SetResourcePath("../Resources/");
-
-	RenderManager::SetAmbientLight(0.3f);
 	Application::Init();
-
+	RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.3f;
 #pragma region Preparations
 	auto& world = Application::GetCurrentWorld();
 	WorldTime* time = world->Time();

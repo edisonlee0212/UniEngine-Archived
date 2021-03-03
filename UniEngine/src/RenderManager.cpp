@@ -7,52 +7,6 @@
 #include "UniEngine.h"
 #include "Ray.h"
 using namespace UniEngine;
-#pragma region Global Var
-bool RenderManager::m_enableRenderMenu = false;
-bool RenderManager::m_enableInfoWindow = false;
-#pragma region Shadow
-#pragma region DirectionalMap
-GLUBO* RenderManager::m_shadowCascadeInfoBlock;
-LightSettingsBlock RenderManager::m_lightSettings;
-float RenderManager::m_shadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = { 0.15f, 0.3f, 0.5f, 1.0f };
-float RenderManager::m_maxShadowDistance = 500;
-bool RenderManager::m_stableFit = true;
-#pragma endregion
-size_t RenderManager::m_shadowMapResolution = 4096;
-bool RenderManager::m_enableLightMenu = true;
-GLUBO* RenderManager::m_pointLightBlock;
-GLUBO* RenderManager::m_spotLightBlock;
-GLUBO* RenderManager::m_directionalLightBlock;
-DirectionalLightInfo RenderManager::m_directionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
-PointLightInfo RenderManager::m_pointLights[Default::ShaderIncludes::MaxPointLightAmount];
-SpotLightInfo RenderManager::m_spotLights[Default::ShaderIncludes::MaxSpotLightAmount];
-
-std::unique_ptr<DirectionalLightShadowMap> RenderManager::m_directionalLightShadowMap;
-std::unique_ptr<PointLightShadowMap> RenderManager::m_pointLightShadowMap;
-std::unique_ptr<SpotLightShadowMap> RenderManager::m_spotLightShadowMap;
-std::unique_ptr<GLProgram> RenderManager::m_directionalLightProgram;
-std::unique_ptr<GLProgram> RenderManager::m_directionalLightInstancedProgram;
-std::unique_ptr<GLProgram> RenderManager::m_pointLightProgram;
-std::unique_ptr<GLProgram> RenderManager::m_pointLightInstancedProgram;
-std::unique_ptr<GLProgram> RenderManager::m_spotLightProgram;
-std::unique_ptr<GLProgram> RenderManager::m_spotLightInstancedProgram;
-
-#pragma endregion
-#pragma region Render
-MaterialSettingsBlock RenderManager::m_materialSettings;
-std::unique_ptr<GLUBO> RenderManager::m_materialSettingsBuffer;
-CameraComponent* RenderManager::_MainCameraComponent;
-int RenderManager::m_mainCameraResolutionX = 1;
-int RenderManager::m_mainCameraResolutionY = 1;
-size_t RenderManager::m_drawCall;
-size_t RenderManager::m_triangles;
-std::unique_ptr<GLUBO> RenderManager::m_kernelBlock;
-std::unique_ptr<GLProgram> RenderManager::m_gBufferInstancedPrepass;
-std::unique_ptr<GLProgram> RenderManager::m_gBufferPrepass;
-std::unique_ptr<GLProgram> RenderManager::m_gBufferLightingPass;
-
-#pragma endregion
-#pragma endregion
 
 void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds)
 {
@@ -62,7 +16,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 	cameraComponent->m_gBuffer->Clear();
 	const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners) {
-		auto& program = m_gBufferPrepass;
+		auto& program = GetInstance().m_gBufferPrepass;
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.IsEnabled()) continue;
@@ -86,7 +40,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			m_materialSettings.m_receiveShadow = mmc->m_receiveShadow;
+			GetInstance().m_materialSettings.m_receiveShadow = mmc->m_receiveShadow;
 			DeferredPrepass(
 				mmc->m_mesh.get(),
 				mmc->m_material.get(),
@@ -97,7 +51,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 
 	owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 	if (owners) {
-		auto& program = m_gBufferInstancedPrepass;
+		auto& program = GetInstance().m_gBufferInstancedPrepass;
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.IsEnabled()) continue;
@@ -121,7 +75,7 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			m_materialSettings.m_receiveShadow = immc->m_receiveShadow;
+			GetInstance().m_materialSettings.m_receiveShadow = immc->m_receiveShadow;
 			DeferredPrepassInstanced(
 				immc->m_mesh.get(),
 				immc->m_material.get(),
@@ -139,16 +93,16 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 
 	cameraComponent->Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	m_gBufferLightingPass->Bind();
+	GetInstance().m_gBufferLightingPass->Bind();
 	
 	cameraComponent->m_gPositionBuffer->Bind(3);
 	cameraComponent->m_gNormalBuffer->Bind(4);
 	cameraComponent->m_gColorSpecularBuffer->Bind(5);
 	cameraComponent->m_gMetallicRoughnessAo->Bind(6);
-	m_gBufferLightingPass->SetInt("gPositionShadow", 3);
-	m_gBufferLightingPass->SetInt("gNormalShininess", 4);
-	m_gBufferLightingPass->SetInt("gAlbedoSpecular", 5);
-	m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 6);
+	GetInstance().m_gBufferLightingPass->SetInt("gPositionShadow", 3);
+	GetInstance().m_gBufferLightingPass->SetInt("gNormalShininess", 4);
+	GetInstance().m_gBufferLightingPass->SetInt("gAlbedoSpecular", 5);
+	GetInstance().m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 6);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	auto res = cameraComponent->GetResolution();
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->m_gBuffer->GetFrameBuffer()->Id());
@@ -284,10 +238,9 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 
 void RenderManager::Init()
 {
-	
-	m_materialSettingsBuffer = std::make_unique<GLUBO>();
-	m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
-	m_materialSettingsBuffer->SetBase(6);
+	GetInstance().m_materialSettingsBuffer = std::make_unique<GLUBO>();
+	GetInstance().m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
+	GetInstance().m_materialSettingsBuffer->SetBase(6);
 #pragma region Kernel Setup
 	std::vector<glm::vec4> uniformKernel;
 	std::vector<glm::vec4> gaussianKernel;
@@ -296,34 +249,30 @@ void RenderManager::Init()
 		uniformKernel.emplace_back(glm::vec4(glm::ballRand(1.0f), 1.0f));
 		gaussianKernel.emplace_back(glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f), glm::gaussRand(0.0f, 1.0f));
 	}
-	m_kernelBlock = std::make_unique<GLUBO>();
-	m_kernelBlock->SetBase(5);
-	m_kernelBlock->SetData(sizeof(glm::vec4) * uniformKernel.size() + sizeof(glm::vec4) * gaussianKernel.size(), NULL, GL_STATIC_DRAW);
-	m_kernelBlock->SubData(0, sizeof(glm::vec4) * uniformKernel.size(), uniformKernel.data());
-	m_kernelBlock->SubData(sizeof(glm::vec4) * uniformKernel.size(), sizeof(glm::vec4) * gaussianKernel.size(), gaussianKernel.data());
+	GetInstance().m_kernelBlock = std::make_unique<GLUBO>();
+	GetInstance().m_kernelBlock->SetBase(5);
+	GetInstance().m_kernelBlock->SetData(sizeof(glm::vec4) * uniformKernel.size() + sizeof(glm::vec4) * gaussianKernel.size(), NULL, GL_STATIC_DRAW);
+	GetInstance().m_kernelBlock->SubData(0, sizeof(glm::vec4) * uniformKernel.size(), uniformKernel.data());
+	GetInstance().m_kernelBlock->SubData(sizeof(glm::vec4) * uniformKernel.size(), sizeof(glm::vec4) * gaussianKernel.size(), gaussianKernel.data());
 
 #pragma endregion
 #pragma region Shadow
-	m_shadowCascadeInfoBlock = new GLUBO();
-	m_shadowCascadeInfoBlock->SetData(sizeof(LightSettingsBlock), nullptr, GL_DYNAMIC_DRAW);
-	m_shadowCascadeInfoBlock->SetBase(4);
+	GetInstance().m_shadowCascadeInfoBlock.SetData(sizeof(LightSettingsBlock), nullptr, GL_DYNAMIC_DRAW);
+	GetInstance().m_shadowCascadeInfoBlock.SetBase(4);
 
 #pragma region LightInfoBlocks
-	m_directionalLightBlock = new GLUBO();
-	m_pointLightBlock = new GLUBO();
-	m_spotLightBlock = new GLUBO();
 	size_t size = 16 + Default::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLightInfo);
-	m_directionalLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-	m_directionalLightBlock->SetBase(1);
+	GetInstance().m_directionalLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
+	GetInstance().m_directionalLightBlock.SetBase(1);
 	size = 16 + Default::ShaderIncludes::MaxPointLightAmount * sizeof(PointLightInfo);
-	m_pointLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-	m_pointLightBlock->SetBase(2);
+	GetInstance().m_pointLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
+	GetInstance().m_pointLightBlock.SetBase(2);
 	size = 16 + Default::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLightInfo);
-	m_spotLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-	m_spotLightBlock->SetBase(3);
+	GetInstance().m_spotLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
+	GetInstance().m_spotLightBlock.SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-	m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(m_shadowMapResolution);
+	GetInstance().m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(GetInstance().m_shadowMapResolution);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMap.vert"));
@@ -344,7 +293,7 @@ void RenderManager::Init()
 	geomShader->Compile(geomShaderCode);
 
 
-	m_directionalLightProgram = std::make_unique<GLProgram>(
+	GetInstance().m_directionalLightProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader,
 		geomShader
@@ -356,14 +305,14 @@ void RenderManager::Init()
 	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->Compile(vertShaderCode);
 
-	m_directionalLightInstancedProgram = std::make_unique<GLProgram>(
+	GetInstance().m_directionalLightInstancedProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader,
 		geomShader
 		);
 
 #pragma region PointLight
-	m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(m_shadowMapResolution);
+	GetInstance().m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(GetInstance().m_shadowMapResolution);
 	vertShaderCode = std::string("#version 460 core\n") +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMap.vert"));
 	fragShaderCode = std::string("#version 460 core\n")
@@ -382,7 +331,7 @@ void RenderManager::Init()
 	geomShader = std::make_shared<GLShader>(ShaderType::Geometry);
 	geomShader->Compile(geomShaderCode);
 
-	m_pointLightProgram = std::make_unique<GLProgram>(
+	GetInstance().m_pointLightProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader,
 		geomShader
@@ -394,14 +343,14 @@ void RenderManager::Init()
 	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->Compile(vertShaderCode);
 
-	m_pointLightInstancedProgram = std::make_unique<GLProgram>(
+	GetInstance().m_pointLightInstancedProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader,
 		geomShader
 		);
 #pragma endregion
 #pragma region SpotLight
-	m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(m_shadowMapResolution);
+	GetInstance().m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(GetInstance().m_shadowMapResolution);
 	vertShaderCode = std::string("#version 460 core\n")
 		+ *Default::ShaderIncludes::Uniform +
 		"\n" +
@@ -415,7 +364,7 @@ void RenderManager::Init()
 	fragShader->Compile(fragShaderCode);
 
 
-	m_spotLightProgram = std::make_unique<GLProgram>(
+	GetInstance().m_spotLightProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader
 		);
@@ -428,7 +377,7 @@ void RenderManager::Init()
 	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->Compile(vertShaderCode);
 
-	m_spotLightInstancedProgram = std::make_unique<GLProgram>(
+	GetInstance().m_spotLightInstancedProgram = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader
 		);
@@ -448,7 +397,7 @@ void RenderManager::Init()
 	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->Compile(fragShaderCode);
 
-	m_gBufferLightingPass = std::make_unique<GLProgram>(
+	GetInstance().m_gBufferLightingPass = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader
 		);
@@ -468,7 +417,7 @@ void RenderManager::Init()
 	fragShader = std::make_shared<GLShader>(ShaderType::Fragment);
 	fragShader->Compile(fragShaderCode);
 
-	m_gBufferPrepass = std::make_unique<GLProgram>(
+	GetInstance().m_gBufferPrepass = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader
 		);
@@ -481,7 +430,7 @@ void RenderManager::Init()
 	vertShader = std::make_shared<GLShader>(ShaderType::Vertex);
 	vertShader->Compile(vertShaderCode);
 
-	m_gBufferInstancedPrepass = std::make_unique<GLProgram>(
+	GetInstance().m_gBufferInstancedPrepass = std::make_unique<GLProgram>(
 		vertShader,
 		fragShader
 		);
@@ -506,10 +455,10 @@ void RenderManager::Init()
 
 void UniEngine::RenderManager::PreUpdate()
 {
-	m_triangles = 0;
-	m_drawCall = 0;
-	if (_MainCameraComponent != nullptr) {
-		if(_MainCameraComponent->m_allowAutoResize) _MainCameraComponent->ResizeResolution(m_mainCameraResolutionX, m_mainCameraResolutionY);
+	GetInstance().m_triangles = 0;
+	GetInstance().m_drawCall = 0;
+	if (GetInstance().m_mainCameraComponent != nullptr) {
+		if(GetInstance().m_mainCameraComponent->m_allowAutoResize) GetInstance().m_mainCameraComponent->ResizeResolution(GetInstance().m_mainCameraResolutionX, GetInstance().m_mainCameraResolutionY);
 	}
 	const std::vector<Entity>* cameraEntities = EntityManager::GetPrivateComponentOwnersList<CameraComponent>();
 	if (cameraEntities != nullptr)
@@ -523,19 +472,18 @@ void UniEngine::RenderManager::PreUpdate()
 	auto worldBound = Application::GetCurrentWorld()->GetBound();
 	glm::vec3 maxBound = worldBound.m_max;
 	glm::vec3 minBound = worldBound.m_min;
-	if (_MainCameraComponent != nullptr) {
-		auto mainCameraEntity = _MainCameraComponent->GetOwner();
+	if (GetInstance().m_mainCameraComponent != nullptr) {
+		auto mainCameraEntity = GetInstance().m_mainCameraComponent->GetOwner();
 		if (mainCameraEntity.IsEnabled()) {
-			auto& mainCamera = _MainCameraComponent;
+			auto& mainCamera = GetInstance().m_mainCameraComponent;
 #pragma region Shadow
-			if (_MainCameraComponent->IsEnabled()) {
+			if (GetInstance().m_mainCameraComponent->IsEnabled()) {
 				auto ltw = mainCameraEntity.GetComponentData<GlobalTransform>();
 				glm::vec3 mainCameraPos = ltw.GetPosition();
 				glm::quat mainCameraRot = ltw.GetRotation();
-				m_shadowCascadeInfoBlock->SubData(0, sizeof(LightSettingsBlock), &m_lightSettings);
+				GetInstance().m_shadowCascadeInfoBlock.SubData(0, sizeof(LightSettingsBlock), &GetInstance().m_lightSettings);
 				const std::vector<Entity>* directionalLightEntities = EntityManager::GetPrivateComponentOwnersList<DirectionalLight>();
 				size_t size = 0;
-				//1.	利用EntityManager找到场景内所有Light instance。
 				if (directionalLightEntities && !directionalLightEntities->empty()) {
 					size = directionalLightEntities->size();
 					size_t enabledSize = 0;
@@ -548,23 +496,22 @@ void UniEngine::RenderManager::PreUpdate()
 						glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
 						float planeDistance = 0;
 						glm::vec3 center;
-						m_directionalLights[enabledSize].m_direction = glm::vec4(lightDir, 0.0f);
-						m_directionalLights[enabledSize].m_diffuse = glm::vec4(dlc->m_diffuse * dlc->m_diffuseBrightness, dlc->m_castShadow);
-						m_directionalLights[enabledSize].m_specular = glm::vec4(0.0f);
+						GetInstance().m_directionalLights[enabledSize].m_direction = glm::vec4(lightDir, 0.0f);
+						GetInstance().m_directionalLights[enabledSize].m_diffuse = glm::vec4(dlc->m_diffuse * dlc->m_diffuseBrightness, dlc->m_castShadow);
+						GetInstance().m_directionalLights[enabledSize].m_specular = glm::vec4(0.0f);
 						for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++) {
-							//2.	计算Cascade Split所需信息
 							float splitStart = 0;
-							float splitEnd = m_maxShadowDistance;
-							if (split != 0) splitStart = m_maxShadowDistance * m_shadowCascadeSplit[split - 1];
-							if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = m_maxShadowDistance * m_shadowCascadeSplit[split];
-							m_lightSettings.m_splitDistance[split] = splitEnd;
+							float splitEnd = GetInstance().m_maxShadowDistance;
+							if (split != 0) splitStart = GetInstance().m_maxShadowDistance * GetInstance().m_shadowCascadeSplit[split - 1];
+							if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1) splitEnd = GetInstance().m_maxShadowDistance * GetInstance().m_shadowCascadeSplit[split];
+							GetInstance().m_lightSettings.m_splitDistance[split] = splitEnd;
 							glm::mat4 lightProjection, lightView;
 							float max = 0;
 							glm::vec3 lightPos;
 							glm::vec3 cornerPoints[8];
 							mainCamera->CalculateFrustumPoints(splitStart, splitEnd, mainCameraPos, mainCameraRot, cornerPoints);
 							glm::vec3 cameraFrustumCenter = (mainCameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) + mainCameraPos;
-							if (m_stableFit) {
+							if (GetInstance().m_stableFit) {
 								//Less detail but no shimmering when rotating the camera.
 								//max = glm::distance(cornerPoints[4], cameraFrustumCenter);
 								max = splitEnd;
@@ -610,16 +557,16 @@ void UniEngine::RenderManager::PreUpdate()
 							switch (enabledSize)
 							{
 							case 0:
-								m_directionalLights[enabledSize].m_viewPort = glm::ivec4(0, 0, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+								GetInstance().m_directionalLights[enabledSize].m_viewPort = glm::ivec4(0, 0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 								break;
 							case 1:
-								m_directionalLights[enabledSize].m_viewPort = glm::ivec4(m_shadowMapResolution / 2, 0, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+								GetInstance().m_directionalLights[enabledSize].m_viewPort = glm::ivec4(GetInstance().m_shadowMapResolution / 2, 0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 								break;
 							case 2:
-								m_directionalLights[enabledSize].m_viewPort = glm::ivec4(0, m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+								GetInstance().m_directionalLights[enabledSize].m_viewPort = glm::ivec4(0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 								break;
 							case 3:
-								m_directionalLights[enabledSize].m_viewPort = glm::ivec4(m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+								GetInstance().m_directionalLights[enabledSize].m_viewPort = glm::ivec4(GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 								break;
 							}
 
@@ -629,34 +576,34 @@ void UniEngine::RenderManager::PreUpdate()
 							glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 							shadowOrigin = shadowMatrix * shadowOrigin;
 							GLfloat storedW = shadowOrigin.w;
-							shadowOrigin = shadowOrigin * (float)m_directionalLights[enabledSize].m_viewPort.z / 2.0f;
+							shadowOrigin = shadowOrigin * (float)GetInstance().m_directionalLights[enabledSize].m_viewPort.z / 2.0f;
 							glm::vec4 roundedOrigin = glm::round(shadowOrigin);
 							glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
-							roundOffset = roundOffset * 2.0f / (float)m_directionalLights[enabledSize].m_viewPort.z;
+							roundOffset = roundOffset * 2.0f / (float)GetInstance().m_directionalLights[enabledSize].m_viewPort.z;
 							roundOffset.z = 0.0f;
 							roundOffset.w = 0.0f;
 							glm::mat4 shadowProj = lightProjection;
 							shadowProj[3] += roundOffset;
 							lightProjection = shadowProj;
 #pragma endregion
-							m_directionalLights[enabledSize].m_lightSpaceMatrix[split] = lightProjection * lightView;
-							m_directionalLights[enabledSize].m_lightFrustumWidth[split] = max;
-							m_directionalLights[enabledSize].m_lightFrustumDistance[split] = planeDistance;
-							if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) m_directionalLights[enabledSize].m_reservedParameters = glm::vec4(dlc->m_lightSize, 0, dlc->m_bias, dlc->m_normalOffset);
+							GetInstance().m_directionalLights[enabledSize].m_lightSpaceMatrix[split] = lightProjection * lightView;
+							GetInstance().m_directionalLights[enabledSize].m_lightFrustumWidth[split] = max;
+							GetInstance().m_directionalLights[enabledSize].m_lightFrustumDistance[split] = planeDistance;
+							if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1) GetInstance().m_directionalLights[enabledSize].m_reservedParameters = glm::vec4(dlc->m_lightSize, 0, dlc->m_bias, dlc->m_normalOffset);
 
 						}
 						enabledSize++;
 					}
-					m_directionalLightBlock->SubData(0, 4, &enabledSize);
+					GetInstance().m_directionalLightBlock.SubData(0, 4, &enabledSize);
 					if (enabledSize != 0) {
-						m_directionalLightBlock->SubData(16, enabledSize * sizeof(DirectionalLightInfo), &m_directionalLights[0]);
+						GetInstance().m_directionalLightBlock.SubData(16, enabledSize * sizeof(DirectionalLightInfo), &GetInstance().m_directionalLights[0]);
 					}
-					if (m_materialSettings.m_enableShadow) {
-						m_directionalLightShadowMap->Bind();
-						m_directionalLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+					if (GetInstance().m_materialSettings.m_enableShadow) {
+						GetInstance().m_directionalLightShadowMap->Bind();
+						GetInstance().m_directionalLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
 						glClear(GL_DEPTH_BUFFER_BIT);
 						enabledSize = 0;
-						m_directionalLightProgram->Bind();
+						GetInstance().m_directionalLightProgram->Bind();
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = directionalLightEntities->at(i);
 							if (!lightEntity.IsEnabled()) continue;
@@ -665,8 +612,8 @@ void UniEngine::RenderManager::PreUpdate()
 								0, _DirectionalLights[enabledSize].viewPort.x, _DirectionalLights[enabledSize].viewPort.y,
 								0, (GLsizei)_DirectionalLights[enabledSize].viewPort.z, (GLsizei)_DirectionalLights[enabledSize].viewPort.w, (GLsizei)4, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 							*/
-							glViewport(m_directionalLights[enabledSize].m_viewPort.x, m_directionalLights[enabledSize].m_viewPort.y, m_directionalLights[enabledSize].m_viewPort.z, m_directionalLights[enabledSize].m_viewPort.w);
-							m_directionalLightProgram->SetInt("index", enabledSize);
+							glViewport(GetInstance().m_directionalLights[enabledSize].m_viewPort.x, GetInstance().m_directionalLights[enabledSize].m_viewPort.y, GetInstance().m_directionalLights[enabledSize].m_viewPort.z, GetInstance().m_directionalLights[enabledSize].m_viewPort.w);
+							GetInstance().m_directionalLightProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 							if (owners) {
 								for (auto owner : *owners) {
@@ -676,7 +623,7 @@ void UniEngine::RenderManager::PreUpdate()
 									MaterialPropertySetter(mmc.get()->m_material.get(), true);
 									auto mesh = mmc->m_mesh;
 									auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).m_value;
-									m_directionalLightProgram->SetFloat4x4("model", ltw);
+									GetInstance().m_directionalLightProgram->SetFloat4x4("model", ltw);
 									mesh->Enable();
 									mesh->Vao()->DisableAttributeArray(12);
 									mesh->Vao()->DisableAttributeArray(13);
@@ -689,12 +636,12 @@ void UniEngine::RenderManager::PreUpdate()
 							enabledSize++;
 						}
 						enabledSize = 0;
-						m_directionalLightInstancedProgram->Bind();
+						GetInstance().m_directionalLightInstancedProgram->Bind();
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = directionalLightEntities->at(i);
 							if (!lightEntity.IsEnabled()) continue;
-							glViewport(m_directionalLights[enabledSize].m_viewPort.x, m_directionalLights[enabledSize].m_viewPort.y, m_directionalLights[enabledSize].m_viewPort.z, m_directionalLights[enabledSize].m_viewPort.w);
-							m_directionalLightInstancedProgram->SetInt("index", enabledSize);
+							glViewport(GetInstance().m_directionalLights[enabledSize].m_viewPort.x, GetInstance().m_directionalLights[enabledSize].m_viewPort.y, GetInstance().m_directionalLights[enabledSize].m_viewPort.z, GetInstance().m_directionalLights[enabledSize].m_viewPort.w);
+							GetInstance().m_directionalLightInstancedProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 							if (owners) {
 								for (auto owner : *owners) {
@@ -706,7 +653,7 @@ void UniEngine::RenderManager::PreUpdate()
 									std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
 									matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
 									auto mesh = immc->m_mesh;
-									m_directionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
+									GetInstance().m_directionalLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
 									mesh->Enable();
 									mesh->Vao()->EnableAttributeArray(12);
 									mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -730,7 +677,7 @@ void UniEngine::RenderManager::PreUpdate()
 				}
 				else
 				{
-					m_directionalLightBlock->SubData(0, 4, &size);
+				GetInstance().m_directionalLightBlock.SubData(0, 4, &size);
 				}
 				const std::vector<Entity>* pointLightEntities = EntityManager::GetPrivateComponentOwnersList<PointLight>();
 				size = 0;
@@ -743,54 +690,54 @@ void UniEngine::RenderManager::PreUpdate()
 						const auto& plc = lightEntity.GetPrivateComponent<PointLight>();
 						if (!plc->IsEnabled()) continue;
 						glm::vec3 position = EntityManager::GetComponentData<GlobalTransform>(lightEntity).m_value[3];
-						m_pointLights[enabledSize].m_position = glm::vec4(position, 0);
-						m_pointLights[enabledSize].m_constantLinearQuadFarPlane.x = plc->m_constant;
-						m_pointLights[enabledSize].m_constantLinearQuadFarPlane.y = plc->m_linear;
-						m_pointLights[enabledSize].m_constantLinearQuadFarPlane.z = plc->m_quadratic;
-						m_pointLights[enabledSize].m_diffuse = glm::vec4(plc->m_diffuse * plc->m_diffuseBrightness, plc->m_castShadow);
-						m_pointLights[enabledSize].m_specular = glm::vec4(0);
-						m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w = plc->m_farPlane;
+						GetInstance().m_pointLights[enabledSize].m_position = glm::vec4(position, 0);
+						GetInstance().m_pointLights[enabledSize].m_constantLinearQuadFarPlane.x = plc->m_constant;
+						GetInstance().m_pointLights[enabledSize].m_constantLinearQuadFarPlane.y = plc->m_linear;
+						GetInstance().m_pointLights[enabledSize].m_constantLinearQuadFarPlane.z = plc->m_quadratic;
+						GetInstance().m_pointLights[enabledSize].m_diffuse = glm::vec4(plc->m_diffuse * plc->m_diffuseBrightness, plc->m_castShadow);
+						GetInstance().m_pointLights[enabledSize].m_specular = glm::vec4(0);
+						GetInstance().m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w = plc->m_farPlane;
 
-						glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), m_pointLightShadowMap->GetResolutionRatio(), 1.0f, m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w);
-						m_pointLights[enabledSize].m_lightSpaceMatrix[0] = shadowProj * glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-						m_pointLights[enabledSize].m_lightSpaceMatrix[1] = shadowProj * glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-						m_pointLights[enabledSize].m_lightSpaceMatrix[2] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-						m_pointLights[enabledSize].m_lightSpaceMatrix[3] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-						m_pointLights[enabledSize].m_lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-						m_pointLights[enabledSize].m_lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-						m_pointLights[enabledSize].m_reservedParameters = glm::vec4(plc->m_bias, plc->m_lightSize, 0, 0);
+						glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), GetInstance().m_pointLightShadowMap->GetResolutionRatio(), 1.0f, GetInstance().m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w);
+						GetInstance().m_pointLights[enabledSize].m_lightSpaceMatrix[0] = shadowProj * glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+						GetInstance().m_pointLights[enabledSize].m_lightSpaceMatrix[1] = shadowProj * glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+						GetInstance().m_pointLights[enabledSize].m_lightSpaceMatrix[2] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+						GetInstance().m_pointLights[enabledSize].m_lightSpaceMatrix[3] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+						GetInstance().m_pointLights[enabledSize].m_lightSpaceMatrix[4] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+						GetInstance().m_pointLights[enabledSize].m_lightSpaceMatrix[5] = shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+						GetInstance().m_pointLights[enabledSize].m_reservedParameters = glm::vec4(plc->m_bias, plc->m_lightSize, 0, 0);
 
 						switch (enabledSize)
 						{
 						case 0:
-							m_pointLights[enabledSize].m_viewPort = glm::ivec4(0, 0, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+							GetInstance().m_pointLights[enabledSize].m_viewPort = glm::ivec4(0, 0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 							break;
 						case 1:
-							m_pointLights[enabledSize].m_viewPort = glm::ivec4(m_shadowMapResolution / 2, 0, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+							GetInstance().m_pointLights[enabledSize].m_viewPort = glm::ivec4(GetInstance().m_shadowMapResolution / 2, 0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 							break;
 						case 2:
-							m_pointLights[enabledSize].m_viewPort = glm::ivec4(0, m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+							GetInstance().m_pointLights[enabledSize].m_viewPort = glm::ivec4(0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 							break;
 						case 3:
-							m_pointLights[enabledSize].m_viewPort = glm::ivec4(m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+							GetInstance().m_pointLights[enabledSize].m_viewPort = glm::ivec4(GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 							break;
 						}
 						enabledSize++;
 					}
-					m_pointLightBlock->SubData(0, 4, &enabledSize);
-					if (enabledSize != 0)m_pointLightBlock->SubData(16, enabledSize * sizeof(PointLightInfo), &m_pointLights[0]);
-					if (m_materialSettings.m_enableShadow) {
+					GetInstance().m_pointLightBlock.SubData(0, 4, &enabledSize);
+					if (enabledSize != 0) GetInstance().m_pointLightBlock.SubData(16, enabledSize * sizeof(PointLightInfo), &GetInstance().m_pointLights[0]);
+					if (GetInstance().m_materialSettings.m_enableShadow) {
 #pragma region PointLight Shadowmap Pass
-						m_pointLightShadowMap->Bind();
-						m_pointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+						GetInstance().m_pointLightShadowMap->Bind();
+						GetInstance().m_pointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
 						glClear(GL_DEPTH_BUFFER_BIT);
-						m_pointLightProgram->Bind();
+						GetInstance().m_pointLightProgram->Bind();
 						enabledSize = 0;
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = pointLightEntities->at(i);
 							if (!lightEntity.IsEnabled()) continue;
-							glViewport(m_pointLights[enabledSize].m_viewPort.x, m_pointLights[enabledSize].m_viewPort.y, m_pointLights[enabledSize].m_viewPort.z, m_pointLights[enabledSize].m_viewPort.w);
-							m_pointLightProgram->SetInt("index", enabledSize);
+							glViewport(GetInstance().m_pointLights[enabledSize].m_viewPort.x, GetInstance().m_pointLights[enabledSize].m_viewPort.y, GetInstance().m_pointLights[enabledSize].m_viewPort.z, GetInstance().m_pointLights[enabledSize].m_viewPort.w);
+							GetInstance().m_pointLightProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 							if (owners) {
 								for (auto owner : *owners) {
@@ -799,7 +746,7 @@ void UniEngine::RenderManager::PreUpdate()
 									if (!mmc->IsEnabled() || !mmc->m_castShadow || mmc->m_material == nullptr || mmc->m_mesh == nullptr) continue;
 									MaterialPropertySetter(mmc.get()->m_material.get(), true);
 									auto mesh = mmc->m_mesh;
-									m_pointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
+									GetInstance().m_pointLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
 									mesh->Enable();
 									mesh->Vao()->DisableAttributeArray(12);
 									mesh->Vao()->DisableAttributeArray(13);
@@ -811,12 +758,12 @@ void UniEngine::RenderManager::PreUpdate()
 							enabledSize++;
 						}
 						enabledSize = 0;
-						m_pointLightInstancedProgram->Bind();
+						GetInstance().m_pointLightInstancedProgram->Bind();
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = pointLightEntities->at(i);
 							if (!lightEntity.IsEnabled()) continue;
-							glViewport(m_pointLights[enabledSize].m_viewPort.x, m_pointLights[enabledSize].m_viewPort.y, m_pointLights[enabledSize].m_viewPort.z, m_pointLights[enabledSize].m_viewPort.w);
-							m_pointLightInstancedProgram->SetInt("index", enabledSize);
+							glViewport(GetInstance().m_pointLights[enabledSize].m_viewPort.x, GetInstance().m_pointLights[enabledSize].m_viewPort.y, GetInstance().m_pointLights[enabledSize].m_viewPort.z, GetInstance().m_pointLights[enabledSize].m_viewPort.w);
+							GetInstance().m_pointLightInstancedProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 							if (owners) {
 								for (auto owner : *owners) {
@@ -827,7 +774,7 @@ void UniEngine::RenderManager::PreUpdate()
 									size_t count = immc->m_matrices.size();
 									std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
 									auto mesh = immc->m_mesh;
-									m_pointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
+									GetInstance().m_pointLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
 									mesh->Enable();
 									mesh->Vao()->EnableAttributeArray(12);
 									mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -852,7 +799,7 @@ void UniEngine::RenderManager::PreUpdate()
 				}
 				else
 				{
-					m_pointLightBlock->SubData(0, 4, &size);
+				GetInstance().m_pointLightBlock.SubData(0, 4, &size);
 				}
 				const std::vector<Entity>* spotLightEntities = EntityManager::GetPrivateComponentOwnersList<SpotLight>();
 				size = 0;
@@ -869,50 +816,50 @@ void UniEngine::RenderManager::PreUpdate()
 						glm::vec3 position = ltw.m_value[3];
 						glm::vec3 front = ltw.GetRotation() * glm::vec3(0, 0, -1);
 						glm::vec3 up = ltw.GetRotation() * glm::vec3(0, 1, 0);
-						m_spotLights[enabledSize].m_position = glm::vec4(position, 0);
-						m_spotLights[enabledSize].m_direction = glm::vec4(front, 0);
-						m_spotLights[enabledSize].m_constantLinearQuadFarPlane.x = slc->m_constant;
-						m_spotLights[enabledSize].m_constantLinearQuadFarPlane.y = slc->m_linear;
-						m_spotLights[enabledSize].m_constantLinearQuadFarPlane.z = slc->m_quadratic;
-						m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w = slc->m_farPlane;
-						m_spotLights[enabledSize].m_diffuse = glm::vec4(slc->m_diffuse * slc->m_diffuseBrightness, slc->m_castShadow);
-						m_spotLights[enabledSize].m_specular = glm::vec4(0);
+						GetInstance().m_spotLights[enabledSize].m_position = glm::vec4(position, 0);
+						GetInstance().m_spotLights[enabledSize].m_direction = glm::vec4(front, 0);
+						GetInstance().m_spotLights[enabledSize].m_constantLinearQuadFarPlane.x = slc->m_constant;
+						GetInstance().m_spotLights[enabledSize].m_constantLinearQuadFarPlane.y = slc->m_linear;
+						GetInstance().m_spotLights[enabledSize].m_constantLinearQuadFarPlane.z = slc->m_quadratic;
+						GetInstance().m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w = slc->m_farPlane;
+						GetInstance().m_spotLights[enabledSize].m_diffuse = glm::vec4(slc->m_diffuse * slc->m_diffuseBrightness, slc->m_castShadow);
+						GetInstance().m_spotLights[enabledSize].m_specular = glm::vec4(0);
 
-						glm::mat4 shadowProj = glm::perspective(glm::radians(slc->m_outerDegrees * 2.0f), m_spotLightShadowMap->GetResolutionRatio(), 1.0f, m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w);
-						m_spotLights[enabledSize].m_lightSpaceMatrix = shadowProj * glm::lookAt(position, position + front, up);
-						m_spotLights[enabledSize].m_cutOffOuterCutOffLightSizeBias = glm::vec4(glm::cos(glm::radians(slc->m_innerDegrees)), glm::cos(glm::radians(slc->m_outerDegrees)), slc->m_lightSize, slc->m_bias);
+						glm::mat4 shadowProj = glm::perspective(glm::radians(slc->m_outerDegrees * 2.0f), GetInstance().m_spotLightShadowMap->GetResolutionRatio(), 1.0f, GetInstance().m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w);
+						GetInstance().m_spotLights[enabledSize].m_lightSpaceMatrix = shadowProj * glm::lookAt(position, position + front, up);
+						GetInstance().m_spotLights[enabledSize].m_cutOffOuterCutOffLightSizeBias = glm::vec4(glm::cos(glm::radians(slc->m_innerDegrees)), glm::cos(glm::radians(slc->m_outerDegrees)), slc->m_lightSize, slc->m_bias);
 
 						switch (enabledSize)
 						{
 						case 0:
-							m_spotLights[enabledSize].m_viewPort = glm::ivec4(0, 0, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+							GetInstance().m_spotLights[enabledSize].m_viewPort = glm::ivec4(0, 0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 							break;
 						case 1:
-							m_spotLights[enabledSize].m_viewPort = glm::ivec4(m_shadowMapResolution / 2, 0, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+							GetInstance().m_spotLights[enabledSize].m_viewPort = glm::ivec4(GetInstance().m_shadowMapResolution / 2, 0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 							break;
 						case 2:
-							m_spotLights[enabledSize].m_viewPort = glm::ivec4(0, m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+							GetInstance().m_spotLights[enabledSize].m_viewPort = glm::ivec4(0, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 							break;
 						case 3:
-							m_spotLights[enabledSize].m_viewPort = glm::ivec4(m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2, m_shadowMapResolution / 2);
+							GetInstance().m_spotLights[enabledSize].m_viewPort = glm::ivec4(GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2, GetInstance().m_shadowMapResolution / 2);
 							break;
 						}
 						enabledSize++;
 					}
-					m_spotLightBlock->SubData(0, 4, &enabledSize);
-					if (enabledSize != 0)m_spotLightBlock->SubData(16, enabledSize * sizeof(SpotLightInfo), &m_spotLights[0]);
-					if (m_materialSettings.m_enableShadow) {
+					GetInstance().m_spotLightBlock.SubData(0, 4, &enabledSize);
+					if (enabledSize != 0) GetInstance().m_spotLightBlock.SubData(16, enabledSize * sizeof(SpotLightInfo), &GetInstance().m_spotLights[0]);
+					if (GetInstance().m_materialSettings.m_enableShadow) {
 #pragma region SpotLight Shadowmap Pass
-						m_spotLightShadowMap->Bind();
-						m_spotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+						GetInstance().m_spotLightShadowMap->Bind();
+						GetInstance().m_spotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
 						glClear(GL_DEPTH_BUFFER_BIT);
-						m_spotLightProgram->Bind();
+						GetInstance().m_spotLightProgram->Bind();
 						enabledSize = 0;
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = spotLightEntities->at(i);
 							if (!lightEntity.IsEnabled()) continue;
-							glViewport(m_spotLights[enabledSize].m_viewPort.x, m_spotLights[enabledSize].m_viewPort.y, m_spotLights[enabledSize].m_viewPort.z, m_spotLights[enabledSize].m_viewPort.w);
-							m_spotLightProgram->SetInt("index", enabledSize);
+							glViewport(GetInstance().m_spotLights[enabledSize].m_viewPort.x, GetInstance().m_spotLights[enabledSize].m_viewPort.y, GetInstance().m_spotLights[enabledSize].m_viewPort.z, GetInstance().m_spotLights[enabledSize].m_viewPort.w);
+							GetInstance().m_spotLightProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 							if (owners) {
 								for (auto owner : *owners) {
@@ -921,7 +868,7 @@ void UniEngine::RenderManager::PreUpdate()
 									if (!mmc->IsEnabled() || !mmc->m_castShadow || mmc->m_material == nullptr || mmc->m_mesh == nullptr) continue;
 									MaterialPropertySetter(mmc.get()->m_material.get(), true);
 									auto mesh = mmc->m_mesh;
-									m_spotLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
+									GetInstance().m_spotLightProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
 									mesh->Enable();
 									mesh->Vao()->DisableAttributeArray(12);
 									mesh->Vao()->DisableAttributeArray(13);
@@ -933,12 +880,12 @@ void UniEngine::RenderManager::PreUpdate()
 							enabledSize++;
 						}
 						enabledSize = 0;
-						m_spotLightInstancedProgram->Bind();
+						GetInstance().m_spotLightInstancedProgram->Bind();
 						for (int i = 0; i < size; i++) {
 							Entity lightEntity = spotLightEntities->at(i);
 							if (!lightEntity.IsEnabled()) continue;
-							glViewport(m_spotLights[enabledSize].m_viewPort.x, m_spotLights[enabledSize].m_viewPort.y, m_spotLights[enabledSize].m_viewPort.z, m_spotLights[enabledSize].m_viewPort.w);
-							m_spotLightInstancedProgram->SetInt("index", enabledSize);
+							glViewport(GetInstance().m_spotLights[enabledSize].m_viewPort.x, GetInstance().m_spotLights[enabledSize].m_viewPort.y, GetInstance().m_spotLights[enabledSize].m_viewPort.z, GetInstance().m_spotLights[enabledSize].m_viewPort.w);
+							GetInstance().m_spotLightInstancedProgram->SetInt("index", enabledSize);
 							const std::vector<Entity>* owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
 							if (owners) {
 								for (auto owner : *owners) {
@@ -949,7 +896,7 @@ void UniEngine::RenderManager::PreUpdate()
 									size_t count = immc->m_matrices.size();
 									std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();								matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
 									auto mesh = immc->m_mesh;
-									m_spotLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
+									GetInstance().m_spotLightInstancedProgram->SetFloat4x4("model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
 									mesh->Enable();
 									mesh->Vao()->EnableAttributeArray(12);
 									mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -974,7 +921,7 @@ void UniEngine::RenderManager::PreUpdate()
 				}
 				else
 				{
-					m_spotLightBlock->SubData(0, 4, &size);
+				GetInstance().m_spotLightBlock.SubData(0, 4, &size);
 				}
 			}
 #pragma endregion
@@ -986,7 +933,7 @@ void UniEngine::RenderManager::PreUpdate()
 		for (auto cameraEntity : *cameraEntities) {
 			if (!cameraEntity.IsEnabled()) continue;
 			auto& cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
-			if (_MainCameraComponent && cameraComponent.get() == _MainCameraComponent) continue;
+			if (GetInstance().m_mainCameraComponent && cameraComponent.get() == GetInstance().m_mainCameraComponent) continue;
 			if (cameraComponent->IsEnabled())
 			{
 				auto ltw = cameraEntity.GetComponentData<GlobalTransform>();
@@ -1076,11 +1023,11 @@ void UniEngine::RenderManager::PreUpdate()
 #pragma endregion
 
 #pragma region Render to main Camera and calculate bounds.
-	if (_MainCameraComponent != nullptr) {
-		auto mainCameraEntity = _MainCameraComponent->GetOwner();
+	if (GetInstance().m_mainCameraComponent != nullptr) {
+		auto mainCameraEntity = GetInstance().m_mainCameraComponent->GetOwner();
 		if (mainCameraEntity.IsEnabled()) {
-			auto& mainCamera = _MainCameraComponent;
-			if (_MainCameraComponent->IsEnabled()) {
+			auto& mainCamera = GetInstance().m_mainCameraComponent;
+			if (GetInstance().m_mainCameraComponent->IsEnabled()) {
 				auto minBound = glm::vec3((int)INT_MAX);
 				auto maxBound = glm::vec3((int)INT_MIN);
 				auto ltw = mainCameraEntity.GetComponentData<GlobalTransform>();
@@ -1114,77 +1061,27 @@ inline float RenderManager::Lerp(float a, float b, float f)
 
 void UniEngine::RenderManager::SetSplitRatio(float r1, float r2, float r3, float r4)
 {
-	m_shadowCascadeSplit[0] = r1;
-	m_shadowCascadeSplit[1] = r2;
-	m_shadowCascadeSplit[2] = r3;
-	m_shadowCascadeSplit[3] = r4;
+	GetInstance().m_shadowCascadeSplit[0] = r1;
+	GetInstance().m_shadowCascadeSplit[1] = r2;
+	GetInstance().m_shadowCascadeSplit[2] = r3;
+	GetInstance().m_shadowCascadeSplit[3] = r4;
 }
 
 void UniEngine::RenderManager::SetShadowMapResolution(size_t value)
 {
-	m_shadowMapResolution = value;
-	if (m_directionalLightShadowMap != nullptr)m_directionalLightShadowMap->SetResolution(value);
-}
-
-void UniEngine::RenderManager::SetPcfSampleAmount(int value)
-{
-	m_lightSettings.m_pcfSampleAmount = glm::clamp(value, 0, 16);
-}
-
-
-void UniEngine::RenderManager::SetBlockerSearchAmount(int value)
-{
-	m_lightSettings.m_blockerSearchAmount = glm::clamp(value, 0, 16);
-}
-void UniEngine::RenderManager::SetSeamFixRatio(float value)
-{
-	m_lightSettings.m_seamFixRatio = value;
-}
-
-void UniEngine::RenderManager::SetMaxShadowDistance(float value)
-{
-	m_maxShadowDistance = value;
-}
-
-void UniEngine::RenderManager::SetVsmMaxVariance(float value)
-{
-	m_lightSettings.m_vsmMaxVariance = value;
-}
-
-void UniEngine::RenderManager::SetLightBleedControlFactor(float value)
-{
-	m_lightSettings.m_lightBleedFactor = value;
-}
-
-void UniEngine::RenderManager::SetScaleFactor(float value)
-{
-	m_lightSettings.m_scaleFactor = value;
-}
-
-void UniEngine::RenderManager::SetEvsmExponent(float value)
-{
-	m_lightSettings.m_evsmExponent = value;
-}
-
-void UniEngine::RenderManager::SetAmbientLight(float value)
-{
-	m_lightSettings.m_ambientLight = value;
-}
-
-void RenderManager::SetEnableShadow(bool value)
-{
-	m_materialSettings.m_enableShadow = value;
+	GetInstance().m_shadowMapResolution = value;
+	if (GetInstance().m_directionalLightShadowMap != nullptr)GetInstance().m_directionalLightShadowMap->SetResolution(value);
 }
 
 glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)
 {
-	float LineLength = distance(a, b);
-	glm::vec3 Vector = point - a;
-	glm::vec3 LineDirection = (b - a) / LineLength;
+	const float lineLength = distance(a, b);
+	const glm::vec3 vector = point - a;
+	const glm::vec3 lineDirection = (b - a) / lineLength;
 
 	// Project Vector to LineDirection to get the distance of point from a
-	float Distance = dot(Vector, LineDirection);
-	return a + LineDirection * Distance;
+	const float distance = dot(vector, lineDirection);
+	return a + lineDirection * distance;
 }
 
 void RenderManager::LateUpdate()
@@ -1204,8 +1101,8 @@ void RenderManager::LateUpdate()
 		{
 			if (ImGui::BeginMenu("Rendering"))
 			{
-				ImGui::Checkbox("Lighting Manager", &m_enableLightMenu);
-				ImGui::Checkbox("Render Manager", &m_enableRenderMenu);
+				ImGui::Checkbox("Lighting Manager", &GetInstance().m_enableLightMenu);
+				ImGui::Checkbox("Render Manager", &GetInstance().m_enableRenderMenu);
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();
@@ -1213,44 +1110,44 @@ void RenderManager::LateUpdate()
 		ImGui::EndMainMenuBar();
 	}
 
-	if (m_enableLightMenu)
+	if (GetInstance().m_enableLightMenu)
 	{
 		ImGui::Begin("Light Manager");
 		if (ImGui::TreeNode("Environment Lighting")) {
-			ImGui::DragFloat("Brightness", &m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
+			ImGui::DragFloat("Brightness", &GetInstance().m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
 			ImGui::TreePop();
 		}
-		bool enableShadow = m_materialSettings.m_enableShadow;
+		bool enableShadow = GetInstance().m_materialSettings.m_enableShadow;
 		if(ImGui::Checkbox("Enable shadow", &enableShadow))
 		{
-			m_materialSettings.m_enableShadow = enableShadow;
+			GetInstance().m_materialSettings.m_enableShadow = enableShadow;
 		}
-		if (m_materialSettings.m_enableShadow && ImGui::TreeNode("Shadow")) {
+		if (GetInstance().m_materialSettings.m_enableShadow && ImGui::TreeNode("Shadow")) {
 			if (ImGui::TreeNode("Distance"))
 			{
-				ImGui::DragFloat("Max shadow distance", &m_maxShadowDistance, 1.0f, 0.1f);
-				ImGui::DragFloat("Split 1", &m_shadowCascadeSplit[0], 0.01f, 0.0f, m_shadowCascadeSplit[1]);
-				ImGui::DragFloat("Split 2", &m_shadowCascadeSplit[1], 0.01f, m_shadowCascadeSplit[0], m_shadowCascadeSplit[2]);
-				ImGui::DragFloat("Split 3", &m_shadowCascadeSplit[2], 0.01f, m_shadowCascadeSplit[1], m_shadowCascadeSplit[3]);
-				ImGui::DragFloat("Split 4", &m_shadowCascadeSplit[3], 0.01f, m_shadowCascadeSplit[2], 1.0f);
+				ImGui::DragFloat("Max shadow distance", &GetInstance().m_maxShadowDistance, 1.0f, 0.1f);
+				ImGui::DragFloat("Split 1", &GetInstance().m_shadowCascadeSplit[0], 0.01f, 0.0f, GetInstance().m_shadowCascadeSplit[1]);
+				ImGui::DragFloat("Split 2", &GetInstance().m_shadowCascadeSplit[1], 0.01f, GetInstance().m_shadowCascadeSplit[0], GetInstance().m_shadowCascadeSplit[2]);
+				ImGui::DragFloat("Split 3", &GetInstance().m_shadowCascadeSplit[2], 0.01f, GetInstance().m_shadowCascadeSplit[1], GetInstance().m_shadowCascadeSplit[3]);
+				ImGui::DragFloat("Split 4", &GetInstance().m_shadowCascadeSplit[3], 0.01f, GetInstance().m_shadowCascadeSplit[2], 1.0f);
 				ImGui::TreePop();
 			}
 			if (ImGui::TreeNode("PCSS")) {
-				ImGui::DragFloat("PCSS Factor", &m_lightSettings.m_scaleFactor, 0.01f, 0.0f);
-				ImGui::DragInt("Blocker search side amount", &m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
-				ImGui::DragInt("PCF Sample Size", &m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
+				ImGui::DragFloat("PCSS Factor", &GetInstance().m_lightSettings.m_scaleFactor, 0.01f, 0.0f);
+				ImGui::DragInt("Blocker search side amount", &GetInstance().m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
+				ImGui::DragInt("PCF Sample Size", &GetInstance().m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
 				ImGui::TreePop();
 			}
-			ImGui::DragFloat("Seam fix ratio", &m_lightSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
-			ImGui::Checkbox("Stable fit", &m_stableFit);
+			ImGui::DragFloat("Seam fix ratio", &GetInstance().m_lightSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
+			ImGui::Checkbox("Stable fit", &GetInstance().m_stableFit);
 			ImGui::TreePop();
 		}
 		ImGui::End();
 	}
-	if (m_enableRenderMenu)
+	if (GetInstance().m_enableRenderMenu)
 	{
 		ImGui::Begin("Render Manager");
-		ImGui::Checkbox("Display info", &m_enableInfoWindow);
+		ImGui::Checkbox("Display info", &GetInstance().m_enableInfoWindow);
 		ImGui::End();
 	}
 
@@ -1268,11 +1165,11 @@ void RenderManager::LateUpdate()
 			ImVec2 overlayPos = ImGui::GetWindowPos();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			bool cameraActive = false;
-			if (_MainCameraComponent != nullptr) {
-				auto entity = _MainCameraComponent->GetOwner();
-				if (entity.IsEnabled() && _MainCameraComponent->IsEnabled())
+			if (GetInstance().m_mainCameraComponent != nullptr) {
+				auto entity = GetInstance().m_mainCameraComponent->GetOwner();
+				if (entity.IsEnabled() && GetInstance().m_mainCameraComponent->IsEnabled())
 				{
-					auto id = _MainCameraComponent->GetTexture()->Texture()->Id();
+					auto id = GetInstance().m_mainCameraComponent->GetTexture()->Texture()->Id();
 					ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 					cameraActive = true;
 				}
@@ -1282,7 +1179,7 @@ void RenderManager::LateUpdate()
 			}
 
 			ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
-			if (m_enableInfoWindow)
+			if (GetInstance().m_enableInfoWindow)
 			{
 				ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
 				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
@@ -1292,12 +1189,12 @@ void RenderManager::LateUpdate()
 				ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
 				ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 				std::string trisstr = "";
-				if (m_triangles < 999) trisstr += std::to_string(m_triangles);
-				else if (m_triangles < 999999) trisstr += std::to_string((int)(m_triangles / 1000)) + "K";
-				else trisstr += std::to_string((int)(m_triangles / 1000000)) + "M";
+				if (GetInstance().m_triangles < 999) trisstr += std::to_string(GetInstance().m_triangles);
+				else if (GetInstance().m_triangles < 999999) trisstr += std::to_string((int)(GetInstance().m_triangles / 1000)) + "K";
+				else trisstr += std::to_string((int)(GetInstance().m_triangles / 1000000)) + "M";
 				trisstr += " tris";
 				ImGui::Text(trisstr.c_str());
-				ImGui::Text("%d drawcall", m_drawCall);
+				ImGui::Text("%d drawcall", GetInstance().m_drawCall);
 				ImGui::Separator();
 				if (ImGui::IsMousePosValid()) {
 					glm::vec2 pos;
@@ -1316,8 +1213,8 @@ void RenderManager::LateUpdate()
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
-	m_mainCameraResolutionX = viewPortSize.x;
-	m_mainCameraResolutionY = viewPortSize.y;
+	GetInstance().m_mainCameraResolutionX = viewPortSize.x;
+	GetInstance().m_mainCameraResolutionY = viewPortSize.y;
 }
 
 #pragma endregion
@@ -1371,20 +1268,20 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 
 void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program)
 {
-	m_materialSettings = MaterialSettingsBlock();
+	GetInstance().m_materialSettings = MaterialSettingsBlock();
 	
-	m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
-	m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
-	m_materialSettings.m_displacementScale = material->m_displacementMapScale;
-	m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, 1.0f);
-	m_materialSettings.m_shininessVal = material->m_shininess;
-	m_materialSettings.m_metallicVal = material->m_metallic;
-	m_materialSettings.m_roughnessVal = material->m_roughness;
-	m_materialSettings.m_aoVal = material->m_ambientOcclusion;
+	GetInstance().m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
+	GetInstance().m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
+	GetInstance().m_materialSettings.m_displacementScale = material->m_displacementMapScale;
+	GetInstance().m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, 1.0f);
+	GetInstance().m_materialSettings.m_shininessVal = material->m_shininess;
+	GetInstance().m_materialSettings.m_metallicVal = material->m_metallic;
+	GetInstance().m_materialSettings.m_roughnessVal = material->m_roughness;
+	GetInstance().m_materialSettings.m_aoVal = material->m_ambientOcclusion;
 	
-	m_materialSettings.m_directionalShadowMap = m_directionalLightShadowMap->DepthMapArray()->GetHandle();
-	m_materialSettings.m_pointShadowMap = m_pointLightShadowMap->DepthMapArray()->GetHandle();
-	m_materialSettings.m_spotShadowMap = m_spotLightShadowMap->DepthMap()->GetHandle();
+	GetInstance().m_materialSettings.m_directionalShadowMap = GetInstance().m_directionalLightShadowMap->DepthMapArray()->GetHandle();
+	GetInstance().m_materialSettings.m_pointShadowMap = GetInstance().m_pointLightShadowMap->DepthMapArray()->GetHandle();
+	GetInstance().m_materialSettings.m_spotShadowMap = GetInstance().m_spotLightShadowMap->DepthMap()->GetHandle();
 	
 	for(const auto& i : material->m_textures)
 	{
@@ -1392,48 +1289,48 @@ void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program
 		switch (i.second->m_type)
 		{
 		case TextureType::Albedo:
-			m_materialSettings.m_albedoMap = i.second->Texture()->GetHandle();
-			m_materialSettings.m_albedoEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_albedoMap = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_albedoEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Normal:
-			m_materialSettings.m_normalMap = i.second->Texture()->GetHandle();
-			m_materialSettings.m_normalEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_normalMap = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_normalEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Metallic:
-			m_materialSettings.m_metallicMap = i.second->Texture()->GetHandle();
-			m_materialSettings.m_metallicEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_metallicMap = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_metallicEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Roughness:
-			m_materialSettings.m_roughnessMap = i.second->Texture()->GetHandle();
-			m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_roughnessMap = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Ao:
-			m_materialSettings.m_aoMap = i.second->Texture()->GetHandle();
-			m_materialSettings.m_aoEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_aoMap = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_aoEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Ambient:
-			m_materialSettings.m_ambient = i.second->Texture()->GetHandle();
-			m_materialSettings.m_ambientEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_ambient = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_ambientEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Diffuse:
-			m_materialSettings.m_diffuse = i.second->Texture()->GetHandle();
-			m_materialSettings.m_diffuseEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_diffuse = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_diffuseEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Specular:
-			m_materialSettings.m_specular = i.second->Texture()->GetHandle();
-			m_materialSettings.m_specularEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_specular = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_specularEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Emissive:
-			m_materialSettings.m_emissive = i.second->Texture()->GetHandle();
-			m_materialSettings.m_emissiveEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_emissive = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_emissiveEnabled = static_cast<int>(true);
 			break;
 		case TextureType::Displacement:
-			m_materialSettings.m_displacement = i.second->Texture()->GetHandle();
-			m_materialSettings.m_displacementEnabled = static_cast<int>(true);
+			GetInstance().m_materialSettings.m_displacement = i.second->Texture()->GetHandle();
+			GetInstance().m_materialSettings.m_displacementEnabled = static_cast<int>(true);
 			break;
 		}
 	}
-	m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+	GetInstance().m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &GetInstance().m_materialSettings);
 }
 
 void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
@@ -1445,9 +1342,9 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	mesh->Vao()->DisableAttributeArray(14);
 	mesh->Vao()->DisableAttributeArray(15);
 
-	m_drawCall++;
-	m_triangles += mesh->Size() / 3;
-	auto& program = m_gBufferPrepass;
+	GetInstance().m_drawCall++;
+	GetInstance().m_triangles += mesh->Size() / 3;
+	auto& program = GetInstance().m_gBufferPrepass;
 	program->SetFloat4x4("model", model);
 	for (auto j : material->m_floatPropertyList) {
 		program->SetFloat(j.m_name, j.m_value);
@@ -1481,9 +1378,9 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 	mesh->Vao()->SetAttributeDivisor(14, 1);
 	mesh->Vao()->SetAttributeDivisor(15, 1);
 
-	m_drawCall++;
-	m_triangles += mesh->Size() * count / 3;
-	auto& program = m_gBufferInstancedPrepass;
+	GetInstance().m_drawCall++;
+	GetInstance().m_triangles += mesh->Size() * count / 3;
+	auto& program = GetInstance().m_gBufferInstancedPrepass;
 	program->SetFloat4x4("model", model);
 	for (auto j : material->m_floatPropertyList) {
 		program->SetFloat(j.m_name, j.m_value);
@@ -1516,8 +1413,8 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	mesh->Vao()->SetAttributeDivisor(13, 1);
 	mesh->Vao()->SetAttributeDivisor(14, 1);
 	mesh->Vao()->SetAttributeDivisor(15, 1);
-	m_drawCall++;
-	m_triangles += mesh->Size() * count / 3;
+	GetInstance().m_drawCall++;
+	GetInstance().m_triangles += mesh->Size() * count / 3;
 	auto program = material->m_program.get();
 	if (program == nullptr) program = Default::GLPrograms::StandardInstancedProgram.get();
 	program->Bind();
@@ -1528,7 +1425,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	for (auto j : material->m_float4X4PropertyList) {
 		program->SetFloat4x4(j.m_name, j.m_value);
 	}
-	m_materialSettings.m_receiveShadow = receiveShadow;
+	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
 	ApplyMaterialSettings(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
@@ -1544,8 +1441,8 @@ void UniEngine::RenderManager::DrawMesh(
 	mesh->Vao()->DisableAttributeArray(13);
 	mesh->Vao()->DisableAttributeArray(14);
 	mesh->Vao()->DisableAttributeArray(15);
-	m_drawCall++;
-	m_triangles += mesh->Size() / 3;
+	GetInstance().m_drawCall++;
+	GetInstance().m_triangles += mesh->Size() / 3;
 	auto program = material->m_program.get();
 	if (program == nullptr) program = Default::GLPrograms::StandardProgram.get();
 	program->Bind();
@@ -1556,7 +1453,7 @@ void UniEngine::RenderManager::DrawMesh(
 	for (auto j : material->m_float4X4PropertyList) {
 		program->SetFloat4x4(j.m_name, j.m_value);
 	}
-	m_materialSettings.m_receiveShadow = receiveShadow;
+	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
 	ApplyMaterialSettings(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
@@ -1603,8 +1500,8 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", model);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-	m_drawCall++;
-	m_triangles += mesh->Size() * count / 3;
+	GetInstance().m_drawCall++;
+	GetInstance().m_triangles += mesh->Size() * count / 3;
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 }
@@ -1627,8 +1524,8 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("model", model);
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
 
-	m_drawCall++;
-	m_triangles += mesh->Size() / 3;
+	GetInstance().m_drawCall++;
+	GetInstance().m_triangles += mesh->Size() / 3;
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
@@ -1835,17 +1732,17 @@ void RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 cen
 }
 void RenderManager::SetMainCamera(CameraComponent* value)
 {
-	if (_MainCameraComponent)
+	if (GetInstance().m_mainCameraComponent)
 	{
-		_MainCameraComponent->m_isMainCamera = false;
+		GetInstance().m_mainCameraComponent->m_isMainCamera = false;
 	}
-	_MainCameraComponent = value;
-	if (_MainCameraComponent) _MainCameraComponent->m_isMainCamera = true;
+	GetInstance().m_mainCameraComponent = value;
+	if (GetInstance().m_mainCameraComponent) GetInstance().m_mainCameraComponent->m_isMainCamera = true;
 }
 
 CameraComponent* RenderManager::GetMainCamera()
 {
-	return _MainCameraComponent;
+	return GetInstance().m_mainCameraComponent;
 }
 
 void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
@@ -1960,12 +1857,12 @@ void UniEngine::RenderManager::DrawGizmoMesh(Mesh* mesh, glm::vec4 color, glm::m
 
 size_t UniEngine::RenderManager::Triangles()
 {
-	return m_triangles;
+	return GetInstance().m_triangles;
 }
 
 size_t UniEngine::RenderManager::DrawCall()
 {
-	return m_drawCall;
+	return GetInstance().m_drawCall;
 }
 
 #pragma endregion

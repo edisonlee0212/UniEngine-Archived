@@ -20,14 +20,15 @@ enum TestScene {
 int main()
 {
 	FileIO::SetResourcePath("../Resources/");
+	Application::Init();
 #pragma region Lighting and Shadow settings
 	RenderManager::SetShadowMapResolution(8192);
-	RenderManager::m_stableFit = false;
-	RenderManager::SetSeamFixRatio(0.05f);
-	RenderManager::SetMaxShadowDistance(100);
+	RenderManager::GetInstance().m_stableFit = false;
+	RenderManager::GetInstance().m_lightSettings.m_seamFixRatio = (0.05f);
+	RenderManager::GetInstance().m_maxShadowDistance = (100);
 	RenderManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
 #pragma endregion
-	Application::Init();
+	
 #pragma region Preparations
 	auto& world = Application::GetCurrentWorld();
 	WorldTime* time = world->Time();
