@@ -1067,14 +1067,14 @@ namespace UniEngine {
 				targetType = type;
 				size_t amount = storage.m_archetypeInfo->m_entityAliveCount;
 				if (amount == 0) return;
-				container.resize(container.m_size() + amount);
+				container.resize(container.size() + amount);
 				const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
 				const auto chunkAmount = amount / capacity;
 				const auto remainAmount = amount % capacity;
 				for (size_t i = 0; i < chunkAmount; i++) {
-					memcpy(&container.at(container.m_size() - remainAmount - capacity * (chunkAmount - i)), reinterpret_cast<void*>(static_cast<char*>(storage.m_chunkArray->Chunks[i].m_data) + capacity * targetType.m_offset), capacity * targetType.m_size);
+					memcpy(&container.at(container.size() - remainAmount - capacity * (chunkAmount - i)), reinterpret_cast<void*>(static_cast<char*>(storage.m_chunkArray->Chunks[i].m_data) + capacity * targetType.m_offset), capacity * targetType.m_size);
 				}
-				if (remainAmount > 0) memcpy(&container.at(container.m_size() - remainAmount), reinterpret_cast<void*>(static_cast<char*>(storage.m_chunkArray->Chunks[chunkAmount].m_data) + capacity * targetType.m_offset), remainAmount * targetType.m_size);
+				if (remainAmount > 0) memcpy(&container.at(container.size() - remainAmount), reinterpret_cast<void*>(static_cast<char*>(storage.m_chunkArray->Chunks[chunkAmount].m_data) + capacity * targetType.m_offset), remainAmount * targetType.m_size);
 			}
 		}
 	}
@@ -1927,15 +1927,15 @@ namespace UniEngine {
 		std::vector<T1> targetDataList;
 		GetComponentDataArray(entityQuery, componentDataList);
 		GetComponentDataArray(entityQuery, targetDataList);
-		if (targetDataList.m_size() != componentDataList.m_size()) return;
+		if (targetDataList.size() != componentDataList.size()) return;
 		std::vector<std::shared_future<void>> futures;
-		size_t size = componentDataList.m_size();
+		size_t size = componentDataList.size();
 		std::vector<std::vector<T1>> collectedDataLists;
 		const auto threadSize = JobManager::PrimaryWorkers().Size();
 		for (int i = 0; i < threadSize; i++) {
 			collectedDataLists.push_back(std::vector<T1>());
 		}
-		for (int i = 0; i < collectedDataLists.m_size(); i++) {
+		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T1>* collectedDataList = &collectedDataLists[i];
 			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc, threadSize](int id) {
 				for (int j = 0; j < size / threadSize; j++) {
@@ -1946,11 +1946,11 @@ namespace UniEngine {
 				}).share());
 		}
 		for (const auto& i : futures) i.wait();
-		for (int i = 0; i < collectedDataLists.m_size(); i++) {
-			auto listSize = collectedDataLists[i].m_size();
+		for (int i = 0; i < collectedDataLists.size(); i++) {
+			auto listSize = collectedDataLists[i].size();
 			if (listSize == 0) continue;
-			container.resize(container.m_size() + listSize);
-			memcpy(&container.at(container.m_size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T1));
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T1));
 		}
 
 
@@ -1978,15 +1978,15 @@ namespace UniEngine {
 		GetComponentDataArray(entityQuery, componentDataList2);
 		GetComponentDataArray(entityQuery, componentDataList1);
 		GetComponentDataArray(entityQuery, targetDataList);
-		if (targetDataList.m_size() != componentDataList1.m_size() || componentDataList1.m_size() != componentDataList2.m_size()) return;
+		if (targetDataList.size() != componentDataList1.size() || componentDataList1.size() != componentDataList2.size()) return;
 		std::vector<std::shared_future<void>> futures;
-		size_t size = componentDataList1.m_size();
+		size_t size = componentDataList1.size();
 		std::vector<std::vector<T1>> collectedDataLists;
 		const auto threadSize = JobManager::PrimaryWorkers().Size();
 		for (int i = 0; i < threadSize; i++) {
 			collectedDataLists.push_back(std::vector<T1>());
 		}
-		for (int i = 0; i < collectedDataLists.m_size(); i++) {
+		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T1>* collectedDataList = &collectedDataLists[i];
 			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList1, &componentDataList2, size, collectedDataList, i, filterFunc, threadSize](int id) {
 				for (int j = 0; j < size / threadSize; j++) {
@@ -1997,11 +1997,11 @@ namespace UniEngine {
 				}).share());
 		}
 		for (const auto& i : futures) i.wait();
-		for (int i = 0; i < collectedDataLists.m_size(); i++) {
-			auto listSize = collectedDataLists[i].m_size();
+		for (int i = 0; i < collectedDataLists.size(); i++) {
+			auto listSize = collectedDataLists[i].size();
 			if (listSize == 0) continue;
-			container.resize(container.m_size() + listSize);
-			memcpy(&container.at(container.m_size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T1));
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T1));
 		}
 
 
@@ -2026,15 +2026,15 @@ namespace UniEngine {
 		std::vector<T2> targetDataList;
 		GetComponentDataArray(entityQuery, componentDataList);
 		GetComponentDataArray(entityQuery, targetDataList);
-		if (targetDataList.m_size() != componentDataList.m_size()) return;
+		if (targetDataList.size() != componentDataList.size()) return;
 		std::vector<std::shared_future<void>> futures;
-		size_t size = componentDataList.m_size();
+		size_t size = componentDataList.size();
 		std::vector<std::vector<T2>> collectedDataLists;
 		const auto threadSize = JobManager::PrimaryWorkers().Size();
 		for (int i = 0; i < threadSize; i++) {
 			collectedDataLists.push_back(std::vector<T2>());
 		}
-		for (int i = 0; i < collectedDataLists.m_size(); i++) {
+		for (int i = 0; i < collectedDataLists.size(); i++) {
 			std::vector<T2>* collectedDataList = &collectedDataLists[i];
 			futures.push_back(JobManager::PrimaryWorkers().Push([&targetDataList, &componentDataList, size, filter, collectedDataList, i, threadSize](int id) {
 				for (int j = 0; j < size / threadSize; j++) {
@@ -2045,11 +2045,11 @@ namespace UniEngine {
 				}).share());
 		}
 		for (const auto& i : futures) i.wait();
-		for (int i = 0; i < collectedDataLists.m_size(); i++) {
-			auto listSize = collectedDataLists[i].m_size();
+		for (int i = 0; i < collectedDataLists.size(); i++) {
+			auto listSize = collectedDataLists[i].size();
 			if (listSize == 0) continue;
-			container.resize(container.m_size() + listSize);
-			memcpy(&container.at(container.m_size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T2));
+			container.resize(container.size() + listSize);
+			memcpy(&container.at(container.size() - listSize), collectedDataLists[i].data(), listSize * sizeof(T2));
 		}
 
 
@@ -2075,7 +2075,7 @@ namespace UniEngine {
 		std::vector<T1> componentDataList;
 		GetEntityArray(entityQuery, allEntities);
 		GetComponentDataArray(entityQuery, componentDataList);
-		if (allEntities.size() != componentDataList.m_size()) return;
+		if (allEntities.size() != componentDataList.size()) return;
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
@@ -2126,7 +2126,7 @@ namespace UniEngine {
 		GetEntityArray(entityQuery, allEntities);
 		GetComponentDataArray(entityQuery, componentDataList1);
 		GetComponentDataArray(entityQuery, componentDataList2);
-		if (allEntities.size() != componentDataList1.m_size() || componentDataList1.m_size() != componentDataList2.m_size()) return;
+		if (allEntities.size() != componentDataList1.size() || componentDataList1.size() != componentDataList2.size()) return;
 		std::vector<std::shared_future<void>> futures;
 		size_t size = allEntities.size();
 		std::vector<std::vector<Entity>> collectedEntityLists;
