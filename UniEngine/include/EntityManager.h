@@ -309,34 +309,34 @@ namespace UniEngine {
 		const auto* entities = &chunkArray->Entities;
 		std::vector<std::shared_future<void>> results;
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-			void* data = chunkArray->Chunks[chunkIndex].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size)
+								address1[i]
 							);
 						}
 					}
 			).share());
 		}
 		if (remainder != 0) {
-			void* data = chunkArray->Chunks[chunkAmount].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, remainder, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkAmount].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size)
+								address1[i]
 							);
 						}
 					}
@@ -375,38 +375,40 @@ namespace UniEngine {
 		const auto* entities = &chunkArray->Entities;
 		std::vector<std::shared_future<void>> results;
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-			void* data = chunkArray->Chunks[chunkIndex].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size)
+								address1[i],
+								address2[i]
 							);
 						}
 					}
 			).share());
 		}
 		if (remainder != 0) {
-			void* data = chunkArray->Chunks[chunkAmount].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, remainder, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkAmount].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size)
+								address1[i],
+								address2[i]
 							);
 						}
 					}
@@ -450,42 +452,44 @@ namespace UniEngine {
 		const auto* entities = &chunkArray->Entities;
 		std::vector<std::shared_future<void>> results;
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-			void* data = chunkArray->Chunks[chunkIndex].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size)
+								address1[i],
+								address2[i],
+								address3[i]
 							);
 						}
 					}
 			).share());
 		}
 		if (remainder != 0) {
-			void* data = chunkArray->Chunks[chunkAmount].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, remainder, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkAmount].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size)
+								address1[i],
+								address2[i],
+								address3[i]
 							);
 						}
 					}
@@ -536,46 +540,48 @@ namespace UniEngine {
 		const auto* entities = &chunkArray->Entities;
 		std::vector<std::shared_future<void>> results;
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-			void* data = chunkArray->Chunks[chunkIndex].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i]
 							);
 						}
 					}
 			).share());
 		}
 		if (remainder != 0) {
-			void* data = chunkArray->Chunks[chunkAmount].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, remainder, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkAmount].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i]
 							);
 						}
 					}
@@ -633,57 +639,58 @@ namespace UniEngine {
 		const auto* entities = &chunkArray->Entities;
 		std::vector<std::shared_future<void>> results;
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-			void* data = chunkArray->Chunks[chunkIndex].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
-						auto* address5 = static_cast<char*>(data) + targetType5.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+						T5* address5 = reinterpret_cast<T5*>(data + targetType5.m_offset * capacity);
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size),
-								*reinterpret_cast<T5*>(address5 + i % capacity * targetType5.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i],
+								address5[i]
 							);
 						}
 					}
 			).share());
 		}
 		if (remainder != 0) {
-			void* data = chunkArray->Chunks[chunkAmount].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, remainder, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
-						auto* address5 = static_cast<char*>(data) + targetType5.m_offset * capacity;
-						for (int i = 0; i < remainder; i++) {
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkAmount].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+						T5* address5 = reinterpret_cast<T5*>(data + targetType5.m_offset * capacity);
+						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size),
-								*reinterpret_cast<T5*>(address5 + i % capacity * targetType5.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i],
+								address5[i]
 							);
 						}
 					}
 			).share());
 		}
 		for (const auto& i : results) i.wait();
-
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable) {
@@ -741,61 +748,62 @@ namespace UniEngine {
 		const auto* entities = &chunkArray->Entities;
 		std::vector<std::shared_future<void>> results;
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-			void* data = chunkArray->Chunks[chunkIndex].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
-						auto* address5 = static_cast<char*>(data) + targetType5.m_offset * capacity;
-						auto* address6 = static_cast<char*>(data) + targetType6.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+						T5* address5 = reinterpret_cast<T5*>(data + targetType5.m_offset * capacity);
+						T6* address6 = reinterpret_cast<T6*>(data + targetType6.m_offset * capacity);
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size),
-								*reinterpret_cast<T5*>(address5 + i % capacity * targetType5.m_size),
-								*reinterpret_cast<T6*>(address6 + i % capacity * targetType6.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i],
+								address5[i],
+								address6[i]
 							);
 						}
 					}
 			).share());
 		}
 		if (remainder != 0) {
-			void* data = chunkArray->Chunks[chunkAmount].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, remainder, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
-						auto* address5 = static_cast<char*>(data) + targetType5.m_offset * capacity;
-						auto* address6 = static_cast<char*>(data) + targetType6.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkAmount].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+						T5* address5 = reinterpret_cast<T5*>(data + targetType5.m_offset * capacity);
+						T6* address6 = reinterpret_cast<T6*>(data + targetType6.m_offset * capacity);
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size),
-								*reinterpret_cast<T5*>(address5 + i % capacity * targetType5.m_size),
-								*reinterpret_cast<T6*>(address6 + i % capacity * targetType6.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i],
+								address5[i],
+								address6[i]
 							);
 						}
 					}
 			).share());
 		}
 		for (const auto& i : results) i.wait();
-
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable) {
@@ -860,65 +868,66 @@ namespace UniEngine {
 		const auto* entities = &chunkArray->Entities;
 		std::vector<std::shared_future<void>> results;
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-			void* data = chunkArray->Chunks[chunkIndex].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
-						auto* address5 = static_cast<char*>(data) + targetType5.m_offset * capacity;
-						auto* address6 = static_cast<char*>(data) + targetType6.m_offset * capacity;
-						auto* address7 = static_cast<char*>(data) + targetType7.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+						T5* address5 = reinterpret_cast<T5*>(data + targetType5.m_offset * capacity);
+						T6* address6 = reinterpret_cast<T6*>(data + targetType6.m_offset * capacity);
+						T7* address7 = reinterpret_cast<T7*>(data + targetType7.m_offset * capacity);
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size),
-								*reinterpret_cast<T5*>(address5 + i % capacity * targetType5.m_size),
-								*reinterpret_cast<T6*>(address6 + i % capacity * targetType6.m_size),
-								*reinterpret_cast<T7*>(address7 + i % capacity * targetType7.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i],
+								address5[i],
+								address6[i],
+								address7[i]
 							);
 						}
 					}
 			).share());
 		}
 		if (remainder != 0) {
-			void* data = chunkArray->Chunks[chunkAmount].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, remainder, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
-						auto* address5 = static_cast<char*>(data) + targetType5.m_offset * capacity;
-						auto* address6 = static_cast<char*>(data) + targetType6.m_offset * capacity;
-						auto* address7 = static_cast<char*>(data) + targetType7.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkAmount].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+						T5* address5 = reinterpret_cast<T5*>(data + targetType5.m_offset * capacity);
+						T6* address6 = reinterpret_cast<T6*>(data + targetType6.m_offset * capacity);
+						T7* address7 = reinterpret_cast<T7*>(data + targetType7.m_offset * capacity);
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size),
-								*reinterpret_cast<T5*>(address5 + i % capacity * targetType5.m_size),
-								*reinterpret_cast<T6*>(address6 + i % capacity * targetType6.m_size),
-								*reinterpret_cast<T7*>(address7 + i % capacity * targetType7.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i],
+								address5[i],
+								address6[i],
+								address7[i]
 							);
 						}
 					}
 			).share());
 		}
 		for (const auto& i : results) i.wait();
-
 	}
 	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 	void EntityManager::ForEachStorage(ThreadPool& workers, const EntityComponentStorage& storage, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable) {
@@ -990,69 +999,70 @@ namespace UniEngine {
 		const auto* entities = &chunkArray->Entities;
 		std::vector<std::shared_future<void>> results;
 		for (int chunkIndex = 0; chunkIndex < chunkAmount; chunkIndex++) {
-			void* data = chunkArray->Chunks[chunkIndex].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkIndex, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
-						auto* address5 = static_cast<char*>(data) + targetType5.m_offset * capacity;
-						auto* address6 = static_cast<char*>(data) + targetType6.m_offset * capacity;
-						auto* address7 = static_cast<char*>(data) + targetType7.m_offset * capacity;
-						auto* address8 = static_cast<char*>(data) + targetType8.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+						T5* address5 = reinterpret_cast<T5*>(data + targetType5.m_offset * capacity);
+						T6* address6 = reinterpret_cast<T6*>(data + targetType6.m_offset * capacity);
+						T7* address7 = reinterpret_cast<T7*>(data + targetType7.m_offset * capacity);
+						T8* address8 = reinterpret_cast<T8*>(data + targetType8.m_offset * capacity);
 						for (size_t i = 0; i < capacity; i++) {
 							const auto index = i + chunkIndex * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size),
-								*reinterpret_cast<T5*>(address5 + i % capacity * targetType5.m_size),
-								*reinterpret_cast<T6*>(address6 + i % capacity * targetType6.m_size),
-								*reinterpret_cast<T7*>(address7 + i % capacity * targetType7.m_size),
-								*reinterpret_cast<T8*>(address8 + i % capacity * targetType8.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i],
+								address5[i],
+								address6[i],
+								address7[i],
+								address8[i]
 							);
 						}
 					}
 			).share());
 		}
 		if (remainder != 0) {
-			void* data = chunkArray->Chunks[chunkAmount].m_data;
 			results.push_back(
-				workers.Push([entities, capacity, &func, chunkAmount, data, targetType1, targetType2, targetType3, targetType4, targetType5, targetType6, targetType7, targetType8, remainder, checkEnable](int id)
+				workers.Push([=](int id)
 					{
-						auto* address1 = static_cast<char*>(data) + targetType1.m_offset * capacity;
-						auto* address2 = static_cast<char*>(data) + targetType2.m_offset * capacity;
-						auto* address3 = static_cast<char*>(data) + targetType3.m_offset * capacity;
-						auto* address4 = static_cast<char*>(data) + targetType4.m_offset * capacity;
-						auto* address5 = static_cast<char*>(data) + targetType5.m_offset * capacity;
-						auto* address6 = static_cast<char*>(data) + targetType6.m_offset * capacity;
-						auto* address7 = static_cast<char*>(data) + targetType7.m_offset * capacity;
-						auto* address8 = static_cast<char*>(data) + targetType8.m_offset * capacity;
+						auto* data = static_cast<char*>(chunkArray->Chunks[chunkAmount].m_data);
+						T1* address1 = reinterpret_cast<T1*>(data + targetType1.m_offset * capacity);
+						T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
+						T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
+						T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+						T5* address5 = reinterpret_cast<T5*>(data + targetType5.m_offset * capacity);
+						T6* address6 = reinterpret_cast<T6*>(data + targetType6.m_offset * capacity);
+						T7* address7 = reinterpret_cast<T7*>(data + targetType7.m_offset * capacity);
+						T8* address8 = reinterpret_cast<T8*>(data + targetType8.m_offset * capacity);
 						for (size_t i = 0; i < remainder; i++) {
 							const auto index = i + chunkAmount * capacity;
 							const auto entity = entities->at(index);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) continue;
+							
 							func(static_cast<int>(index), entity,
-								*reinterpret_cast<T1*>(address1 + i % capacity * targetType1.m_size),
-								*reinterpret_cast<T2*>(address2 + i % capacity * targetType2.m_size),
-								*reinterpret_cast<T3*>(address3 + i % capacity * targetType3.m_size),
-								*reinterpret_cast<T4*>(address4 + i % capacity * targetType4.m_size),
-								*reinterpret_cast<T5*>(address5 + i % capacity * targetType5.m_size),
-								*reinterpret_cast<T6*>(address6 + i % capacity * targetType6.m_size),
-								*reinterpret_cast<T7*>(address7 + i % capacity * targetType7.m_size),
-								*reinterpret_cast<T8*>(address8 + i % capacity * targetType8.m_size)
+								address1[i],
+								address2[i],
+								address3[i],
+								address4[i],
+								address5[i],
+								address6[i],
+								address7[i],
+								address8[i]
 							);
 						}
 					}
 			).share());
 		}
 		for (const auto& i : results) i.wait();
-
 	}
 #pragma endregion
 #pragma region Others

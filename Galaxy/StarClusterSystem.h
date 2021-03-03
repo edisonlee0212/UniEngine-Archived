@@ -66,24 +66,22 @@ namespace Galaxy {
 
 	struct StarOrbit : ComponentBase
 	{
-		float A;
-		float B;
+		double A;
+		double B;
 		double TiltY;
 		double TiltX;
 		double TiltZ;
 		double SpeedMultiplier;
 		glm::dvec3 Center;
-
-
-		glm::dvec3 GetPoint(glm::dvec3 orbitOffset, double time, bool isStar = true)
+		[[nodiscard]] glm::dvec3 GetPoint(const glm::dvec3& orbitOffset, const double& time, const bool& isStar = true) const
 		{
-			double angle = isStar ? time / glm::sqrt(A + B) * SpeedMultiplier : time;
+			const double angle = isStar ? time / glm::sqrt(A + B) * SpeedMultiplier : time;
 
 			glm::dvec3 point;
 			point.x = glm::sin(glm::radians(angle)) * A + orbitOffset.x;
 			point.y = orbitOffset.y;
 			point.z = glm::cos(glm::radians(angle)) * B + orbitOffset.z;
-
+			
 			point = Rotate(glm::angleAxis(glm::radians(TiltX), glm::dvec3(1, 0, 0)), point);
 			point = Rotate(glm::angleAxis(glm::radians(TiltY), glm::dvec3(0, 1, 0)), point);
 			point = Rotate(glm::angleAxis(glm::radians(TiltZ), glm::dvec3(0, 0, 1)), point);
@@ -94,20 +92,20 @@ namespace Galaxy {
 			return point;
 		}
 
-		glm::dvec3 Rotate(glm::quat rotation, glm::dvec3 point)
+		static glm::dvec3 Rotate(const glm::qua<double>& rotation, const glm::dvec3& point)
 		{
-			double x = rotation.x * 2.0;
-			double y = rotation.y * 2.0;
-			double z = rotation.z * 2.0;
-			double xx = rotation.x * x;
-			double yy = rotation.y * y;
-			double zz = rotation.z * z;
-			double xy = rotation.x * y;
-			double xz = rotation.x * z;
-			double yz = rotation.y * z;
-			double wx = rotation.w * x;
-			double wy = rotation.w * y;
-			double wz = rotation.w * z;
+			const double x = rotation.x * 2.0;
+			const double y = rotation.y * 2.0;
+			const double z = rotation.z * 2.0;
+			const double xx = rotation.x * x;
+			const double yy = rotation.y * y;
+			const double zz = rotation.z * z;
+			const double xy = rotation.x * y;
+			const double xz = rotation.x * z;
+			const double yz = rotation.y * z;
+			const double wx = rotation.w * x;
+			const double wy = rotation.w * y;
+			const double wz = rotation.w * z;
 			glm::dvec3 res;
 			res.x = (1.0 - (yy + zz)) * point.x + (xy - wz) * point.y + (xz + wy) * point.z;
 			res.y = (xy + wz) * point.x + (1.0 - (xx + zz)) * point.y + (yz - wx) * point.z;
