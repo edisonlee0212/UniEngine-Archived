@@ -11,7 +11,7 @@ namespace UniEngine {
         static bool GetMousePositionInternal(ImGuiWindow* window, glm::vec2& pos);
         static void PreUpdate();
         static void LateUpdate();
-        static bool _EnableInputMenu;
+        bool m_enableInputMenu;
         friend class Application;
         friend class WindowManager;
         friend class RenderManager;

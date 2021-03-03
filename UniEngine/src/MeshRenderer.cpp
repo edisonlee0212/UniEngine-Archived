@@ -6,39 +6,39 @@
 void UniEngine::MeshRenderer::RenderBound(glm::vec4& color) const
 {
 	const auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
-	glm::vec3 size = Mesh->_Bound.Size();
+	glm::vec3 size = m_mesh->_Bound.Size();
 	if (size.x < 0.01f) size.x = 0.01f;
 	if (size.z < 0.01f) size.z = 0.01f;
 	if (size.y < 0.01f) size.y = 0.01f;
-	RenderManager::DrawGizmoCube(color, transform * (glm::translate(Mesh->_Bound.Center()) * glm::scale(size)), 1);
+	RenderManager::DrawGizmoCube(color, transform * (glm::translate(m_mesh->_Bound.Center()) * glm::scale(size)), 1);
 }
 
 void UniEngine::MeshRenderer::OnGui()
 {
-	ImGui::Checkbox("Forward Rendering##MeshRenderer", &ForwardRendering);
-	ImGui::Checkbox("Receive shadow##MeshRenderer", &ReceiveShadow);
-	ImGui::Checkbox("Cast shadow##MeshRenderer", &CastShadow);
+	ImGui::Checkbox("Forward Rendering##MeshRenderer", &m_forwardRendering);
+	ImGui::Checkbox("Receive shadow##MeshRenderer", &m_receiveShadow);
+	ImGui::Checkbox("Cast shadow##MeshRenderer", &m_castShadow);
 	ImGui::Text("Material:");
 	ImGui::SameLine();
-	EditorManager::DragAndDrop(Material);
-	if (Material) {
+	EditorManager::DragAndDrop(m_material);
+	if (m_material) {
 		if (ImGui::TreeNode("Material##MeshRenderer")) {
-			Material->OnGui();
+			m_material->OnGui();
 			ImGui::TreePop();
 		}
 	}
 	ImGui::Text("Mesh:");
 	ImGui::SameLine();
-	EditorManager::DragAndDrop(Mesh);
-	if (Mesh) {
+	EditorManager::DragAndDrop(m_mesh);
+	if (m_mesh) {
 		if (ImGui::TreeNode("Mesh##MeshRenderer")) {
-			ImGui::Checkbox("Display bounds##MeshRenderer", &DisplayBound);
-			if (DisplayBound)
+			ImGui::Checkbox("Display bounds##MeshRenderer", &m_displayBound);
+			if (m_displayBound)
 			{
-				ImGui::ColorEdit4("Color:##MeshRenderer", (float*)(void*)&DisplayBoundColor);
-				RenderBound(DisplayBoundColor);
+				ImGui::ColorEdit4("Color:##MeshRenderer", (float*)(void*)&m_displayBoundColor);
+				RenderBound(m_displayBoundColor);
 			}
-			Mesh->OnGui();
+			m_mesh->OnGui();
 			ImGui::TreePop();
 		}
 	}
@@ -55,14 +55,14 @@ UniEngine::MeshRenderer::~MeshRenderer()
 
 void UniEngine::MeshRenderer::Serialize(YAML::Emitter& out)
 {
-	out << YAML::Key << "ForwardRendering" << ForwardRendering;
-	out << YAML::Key << "CastShadow" << CastShadow;
-	out << YAML::Key << "ReceiveShadow" << ReceiveShadow;
+	out << YAML::Key << "ForwardRendering" << m_forwardRendering;
+	out << YAML::Key << "CastShadow" << m_castShadow;
+	out << YAML::Key << "ReceiveShadow" << m_receiveShadow;
 }
 
 void UniEngine::MeshRenderer::Deserialize(const YAML::Node& in)
 {
-	ForwardRendering = in["ForwardRendering"].as<bool>();
-	CastShadow = in["CastShadow"].as<bool>();
-	ReceiveShadow = in["ReceiveShadow"].as<bool>();
+	m_forwardRendering = in["ForwardRendering"].as<bool>();
+	m_castShadow = in["CastShadow"].as<bool>();
+	m_receiveShadow = in["ReceiveShadow"].as<bool>();
 }

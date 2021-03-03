@@ -108,7 +108,7 @@ void UniEngine::Application::Init(bool fullScreen)
 	EntityManager::SetComponentData(mainCameraEntity, cameraLtw);
 	auto mainCameraComponent = std::make_unique<CameraComponent>();
 	RenderManager::SetMainCamera(mainCameraComponent.get());
-	mainCameraComponent->SkyBox = Default::Textures::DefaultSkybox;
+	mainCameraComponent->m_skyBox = Default::Textures::DefaultSkybox;
 	EntityManager::SetPrivateComponent<CameraComponent>(mainCameraEntity, std::move(mainCameraComponent));
 
 	

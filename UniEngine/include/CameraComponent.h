@@ -7,34 +7,34 @@ namespace UniEngine {
 	class CameraComponent;
 	struct GlobalTransform;
 
-	enum CameraLayer {
-		CameraLayer_None = 0,
-		CameraLayer_MainCamera = 1 << 0,
-		CameraLayer_DebugCamera = 1 << 1,
+	enum class CameraLayer {
+		None = 0,
+		MainCamera = 1 << 0,
+		DebugCamera = 1 << 1,
 	};
 
 	struct UNIENGINE_API CameraLayerMask : ComponentBase
 	{
-		size_t Value;
+		size_t m_value;
 		bool operator ==(const CameraLayerMask& other) const {
-			return other.Value == Value;
+			return other.m_value == m_value;
 		}
 		CameraLayerMask();
 	};
 	struct UNIENGINE_API Plane {
-		float a, b, c, d;
+		float m_a, m_b, m_c, m_d;
 		Plane();
 		void Normalize();
 	};
 	
 	struct UNIENGINE_API CameraInfoBlock {
-		glm::mat4 Projection;
-		glm::mat4 View;
-		glm::vec4 ReservedParameters;
-		glm::vec4 Position;
-		glm::vec4 BackGroundColor;
-		GLuint64 Skybox = 0;
-		int SkyboxEnabled = 0;
+		glm::mat4 m_projection;
+		glm::mat4 m_view;
+		glm::vec4 m_reservedParameters;
+		glm::vec4 m_position;
+		glm::vec4 m_backGroundColor;
+		GLuint64 m_skybox = 0;
+		int m_skyboxEnabled = 0;
 		void UpdateMatrices(CameraComponent* camera, glm::vec3 position, glm::quat rotation);
 		void UploadMatrices(CameraComponent* camera);
 	};
@@ -51,32 +51,31 @@ namespace UniEngine {
 		friend class Bloom;
 		friend class SSAO;
 		friend class GreyScale;
-		std::shared_ptr<Texture2D> _ColorTexture;
-		std::unique_ptr<GLTexture2D> _DepthStencilBuffer;
-		std::unique_ptr<RenderTarget> _GBuffer;
-		std::unique_ptr<GLRenderBuffer> _GDepthBuffer;
-		std::unique_ptr<GLTexture2D> _GPositionBuffer;
-		std::unique_ptr<GLTexture2D> _GNormalBuffer;
-		std::unique_ptr<GLTexture2D> _GColorSpecularBuffer;
-		std::unique_ptr<GLTexture2D> _GMetallicRoughnessAO;
+		std::shared_ptr<Texture2D> m_colorTexture;
+		std::unique_ptr<GLTexture2D> m_depthStencilBuffer;
+		std::unique_ptr<RenderTarget> m_gBuffer;
+		std::unique_ptr<GLRenderBuffer> m_gDepthBuffer;
+		std::unique_ptr<GLTexture2D> m_gPositionBuffer;
+		std::unique_ptr<GLTexture2D> m_gNormalBuffer;
+		std::unique_ptr<GLTexture2D> m_gColorSpecularBuffer;
+		std::unique_ptr<GLTexture2D> m_gMetallicRoughnessAo;
 		
-		static std::unique_ptr<GLUBO> _CameraUniformBufferBlock;
-		bool _IsMainCamera = false;
+		static std::unique_ptr<GLUBO> m_cameraUniformBufferBlock;
+		bool m_isMainCamera = false;
 	public:
-		static CameraInfoBlock CameraInfoBlock;
-		bool AllowAutoResize = true;
-		float NearDistance = 0.1f;
-		float FarDistance = 500.0f;
-		float FOV = 90;
+		static CameraInfoBlock m_cameraInfoBlock;
+		bool m_allowAutoResize = true;
+		float m_nearDistance = 0.1f;
+		float m_farDistance = 500.0f;
+		float m_fov = 90;
 		void StoreToJpg(const std::string& path, int resizeX = -1, int resizeY = -1) const;
 		void StoreToPng(const std::string& path, int resizeX = -1, int resizeY = -1, bool alphaChannel = false) const;
-		
 		
 		static void CalculatePlanes(std::vector<Plane>& planes, glm::mat4 projection, glm::mat4 view);
 		void CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3* points) const;
 		static glm::quat ProcessMouseMovement(float yawAngle, float pitchAngle, bool constrainPitch = true);
-		std::shared_ptr<Texture2D> GetTexture() const;
-		glm::mat4 GetProjection() const;
+		[[nodiscard]] std::shared_ptr<Texture2D> GetTexture() const;
+		[[nodiscard]] glm::mat4 GetProjection() const;
 		static glm::vec3 Project(GlobalTransform& ltw, glm::vec3 position);
 
 		glm::vec3 UnProject(GlobalTransform& ltw, glm::vec3 position) const;
@@ -91,9 +90,9 @@ namespace UniEngine {
 		void ResizeResolution(int x, int y);
 		CameraComponent();
 		~CameraComponent() override;
-		bool DrawSkyBox = true;
-		glm::vec3 ClearColor;
-		std::shared_ptr<Cubemap> SkyBox;
+		bool m_drawSkyBox = true;
+		glm::vec3 m_clearColor;
+		std::shared_ptr<Cubemap> m_skyBox;
 		void OnGui() override;
 	};
 	

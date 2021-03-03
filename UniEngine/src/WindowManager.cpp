@@ -4,17 +4,10 @@
 #include "RenderTarget.h"
 #include "Default.h"
 using namespace UniEngine;
-bool WindowManager::_EnableMenu;
-std::vector<GLFWmonitor*> WindowManager::_Monitors;
-GLFWmonitor* WindowManager::_PrimaryMonitor;
-GLFWwindow* WindowManager::_Window;
-unsigned WindowManager::_WindowWidth;
-unsigned WindowManager::_WindowHeight;
-
 
 void WindowManager::ResizeCallback(GLFWwindow* window, int width, int height) {
-	_WindowWidth = width;
-	_WindowHeight = height;
+	GetInstance().m_windowWidth = width;
+	GetInstance().m_windowHeight = height;
 }
 
 void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int event)
@@ -22,36 +15,23 @@ void UniEngine::WindowManager::SetMonitorCallback(GLFWmonitor* monitor, int even
 	if (event == GLFW_CONNECTED)
 	{
 		// The monitor was connected
-		for (auto i : _Monitors) if (i == monitor) return;
-		_Monitors.push_back(monitor);
+		for (auto i : GetInstance().m_monitors) if (i == monitor) return;
+		GetInstance().m_monitors.push_back(monitor);
 	}
 	else if (event == GLFW_DISCONNECTED)
 	{
 		// The monitor was disconnected
-		for (auto i = 0; i < _Monitors.size(); i++) {
-			if (monitor == _Monitors[i]) {
-				_Monitors.erase(_Monitors.begin() + i);
+		for (auto i = 0; i < GetInstance().m_monitors.size(); i++) {
+			if (monitor == GetInstance().m_monitors[i]) {
+				GetInstance().m_monitors.erase(GetInstance().m_monitors.begin() + i);
 			}
 		}
 	}
-	_PrimaryMonitor = glfwGetPrimaryMonitor();
+	GetInstance().m_primaryMonitor = glfwGetPrimaryMonitor();
 }
 
 void WindowManager::LateUpdate()
 {
-	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("View"))
-		{
-			ImGui::Checkbox("Window Manager", &_EnableMenu);
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-	}
-	if (_EnableMenu)
-	{
-		ImGui::Begin("Window Manager");
-		ImGui::End();
-	}
 }
 
 void UniEngine::WindowManager::Init(std::string name, bool fullScreen)
@@ -68,36 +48,36 @@ void UniEngine::WindowManager::Init(std::string name, bool fullScreen)
 	int size;
 	auto monitors = glfwGetMonitors(&size);
 	for (auto i = 0; i < size; i++) {
-		_Monitors.push_back(monitors[i]);
+		GetInstance().m_monitors.push_back(monitors[i]);
 	}
-	_PrimaryMonitor = glfwGetPrimaryMonitor();
+	GetInstance().m_primaryMonitor = glfwGetPrimaryMonitor();
 	glfwSetMonitorCallback(SetMonitorCallback);
 
 	
 	// glfw window creation
 	// --------------------
-	const GLFWvidmode* mode = glfwGetVideoMode(_PrimaryMonitor);
-	_WindowWidth = fullScreen ? mode->width : mode->width - 200;
-	_WindowHeight = fullScreen ? mode->height : mode->height - 200;
+	const GLFWvidmode* mode = glfwGetVideoMode(GetInstance().m_primaryMonitor);
+	GetInstance().m_windowWidth = fullScreen ? mode->width : mode->width - 200;
+	GetInstance().m_windowHeight = fullScreen ? mode->height : mode->height - 200;
 
-	_Window = glfwCreateWindow(_WindowWidth, _WindowHeight, name.c_str(), fullScreen ? _PrimaryMonitor : nullptr, NULL);
-	if(!fullScreen) glfwMaximizeWindow(_Window);
-	glfwSetFramebufferSizeCallback(_Window, ResizeCallback);
-	if (_Window == NULL)
+	GetInstance().m_window = glfwCreateWindow(GetInstance().m_windowWidth, GetInstance().m_windowHeight, name.c_str(), fullScreen ? GetInstance().m_primaryMonitor : nullptr, NULL);
+	if(!fullScreen) glfwMaximizeWindow(GetInstance().m_window);
+	glfwSetFramebufferSizeCallback(GetInstance().m_window, ResizeCallback);
+	if (GetInstance().m_window == NULL)
 	{
 		Debug::Error("Failed to create GLFW window");
 	}
-	glfwMakeContextCurrent(_Window);
+	glfwMakeContextCurrent(GetInstance().m_window);
 }
 
 GLFWwindow* UniEngine::WindowManager::GetWindow()
 {
-	return _Window;
+	return GetInstance().m_window;
 }
 
 GLFWmonitor* UniEngine::WindowManager::PrimaryMonitor()
 {
-	return _PrimaryMonitor;
+	return GetInstance().m_primaryMonitor;
 }
 
 void UniEngine::WindowManager::PreUpdate()
@@ -108,14 +88,14 @@ void UniEngine::WindowManager::PreUpdate()
 
 void UniEngine::WindowManager::Swap()
 {
- 	glfwSwapBuffers(_Window);
+ 	glfwSwapBuffers(GetInstance().m_window);
 }
 
 void UniEngine::WindowManager::DrawTexture(GLTexture2D* texture)
 {
 	RenderTarget::BindDefault();
 	/* Make the window's context current */
-	glViewport(0, 0, _WindowWidth, _WindowHeight);
+	glViewport(0, 0, GetInstance().m_windowWidth, GetInstance().m_windowHeight);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	/* Render here */
 	glDisable(GL_DEPTH_TEST);

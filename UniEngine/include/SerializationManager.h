@@ -29,7 +29,7 @@ namespace UniEngine
 	
 	class UNIENGINE_API SerializationManager : public Singleton<SerializationManager>
 	{
-		std::unordered_map<size_t, std::pair<std::function<std::string(ComponentBase*)>, std::function<void(const std::string&, ComponentBase*)>>> _ComponentDataSerializers;
+		std::unordered_map<size_t, std::pair<std::function<std::string(ComponentBase*)>, std::function<void(const std::string&, ComponentBase*)>>> m_componentDataSerializers;
 		static void SerializeEntity(std::unique_ptr<World>& world, YAML::Emitter& out, const Entity& entity);
 		static Entity DeserializeEntity(std::unique_ptr<World>& world, const YAML::Node& node);
 	public:
@@ -43,6 +43,6 @@ namespace UniEngine
 	template <typename T>
 	bool SerializationManager::RegisterComponentDataSerializerDeserializer(const std::pair<std::function<std::string(ComponentBase*)>, std::function<void(const std::string&, ComponentBase*)>>& funcPair)
 	{
-		return GetInstance()._ComponentDataSerializers.insert({ typeid(T).hash_code(), funcPair }).second;
+		return GetInstance().m_componentDataSerializers.insert({ typeid(T).hash_code(), funcPair }).second;
 	}
 }

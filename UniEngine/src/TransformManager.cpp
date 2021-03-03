@@ -4,17 +4,16 @@
 #include "EditorManager.h"
 #include "SerializationManager.h"
 using namespace UniEngine;
-EntityQuery TransformManager::_TransformQuery;
 void UniEngine::TransformManager::Init()
 {
-	_TransformQuery = EntityManager::CreateEntityQuery();
-	EntityManager::SetEntityQueryAllFilters(_TransformQuery, Transform(), GlobalTransform());
+	GetInstance().m_transformQuery = EntityManager::CreateEntityQuery();
+	EntityManager::SetEntityQueryAllFilters(GetInstance().m_transformQuery, Transform(), GlobalTransform());
 }
 
 
 void UniEngine::TransformManager::LateUpdate()
 {
-	EntityManager::ForEach<Transform, GlobalTransform>(JobManager::PrimaryWorkers(), _TransformQuery, [](int i, Entity entity, Transform& ltp, GlobalTransform& ltw)
+	EntityManager::ForEach<Transform, GlobalTransform>(JobManager::PrimaryWorkers(), GetInstance().m_transformQuery, [](int i, Entity entity, Transform& ltp, GlobalTransform& ltw)
 		{
 			if (EntityManager::IsEntityStatic(entity) || !EntityManager::GetParent(entity).IsNull()) return;
 			ltw.Value = ltp.Value;

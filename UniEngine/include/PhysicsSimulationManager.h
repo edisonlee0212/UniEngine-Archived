@@ -12,17 +12,17 @@ namespace UniEngine {
 		public Singleton<PhysicsSimulationManager>
 	{
 		friend class RigidBody;
-		static PxDefaultAllocator _Allocator;
-		static PxDefaultErrorCallback _ErrorCallback;
-		static PxFoundation* _PhysicsFoundation;
-		static PxPhysics* _Physics;
-		static PxDefaultCpuDispatcher* _Dispatcher;
-		static PxScene* _PhysicsScene;
-		static PxPvd* _PhysVisDebugger;
-		static PxMaterial* _DefaultMaterial;
-		static PxReal stackZ;
+		PxDefaultAllocator m_allocator;
+		PxDefaultErrorCallback m_errorCallback;
+		PxFoundation* m_physicsFoundation = nullptr;
+		PxPhysics* m_physics = nullptr;
+		PxDefaultCpuDispatcher* m_dispatcher = nullptr;
+		PxScene* m_physicsScene = nullptr;
+		PxPvd* m_physVisDebugger = nullptr;
+		PxMaterial* m_defaultMaterial = nullptr;
+		PxReal m_stackZ = 10.0f;
 	public:
-		static bool Enabled;
+		bool m_enabled = false;
 		static void Init();
 		static void Destroy();
 		static void UploadTransforms();

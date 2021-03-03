@@ -60,13 +60,13 @@ void UniEngine::GreyScale::Process(std::unique_ptr<CameraComponent>& cameraCompo
 	renderTarget.AttachTexture(_GreyColor.get(), GL_COLOR_ATTACHMENT0);
 	renderTarget.Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	cameraComponent->_ColorTexture->Texture()->Bind(0);
+	cameraComponent->m_colorTexture->Texture()->Bind(0);
 	_TransferProgram->SetInt("inputTex", 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	_CopyProgram->Bind();
-	renderTarget.AttachTexture(cameraComponent->_ColorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+	renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
 	renderTarget.Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_GreyColor->Bind(0);

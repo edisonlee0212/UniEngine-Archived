@@ -7,12 +7,11 @@
 #include "SerializationManager.h"
 #include "Application.h"
 using namespace UniEngine;
-bool ResourceManager::_EnableAssetMenu = true;
-std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> ResourceManager::_Resources;
+std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> ResourceManager::m_resources;
 
 void ResourceManager::Remove(size_t id, size_t hashCode)
 {
-	_Resources[id].second.erase(hashCode);
+	m_resources[id].second.erase(hashCode);
 }
 
 std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(bool addResource, std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
@@ -46,8 +45,8 @@ Entity UniEngine::ResourceManager::ToEntity(EntityArchetype archetype, std::shar
 	EntityManager::SetComponentData<Transform>(entity, ltp);
 	for (auto& i : modelNode->_MeshMaterials) {
 		auto mmc = std::make_unique<MeshRenderer>();
-		mmc->Mesh = i.second;
-		mmc->Material = i.first;
+		mmc->m_mesh = i.second;
+		mmc->m_material = i.first;
 		EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
 	}
 	int index = 0;
@@ -419,8 +418,8 @@ void UniEngine::ResourceManager::AttachChildren(EntityArchetype archetype, std::
 	EntityManager::SetComponentData<Transform>(entity, ltp);
 	for (auto i : modelNode->_MeshMaterials) {
 		auto mmc = std::make_unique<MeshRenderer>();
-		mmc->Mesh = i.second;
-		mmc->Material = i.first;
+		mmc->m_mesh = i.second;
+		mmc->m_material = i.first;
 		EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
 	}
 	int index = 0;
@@ -639,13 +638,13 @@ void ResourceManager::LateUpdate()
 		}
 		if (ImGui::BeginMenu("View"))
 		{
-			ImGui::Checkbox("Asset Manager", &_EnableAssetMenu);
+			ImGui::Checkbox("Asset Manager", &GetInstance().m_enableAssetMenu);
 			ImGui::EndMenu();
 		}
 
 		ImGui::EndMainMenuBar();
 	}
-	if (_EnableAssetMenu)
+	if (GetInstance().m_enableAssetMenu)
 	{
 		ImGui::Begin("Resource Manager");
 		if (ImGui::BeginTabBar("##Resource Tab", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
@@ -666,7 +665,7 @@ void ResourceManager::LateUpdate()
 				}
 				ImGui::EndTabItem();
 			}
-			for (auto& collection : _Resources) {
+			for (auto& collection : m_resources) {
 				if (ImGui::BeginTabItem(collection.second.first.substr(6).c_str()))
 				{
 					if (ImGui::BeginDragDropTarget())

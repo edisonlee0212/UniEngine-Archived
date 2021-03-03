@@ -5,7 +5,6 @@
 #include "imgui_internal.h"
 #include "WindowManager.h"
 using namespace UniEngine;
-bool InputManager::_EnableInputMenu = false;
 
 inline void InputManager::Init() {
 }
@@ -109,12 +108,12 @@ void InputManager::LateUpdate()
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("View"))
 		{
-			ImGui::Checkbox("Input Manager", &_EnableInputMenu);
+			ImGui::Checkbox("Input Manager", &GetInstance().m_enableInputMenu);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
 	}
-	if (_EnableInputMenu)
+	if (GetInstance().m_enableInputMenu)
 	{
 		ImGui::Begin("Input Manager");
 		ImGui::End();

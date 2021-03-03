@@ -17,12 +17,11 @@ namespace UniEngine {
 		static void ResizeCallback(GLFWwindow*, int, int);
 		static void SetMonitorCallback(GLFWmonitor* monitor, int event);
 	private:
-		static bool _EnableMenu;
-		static std::vector<GLFWmonitor*> _Monitors;
-		static GLFWmonitor* _PrimaryMonitor;
-		static GLFWwindow* _Window;
-		static unsigned _WindowWidth;
-		static unsigned _WindowHeight;
+		std::vector<GLFWmonitor*> m_monitors;
+		GLFWmonitor* m_primaryMonitor = nullptr;
+		GLFWwindow* m_window = nullptr;
+		unsigned m_windowWidth = 1;
+		unsigned m_windowHeight = 1;
 	};
 
 }

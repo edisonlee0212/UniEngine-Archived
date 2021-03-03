@@ -10,24 +10,24 @@ void UniEngine::RigidBody::RegisterCheck()
 {
 	if (_CurrentRegistered == false && GetOwner().IsValid() && GetOwner().IsEnabled() && IsEnabled()) {
 		_CurrentRegistered = true;
-		PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+		PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*_RigidBody);
 	}
 	if(_CurrentRegistered == true && GetOwner().IsValid() && !(GetOwner().IsEnabled() && IsEnabled()))
 	{
 		_CurrentRegistered = false;
-		PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+		PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 	}
 }
 
 UniEngine::RigidBody::RigidBody()
 {
-	_Material = PhysicsSimulationManager::_DefaultMaterial;
+	_Material = PhysicsSimulationManager::GetInstance().m_defaultMaterial;
 	_ShapeTransform = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
 	_MassCenter = PxVec3(0.0f);
 	_DrawBounds = false;
 	_IsStatic = false;
 	PxTransform localTm(PxVec3(0, 0, 0));
-	_RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform(localTm));
+	_RigidBody = PhysicsSimulationManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
 	_ShapeParam = glm::vec3(1.0f);
 	_ShapeType = ShapeType::Box;
 	
@@ -46,10 +46,10 @@ void UniEngine::RigidBody::SetShapeType(ShapeType type)
 	}
 	if(_ShapeType == type) return;
 	_ShapeType = type;
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 	UpdateShape();
 	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*_RigidBody);
 }
 
 void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
@@ -60,10 +60,10 @@ void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
 	}
 	if(_ShapeParam == value) return;
 	_ShapeParam = value;
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 	UpdateShape();
 	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*_RigidBody);
 }
 
 void UniEngine::RigidBody::SetStatic(bool value)
@@ -74,11 +74,11 @@ void UniEngine::RigidBody::SetStatic(bool value)
 	}
 	if(_IsStatic == value) return;
 	_IsStatic = value;
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 	UpdateBody();
 	UpdateShape();
 	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*_RigidBody);
 }
 
 void UniEngine::RigidBody::SetTransform(glm::mat4 value)
@@ -91,10 +91,10 @@ void UniEngine::RigidBody::SetTransform(glm::mat4 value)
 	ltw.Value = value;
 	ltw.SetScale(glm::vec3(1.0f));
 	_ShapeTransform = ltw.Value;
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 	UpdateShape();
 	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*_RigidBody);
 }
 
 void UniEngine::RigidBody::SetDensity(float value)
@@ -106,9 +106,9 @@ void UniEngine::RigidBody::SetDensity(float value)
 	if(_Density == value) return;
 	_Density = value;
 	if (_Density < 0.0001f) _Density = 0.0001f;
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 	if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
-	if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+	if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*_RigidBody);
 }
 
 UniEngine::RigidBody::~RigidBody()
@@ -116,7 +116,7 @@ UniEngine::RigidBody::~RigidBody()
 	if (_RigidBody) {
 		_RigidBody->release();
 	}
-	if (_Material && _Material != PhysicsSimulationManager::_DefaultMaterial) {
+	if (_Material && _Material != PhysicsSimulationManager::GetInstance().m_defaultMaterial) {
 		_Material->release();
 	}
 	if(_Shape)
@@ -129,14 +129,14 @@ void UniEngine::RigidBody::SetMaterial(PxMaterial* value)
 {
 	if(value && _Material != value)
 	{
-		if (_Material && _Material != PhysicsSimulationManager::_DefaultMaterial) {
+		if (_Material && _Material != PhysicsSimulationManager::GetInstance().m_defaultMaterial) {
 			_Material->release();
 		}
 		_Material = value;
-		if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+		if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 		UpdateShape();
 		if (!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
-		if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+		if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*_RigidBody);
 	}
 }
 
@@ -146,13 +146,13 @@ void UniEngine::RigidBody::UpdateShape()
 	switch (_ShapeType)
 	{
 	case ShapeType::Sphere:
-		_Shape = PhysicsSimulationManager::_Physics->createShape(PxSphereGeometry(_ShapeParam.x), *_Material);
+		_Shape = PhysicsSimulationManager::GetInstance().m_physics->createShape(PxSphereGeometry(_ShapeParam.x), *_Material);
 		break;
 	case ShapeType::Box:
-		_Shape = PhysicsSimulationManager::_Physics->createShape(PxBoxGeometry(_ShapeParam.x, _ShapeParam.y, _ShapeParam.z), *_Material);
+		_Shape = PhysicsSimulationManager::GetInstance().m_physics->createShape(PxBoxGeometry(_ShapeParam.x, _ShapeParam.y, _ShapeParam.z), *_Material);
 		break;
 	case ShapeType::Capsule:
-		_Shape = PhysicsSimulationManager::_Physics->createShape(PxCapsuleGeometry(_ShapeParam.x, _ShapeParam.y), *_Material);
+		_Shape = PhysicsSimulationManager::GetInstance().m_physics->createShape(PxCapsuleGeometry(_ShapeParam.x, _ShapeParam.y), *_Material);
 		break;
 	}
 	_RigidBody->attachShape(*_Shape);
@@ -162,8 +162,8 @@ void UniEngine::RigidBody::UpdateBody()
 {
 	if (_RigidBody) _RigidBody->release();
 	PxTransform localTm(PxVec3(0, 0, 0));
-	if(_IsStatic) _RigidBody = PhysicsSimulationManager::_Physics->createRigidStatic(PxTransform(localTm));
-	else _RigidBody = PhysicsSimulationManager::_Physics->createRigidDynamic(PxTransform(localTm));
+	if(_IsStatic) _RigidBody = PhysicsSimulationManager::GetInstance().m_physics->createRigidStatic(PxTransform(localTm));
+	else _RigidBody = PhysicsSimulationManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
 }
 
 void UniEngine::RigidBody::Init()
@@ -174,7 +174,7 @@ void UniEngine::RigidBody::Init()
 void UniEngine::RigidBody::OnEntityDisable()
 {
 	_CurrentRegistered = false;
-	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 }
 void UniEngine::RigidBody::OnEntityEnable()
 {
@@ -183,7 +183,7 @@ void UniEngine::RigidBody::OnEntityEnable()
 void UniEngine::RigidBody::OnDisable()
 {
 	_CurrentRegistered = false;
-	PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+	PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 }
 
 void UniEngine::RigidBody::OnEnable()
@@ -253,7 +253,7 @@ void UniEngine::RigidBody::OnGui()
 				auto& meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
 				if (meshRenderer)
 				{
-					auto bound = meshRenderer->Mesh->GetBound();
+					auto bound = meshRenderer->m_mesh->GetBound();
 					glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
 					_ShapeParam = bound.Size() * scale;
 					_ShapeParam = glm::max(glm::vec3(0.01f), _ShapeParam);
@@ -269,11 +269,11 @@ void UniEngine::RigidBody::OnGui()
 		}
 		if (ImGui::DragFloat("Density", &_Density, 0.1f, 0.001f)) statusChanged = true;
 		if (statusChanged) {
-			if(_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->removeActor(*_RigidBody);
+			if(_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*_RigidBody);
 			if (staticChanged) UpdateBody();
 			UpdateShape();
 			if(!_IsStatic)PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(_RigidBody), _Density);
-			if (_CurrentRegistered)PhysicsSimulationManager::_PhysicsScene->addActor(*_RigidBody);
+			if (_CurrentRegistered)PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*_RigidBody);
 		}
 	}
 }

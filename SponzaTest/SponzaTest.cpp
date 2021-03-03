@@ -22,7 +22,7 @@ int main()
 	FileIO::SetResourcePath("../Resources/");
 #pragma region Lighting and Shadow settings
 	RenderManager::SetShadowMapResolution(8192);
-	RenderManager::StableFit = false;
+	RenderManager::m_stableFit = false;
 	RenderManager::SetSeamFixRatio(0.05f);
 	RenderManager::SetMaxShadowDistance(100);
 	RenderManager::SetSplitRatio(0.15f, 0.3f, 0.5f, 1.0f);
@@ -57,8 +57,8 @@ int main()
 	sharedMat->SetTexture(Default::Textures::StandardTexture);
 	
 	auto cylinder = std::make_unique<MeshRenderer>();
-	cylinder->Mesh = Default::Primitives::Cylinder;
-	cylinder->Material = sharedMat;
+	cylinder->m_mesh = Default::Primitives::Cylinder;
+	cylinder->m_material = sharedMat;
 	TestScene testScene = BACKPACK;
 #pragma region PCSS test
 	if (testScene == BACKPACK) {
@@ -88,8 +88,8 @@ int main()
 	}
 	else if (testScene == PCSS) {
 		auto cmmc = std::make_unique<MeshRenderer>();
-		cmmc->Mesh = Default::Primitives::Cube;
-		cmmc->Material = sharedMat;
+		cmmc->m_mesh = Default::Primitives::Cube;
+		cmmc->m_material = sharedMat;
 
 		Entity model1 = EntityManager::CreateEntity(archetype);
 		transform.SetPosition(glm::vec3(-6.0f, 7.0f, 0.0f));
@@ -100,8 +100,8 @@ int main()
 		EntityManager::SetPrivateComponent<MeshRenderer>(model1, std::move(cylinder));
 
 		auto mmmc = std::make_unique<MeshRenderer>();
-		mmmc->Mesh = Default::Primitives::Sphere;
-		mmmc->Material = sharedMat;
+		mmmc->m_mesh = Default::Primitives::Sphere;
+		mmmc->m_material = sharedMat;
 
 		Entity model2 = EntityManager::CreateEntity(archetype);
 		transform.SetPosition(glm::vec3(6.0f, 7.0f, 0.0f));
@@ -115,15 +115,15 @@ int main()
 	transform.SetEulerRotation(glm::radians(glm::vec3(70, 0, 0)));
 	
 	auto dlc = std::make_unique<DirectionalLight>();
-	dlc->diffuseBrightness = 1.0f;
-	dlc->lightSize = 1.0f;
+	dlc->m_diffuseBrightness = 1.0f;
+	dlc->m_lightSize = 1.0f;
 	Entity dle = EntityManager::CreateEntity("Directional Light");
 	EntityManager::SetPrivateComponent(dle, std::move(dlc));
 	EntityManager::SetComponentData(dle, transform);
 
 
 	auto dlc2 = std::make_unique<DirectionalLight>();
-	dlc2->lightSize = 1.0f;
+	dlc2->m_lightSize = 1.0f;
 	Entity dle2 = EntityManager::CreateEntity("Directional Light 2");
 	EntityManager::SetPrivateComponent(dle2, std::move(dlc2));
 	transform.SetEulerRotation(glm::radians(glm::vec3(30, 60, 0)));
@@ -131,8 +131,8 @@ int main()
 
 
 	auto plmmc = std::make_unique<MeshRenderer>();
-	plmmc->Mesh = Default::Primitives::Sphere;
-	plmmc->Material = sharedMat;
+	plmmc->m_mesh = Default::Primitives::Sphere;
+	plmmc->m_material = sharedMat;
 	transform.SetScale(glm::vec3(0.5f));
 
 	auto plc = std::make_unique<PointLight>();
@@ -229,8 +229,8 @@ void InitGround() {
 	
 	mat->Shininess = 32.0f;
 	auto meshMaterial = std::make_unique<MeshRenderer>();
-	meshMaterial->Mesh = Default::Primitives::Quad;
-	meshMaterial->Material = mat;
+	meshMaterial->m_mesh = Default::Primitives::Quad;
+	meshMaterial->m_material = mat;
 	EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(meshMaterial));
 	auto rigidBody = std::make_unique<RigidBody>();
 	rigidBody->SetShapeType(ShapeType::Box);

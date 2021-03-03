@@ -209,7 +209,7 @@ void UniEngine::SerializationManager::Init()
 		{
 			CameraLayerMask* out = static_cast<CameraLayerMask*>(data);
 			std::stringstream stream;
-			EXPORT_PARAM(stream, out->Value);
+			EXPORT_PARAM(stream, out->m_value);
 			return stream.str();
 		},
 		[](const std::string& data, ComponentBase* ptr)
@@ -218,7 +218,7 @@ void UniEngine::SerializationManager::Init()
 			stream << data;
 			CameraLayerMask* out = static_cast<CameraLayerMask*>(ptr);
 			char temp;
-			IMPORT_PARAM(stream, out->Value, temp);
+			IMPORT_PARAM(stream, out->m_value, temp);
 		}
 		}
 	);
@@ -330,8 +330,8 @@ void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& wo
 		out << YAML::BeginMap;
 		out << YAML::Key << "Name" << YAML::Value << type.m_name;
 		std::string value;
-		const auto it = GetInstance()._ComponentDataSerializers.find(type.m_typeId);
-		if (it != GetInstance()._ComponentDataSerializers.end())
+		const auto it = GetInstance().m_componentDataSerializers.find(type.m_typeId);
+		if (it != GetInstance().m_componentDataSerializers.end())
 		{
 			ComponentBase* ptr = EntityManager::GetComponentDataPointer(entity, type.m_typeId);
 			value = it->second.first(ptr);
@@ -378,8 +378,8 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(std::unique
 		auto ptr = ComponentFactory::ProduceComponentData(name, hashCode, size);
 
 		//Deserialize componentData here.
-		const auto it = GetInstance()._ComponentDataSerializers.find(hashCode);
-		if (it != GetInstance()._ComponentDataSerializers.end())
+		const auto it = GetInstance().m_componentDataSerializers.find(hashCode);
+		if (it != GetInstance().m_componentDataSerializers.end())
 		{
 			it->second.second(componentData["Content"].as<std::string>(), ptr.get());
 		}

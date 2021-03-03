@@ -27,7 +27,7 @@ int main()
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
 
-	RenderManager::GetMainCamera()->DrawSkyBox = false;
+	RenderManager::GetMainCamera()->m_drawSkyBox = false;
 	
 	PlanetTerrainSystem* pts = world->CreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
 	pts->Enable();
@@ -81,17 +81,17 @@ int main()
 
 	Transform ltw;
 	auto dlc = std::make_unique<DirectionalLight>();
-	dlc->diffuse = glm::vec3(1.0f);
+	dlc->m_diffuse = glm::vec3(1.0f);
 	Entity dle = EntityManager::CreateEntity("Directional Light");
 	dle.SetName("Directional Light 1");
 	EntityManager::SetPrivateComponent(dle, std::move(dlc));
 	
 	auto plmmc = std::make_unique<MeshRenderer>();
 	auto plmmc2 = std::make_unique<MeshRenderer>();
-	plmmc->Mesh = Default::Primitives::Sphere;
-	plmmc->Material = sharedMat;
-	plmmc2->Mesh = Default::Primitives::Sphere;
-	plmmc2->Material = sharedMat;
+	plmmc->m_mesh = Default::Primitives::Sphere;
+	plmmc->m_material = sharedMat;
+	plmmc2->m_mesh = Default::Primitives::Sphere;
+	plmmc2->m_material = sharedMat;
 	ltw.SetScale(glm::vec3(0.5f));
 
 	auto plc = std::make_unique<PointLight>();

@@ -45,7 +45,7 @@ int main()
 		bloom->Enabled = true;
 	}
 	EntityManager::SetPrivateComponent(RenderManager::GetMainCamera()->GetOwner(), std::move(postProcessing));
-	RenderManager::GetMainCamera()->DrawSkyBox = false;
+	RenderManager::GetMainCamera()->m_drawSkyBox = false;
 #pragma region EngineLoop
 	Application::Run();
 	Application::End();

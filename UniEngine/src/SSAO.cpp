@@ -112,7 +112,7 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 	renderTarget.AttachTexture(_Position.get(), GL_COLOR_ATTACHMENT0);
 	renderTarget.Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	cameraComponent->_DepthStencilBuffer->Bind(0);
+	cameraComponent->m_depthStencilBuffer->Bind(0);
 	_PositionReconstructProgram->SetInt("inputTex", 0);
 	
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -121,10 +121,10 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 	renderTarget.AttachTexture(_OriginalColor.get(), GL_COLOR_ATTACHMENT0);
 	renderTarget.AttachTexture(_SSAOPosition.get(), GL_COLOR_ATTACHMENT1);
 	glDrawBuffers(2, enums);
-	cameraComponent->_ColorTexture->Texture()->Bind(0);
+	cameraComponent->m_colorTexture->Texture()->Bind(0);
 	//_Position->Bind(1);
-	cameraComponent->_GPositionBuffer->Bind(1);
-	cameraComponent->_GNormalBuffer->Bind(2);
+	cameraComponent->m_gPositionBuffer->Bind(1);
+	cameraComponent->m_gNormalBuffer->Bind(2);
 	_GeometryProgram->SetInt("image", 0);
 	_GeometryProgram->SetInt("gPositionShadow", 1);
 	_GeometryProgram->SetInt("gNormalShininess", 2);
@@ -154,7 +154,7 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 
 
 	_CombineProgram->Bind();
-	renderTarget.AttachTexture(cameraComponent->_ColorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+	renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_OriginalColor->Bind(0);
 	_SSAOPosition->Bind(1);
@@ -178,7 +178,7 @@ void UniEngine::SSAO::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 	}
 	if (ImGui::TreeNode("Debug##SSAO"))
 	{
-		ImGui::Image((ImTextureID)cameraComponent->_GPositionBuffer->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)cameraComponent->m_gPositionBuffer->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::Image((ImTextureID)_Position->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::Image((ImTextureID)_OriginalColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::Image((ImTextureID)_SSAOPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));

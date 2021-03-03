@@ -75,7 +75,7 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent
 	renderTarget.AttachTexture(_BrightColor.get(), GL_COLOR_ATTACHMENT1);
 	renderTarget.Bind();
 	glDrawBuffers(2, enums);
-	cameraComponent->_ColorTexture->_Texture->Bind(0);
+	cameraComponent->m_colorTexture->_Texture->Bind(0);
 	_SeparateProgram->SetInt("image", 0);
 	_SeparateProgram->SetFloat("threshold", Threshold);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -99,7 +99,7 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent>& cameraComponent
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	_CombineProgram->Bind();
-	renderTarget.AttachTexture(cameraComponent->_ColorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+	renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	_FlatColor->Bind(0);
 	_BrightColor->Bind(1);

@@ -5,56 +5,47 @@
 #include "UniEngine.h"
 using namespace physx;
 
-PxDefaultAllocator		UniEngine::PhysicsSimulationManager::_Allocator;
-PxDefaultErrorCallback	UniEngine::PhysicsSimulationManager::_ErrorCallback;
-PxFoundation* UniEngine::PhysicsSimulationManager::_PhysicsFoundation = NULL;
-PxPhysics* UniEngine::PhysicsSimulationManager::_Physics = NULL;
-PxDefaultCpuDispatcher* UniEngine::PhysicsSimulationManager::_Dispatcher = NULL;
-PxScene* UniEngine::PhysicsSimulationManager::_PhysicsScene = NULL;
-PxPvd* UniEngine::PhysicsSimulationManager::_PhysVisDebugger = NULL;
-
-PxMaterial* UniEngine::PhysicsSimulationManager::_DefaultMaterial = NULL;
-PxReal UniEngine::PhysicsSimulationManager::stackZ = 10.0f;
-bool UniEngine::PhysicsSimulationManager::Enabled = true;
 void UniEngine::PhysicsSimulationManager::Init()
 {
-	_PhysicsFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, _Allocator, _ErrorCallback);
+	GetInstance().m_physicsFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, GetInstance().m_allocator, GetInstance().m_errorCallback);
 
-	_PhysVisDebugger = PxCreatePvd(*_PhysicsFoundation);
+	GetInstance().m_physVisDebugger = PxCreatePvd(*GetInstance().m_physicsFoundation);
 	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-	_PhysVisDebugger->connect(*transport, PxPvdInstrumentationFlag::eALL);
+	GetInstance().m_physVisDebugger->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
-	_Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *_PhysicsFoundation, PxTolerancesScale(), true, _PhysVisDebugger);
+	GetInstance().m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *GetInstance().m_physicsFoundation, PxTolerancesScale(), true, GetInstance().m_physVisDebugger);
 
-	PxSceneDesc sceneDesc(_Physics->getTolerancesScale());
+	PxSceneDesc sceneDesc(GetInstance().m_physics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	_Dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
-	sceneDesc.cpuDispatcher = _Dispatcher;
+	GetInstance().m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
+	sceneDesc.cpuDispatcher = GetInstance().m_dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	_PhysicsScene = _Physics->createScene(sceneDesc);
+	GetInstance().m_physicsScene = GetInstance().m_physics->createScene(sceneDesc);
 
-	PxPvdSceneClient* pvdClient = _PhysicsScene->getScenePvdClient();
+	PxPvdSceneClient* pvdClient = GetInstance().m_physicsScene->getScenePvdClient();
 	if (pvdClient)
 	{
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
-	_DefaultMaterial = _Physics->createMaterial(0.5f, 0.5f, 0.6f);
+	GetInstance().m_defaultMaterial = GetInstance().m_physics->createMaterial(0.5f, 0.5f, 0.6f);
+	GetInstance().m_enabled = true;
 }
 
 void UniEngine::PhysicsSimulationManager::Destroy()
 {
-	PX_RELEASE(_PhysicsScene);
-	PX_RELEASE(_Dispatcher);
-	PX_RELEASE(_Physics);
-	if (_PhysVisDebugger)
+	PX_RELEASE(GetInstance().m_physicsScene);
+	PX_RELEASE(GetInstance().m_dispatcher);
+	PX_RELEASE(GetInstance().m_physics);
+	if (GetInstance().m_physVisDebugger)
 	{
-		PxPvdTransport* transport = _PhysVisDebugger->getTransport();
-		_PhysVisDebugger->release();	_PhysVisDebugger = NULL;
+		PxPvdTransport* transport = GetInstance().m_physVisDebugger->getTransport();
+		GetInstance().m_physVisDebugger->release();
+		GetInstance().m_physVisDebugger = nullptr;
 		PX_RELEASE(transport);
 	}
-	PX_RELEASE(_PhysicsFoundation);
+	PX_RELEASE(GetInstance().m_physicsFoundation);
 }
 
 void UniEngine::PhysicsSimulationManager::UploadTransforms()
@@ -143,6 +134,6 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 	}
 #pragma endregion
 
-	_PhysicsScene->simulate(time);
-	_PhysicsScene->fetchResults(true);
+	GetInstance().m_physicsScene->simulate(time);
+	GetInstance().m_physicsScene->fetchResults(true);
 }

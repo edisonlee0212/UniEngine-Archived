@@ -165,7 +165,7 @@ void World::PreUpdate()
 		for (auto i : m_simulationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
-		if (PhysicsSimulationManager::Enabled) PhysicsSimulationManager::Simulate(m_time->_FixedDeltaTime);
+		if (PhysicsSimulationManager::GetInstance().m_enabled) PhysicsSimulationManager::Simulate(m_time->_FixedDeltaTime);
 		for (auto i : m_presentationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}

@@ -20,62 +20,62 @@
 
 namespace UniEngine {
 	struct UNIENGINE_API LightSettingsBlock {
-		float SplitDistance[4];
-		int PCSSPCFSampleAmount = 16;
-		float PCSSScaleFactor = 1.0f;
-		int PCSSBSAmount = 2;
-		float SeamFixRatio = 0.05f;
-		float VSMMaxVariance = 0.001f;
-		float LightBleedFactor = 0.5f;
-		float EVSMExponent = 40.0f;
-		float AmbientLight = 0.3f;
+		float m_splitDistance[4];
+		int m_pcfSampleAmount = 16;
+		float m_scaleFactor = 1.0f;
+		int m_blockerSearchAmount = 2;
+		float m_seamFixRatio = 0.05f;
+		float m_vsmMaxVariance = 0.001f;
+		float m_lightBleedFactor = 0.5f;
+		float m_evsmExponent = 40.0f;
+		float m_ambientLight = 0.3f;
 	};
 
 	struct MaterialSettingsBlock
 	{
-		GLuint64 spotShadowMap = 0;
-		GLuint64 directionalShadowMap = 0;
-		GLuint64 pointShadowMap = 0;
+		GLuint64 m_spotShadowMap = 0;
+		GLuint64 m_directionalShadowMap = 0;
+		GLuint64 m_pointShadowMap = 0;
 		
-		GLuint64 albedoMap = 0;
-		GLuint64 normalMap = 0;
-		GLuint64 metallicMap = 0;
-		GLuint64 roughnessMap = 0;
-		GLuint64 aoMap = 0;
+		GLuint64 m_albedoMap = 0;
+		GLuint64 m_normalMap = 0;
+		GLuint64 m_metallicMap = 0;
+		GLuint64 m_roughnessMap = 0;
+		GLuint64 m_aoMap = 0;
 		
-		GLuint64 ambient = 0;
-		GLuint64 diffuse = 0;
-		GLuint64 specular = 0;
-		GLuint64 emissive = 0;
-		GLuint64 displacement = 0;
+		GLuint64 m_ambient = 0;
+		GLuint64 m_diffuse = 0;
+		GLuint64 m_specular = 0;
+		GLuint64 m_emissive = 0;
+		GLuint64 m_displacement = 0;
 
 		
-		int albedoEnabled = 0;
-		int normalEnabled = 0;
-		int metallicEnabled = 0;
-		int roughnessEnabled = 0;
-		int aoEnabled = 0;
+		int m_albedoEnabled = 0;
+		int m_normalEnabled = 0;
+		int m_metallicEnabled = 0;
+		int m_roughnessEnabled = 0;
+		int m_aoEnabled = 0;
 
-		int ambientEnabled = 0;
-		int diffuseEnabled = 0;
-		int specularEnabled = 0;
-		int emissiveEnabled = 0;
-		int displacementEnabled = 0;
+		int m_ambientEnabled = 0;
+		int m_diffuseEnabled = 0;
+		int m_specularEnabled = 0;
+		int m_emissiveEnabled = 0;
+		int m_displacementEnabled = 0;
 
-		glm::vec4 albedoColorVal = glm::vec4(1.0f);
-		float shininessVal = 32.0f;
-		float metallicVal = 0.5f;
-		float roughnessVal = 0.5f;
-		float aoVal = 1.0f;
-		float dispScale = 0.0f;
+		glm::vec4 m_albedoColorVal = glm::vec4(1.0f);
+		float m_shininessVal = 32.0f;
+		float m_metallicVal = 0.5f;
+		float m_roughnessVal = 0.5f;
+		float m_aoVal = 1.0f;
+		float m_displacementScale = 0.0f;
 		
-		int receiveShadow = true;
-		int enableShadow = true;
-		int alphaDiscardEnabled = true;
-		float alphaDiscardOffset = 0.1f;
+		int m_receiveShadow = true;
+		int m_enableShadow = true;
+		int m_alphaDiscardEnabled = true;
+		float m_alphaDiscardOffset = 0.1f;
 
-		GLuint64 environmentalMap = 0;
-		int environmentalMapEnabled = 0;
+		GLuint64 m_environmentalMap = 0;
+		int m_environmentalMapEnabled = 0;
 	};
 	
 	class UNIENGINE_API RenderManager : public Singleton<RenderManager>
@@ -83,53 +83,53 @@ namespace UniEngine {
 		static CameraComponent* _MainCameraComponent;
 #pragma region Global Var
 #pragma region GUI
-		static bool _EnableLightMenu;
-		static bool _EnableRenderMenu;
-		static bool _EnableInfoWindow;
+		static bool m_enableLightMenu;
+		static bool m_enableRenderMenu;
+		static bool m_enableInfoWindow;
 #pragma endregion
 #pragma region Render
-		static std::unique_ptr<GLUBO> _KernelBlock;
-		static std::unique_ptr<GLProgram> _GBufferInstancedPrepass;
-		static std::unique_ptr<GLProgram> _GBufferPrepass;
-		static std::unique_ptr<GLProgram> _GBufferLightingPass;
+		static std::unique_ptr<GLUBO> m_kernelBlock;
+		static std::unique_ptr<GLProgram> m_gBufferInstancedPrepass;
+		static std::unique_ptr<GLProgram> m_gBufferPrepass;
+		static std::unique_ptr<GLProgram> m_gBufferLightingPass;
 
-		static int _MainCameraResolutionX;
-		static int _MainCameraResolutionY;
+		static int m_mainCameraResolutionX;
+		static int m_mainCameraResolutionY;
 		friend class RenderTarget;
-		static size_t _Triangles;
-		static size_t _DrawCall;
+		static size_t m_triangles;
+		static size_t m_drawCall;
 		
-		static std::unique_ptr<GLUBO> _MaterialSettingsBuffer;
+		static std::unique_ptr<GLUBO> m_materialSettingsBuffer;
 #pragma endregion
 #pragma region Shadow
-		static GLUBO* _DirectionalLightBlock;
-		static GLUBO* _PointLightBlock;
-		static GLUBO* _SpotLightBlock;
+		static GLUBO* m_directionalLightBlock;
+		static GLUBO* m_pointLightBlock;
+		static GLUBO* m_spotLightBlock;
 
-		static float _ShadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
-		static size_t _ShadowMapResolution;
-		static GLUBO* _ShadowCascadeInfoBlock;
+		static float m_shadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount];
+		static size_t m_shadowMapResolution;
+		static GLUBO* m_shadowCascadeInfoBlock;
 		
 
-		static DirectionalLightInfo _DirectionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
-		static PointLightInfo _PointLights[Default::ShaderIncludes::MaxPointLightAmount];
-		static SpotLightInfo _SpotLights[Default::ShaderIncludes::MaxSpotLightAmount];
+		static DirectionalLightInfo m_directionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
+		static PointLightInfo m_pointLights[Default::ShaderIncludes::MaxPointLightAmount];
+		static SpotLightInfo m_spotLights[Default::ShaderIncludes::MaxSpotLightAmount];
 
-		static std::unique_ptr<GLProgram> _DirectionalLightProgram;
-		static std::unique_ptr<GLProgram> _DirectionalLightInstancedProgram;
-		static std::unique_ptr<GLProgram> _PointLightProgram;
-		static std::unique_ptr<GLProgram> _PointLightInstancedProgram;
-		static std::unique_ptr<GLProgram> _SpotLightProgram;
-		static std::unique_ptr<GLProgram> _SpotLightInstancedProgram;
+		static std::unique_ptr<GLProgram> m_directionalLightProgram;
+		static std::unique_ptr<GLProgram> m_directionalLightInstancedProgram;
+		static std::unique_ptr<GLProgram> m_pointLightProgram;
+		static std::unique_ptr<GLProgram> m_pointLightInstancedProgram;
+		static std::unique_ptr<GLProgram> m_spotLightProgram;
+		static std::unique_ptr<GLProgram> m_spotLightInstancedProgram;
 
 		
 		friend class EditorManager;
-		static std::unique_ptr<DirectionalLightShadowMap> _DirectionalLightShadowMap;
-		static std::unique_ptr<PointLightShadowMap> _PointLightShadowMap;
-		static std::unique_ptr<SpotLightShadowMap> _SpotLightShadowMap;
+		static std::unique_ptr<DirectionalLightShadowMap> m_directionalLightShadowMap;
+		static std::unique_ptr<PointLightShadowMap> m_pointLightShadowMap;
+		static std::unique_ptr<SpotLightShadowMap> m_spotLightShadowMap;
 		
 		
-		static float _MaxShadowDistance;
+		static float m_maxShadowDistance;
 #pragma endregion
 #pragma endregion
 		
@@ -143,11 +143,11 @@ namespace UniEngine {
 		static void DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix);
 		static float Lerp(float a, float b, float f);
 	public:
-		static bool StableFit;
+		static bool m_stableFit;
 		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
 		static void ApplyMaterialSettings(Material* material, GLProgram* program);
-		static LightSettingsBlock LightSettings;
-		static MaterialSettingsBlock MaterialSettings;
+		static LightSettingsBlock m_lightSettings;
+		static MaterialSettingsBlock m_materialSettings;
 		static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void RenderBackGround(const std::unique_ptr<CameraComponent>& cameraComponent);
 		static void RenderToCameraForward(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
@@ -157,14 +157,14 @@ namespace UniEngine {
 #pragma region Shadow
 		static void SetSplitRatio(float r1, float r2, float r3, float r4);
 		static void SetShadowMapResolution(size_t value);
-		static void SetPCSSPCFSampleAmount(int value);
-		static void SetPCSSBSAmount(int value);
+		static void SetPcfSampleAmount(int value);
+		static void SetBlockerSearchAmount(int value);
 		static void SetSeamFixRatio(float value);
 		static void SetMaxShadowDistance(float value);
-		static void SetPCSSScaleFactor(float value);
-		static void SetVSMMaxVariance(float value);
+		static void SetScaleFactor(float value);
+		static void SetVsmMaxVariance(float value);
 		static void SetLightBleedControlFactor(float value);
-		static void SetEVSMExponent(float value);
+		static void SetEvsmExponent(float value);
 		static void SetAmbientLight(float value);
 		static void SetEnableShadow(bool value);
 		static glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b);
