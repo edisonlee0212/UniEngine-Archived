@@ -4,16 +4,16 @@
 #include "UniEngineAPI.h"
 namespace UniEngine {
 	struct UNIENGINE_API GlobalTransform : ComponentBase {
-		glm::mat4 Value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f)))* glm::scale(glm::vec3(1.0f));;
+		glm::mat4 m_value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f)))* glm::scale(glm::vec3(1.0f));;
 		bool operator ==(const GlobalTransform& other) const {
-			return other.Value == Value;
+			return other.m_value == m_value;
 		}
 #pragma region Get & set
 		bool Decompose(glm::vec3& translation, glm::vec3& eulerAngles, glm::vec3& scale) const
 		{
 			using namespace glm;
 			using T = float;
-			mat4 LocalMatrix(Value);
+			mat4 LocalMatrix(m_value);
 
 			// Normalize the matrix.
 			if (epsilonEqual(LocalMatrix[3][3], static_cast<T>(0), epsilon<T>()))
@@ -112,7 +112,7 @@ namespace UniEngine {
 		{
 			using namespace glm;
 			using T = float;
-			mat4 LocalMatrix(Value);
+			mat4 LocalMatrix(m_value);
 
 			// Normalize the matrix.
 			if (epsilonEqual(LocalMatrix[3][3], static_cast<T>(0), epsilon<T>()))
@@ -228,7 +228,7 @@ namespace UniEngine {
 		}
 		glm::vec3 GetPosition() const
 		{
-			return Value[3];
+			return m_value[3];
 		}
 		glm::vec3 GetScale() const
 		{
@@ -256,9 +256,9 @@ namespace UniEngine {
 		}
 		void SetPosition(const glm::vec3& value)
 		{
-			Value[3].x = value.x;
-			Value[3].y = value.y;
-			Value[3].z = value.z;
+			m_value[3].x = value.x;
+			m_value[3].y = value.y;
+			m_value[3].z = value.z;
 		}
 		void SetScale(const glm::vec3& value)
 		{
@@ -266,7 +266,7 @@ namespace UniEngine {
 			glm::vec3 trans;
 			glm::quat rotation;
 			Decompose(trans, rotation, scale);
-			Value = glm::translate(trans) * glm::mat4_cast(rotation) * glm::scale(value);
+			m_value = glm::translate(trans) * glm::mat4_cast(rotation) * glm::scale(value);
 		}
 		void SetRotation(const glm::quat& value)
 		{
@@ -274,7 +274,7 @@ namespace UniEngine {
 			glm::vec3 trans;
 			glm::quat rotation;
 			Decompose(trans, rotation, scale);
-			Value = glm::translate(trans) * glm::mat4_cast(value) * glm::scale(scale);
+			m_value = glm::translate(trans) * glm::mat4_cast(value) * glm::scale(scale);
 		}
 		void SetEulerRotation(const glm::vec3& value)
 		{
@@ -282,29 +282,29 @@ namespace UniEngine {
 			glm::vec3 trans;
 			glm::quat rotation;
 			Decompose(trans, rotation, scale);
-			Value = glm::translate(trans) * glm::mat4_cast(glm::quat(value)) * glm::scale(scale);
+			m_value = glm::translate(trans) * glm::mat4_cast(glm::quat(value)) * glm::scale(scale);
 		}
 		void SetValue(const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec3& scale)
 		{
-			Value = glm::translate(position) * glm::mat4_cast(glm::quat(eulerRotation)) * glm::scale(scale);
+			m_value = glm::translate(position) * glm::mat4_cast(glm::quat(eulerRotation)) * glm::scale(scale);
 		}
 		void SetValue(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale)
 		{
-			Value = glm::translate(position) * glm::mat4_cast(rotation) * glm::scale(scale);
+			m_value = glm::translate(position) * glm::mat4_cast(rotation) * glm::scale(scale);
 		}
 #pragma endregion
 	};
 	struct UNIENGINE_API Transform : ComponentBase {
-		glm::mat4 Value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));;
+		glm::mat4 m_value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));;
 		bool operator ==(const Transform& other) const {
-			return other.Value == Value;
+			return other.m_value == m_value;
 		}
 #pragma region Get & set
 		bool Decompose(glm::vec3& translation, glm::vec3& eulerAngles, glm::vec3& scale) const
 		{
 			using namespace glm;
 			using T = float;
-			mat4 LocalMatrix(Value);
+			mat4 LocalMatrix(m_value);
 
 			// Normalize the matrix.
 			if (epsilonEqual(LocalMatrix[3][3], static_cast<T>(0), epsilon<T>()))
@@ -403,7 +403,7 @@ namespace UniEngine {
 		{
 			using namespace glm;
 			using T = float;
-			mat4 LocalMatrix(Value);
+			mat4 LocalMatrix(m_value);
 
 			// Normalize the matrix.
 			if (epsilonEqual(LocalMatrix[3][3], static_cast<T>(0), epsilon<T>()))
@@ -519,7 +519,7 @@ namespace UniEngine {
 		}
 		glm::vec3 GetPosition() const
 		{
-			return Value[3];
+			return m_value[3];
 		}
 		glm::vec3 GetScale() const
 		{
@@ -547,9 +547,9 @@ namespace UniEngine {
 		}
 		void SetPosition(const glm::vec3& value)
 		{
-			Value[3].x = value.x;
-			Value[3].y = value.y;
-			Value[3].z = value.z;
+			m_value[3].x = value.x;
+			m_value[3].y = value.y;
+			m_value[3].z = value.z;
 		}
 		void SetScale(const glm::vec3& value)
 		{
@@ -557,7 +557,7 @@ namespace UniEngine {
 			glm::vec3 trans;
 			glm::quat rotation;
 			Decompose(trans, rotation, scale);
-			Value = glm::translate(trans) * glm::mat4_cast(rotation) * glm::scale(value);
+			m_value = glm::translate(trans) * glm::mat4_cast(rotation) * glm::scale(value);
 		}
 		void SetRotation(const glm::quat& value)
 		{
@@ -565,7 +565,7 @@ namespace UniEngine {
 			glm::vec3 trans;
 			glm::quat rotation;
 			Decompose(trans, rotation, scale);
-			Value = glm::translate(trans) * glm::mat4_cast(value) * glm::scale(scale);
+			m_value = glm::translate(trans) * glm::mat4_cast(value) * glm::scale(scale);
 		}
 		void SetEulerRotation(const glm::vec3& value)
 		{
@@ -573,15 +573,15 @@ namespace UniEngine {
 			glm::vec3 trans;
 			glm::quat rotation;
 			Decompose(trans, rotation, scale);
-			Value = glm::translate(trans) * glm::mat4_cast(glm::quat(value)) * glm::scale(scale);
+			m_value = glm::translate(trans) * glm::mat4_cast(glm::quat(value)) * glm::scale(scale);
 		}
 		void SetValue(const glm::vec3& position, const glm::vec3& eulerRotation, const glm::vec3& scale)
 		{
-			Value = glm::translate(position) * glm::mat4_cast(glm::quat(eulerRotation)) * glm::scale(scale);
+			m_value = glm::translate(position) * glm::mat4_cast(glm::quat(eulerRotation)) * glm::scale(scale);
 		}
 		void SetValue(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale)
 		{
-			Value = glm::translate(position) * glm::mat4_cast(rotation) * glm::scale(scale);
+			m_value = glm::translate(position) * glm::mat4_cast(rotation) * glm::scale(scale);
 		}
 #pragma endregion
 	};

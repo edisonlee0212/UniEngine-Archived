@@ -136,11 +136,11 @@ int main()
 	transform.SetScale(glm::vec3(0.5f));
 
 	auto plc = std::make_unique<PointLight>();
-	plc->constant = 1.0f;
-	plc->linear = 0.09f;
-	plc->quadratic = 0.032f;
-	plc->farPlane = 200.0f;
-	plc->diffuse = glm::vec3(3.0f);
+	plc->m_constant = 1.0f;
+	plc->m_linear = 0.09f;
+	plc->m_quadratic = 0.032f;
+	plc->m_farPlane = 200.0f;
+	plc->m_diffuse = glm::vec3(3.0f);
 	Entity ple = EntityManager::CreateEntity("Point Light");
 	transform.SetPosition(glm::vec3(0, 20, 0));
 	EntityManager::SetPrivateComponent(ple, std::move(plc));
@@ -227,7 +227,7 @@ void InitGround() {
 	mat->SetTexture(textureH, TextureType::DISPLACEMENT);
 	*/
 	
-	mat->Shininess = 32.0f;
+	mat->m_shininess = 32.0f;
 	auto meshMaterial = std::make_unique<MeshRenderer>();
 	meshMaterial->m_mesh = Default::Primitives::Quad;
 	meshMaterial->m_material = mat;

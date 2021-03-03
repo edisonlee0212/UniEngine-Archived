@@ -6,8 +6,8 @@ void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
 {
 	if (!layer) return;
 	layer->Init();
-	layer->ResizeResolution(_ResolutionX, _ResolutionY);
-	_Layers[layer->_Name] = std::move(layer);
+	layer->ResizeResolution(m_resolutionX, m_resolutionY);
+	_Layers[layer->m_name] = std::move(layer);
 }
 
 void PostProcessing::RemoveLayer(const std::string& layerName)
@@ -17,7 +17,7 @@ void PostProcessing::RemoveLayer(const std::string& layerName)
 
 void PostProcessing::SetEnableLayer(const std::string& layerName, bool enabled)
 {
-	if (_Layers[layerName]) _Layers[layerName]->Enabled = enabled;
+	if (_Layers[layerName]) _Layers[layerName]->m_enabled = enabled;
 }
 
 PostProcessing::PostProcessing()
@@ -29,16 +29,16 @@ PostProcessing::PostProcessing()
 void PostProcessing::Process()
 {
 	auto& cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
-	if(_Layers["SSAO"] && _Layers["SSAO"]->Enabled)
+	if(_Layers["SSAO"] && _Layers["SSAO"]->m_enabled)
 	{
 		_Layers["SSAO"]->Process(cameraComponent, *this);
 	}
-	if (_Layers["Bloom"] && _Layers["Bloom"]->Enabled)
+	if (_Layers["Bloom"] && _Layers["Bloom"]->m_enabled)
 	{
 		_Layers["Bloom"]->Process(cameraComponent, *this);
 	}
 
-	if (_Layers["GreyScale"] && _Layers["GreyScale"]->Enabled)
+	if (_Layers["GreyScale"] && _Layers["GreyScale"]->m_enabled)
 	{
 		_Layers["GreyScale"]->Process(cameraComponent, *this);
 	}
@@ -46,9 +46,9 @@ void PostProcessing::Process()
 
 void PostProcessing::ResizeResolution(int x, int y)
 {
-	if(_ResolutionX == x && _ResolutionY == y) return;
-	_ResolutionX = x;
-	_ResolutionY = y;
+	if(m_resolutionX == x && m_resolutionY == y) return;
+	m_resolutionX = x;
+	m_resolutionY = y;
 	for (auto& layer : _Layers)
 	{
 		if (layer.second) layer.second->ResizeResolution(x, y);
@@ -61,8 +61,8 @@ void PostProcessing::OnGui()
 	for (auto& layer : _Layers)
 	{
 		if (layer.second) {
-			ImGui::Checkbox(layer.second->_Name.c_str(), &layer.second->Enabled);
-			if(layer.second->Enabled) layer.second->OnGui(cameraComponent);
+			ImGui::Checkbox(layer.second->m_name.c_str(), &layer.second->m_enabled);
+			if(layer.second->m_enabled) layer.second->OnGui(cameraComponent);
 		}
 	}
 }

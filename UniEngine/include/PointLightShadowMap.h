@@ -8,7 +8,7 @@ namespace UniEngine {
 	class UNIENGINE_API PointLightShadowMap :
 		public RenderTarget
 	{
-		std::unique_ptr<GLTexture2DArray> _DepthMapArray;
+		std::unique_ptr<GLTexture2DArray> m_depthMapArray;
 		void Allocate();
 	public:
 		PointLightShadowMap(size_t resolution);

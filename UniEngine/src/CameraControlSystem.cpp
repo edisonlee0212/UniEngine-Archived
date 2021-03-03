@@ -22,27 +22,27 @@ void CameraControlSystem::LateUpdate()
 				glm::vec3 right = rotation * glm::vec3(1, 0, 0);
 				bool moved = false;
 				if (InputManager::GetKey(GLFW_KEY_W)) {
-					position += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+					position += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * m_velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_S)) {
-					position -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+					position -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * m_velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_A)) {
-					position -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+					position -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * m_velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_D)) {
-					position += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * _Velocity;
+					position += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * m_velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT)) {
-					position.y += _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
+					position.y += m_velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL)) {
-					position.y -= _Velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
+					position.y -= m_velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
 					moved = true;
 				}
 				if (moved)
@@ -54,28 +54,28 @@ void CameraControlSystem::LateUpdate()
 				float xOffset = 0;
 				float yOffset = 0;
 				if (valid) {
-					if (!_StartMouse) {
-						_LastX = mousePosition.x;
-						_LastY = mousePosition.y;
-						_StartMouse = true;
+					if (!m_startMouse) {
+						m_lastX = mousePosition.x;
+						m_lastY = mousePosition.y;
+						m_startMouse = true;
 					}
-					xOffset = mousePosition.x - _LastX;
-					yOffset = -mousePosition.y + _LastY;
-					_LastX = mousePosition.x;
-					_LastY = mousePosition.y;
+					xOffset = mousePosition.x - m_lastX;
+					yOffset = -mousePosition.y + m_lastY;
+					m_lastX = mousePosition.x;
+					m_lastY = mousePosition.y;
 				}
 				if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
 					if (xOffset != 0 || yOffset != 0) {
 						moved = true;
-						_SceneCameraYawAngle += xOffset * _Sensitivity;
-						_SceneCameraPitchAngle += yOffset * _Sensitivity;
+						m_sceneCameraYawAngle += xOffset * m_sensitivity;
+						m_sceneCameraPitchAngle += yOffset * m_sensitivity;
 
-						if (_SceneCameraPitchAngle > 89.0f)
-							_SceneCameraPitchAngle = 89.0f;
-						if (_SceneCameraPitchAngle < -89.0f)
-							_SceneCameraPitchAngle = -89.0f;
+						if (m_sceneCameraPitchAngle > 89.0f)
+							m_sceneCameraPitchAngle = 89.0f;
+						if (m_sceneCameraPitchAngle < -89.0f)
+							m_sceneCameraPitchAngle = -89.0f;
 
-						transform.SetRotation(CameraComponent::ProcessMouseMovement(_SceneCameraYawAngle, _SceneCameraPitchAngle, false));
+						transform.SetRotation(CameraComponent::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
 					}
 				}
 				if (moved)
@@ -95,10 +95,10 @@ void CameraControlSystem::LateUpdate()
 
 void CameraControlSystem::SetVelocity(float velocity)
 {
-	_Velocity = velocity;
+	m_velocity = velocity;
 }
 
 void CameraControlSystem::SetSensitivity(float sensitivity)
 {
-	_Sensitivity = sensitivity;
+	m_sensitivity = sensitivity;
 }

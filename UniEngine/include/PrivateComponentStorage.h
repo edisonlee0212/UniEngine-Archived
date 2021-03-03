@@ -4,17 +4,17 @@
 namespace UniEngine
 {
 	struct POwnersCollection {
-		std::unordered_map<Entity, size_t, Entity> _OwnersMap;
-		std::vector<Entity> _OwnersList;
+		std::unordered_map<Entity, size_t, Entity> m_ownersMap;
+		std::vector<Entity> m_ownersList;
 		POwnersCollection() {
-			_OwnersList = std::vector<Entity>();
-			_OwnersMap = std::unordered_map<Entity, size_t, Entity>();
+			m_ownersList = std::vector<Entity>();
+			m_ownersMap = std::unordered_map<Entity, size_t, Entity>();
 		}
 	};
 	class PrivateComponentStorage
 	{
-		std::unordered_map<std::size_t, size_t> _POwnersCollectionsMap;
-		std::vector<std::pair<size_t, std::unique_ptr<POwnersCollection>>> _POwnersCollectionsList;
+		std::unordered_map<std::size_t, size_t> m_pOwnersCollectionsMap;
+		std::vector<std::pair<size_t, std::unique_ptr<POwnersCollection>>> m_pOwnersCollectionsList;
 	public:
 		void RemovePrivateComponent(Entity entity, size_t typeID);
 		void DeleteEntity(Entity entity);
@@ -31,21 +31,21 @@ namespace UniEngine
 	void PrivateComponentStorage::SetPrivateComponent(Entity entity)
 	{
 		size_t id = typeid(T).hash_code();
-		auto search = _POwnersCollectionsMap.find(id);
-		if (search != _POwnersCollectionsMap.end())
+		auto search = m_pOwnersCollectionsMap.find(id);
+		if (search != m_pOwnersCollectionsMap.end())
 		{
-			auto insearch = _POwnersCollectionsList[search->second].second->_OwnersMap.find(entity);
-			if (insearch == _POwnersCollectionsList[search->second].second->_OwnersMap.end()) {
-				_POwnersCollectionsList[search->second].second->_OwnersMap.insert({ entity, _POwnersCollectionsList[search->second].second->_OwnersList.size() });
-				_POwnersCollectionsList[search->second].second->_OwnersList.push_back(entity);
+			const auto insearch = m_pOwnersCollectionsList[search->second].second->m_ownersMap.find(entity);
+			if (insearch == m_pOwnersCollectionsList[search->second].second->m_ownersMap.end()) {
+				m_pOwnersCollectionsList[search->second].second->m_ownersMap.insert({ entity, m_pOwnersCollectionsList[search->second].second->m_ownersList.size() });
+				m_pOwnersCollectionsList[search->second].second->m_ownersList.push_back(entity);
 			}
 		}else
 		{
 			std::unique_ptr<POwnersCollection> collection = std::make_unique<POwnersCollection>();
-			collection->_OwnersMap.insert({ entity, 0 });
-			collection->_OwnersList.push_back(entity);
-			_POwnersCollectionsMap.insert({ id, _POwnersCollectionsList.size() });
-			_POwnersCollectionsList.push_back(std::make_pair(id, std::move(collection)));
+			collection->m_ownersMap.insert({ entity, 0 });
+			collection->m_ownersList.push_back(entity);
+			m_pOwnersCollectionsMap.insert({ id, m_pOwnersCollectionsList.size() });
+			m_pOwnersCollectionsList.push_back(std::make_pair(id, std::move(collection)));
 		}
 	}
 
@@ -58,10 +58,10 @@ namespace UniEngine
 	template <typename T>
 	const std::vector<Entity>* PrivateComponentStorage::GetOwnersList()
 	{
-		auto search = _POwnersCollectionsMap.find(typeid(T).hash_code());
-		if(search != _POwnersCollectionsMap.end())
+		auto search = m_pOwnersCollectionsMap.find(typeid(T).hash_code());
+		if(search != m_pOwnersCollectionsMap.end())
 		{
-			return &_POwnersCollectionsList[search->second].second->_OwnersList;
+			return &m_pOwnersCollectionsList[search->second].second->m_ownersList;
 		}
 		return nullptr;
 	}

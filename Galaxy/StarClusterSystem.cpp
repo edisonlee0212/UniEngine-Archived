@@ -10,12 +10,12 @@ void Galaxy::StarClusterSystem::OnCreate()
 	GlobalTransform ltw;
 	ltw.SetScale(glm::vec3(1.0f));
 	auto imr = std::make_unique<Particles>();
-	imr->Material = std::make_shared<Material>();
-	imr->CastShadow = false;
-	imr->ReceiveShadow = false;
-	imr->Mesh = Default::Primitives::Cube;
-	imr->Material->SetProgram(Default::GLPrograms::StandardInstancedProgram);
-	imr->Material->SetTexture(Default::Textures::StandardTexture);
+	imr->m_material = std::make_shared<Material>();
+	imr->m_castShadow = false;
+	imr->m_receiveShadow = false;
+	imr->m_mesh = Default::Primitives::Cube;
+	imr->m_material->SetProgram(Default::GLPrograms::StandardInstancedProgram);
+	imr->m_material->SetTexture(Default::Textures::StandardTexture);
 	_StarCluster.SetPrivateComponent(std::move(imr));
 	_StarCluster.SetComponentData(ltw);
 
@@ -89,11 +89,11 @@ void Galaxy::StarClusterSystem::OnCreate()
 void Galaxy::StarClusterSystem::Update()
 {
 	ImGui::Begin("Galaxy Control Panel");
-	ImGui::SliderFloat("Speed", &_Speed, 1.0f, 3000.0f);
-	ImGui::SliderFloat("Star Size", &_Size, 0.1f, 2.0f);
-	ImGui::SliderFloat("Apply", &_ApplyPositionTimer, 1.0f, 3000.0f);
-	ImGui::SliderFloat("Copy", &_CopyPositionTimer, 0.1f, 2.0f);
-	ImGui::SliderFloat("Calc", &_CalcPositionResult, 1.0f, 3000.0f);
+	ImGui::DragFloat("Speed", &_Speed, 1.0f, 0.1f, 30000.0f);
+	ImGui::DragFloat("Star Size", &_Size, 0.1f, 0.1f, 10.0f);
+	ImGui::InputFloat("Apply", &_ApplyPositionTimer);
+	ImGui::InputFloat("Copy", &_CopyPositionTimer);
+	ImGui::InputFloat("Calc", &_CalcPositionResult);
 	ImGui::End();
 	_GalaxyTime += m_world->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
@@ -108,20 +108,20 @@ void Galaxy::StarClusterSystem::Update()
 			[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
 			{
 				//Code here will be exec in parallel
-				globalTransform.Value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
-				transform.Value = globalTransform.Value;
+				globalTransform.m_value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
+				transform.m_value = globalTransform.m_value;
 			}, false
 		);
 		_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
 
 		_CopyPositionTimer = Application::EngineTime();
 		auto& imr = _StarCluster.GetPrivateComponent<Particles>();
-		imr->Matrices.resize(_StarQuery.GetEntityAmount());
+		imr->m_matrices.resize(_StarQuery.GetEntityAmount());
 		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
 			JobManager::PrimaryWorkers(), _StarQuery,
 			[&](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
 			{
-				imr->Matrices[i] = globalTransform.Value;
+				imr->m_matrices[i] = globalTransform.m_value;
 			}, false
 			);
 		_CopyPositionTimer = Application::EngineTime() - _CopyPositionTimer;

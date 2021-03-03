@@ -13,21 +13,21 @@
 
 using namespace UniEngine;
 
-bool Application::_Initialized = false;
-bool Application::_InnerLooping = false;
-bool Application::_Playing = false;
-float Application::_TimeStep = 0.016f;
+bool Application::m_initialized = false;
+bool Application::m_innerLooping = false;
+bool Application::m_playing = false;
+float Application::m_timeStep = 0.016f;
 
-std::unique_ptr<World> UniEngine::Application::_World;
-std::vector<std::function<void()>> Application::_ExternalPreUpdateFunctions;
-std::vector<std::function<void()>> Application::_ExternalUpdateFunctions;
-std::vector<std::function<void()>> Application::_ExternalLateUpdateFunctions;
+std::unique_ptr<World> UniEngine::Application::m_world;
+std::vector<std::function<void()>> Application::m_externalPreUpdateFunctions;
+std::vector<std::function<void()>> Application::m_externalUpdateFunctions;
+std::vector<std::function<void()>> Application::m_externalLateUpdateFunctions;
 
 #pragma region Utilities
 
 void UniEngine::Application::SetTimeStep(float value) {
-	_TimeStep = value;
-	_World->SetTimeStep(value);
+	m_timeStep = value;
+	m_world->SetTimeStep(value);
 }
 
 #pragma endregion
@@ -41,7 +41,7 @@ void APIENTRY glDebugOutput(GLenum source,
 
 void UniEngine::Application::Init(bool fullScreen)
 {
-	_Initialized = false;
+	m_initialized = false;
 	WindowManager::Init("UniEngine", fullScreen);
 	InputManager::Init();
 	JobManager::PrimaryWorkers().Resize(std::thread::hardware_concurrency() - 2);
@@ -69,9 +69,9 @@ void UniEngine::Application::Init(bool fullScreen)
 	}
 	SerializationManager::Init();
 #pragma endregion
-	_World = std::make_unique<World>(0);
-	EntityManager::Attach(_World);
-	_World->SetTimeStep(_TimeStep);
+	m_world = std::make_unique<World>(0);
+	EntityManager::Attach(m_world);
+	m_world->SetTimeStep(m_timeStep);
 
 	PhysicsSimulationManager::Init();
 #pragma region ImGUI
@@ -91,13 +91,13 @@ void UniEngine::Application::Init(bool fullScreen)
 	ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460 core");
 #pragma endregion
-	Default::Load(_World.get());
+	Default::Load(m_world.get());
 	TransformManager::Init();
 	RenderManager::Init();
 	EditorManager::Init();
 #pragma region Internal Systems
 #pragma endregion
-	_Initialized = true;
+	m_initialized = true;
 #pragma region Main Camera
 	CameraComponent::GenerateMatrices();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("Camera", GlobalTransform(), Transform(), CameraLayerMask());
@@ -113,17 +113,17 @@ void UniEngine::Application::Init(bool fullScreen)
 
 	
 #pragma endregion
-	_World->ResetTime();
+	m_world->ResetTime();
 
 }
 
 void UniEngine::Application::PreUpdateInternal()
 {
-	if (!_Initialized) return;
+	if (!m_initialized) return;
 	glfwPollEvents();
-	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
-	_World->m_time->_DeltaTime = _World->m_time->_LastFrameTime - _World->m_time->_FrameStartTime;
-	_World->SetFrameStartTime(glfwGetTime());
+	m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
+	m_world->m_time->m_deltaTime = m_world->m_time->m_lastFrameTime - m_world->m_time->m_frameStartTime;
+	m_world->SetFrameStartTime(glfwGetTime());
 #pragma region ImGui
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -176,29 +176,29 @@ void UniEngine::Application::PreUpdateInternal()
 	InputManager::PreUpdate();
 	RenderManager::PreUpdate();
 	
-	for (const auto& i : _ExternalPreUpdateFunctions) i();
-	if (_Playing) {
-		_World->m_time->_FixedDeltaTime += _World->m_time->_DeltaTime;
-		_World->PreUpdate();
+	for (const auto& i : m_externalPreUpdateFunctions) i();
+	if (m_playing) {
+		m_world->m_time->m_fixedDeltaTime += m_world->m_time->m_deltaTime;
+		m_world->PreUpdate();
 	}
 }
 
 void UniEngine::Application::UpdateInternal()
 {
-	if (!_Initialized) return;
+	if (!m_initialized) return;
 	
 	EditorManager::Update();
 	InputManager::Update();
 	
-	for (const auto& i : _ExternalUpdateFunctions) i();
-	if (_Playing) {
-		_World->Update();
+	for (const auto& i : m_externalUpdateFunctions) i();
+	if (m_playing) {
+		m_world->Update();
 	}
 }
 
 bool UniEngine::Application::LateUpdateInternal()
 {
-	if (!_Initialized) return false;
+	if (!m_initialized) return false;
 	
 	InputManager::LateUpdate();
 	ResourceManager::LateUpdate();
@@ -206,10 +206,10 @@ bool UniEngine::Application::LateUpdateInternal()
 	RenderManager::LateUpdate();
 	TransformManager::LateUpdate();
 	EditorManager::LateUpdate();
-	for (const auto& i : _ExternalLateUpdateFunctions) i();
+	for (const auto& i : m_externalLateUpdateFunctions) i();
 
-	if (_Playing) {
-		_World->LateUpdate();
+	if (m_playing) {
+		m_world->LateUpdate();
 	}
 #pragma region ImGui
 	RenderTarget::BindDefault();
@@ -229,8 +229,8 @@ bool UniEngine::Application::LateUpdateInternal()
 #pragma endregion
 	//Swap Window's framebuffer
 	WindowManager::Swap();
-	_World->m_time->_LastFrameTime = glfwGetTime();
-	return _Initialized;
+	m_world->m_time->m_lastFrameTime = glfwGetTime();
+	return m_initialized;
 }
 
 double Application::EngineTime()
@@ -240,22 +240,22 @@ double Application::EngineTime()
 
 void Application::SetPlaying(bool value)
 {
-	_Playing = value;
+	m_playing = value;
 }
 
 bool Application::IsPlaying()
 {
-	return _Playing;
+	return m_playing;
 }
 
 bool Application::IsInitialized()
 {
-	return _Initialized;
+	return m_initialized;
 }
 
 void UniEngine::Application::End()
 {
-	_World->Purge();
+	m_world->Purge();
 	PhysicsSimulationManager::Destroy();
 	EditorManager::Destroy();
 	glfwTerminate();
@@ -263,33 +263,33 @@ void UniEngine::Application::End()
 
 void UniEngine::Application::Run()
 {
-	_InnerLooping = true;
-	while (_Initialized) {
+	m_innerLooping = true;
+	while (m_initialized) {
 		PreUpdateInternal();
 		UpdateInternal();
-		_Initialized = LateUpdateInternal();
+		m_initialized = LateUpdateInternal();
 	}
-	_InnerLooping = false;
+	m_innerLooping = false;
 }
 
 std::unique_ptr<World>& UniEngine::Application::GetCurrentWorld()
 {
-	return _World;
+	return m_world;
 }
 
 void Application::RegisterPreUpdateFunction(const std::function<void()>& func)
 {
-	_ExternalPreUpdateFunctions.push_back(func);
+	m_externalPreUpdateFunctions.push_back(func);
 }
 
 void Application::RegisterUpdateFunction(const std::function<void()>& func)
 {
-	_ExternalUpdateFunctions.push_back(func);
+	m_externalUpdateFunctions.push_back(func);
 }
 
 void Application::RegisterLateUpdateFunction(const std::function<void()>& func)
 {
-	_ExternalLateUpdateFunctions.push_back(func);
+	m_externalLateUpdateFunctions.push_back(func);
 }
 
 

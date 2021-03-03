@@ -9,9 +9,9 @@ namespace UniEngine
 	{
 		friend class PostProcessing;
 	protected:
-		std::string _Name = "";
+		std::string m_name = "";
 	public:
-		bool Enabled = false;
+		bool m_enabled = false;
 		virtual void Init() = 0;
 		virtual void ResizeResolution(int x, int y) = 0;
 		virtual void Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const = 0;

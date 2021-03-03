@@ -3,14 +3,14 @@
 
 void UniEngine::SpotLightShadowMap::Allocate()
 {
-	_DepthMap = std::make_unique<GLTexture2D>(1, GL_DEPTH_COMPONENT32, (GLsizei)_ResolutionX, (GLsizei)_ResolutionY);
-	_DepthMap->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_DepthMap->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	_DepthMap->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	_DepthMap->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_DepthMap->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	_DepthMap->MakeResident();
-	AttachTexture(_DepthMap.get(), GL_DEPTH_ATTACHMENT);
+	m_depthMap = std::make_unique<GLTexture2D>(1, GL_DEPTH_COMPONENT32, (GLsizei)m_resolutionX, (GLsizei)m_resolutionY);
+	m_depthMap->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	m_depthMap->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	m_depthMap->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	m_depthMap->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	m_depthMap->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	m_depthMap->MakeResident();
+	AttachTexture(m_depthMap.get(), GL_DEPTH_ATTACHMENT);
 }
 
 UniEngine::SpotLightShadowMap::SpotLightShadowMap(size_t resolution)
@@ -20,13 +20,13 @@ UniEngine::SpotLightShadowMap::SpotLightShadowMap(size_t resolution)
 
 void UniEngine::SpotLightShadowMap::SetResolution(size_t resolution)
 {
-	_ResolutionX = _ResolutionY = resolution;
+	m_resolutionX = m_resolutionY = resolution;
 	Allocate();
 }
 
 std::unique_ptr<UniEngine::GLTexture2D>& UniEngine::SpotLightShadowMap::DepthMap()
 {
-	return _DepthMap;
+	return m_depthMap;
 }
 
 void UniEngine::SpotLightShadowMap::Bind()

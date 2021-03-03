@@ -149,8 +149,8 @@ glm::vec3 UniEngine::CameraComponent::UnProject(GlobalTransform& ltw, glm::vec3 
 
 glm::vec3 UniEngine::CameraComponent::GetMouseWorldPoint(GlobalTransform& ltw, glm::vec2 mousePosition) const
 {
-	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
-	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
+	const float halfX = static_cast<float>(m_resolutionX) / 2.0f;
+	const float halfY = static_cast<float>(m_resolutionY) / 2.0f;
 	const glm::vec4 start = glm::vec4(
 		(mousePosition.x - halfX) / halfX,
 		-1 * (mousePosition.y - halfY) / halfY,
@@ -160,9 +160,9 @@ glm::vec3 UniEngine::CameraComponent::GetMouseWorldPoint(GlobalTransform& ltw, g
 
 void UniEngine::CameraComponent::SetClearColor(glm::vec3 color) const
 {
-	_FrameBuffer->ClearColor(glm::vec4(color.x, color.y, color.z, 0.0f));
-	_FrameBuffer->Clear();
-	_FrameBuffer->ClearColor(glm::vec4(0.0f));
+	m_frameBuffer->ClearColor(glm::vec4(color.x, color.y, color.z, 0.0f));
+	m_frameBuffer->Clear();
+	m_frameBuffer->ClearColor(glm::vec4(0.0f));
 }
 
 UniEngine::Ray UniEngine::CameraComponent::ScreenPointToRay(GlobalTransform& ltw, glm::vec2 mousePosition) const
@@ -174,8 +174,8 @@ UniEngine::Ray UniEngine::CameraComponent::ScreenPointToRay(GlobalTransform& ltw
 	const auto projection = glm::perspective(glm::radians(m_fov * 0.5f), GetResolutionRatio(), m_nearDistance, m_farDistance);
 	const auto view = glm::lookAt(position, position + front, up);
 	const glm::mat4 inv = glm::inverse(projection * view);
-	const float halfX = static_cast<float>(_ResolutionX) / 2.0f;
-	const float halfY = static_cast<float>(_ResolutionY) / 2.0f;
+	const float halfX = static_cast<float>(m_resolutionX) / 2.0f;
+	const float halfY = static_cast<float>(m_resolutionY) / 2.0f;
 	const auto realX = (mousePosition.x + halfX) / halfX;
 	const auto realY = (mousePosition.y - halfY) / halfY;
 	if (glm::abs(realX) > 1.0f || glm::abs(realY) > 1.0f)
@@ -190,7 +190,7 @@ UniEngine::Ray UniEngine::CameraComponent::ScreenPointToRay(GlobalTransform& ltw
 	start /= start.w;
 	end /= end.w;
 	const glm::vec3 dir = glm::normalize(glm::vec3(end - start));
-	return { glm::vec3(ltw.Value[3]) + m_nearDistance * dir, glm::vec3(ltw.Value[3]) + m_farDistance * dir };
+	return { glm::vec3(ltw.m_value[3]) + m_nearDistance * dir, glm::vec3(ltw.m_value[3]) + m_farDistance * dir };
 }
 
 void UniEngine::CameraComponent::GenerateMatrices()
@@ -202,8 +202,8 @@ void UniEngine::CameraComponent::GenerateMatrices()
 
 void UniEngine::CameraComponent::Serialize(YAML::Emitter& out)
 {
-	out << YAML::Key << "_ResolutionX" << YAML::Value << _ResolutionX;
-	out << YAML::Key << "_ResolutionY" << YAML::Value << _ResolutionY;
+	out << YAML::Key << "_ResolutionX" << YAML::Value << m_resolutionX;
+	out << YAML::Key << "_ResolutionY" << YAML::Value << m_resolutionY;
 	out << YAML::Key << "_IsMainCamera" << YAML::Value << m_isMainCamera;
 	out << YAML::Key << "DrawSkyBox" << YAML::Value << m_drawSkyBox;
 	out << YAML::Key << "ClearColor" << YAML::Value << m_clearColor;
@@ -215,8 +215,8 @@ void UniEngine::CameraComponent::Serialize(YAML::Emitter& out)
 
 void UniEngine::CameraComponent::Deserialize(const YAML::Node& in)
 {
-	_ResolutionX = in["_ResolutionX"].as<int>();
-	_ResolutionY = in["_ResolutionY"].as<int>();
+	m_resolutionX = in["_ResolutionX"].as<int>();
+	m_resolutionY = in["_ResolutionY"].as<int>();
 	m_isMainCamera = in["_IsMainCamera"].as<bool>();
 	if (m_isMainCamera) RenderManager::SetMainCamera(this);
 	m_drawSkyBox = in["DrawSkyBox"].as<bool>();
@@ -231,43 +231,43 @@ void UniEngine::CameraComponent::Deserialize(const YAML::Node& in)
 
 void UniEngine::CameraComponent::ResizeResolution(int x, int y)
 {
-	if (_ResolutionX == x && _ResolutionY == y) return;
-	_ResolutionX = x > 0 ? x : 1;
-	_ResolutionY = y > 0 ? y : 1;
-	m_gBuffer->SetResolution(_ResolutionX, _ResolutionY);
-	m_gPositionBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
-	m_gNormalBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
-	m_gColorSpecularBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
-	m_gMetallicRoughnessAo->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
-	m_gDepthBuffer->AllocateStorage(GL_DEPTH32F_STENCIL8, _ResolutionX, _ResolutionY);
+	if (m_resolutionX == x && m_resolutionY == y) return;
+	m_resolutionX = x > 0 ? x : 1;
+	m_resolutionY = y > 0 ? y : 1;
+	m_gBuffer->SetResolution(m_resolutionX, m_resolutionY);
+	m_gPositionBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+	m_gNormalBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+	m_gColorSpecularBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+	m_gMetallicRoughnessAo->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+	m_gDepthBuffer->AllocateStorage(GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY);
 
 	
 
-	m_colorTexture->_Texture->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, _ResolutionX, _ResolutionY);
-	m_depthStencilBuffer->ReSize(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, _ResolutionX, _ResolutionY);
+	m_colorTexture->m_texture->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+	m_depthStencilBuffer->ReSize(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, m_resolutionX, m_resolutionY);
 
 	if(GetOwner().HasPrivateComponent<PostProcessing>())
 	{
-		GetOwner().GetPrivateComponent<PostProcessing>()->ResizeResolution(_ResolutionX, _ResolutionY);
+		GetOwner().GetPrivateComponent<PostProcessing>()->ResizeResolution(m_resolutionX, m_resolutionY);
 	}
 }
 
 UniEngine::CameraComponent::CameraComponent()
 {
-	_ResolutionX = 1;
-	_ResolutionY = 1;
+	m_resolutionX = 1;
+	m_resolutionY = 1;
 	
 	m_colorTexture = std::make_shared<Texture2D>();
 	m_colorTexture->m_name = "CameraTexture";
-	m_colorTexture->_Texture = std::make_shared<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
-	m_colorTexture->_Texture->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
-	m_colorTexture->_Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	m_colorTexture->_Texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	m_colorTexture->_Texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	m_colorTexture->_Texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	AttachTexture(m_colorTexture->_Texture.get(), GL_COLOR_ATTACHMENT0);
+	m_colorTexture->m_texture = std::make_shared<GLTexture2D>(0, GL_RGBA32F, m_resolutionX, m_resolutionY, false);
+	m_colorTexture->m_texture->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
+	m_colorTexture->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	m_colorTexture->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	m_colorTexture->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	m_colorTexture->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	AttachTexture(m_colorTexture->m_texture.get(), GL_COLOR_ATTACHMENT0);
 
-	m_depthStencilBuffer = std::make_unique<GLTexture2D>(0, GL_DEPTH32F_STENCIL8, _ResolutionX, _ResolutionY, false);
+	m_depthStencilBuffer = std::make_unique<GLTexture2D>(0, GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY, false);
 	m_depthStencilBuffer->SetData(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0);
 	m_depthStencilBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	m_depthStencilBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -275,13 +275,13 @@ UniEngine::CameraComponent::CameraComponent()
 	m_depthStencilBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	AttachTexture(m_depthStencilBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
 
-	m_gBuffer = std::make_unique<RenderTarget>(_ResolutionX, _ResolutionY);
+	m_gBuffer = std::make_unique<RenderTarget>(m_resolutionX, m_resolutionY);
 
 	m_gDepthBuffer = std::make_unique<GLRenderBuffer>();
-	m_gDepthBuffer->AllocateStorage(GL_DEPTH32F_STENCIL8, _ResolutionX, _ResolutionY);
+	m_gDepthBuffer->AllocateStorage(GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY);
 	m_gBuffer->AttachRenderBuffer(m_gDepthBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
 	
-	m_gPositionBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	m_gPositionBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, m_resolutionX, m_resolutionY, false);
 	m_gPositionBuffer->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	m_gPositionBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	m_gPositionBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -289,7 +289,7 @@ UniEngine::CameraComponent::CameraComponent()
 	m_gPositionBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	m_gBuffer->AttachTexture(m_gPositionBuffer.get(), GL_COLOR_ATTACHMENT0);
 	
-	m_gNormalBuffer = std::make_unique <GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	m_gNormalBuffer = std::make_unique <GLTexture2D>(0, GL_RGBA32F, m_resolutionX, m_resolutionY, false);
 	m_gNormalBuffer->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	m_gNormalBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	m_gNormalBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -297,7 +297,7 @@ UniEngine::CameraComponent::CameraComponent()
 	m_gNormalBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	m_gBuffer->AttachTexture(m_gNormalBuffer.get(), GL_COLOR_ATTACHMENT1);
 	
-	m_gColorSpecularBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	m_gColorSpecularBuffer = std::make_unique<GLTexture2D>(0, GL_RGBA32F, m_resolutionX, m_resolutionY, false);
 	m_gColorSpecularBuffer->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	m_gColorSpecularBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	m_gColorSpecularBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -305,7 +305,7 @@ UniEngine::CameraComponent::CameraComponent()
 	m_gColorSpecularBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	m_gBuffer->AttachTexture(m_gColorSpecularBuffer.get(), GL_COLOR_ATTACHMENT2);
 
-	m_gMetallicRoughnessAo = std::make_unique<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
+	m_gMetallicRoughnessAo = std::make_unique<GLTexture2D>(0, GL_RGBA32F, m_resolutionX, m_resolutionY, false);
 	m_gMetallicRoughnessAo->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	m_gMetallicRoughnessAo->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	m_gMetallicRoughnessAo->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -328,7 +328,7 @@ void UniEngine::CameraComponent::OnGui()
 	ImGui::Checkbox("Allow auto resize", &m_allowAutoResize);
 	if(!m_allowAutoResize)
 	{
-		glm::ivec2 resolution = { _ResolutionX, _ResolutionY };
+		glm::ivec2 resolution = { m_resolutionX, m_resolutionY };
 		if(ImGui::DragInt2("Resolution", &resolution.x))
 		{
 			ResizeResolution(resolution.x, resolution.y);
@@ -356,7 +356,7 @@ void UniEngine::CameraComponent::OnGui()
 	ImGui::DragFloat("FOV", &m_fov, 1.0f, 1, 359);
 	if (ImGui::TreeNode("Content"))
 	{
-		ImGui::Image((ImTextureID)m_colorTexture->Texture()->Id(), ImVec2(_ResolutionX / 5.0f, _ResolutionY / 5.0f), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)m_colorTexture->Texture()->Id(), ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f), ImVec2(0, 1), ImVec2(1, 0));
 		if (ImGui::Button("Take Screenshot"))
 		{
 			StoreToJpg("screenshot.jpg");
@@ -377,7 +377,7 @@ void UniEngine::CameraInfoBlock::UpdateMatrices(CameraComponent* camera, glm::ve
 	m_projection = glm::perspective(glm::radians(camera->m_fov * 0.5f), ratio, camera->m_nearDistance, camera->m_farDistance);
 	m_position = glm::vec4(position, 0);
 	m_view = glm::lookAt(position, position + front, up);
-	m_reservedParameters = glm::vec4(camera->m_nearDistance, camera->m_farDistance, glm::tan(camera->m_fov * 0.5f), camera->_ResolutionX / camera->_ResolutionY);
+	m_reservedParameters = glm::vec4(camera->m_nearDistance, camera->m_farDistance, glm::tan(camera->m_fov * 0.5f), camera->m_resolutionX / camera->m_resolutionY);
 	m_backGroundColor = glm::vec4(camera->m_clearColor, 1.0f);
 	if (camera->m_skyBox) {
 		m_skybox = camera->m_skyBox->Texture()->GetHandle();

@@ -25,7 +25,7 @@ namespace UniEngine {
 		static void Remove(size_t hashCode);
 		static void Remove(size_t id, size_t hashCode);
 		static std::shared_ptr<Model> LoadModel(bool addResource, std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma = false, unsigned flags = 0);
-		static std::shared_ptr<Texture2D> LoadTexture(bool addResource, const std::string& path, TextureType type = TextureType::DIFFUSE);
+		static std::shared_ptr<Texture2D> LoadTexture(bool addResource, const std::string& path, TextureType type = TextureType::Diffuse);
 		static std::shared_ptr<Cubemap> LoadCubemap(bool addResource, const std::vector<std::string>& paths);
 		static std::shared_ptr<Material> LoadMaterial(bool addResource, const std::shared_ptr<GLProgram>& program);
 		static std::shared_ptr<GLProgram> LoadProgram(bool addResource, const std::shared_ptr<GLShader>& vertex, const std::shared_ptr<GLShader>& fragment);

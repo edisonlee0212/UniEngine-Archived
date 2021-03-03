@@ -86,38 +86,38 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 			auto* mesh = mmc->m_mesh.get();
 			mesh->Enable();
-			mesh->VAO()->DisableAttributeArray(12);
-			mesh->VAO()->DisableAttributeArray(13);
-			mesh->VAO()->DisableAttributeArray(14);
-			mesh->VAO()->DisableAttributeArray(15);
-			GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4("model", ltw.Value);
+			mesh->Vao()->DisableAttributeArray(12);
+			mesh->Vao()->DisableAttributeArray(13);
+			mesh->Vao()->DisableAttributeArray(14);
+			mesh->Vao()->DisableAttributeArray(15);
+			GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4("model", ltw.m_value);
 			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 		}
 	}
 	if (entity.HasPrivateComponent<Particles>())
 	{
 		auto& immc = entity.GetPrivateComponent<Particles>();
-		if (immc->IsEnabled() && immc->Material != nullptr && immc->Mesh != nullptr)
+		if (immc->IsEnabled() && immc->m_material != nullptr && immc->m_mesh != nullptr)
 		{
-			auto count = immc->Matrices.size();
+			auto count = immc->m_matrices.size();
 			std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
-			matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+			matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
-			auto* mesh = immc->Mesh.get();
+			auto* mesh = immc->m_mesh.get();
 			mesh->Enable();
-			mesh->VAO()->EnableAttributeArray(12);
-			mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-			mesh->VAO()->EnableAttributeArray(13);
-			mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-			mesh->VAO()->EnableAttributeArray(14);
-			mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-			mesh->VAO()->EnableAttributeArray(15);
-			mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-			mesh->VAO()->SetAttributeDivisor(12, 1);
-			mesh->VAO()->SetAttributeDivisor(13, 1);
-			mesh->VAO()->SetAttributeDivisor(14, 1);
-			mesh->VAO()->SetAttributeDivisor(15, 1);
-			GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4("model", ltw.Value);
+			mesh->Vao()->EnableAttributeArray(12);
+			mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+			mesh->Vao()->EnableAttributeArray(13);
+			mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+			mesh->Vao()->EnableAttributeArray(14);
+			mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+			mesh->Vao()->EnableAttributeArray(15);
+			mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+			mesh->Vao()->SetAttributeDivisor(12, 1);
+			mesh->Vao()->SetAttributeDivisor(13, 1);
+			mesh->Vao()->SetAttributeDivisor(14, 1);
+			mesh->Vao()->SetAttributeDivisor(15, 1);
+			GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4("model", ltw.m_value);
 			glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 		}
 	}
@@ -139,11 +139,11 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 			auto* mesh = mmc->m_mesh.get();
 			mesh->Enable();
-			mesh->VAO()->DisableAttributeArray(12);
-			mesh->VAO()->DisableAttributeArray(13);
-			mesh->VAO()->DisableAttributeArray(14);
-			mesh->VAO()->DisableAttributeArray(15);
-			GetInstance().m_sceneHighlightProgram->SetFloat4x4("model", ltw.Value);
+			mesh->Vao()->DisableAttributeArray(12);
+			mesh->Vao()->DisableAttributeArray(13);
+			mesh->Vao()->DisableAttributeArray(14);
+			mesh->Vao()->DisableAttributeArray(15);
+			GetInstance().m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
 			GetInstance().m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
 			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 		}
@@ -151,27 +151,27 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 	if (entity.HasPrivateComponent<Particles>())
 	{
 		auto& immc = entity.GetPrivateComponent<Particles>();
-		if (immc->IsEnabled() && immc->Material != nullptr && immc->Mesh != nullptr)
+		if (immc->IsEnabled() && immc->m_material != nullptr && immc->m_mesh != nullptr)
 		{
-			auto count = immc->Matrices.size();
+			auto count = immc->m_matrices.size();
 			std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
-			matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->Matrices.data(), GL_STATIC_DRAW);
+			matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
-			auto* mesh = immc->Mesh.get();
+			auto* mesh = immc->m_mesh.get();
 			mesh->Enable();
-			mesh->VAO()->EnableAttributeArray(12);
-			mesh->VAO()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-			mesh->VAO()->EnableAttributeArray(13);
-			mesh->VAO()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-			mesh->VAO()->EnableAttributeArray(14);
-			mesh->VAO()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-			mesh->VAO()->EnableAttributeArray(15);
-			mesh->VAO()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-			mesh->VAO()->SetAttributeDivisor(12, 1);
-			mesh->VAO()->SetAttributeDivisor(13, 1);
-			mesh->VAO()->SetAttributeDivisor(14, 1);
-			mesh->VAO()->SetAttributeDivisor(15, 1);
-			GetInstance().m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.Value);
+			mesh->Vao()->EnableAttributeArray(12);
+			mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+			mesh->Vao()->EnableAttributeArray(13);
+			mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+			mesh->Vao()->EnableAttributeArray(14);
+			mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+			mesh->Vao()->EnableAttributeArray(15);
+			mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+			mesh->Vao()->SetAttributeDivisor(12, 1);
+			mesh->Vao()->SetAttributeDivisor(13, 1);
+			mesh->Vao()->SetAttributeDivisor(14, 1);
+			mesh->Vao()->SetAttributeDivisor(15, 1);
+			GetInstance().m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
 			glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 		}
 	}
@@ -375,7 +375,7 @@ void UniEngine::EditorManager::Init()
 			}
 			if (edited)
 			{
-				ltp->Value = glm::translate(GetInstance().m_previouslyStoredPosition) * glm::mat4_cast(glm::quat(glm::radians(GetInstance().m_previouslyStoredRotation))) * glm::scale(GetInstance().m_previouslyStoredScale);
+				ltp->m_value = glm::translate(GetInstance().m_previouslyStoredPosition) * glm::mat4_cast(glm::quat(glm::radians(GetInstance().m_previouslyStoredRotation))) * glm::scale(GetInstance().m_previouslyStoredScale);
 			}
 		}
 	);
@@ -471,9 +471,9 @@ static const char* HierarchyDisplayMode[]{ "Archetype", "Hierarchy" };
 void EditorManager::PreUpdate()
 {
 	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::Button(Application::_Playing ? "Pause" : "Play"))
+		if (ImGui::Button(Application::m_playing ? "Pause" : "Play"))
 		{
-			Application::_Playing = !Application::_Playing;
+			Application::m_playing = !Application::m_playing;
 		}
 		ImGui::Separator();
 		if (ImGui::BeginMenu("File"))
@@ -875,9 +875,9 @@ void EditorManager::LateUpdate()
 					parentGlobalTransform = EntityManager::GetParent(GetInstance().m_selectedEntity).GetComponentData<GlobalTransform>();
 				}
 				auto globalTransform = GetInstance().m_selectedEntity.GetComponentData<GlobalTransform>();
-				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.Value));
+				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.m_value));
 				if (ImGuizmo::IsUsing()) {
-					transform.Value = glm::inverse(parentGlobalTransform.Value) * globalTransform.Value;
+					transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
 					GetInstance().m_selectedEntity.SetComponentData(transform);
 					transform.Decompose(GetInstance().m_previouslyStoredPosition, GetInstance().m_previouslyStoredRotation, GetInstance().m_previouslyStoredScale);
 					mouseSelectEntity = false;

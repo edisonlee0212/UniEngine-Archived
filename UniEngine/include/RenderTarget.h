@@ -4,28 +4,23 @@
 namespace UniEngine {
 	class UNIENGINE_API RenderTarget
 	{
-		bool _Bound;
+		bool m_bound;
 	protected:
-		std::unique_ptr<GLFrameBuffer> _FrameBuffer;
-		size_t _ResolutionX;
-		size_t _ResolutionY;
+		std::unique_ptr<GLFrameBuffer> m_frameBuffer;
+		size_t m_resolutionX;
+		size_t m_resolutionY;
 	public:
-		void AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer);
-		void AttachTexture(GLTexture* texture, GLenum attachPoint);
-		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLenum attachPoint);
+		void AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer) const;
+		void AttachTexture(GLTexture* texture, GLenum attachPoint) const;
+		void AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLenum attachPoint) const;
 		RenderTarget();
 		RenderTarget(size_t width, size_t height);
 		glm::vec2 GetResolution() const;
 		void SetResolution(size_t width, size_t height);
 		float GetResolutionRatio() const;
-		void Bind();
-		void Clear();
-
-		std::unique_ptr<GLFrameBuffer>& GetFrameBuffer()
-		{
-			return _FrameBuffer;
-		}
-
+		void Bind() const;
+		void Clear() const;
+		std::unique_ptr<GLFrameBuffer>& GetFrameBuffer();
 		static void BindDefault();
 	};
 

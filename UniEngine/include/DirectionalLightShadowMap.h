@@ -6,7 +6,7 @@ namespace UniEngine {
 	class UNIENGINE_API DirectionalLightShadowMap :
 		public RenderTarget
 	{
-		std::unique_ptr<GLTexture2DArray> _DepthMapArray;
+		std::unique_ptr<GLTexture2DArray> m_depthMapArray;
 		void Allocate();
 	public:
 		DirectionalLightShadowMap(size_t resolution);

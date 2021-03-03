@@ -4,15 +4,15 @@ namespace UniEngine {
 	class UNIENGINE_API Application {
 		friend class EntityManager;
 		friend class EditorManager;
-		static std::unique_ptr<World> _World;
-		static bool _Initialized;
-		static float _TimeStep;
-		static bool _InnerLooping;
-		static bool _Playing;
+		static std::unique_ptr<World> m_world;
+		static bool m_initialized;
+		static float m_timeStep;
+		static bool m_innerLooping;
+		static bool m_playing;
 		
-		static std::vector<std::function<void()>> _ExternalPreUpdateFunctions;
-		static std::vector<std::function<void()>> _ExternalUpdateFunctions;
-		static std::vector<std::function<void()>> _ExternalLateUpdateFunctions;
+		static std::vector<std::function<void()>> m_externalPreUpdateFunctions;
+		static std::vector<std::function<void()>> m_externalUpdateFunctions;
+		static std::vector<std::function<void()>> m_externalLateUpdateFunctions;
 
 		static void PreUpdateInternal();
 		static void UpdateInternal();

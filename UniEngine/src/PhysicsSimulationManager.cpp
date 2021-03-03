@@ -59,9 +59,9 @@ void UniEngine::PhysicsSimulationManager::UploadTransforms()
 			if (rigidBody->IsEnabled()) {
 				auto temp = rigidBodyEntity.GetComponentData<GlobalTransform>();
 				temp.SetScale(glm::vec3(1.0f));
-				auto ltw = temp.Value * rigidBody->_ShapeTransform;
+				auto ltw = temp.m_value * rigidBody->m_shapeTransform;
 				PxMat44 matrix = *(PxMat44*)(void*)&ltw;
-				rigidBody->_RigidBody->setGlobalPose(PxTransform(matrix));
+				rigidBody->m_rigidBody->setGlobalPose(PxTransform(matrix));
 			}
 		}
 	}
@@ -89,10 +89,10 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 						const auto& rigidBodyEntity = list->at(index);
 						auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
 						if (rigidBody->IsEnabled()) {
-							PxTransform transform = rigidBody->_RigidBody->getGlobalPose();
+							PxTransform transform = rigidBody->m_rigidBody->getGlobalPose();
 							auto matrix = PxMat44(transform);
 							GlobalTransform temp = *(GlobalTransform*)(void*)&matrix;
-							temp.Value *= glm::inverse(rigidBody->_ShapeTransform);
+							temp.m_value *= glm::inverse(rigidBody->m_shapeTransform);
 							glm::vec3 scale;
 							glm::vec3 pos;
 							glm::quat rot;
@@ -101,8 +101,8 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 							temp.SetValue(pos, rot, scale);
 							Transform ltp;
 							auto parentEntity = EntityManager::GetParent(rigidBodyEntity);
-							const glm::mat4 pltw = parentEntity.IsNull() ? GlobalTransform().Value : parentEntity.GetComponentData<GlobalTransform>().Value;
-							ltp.Value = glm::inverse(pltw) * temp.Value;
+							const glm::mat4 pltw = parentEntity.IsNull() ? GlobalTransform().m_value : parentEntity.GetComponentData<GlobalTransform>().m_value;
+							ltp.m_value = glm::inverse(pltw) * temp.m_value;
 							rigidBodyEntity.SetComponentData(ltp);
 						}
 					}
@@ -113,10 +113,10 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 			size_t index = capacity * threadSize + i;
 			const auto& rigidBodyEntity = list->at(index); auto& rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
 			if (rigidBody->IsEnabled()) {
-				PxTransform transform = rigidBody->_RigidBody->getGlobalPose();
+				PxTransform transform = rigidBody->m_rigidBody->getGlobalPose();
 				auto matrix = PxMat44(transform);
 				GlobalTransform temp = *(GlobalTransform*)(void*)&matrix;
-				temp.Value *= glm::inverse(rigidBody->_ShapeTransform);
+				temp.m_value *= glm::inverse(rigidBody->m_shapeTransform);
 				glm::vec3 scale;
 				glm::vec3 pos;
 				glm::quat rot;
@@ -125,8 +125,8 @@ void UniEngine::PhysicsSimulationManager::Simulate(float time)
 				temp.SetValue(pos, rot, scale);
 				Transform ltp;
 				auto parentEntity = EntityManager::GetParent(rigidBodyEntity);
-				const glm::mat4 pltw = parentEntity.IsNull() ? GlobalTransform().Value : parentEntity.GetComponentData<GlobalTransform>().Value;
-				ltp.Value = glm::inverse(pltw) * temp.Value;
+				const glm::mat4 pltw = parentEntity.IsNull() ? GlobalTransform().m_value : parentEntity.GetComponentData<GlobalTransform>().m_value;
+				ltp.m_value = glm::inverse(pltw) * temp.m_value;
 				rigidBodyEntity.SetComponentData(ltp);
 			}
 		}

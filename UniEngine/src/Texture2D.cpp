@@ -6,22 +6,22 @@ using namespace UniEngine;
 
 Texture2D::Texture2D(TextureType type)
 {
-	_Type = type;
+	m_type = type;
 }
 
 void Texture2D::SetType(TextureType type)
 {
-	_Type = type;
+	m_type = type;
 }
 
 TextureType Texture2D::GetType() const
 {
-	return _Type;
+	return m_type;
 }
 
 glm::vec2 Texture2D::GetResolution() const
 {
-	return { _Texture->m_width, _Texture->m_height };
+	return { m_texture->m_width, m_texture->m_height };
 }
 
 
@@ -29,13 +29,13 @@ glm::vec2 Texture2D::GetResolution() const
 void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY, bool alphaChannel, unsigned compressionLevel) const
 {
 	stbi_write_png_compression_level = static_cast<int>(compressionLevel);
-	const auto resolutionX = _Texture->m_width;
-	const auto resolutionY = _Texture->m_height;
+	const auto resolutionX = m_texture->m_width;
+	const auto resolutionY = m_texture->m_height;
 	float channels = 3;
 	if (alphaChannel) channels = 4;
 	std::vector<float> dst;
 	dst.resize(resolutionX * resolutionY * channels);
-	_Texture->Bind(0);
+	m_texture->Bind(0);
 	glGetTexImage(GL_TEXTURE_2D, 0, (alphaChannel ? GL_RGBA : GL_RGB), GL_FLOAT, (void*)dst.data());
 	std::vector<uint8_t> pixels;
 	if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
@@ -72,11 +72,11 @@ void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY, bo
 
 void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY, unsigned quality) const
 {
-	const auto resolutionX = _Texture->m_width;
-	const auto resolutionY = _Texture->m_height;
+	const auto resolutionX = m_texture->m_width;
+	const auto resolutionY = m_texture->m_height;
 	std::vector<float> dst;
 	dst.resize(resolutionX * resolutionY * 3);
-	_Texture->Bind(0);
+	m_texture->Bind(0);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, (void*)dst.data());
 	std::vector<uint8_t> pixels;
 	if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
@@ -110,10 +110,10 @@ void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY, un
 
 std::shared_ptr<GLTexture2D> UniEngine::Texture2D::Texture() const
 {
-	return _Texture;
+	return m_texture;
 }
 
 std::string UniEngine::Texture2D::Path() const
 {
-	return _Path;
+	return m_path;
 }

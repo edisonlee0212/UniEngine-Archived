@@ -8,18 +8,18 @@ namespace UniEngine
 	class UNIENGINE_API Bloom : public PostProcessingLayer
 	{
 		
-		std::unique_ptr<GLTexture2D> _Result;
-		std::unique_ptr<GLTexture2D> _BrightColor;
-		std::unique_ptr<GLTexture2D> _FlatColor;
-		std::unique_ptr<GLProgram> _SeparateProgram;
-		std::unique_ptr<GLProgram> _FilterProgram;
-		std::unique_ptr<GLProgram> _CombineProgram;
+		std::unique_ptr<GLTexture2D> m_result;
+		std::unique_ptr<GLTexture2D> m_brightColor;
+		std::unique_ptr<GLTexture2D> m_flatColor;
+		std::unique_ptr<GLProgram> m_separateProgram;
+		std::unique_ptr<GLProgram> m_filterProgram;
+		std::unique_ptr<GLProgram> m_combineProgram;
 	public:
-		float Intensity = 0.02f;
-		float Threshold = 1.0f;
-		float Clamp = 0.0f;
-		int Diffusion = 16;
-		BezierCubic2D BezierGraph;
+		float m_intensity = 0.02f;
+		float m_threshold = 1.0f;
+		float m_clamp = 0.0f;
+		int m_diffusion = 16;
+		BezierCubic2D m_bezierGraph;
 		void Init() override;
 		void ResizeResolution(int x, int y) override;
 		void Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const override;

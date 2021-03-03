@@ -5,22 +5,22 @@
 
 UniEngine::Particles::Particles()
 {
-	BoundingBox = Bound();
+	m_boundingBox = Bound();
 	SetEnabled(true);
 }
 
 void UniEngine::Particles::RecalculateBoundingBox()
 {
-	if(Matrices.empty())
+	if(m_matrices.empty())
 	{
-		BoundingBox.m_min = glm::vec3(0.0f);
-		BoundingBox.m_max = glm::vec3(0.0f);
+		m_boundingBox.m_min = glm::vec3(0.0f);
+		m_boundingBox.m_max = glm::vec3(0.0f);
 		return;
 	}
 	glm::vec3 minBound = glm::vec3((int)INT_MAX);
 	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
-	auto meshBound = Mesh->GetBound();
-	for(auto& i : Matrices)
+	auto meshBound = m_mesh->GetBound();
+	for(auto& i : m_matrices)
 	{
 		glm::vec3 center = i * glm::vec4(meshBound.Center(), 1.0f);
 		glm::vec3 size = glm::vec4(meshBound.Size(), 0) * i / 2.0f;
@@ -34,44 +34,44 @@ void UniEngine::Particles::RecalculateBoundingBox()
 			glm::max(maxBound.y, center.y + size.y),
 			glm::max(maxBound.z, center.z + size.z));
 	}
-	BoundingBox.m_max = maxBound;
-	BoundingBox.m_min = minBound;
+	m_boundingBox.m_max = maxBound;
+	m_boundingBox.m_min = minBound;
 }
 
 
 void UniEngine::Particles::OnGui()
 {
-	ImGui::Checkbox("Forward Rendering##Particles", &ForwardRendering);
-	ImGui::Checkbox("Receive shadow##Particles", &ReceiveShadow);
-	ImGui::Checkbox("Cast shadow##Particles", &CastShadow);
-	ImGui::Text(("Instance count:##Particles" + std::to_string(Matrices.size())).c_str());
-	ImGui::Checkbox("Display bounds##Particles", &DisplayBound);
+	ImGui::Checkbox("Forward Rendering##Particles", &m_forwardRendering);
+	ImGui::Checkbox("Receive shadow##Particles", &m_receiveShadow);
+	ImGui::Checkbox("Cast shadow##Particles", &m_castShadow);
+	ImGui::Text(("Instance count:##Particles" + std::to_string(m_matrices.size())).c_str());
+	ImGui::Checkbox("Display bounds##Particles", &m_displayBound);
 	if(ImGui::Button("Calculate bounds##Particles"))
 	{
 		RecalculateBoundingBox();
 	}
-	if (DisplayBound)
+	if (m_displayBound)
 	{
 		RecalculateBoundingBox();
-		ImGui::ColorEdit4("Color:##Particles", (float*)(void*)&DisplayBoundColor);
-		auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
-		RenderManager::DrawGizmoCube(DisplayBoundColor, transform * glm::translate(BoundingBox.Center()) * glm::scale(BoundingBox.Size()), 1);
+		ImGui::ColorEdit4("Color:##Particles", (float*)(void*)&m_displayBoundColor);
+		auto transform = GetOwner().GetComponentData<GlobalTransform>().m_value;
+		RenderManager::DrawGizmoCube(m_displayBoundColor, transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()), 1);
 	}
 	ImGui::Text("Material:##Particles");
 	ImGui::SameLine();
-	EditorManager::DragAndDrop(Material);
-	if (Material) {
+	EditorManager::DragAndDrop(m_material);
+	if (m_material) {
 		if (ImGui::TreeNode("Material##Particles")) {
-			Material->OnGui();
+			m_material->OnGui();
 			ImGui::TreePop();
 		}
 	}
 	ImGui::Text("Mesh:##Particles");
 	ImGui::SameLine();
-	EditorManager::DragAndDrop(Mesh);
-	if (Mesh) {
+	EditorManager::DragAndDrop(m_mesh);
+	if (m_mesh) {
 		if (ImGui::TreeNode("Mesh##Particles")) {
-			Mesh->OnGui();
+			m_mesh->OnGui();
 			ImGui::TreePop();
 		}
 	}

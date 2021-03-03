@@ -5,11 +5,11 @@ namespace UniEngine {
 	private:
 		friend class World;
 		friend class Application;
-		double _FrameStartTime;
-		double _FixedDeltaTime;
-		double _DeltaTime;
-		double _LastFrameTime;
-		float _TimeStep;
+		double m_frameStartTime;
+		double m_fixedDeltaTime;
+		double m_deltaTime;
+		double m_lastFrameTime;
+		float m_timeStep;
 		void AddFixedDeltaTime(double value);
 	public:
 		float TimeStep();

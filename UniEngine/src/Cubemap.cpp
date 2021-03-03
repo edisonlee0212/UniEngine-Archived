@@ -8,5 +8,5 @@ UniEngine::Cubemap::Cubemap()
 
 std::vector<std::string> UniEngine::Cubemap::Paths() const
 {
-	return _Paths;
+	return m_paths;
 }

@@ -5,78 +5,83 @@ using namespace UniEngine;
 
 UniEngine::RenderTarget::RenderTarget()
 {
-	_Bound = false;
-	_FrameBuffer = std::make_unique<GLFrameBuffer>();
-	_ResolutionX = 0;
-	_ResolutionY = 0;
+	m_bound = false;
+	m_frameBuffer = std::make_unique<GLFrameBuffer>();
+	m_resolutionX = 0;
+	m_resolutionY = 0;
 }
 
 UniEngine::RenderTarget::RenderTarget(size_t width, size_t height)
 {
-	_Bound = false;
-	_FrameBuffer = std::make_unique<GLFrameBuffer>();
-	_ResolutionX = width;
-	_ResolutionY = height;
+	m_bound = false;
+	m_frameBuffer = std::make_unique<GLFrameBuffer>();
+	m_resolutionX = width;
+	m_resolutionY = height;
 }
 
 glm::vec2 UniEngine::RenderTarget::GetResolution() const
 {
-	return glm::vec2(_ResolutionX, _ResolutionY);
+	return glm::vec2(m_resolutionX, m_resolutionY);
 }
 
 void RenderTarget::SetResolution(size_t width, size_t height)
 {
-	_ResolutionX = width;
-	_ResolutionY = height;
+	m_resolutionX = width;
+	m_resolutionY = height;
 }
 
 float UniEngine::RenderTarget::GetResolutionRatio() const
 {
-	if (_ResolutionX == 0 || _ResolutionY == 0) return 0;
-	return (float)_ResolutionX / (float)_ResolutionY;
+	if (m_resolutionX == 0 || m_resolutionY == 0) return 0;
+	return (float)m_resolutionX / (float)m_resolutionY;
 }
 
-void UniEngine::RenderTarget::AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer)
+void UniEngine::RenderTarget::AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer) const
 {
-	if (_Bound) {
+	if (m_bound) {
 		Debug::Error("Error");
 		return;
 	}
-	_FrameBuffer->AttachTextureLayer(texture, attachPoint, layer);
+	m_frameBuffer->AttachTextureLayer(texture, attachPoint, layer);
 }
 
-void UniEngine::RenderTarget::AttachTexture(GLTexture* texture, GLenum attachPoint)
+void UniEngine::RenderTarget::AttachTexture(GLTexture* texture, GLenum attachPoint) const
 {
-	if (_Bound) {
+	if (m_bound) {
 		Debug::Error("Error");
 		return;
 	}
-	_FrameBuffer->AttachTexture(texture, attachPoint);
+	m_frameBuffer->AttachTexture(texture, attachPoint);
 }
 
-void UniEngine::RenderTarget::AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLenum attachPoint)
+void UniEngine::RenderTarget::AttachRenderBuffer(GLRenderBuffer* renderBuffer, GLenum attachPoint) const
 {
-	if (_Bound) {
+	if (m_bound) {
 		Debug::Error("Error");
 		return;
 	}
-	_FrameBuffer->AttachRenderBuffer(renderBuffer, attachPoint);
+	m_frameBuffer->AttachRenderBuffer(renderBuffer, attachPoint);
 }
 
-void UniEngine::RenderTarget::Bind()
+void UniEngine::RenderTarget::Bind() const
 {
-	if (_Bound) {
+	if (m_bound) {
 		Debug::Error("Error");
 		return;
 	}
-	_FrameBuffer->Bind();
-	_FrameBuffer->Check();
-	_FrameBuffer->ViewPort(glm::vec4(0, 0, _ResolutionX, _ResolutionY));
+	m_frameBuffer->Bind();
+	m_frameBuffer->Check();
+	m_frameBuffer->ViewPort(glm::vec4(0, 0, m_resolutionX, m_resolutionY));
 }
 
-void UniEngine::RenderTarget::Clear()
+void UniEngine::RenderTarget::Clear() const
 {
-	_FrameBuffer->Clear();
+	m_frameBuffer->Clear();
+}
+
+std::unique_ptr<GLFrameBuffer>& RenderTarget::GetFrameBuffer()
+{
+	return m_frameBuffer;
 }
 
 void UniEngine::RenderTarget::BindDefault()

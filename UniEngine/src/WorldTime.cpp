@@ -3,25 +3,25 @@
 
 void UniEngine::WorldTime::AddFixedDeltaTime(double value)
 {
-	_FixedDeltaTime += value;
+	m_fixedDeltaTime += value;
 }
 
 float UniEngine::WorldTime::TimeStep()
 {
-	return _TimeStep;
+	return m_timeStep;
 }
 
 float UniEngine::WorldTime::FixedDeltaTime()
 {
-	return (float)_FixedDeltaTime;
+	return (float)m_fixedDeltaTime;
 }
 
 float UniEngine::WorldTime::DeltaTime()
 {
-	return (float)_DeltaTime;
+	return (float)m_deltaTime;
 }
 
 float UniEngine::WorldTime::LastFrameTime()
 {
-	return (float)_LastFrameTime;
+	return (float)m_lastFrameTime;
 }

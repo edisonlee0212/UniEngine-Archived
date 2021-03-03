@@ -20,27 +20,27 @@ void Mesh::OnGui()
 
 glm::vec3 UniEngine::Mesh::GetCenter() const
 {
-	return _Bound.Center();
+	return m_bound.Center();
 }
 Bound UniEngine::Mesh::GetBound() const
 {
-	return _Bound;
+	return m_bound;
 }
 
 UniEngine::Mesh::Mesh()
 {
-	_VAO = std::make_shared<GLVAO>();
-	_IndicesSize = 0;
-	_Bound = Bound();
+	m_vao = std::make_shared<GLVAO>();
+	m_indicesSize = 0;
+	m_bound = Bound();
 	m_name = "New mesh";
 }
 
 void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store)
 {
-	_Mask = mask;
-	_IndicesSize = indices.size();
-	_VerticesSize = vertices.size();
-	if (_VerticesSize == 0) {
+	m_mask = mask;
+	m_indicesSize = indices.size();
+	m_verticesSize = vertices.size();
+	if (m_verticesSize == 0) {
 		Debug::Log("Mesh: SetVertices empty!");
 		return;
 	}
@@ -93,181 +93,181 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, 
 	if (mask & (unsigned)VertexAttribute::TexCoord7) {
 		attributeSize += sizeof(glm::vec2);
 	}
-	_VAO->SetData((GLsizei)(_VerticesSize * attributeSize), nullptr, GL_STATIC_DRAW);
+	m_vao->SetData((GLsizei)(m_verticesSize * attributeSize), nullptr, GL_STATIC_DRAW);
 #pragma endregion
 #pragma region Copy
-	glm::vec3 minBound = vertices.at(0).Position;
-	glm::vec3 maxBound = vertices.at(0).Position;
-	for (size_t i = 0; i < _VerticesSize; i++) {
-		auto position = vertices.at(i).Position;
+	glm::vec3 minBound = vertices.at(0).m_position;
+	glm::vec3 maxBound = vertices.at(0).m_position;
+	for (size_t i = 0; i < m_verticesSize; i++) {
+		auto position = vertices.at(i).m_position;
 		minBound = glm::vec3(glm::min(minBound.x, position.x), glm::min(minBound.y, position.y), glm::min(minBound.z, position.z));
 		maxBound = glm::vec3(glm::max(maxBound.x, position.x), glm::max(maxBound.y, position.y), glm::max(maxBound.z, position.z));
-		positions.push_back(vertices.at(i).Position);
+		positions.push_back(vertices.at(i).m_position);
 		if (mask & (unsigned)VertexAttribute::Normal) {
-			normals.push_back(vertices.at(i).Normal);
+			normals.push_back(vertices.at(i).m_normal);
 		}
 		if (mask & (unsigned)VertexAttribute::Tangent) {
-			tangents.push_back(vertices.at(i).Tangent);
+			tangents.push_back(vertices.at(i).m_tangent);
 		}
 		if (mask & (unsigned)VertexAttribute::Color) {
-			colors.push_back(vertices.at(i).Color);
+			colors.push_back(vertices.at(i).m_color);
 		}
 		if (mask & (unsigned)VertexAttribute::TexCoord0) {
-			texcoords0s.push_back(vertices.at(i).TexCoords0);
+			texcoords0s.push_back(vertices.at(i).m_texCoords0);
 		}
 		if (mask & (unsigned)VertexAttribute::TexCoord1) {
-			texcoords1s.push_back(vertices.at(i).TexCoords1);
+			texcoords1s.push_back(vertices.at(i).m_texCoords1);
 		}
 		if (mask & (unsigned)VertexAttribute::TexCoord2) {
-			texcoords2s.push_back(vertices.at(i).TexCoords2);
+			texcoords2s.push_back(vertices.at(i).m_texCoords2);
 		}
 		if (mask & (unsigned)VertexAttribute::TexCoord3) {
-			texcoords3s.push_back(vertices.at(i).TexCoords3);
+			texcoords3s.push_back(vertices.at(i).m_texCoords3);
 		}
 		if (mask & (unsigned)VertexAttribute::TexCoord4) {
-			texcoords4s.push_back(vertices.at(i).TexCoords4);
+			texcoords4s.push_back(vertices.at(i).m_texCoords4);
 		}
 		if (mask & (unsigned)VertexAttribute::TexCoord5) {
-			texcoords5s.push_back(vertices.at(i).TexCoords5);
+			texcoords5s.push_back(vertices.at(i).m_texCoords5);
 		}
 		if (mask & (unsigned)VertexAttribute::TexCoord6) {
-			texcoords6s.push_back(vertices.at(i).TexCoords6);
+			texcoords6s.push_back(vertices.at(i).m_texCoords6);
 		}
 		if (mask & (unsigned)VertexAttribute::TexCoord7) {
-			texcoords7s.push_back(vertices.at(i).TexCoords7);
+			texcoords7s.push_back(vertices.at(i).m_texCoords7);
 		}
 	}
-	_Bound.m_max = maxBound;
-	_Bound.m_min = minBound;
+	m_bound.m_max = maxBound;
+	m_bound.m_min = minBound;
 #pragma endregion
 #pragma region ToGPU
 
-	_VAO->SubData(0, _VerticesSize * sizeof(glm::vec3), &positions[0]);
+	m_vao->SubData(0, m_verticesSize * sizeof(glm::vec3), &positions[0]);
 
 	if (mask & (unsigned)VertexAttribute::Normal)
-		_VAO->SubData(_VerticesSize * sizeof(glm::vec3), _VerticesSize * sizeof(glm::vec3), &normals[0]);
+		m_vao->SubData(m_verticesSize * sizeof(glm::vec3), m_verticesSize * sizeof(glm::vec3), &normals[0]);
 	else {
 		RecalculateNormal(vertices, indices);
 	}
 	if (mask & (unsigned)VertexAttribute::Tangent) {
-		_VAO->SubData(_VerticesSize * 2 * sizeof(glm::vec3), _VerticesSize * sizeof(glm::vec3), &tangents[0]);
+		m_vao->SubData(m_verticesSize * 2 * sizeof(glm::vec3), m_verticesSize * sizeof(glm::vec3), &tangents[0]);
 	}
 	else {
 		RecalculateTangent(vertices, indices);
 	}
 	attributeSize = 3 * sizeof(glm::vec3);
 	if (mask & (unsigned)VertexAttribute::Color) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec4), &colors[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec4), &colors[0]);
 		attributeSize += sizeof(glm::vec4);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord0) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords0s[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec2), &texcoords0s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord1) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords1s[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec2), &texcoords1s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord2) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords2s[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec2), &texcoords2s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord3) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords3s[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec2), &texcoords3s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord4) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords4s[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec2), &texcoords4s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord5) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords5s[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec2), &texcoords5s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord6) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords6s[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec2), &texcoords6s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord7) {
-		_VAO->SubData(_VerticesSize * attributeSize, _VerticesSize * sizeof(glm::vec2), &texcoords7s[0]);
+		m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec2), &texcoords7s[0]);
 		attributeSize += sizeof(glm::vec2);
 	}
 #pragma endregion
 #pragma region AttributePointer
-	_VAO->EnableAttributeArray(0);
-	_VAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-	_VAO->EnableAttributeArray(1);
-	_VAO->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * _VerticesSize));
-	_VAO->EnableAttributeArray(2);
-	_VAO->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(2 * sizeof(glm::vec3) * _VerticesSize));
+	m_vao->EnableAttributeArray(0);
+	m_vao->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+	m_vao->EnableAttributeArray(1);
+	m_vao->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(sizeof(glm::vec3) * m_verticesSize));
+	m_vao->EnableAttributeArray(2);
+	m_vao->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(2 * sizeof(glm::vec3) * m_verticesSize));
 	attributeSize = 3 * sizeof(glm::vec3);
 	if (mask & (unsigned)VertexAttribute::Color) {
-		_VAO->EnableAttributeArray(3);
-		_VAO->SetAttributePointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(3);
+		m_vao->SetAttributePointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec4);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord0) {
-		_VAO->EnableAttributeArray(4);
-		_VAO->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(4);
+		m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord1) {
-		_VAO->EnableAttributeArray(5);
-		_VAO->SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(5);
+		m_vao->SetAttributePointer(5, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord2) {
-		_VAO->EnableAttributeArray(6);
-		_VAO->SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(6);
+		m_vao->SetAttributePointer(6, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord3) {
-		_VAO->EnableAttributeArray(7);
-		_VAO->SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(7);
+		m_vao->SetAttributePointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord4) {
-		_VAO->EnableAttributeArray(8);
-		_VAO->SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(8);
+		m_vao->SetAttributePointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord5) {
-		_VAO->EnableAttributeArray(9);
-		_VAO->SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(9);
+		m_vao->SetAttributePointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord6) {
-		_VAO->EnableAttributeArray(10);
-		_VAO->SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(10);
+		m_vao->SetAttributePointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 	if (mask & (unsigned)VertexAttribute::TexCoord7) {
-		_VAO->EnableAttributeArray(11);
-		_VAO->SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * _VerticesSize));
+		m_vao->EnableAttributeArray(11);
+		m_vao->SetAttributePointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)(attributeSize * m_verticesSize));
 		attributeSize += sizeof(glm::vec2);
 	}
 #pragma endregion
-	_VAO->Ebo()->SetData((GLsizei)_IndicesSize * sizeof(unsigned), &indices.at(0), GL_STATIC_DRAW);
+	m_vao->Ebo()->SetData((GLsizei)m_indicesSize * sizeof(unsigned), &indices.at(0), GL_STATIC_DRAW);
 
-	_LocalStored = store;
+	m_localStored = store;
 	if (store)
 	{
-		_Vertices.resize(vertices.size());
-		_Indices.resize(indices.size());
-		memcpy(_Vertices.data(), vertices.data(), vertices.size() * sizeof(Vertex));
-		memcpy(_Indices.data(), indices.data(), indices.size() * sizeof(unsigned));
+		m_vertices.resize(vertices.size());
+		m_indices.resize(indices.size());
+		memcpy(m_vertices.data(), vertices.data(), vertices.size() * sizeof(Vertex));
+		memcpy(m_indices.data(), indices.data(), indices.size() * sizeof(unsigned));
 	}
 }
 
 
 size_t UniEngine::Mesh::GetVerticesAmount()
 {
-	return _IndicesSize;
+	return m_indicesSize;
 }
 
 size_t UniEngine::Mesh::Size()
 {
-	return _IndicesSize;
+	return m_indicesSize;
 }
 
 void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
@@ -277,10 +277,10 @@ void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vect
 	for (auto i = 0; i < size; i++) {
 		normalLists.push_back(std::vector<glm::vec3>());
 	}
-	for (size_t i = 0; i < _IndicesSize / 3; i++) {
-		auto v1 = vertices.at(indices.at(3 * i)).Position;
-		auto v2 = vertices.at(indices.at(3 * i + 1)).Position;
-		auto v3 = vertices.at(indices.at(3 * i + 2)).Position;
+	for (size_t i = 0; i < m_indicesSize / 3; i++) {
+		auto v1 = vertices.at(indices.at(3 * i)).m_position;
+		auto v2 = vertices.at(indices.at(3 * i + 1)).m_position;
+		auto v3 = vertices.at(indices.at(3 * i + 2)).m_position;
 		auto normal = glm::normalize(glm::cross(v1 - v2, v1 - v3));
 		normalLists[indices.at(3 * i)].push_back(normal);
 		normalLists[indices.at(3 * i + 1)].push_back(normal);
@@ -295,7 +295,7 @@ void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vect
 		normals.push_back(glm::normalize(normal));
 	}
 
-	_VAO->SubData(size * sizeof(glm::vec3), size * sizeof(glm::vec3), &normals[0]);
+	m_vao->SubData(size * sizeof(glm::vec3), size * sizeof(glm::vec3), &normals[0]);
 }
 
 void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
@@ -305,13 +305,13 @@ void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vec
 	for (auto i = 0; i < size; i++) {
 		tangentLists.push_back(std::vector<glm::vec3>());
 	}
-	for (size_t i = 0; i < _IndicesSize / 3; i++) {
-		auto v1 = vertices.at(indices.at(3 * i)).Position;
-		auto v2 = vertices.at(indices.at(3 * i + 1)).Position;
-		auto v3 = vertices.at(indices.at(3 * i + 2)).Position;
-		auto uv1 = vertices.at(indices.at(3 * i)).TexCoords0;
-		auto uv2 = vertices.at(indices.at(3 * i + 1)).TexCoords0;
-		auto uv3 = vertices.at(indices.at(3 * i + 2)).TexCoords0;
+	for (size_t i = 0; i < m_indicesSize / 3; i++) {
+		auto v1 = vertices.at(indices.at(3 * i)).m_position;
+		auto v2 = vertices.at(indices.at(3 * i + 1)).m_position;
+		auto v3 = vertices.at(indices.at(3 * i + 2)).m_position;
+		auto uv1 = vertices.at(indices.at(3 * i)).m_texCoords0;
+		auto uv2 = vertices.at(indices.at(3 * i + 1)).m_texCoords0;
+		auto uv3 = vertices.at(indices.at(3 * i + 2)).m_texCoords0;
 
 		auto e21 = v2 - v1;
 		auto d21 = uv2 - uv1;
@@ -335,28 +335,28 @@ void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vec
 		tangents.push_back(glm::normalize(tangent));
 	}
 
-	_VAO->SubData(size * 2 * sizeof(glm::vec3), size * sizeof(glm::vec3), &tangents[0]);
+	m_vao->SubData(size * 2 * sizeof(glm::vec3), size * sizeof(glm::vec3), &tangents[0]);
 }
 
 
-std::shared_ptr<GLVAO> UniEngine::Mesh::VAO()
+std::shared_ptr<GLVAO> UniEngine::Mesh::Vao()
 {
-	return _VAO;
+	return m_vao;
 }
 
 void UniEngine::Mesh::Enable()
 {
-	_VAO->Bind();
+	m_vao->Bind();
 }
 
 std::vector<Vertex>& Mesh::GetVerticesUnsafe()
 {
-	return _Vertices;
+	return m_vertices;
 }
 
 std::vector<unsigned>& Mesh::GetIndicesUnsafe()
 {
-	return _Indices;
+	return m_indices;
 }
 
 void Mesh::LoadBin(std::string& fileName)
@@ -368,14 +368,14 @@ void Mesh::LoadBin(std::string& fileName)
 	}
 	int vertN = 0;
 	ifs.read((char*)&vertN, sizeof(int));
-	_VerticesSize = vertN;
+	m_verticesSize = vertN;
 	char yn;
 	ifs.read(&yn, 1); // always xyz
 	if (yn != 'y') {
 		Debug::Error("INTERNAL ERROR: there should always be vertex xyz data");
 		return;
 	}
-	_Vertices.resize(_VerticesSize);
+	m_vertices.resize(m_verticesSize);
 	bool hasColor = false;
 	bool hasNormal = false;
 	bool hasTextureCoords = false;
@@ -391,28 +391,28 @@ void Mesh::LoadBin(std::string& fileName)
 	if (yn == 'y') {
 		hasTextureCoords = true;
 	}
-	for(int i = 0; i < _VerticesSize; i++)
+	for(int i = 0; i < m_verticesSize; i++)
 	{
-		ifs.read((char*)&_Vertices[i], sizeof(glm::vec3));
+		ifs.read((char*)&m_vertices[i], sizeof(glm::vec3));
 	}
 	if(hasColor)
 	{
-		for (int i = 0; i < _VerticesSize; i++)
+		for (int i = 0; i < m_verticesSize; i++)
 		{
-			ifs.read((char*)(&_Vertices[i]) + offsetof(Vertex, Color), sizeof(glm::vec3));
+			ifs.read((char*)(&m_vertices[i]) + offsetof(Vertex, m_color), sizeof(glm::vec3));
 		}
 	}
 	if (hasNormal)
 	{
-		for (int i = 0; i < _VerticesSize; i++)
+		for (int i = 0; i < m_verticesSize; i++)
 		{
-			ifs.read((char*)(&_Vertices[i]) + offsetof(Vertex, Normal), sizeof(glm::vec3));
+			ifs.read((char*)(&m_vertices[i]) + offsetof(Vertex, m_normal), sizeof(glm::vec3));
 		}
 	}
 	glm::vec3 temp;
 	if (hasTextureCoords)
 	{
-		for (int i = 0; i < _VerticesSize; i++)
+		for (int i = 0; i < m_verticesSize; i++)
 		{
 			//ifs.read((char*)(&_Vertices[i]) + offsetof(Vertex, TexCoords0), sizeof(glm::vec2));
 			ifs.read((char*)&temp, sizeof(glm::vec2));
@@ -420,13 +420,13 @@ void Mesh::LoadBin(std::string& fileName)
 	}
 	int trisN = 0;
 	ifs.read((char*)&trisN, sizeof(int));
-	_IndicesSize = trisN;
-	_IndicesSize = _IndicesSize * 3;
-	_Indices.resize(_IndicesSize);
+	m_indicesSize = trisN;
+	m_indicesSize = m_indicesSize * 3;
+	m_indices.resize(m_indicesSize);
 
-	for (int i = 0; i < _IndicesSize; i++)
+	for (int i = 0; i < m_indicesSize; i++)
 	{
-		ifs.read((char*)&_Indices[i], sizeof(unsigned));
+		ifs.read((char*)&m_indices[i], sizeof(unsigned));
 	}
 	unsigned mask = 1;
 	if (hasColor)
@@ -441,8 +441,8 @@ void Mesh::LoadBin(std::string& fileName)
 	{
 		//mask += (int)VertexAttribute::TexCoord0;
 	}
-	SetVertices(mask, _Vertices, _Indices);
-	_LocalStored = true;
+	SetVertices(mask, m_vertices, m_indices);
+	m_localStored = true;
 }
 
 

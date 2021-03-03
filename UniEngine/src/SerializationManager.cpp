@@ -33,7 +33,7 @@ void UniEngine::SerializationManager::Init()
 		[](ComponentBase* data)
 		{
 			Transform* out = static_cast<Transform*>(data);
-			glm::mat4 val = out->Value;
+			glm::mat4 val = out->m_value;
 			std::stringstream stream;
 			EXPORT_PARAM(stream, val);
 			return stream.str();
@@ -44,7 +44,7 @@ void UniEngine::SerializationManager::Init()
 			stream << data;
 			Transform* out = static_cast<Transform*>(ptr);
 			char temp;
-			IMPORT_PARAM(stream, out->Value, temp);
+			IMPORT_PARAM(stream, out->m_value, temp);
 		}
 		}
 	);
@@ -53,7 +53,7 @@ void UniEngine::SerializationManager::Init()
 		[](ComponentBase* data)
 		{
 			GlobalTransform* out = static_cast<GlobalTransform*>(data);
-			glm::mat4 val = out->Value;
+			glm::mat4 val = out->m_value;
 			std::stringstream stream;
 			EXPORT_PARAM(stream, val);
 			return stream.str();
@@ -64,7 +64,7 @@ void UniEngine::SerializationManager::Init()
 			stream << data;
 			GlobalTransform* out = static_cast<GlobalTransform*>(ptr);
 			char temp;
-			IMPORT_PARAM(stream, out->Value, temp);
+			IMPORT_PARAM(stream, out->m_value, temp);
 		}
 		}
 	);
@@ -75,9 +75,9 @@ void UniEngine::SerializationManager::Init()
 		{
 			Ray* out = static_cast<Ray*>(data);
 			std::stringstream stream;
-			EXPORT_PARAM(stream, out->Start);
-			EXPORT_PARAM(stream, out->Direction);
-			EXPORT_PARAM(stream, out->Length);
+			EXPORT_PARAM(stream, out->m_start);
+			EXPORT_PARAM(stream, out->m_direction);
+			EXPORT_PARAM(stream, out->m_length);
 			return stream.str();
 		},
 		[](const std::string& data, ComponentBase* ptr)
@@ -86,9 +86,9 @@ void UniEngine::SerializationManager::Init()
 			stream << data;
 			Ray* out = static_cast<Ray*>(ptr);
 			char temp;
-			IMPORT_PARAM(stream, out->Start, temp);
-			IMPORT_PARAM(stream, out->Direction, temp);
-			IMPORT_PARAM(stream, out->Length, temp);
+			IMPORT_PARAM(stream, out->m_start, temp);
+			IMPORT_PARAM(stream, out->m_direction, temp);
+			IMPORT_PARAM(stream, out->m_length, temp);
 		}
 		}
 	);

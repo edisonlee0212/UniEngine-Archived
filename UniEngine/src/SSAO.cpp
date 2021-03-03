@@ -6,38 +6,38 @@
 
 void UniEngine::SSAO::Init()
 {
-	_Name = "SSAO";
-	Graph = BezierCubic2D();
-	Graph.ControlPoints[1] = glm::vec2(1, 0);
-	Graph.ControlPoints[2] = glm::vec2(0.9, 1.0);
-	_OriginalColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
-	_OriginalColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
-	_OriginalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_OriginalColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_OriginalColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	_OriginalColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	m_name = "SSAO";
+	m_graph = BezierCubic2D();
+	m_graph.m_controlPoints[1] = glm::vec2(1, 0);
+	m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
+	m_originalColor = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
+	m_originalColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+	m_originalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	m_originalColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	m_originalColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	m_originalColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	_Position = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
-	_Position->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
-	_Position->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_Position->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_Position->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	_Position->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	m_position = std::make_unique<GLTexture2D>(0, GL_RGB32F, 1, 1, false);
+	m_position->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+	m_position->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	m_position->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	m_position->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	m_position->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	
-	_SSAOPosition = std::make_unique<GLTexture2D>(0, GL_R32F, 1, 1, false);
-	_SSAOPosition->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
-	_SSAOPosition->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_SSAOPosition->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_SSAOPosition->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	_SSAOPosition->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	m_ssaoPosition = std::make_unique<GLTexture2D>(0, GL_R32F, 1, 1, false);
+	m_ssaoPosition->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
+	m_ssaoPosition->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	m_ssaoPosition->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	m_ssaoPosition->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	m_ssaoPosition->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 
-	_SSAOBlur = std::make_unique<GLTexture2D>(0, GL_R32F, 1, 1, false);
-	_SSAOBlur->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
-	_SSAOBlur->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_SSAOBlur->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_SSAOBlur->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	_SSAOBlur->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	m_ssaoBlur = std::make_unique<GLTexture2D>(0, GL_R32F, 1, 1, false);
+	m_ssaoBlur->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
+	m_ssaoBlur->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	m_ssaoBlur->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	m_ssaoBlur->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	m_ssaoBlur->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	std::string vertShaderCode = std::string("#version 460 core\n") +
 		*Default::ShaderIncludes::Uniform +
@@ -49,7 +49,7 @@ void UniEngine::SSAO::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PositionReconstruct.frag"));
 
-	_PositionReconstructProgram = std::make_unique<GLProgram>(
+	m_positionReconstructProgram = std::make_unique<GLProgram>(
 		std::make_shared<GLShader>(ShaderType::Vertex, vertShaderCode),
 		std::make_shared<GLShader>(ShaderType::Fragment, fragShaderCode)
 		);
@@ -62,7 +62,7 @@ void UniEngine::SSAO::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
 
-	_GeometryProgram = std::make_unique<GLProgram>(
+	m_geometryProgram = std::make_unique<GLProgram>(
 		std::make_shared<GLShader>(ShaderType::Vertex, vertShaderCode),
 		std::make_shared<GLShader>(ShaderType::Fragment, fragShaderCode)
 		);
@@ -75,7 +75,7 @@ void UniEngine::SSAO::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"));
 
-	_BlurProgram = std::make_unique<GLProgram>(
+	m_blurProgram = std::make_unique<GLProgram>(
 		std::make_shared<GLShader>(ShaderType::Vertex, vertShaderCode),
 		std::make_shared<GLShader>(ShaderType::Fragment, fragShaderCode)
 		);
@@ -85,7 +85,7 @@ void UniEngine::SSAO::Init()
 		"\n" +
 		FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOCombine.frag"));
 
-	_CombineProgram = std::make_unique<GLProgram>(
+	m_combineProgram = std::make_unique<GLProgram>(
 		std::make_shared<GLShader>(ShaderType::Vertex, vertShaderCode),
 		std::make_shared<GLShader>(ShaderType::Fragment, fragShaderCode)
 		);
@@ -93,10 +93,10 @@ void UniEngine::SSAO::Init()
 
 void UniEngine::SSAO::ResizeResolution(int x, int y)
 {
-	_OriginalColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
-	_Position->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
-	_SSAOPosition->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
-	_SSAOBlur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+	m_originalColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
+	m_position->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
+	m_ssaoPosition->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+	m_ssaoBlur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
 }
 
 void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent, RenderTarget& renderTarget) const
@@ -108,58 +108,58 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 	unsigned int enums[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	Default::GLPrograms::ScreenVAO->Bind();
 
-	_PositionReconstructProgram->Bind();
-	renderTarget.AttachTexture(_Position.get(), GL_COLOR_ATTACHMENT0);
+	m_positionReconstructProgram->Bind();
+	renderTarget.AttachTexture(m_position.get(), GL_COLOR_ATTACHMENT0);
 	renderTarget.Bind();
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 	cameraComponent->m_depthStencilBuffer->Bind(0);
-	_PositionReconstructProgram->SetInt("inputTex", 0);
+	m_positionReconstructProgram->SetInt("inputTex", 0);
 	
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	
-	_GeometryProgram->Bind();
-	renderTarget.AttachTexture(_OriginalColor.get(), GL_COLOR_ATTACHMENT0);
-	renderTarget.AttachTexture(_SSAOPosition.get(), GL_COLOR_ATTACHMENT1);
+	m_geometryProgram->Bind();
+	renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);
+	renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT1);
 	glDrawBuffers(2, enums);
 	cameraComponent->m_colorTexture->Texture()->Bind(0);
 	//_Position->Bind(1);
 	cameraComponent->m_gPositionBuffer->Bind(1);
 	cameraComponent->m_gNormalBuffer->Bind(2);
-	_GeometryProgram->SetInt("image", 0);
-	_GeometryProgram->SetInt("gPositionShadow", 1);
-	_GeometryProgram->SetInt("gNormalShininess", 2);
-	_GeometryProgram->SetFloat("radius", SSAOKernelRadius);
-	_GeometryProgram->SetFloat("bias", SSAOKernelBias);
-	_GeometryProgram->SetFloat("noiseScale", SSAOScale);
-	_GeometryProgram->SetInt("kernelSize", SSAOSampleSize);
+	m_geometryProgram->SetInt("image", 0);
+	m_geometryProgram->SetInt("gPositionShadow", 1);
+	m_geometryProgram->SetInt("gNormalShininess", 2);
+	m_geometryProgram->SetFloat("radius", m_ssaoKernelRadius);
+	m_geometryProgram->SetFloat("bias", m_ssaoKernelBias);
+	m_geometryProgram->SetFloat("noiseScale", m_ssaoScale);
+	m_geometryProgram->SetInt("kernelSize", m_ssaoSampleSize);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
-	_BlurProgram->Bind();
-	renderTarget.AttachTexture(_SSAOBlur.get(), GL_COLOR_ATTACHMENT0);
+	m_blurProgram->Bind();
+	renderTarget.AttachTexture(m_ssaoBlur.get(), GL_COLOR_ATTACHMENT0);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	_SSAOPosition->Bind(0);
-	_BlurProgram->SetInt("image", 0);
-	_BlurProgram->SetFloat("sampleScale", BlurScale);
-	_BlurProgram->SetBool("horizontal", false);
-	_BlurProgram->SetFloat4("bezier", Graph.ControlPoints[1][0], Graph.ControlPoints[1][1], Graph.ControlPoints[2][0], Graph.ControlPoints[2][1]);
-	_BlurProgram->SetInt("diffusion", Diffusion);
-	_BlurProgram->SetFloat("intensity", Intensity);
+	m_ssaoPosition->Bind(0);
+	m_blurProgram->SetInt("image", 0);
+	m_blurProgram->SetFloat("sampleScale", m_blurScale);
+	m_blurProgram->SetBool("horizontal", false);
+	m_blurProgram->SetFloat4("bezier", m_graph.m_controlPoints[1][0], m_graph.m_controlPoints[1][1], m_graph.m_controlPoints[2][0], m_graph.m_controlPoints[2][1]);
+	m_blurProgram->SetInt("diffusion", m_diffusion);
+	m_blurProgram->SetFloat("intensity", m_intensity);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
-	renderTarget.AttachTexture(_SSAOPosition.get(), GL_COLOR_ATTACHMENT0);
-	_SSAOBlur->Bind(0);
-	_BlurProgram->SetBool("horizontal", true);
+	renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT0);
+	m_ssaoBlur->Bind(0);
+	m_blurProgram->SetBool("horizontal", true);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 
-	_CombineProgram->Bind();
+	m_combineProgram->Bind();
 	renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	_OriginalColor->Bind(0);
-	_SSAOPosition->Bind(1);
-	_CombineProgram->SetInt("originalColor", 0);
-	_CombineProgram->SetInt("ao", 1);
+	m_originalColor->Bind(0);
+	m_ssaoPosition->Bind(1);
+	m_combineProgram->SetInt("originalColor", 0);
+	m_combineProgram->SetInt("ao", 1);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
@@ -167,22 +167,22 @@ void UniEngine::SSAO::Process(std::unique_ptr<CameraComponent>& cameraComponent,
 void UniEngine::SSAO::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 {
 	if (ImGui::TreeNode("SSAO Settings")) {
-		ImGui::DragFloat("Radius##SSAO", &SSAOKernelRadius, 0.01f, 0.1f, 5.0f);
-		ImGui::DragFloat("Bias##SSAO", &SSAOKernelBias, 0.001f, 0.0f, 1.0f);
-		ImGui::DragInt("Sample Size##SSAO", &SSAOSampleSize, 1, 1, 64);
-		ImGui::DragFloat("Blur Scale##SSAO", &BlurScale, 0.001f, 0.01f, 1.0f);
-		ImGui::DragFloat("Intensity##SSAO", &Intensity, 0.001f, 0.001f, 1.0f);
-		ImGui::DragInt("Diffusion##SSAO", &Diffusion, 1.0f, 1, 64);
-		Graph.Graph("Bezier##SSAO");
+		ImGui::DragFloat("Radius##SSAO", &m_ssaoKernelRadius, 0.01f, 0.1f, 5.0f);
+		ImGui::DragFloat("Bias##SSAO", &m_ssaoKernelBias, 0.001f, 0.0f, 1.0f);
+		ImGui::DragInt("Sample Size##SSAO", &m_ssaoSampleSize, 1, 1, 64);
+		ImGui::DragFloat("Blur Scale##SSAO", &m_blurScale, 0.001f, 0.01f, 1.0f);
+		ImGui::DragFloat("Intensity##SSAO", &m_intensity, 0.001f, 0.001f, 1.0f);
+		ImGui::DragInt("Diffusion##SSAO", &m_diffusion, 1.0f, 1, 64);
+		m_graph.Graph("Bezier##SSAO");
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Debug##SSAO"))
 	{
 		ImGui::Image((ImTextureID)cameraComponent->m_gPositionBuffer->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Image((ImTextureID)_Position->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Image((ImTextureID)_OriginalColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Image((ImTextureID)_SSAOPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Image((ImTextureID)_SSAOBlur->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)m_position->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)m_originalColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)m_ssaoPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)m_ssaoBlur->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::TreePop();
 	}
 }

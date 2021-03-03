@@ -4,18 +4,18 @@
 #include "UniEngineAPI.h"
 namespace UniEngine {
 	struct UNIENGINE_API Vertex {
-		glm::vec3 Position;
-		glm::vec3 Normal;
-		glm::vec3 Tangent;
-		glm::vec4 Color;
-		glm::vec2 TexCoords0;
-		glm::vec2 TexCoords1;
-		glm::vec2 TexCoords2;
-		glm::vec2 TexCoords3;
-		glm::vec2 TexCoords4;
-		glm::vec2 TexCoords5;
-		glm::vec2 TexCoords6;
-		glm::vec2 TexCoords7;
+		glm::vec3 m_position;
+		glm::vec3 m_normal;
+		glm::vec3 m_tangent;
+		glm::vec4 m_color;
+		glm::vec2 m_texCoords0;
+		glm::vec2 m_texCoords1;
+		glm::vec2 m_texCoords2;
+		glm::vec2 m_texCoords3;
+		glm::vec2 m_texCoords4;
+		glm::vec2 m_texCoords5;
+		glm::vec2 m_texCoords6;
+		glm::vec2 m_texCoords7;
 	};
 	enum class UNIENGINE_API VertexAttribute
 	{
@@ -35,17 +35,17 @@ namespace UniEngine {
 
 	class UNIENGINE_API Mesh : public ResourceBehaviour
 	{
-		std::shared_ptr<GLVAO> _VAO;
-		size_t _VerticesSize;
-		size_t _IndicesSize;
-		unsigned _Mask;
-		Bound _Bound;
+		std::shared_ptr<GLVAO> m_vao;
+		size_t m_verticesSize;
+		size_t m_indicesSize;
+		unsigned m_mask;
+		Bound m_bound;
 		friend class MeshRenderer;
 		friend class Particles;
 		friend class EditorManager;
-		bool _LocalStored;
-		std::vector<Vertex> _Vertices;
-		std::vector<unsigned> _Indices;
+		bool m_localStored;
+		std::vector<Vertex> m_vertices;
+		std::vector<unsigned> m_indices;
 	public:
 		void OnGui();
 		glm::vec3 GetCenter() const;
@@ -56,7 +56,7 @@ namespace UniEngine {
 		size_t Size();
 		void RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
 		void RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
-		std::shared_ptr<GLVAO> VAO();
+		std::shared_ptr<GLVAO> Vao();
 		void Enable();
 		std::vector<Vertex>& GetVerticesUnsafe();
 		std::vector<unsigned>& GetIndicesUnsafe();

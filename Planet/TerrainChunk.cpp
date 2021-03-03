@@ -103,7 +103,7 @@ void Planet::TerrainChunk::GenerateTerrain(std::mutex& mutex, std::unique_ptr<Te
 			stage->Process(pointOnUnitCube, previousResult, elevation);
 			previousResult = elevation;
 		}
-		vertices.at(index).Position = glm::vec3(pointOnUnitCube * _PlanetTerrain->_Info.Radius * elevation);
+		vertices.at(index).m_position = glm::vec3(pointOnUnitCube * _PlanetTerrain->_Info.Radius * elevation);
 	}
 	std::lock_guard<std::mutex> lock(mutex);
 	auto mesh = std::make_unique<Mesh>();

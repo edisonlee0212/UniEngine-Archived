@@ -404,7 +404,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 
 void UniEngine::EntityManager::DeleteEntity(const Entity& entity)
 {
-	if (!Application::_Initialized)
+	if (!Application::m_initialized)
 	{
 		Debug::Error("DeleteEntity: Initialize Engine first!");
 		return;
@@ -474,7 +474,7 @@ void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& par
 		const auto childGlobalTransform = entity.GetComponentData<GlobalTransform>();
 		const auto parentGlobalTransform = parent.GetComponentData<GlobalTransform>();
 		Transform childTransform;
-		childTransform.Value = glm::inverse(parentGlobalTransform.Value) * childGlobalTransform.Value;
+		childTransform.m_value = glm::inverse(parentGlobalTransform.m_value) * childGlobalTransform.m_value;
 		entity.SetComponentData(childTransform);
 	}
 	GetInstance().m_entityInfos->at(childIndex).m_parent = parent;
@@ -553,7 +553,7 @@ void UniEngine::EntityManager::RemoveChild(const Entity& entity, const Entity& p
 	}
 	const auto childGlobalTransform = entity.GetComponentData<GlobalTransform>();
 	Transform childTransform;
-	childTransform.Value = childGlobalTransform.Value;
+	childTransform.m_value = childGlobalTransform.m_value;
 	entity.SetComponentData(childTransform);
 }
 

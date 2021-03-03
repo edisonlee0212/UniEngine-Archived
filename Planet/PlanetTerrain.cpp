@@ -47,7 +47,7 @@ void Planet::PlanetTerrain::Init(PlanetInfo& info, std::shared_ptr<Material> sur
 		for (size_t x = 0; x < resolution; x++)
 		{
 			size_t i = x + y * resolution;
-			_SharedVertices[i].TexCoords0 = glm::vec2(static_cast<float>(x) / (resolution - 1), static_cast<float>(y) / (resolution - 1));
+			_SharedVertices[i].m_texCoords0 = glm::vec2(static_cast<float>(x) / (resolution - 1), static_cast<float>(y) / (resolution - 1));
 			if (x != resolution - 1 && y != resolution - 1)
 			{
 				_SharedTriangles[triIndex] = i;

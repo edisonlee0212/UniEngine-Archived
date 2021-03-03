@@ -95,23 +95,23 @@ int main()
 	ltw.SetScale(glm::vec3(0.5f));
 
 	auto plc = std::make_unique<PointLight>();
-	plc->constant = 1.0f;
-	plc->linear = 0.09f;
-	plc->quadratic = 0.032f;
-	plc->farPlane = 70.0f;
-	plc->diffuse = glm::vec3(1.0f);
-	plc->diffuseBrightness = 5;
+	plc->m_constant = 1.0f;
+	plc->m_linear = 0.09f;
+	plc->m_quadratic = 0.032f;
+	plc->m_farPlane = 70.0f;
+	plc->m_diffuse = glm::vec3(1.0f);
+	plc->m_diffuseBrightness = 5;
 	Entity ple = EntityManager::CreateEntity("Point Light 1");
 	EntityManager::SetPrivateComponent(ple, std::move(plc));
 	EntityManager::SetComponentData(ple, ltw);
 	EntityManager::SetPrivateComponent<MeshRenderer>(ple, std::move(plmmc));
 	
 	plc = std::make_unique<PointLight>();
-	plc->constant = 1.0f;
-	plc->linear = 0.09f;
-	plc->quadratic = 0.032f;
-	plc->farPlane = 70.0f;
-	plc->diffuse = glm::vec3(1.0f);
+	plc->m_constant = 1.0f;
+	plc->m_linear = 0.09f;
+	plc->m_quadratic = 0.032f;
+	plc->m_farPlane = 70.0f;
+	plc->m_diffuse = glm::vec3(1.0f);
 	Entity ple2 = EntityManager::CreateEntity("Point Light 2");
 	EntityManager::SetPrivateComponent(ple2, std::move(plc));
 	EntityManager::SetComponentData(ple2, ltw);

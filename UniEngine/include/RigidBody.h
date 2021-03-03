@@ -12,20 +12,20 @@ namespace UniEngine {
     class UNIENGINE_API RigidBody :
         public PrivateComponentBase
     {
-        glm::mat4 _ShapeTransform;
-        bool _DrawBounds;
-        glm::vec3 _ShapeParam;
-        ShapeType _ShapeType;
-        bool _IsStatic;
+        glm::mat4 m_shapeTransform;
+        bool m_drawBounds;
+        glm::vec3 m_shapeParam;
+        ShapeType m_shapeType;
+        bool m_isStatic;
         friend class PhysicsSimulationManager;
-        PxRigidActor* _RigidBody = nullptr;
-        PxMaterial* _Material = nullptr;
-        PxShape* _Shape = nullptr;
-        float _Density;
-        PxVec3 _MassCenter;
-        bool _CurrentRegistered;
-        PxVec3 _LinearVelocity;
-        PxVec3 _AngularVelocity;
+        PxRigidActor* m_rigidBody = nullptr;
+        PxMaterial* m_material = nullptr;
+        PxShape* m_shape = nullptr;
+        float m_density;
+        PxVec3 m_massCenter;
+        bool m_currentRegistered;
+        PxVec3 m_linearVelocity;
+        PxVec3 m_angularVelocity;
         void RegisterCheck();
     public:
         RigidBody();

@@ -98,12 +98,12 @@ void Bound::PopulateCorners(std::vector<glm::vec3>& corners) const
 
 void UniEngine::World::SetFrameStartTime(double time) const
 {
-	m_time->_FrameStartTime = time;
+	m_time->m_frameStartTime = time;
 }
 
 void UniEngine::World::SetTimeStep(float timeStep) const
 {
-	m_time->_TimeStep = timeStep;
+	m_time->m_timeStep = timeStep;
 }
 
 size_t UniEngine::World::GetIndex() const
@@ -124,9 +124,9 @@ UniEngine::World::World(size_t index) {
 
 void World::ResetTime() const
 {
-	m_time->_DeltaTime = 0;
-	m_time->_LastFrameTime = 0;
-	m_time->_FixedDeltaTime = 0;
+	m_time->m_deltaTime = 0;
+	m_time->m_lastFrameTime = 0;
+	m_time->m_fixedDeltaTime = 0;
 }
 
 
@@ -153,7 +153,7 @@ UniEngine::World::~World() {
 void World::PreUpdate()
 {
 	m_needFixedUpdate = false;
-	if (m_time->_FixedDeltaTime >= m_time->_TimeStep) {
+	if (m_time->m_fixedDeltaTime >= m_time->m_timeStep) {
 		m_needFixedUpdate = true;
 	}
 	
@@ -165,7 +165,7 @@ void World::PreUpdate()
 		for (auto i : m_simulationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
-		if (PhysicsSimulationManager::GetInstance().m_enabled) PhysicsSimulationManager::Simulate(m_time->_FixedDeltaTime);
+		if (PhysicsSimulationManager::GetInstance().m_enabled) PhysicsSimulationManager::Simulate(m_time->m_fixedDeltaTime);
 		for (auto i : m_presentationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
@@ -212,7 +212,7 @@ void World::LateUpdate()
 	}
 	if (m_needFixedUpdate)
 	{
-		m_time->_FixedDeltaTime = 0;
+		m_time->m_fixedDeltaTime = 0;
 	}
 }
 

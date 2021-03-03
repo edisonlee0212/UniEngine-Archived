@@ -5,12 +5,12 @@
 #include "SerializationManager.h"
 void UniEngine::MeshRenderer::RenderBound(glm::vec4& color) const
 {
-	const auto transform = GetOwner().GetComponentData<GlobalTransform>().Value;
-	glm::vec3 size = m_mesh->_Bound.Size();
+	const auto transform = GetOwner().GetComponentData<GlobalTransform>().m_value;
+	glm::vec3 size = m_mesh->m_bound.Size();
 	if (size.x < 0.01f) size.x = 0.01f;
 	if (size.z < 0.01f) size.z = 0.01f;
 	if (size.y < 0.01f) size.y = 0.01f;
-	RenderManager::DrawGizmoCube(color, transform * (glm::translate(m_mesh->_Bound.Center()) * glm::scale(size)), 1);
+	RenderManager::DrawGizmoCube(color, transform * (glm::translate(m_mesh->m_bound.Center()) * glm::scale(size)), 1);
 }
 
 void UniEngine::MeshRenderer::OnGui()

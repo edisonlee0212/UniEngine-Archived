@@ -8,19 +8,31 @@ static const char* MatPolygonMode[]{ "Fill", "Line", "Point" };
 static const char* MatCullingMode[]{ "BACK", "FRONT", "OFF" };
 static const char* MatBlendingMode[]{ "OFF", "ONE_MINUS_SRC_ALPHA" };
 
+MaterialFloatProperty::MaterialFloatProperty(const std::string& name, const float& value)
+{
+	m_name = name;
+	m_value = value;
+}
+
+MaterialMat4Property::MaterialMat4Property(const std::string& name, const glm::mat4& value)
+{
+	m_name = name;
+	m_value = value;
+}
+
 Material::Material()
 {
-	_Textures[TextureType::ALBEDO] = nullptr;
-	_Textures[TextureType::NORMAL] = nullptr;
-	_Textures[TextureType::METALLIC] = nullptr;
-	_Textures[TextureType::ROUGHNESS] = nullptr;
-	_Textures[TextureType::AO] = nullptr;
+	m_textures[TextureType::Albedo] = nullptr;
+	m_textures[TextureType::Normal] = nullptr;
+	m_textures[TextureType::Metallic] = nullptr;
+	m_textures[TextureType::Roughness] = nullptr;
+	m_textures[TextureType::Ao] = nullptr;
 
-	_Textures[TextureType::AMBIENT] = nullptr;
-	_Textures[TextureType::DIFFUSE] = nullptr;
-	_Textures[TextureType::SPECULAR] = nullptr;
-	_Textures[TextureType::EMISSIVE] = nullptr;
-	_Textures[TextureType::DISPLACEMENT] = nullptr;
+	m_textures[TextureType::Ambient] = nullptr;
+	m_textures[TextureType::Diffuse] = nullptr;
+	m_textures[TextureType::Specular] = nullptr;
+	m_textures[TextureType::Emissive] = nullptr;
+	m_textures[TextureType::Displacement] = nullptr;
 	
 	
 	m_name = "New material";
@@ -43,25 +55,25 @@ void Material::OnGui()
 	ImGui::Separator();
 	ImGui::Text("Program:");
 	ImGui::SameLine();
-	EditorManager::DragAndDrop(_Program);
+	EditorManager::DragAndDrop(m_program);
 	ImGui::Separator();
 	if(ImGui::TreeNodeEx("PBR##Material", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		if (!_Textures[TextureType::ALBEDO])ImGui::ColorEdit3("Albedo##Material", &AlbedoColor.x);
-		if (!_Textures[TextureType::METALLIC])ImGui::DragFloat("Metallic##Material", &Metallic, 0.01f, 0.0f, 1.0f);
-		if (!_Textures[TextureType::ROUGHNESS])ImGui::DragFloat("Roughness##Material", &Roughness, 0.01f, 0.0f, 1.0f);
-		if (!_Textures[TextureType::AO])ImGui::DragFloat("AO##Material", &AmbientOcclusion, 0.01f, 0.0f, 1.0f);
-		if(_Textures[TextureType::DISPLACEMENT]) ImGui::DragFloat("DisplacementMapScale##Material", &DisplacementMapScale, 0.01f, -1.0f, 1.0f);
+		if (!m_textures[TextureType::Albedo])ImGui::ColorEdit3("Albedo##Material", &m_albedoColor.x);
+		if (!m_textures[TextureType::Metallic])ImGui::DragFloat("Metallic##Material", &m_metallic, 0.01f, 0.0f, 1.0f);
+		if (!m_textures[TextureType::Roughness])ImGui::DragFloat("Roughness##Material", &m_roughness, 0.01f, 0.0f, 1.0f);
+		if (!m_textures[TextureType::Ao])ImGui::DragFloat("AO##Material", &m_ambientOcclusion, 0.01f, 0.0f, 1.0f);
+		if(m_textures[TextureType::Displacement]) ImGui::DragFloat("DisplacementMapScale##Material", &m_displacementMapScale, 0.01f, -1.0f, 1.0f);
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNodeEx("Others##Material"))
 	{
-		ImGui::DragFloat("Shininess##Material", &Shininess, 1.0f, 1.0f, 1024.0f);
-		ImGui::Checkbox("Enable alpha discard##Material", &AlphaDiscardEnabled);
-		if (AlphaDiscardEnabled) ImGui::DragFloat("Alpha discard offset##Material", &AlphaDiscardOffset, 0.01f, 0.0f, 0.99f);
-		ImGui::Combo("Polygon Mode##Material", reinterpret_cast<int*>(&PolygonMode), MatPolygonMode, IM_ARRAYSIZE(MatPolygonMode));
-		ImGui::Combo("Culling Mode##Material", reinterpret_cast<int*>(&CullingMode), MatCullingMode, IM_ARRAYSIZE(MatCullingMode));
-		ImGui::Combo("Blending Mode##Material", reinterpret_cast<int*>(&BlendingMode), MatBlendingMode, IM_ARRAYSIZE(MatBlendingMode));
+		ImGui::DragFloat("Shininess##Material", &m_shininess, 1.0f, 1.0f, 1024.0f);
+		ImGui::Checkbox("Enable alpha discard##Material", &m_alphaDiscardEnabled);
+		if (m_alphaDiscardEnabled) ImGui::DragFloat("Alpha discard offset##Material", &m_alphaDiscardOffset, 0.01f, 0.0f, 0.99f);
+		ImGui::Combo("Polygon Mode##Material", reinterpret_cast<int*>(&m_polygonMode), MatPolygonMode, IM_ARRAYSIZE(MatPolygonMode));
+		ImGui::Combo("Culling Mode##Material", reinterpret_cast<int*>(&m_cullingMode), MatCullingMode, IM_ARRAYSIZE(MatCullingMode));
+		ImGui::Combo("Blending Mode##Material", reinterpret_cast<int*>(&m_blendingMode), MatBlendingMode, IM_ARRAYSIZE(MatBlendingMode));
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(m_name))).c_str())) {
@@ -70,8 +82,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Albedo:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::ALBEDO]);
-			if (_Textures[TextureType::ALBEDO]) _Textures[TextureType::ALBEDO]->SetType(TextureType::ALBEDO);
+			EditorManager::DragAndDrop(m_textures[TextureType::Albedo]);
+			if (m_textures[TextureType::Albedo]) m_textures[TextureType::Albedo]->SetType(TextureType::Albedo);
 		}
 
 		{
@@ -79,8 +91,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Normal:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::NORMAL]);
-			if (_Textures[TextureType::NORMAL]) _Textures[TextureType::NORMAL]->SetType(TextureType::NORMAL);
+			EditorManager::DragAndDrop(m_textures[TextureType::Normal]);
+			if (m_textures[TextureType::Normal]) m_textures[TextureType::Normal]->SetType(TextureType::Normal);
 		}
 
 		
@@ -89,8 +101,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Metallic:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::METALLIC]);
-			if (_Textures[TextureType::METALLIC]) _Textures[TextureType::METALLIC]->SetType(TextureType::METALLIC);
+			EditorManager::DragAndDrop(m_textures[TextureType::Metallic]);
+			if (m_textures[TextureType::Metallic]) m_textures[TextureType::Metallic]->SetType(TextureType::Metallic);
 		}
 		
 		{
@@ -98,8 +110,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Roughness:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::ROUGHNESS]);
-			if (_Textures[TextureType::ROUGHNESS]) _Textures[TextureType::ROUGHNESS]->SetType(TextureType::ROUGHNESS);
+			EditorManager::DragAndDrop(m_textures[TextureType::Roughness]);
+			if (m_textures[TextureType::Roughness]) m_textures[TextureType::Roughness]->SetType(TextureType::Roughness);
 		}
 
 		{
@@ -107,8 +119,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("AO:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::AO]);
-			if (_Textures[TextureType::AO]) _Textures[TextureType::AO]->SetType(TextureType::AO);
+			EditorManager::DragAndDrop(m_textures[TextureType::Ao]);
+			if (m_textures[TextureType::Ao]) m_textures[TextureType::Ao]->SetType(TextureType::Ao);
 		}
 
 		{
@@ -116,8 +128,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Ambient:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::AMBIENT]);
-			if (_Textures[TextureType::AMBIENT]) _Textures[TextureType::AMBIENT]->SetType(TextureType::AMBIENT);
+			EditorManager::DragAndDrop(m_textures[TextureType::Ambient]);
+			if (m_textures[TextureType::Ambient]) m_textures[TextureType::Ambient]->SetType(TextureType::Ambient);
 		}
 
 		{
@@ -125,8 +137,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Diffuse:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::DIFFUSE]);
-			if (_Textures[TextureType::DIFFUSE]) _Textures[TextureType::DIFFUSE]->SetType(TextureType::DIFFUSE);
+			EditorManager::DragAndDrop(m_textures[TextureType::Diffuse]);
+			if (m_textures[TextureType::Diffuse]) m_textures[TextureType::Diffuse]->SetType(TextureType::Diffuse);
 		}
 		
 		{
@@ -134,8 +146,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Specular:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::SPECULAR]);
-			if (_Textures[TextureType::SPECULAR]) _Textures[TextureType::SPECULAR]->SetType(TextureType::SPECULAR);
+			EditorManager::DragAndDrop(m_textures[TextureType::Specular]);
+			if (m_textures[TextureType::Specular]) m_textures[TextureType::Specular]->SetType(TextureType::Specular);
 		}
 
 		{
@@ -143,8 +155,8 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Emissive:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::EMISSIVE]);
-			if (_Textures[TextureType::EMISSIVE]) _Textures[TextureType::EMISSIVE]->SetType(TextureType::EMISSIVE);
+			EditorManager::DragAndDrop(m_textures[TextureType::Emissive]);
+			if (m_textures[TextureType::Emissive]) m_textures[TextureType::Emissive]->SetType(TextureType::Emissive);
 		}
 
 		
@@ -153,51 +165,51 @@ void Material::OnGui()
 			ImGui::Separator();
 			ImGui::Text("Height:");
 			ImGui::SameLine();
-			EditorManager::DragAndDrop(_Textures[TextureType::DISPLACEMENT]);
-			if (_Textures[TextureType::DISPLACEMENT]) _Textures[TextureType::DISPLACEMENT]->SetType(TextureType::DISPLACEMENT);
+			EditorManager::DragAndDrop(m_textures[TextureType::Displacement]);
+			if (m_textures[TextureType::Displacement]) m_textures[TextureType::Displacement]->SetType(TextureType::Displacement);
 		}
 		ImGui::TreePop();
 	}
 }
 
-void UniEngine::Material::SetMaterialProperty(const std::string& name, float value)
+void UniEngine::Material::SetMaterialProperty(const std::string& name, const float& value)
 {
-	for (auto& property : _FloatPropertyList)
+	for (auto& property : m_floatPropertyList)
 	{
-		if (property.Name._Equal(name))
+		if (property.m_name._Equal(name))
 		{
-			property.Value = value;
+			property.m_value = value;
 			return;
 		}
 	}
-	_FloatPropertyList.emplace_back(name, value);
+	m_floatPropertyList.emplace_back(name, value);
 }
 
-void UniEngine::Material::SetMaterialProperty(const std::string& name, glm::mat4 value)
+void UniEngine::Material::SetMaterialProperty(const std::string& name, const glm::mat4& value)
 {
-	for (auto& property : _Float4x4PropertyList)
+	for (auto& property : m_float4X4PropertyList)
 	{
-		if (property.Name._Equal(name))
+		if (property.m_name._Equal(name))
 		{
-			property.Value = value;
+			property.m_value = value;
 			return;
 		}
 	}
-	_Float4x4PropertyList.emplace_back(name, value);
+	m_float4X4PropertyList.emplace_back(name, value);
 }
 
 void Material::SetTexture(std::shared_ptr<Texture2D> texture)
 {
-	_Textures[texture->_Type] = texture;
+	m_textures[texture->m_type] = texture;
 }
 
 void Material::RemoveTexture(TextureType type)
 {
-	_Textures.erase(type);
+	m_textures.erase(type);
 }
 
 void Material::SetProgram(std::shared_ptr<GLProgram> program)
 {
-	_Program = std::move(program);
+	m_program = std::move(program);
 }
 

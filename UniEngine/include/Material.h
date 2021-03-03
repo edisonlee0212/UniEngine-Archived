@@ -8,65 +8,57 @@
 namespace UniEngine {
 	enum class UNIENGINE_API MaterialPolygonMode
 	{
-		FILL,
-		LINE,
-		POINT
+		Fill,
+		Line,
+		Point
 	};
 
 	enum class UNIENGINE_API MaterialCullingMode {
-		BACK,
-		FRONT,
-		OFF
+		Back,
+		Front,
+		Off
 	};
 
 	enum class UNIENGINE_API MaterialBlendingMode {
-		OFF,
-		ONE_MINUS_SRC_ALPHA,
+		Off,
+		OneMinusSrcAlpha,
 	};
 	
 	struct MaterialFloatProperty
 	{
-		std::string Name;
-		float Value;
-		MaterialFloatProperty(const std::string& name, float value)
-		{
-			Name = name;
-			Value = value;
-		}
+		std::string m_name;
+		float m_value;
+		MaterialFloatProperty(const std::string& name, const float& value);
 	};
 	struct MaterialMat4Property
 	{
-		std::string Name;
-		glm::mat4 Value;
-		MaterialMat4Property(const std::string& name, glm::mat4 value)
-		{
-			Name = name;
-			Value = value;
-		}
+		std::string m_name;
+		glm::mat4 m_value;
+		MaterialMat4Property(const std::string& name, const glm::mat4& value);
 	};
 	class UNIENGINE_API Material : public ResourceBehaviour
 	{
 		friend class RenderManager;
-		std::map<TextureType, std::shared_ptr<Texture2D>> _Textures;
-		std::shared_ptr<GLProgram> _Program;
-		std::vector<MaterialFloatProperty> _FloatPropertyList;
-		std::vector<MaterialMat4Property> _Float4x4PropertyList;
+		std::map<TextureType, std::shared_ptr<Texture2D>> m_textures;
+		std::shared_ptr<GLProgram> m_program;
+		std::vector<MaterialFloatProperty> m_floatPropertyList;
+		std::vector<MaterialMat4Property> m_float4X4PropertyList;
 	public:
-		MaterialPolygonMode PolygonMode = MaterialPolygonMode::FILL;
-		MaterialCullingMode CullingMode = MaterialCullingMode::BACK;
-		MaterialBlendingMode BlendingMode = MaterialBlendingMode::OFF;
-		float Shininess = 32.0f;
-		float Metallic = 0.3f;
-		float Roughness = 0.3f;
-		float AmbientOcclusion = 1.0f;
-		float DisplacementMapScale = -0.04f;
-		glm::vec3 AlbedoColor = glm::vec3(1.0f);
-		bool AlphaDiscardEnabled = true;
-		float AlphaDiscardOffset = 0.01f;
+		MaterialPolygonMode m_polygonMode = MaterialPolygonMode::Fill;
+		MaterialCullingMode m_cullingMode = MaterialCullingMode::Back;
+		MaterialBlendingMode m_blendingMode = MaterialBlendingMode::Off;
+		float m_shininess = 32.0f;
+		float m_metallic = 0.3f;
+		float m_roughness = 0.3f;
+		float m_ambientOcclusion = 1.0f;
+		float m_displacementMapScale = -0.04f;
+		glm::vec3 m_albedoColor = glm::vec3(1.0f);
+		bool m_alphaDiscardEnabled = true;
+		float m_alphaDiscardOffset = 0.01f;
 		Material();
 		void OnGui();
-		void SetMaterialProperty(const std::string& name, float value);
-		void SetMaterialProperty(const std::string& name, glm::mat4 value);
+		void SetMaterialProperty(const std::string& name, const float& value);
+		void SetMaterialProperty(const std::string& name, const glm::mat4& value);
 		void SetTexture(std::shared_ptr<Texture2D> texture);
 		void RemoveTexture(TextureType type);
 		void SetProgram(std::shared_ptr<GLProgram> program);

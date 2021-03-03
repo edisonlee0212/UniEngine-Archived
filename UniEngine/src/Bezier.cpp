@@ -5,16 +5,16 @@
 
 UniEngine::BezierCubic2D::BezierCubic2D()
 {
-    ControlPoints[0] = glm::vec2(0);
-    ControlPoints[1] = glm::vec2(0.5f, 0.0f);
-    ControlPoints[2] = glm::vec2(0.5f, 1.0f);
-    ControlPoints[3] = glm::vec2(1, 1);
+    m_controlPoints[0] = glm::vec2(0);
+    m_controlPoints[1] = glm::vec2(0.5f, 0.0f);
+    m_controlPoints[2] = glm::vec2(0.5f, 1.0f);
+    m_controlPoints[3] = glm::vec2(1, 1);
 }
 glm::vec2 UniEngine::BezierCubic2D::GetPoint(const float& t) const
 {
     float t1 = 1.0f - t;
 	
-    return t1 * t1 * t1 * ControlPoints[0] + 3.0f * t1 * t1 * t * ControlPoints[1] + 3.0f * t1 * t * t * ControlPoints[2] + t * t * t * ControlPoints[3];
+    return t1 * t1 * t1 * m_controlPoints[0] + 3.0f * t1 * t1 * t * m_controlPoints[1] + 3.0f * t1 * t * t * m_controlPoints[2] + t * t * t * m_controlPoints[3];
 }
 bool UniEngine::BezierCubic2D::Graph(const std::string& label)
 {
@@ -37,10 +37,10 @@ bool UniEngine::BezierCubic2D::Graph(const std::string& label)
     bool changed = false;
     // header and spacing
     if (ImGui::TreeNode(label.c_str())) {
-        if(!Fixed && ImGui::SliderFloat2("P0", &ControlPoints[0].x, 0, 1, "%.3f", 1.0f)) changed = true;
-		if(ImGui::SliderFloat2("P1", &ControlPoints[1].x, 0, 1, "%.3f", 1.0f)) changed = true;
-        if (ImGui::SliderFloat2("P2", &ControlPoints[2].x, 0, 1, "%.3f", 1.0f))changed = true;
-        if(!Fixed && ImGui::SliderFloat2("P3", &ControlPoints[3].x, 0, 1, "%.3f", 1.0f)) changed = true;
+        if(!m_fixed && ImGui::SliderFloat2("P0", &m_controlPoints[0].x, 0, 1, "%.3f", 1.0f)) changed = true;
+		if(ImGui::SliderFloat2("P1", &m_controlPoints[1].x, 0, 1, "%.3f", 1.0f)) changed = true;
+        if (ImGui::SliderFloat2("P2", &m_controlPoints[2].x, 0, 1, "%.3f", 1.0f))changed = true;
+        if(!m_fixed && ImGui::SliderFloat2("P3", &m_controlPoints[3].x, 0, 1, "%.3f", 1.0f)) changed = true;
         int hovered = ImGui::IsItemActive() || ImGui::IsItemHovered(); // IsItemDragged() ?
         ImGui::Dummy(ImVec2(0, 3));
 
@@ -74,7 +74,7 @@ bool UniEngine::BezierCubic2D::Graph(const std::string& label)
         }
 
         // eval curve
-        ImVec2 Q[4] = { { ControlPoints[0].x, ControlPoints[0].y }, { ControlPoints[1].x, ControlPoints[1].y }, { ControlPoints[2].x, ControlPoints[2].y }, { ControlPoints[3].x, ControlPoints[3].y } };
+        ImVec2 Q[4] = { { m_controlPoints[0].x, m_controlPoints[0].y }, { m_controlPoints[1].x, m_controlPoints[1].y }, { m_controlPoints[2].x, m_controlPoints[2].y }, { m_controlPoints[3].x, m_controlPoints[3].y } };
 
 
         // control points: 2 lines and 2 circles
@@ -84,18 +84,18 @@ bool UniEngine::BezierCubic2D::Graph(const std::string& label)
             float distance[2];
 
             for (int i = 1; i < 3; ++i) {
-                pos[i - 1] = ImVec2(ControlPoints[i].x, 1 - ControlPoints[i].y) * (bb.Max - bb.Min) + bb.Min;
+                pos[i - 1] = ImVec2(m_controlPoints[i].x, 1 - m_controlPoints[i].y) * (bb.Max - bb.Min) + bb.Min;
                 distance[i - 1] = (pos[i - 1].x - mouse.x) * (pos[i - 1].x - mouse.x) + (pos[i - 1].y - mouse.y) * (pos[i - 1].y - mouse.y);
             }
 
             int selected = distance[0] < distance[1] ? 1 : 2;
             if (distance[selected - 1] < (4 * GRAB_RADIUS * 4 * GRAB_RADIUS))
             {
-                ImGui::SetTooltip("(%4.3f, %4.3f)", ControlPoints[selected].x, ControlPoints[selected].y);
+                ImGui::SetTooltip("(%4.3f, %4.3f)", m_controlPoints[selected].x, m_controlPoints[selected].y);
 
                 if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0)) {
-                    float& px = ControlPoints[selected].x += ImGui::GetIO().MouseDelta.x / Canvas.x;
-                    float& py = ControlPoints[selected].y -= ImGui::GetIO().MouseDelta.y / Canvas.y;
+                    float& px = m_controlPoints[selected].x += ImGui::GetIO().MouseDelta.x / Canvas.x;
+                    float& py = m_controlPoints[selected].y -= ImGui::GetIO().MouseDelta.y / Canvas.y;
                     if (AREA_CONSTRAINED) {
                         px = (px < 0 ? 0 : (px > 1 ? 1 : px));
                         py = (py < 0 ? 0 : (py > 1 ? 1 : py));
@@ -145,10 +145,10 @@ bool UniEngine::BezierCubic2D::Graph(const std::string& label)
         // draw lines and grabbers
         float luma = ImGui::IsItemActive() || ImGui::IsItemHovered() ? 0.5f : 1.0f;
         ImVec4 pink(1.00f, 0.00f, 0.75f, luma), cyan(0.00f, 0.75f, 1.00f, luma);
-        ImVec2 p0 = ImVec2(ControlPoints[0].x, 1 - ControlPoints[0].y) * (bb.Max - bb.Min) + bb.Min;
-        ImVec2 p1 = ImVec2(ControlPoints[1].x, 1 - ControlPoints[1].y) * (bb.Max - bb.Min) + bb.Min;
-        ImVec2 p2 = ImVec2(ControlPoints[2].x, 1 - ControlPoints[2].y) * (bb.Max - bb.Min) + bb.Min;
-        ImVec2 p3 = ImVec2(ControlPoints[3].x, 1 - ControlPoints[3].y) * (bb.Max - bb.Min) + bb.Min;
+        ImVec2 p0 = ImVec2(m_controlPoints[0].x, 1 - m_controlPoints[0].y) * (bb.Max - bb.Min) + bb.Min;
+        ImVec2 p1 = ImVec2(m_controlPoints[1].x, 1 - m_controlPoints[1].y) * (bb.Max - bb.Min) + bb.Min;
+        ImVec2 p2 = ImVec2(m_controlPoints[2].x, 1 - m_controlPoints[2].y) * (bb.Max - bb.Min) + bb.Min;
+        ImVec2 p3 = ImVec2(m_controlPoints[3].x, 1 - m_controlPoints[3].y) * (bb.Max - bb.Min) + bb.Min;
         DrawList->AddLine(p0, p1, ImColor(white), LINE_WIDTH);
         DrawList->AddLine(p3, p2, ImColor(white), LINE_WIDTH);
         DrawList->AddCircleFilled(p1, GRAB_RADIUS, ImColor(white));

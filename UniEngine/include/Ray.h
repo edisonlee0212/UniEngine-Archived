@@ -5,9 +5,9 @@
 namespace UniEngine
 {
 	struct UNIENGINE_API Ray : ComponentBase {
-		glm::vec3 Start;
-		glm::vec3 Direction;
-		float Length;
+		glm::vec3 m_start;
+		glm::vec3 m_direction;
+		float m_length;
 		Ray() = default;
 		Ray(glm::vec3 start, glm::vec3 end);
 		Ray(glm::vec3 start, glm::vec3 direction, float length);
@@ -18,23 +18,23 @@ namespace UniEngine
 
 	inline Ray::Ray(glm::vec3 start, glm::vec3 end)
 	{
-		Start = start;
-		Direction = glm::normalize(end - start);
-		Length = glm::distance(start, end);
+		m_start = start;
+		m_direction = glm::normalize(end - start);
+		m_length = glm::distance(start, end);
 	}
 
 	inline Ray::Ray(glm::vec3 start, glm::vec3 direction, float length)
 	{
-		Start = start;
-		Direction = direction;
-		Length = length;
+		m_start = start;
+		m_direction = direction;
+		m_length = length;
 	}
 
 	inline bool Ray::Intersect(const glm::vec3& position, float radius) const
 	{
-		const glm::vec3 rayEnd = Start + Direction * Length;
-		auto cp = glm::closestPointOnLine(position, Start, rayEnd);
-		if (cp == Start || cp == rayEnd) return false;
+		const glm::vec3 rayEnd = m_start + m_direction * m_length;
+		const auto cp = glm::closestPointOnLine(position, m_start, rayEnd);
+		if (cp == m_start || cp == rayEnd) return false;
 		return glm::distance(cp, position) <= radius;
 	}
 
@@ -43,15 +43,15 @@ namespace UniEngine
 		float tMin = 0.0f;
 		float tMax = 100000.0f;
 		GlobalTransform t;
-		t.Value = model;
+		t.m_value = model;
 		glm::vec3 scale = t.GetScale();
 		t.SetScale(glm::vec3(1.0f));
-		glm::mat4 transform = t.Value;
+		glm::mat4 transform = t.m_value;
 		
 		glm::vec3 OBBWorldSpace(transform[3].x, transform[3].y, transform[3].z);
 		
 		
-		glm::vec3 delta = OBBWorldSpace - Start;
+		glm::vec3 delta = OBBWorldSpace - m_start;
 		glm::vec3 AABBMin = scale * (bound.m_min);
 		glm::vec3 AABBMax = scale * (bound.m_max);
 		// Test intersection with the 2 planes perpendicular to the OBB's X axis
@@ -59,7 +59,7 @@ namespace UniEngine
 			glm::vec3 xAxis(transform[0].x, transform[0].y, transform[0].z);
 			
 			float e = glm::dot(xAxis, delta);
-			float f = glm::dot(Direction, xAxis);
+			float f = glm::dot(m_direction, xAxis);
 
 			if (fabs(f) > 0.001f) { // Standard case
 
@@ -99,7 +99,7 @@ namespace UniEngine
 		{
 			glm::vec3 yAxis(transform[1].x, transform[1].y, transform[1].z);
 			float e = glm::dot(yAxis, delta);
-			float f = glm::dot(Direction, yAxis);
+			float f = glm::dot(m_direction, yAxis);
 
 			if (fabs(f) > 0.001f) {
 
@@ -128,7 +128,7 @@ namespace UniEngine
 		{
 			glm::vec3 zAxis(transform[2].x, transform[2].y, transform[2].z);
 			float e = glm::dot(zAxis, delta);
-			float f = glm::dot(Direction, zAxis);
+			float f = glm::dot(m_direction, zAxis);
 
 			if (fabs(f) > 0.001f) {
 
@@ -155,6 +155,6 @@ namespace UniEngine
 
 	inline glm::vec3 Ray::GetEnd() const
 	{
-		return Start + Direction * Length;
+		return m_start + m_direction * m_length;
 	}
 }

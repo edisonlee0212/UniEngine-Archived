@@ -40,9 +40,9 @@ int main()
 	Bloom* bloom = postProcessing->GetLayer<Bloom>();
 	if(bloom != nullptr)
 	{
-		bloom->Intensity = 0.03f;
-		bloom->Diffusion = 20;
-		bloom->Enabled = true;
+		bloom->m_intensity = 0.03f;
+		bloom->m_diffusion = 20;
+		bloom->m_enabled = true;
 	}
 	EntityManager::SetPrivateComponent(RenderManager::GetMainCamera()->GetOwner(), std::move(postProcessing));
 	RenderManager::GetMainCamera()->m_drawSkyBox = false;

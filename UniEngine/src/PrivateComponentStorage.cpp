@@ -4,34 +4,34 @@
 
 void UniEngine::PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeID)
 {
-	const auto search = _POwnersCollectionsMap.find(typeID);
-	if (search != _POwnersCollectionsMap.end())
+	const auto search = m_pOwnersCollectionsMap.find(typeID);
+	if (search != m_pOwnersCollectionsMap.end())
 	{
-		auto& collection = _POwnersCollectionsList[search->second].second;
-		const auto entitySearch = collection->_OwnersMap.find(entity);
-		if (entitySearch != collection->_OwnersMap.end())
+		auto& collection = m_pOwnersCollectionsList[search->second].second;
+		const auto entitySearch = collection->m_ownersMap.find(entity);
+		if (entitySearch != collection->m_ownersMap.end())
 		{
 			if (entity != entitySearch->first) {
 				Debug::Error("RemovePrivateComponent: Entity mismatch!");
 				return;
 			}
-			if(collection->_OwnersList.size() == 1)
+			if(collection->m_ownersList.size() == 1)
 			{
 				const auto eraseHash = typeID;
 				const auto eraseIndex = search->second;
-				const auto backHash = _POwnersCollectionsList.back().first;
-				_POwnersCollectionsMap[backHash] = eraseIndex;
-				std::swap(_POwnersCollectionsList[eraseIndex], _POwnersCollectionsList.back());
-				_POwnersCollectionsMap.erase(eraseHash);
-				_POwnersCollectionsList.pop_back();
+				const auto backHash = m_pOwnersCollectionsList.back().first;
+				m_pOwnersCollectionsMap[backHash] = eraseIndex;
+				std::swap(m_pOwnersCollectionsList[eraseIndex], m_pOwnersCollectionsList.back());
+				m_pOwnersCollectionsMap.erase(eraseHash);
+				m_pOwnersCollectionsList.pop_back();
 			}else
 			{
 				const auto eraseIndex = entitySearch->second;
-				const auto backEntity = collection->_OwnersList.back();
-				collection->_OwnersMap[backEntity] = eraseIndex;
-				collection->_OwnersMap.erase(entity);
-				collection->_OwnersList[eraseIndex] = backEntity;
-				collection->_OwnersList.pop_back();
+				const auto backEntity = collection->m_ownersList.back();
+				collection->m_ownersMap[backEntity] = eraseIndex;
+				collection->m_ownersMap.erase(entity);
+				collection->m_ownersList[eraseIndex] = backEntity;
+				collection->m_ownersList.pop_back();
 			}
 		}
 	}
@@ -47,21 +47,21 @@ void UniEngine::PrivateComponentStorage::DeleteEntity(Entity entity)
 
 void UniEngine::PrivateComponentStorage::SetPrivateComponent(Entity entity, size_t id)
 {
-	const auto search = _POwnersCollectionsMap.find(id);
-	if (search != _POwnersCollectionsMap.end())
+	const auto search = m_pOwnersCollectionsMap.find(id);
+	if (search != m_pOwnersCollectionsMap.end())
 	{
-		const auto insearch = _POwnersCollectionsList[search->second].second->_OwnersMap.find(entity);
-		if (insearch == _POwnersCollectionsList[search->second].second->_OwnersMap.end()) {
-			_POwnersCollectionsList[search->second].second->_OwnersMap.insert({ entity, _POwnersCollectionsList[search->second].second->_OwnersList.size() });
-			_POwnersCollectionsList[search->second].second->_OwnersList.push_back(entity);
+		const auto insearch = m_pOwnersCollectionsList[search->second].second->m_ownersMap.find(entity);
+		if (insearch == m_pOwnersCollectionsList[search->second].second->m_ownersMap.end()) {
+			m_pOwnersCollectionsList[search->second].second->m_ownersMap.insert({ entity, m_pOwnersCollectionsList[search->second].second->m_ownersList.size() });
+			m_pOwnersCollectionsList[search->second].second->m_ownersList.push_back(entity);
 		}
 	}
 	else
 	{
 		std::unique_ptr<POwnersCollection> collection = std::make_unique<POwnersCollection>();
-		collection->_OwnersMap.insert({ entity, 0 });
-		collection->_OwnersList.push_back(entity);
-		_POwnersCollectionsMap.insert({ id, _POwnersCollectionsList.size() });
-		_POwnersCollectionsList.push_back(std::make_pair(id, std::move(collection)));
+		collection->m_ownersMap.insert({ entity, 0 });
+		collection->m_ownersList.push_back(entity);
+		m_pOwnersCollectionsMap.insert({ id, m_pOwnersCollectionsList.size() });
+		m_pOwnersCollectionsList.push_back(std::make_pair(id, std::move(collection)));
 	}
 }

@@ -16,7 +16,7 @@ void UniEngine::TransformManager::LateUpdate()
 	EntityManager::ForEach<Transform, GlobalTransform>(JobManager::PrimaryWorkers(), GetInstance().m_transformQuery, [](int i, Entity entity, Transform& ltp, GlobalTransform& ltw)
 		{
 			if (EntityManager::IsEntityStatic(entity) || !EntityManager::GetParent(entity).IsNull()) return;
-			ltw.Value = ltp.Value;
+			ltw.m_value = ltp.m_value;
 			CalculateLtwRecursive(ltw, entity);
 		}, false
 		);
@@ -33,7 +33,7 @@ void UniEngine::TransformManager::CalculateLtwRecursive(const GlobalTransform& p
 	for (const auto& i : EntityManager::GetChildren(entity)) {
 		auto ltp = EntityManager::GetComponentData<Transform>(i);
 		GlobalTransform ltw;
-		ltw.Value = pltw.Value * ltp.Value;
+		ltw.m_value = pltw.m_value * ltp.m_value;
 		EntityManager::SetComponentData<GlobalTransform>(i, ltw);
 		//auto* ltp = static_cast<Transform*>(static_cast<void*>(EntityManager::GetComponentDataPointer(entity, typeid(Transform).hash_code())));
 		//auto* ltw = static_cast<GlobalTransform*>(static_cast<void*>(EntityManager::GetComponentDataPointer(entity, typeid(GlobalTransform).hash_code())));
