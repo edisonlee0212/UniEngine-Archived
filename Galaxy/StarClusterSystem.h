@@ -254,17 +254,15 @@ namespace Galaxy {
 		public SystemBase
 	{
 		EntityArchetype _StarClusterArchetype;
-		Entity _StarCluster;
+		Entity _StarClusterFront;
+		Entity _StarClusterBack;
 		std::vector<StarClusterPattern*> _Patterns;
 		EntityQuery _StarQuery;
 		EntityArchetype _StarArchetype;
 
-		bool _UseParticles = false;
-		std::mutex _SwapMutex;
-		bool _UseFront = true;
-		std::vector<glm::mat4> _MatricesFront;
-		std::vector<glm::mat4> _MatricesBack;
 
+		bool _UseFront = true;
+		
 		float _ApplyPositionTimer;
 		float _CopyPositionTimer;
 		float _CalcPositionTimer;
