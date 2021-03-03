@@ -5,54 +5,54 @@ using namespace UniEngine;
 
 std::string GLShader::GetCode() const
 {
-	return _Code;
+	return m_code;
 }
 
 bool GLShader::HasCode() const
 {
-	return _HasCode;
+	return m_hasCode;
 }
 
-inline UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : _Type(type)
+inline UniEngine::GLShader::GLShader(UniEngine::ShaderType type) : m_type(type)
 {
-	_ID = 0;
-	_Code = "";
-	_HasCode = false;
-	_Attachable = false;
-	switch (_Type)
+	m_id = 0;
+	m_code = "";
+	m_hasCode = false;
+	m_attachable = false;
+	switch (m_type)
 	{
 	case UniEngine::ShaderType::Vertex:
-		_ID = glCreateShader(GL_VERTEX_SHADER);
+		m_id = glCreateShader(GL_VERTEX_SHADER);
 		break;
 	case UniEngine::ShaderType::Geometry:
-		_ID = glCreateShader(GL_GEOMETRY_SHADER);
+		m_id = glCreateShader(GL_GEOMETRY_SHADER);
 		break;
 	case UniEngine::ShaderType::Fragment:
-		_ID = glCreateShader(GL_FRAGMENT_SHADER);
+		m_id = glCreateShader(GL_FRAGMENT_SHADER);
 		break;
 	default:
 		break;
 	}
 }
 
-inline UniEngine::GLShader::GLShader(ShaderType type, const std::string& code, bool store) : _Type(type)
+inline UniEngine::GLShader::GLShader(ShaderType type, const std::string& code, bool store) : m_type(type)
 {
 	if (store) {
-		_Code = code;
-		_HasCode = true;
+		m_code = code;
+		m_hasCode = true;
 	}
-	_ID = 0;
-	_Attachable = false;
-	switch (_Type)
+	m_id = 0;
+	m_attachable = false;
+	switch (m_type)
 	{
 	case UniEngine::ShaderType::Vertex:
-		_ID = glCreateShader(GL_VERTEX_SHADER);
+		m_id = glCreateShader(GL_VERTEX_SHADER);
 		break;
 	case UniEngine::ShaderType::Geometry:
-		_ID = glCreateShader(GL_GEOMETRY_SHADER);
+		m_id = glCreateShader(GL_GEOMETRY_SHADER);
 		break;
 	case UniEngine::ShaderType::Fragment:
-		_ID = glCreateShader(GL_FRAGMENT_SHADER);
+		m_id = glCreateShader(GL_FRAGMENT_SHADER);
 		break;
 	default:
 		break;
@@ -62,37 +62,37 @@ inline UniEngine::GLShader::GLShader(ShaderType type, const std::string& code, b
 
 inline UniEngine::GLShader::~GLShader()
 {
-	glDeleteShader(_ID);
+	glDeleteShader(m_id);
 }
 
 inline ShaderType UniEngine::GLShader::Type() const
 {
-	return _Type;
+	return m_type;
 }
 
 inline bool UniEngine::GLShader::Attachable() const
 {
-	return _Attachable;
+	return m_attachable;
 }
 
 
 inline void UniEngine::GLShader::Compile(const std::string& code, bool store)
 {
 	if (store) {
-		_Code = code;
-		_HasCode = true;
+		m_code = code;
+		m_hasCode = true;
 	}
 	const char* ptr = code.c_str();
-	glShaderSource(_ID, 1, &ptr, nullptr);
-	glCompileShader(_ID);
+	glShaderSource(m_id, 1, &ptr, nullptr);
+	glCompileShader(m_id);
 	GLint success;
 	GLchar infoLog[1024];
-	glGetShaderiv(_ID, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(m_id, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(_ID, 1024, NULL, infoLog);
+		glGetShaderInfoLog(m_id, 1024, NULL, infoLog);
 		std::string type;
-		switch (_Type)
+		switch (m_type)
 		{
 		case UniEngine::ShaderType::Vertex:
 			type = "Vertex";
@@ -108,23 +108,23 @@ inline void UniEngine::GLShader::Compile(const std::string& code, bool store)
 		}
 		Debug::Error("ERROR::SHADER_COMPILATION_ERROR of type: " + type + "\n" + infoLog + "\n -- --------------------------------------------------- -- ");
 	}
-	_Attachable = true;
+	m_attachable = true;
 }
 
 inline void UniEngine::GLShader::Attach(GLuint programID)
 {
-	if (!_Attachable) {
-		if(_HasCode)Compile(_Code);
+	if (!m_attachable) {
+		if(m_hasCode)Compile(m_code);
 		else
 		{
 			Debug::Log("No code!");
 		}
 	}
-	glAttachShader(programID, _ID);
+	glAttachShader(programID, m_id);
 }
 
 inline void UniEngine::GLShader::Detach(GLuint programID) const
 {
-	glDetachShader(programID, _ID);
+	glDetachShader(programID, m_id);
 }
 

@@ -6,12 +6,14 @@ namespace UniEngine
 	class UNIENGINE_API ResourceBehaviour {
 	protected:
 		friend class EditorManager;
-		std::shared_ptr<Texture2D> _Icon;
+		std::shared_ptr<Texture2D> m_icon;
 	public:
-		std::string Name;
-		virtual size_t GetHashCode() const
-		{
-			return reinterpret_cast<size_t>(this);
-		}
+		std::string m_name;
+		virtual size_t GetHashCode() const;
 	};
+
+	inline size_t ResourceBehaviour::GetHashCode() const
+	{
+		return reinterpret_cast<size_t>(this);
+	}
 }

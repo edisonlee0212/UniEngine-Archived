@@ -6,60 +6,59 @@ using namespace UniEngine;
 
 void World::Purge()
 {
-	_WorldEntityStorage.EntityPrivateComponentStorage = PrivateComponentStorage();
-	_WorldEntityStorage.Entities.clear();
-	_WorldEntityStorage.ParentRoots.clear();
-	_WorldEntityStorage.EntityInfos.clear();
-	_WorldEntityStorage.ParentHierarchyVersion = 0;
-	for(int index = 1; index < _WorldEntityStorage.EntityComponentStorage.size(); index++)
+	m_worldEntityStorage.m_entityPrivateComponentStorage = PrivateComponentStorage();
+	m_worldEntityStorage.m_entities.clear();
+	m_worldEntityStorage.m_entityInfos.clear();
+	m_worldEntityStorage.m_parentHierarchyVersion = 0;
+	for(int index = 1; index < m_worldEntityStorage.m_entityComponentStorage.size(); index++)
 	{
-		auto& i = _WorldEntityStorage.EntityComponentStorage[index];
-		for (auto& chunk : i.ChunkArray->Chunks) free(chunk.Data);
-		i.ChunkArray->Chunks.clear();
-		i.ChunkArray->Entities.clear();
-		i.ArchetypeInfo->EntityAliveCount = 0;
-		i.ArchetypeInfo->EntityCount = 0;
+		auto& i = m_worldEntityStorage.m_entityComponentStorage[index];
+		for (auto& chunk : i.m_chunkArray->Chunks) free(chunk.m_data);
+		i.m_chunkArray->Chunks.clear();
+		i.m_chunkArray->Entities.clear();
+		i.m_archetypeInfo->m_entityAliveCount = 0;
+		i.m_archetypeInfo->m_entityCount = 0;
 	}
 	
-	_WorldEntityStorage.Entities.emplace_back();
-	_WorldEntityStorage.EntityInfos.emplace_back();
+	m_worldEntityStorage.m_entities.emplace_back();
+	m_worldEntityStorage.m_entityInfos.emplace_back();
 }
 
 void World::RegisterFixedUpdateFunction(const std::function<void()>& func)
 {
-	_ExternalFixedUpdateFunctions.push_back(func);
+	m_externalFixedUpdateFunctions.push_back(func);
 }
 
 Bound UniEngine::World::GetBound() const
 {
-	return _WorldBound;
+	return m_worldBound;
 }
 
 void UniEngine::World::SetBound(const Bound& value)
 {
-	_WorldBound = value;
+	m_worldBound = value;
 }
 
 UniEngine::Bound::Bound()
 {
-	Min = glm::vec3(FLT_MIN);
-	Max = glm::vec3(FLT_MAX);
+	m_min = glm::vec3(FLT_MIN);
+	m_max = glm::vec3(FLT_MAX);
 }
 
 glm::vec3 Bound::Size() const
 {
-	return (Max - Min) / 2.0f;
+	return (m_max - m_min) / 2.0f;
 }
 
 glm::vec3 Bound::Center() const
 {
-	return (Max + Min) / 2.0f;
+	return (m_max + m_min) / 2.0f;
 }
 
 bool Bound::InBound(const glm::vec3& position) const
 {
-	glm::vec3 center = (Min + Max) / 2.0f;
-	glm::vec3 size = (Max - Min) / 2.0f;
+	glm::vec3 center = (m_min + m_max) / 2.0f;
+	glm::vec3 size = (m_max - m_min) / 2.0f;
 	if (glm::abs(position.x - center.x) > size.x) return false;
 	if (glm::abs(position.y - center.y) > size.y) return false;
 	if (glm::abs(position.z - center.z) > size.z) return false;
@@ -70,82 +69,82 @@ void Bound::ApplyTransform(const glm::mat4& transform)
 {
 	std::vector<glm::vec3> corners;
 	PopulateCorners(corners);
-	Min = glm::vec3(FLT_MAX);
-	Max = glm::vec3(FLT_MIN);
+	m_min = glm::vec3(FLT_MAX);
+	m_max = glm::vec3(FLT_MIN);
 
 	// Transform all of the corners, and keep track of the greatest and least
 	// values we see on each coordinate axis.
 	for (int i = 0; i < 8; i++)
 	{
 		glm::vec3 transformed = transform * glm::vec4(corners[i], 1.0f);
-		Min = glm::min(Min, transformed);
-		Max = glm::max(Max, transformed);
+		m_min = glm::min(m_min, transformed);
+		m_max = glm::max(m_max, transformed);
 	}
 }
 
 void Bound::PopulateCorners(std::vector<glm::vec3>& corners) const
 {
 	corners.resize(8);
-	corners[0] = Min;
-	corners[1] = glm::vec3(Min.x, Min.y, Max.z);
-	corners[2] = glm::vec3(Min.x, Max.y, Min.z);
-	corners[3] = glm::vec3(Max.x, Min.y, Min.z);
-	corners[4] = glm::vec3(Min.x, Max.y, Max.z);
-	corners[5] = glm::vec3(Max.x, Min.y, Max.z);
-	corners[6] = glm::vec3(Max.x, Max.y, Min.z);
-	corners[7] = Max;
+	corners[0] = m_min;
+	corners[1] = glm::vec3(m_min.x, m_min.y, m_max.z);
+	corners[2] = glm::vec3(m_min.x, m_max.y, m_min.z);
+	corners[3] = glm::vec3(m_max.x, m_min.y, m_min.z);
+	corners[4] = glm::vec3(m_min.x, m_max.y, m_max.z);
+	corners[5] = glm::vec3(m_max.x, m_min.y, m_max.z);
+	corners[6] = glm::vec3(m_max.x, m_max.y, m_min.z);
+	corners[7] = m_max;
 }
 
 
 void UniEngine::World::SetFrameStartTime(double time) const
 {
-	_Time->_FrameStartTime = time;
+	m_time->_FrameStartTime = time;
 }
 
 void UniEngine::World::SetTimeStep(float timeStep) const
 {
-	_Time->_TimeStep = timeStep;
+	m_time->_TimeStep = timeStep;
 }
 
 size_t UniEngine::World::GetIndex() const
 {
-	return _Index;
+	return m_index;
 }
 
 UniEngine::World::World(size_t index) {
-	_Index = index;
-	_Time = new WorldTime();
-	_WorldEntityStorage = WorldEntityStorage();
-	_WorldEntityStorage.Entities.emplace_back();
-	_WorldEntityStorage.EntityInfos.emplace_back();
-	_WorldEntityStorage.EntityComponentStorage.emplace_back(nullptr, nullptr);
-	_WorldEntityStorage.EntityQueries.emplace_back();
-	_WorldEntityStorage.EntityQueryInfos.emplace_back();
+	m_index = index;
+	m_time = new WorldTime();
+	m_worldEntityStorage = WorldEntityStorage();
+	m_worldEntityStorage.m_entities.emplace_back();
+	m_worldEntityStorage.m_entityInfos.emplace_back();
+	m_worldEntityStorage.m_entityComponentStorage.emplace_back(nullptr, nullptr);
+	m_worldEntityStorage.m_entityQueries.emplace_back();
+	m_worldEntityStorage.m_entityQueryInfos.emplace_back();
 }
 
 void World::ResetTime() const
 {
-	_Time->_DeltaTime = 0;
-	_Time->_LastFrameTime = 0;
-	_Time->_FixedDeltaTime = 0;
+	m_time->_DeltaTime = 0;
+	m_time->_LastFrameTime = 0;
+	m_time->_FixedDeltaTime = 0;
 }
 
 
 UniEngine::World::~World() {
-	for (auto i : _PreparationSystems) {
+	for (auto i : m_preparationSystems) {
 		i->OnDestroy();
 		delete i;
 	}
-	for (auto i : _SimulationSystems) {
+	for (auto i : m_simulationSystems) {
 		i->OnDestroy();
 		delete i;
 	}
-	for (auto i : _PresentationSystems) {
+	for (auto i : m_presentationSystems) {
 		i->OnDestroy();
 		delete i;
 	}
-	delete _Time;
-	if(EntityManager::_CurrentAttachedWorldEntityStorage == &_WorldEntityStorage)
+	delete m_time;
+	if(EntityManager::GetInstance().m_currentAttachedWorldEntityStorage == &m_worldEntityStorage)
 	{
 		EntityManager::Detach();
 	}
@@ -153,71 +152,71 @@ UniEngine::World::~World() {
 
 void World::PreUpdate()
 {
-	_NeedFixedUpdate = false;
-	if (_Time->_FixedDeltaTime >= _Time->_TimeStep) {
-		_NeedFixedUpdate = true;
+	m_needFixedUpdate = false;
+	if (m_time->_FixedDeltaTime >= m_time->_TimeStep) {
+		m_needFixedUpdate = true;
 	}
 	
-	if (_NeedFixedUpdate) {
-		for (const auto& i : _ExternalFixedUpdateFunctions) i();
-		for (auto i : _PreparationSystems) {
+	if (m_needFixedUpdate) {
+		for (const auto& i : m_externalFixedUpdateFunctions) i();
+		for (auto i : m_preparationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
-		for (auto i : _SimulationSystems) {
+		for (auto i : m_simulationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
-		if (PhysicsSimulationManager::Enabled) PhysicsSimulationManager::Simulate(_Time->_FixedDeltaTime);
-		for (auto i : _PresentationSystems) {
+		if (PhysicsSimulationManager::Enabled) PhysicsSimulationManager::Simulate(m_time->_FixedDeltaTime);
+		for (auto i : m_presentationSystems) {
 			if (i->Enabled()) i->FixedUpdate();
 		}
 	}
 	
-	for (auto i : _PreparationSystems) {
+	for (auto i : m_preparationSystems) {
 		if (i->Enabled()) i->PreUpdate();
 	}
 	
-	for (auto i : _SimulationSystems) {
+	for (auto i : m_simulationSystems) {
 		if (i->Enabled()) i->PreUpdate();
 	}
 	
-	for (auto i : _PresentationSystems) {
+	for (auto i : m_presentationSystems) {
 		if (i->Enabled()) i->PreUpdate();
 	}
 }
 
 void UniEngine::World::Update() {
 	
-	for (auto i : _PreparationSystems) {
+	for (auto i : m_preparationSystems) {
 		if (i->Enabled()) i->Update();
 	}
-	for (auto i : _SimulationSystems) {
+	for (auto i : m_simulationSystems) {
 		if (i->Enabled()) i->Update();
 	}
-	for (auto i : _PresentationSystems) {
+	for (auto i : m_presentationSystems) {
 		if (i->Enabled()) i->Update();
 	}
 }
 
 void World::LateUpdate()
 {
-	for (auto i : _PreparationSystems) {
+	for (auto i : m_preparationSystems) {
 		if (i->Enabled()) i->LateUpdate();
 	}
 
-	for (auto i : _SimulationSystems) {
+	for (auto i : m_simulationSystems) {
 		if (i->Enabled()) i->LateUpdate();
 	}
 
-	for (auto i : _PresentationSystems) {
+	for (auto i : m_presentationSystems) {
 		if (i->Enabled()) i->LateUpdate();
 	}
-	if (_NeedFixedUpdate)
+	if (m_needFixedUpdate)
 	{
-		_Time->_FixedDeltaTime = 0;
+		m_time->_FixedDeltaTime = 0;
 	}
 }
 
 WorldTime* UniEngine::World::Time() const
 {
-	return _Time;
+	return m_time;
 }

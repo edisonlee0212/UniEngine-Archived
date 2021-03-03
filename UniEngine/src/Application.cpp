@@ -122,7 +122,7 @@ void UniEngine::Application::PreUpdateInternal()
 	if (!_Initialized) return;
 	glfwPollEvents();
 	_Initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
-	_World->_Time->_DeltaTime = _World->_Time->_LastFrameTime - _World->_Time->_FrameStartTime;
+	_World->m_time->_DeltaTime = _World->m_time->_LastFrameTime - _World->m_time->_FrameStartTime;
 	_World->SetFrameStartTime(glfwGetTime());
 #pragma region ImGui
 	ImGui_ImplOpenGL3_NewFrame();
@@ -178,7 +178,7 @@ void UniEngine::Application::PreUpdateInternal()
 	
 	for (const auto& i : _ExternalPreUpdateFunctions) i();
 	if (_Playing) {
-		_World->_Time->_FixedDeltaTime += _World->_Time->_DeltaTime;
+		_World->m_time->_FixedDeltaTime += _World->m_time->_DeltaTime;
 		_World->PreUpdate();
 	}
 }
@@ -229,7 +229,7 @@ bool UniEngine::Application::LateUpdateInternal()
 #pragma endregion
 	//Swap Window's framebuffer
 	WindowManager::Swap();
-	_World->_Time->_LastFrameTime = glfwGetTime();
+	_World->m_time->_LastFrameTime = glfwGetTime();
 	return _Initialized;
 }
 

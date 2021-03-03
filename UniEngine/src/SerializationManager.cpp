@@ -315,25 +315,25 @@ std::istream& UniEngine::operator>>(std::istream& in, glm::mat4& v)
 void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& world, YAML::Emitter& out, const Entity& entity)
 {
 	out << YAML::BeginMap;
-	out << YAML::Key << "Entity" << YAML::Value << std::to_string(entity.Index);
+	out << YAML::Key << "Entity" << YAML::Value << std::to_string(entity.m_index);
 	out << YAML::Key << "IsEnabled" << YAML::Value << entity.IsEnabled();
 	out << YAML::Key << "ArchetypeName" << YAML::Value << EntityManager::GetEntityArchetypeName(EntityManager::GetEntityArchetype(entity));
 	out << YAML::Key << "Name" << YAML::Value << entity.GetName();
-	out << YAML::Key << "Parent" << YAML::Value << EntityManager::GetParent(entity).Index;
+	out << YAML::Key << "Parent" << YAML::Value << EntityManager::GetParent(entity).m_index;
 #pragma region ComponentData
 	out << YAML::Key << "ComponentData" << YAML::Value << YAML::BeginSeq;
-	auto& storage = world->_WorldEntityStorage;
+	auto& storage = world->m_worldEntityStorage;
 	std::vector<ComponentType>& componentTypes =
-		storage.EntityComponentStorage[storage.EntityInfos[entity.Index].ArchetypeInfoIndex].ArchetypeInfo->ComponentTypes;
+		storage.m_entityComponentStorage[storage.m_entityInfos[entity.m_index].m_archetypeInfoIndex].m_archetypeInfo->m_componentTypes;
 	for (const auto& type : componentTypes)
 	{
 		out << YAML::BeginMap;
-		out << YAML::Key << "Name" << YAML::Value << type.Name;
+		out << YAML::Key << "Name" << YAML::Value << type.m_name;
 		std::string value;
-		const auto it = GetInstance()._ComponentDataSerializers.find(type.TypeID);
+		const auto it = GetInstance()._ComponentDataSerializers.find(type.m_typeId);
 		if (it != GetInstance()._ComponentDataSerializers.end())
 		{
-			ComponentBase* ptr = EntityManager::GetComponentDataPointer(entity, type.TypeID);
+			ComponentBase* ptr = EntityManager::GetComponentDataPointer(entity, type.m_typeId);
 			value = it->second.first(ptr);
 		}
 		out << YAML::Key << "Content" << YAML::Value << value;
@@ -347,9 +347,9 @@ void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& wo
 	EntityManager::ForEachPrivateComponent(entity, [&](PrivateComponentElement& data)
 		{
 			out << YAML::BeginMap;
-			out << YAML::Key << "Name" << YAML::Value << data.Name;
-			out << YAML::Key << "IsEnabled" << YAML::Value << data.PrivateComponentData.get()->_Enabled;
-			data.PrivateComponentData->Serialize(out);
+			out << YAML::Key << "Name" << YAML::Value << data.m_name;
+			out << YAML::Key << "IsEnabled" << YAML::Value << data.m_privateComponentData.get()->m_enabled;
+			data.m_privateComponentData->Serialize(out);
 			out << YAML::EndMap;
 		}
 	);
@@ -390,7 +390,7 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(std::unique
 	retVal = EntityManager::CreateEntity(archetype, entityName);
 	for (int i = 0; i < ptrs.size(); i++)
 	{
-		EntityManager::SetComponentData(retVal, types[i].TypeID, types[i].Size, ptrs[i].get());
+		EntityManager::SetComponentData(retVal, types[i].m_typeId, types[i].m_size, ptrs[i].get());
 	}
 
 	auto privateComponents = node["PrivateComponent"];
@@ -403,7 +403,7 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(std::unique
 			auto* ptr = dynamic_cast<PrivateComponentBase*>(ComponentFactory::ProduceSerializableObject(
 				name, hashCode));
 			ptr->Deserialize(privateComponent);
-			ptr->_Enabled = privateComponent["IsEnabled"].as<bool>();
+			ptr->m_enabled = privateComponent["IsEnabled"].as<bool>();
 			EntityManager::SetPrivateComponent(retVal, name, hashCode, ptr);
 		}
 	}
@@ -420,9 +420,9 @@ void UniEngine::SerializationManager::Serialize(std::unique_ptr<World>& world, c
 	out << YAML::Value << "World_Name";
 	out << YAML::Key << "Entities";
 	out << YAML::Value << YAML::BeginSeq;
-	for (const auto& entity : world->_WorldEntityStorage.Entities)
+	for (const auto& entity : world->m_worldEntityStorage.m_entities)
 	{
-		if (entity.Version == 0) continue;
+		if (entity.m_version == 0) continue;
 		SerializeEntity(world, out, entity);
 	}
 	out << YAML::EndSeq;
@@ -456,7 +456,7 @@ bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World>& world,
 			auto parent = node["Parent"].as<unsigned>();
 			
 			auto entity = DeserializeEntity(world, node);
-			world->_WorldEntityStorage.EntityInfos[entity.Index].Enabled = node["IsEnabled"].as<bool>();
+			world->m_worldEntityStorage.m_entityInfos[entity.m_index].m_enabled = node["IsEnabled"].as<bool>();
 			if (entity.IsNull())
 			{
 				Debug::Error("Error!");

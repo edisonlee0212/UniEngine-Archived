@@ -6,8 +6,8 @@ namespace UniEngine
 {
 	class UNIENGINE_API JobManager final : public Singleton<JobManager>
 	{
-		ThreadPool _PrimaryWorkers;
-		ThreadPool _SecondaryWorkers;
+		ThreadPool m_primaryWorkers;
+		ThreadPool m_secondaryWorkers;
 	public:
 		static void ResizePrimaryWorkers(int size);
 		static void ResizeSecondaryWorkers(int size);

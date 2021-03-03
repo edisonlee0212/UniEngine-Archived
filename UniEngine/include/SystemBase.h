@@ -8,9 +8,9 @@ namespace UniEngine {
 	{
 	protected:
 		friend class World;
-		bool _Enabled;
-		WorldTime* _Time;
-		World* _World;
+		bool m_enabled;
+		WorldTime* m_time;
+		World* m_world;
 		virtual void OnStartRunning() {}
 		virtual void OnStopRunning() {}
 		SystemBase();

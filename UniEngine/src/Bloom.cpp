@@ -120,9 +120,9 @@ void UniEngine::Bloom::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 		BezierGraph.Graph("Bezier##Bloom");
 		if (ImGui::TreeNode("Debug##Bloom"))
 		{
-			ImGui::Image((ImTextureID)_FlatColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::Image((ImTextureID)_Result->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-			ImGui::Image((ImTextureID)_BrightColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_FlatColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_Result->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)_BrightColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		}
 		ImGui::TreePop();
 	}

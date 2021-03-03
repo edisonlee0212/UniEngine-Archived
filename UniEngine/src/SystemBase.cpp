@@ -3,26 +3,26 @@
 using namespace UniEngine;
 UniEngine::SystemBase::SystemBase()
 {
-	_Enabled = false;
+	m_enabled = false;
 }
 
 void UniEngine::SystemBase::Enable()
 {
-	if (!_Enabled) {
-		_Enabled = true;
+	if (!m_enabled) {
+		m_enabled = true;
 		OnStartRunning();
 	}
 }
 
 void UniEngine::SystemBase::Disable()
 {
-	if (_Enabled) {
-		_Enabled = false;
+	if (m_enabled) {
+		m_enabled = false;
 		OnStopRunning();
 	}
 }
 
 bool UniEngine::SystemBase::Enabled() const
 {
-	return _Enabled;
+	return m_enabled;
 }

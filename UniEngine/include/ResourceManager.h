@@ -55,7 +55,7 @@ namespace UniEngine {
 	{
 		for(const auto& i : _Resources[typeid(T).hash_code()].second)
 		{
-			if (i.second->Name._Equal(objectName)) return std::dynamic_pointer_cast<ResourceBehaviour>(i.second);
+			if (i.second->m_name._Equal(objectName)) return std::dynamic_pointer_cast<ResourceBehaviour>(i.second);
 		}
 		return nullptr;
 	}

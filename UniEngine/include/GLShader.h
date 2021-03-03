@@ -8,10 +8,10 @@ namespace UniEngine {
 	};
 	class UNIENGINE_API GLShader : public GLObject
 	{
-		std::string _Code;
-		bool _HasCode = false;
-		ShaderType _Type;
-		bool _Attachable;
+		std::string m_code;
+		bool m_hasCode = false;
+		ShaderType m_type;
+		bool m_attachable;
 	public:
 		std::string GetCode() const;
 		bool HasCode() const;

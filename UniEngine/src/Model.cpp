@@ -4,7 +4,7 @@ using namespace UniEngine;
 UniEngine::Model::Model()
 {
     _RootNode = std::make_unique<ModelNode>();
-    Name = "New model";
+    m_name = "New model";
 }
 
 std::unique_ptr<ModelNode>& UniEngine::Model::RootNode()

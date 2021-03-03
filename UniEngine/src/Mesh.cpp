@@ -4,14 +4,14 @@ using namespace UniEngine;
 
 void Mesh::OnGui()
 {
-	ImGui::Text(("Name: " + Name).c_str());
-	if (ImGui::BeginPopupContextItem(Name.c_str()))
+	ImGui::Text(("Name: " + m_name).c_str());
+	if (ImGui::BeginPopupContextItem(m_name.c_str()))
 	{
 		if (ImGui::BeginMenu("Rename"))
 		{
 			static char newName[256];
 			ImGui::InputText("New name", newName, 256);
-			if (ImGui::Button("Confirm")) Name = std::string(newName);
+			if (ImGui::Button("Confirm")) m_name = std::string(newName);
 			ImGui::EndMenu();
 		}
 		ImGui::EndPopup();
@@ -32,7 +32,7 @@ UniEngine::Mesh::Mesh()
 	_VAO = std::make_shared<GLVAO>();
 	_IndicesSize = 0;
 	_Bound = Bound();
-	Name = "New mesh";
+	m_name = "New mesh";
 }
 
 void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store)
@@ -137,8 +137,8 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, 
 			texcoords7s.push_back(vertices.at(i).TexCoords7);
 		}
 	}
-	_Bound.Max = maxBound;
-	_Bound.Min = minBound;
+	_Bound.m_max = maxBound;
+	_Bound.m_min = minBound;
 #pragma endregion
 #pragma region ToGPU
 
@@ -247,7 +247,7 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, 
 		attributeSize += sizeof(glm::vec2);
 	}
 #pragma endregion
-	_VAO->EBO()->SetData((GLsizei)_IndicesSize * sizeof(unsigned), &indices.at(0), GL_STATIC_DRAW);
+	_VAO->Ebo()->SetData((GLsizei)_IndicesSize * sizeof(unsigned), &indices.at(0), GL_STATIC_DRAW);
 
 	_LocalStored = store;
 	if (store)

@@ -59,7 +59,7 @@ std::unique_ptr<GLProgram> EditorManager::_SceneHighlightInstancedProgram;
 inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
 {
 	bool deleted = false;
-	if (ImGui::BeginPopupContextItem(std::to_string(entity.Index).c_str()))
+	if (ImGui::BeginPopupContextItem(std::to_string(entity.m_index).c_str()))
 	{
 		if (ImGui::Button("Delete")) {
 			EntityManager::DeleteEntity(entity);
@@ -89,8 +89,8 @@ inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entit
 
 void UniEngine::EditorManager::InspectComponentData(Entity entity, ComponentBase* data, ComponentType type, bool isRoot)
 {
-	if (_ComponentDataInspectorMap.find(type.TypeID) != _ComponentDataInspectorMap.end()) {
-		_ComponentDataInspectorMap.at(type.TypeID)(entity, data, isRoot);
+	if (_ComponentDataInspectorMap.find(type.m_typeId) != _ComponentDataInspectorMap.end()) {
+		_ComponentDataInspectorMap.at(type.m_typeId)(entity, data, isRoot);
 	}
 }
 
@@ -107,8 +107,8 @@ Entity EditorManager::MouseEntitySelection(const glm::vec2& mousePosition)
 		glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
 		if (entityIndex > 0)
 		{
-			retVal.Version = EntityManager::_EntityInfos->at(static_cast<unsigned>(entityIndex)).Version;
-			retVal.Index = static_cast<unsigned>(entityIndex);
+			retVal.m_version = EntityManager::GetInstance().m_entityInfos->at(static_cast<unsigned>(entityIndex)).m_version;
+			retVal.m_index = static_cast<unsigned>(entityIndex);
 		}
 	}
 	return retVal;
@@ -373,7 +373,7 @@ void UniEngine::EditorManager::Init()
 			static Entity previousEntity;
 			if (entity.IsStatic())
 			{
-				previousEntity.Index = previousEntity.Version = 0;
+				previousEntity.m_index = previousEntity.m_version = 0;
 				auto* ltp = static_cast<Transform*>(static_cast<void*>(data));
 				glm::vec3 er;
 				glm::vec3 t;
@@ -499,7 +499,7 @@ void UniEngine::EditorManager::Init()
 			}
 		}
 	);
-	_SelectedEntity.Index = 0;
+	_SelectedEntity.m_index = 0;
 	_ConfigFlags += EntityEditorSystem_EnableEntityHierarchy;
 	_ConfigFlags += EntityEditorSystem_EnableEntityInspector;
 	SceneCamera = std::make_unique<CameraComponent>();
@@ -567,7 +567,7 @@ Entity EditorManager::GetSelectedEntity()
 
 void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
 {
-	std::string title = std::to_string(entity.Index) + ": ";
+	std::string title = std::to_string(entity.m_index) + ": ";
 	title += entity.GetName();
 	bool enabled = entity.IsEnabled();
 	if (enabled) {
@@ -649,14 +649,14 @@ void EditorManager::LateUpdate()
 		if (_SelectedHierarchyDisplayMode == 0) {
 			EntityManager::UnsafeForEachEntityStorage([](int i, EntityComponentStorage storage) {
 				ImGui::Separator();
-				std::string title = std::to_string(i) + ". " + storage.ArchetypeInfo->Name;
+				std::string title = std::to_string(i) + ". " + storage.m_archetypeInfo->m_name;
 				if (ImGui::CollapsingHeader(title.c_str())) {
 					ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
 					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
 					ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
-					for (int j = 0; j < storage.ArchetypeInfo->EntityAliveCount; j++) {
-						Entity entity = storage.ChunkArray->Entities.at(j);
-						std::string title = std::to_string(entity.Index) + ": ";
+					for (int j = 0; j < storage.m_archetypeInfo->m_entityAliveCount; j++) {
+						Entity entity = storage.m_chunkArray->Entities.at(j);
+						std::string title = std::to_string(entity.m_index) + ": ";
 						title += entity.GetName();
 						bool enabled = entity.IsEnabled();
 						if (enabled) {
@@ -696,7 +696,7 @@ void EditorManager::LateUpdate()
 	if (_ConfigFlags & EntityEditorSystem_EnableEntityInspector) {
 		ImGui::Begin("Entity Inspector");
 		if (!_SelectedEntity.IsNull() && !_SelectedEntity.IsDeleted()) {
-			std::string title = std::to_string(_SelectedEntity.Index) + ": ";
+			std::string title = std::to_string(_SelectedEntity.m_index) + ": ";
 			title += _SelectedEntity.GetName();
 			bool enabled = _SelectedEntity.IsEnabled();
 			if (ImGui::Checkbox((title + "##EnabledCheckbox").c_str(), &enabled)) {
@@ -734,8 +734,8 @@ void EditorManager::LateUpdate()
 					EntityManager::UnsafeForEachComponent(_SelectedEntity, [&skip, &i](ComponentType type, void* data)
 						{
 							if (skip) return;
-							std::string info = type.Name.substr(7);
-							info += " Size: " + std::to_string(type.Size);
+							std::string info = type.m_name.substr(7);
+							info += " Size: " + std::to_string(type.m_size);
 							ImGui::Text(info.c_str());
 							ImGui::PushID(i);
 							if (ImGui::BeginPopupContextItem(("DataComponentDeletePopup" + std::to_string(i)).c_str()))
@@ -743,7 +743,7 @@ void EditorManager::LateUpdate()
 								if (ImGui::Button("Remove"))
 								{
 									skip = true;
-									EntityManager::RemoveComponentData(_SelectedEntity, type.TypeID);
+									EntityManager::RemoveComponentData(_SelectedEntity, type.m_typeId);
 								}
 								ImGui::EndPopup();
 							}
@@ -773,21 +773,21 @@ void EditorManager::LateUpdate()
 					EntityManager::ForEachPrivateComponent(_SelectedEntity, [&i, &skip](PrivateComponentElement& data)
 						{
 							if (skip) return;
-							ImGui::Checkbox(data.Name.substr(6).c_str(), &data.PrivateComponentData->_Enabled);
+							ImGui::Checkbox(data.m_name.substr(6).c_str(), &data.m_privateComponentData->m_enabled);
 							ImGui::PushID(i);
 							if (ImGui::BeginPopupContextItem(("PrivateComponentDeletePopup" + std::to_string(i)).c_str()))
 							{
 								if (ImGui::Button("Remove"))
 								{
 									skip = true;
-									EntityManager::RemovePrivateComponent(_SelectedEntity, data.TypeID);
+									EntityManager::RemovePrivateComponent(_SelectedEntity, data.m_typeId);
 								}
 								ImGui::EndPopup();
 							}
 							ImGui::PopID();
 							if (!skip) {
 								if (ImGui::TreeNodeEx(("Component Settings##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-									data.PrivateComponentData->OnGui();
+									data.m_privateComponentData->OnGui();
 									ImGui::TreePop();
 								}
 								ImGui::Separator();
@@ -799,7 +799,7 @@ void EditorManager::LateUpdate()
 			}
 		}
 		else {
-			_SelectedEntity.Index = 0;
+			_SelectedEntity.m_index = 0;
 		}
 		ImGui::End();
 	}
@@ -814,7 +814,7 @@ void EditorManager::LateUpdate()
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
-			ImGui::Image((ImTextureID)SceneCamera->GetTexture()->Texture()->ID(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)SceneCamera->GetTexture()->Texture()->Id(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
 			{
 				const std::string modelTypeHash = std::to_string(std::hash<std::string>{}(typeid(Model).name()));
@@ -933,9 +933,9 @@ void EditorManager::LateUpdate()
 				{
 					Entity focusedEntity = MouseEntitySelection(mousePosition);
 					Entity rootEntity = EntityManager::GetRoot(focusedEntity);
-					if (focusedEntity.Index == 0)
+					if (focusedEntity.m_index == 0)
 					{
-						_SelectedEntity.Index = 0;
+						_SelectedEntity.m_index = 0;
 					}
 					else if (_SelectedEntity == rootEntity)
 					{
@@ -990,32 +990,32 @@ void EditorManager::LateUpdate()
 		{
 			if (i > 999) break;
 			i++;
-			switch (msg->Type)
+			switch (msg->m_type)
 			{
 			case ConsoleMessageType::Log:
 				if (_EnableConsoleLogs)
 				{
-					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->Time);
+					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
 					ImGui::SameLine();
-					ImGui::TextColored(ImVec4(1, 1, 1, 1), msg->Value.c_str());
+					ImGui::TextColored(ImVec4(1, 1, 1, 1), msg->m_value.c_str());
 					ImGui::Separator();
 				}
 				break;
 			case ConsoleMessageType::Warning:
 				if (_EnableConsoleWarnings)
 				{
-					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->Time);
+					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
 					ImGui::SameLine();
-					ImGui::TextColored(ImVec4(1, 1, 0, 1), msg->Value.c_str());
+					ImGui::TextColored(ImVec4(1, 1, 0, 1), msg->m_value.c_str());
 					ImGui::Separator();
 				}
 				break;
 			case ConsoleMessageType::Error:
 				if (_EnableConsoleErrors)
 				{
-					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->Time);
+					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
 					ImGui::SameLine();
-					ImGui::TextColored(ImVec4(1, 0, 0, 1), msg->Value.c_str());
+					ImGui::TextColored(ImVec4(1, 0, 0, 1), msg->m_value.c_str());
 					ImGui::Separator();
 				}
 				break;
@@ -1044,12 +1044,12 @@ std::unique_ptr<CameraComponent>& EditorManager::GetSceneCamera()
 bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceBehaviour>& target)
 {
 	const std::string tag = "##" + (target ? std::to_string(target->GetHashCode()) : "");
-	ImGui::Button(target ? (target->Name + tag).c_str() : "none");
+	ImGui::Button(target ? (target->m_name + tag).c_str() : "none");
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 	{
 		const std::string hash = std::to_string(std::hash<std::string>{}(name));
 		ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
-		if (target && target->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(target->_Icon->Texture()->ID()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
+		if (target && target->m_icon)ImGui::Image(reinterpret_cast<ImTextureID>(target->m_icon->Texture()->Id()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
 		else ImGui::TextColored(ImVec4(0, 0, 1, 1), (name + tag).substr(6).c_str());
 		ImGui::EndDragDropSource();
 	}
@@ -1060,7 +1060,7 @@ bool EditorManager::Draggable(const std::string& name, std::shared_ptr<ResourceB
 		{
 			static char newName[256];
 			ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-			if (ImGui::Button(("Confirm" + tag).c_str())) target->Name = std::string(newName);
+			if (ImGui::Button(("Confirm" + tag).c_str())) target->m_name = std::string(newName);
 			ImGui::EndMenu();
 		}
 		if (ImGui::Button(("Remove" + tag).c_str())) {

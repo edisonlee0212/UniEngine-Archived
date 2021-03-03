@@ -7,14 +7,14 @@ namespace UniEngine {
 	};
 	struct ConsoleMessage
 	{
-		ConsoleMessageType Type;
-		std::string Value;
-		double Time;
+		ConsoleMessageType m_type = ConsoleMessageType::Log;
+		std::string m_value = "";
+		double m_time = 0;
 	};
 	class UNIENGINE_API Debug
 	{
-		static std::vector<ConsoleMessage> _ConsoleMessages;
-		static std::mutex _ConsoleMessageMutex;
+		static std::vector<ConsoleMessage> _consoleMessages;
+		static std::mutex _consoleMessageMutex;
 	public:
 		static void Log(const std::string& msg);
 		static void Error(const std::string& msg);

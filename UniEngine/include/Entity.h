@@ -5,79 +5,48 @@ namespace UniEngine {
 #pragma region EntityManager
 #pragma region Entity
 	struct UNIENGINE_API ComponentType final {
-		std::string Name = "";
-		size_t TypeID = 0;
-		//Size of component
-		size_t Size = 0;
-		//Starting point of the component, this part is not comparable
-		size_t Offset = 0;
+		std::string m_name;
+		size_t m_typeId = 0;
+		size_t m_size = 0;
+		size_t m_offset = 0;
 		ComponentType() = default;
-		ComponentType(const std::string& name, const size_t& id, const size_t& size)
-		{
-			Name = name;
-			TypeID = id;
-			Size = size;
-			Offset = 0;
-		}
-		bool operator ==(const ComponentType& other) const {
-			return (other.TypeID == TypeID) && (other.Size == Size);
-		}
-		bool operator !=(const ComponentType& other) const {
-			return (other.TypeID != TypeID) || (other.Size != Size);
-		}
+		ComponentType(const std::string& name, const size_t& id, const size_t& size);
+		bool operator ==(const ComponentType& other) const;
+		bool operator !=(const ComponentType& other) const;
 	};
-
 	struct UNIENGINE_API ComponentBase {
 	};
-
 	class PrivateComponentBase;
 	struct UNIENGINE_API Entity final {
-		//Position in _Entity Array
-		unsigned Index = 0;
-		unsigned Version = 0;
-
-		Entity() {
-			Index = 0;
-			Version = 0;
-		}
-
-		bool operator ==(const Entity& other) const {
-			return (other.Index == Index) && (other.Version == Version);
-		}
-		bool operator !=(const Entity& other) const {
-			return (other.Index != Index) || (other.Version != Version);
-		}
-		
-		size_t operator() (Entity const& key) const
-		{
-			return static_cast<size_t>(Index);
-		}
-		
-		bool IsEnabled() const;
+		unsigned m_index = 0;
+		unsigned m_version = 0;
+		Entity();
+		bool operator ==(const Entity& other) const;
+		bool operator !=(const Entity& other) const;
+		size_t operator()(Entity const& key) const;
+		[[nodiscard]] bool IsEnabled() const;
 		void SetStatic(const bool& value) const;
 		void SetEnabled(const bool& value) const;
 		void SetEnabledSingle(const bool& value) const;
-		bool IsNull() const;
-		bool IsStatic() const;
-		bool IsDeleted() const;
-		bool IsValid() const;
+		[[nodiscard]] bool IsNull() const;
+		[[nodiscard]] bool IsStatic() const;
+		[[nodiscard]] bool IsDeleted() const;
+		[[nodiscard]] bool IsValid() const;
 		template<typename T = ComponentBase>
 		void SetComponentData(const T& value) const;
 		template<typename T = ComponentBase>
 		T GetComponentData() const;
 		template<typename T = ComponentBase>
-		bool HasComponentData() const;
-		
+		[[nodiscard]] bool HasComponentData() const;
 		template <typename T = PrivateComponentBase>
 		std::unique_ptr<T>& GetPrivateComponent() const;
 		template <typename T = PrivateComponentBase>
 		void SetPrivateComponent(std::unique_ptr<T> value) const;
 		template <typename T = PrivateComponentBase>
-		bool RemovePrivateComponent() const;
+		[[nodiscard]] bool RemovePrivateComponent() const;
 		template <typename T = PrivateComponentBase>
-		bool HasPrivateComponent() const;
-		
-		inline std::string GetName() const;
+		[[nodiscard]] bool HasPrivateComponent() const;
+		[[nodiscard]] inline std::string GetName() const;
 		inline void SetName(const std::string& name) const;
 	};
 #pragma region Storage
@@ -85,74 +54,46 @@ namespace UniEngine {
 	class UNIENGINE_API PrivateComponentBase : public Serializable {
 		friend class EntityManager;
 		friend class EditorManager;
-		friend class PrivateComponentElement;
+		friend struct PrivateComponentElement;
 		friend class SerializationManager;
-		bool _Enabled = false;
-		Entity _Owner;
+		bool m_enabled = false;
+		Entity m_owner;
 	public:
-		Entity GetOwner() const { return _Owner; }
-		void SetEnabled(bool value)
-		{
-			if (_Enabled != value)
-			{
-				if (value)
-				{
-					OnEnable();
-				}
-				else
-				{
-					OnDisable();
-				}
-				_Enabled = value;
-			}
-		}
-		bool IsEnabled() const { return _Enabled; }
-		virtual void Init() {}
-		virtual void OnEnable() {}
-		virtual void OnDisable() {}
-		virtual void OnEntityEnable() {}
-		virtual void OnEntityDisable() {}
-		virtual void OnGui() {}
-		virtual ~PrivateComponentBase() = default;
+		[[nodiscard]] Entity GetOwner() const;
+		void SetEnabled(const bool& value);
+		[[nodiscard]] bool IsEnabled() const;
+		virtual void Init();
+		virtual void OnEnable();
+		virtual void OnDisable();
+		virtual void OnEntityEnable();
+		virtual void OnEntityDisable();
+		virtual void OnGui();
+		void Serialize(YAML::Emitter& out) override;
+		void Deserialize(const YAML::Node& in) override;
+		~PrivateComponentBase() override;
 	};
 
 	template<typename T>
-	ComponentType typeof() {
+	ComponentType Typeof() {
 		ComponentType type;
-		type.Name = std::string(typeid(T).name());
-		type.Size = sizeof(T);
-		type.Offset = 0;
-		type.TypeID = typeid(T).hash_code();
+		type.m_name = std::string(typeid(T).name());
+		type.m_size = sizeof(T);
+		type.m_offset = 0;
+		type.m_typeId = typeid(T).hash_code();
 		return type;
 	}
 
 	const size_t ARCHETYPECHUNK_SIZE = 16384;
 
 	struct ComponentDataChunk {
-		//16k raw data
-		void* Data;
+		void* m_data;
 		template<typename T>
-		T GetData(size_t offset)
-		{
-			return T(*reinterpret_cast<T*>(static_cast<char*>(Data) + offset));
-		}
-		ComponentBase* GetDataPointer(const size_t& offset) const
-		{
-			return reinterpret_cast<ComponentBase*>(static_cast<char*>(Data) + offset);
-		}
+		T GetData(const size_t& offset);
+		[[nodiscard]] ComponentBase* GetDataPointer(const size_t& offset) const;
 		template<typename T>
-		void SetData(const size_t& offset, const T& data)
-		{
-			*reinterpret_cast<T*>(static_cast<char*>(Data) + offset) = data;
-		}
-		void SetData(const size_t& offset, const size_t& size, ComponentBase* data) const
-		{
-			memcpy(static_cast<void*>(static_cast<char*>(Data) + offset), data, size);
-		}
-		void ClearData(const size_t& offset, const size_t& size) const
-		{
-			memset(static_cast<void*>(static_cast<char*>(Data) + offset), 0, size);
-		}
+		void SetData(const size_t& offset, const T& data);
+		void SetData(const size_t& offset, const size_t& size, ComponentBase* data) const;
+		void ClearData(const size_t& offset, const size_t& size) const;
 	};
 
 	struct ComponentDataChunkArray {
@@ -161,84 +102,59 @@ namespace UniEngine {
 	};
 
 	struct UNIENGINE_API EntityArchetype final {
-		size_t Index;
-		bool IsNull() const {
-			return Index == 0;
-		}
-		bool IsValid() const;
-		std::string GetName() const;
+		size_t m_index;
+		[[nodiscard]] bool IsNull() const;
+		[[nodiscard]] bool IsValid() const;
+		[[nodiscard]] std::string GetName() const;
 	};
 
-	struct PrivateComponentElement
+	struct UNIENGINE_API PrivateComponentElement
 	{
-		std::string Name;
-		size_t TypeID;
-		std::unique_ptr<PrivateComponentBase> PrivateComponentData;
-		PrivateComponentElement(const std::string& name, const size_t& id, std::unique_ptr<PrivateComponentBase> data, const Entity& owner)
-		{
-			Name = name;
-			TypeID = id;
-			PrivateComponentData = std::move(data);
-			PrivateComponentData->_Owner = owner;
-			PrivateComponentData->Init();
-		}
-		void ResetOwner(const Entity& newOwner) const { PrivateComponentData->_Owner = newOwner; }
+		std::string m_name;
+		size_t m_typeId;
+		std::unique_ptr<PrivateComponentBase> m_privateComponentData;
+		PrivateComponentElement(const std::string& name, const size_t& id, std::unique_ptr<PrivateComponentBase> data, const Entity& owner);
+		void ResetOwner(const Entity& newOwner) const;
 	};
-	
+
 	struct EntityInfo {
 		friend class PrivateComponentStorage;
-		std::string Name;
-		unsigned Version = 1;
-		bool Static = false;
-		bool Enabled = true;
-		Entity Parent = Entity();
-		std::vector<PrivateComponentElement> PrivateComponentElements;
-		std::vector<Entity> Children;
-		size_t ArchetypeInfoIndex;
-		size_t ChunkArrayIndex;
+		std::string m_name;
+		unsigned m_version = 1;
+		bool m_static = false;
+		bool m_enabled = true;
+		Entity m_parent = Entity();
+		std::vector<PrivateComponentElement> m_privateComponentElements;
+		std::vector<Entity> m_children;
+		size_t m_archetypeInfoIndex;
+		size_t m_chunkArrayIndex;
 	};
 
 	struct UNIENGINE_API EntityArchetypeInfo {
-		std::string Name;
-		size_t Index;
-		std::vector<ComponentType> ComponentTypes;
-		//The size of a single entity
-		size_t EntitySize;
-		//How many entities can fit into one chunk
-		size_t ChunkCapacity;
-		//Current allocated entity count.
-		size_t EntityCount = 0;
-		//Current live entity count.
-		size_t EntityAliveCount = 0;
+		std::string m_name;
+		size_t m_index = 0;
+		std::vector<ComponentType> m_componentTypes;
+		size_t m_entitySize = 0;
+		size_t m_chunkCapacity = 0;
+		size_t m_entityCount = 0;
+		size_t m_entityAliveCount = 0;
 		template<typename T>
 		bool HasType();
 		bool HasType(const size_t& typeID);
 	};
 
 	struct UNIENGINE_API EntityQuery final {
-		size_t Index = 0;
-		bool operator ==(const EntityQuery& other) const {
-			return other.Index == Index;
-		}
-		bool operator !=(const EntityQuery& other) const {
-			return other.Index != Index;
-		}
-		size_t operator() (const EntityQuery& key) const
-		{
-			return Index;
-		}
-		bool IsNull() const
-		{
-			return Index == 0;
-		}
+		size_t m_index = 0;
+		bool operator ==(const EntityQuery& other) const;
+		bool operator !=(const EntityQuery& other) const;
+		size_t operator()(const EntityQuery& key) const;
+		[[nodiscard]] bool IsNull() const;
 		template<typename T = ComponentBase, typename... Ts>
 		void SetAllFilters(T arg, Ts... args);
 		template<typename T = ComponentBase, typename... Ts>
 		void SetAnyFilters(T arg, Ts... args);
 		template<typename T = ComponentBase, typename... Ts>
 		void SetNoneFilters(T arg, Ts... args);
-
-		
 		template<typename T1 = ComponentBase>
 		void ToComponentDataArray(std::vector<T1>& container);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
@@ -254,32 +170,27 @@ namespace UniEngine {
 		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&)>& filterFunc);
 		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
 		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&, const T2&)>& filterFunc);
-		size_t GetEntityAmount() const;
+		[[nodiscard]] size_t GetEntityAmount() const;
 	};
-
-
-
 	struct UNIENGINE_API EntityComponentStorage {
-		EntityArchetypeInfo* ArchetypeInfo;
-		ComponentDataChunkArray* ChunkArray;
+		EntityArchetypeInfo* m_archetypeInfo;
+		ComponentDataChunkArray* m_chunkArray;
 		EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array);
 	};
-
 	struct EntityQueryInfo {
-		std::vector<ComponentType> AllComponentTypes;
-		std::vector<ComponentType> AnyComponentTypes;
-		std::vector<ComponentType> NoneComponentTypes;
-		std::vector<EntityComponentStorage> QueriedStorage;
+		std::vector<ComponentType> m_allComponentTypes;
+		std::vector<ComponentType> m_anyComponentTypes;
+		std::vector<ComponentType> m_noneComponentTypes;
+		std::vector<EntityComponentStorage> m_queriedStorage;
 	};
 #pragma endregion
 #pragma endregion
-
 #pragma endregion
 	template<typename T>
 	bool EntityArchetypeInfo::HasType()
 	{
-		for (auto i : ComponentTypes) {
-			if (i.TypeID == typeid(T).hash_code()) return true;
+		for (const auto& i : m_componentTypes) {
+			if (i.m_typeId == typeid(T).hash_code()) return true;
 		}
 		return false;
 	}

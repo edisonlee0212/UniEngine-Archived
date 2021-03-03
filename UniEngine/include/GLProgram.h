@@ -6,7 +6,7 @@ namespace UniEngine {
 	class UNIENGINE_API GLProgram : public GLObject, public ResourceBehaviour
 	{
         friend class ResourceManager;
-        std::vector<std::shared_ptr<GLShader>> _Shaders;
+        std::vector<std::shared_ptr<GLShader>> m_shaders;
     public:
         GLProgram(const std::shared_ptr<GLShader>& shader1, const std::shared_ptr<GLShader>& shader2);
         GLProgram(const std::shared_ptr<GLShader>& shader1, const std::shared_ptr<GLShader>& shader2, const std::shared_ptr<GLShader>& shader3);

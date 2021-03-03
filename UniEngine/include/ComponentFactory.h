@@ -5,8 +5,8 @@
 namespace UniEngine {
 	class UNIENGINE_API ComponentFactory : public Singleton<ComponentFactory>
 	{
-		std::unordered_map<std::string, std::function<std::shared_ptr<ComponentBase>(size_t&, size_t&)>> _ComponentDataGenerators;
-		std::unordered_map<std::string, std::function<Serializable* (size_t&)>> _ClassComponentGenerators;
+		std::unordered_map<std::string, std::function<std::shared_ptr<ComponentBase>(size_t&, size_t&)>> m_componentDataGenerators;
+		std::unordered_map<std::string, std::function<Serializable* (size_t&)>> m_classComponentGenerators;
 	public:
 		template <typename T = Serializable>
 		static bool RegisterComponentData();

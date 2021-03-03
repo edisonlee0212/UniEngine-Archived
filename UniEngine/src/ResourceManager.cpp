@@ -31,7 +31,7 @@ std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(bool addResource, 
 	std::string directory = path.substr(0, path.find_last_of('/'));
 	std::vector<std::shared_ptr<Texture2D>> Texture2DsLoaded;
 	auto retVal = std::make_shared<Model>();
-	retVal->Name = path.substr(path.find_last_of("/\\") + 1);
+	retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
 	ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
 	if(addResource) Push(retVal);
 	return retVal;
@@ -40,7 +40,7 @@ std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(bool addResource, 
 Entity UniEngine::ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
 {
 	Entity entity = EntityManager::CreateEntity(archetype);
-	entity.SetName(model->Name);
+	entity.SetName(model->m_name);
 	Transform ltp;
 	std::unique_ptr<ModelNode>& modelNode = model->RootNode();
 	EntityManager::SetComponentData<Transform>(entity, ltp);
@@ -52,7 +52,7 @@ Entity UniEngine::ResourceManager::ToEntity(EntityArchetype archetype, std::shar
 	}
 	int index = 0;
 	for (auto& i : modelNode->Children) {
-		AttachChildren(archetype, i, entity, model->Name + "_" + std::to_string(index));
+		AttachChildren(archetype, i, entity, model->m_name + "_" + std::to_string(index));
 		index++;
 	}
 	return entity;
@@ -471,8 +471,8 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const 
 		stbi_image_free(data);
 		return nullptr;
 	}
-	retVal->_Icon = retVal;
-	retVal->Name = path.substr(path.find_last_of("/\\") + 1);
+	retVal->m_icon = retVal;
+	retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
 	if (addResource) Push(retVal);
 	return retVal;
 }
@@ -529,7 +529,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 	auto retVal = std::make_shared<Cubemap>();
 	retVal->_Texture = std::move(texture);
 	retVal->_Paths = paths;
-	retVal->Name = paths[0].substr(paths[0].find_last_of("/\\") + 1);
+	retVal->m_name = paths[0].substr(paths[0].find_last_of("/\\") + 1);
 	if(addResource) Push(retVal);
 	return retVal;
 }

@@ -3,155 +3,79 @@
 namespace UniEngine {
 	class UNIENGINE_API GLBuffer : public GLObject
 	{
-		GLenum _Target;
+		GLenum m_target;
 	public:
-		GLBuffer(GLenum target) {
-			glGenBuffers(1, &_ID);
-			_Target = target;
-		}
-		void Bind() const
-		{
-			glBindBuffer(_Target, _ID);
-		}
-		void SetData(GLsizei length, const GLvoid* data, GLenum usage) const
-		{
-			Bind();
-			glNamedBufferData(_ID, length, data, usage);
-		}
-		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) const
-		{
-			Bind();
-			glNamedBufferSubData(_ID, offset, size, data);
-		}
-		~GLBuffer() override{
-			glDeleteBuffers(1, &_ID);
-		}
+		GLBuffer(GLenum target);
+		void Bind() const;
+		void SetData(const GLsizei& length, const GLvoid* data, const GLenum& usage) const;
+		void SubData(const GLintptr& offset, const GLsizeiptr& size, const GLvoid* data) const;
+		~GLBuffer() override;
 	};
 
 	class UNIENGINE_API GLPPBO : public GLBuffer {
 	public:
-		GLPPBO() : GLBuffer(GL_PIXEL_PACK_BUFFER) {}
-		static void BindDefault() {
-			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-		}
+		GLPPBO();
+		static void BindDefault();
 	};
 
 	class UNIENGINE_API GLPUBO : public GLBuffer {
 	public:
-		GLPUBO() : GLBuffer(GL_PIXEL_UNPACK_BUFFER) {}
-		static void BindDefault() {
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-		}
+		GLPUBO();
+		static void BindDefault();
 	};
 
 	class UNIENGINE_API GLEBO : public GLBuffer {
 	public:
-		GLEBO() : GLBuffer(GL_ELEMENT_ARRAY_BUFFER) {}
-		static void BindDefault() {
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		}
+		GLEBO();
+		static void BindDefault();
 	};
 
 	class UNIENGINE_API GLVBO : public GLBuffer {
 	public:
-		GLVBO() : GLBuffer(GL_ARRAY_BUFFER) {}
-		static void BindDefault() {
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-		}
+		GLVBO();
+		static void BindDefault();
 	};
 
 	class UNIENGINE_API GLUBO : public GLBuffer {
 	public:
-		GLUBO() : GLBuffer(GL_UNIFORM_BUFFER){}
-		static void BindDefault() {
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-		}
-		void SetBase(GLuint index) const
-		{
-			glBindBufferBase(GL_UNIFORM_BUFFER, index, _ID);
-		}
-		void SetRange(GLuint index,
-			GLintptr offset,
-			GLsizeiptr size) const
-		{
-			glBindBufferRange(GL_UNIFORM_BUFFER, index, _ID, offset, size);
-		}
+		GLUBO();
+		static void BindDefault();
+		void SetBase(const GLuint& index) const;
+		void SetRange(const GLuint& index,
+		              const GLintptr& offset,
+		              const GLsizeiptr& size) const;
 	};
 
 	class UNIENGINE_API GLVAO : public GLObject {
 	protected:
-		GLVBO _VBO;
-		GLEBO _EBO;
+		GLVBO m_vbo;
+		GLEBO m_ebo;
 	public:
-		~GLVAO() override {
-			BindDefault();
-			glDeleteVertexArrays(1, &_ID);
-		}
+		~GLVAO() override;
+		void Bind() const;
+		static void BindDefault();
+		GLVAO();
+		GLVBO* Vbo();
+		GLEBO* Ebo();
+		void SetData(const GLsizei& length, const GLvoid* data, const GLenum& usage) const;
+		void SubData(const GLintptr& offset, const GLsizeiptr& size, const GLvoid* data) const;
+		void EnableAttributeArray(const GLuint& index) const;
+		void DisableAttributeArray(const GLuint& index) const;
+		void SetAttributePointer(const GLuint& index,
+		                         const GLint& size,
+		                         const GLenum& type,
+		                         const GLboolean& normalized,
+		                         const GLsizei& stride,
+		                         const void* pointer) const;
 
-		void Bind() {
-			glBindVertexArray(_ID);
-		}
+		void SetAttributeIntPointer(const GLuint& index,
+		                            const GLint& size,
+		                            const GLenum& type,
+		                            const GLsizei& stride,
+		                            const void* pointer) const;
 
-		static void BindDefault() {
-			glBindVertexArray(0);
-		}
-		GLVAO() {
-			glGenVertexArrays(1, &_ID);
-		}
-		GLVBO* VBO() {
-			return &_VBO;
-		}
-
-		GLEBO* EBO() {
-			return &_EBO;
-		}
-
-		void SetData(GLsizei length, GLvoid* data, GLenum usage) {
-			Bind();
-			_VBO.SetData(length, data, usage);
-		}
-		void SubData(GLintptr offset, GLsizeiptr size, GLvoid* data) {
-			Bind();
-			_VBO.SubData(offset, size, data);
-		}
-
-		void EnableAttributeArray(GLuint index)
-		{
-			Bind();
-			glEnableVertexAttribArray(index);
-		}
-
-		void DisableAttributeArray(GLuint index)
-		{
-			Bind();
-			glDisableVertexAttribArray(index);
-		}
-
-		void SetAttributePointer(GLuint index,
-			GLint size,
-			GLenum type,
-			GLboolean normalized,
-			GLsizei stride,
-			const void* pointer) {
-			Bind();
-			glVertexAttribPointer(index, size, type, normalized, stride, pointer);
-		}
-
-		void SetAttributeIntPointer(GLuint index,
-			GLint size,
-			GLenum type,
-			GLsizei stride,
-			const void* pointer) {
-			Bind();
-			glVertexAttribIPointer(index, size, type, stride, pointer);
-		}
-
-		void SetAttributeDivisor(GLuint index,
-			GLuint divisor) {
-			Bind();
-			glVertexAttribDivisor(index, divisor);
-		}
-
+		void SetAttributeDivisor(const GLuint& index,
+		                         const GLuint& divisor) const;
 	};
 }
 

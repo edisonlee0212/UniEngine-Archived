@@ -255,6 +255,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Bezier.cpp" />
     <ClCompile Include="src\Bloom.cpp" />
+    <ClCompile Include="src\GLObject.cpp" />
     <ClCompile Include="src\GreyScale.cpp" />
     <ClCompile Include="src\PostProcessing.cpp" />
     <ClCompile Include="src\ResourceManager.cpp">

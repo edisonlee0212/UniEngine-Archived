@@ -66,7 +66,7 @@ int main()
 			true, FileIO::GetResourcePath("Models/backpack/backpack.obj"), Default::GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes
 		);
-		backpackModel->Name = "Backpack";
+		backpackModel->m_name = "Backpack";
 		Entity backpackEntity = ResourceManager::ToEntity(archetype, backpackModel);
 		backpackEntity.SetName("Backpack");
 		transform.SetPosition(glm::vec3(0, 2, 0));
@@ -77,7 +77,7 @@ int main()
 		//1. Load models using Assimp including textures and meshes and transforms.
 		auto sponzaModel = ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/Sponza/sponza.obj"), Default::GLPrograms::StandardProgram, false,
 			aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-		sponzaModel->Name = "Sponza Scene";
+		sponzaModel->m_name = "Sponza Scene";
 		Entity sponzaEntity = ResourceManager::ToEntity(archetype, sponzaModel);
 		sponzaEntity.SetName("Sponza");
 		//2. Set overall transform of the entites. We set the root entity's transform and it will
@@ -176,18 +176,18 @@ void InitGround() {
 	EntityManager::SetComponentData(entity, transform);
 	/*
 	auto entity1 = EntityManager::CreateEntity(archetype);
-	translation.Value = glm::vec3(-100.0f, 0.0f, 0.0f);
-	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
+	translation.value = glm::vec3(-100.0f, 0.0f, 0.0f);
+	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
 	Rotation rotation;
-	rotation.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
+	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
 	EntityManager::SetComponentData<Translation>(entity1, translation);
 	EntityManager::SetComponentData<Scale>(entity1, scale);
 	EntityManager::SetComponentData<Rotation>(entity1, rotation);
 
 	auto entity2 = EntityManager::CreateEntity(archetype);
-	translation.Value = glm::vec3(100.0f, 0.0f, 0.0f);
-	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
-	rotation.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
+	translation.value = glm::vec3(100.0f, 0.0f, 0.0f);
+	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
+	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(-1, 0, 0));
 
 	EntityManager::SetComponentData<Translation>(entity2, translation);
 	EntityManager::SetComponentData<Scale>(entity2, scale);
@@ -195,18 +195,18 @@ void InitGround() {
 
 
 	auto entity3 = EntityManager::CreateEntity(archetype);
-	translation.Value = glm::vec3(0.0f, 0.0f, -100.0f);
-	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
-	rotation.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+	translation.value = glm::vec3(0.0f, 0.0f, -100.0f);
+	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
+	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 
 	EntityManager::SetComponentData<Translation>(entity3, translation);
 	EntityManager::SetComponentData<Scale>(entity3, scale);
 	EntityManager::SetComponentData<Rotation>(entity3, rotation);
 
 	auto entity4 = EntityManager::CreateEntity(archetype);
-	translation.Value = glm::vec3(0.0f, 0.0f, 100.0f);
-	scale.Value = glm::vec3(100.0f, 1.0f, 20.0f);
-	rotation.Value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
+	translation.value = glm::vec3(0.0f, 0.0f, 100.0f);
+	scale.value = glm::vec3(100.0f, 1.0f, 20.0f);
+	rotation.value = glm::quatLookAt(glm::vec3(0, 1, 0), glm::vec3(0, 0, -1));
 
 	EntityManager::SetComponentData<Translation>(entity4, translation);
 	EntityManager::SetComponentData<Scale>(entity4, scale);

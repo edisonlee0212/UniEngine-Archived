@@ -95,7 +95,7 @@ void Galaxy::StarClusterSystem::Update()
 	ImGui::SliderFloat("Copy", &_CopyPositionTimer, 0.1f, 2.0f);
 	ImGui::SliderFloat("Calc", &_CalcPositionResult, 1.0f, 3000.0f);
 	ImGui::End();
-	_GalaxyTime += _World->Time()->DeltaTime() * _Speed;
+	_GalaxyTime += m_world->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
 
 	if(_FirstTime || _CurrentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)

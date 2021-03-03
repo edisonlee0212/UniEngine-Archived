@@ -5,22 +5,22 @@ using namespace UniEngine;
 
 void JobManager::ResizePrimaryWorkers(int size)
 {
-	GetInstance()._PrimaryWorkers.FinishAll(true);
-	GetInstance()._PrimaryWorkers.Resize(size);
+	GetInstance().m_primaryWorkers.FinishAll(true);
+	GetInstance().m_primaryWorkers.Resize(size);
 }
 
 void JobManager::ResizeSecondaryWorkers(int size)
 {
-	GetInstance()._SecondaryWorkers.FinishAll(true);
-	GetInstance()._SecondaryWorkers.Resize(size);
+	GetInstance().m_secondaryWorkers.FinishAll(true);
+	GetInstance().m_secondaryWorkers.Resize(size);
 }
 
 ThreadPool& JobManager::PrimaryWorkers()
 {
-	return GetInstance()._PrimaryWorkers;
+	return GetInstance().m_primaryWorkers;
 }
 
 ThreadPool& JobManager::SecondaryWorkers()
 {
-	return GetInstance()._SecondaryWorkers;
+	return GetInstance().m_secondaryWorkers;
 }

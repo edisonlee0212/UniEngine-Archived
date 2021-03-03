@@ -13,8 +13,8 @@ void UniEngine::Particles::RecalculateBoundingBox()
 {
 	if(Matrices.empty())
 	{
-		BoundingBox.Min = glm::vec3(0.0f);
-		BoundingBox.Max = glm::vec3(0.0f);
+		BoundingBox.m_min = glm::vec3(0.0f);
+		BoundingBox.m_max = glm::vec3(0.0f);
 		return;
 	}
 	glm::vec3 minBound = glm::vec3((int)INT_MAX);
@@ -34,8 +34,8 @@ void UniEngine::Particles::RecalculateBoundingBox()
 			glm::max(maxBound.y, center.y + size.y),
 			glm::max(maxBound.z, center.z + size.z));
 	}
-	BoundingBox.Max = maxBound;
-	BoundingBox.Min = minBound;
+	BoundingBox.m_max = maxBound;
+	BoundingBox.m_min = minBound;
 }
 
 

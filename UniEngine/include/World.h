@@ -6,17 +6,13 @@
 #include "PrivateComponentStorage.h"
 namespace UniEngine {
 	struct UNIENGINE_API Bound {
-		glm::vec3 Min;
-		glm::vec3 Max;
+		glm::vec3 m_min;
+		glm::vec3 m_max;
 		Bound();
 		glm::vec3 Size() const;
-
 		glm::vec3 Center() const;
-
 		bool InBound(const glm::vec3& position) const;
-
 		void ApplyTransform(const glm::mat4& transform);
-
 		void PopulateCorners(std::vector<glm::vec3>& corners) const;
 	};
 
@@ -28,15 +24,14 @@ namespace UniEngine {
 
 
 	struct WorldEntityStorage {
-		size_t ParentHierarchyVersion = 0;
-		std::vector<Entity> Entities;
-		std::vector<Entity> ParentRoots;
-		std::vector<EntityInfo> EntityInfos;
-		std::vector<EntityComponentStorage> EntityComponentStorage;
-		PrivateComponentStorage EntityPrivateComponentStorage;
-		std::vector<EntityQuery> EntityQueries;
-		std::vector<EntityQueryInfo> EntityQueryInfos;
-		std::queue<EntityQuery> EntityQueryPools;
+		size_t m_parentHierarchyVersion = 0;
+		std::vector<Entity> m_entities;
+		std::vector<EntityInfo> m_entityInfos;
+		std::vector<EntityComponentStorage> m_entityComponentStorage;
+		PrivateComponentStorage m_entityPrivateComponentStorage;
+		std::vector<EntityQuery> m_entityQueries;
+		std::vector<EntityQueryInfo> m_entityQueryInfos;
+		std::queue<EntityQuery> m_entityQueryPools;
 	};
 	
 	class UNIENGINE_API World
@@ -44,28 +39,28 @@ namespace UniEngine {
 		friend class Application;
 		friend class EntityManager;
 		friend class SerializationManager;
-		WorldEntityStorage _WorldEntityStorage;
-		WorldTime* _Time;
-		std::vector<SystemBase*> _PreparationSystems;
-		std::vector<SystemBase*> _SimulationSystems;
-		std::vector<SystemBase*> _PresentationSystems;
-		std::vector<std::function<void()>> _ExternalFixedUpdateFunctions;
-		size_t _Index;
-		UniEngine::Bound _WorldBound;
-		bool _NeedFixedUpdate = false;
+		WorldEntityStorage m_worldEntityStorage;
+		WorldTime* m_time;
+		std::vector<SystemBase*> m_preparationSystems;
+		std::vector<SystemBase*> m_simulationSystems;
+		std::vector<SystemBase*> m_presentationSystems;
+		std::vector<std::function<void()>> m_externalFixedUpdateFunctions;
+		size_t m_index;
+		Bound m_worldBound;
+		bool m_needFixedUpdate = false;
 	public:
 		void Purge();
 		World& operator=(World&&) = delete;
 		World& operator=(const World&) = delete;
 		void RegisterFixedUpdateFunction(const std::function<void()>& func);
-		Bound GetBound() const;
+		[[nodiscard]] Bound GetBound() const;
 		void SetBound(const Bound& value);
 		void SetFrameStartTime(double time) const;
 		void SetTimeStep(float timeStep) const;
-		size_t GetIndex() const;
+		[[nodiscard]] size_t GetIndex() const;
 		World(size_t index);
 		void ResetTime() const;
-		WorldTime* Time() const;
+		[[nodiscard]] WorldTime* Time() const;
 		template <class T = SystemBase>
 		T* CreateSystem(SystemGroup group);
 		template <class T = SystemBase>
@@ -85,18 +80,18 @@ namespace UniEngine {
 			return system;
 		}
 		system = new T();
-		system->_World = this;
-		system->_Time = _Time;
+		system->m_world = this;
+		system->m_time = m_time;
 		switch (group)
 		{
 		case UniEngine::SystemGroup::PreparationSystemGroup:
-			_PreparationSystems.push_back((SystemBase*)system);
+			m_preparationSystems.push_back(static_cast<SystemBase*>(system));
 			break;
 		case UniEngine::SystemGroup::SimulationSystemGroup:
-			_SimulationSystems.push_back((SystemBase*)system);
+			m_simulationSystems.push_back(static_cast<SystemBase*>(system));
 			break;
 		case UniEngine::SystemGroup::PresentationSystemGroup:
-			_PresentationSystems.push_back((SystemBase*)system);
+			m_presentationSystems.push_back(static_cast<SystemBase*>(system));
 			break;
 		default:
 			break;
@@ -114,17 +109,17 @@ namespace UniEngine {
 	}
 	template <class T>
 	T* World::GetSystem() {
-		for (auto i : _PreparationSystems) {
+		for (auto i : m_preparationSystems) {
 			if (dynamic_cast<T*>(i) != nullptr) {
 				return dynamic_cast<T*>(i);
 			}
 		}
-		for (auto i : _SimulationSystems) {
+		for (auto i : m_simulationSystems) {
 			if (dynamic_cast<T*>(i) != nullptr) {
 				return dynamic_cast<T*>(i);
 			}
 		}
-		for (auto i : _PresentationSystems) {
+		for (auto i : m_presentationSystems) {
 			if (dynamic_cast<T*>(i) != nullptr) {
 				return dynamic_cast<T*>(i);
 			}

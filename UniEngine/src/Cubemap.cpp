@@ -3,7 +3,7 @@
 
 UniEngine::Cubemap::Cubemap()
 {
-	Name = "New Cubemap";
+	m_name = "New Cubemap";
 }
 
 std::vector<std::string> UniEngine::Cubemap::Paths() const

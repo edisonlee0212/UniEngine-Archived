@@ -23,19 +23,19 @@ Material::Material()
 	_Textures[TextureType::DISPLACEMENT] = nullptr;
 	
 	
-	Name = "New material";
+	m_name = "New material";
 }
 
 void Material::OnGui()
 {
-	ImGui::Text("Name: %s", Name.c_str());
-	if (ImGui::BeginPopupContextItem(Name.c_str()))
+	ImGui::Text("Name: %s", m_name.c_str());
+	if (ImGui::BeginPopupContextItem(m_name.c_str()))
 	{
 		if (ImGui::BeginMenu("Rename##Material"))
 		{
 			static char newName[256];
 			ImGui::InputText("New name##Material", newName, 256);
-			if (ImGui::Button("Confirm##Material")) Name = std::string(newName);
+			if (ImGui::Button("Confirm##Material")) m_name = std::string(newName);
 			ImGui::EndMenu();
 		}
 		ImGui::EndPopup();
@@ -64,7 +64,7 @@ void Material::OnGui()
 		ImGui::Combo("Blending Mode##Material", reinterpret_cast<int*>(&BlendingMode), MatBlendingMode, IM_ARRAYSIZE(MatBlendingMode));
 		ImGui::TreePop();
 	}
-	if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(Name))).c_str())) {
+	if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(m_name))).c_str())) {
 		{
 			ImGui::Spacing();
 			ImGui::Separator();

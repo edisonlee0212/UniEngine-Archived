@@ -2,8 +2,6 @@
 #include "FileIO.h"
 #include "Debug.h"
 #include "WindowManager.h"
-std::unique_ptr<std::string> UniEngine::FileIO::_ResourceRootPath = std::make_unique<std::string>("../Resources/");
-std::unique_ptr<std::string> UniEngine::FileIO::_ProjectPath;
 
 std::string UniEngine::FileIO::GetAssetFolderPath()
 {
@@ -17,14 +15,14 @@ std::string UniEngine::FileIO::GetAssetFolderPath()
 
 void UniEngine::FileIO::SetProjectPath(const std::string& path)
 {
-	_ProjectPath = std::make_unique<std::string>(path);
+	GetInstance().m_projectPath = std::make_unique<std::string>(path);
 }
 
 std::string UniEngine::FileIO::GetProjectPath()
 {
 	std::string path;
-	if (!_ProjectPath) path = GetResourcePath();
-	else path = *_ProjectPath;
+	if (!GetInstance().m_projectPath) path = GetResourcePath();
+	else path = *GetInstance().m_projectPath;
 	if (!std::filesystem::exists(path))
 	{
 		std::filesystem::create_directory(path);
@@ -34,12 +32,12 @@ std::string UniEngine::FileIO::GetProjectPath()
 
 void UniEngine::FileIO::SetResourcePath(const std::string& path)
 {
-	_ResourceRootPath = std::make_unique<std::string>(path);
+	GetInstance().m_resourceRootPath = std::make_unique<std::string>(path);
 }
 
 std::string UniEngine::FileIO::GetResourcePath(const std::string& path)
 {
-	return *_ResourceRootPath + path;
+	return *GetInstance().m_resourceRootPath + path;
 }
 
 std::string UniEngine::FileIO::LoadFileAsString(const std::string& path)

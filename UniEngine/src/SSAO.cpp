@@ -178,11 +178,11 @@ void UniEngine::SSAO::OnGui(std::unique_ptr<CameraComponent>& cameraComponent)
 	}
 	if (ImGui::TreeNode("Debug##SSAO"))
 	{
-		ImGui::Image((ImTextureID)cameraComponent->_GPositionBuffer->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Image((ImTextureID)_Position->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Image((ImTextureID)_OriginalColor->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Image((ImTextureID)_SSAOPosition->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Image((ImTextureID)_SSAOBlur->ID(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)cameraComponent->_GPositionBuffer->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_Position->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_OriginalColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_SSAOPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_SSAOBlur->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::TreePop();
 	}
 }

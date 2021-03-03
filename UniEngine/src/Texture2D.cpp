@@ -21,7 +21,7 @@ TextureType Texture2D::GetType() const
 
 glm::vec2 Texture2D::GetResolution() const
 {
-	return { _Texture->_Width, _Texture->_Height };
+	return { _Texture->m_width, _Texture->m_height };
 }
 
 
@@ -29,8 +29,8 @@ glm::vec2 Texture2D::GetResolution() const
 void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY, bool alphaChannel, unsigned compressionLevel) const
 {
 	stbi_write_png_compression_level = static_cast<int>(compressionLevel);
-	const auto resolutionX = _Texture->_Width;
-	const auto resolutionY = _Texture->_Height;
+	const auto resolutionX = _Texture->m_width;
+	const auto resolutionY = _Texture->m_height;
 	float channels = 3;
 	if (alphaChannel) channels = 4;
 	std::vector<float> dst;
@@ -72,8 +72,8 @@ void Texture2D::StoreToPng(const std::string& path, int resizeX, int resizeY, bo
 
 void Texture2D::StoreToJpg(const std::string& path, int resizeX, int resizeY, unsigned quality) const
 {
-	const auto resolutionX = _Texture->_Width;
-	const auto resolutionY = _Texture->_Height;
+	const auto resolutionX = _Texture->m_width;
+	const auto resolutionY = _Texture->m_height;
 	std::vector<float> dst;
 	dst.resize(resolutionX * resolutionY * 3);
 	_Texture->Bind(0);

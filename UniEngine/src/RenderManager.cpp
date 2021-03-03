@@ -151,8 +151,8 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 	_GBufferLightingPass->SetInt("gMetallicRoughnessAO", 6);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	auto res = cameraComponent->GetResolution();
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->_GBuffer->GetFrameBuffer()->ID());
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cameraComponent->GetFrameBuffer()->ID()); // write to default framebuffer
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->_GBuffer->GetFrameBuffer()->Id());
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cameraComponent->GetFrameBuffer()->Id()); // write to default framebuffer
 	glBlitFramebuffer(
 		0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST
 	);
@@ -521,8 +521,8 @@ void UniEngine::RenderManager::PreUpdate()
 		}
 	}
 	auto worldBound = Application::GetCurrentWorld()->GetBound();
-	glm::vec3 maxBound = worldBound.Max;
-	glm::vec3 minBound = worldBound.Min;
+	glm::vec3 maxBound = worldBound.m_max;
+	glm::vec3 minBound = worldBound.m_min;
 	if (_MainCameraComponent != nullptr) {
 		auto mainCameraEntity = _MainCameraComponent->GetOwner();
 		if (mainCameraEntity.IsEnabled()) {
@@ -1032,7 +1032,7 @@ void UniEngine::RenderManager::PreUpdate()
 				mesh->VAO()->DisableAttributeArray(13);
 				mesh->VAO()->DisableAttributeArray(14);
 				mesh->VAO()->DisableAttributeArray(15);
-				EditorManager::_SceneCameraEntityRecorderProgram->SetInt("EntityIndex", owner.Index);
+				EditorManager::_SceneCameraEntityRecorderProgram->SetInt("EntityIndex", owner.m_index);
 				EditorManager::_SceneCameraEntityRecorderProgram->SetFloat4x4("model", ltw);
 				glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
 			}
@@ -1063,7 +1063,7 @@ void UniEngine::RenderManager::PreUpdate()
 				mesh->VAO()->SetAttributeDivisor(13, 1);
 				mesh->VAO()->SetAttributeDivisor(14, 1);
 				mesh->VAO()->SetAttributeDivisor(15, 1);
-				EditorManager::_SceneCameraEntityInstancedRecorderProgram->SetInt("EntityIndex", owner.Index);
+				EditorManager::_SceneCameraEntityInstancedRecorderProgram->SetInt("EntityIndex", owner.m_index);
 				EditorManager::_SceneCameraEntityInstancedRecorderProgram->SetFloat4x4("model", ltw);
 				glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
 			}
@@ -1094,8 +1094,8 @@ void UniEngine::RenderManager::PreUpdate()
 				RenderToCameraDeferred(mainCameraComponent, cameraTransform, minBound, maxBound, true);
 				RenderBackGround(mainCameraComponent);
 				RenderToCameraForward(mainCameraComponent, cameraTransform, minBound, maxBound, true);
-				worldBound.Max = maxBound;
-				worldBound.Min = minBound;
+				worldBound.m_max = maxBound;
+				worldBound.m_min = minBound;
 				Application::GetCurrentWorld()->SetBound(worldBound);
 			}
 		}
@@ -1272,7 +1272,7 @@ void RenderManager::LateUpdate()
 				auto entity = _MainCameraComponent->GetOwner();
 				if (entity.IsEnabled() && _MainCameraComponent->IsEnabled())
 				{
-					auto id = _MainCameraComponent->GetTexture()->Texture()->ID();
+					auto id = _MainCameraComponent->GetTexture()->Texture()->Id();
 					ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 					cameraActive = true;
 				}

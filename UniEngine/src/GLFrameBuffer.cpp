@@ -2,9 +2,51 @@
 #include "GLFrameBuffer.h"
 
 
-inline void UniEngine::GLFrameBuffer::Bind()
+void UniEngine::GLFrameBuffer::Enable(const GLenum& cap)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, _ID);
+	glEnable(cap);
+}
+
+void UniEngine::GLFrameBuffer::Disable(const GLenum& cap)
+{
+	glDisable(cap);
+}
+
+inline void UniEngine::GLFrameBuffer::Bind() const
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+}
+
+void UniEngine::GLFrameBuffer::ClearColor(const glm::vec4& value) const
+{
+	Bind();
+	glClearColor(value.r, value.g, value.b, value.a);
+}
+
+void UniEngine::GLFrameBuffer::ViewPort(const glm::ivec4& value) const
+{
+	Bind();
+	glViewport(value[0], value[1], value[2], value[3]);
+}
+
+void UniEngine::GLFrameBuffer::Check() const
+{
+	Bind();
+	const auto status = glCheckNamedFramebufferStatus(m_id, GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE)
+		Debug::Error("GLFrameBuffer: Not Complete!");
+}
+
+void UniEngine::GLFrameBuffer::DrawBuffer(const GLenum& buffer) const
+{
+	Bind();
+	glNamedFramebufferDrawBuffer(m_id, buffer);
+}
+
+void UniEngine::GLFrameBuffer::DrawBuffers(const GLsizei& n, const GLenum* buffers) const
+{
+	Bind();
+	glNamedFramebufferDrawBuffers(m_id, n, buffers);
 }
 
 inline void UniEngine::GLFrameBuffer::BindDefault()
@@ -14,101 +56,101 @@ inline void UniEngine::GLFrameBuffer::BindDefault()
 
 inline UniEngine::GLFrameBuffer::GLFrameBuffer()
 {
-	_Color = false;
-	_Depth = false;
-	_Stencil = false;
-	glCreateFramebuffers(1, &_ID);
+	m_color = false;
+	m_depth = false;
+	m_stencil = false;
+	glCreateFramebuffers(1, &m_id);
 }
 
 inline UniEngine::GLFrameBuffer::~GLFrameBuffer()
 {
 	BindDefault();
-	glDeleteFramebuffers(1, &_ID);
+	glDeleteFramebuffers(1, &m_id);
 }
 
-inline bool UniEngine::GLFrameBuffer::Color()
+inline bool UniEngine::GLFrameBuffer::Color() const
 {
-	return _Color;
+	return m_color;
 }
 
-inline bool UniEngine::GLFrameBuffer::Depth()
+inline bool UniEngine::GLFrameBuffer::Depth() const
 {
-	return _Depth;
+	return m_depth;
 }
 
-inline bool UniEngine::GLFrameBuffer::Stencil()
+inline bool UniEngine::GLFrameBuffer::Stencil() const
 {
-	return _Stencil;
+	return m_stencil;
 }
 
-inline void UniEngine::GLFrameBuffer::AttachRenderBuffer(GLRenderBuffer* buffer, GLenum attachPoint)
-{
-	switch (attachPoint)
-	{
-	case GL_DEPTH_ATTACHMENT:
-		_Depth = true;
-		break;
-	case GL_STENCIL_ATTACHMENT:
-		_Stencil = true;
-		break;
-	case GL_DEPTH_STENCIL_ATTACHMENT:
-		_Depth = true;
-		_Stencil = true;
-		break;
-	default:
-		_Color = true;
-		break;
-	}
-	Bind();
-	glNamedFramebufferRenderbuffer(_ID, attachPoint, GL_RENDERBUFFER, buffer->ID());
-}
-
-inline void UniEngine::GLFrameBuffer::AttachTexture(GLTexture* texture, GLenum attachPoint)
+inline void UniEngine::GLFrameBuffer::AttachRenderBuffer(const GLRenderBuffer* buffer, const GLenum& attachPoint)
 {
 	switch (attachPoint)
 	{
 	case GL_DEPTH_ATTACHMENT:
-		_Depth = true;
+		m_depth = true;
 		break;
 	case GL_STENCIL_ATTACHMENT:
-		_Stencil = true;
+		m_stencil = true;
 		break;
 	case GL_DEPTH_STENCIL_ATTACHMENT:
-		_Depth = true;
-		_Stencil = true;
+		m_depth = true;
+		m_stencil = true;
 		break;
 	default:
-		_Color = true;
+		m_color = true;
 		break;
 	}
 	Bind();
-	glNamedFramebufferTexture(_ID, attachPoint, texture->ID(), 0);
+	glNamedFramebufferRenderbuffer(m_id, attachPoint, GL_RENDERBUFFER, buffer->Id());
 }
 
-inline void UniEngine::GLFrameBuffer::AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer)
+inline void UniEngine::GLFrameBuffer::AttachTexture(const GLTexture* texture, const GLenum& attachPoint)
 {
 	switch (attachPoint)
 	{
 	case GL_DEPTH_ATTACHMENT:
-		_Depth = true;
+		m_depth = true;
 		break;
 	case GL_STENCIL_ATTACHMENT:
-		_Stencil = true;
+		m_stencil = true;
 		break;
 	case GL_DEPTH_STENCIL_ATTACHMENT:
-		_Depth = true;
-		_Stencil = true;
+		m_depth = true;
+		m_stencil = true;
 		break;
 	default:
-		_Color = true;
+		m_color = true;
 		break;
 	}
 	Bind();
-	glNamedFramebufferTextureLayer(_ID, attachPoint, texture->ID(), 0, layer);
+	glNamedFramebufferTexture(m_id, attachPoint, texture->Id(), 0);
+}
+
+inline void UniEngine::GLFrameBuffer::AttachTextureLayer(const GLTexture* texture, const GLenum& attachPoint, const GLint& layer)
+{
+	switch (attachPoint)
+	{
+	case GL_DEPTH_ATTACHMENT:
+		m_depth = true;
+		break;
+	case GL_STENCIL_ATTACHMENT:
+		m_stencil = true;
+		break;
+	case GL_DEPTH_STENCIL_ATTACHMENT:
+		m_depth = true;
+		m_stencil = true;
+		break;
+	default:
+		m_color = true;
+		break;
+	}
+	Bind();
+	glNamedFramebufferTextureLayer(m_id, attachPoint, texture->Id(), 0, layer);
 }
 
 void UniEngine::GLFrameBuffer::Clear()
 {
 	Bind();
-	glClear((_Color ? GL_COLOR_BUFFER_BIT : 0) | (_Depth ? GL_DEPTH_BUFFER_BIT : 0) | (_Stencil ? GL_STENCIL_BUFFER_BIT : 0));
+	glClear((m_color ? GL_COLOR_BUFFER_BIT : 0) | (m_depth ? GL_DEPTH_BUFFER_BIT : 0) | (m_stencil ? GL_STENCIL_BUFFER_BIT : 0));
 }

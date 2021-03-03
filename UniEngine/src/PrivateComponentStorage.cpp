@@ -4,7 +4,7 @@
 
 void UniEngine::PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeID)
 {
-	auto search = _POwnersCollectionsMap.find(typeID);
+	const auto search = _POwnersCollectionsMap.find(typeID);
 	if (search != _POwnersCollectionsMap.end())
 	{
 		auto& collection = _POwnersCollectionsList[search->second].second;
@@ -39,19 +39,18 @@ void UniEngine::PrivateComponentStorage::RemovePrivateComponent(Entity entity, s
 
 void UniEngine::PrivateComponentStorage::DeleteEntity(Entity entity)
 {
-	for (auto& element : EntityManager::_EntityInfos->at(entity.Index).PrivateComponentElements)
+	for (auto& element : EntityManager::GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
 	{
-		size_t id = element.TypeID;
-		RemovePrivateComponent(entity, id);
+		RemovePrivateComponent(entity, element.m_typeId);
 	}
 }
 
 void UniEngine::PrivateComponentStorage::SetPrivateComponent(Entity entity, size_t id)
 {
-	auto search = _POwnersCollectionsMap.find(id);
+	const auto search = _POwnersCollectionsMap.find(id);
 	if (search != _POwnersCollectionsMap.end())
 	{
-		auto insearch = _POwnersCollectionsList[search->second].second->_OwnersMap.find(entity);
+		const auto insearch = _POwnersCollectionsList[search->second].second->_OwnersMap.find(entity);
 		if (insearch == _POwnersCollectionsList[search->second].second->_OwnersMap.end()) {
 			_POwnersCollectionsList[search->second].second->_OwnersMap.insert({ entity, _POwnersCollectionsList[search->second].second->_OwnersList.size() });
 			_POwnersCollectionsList[search->second].second->_OwnersList.push_back(entity);

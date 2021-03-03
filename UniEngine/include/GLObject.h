@@ -4,12 +4,9 @@ namespace UniEngine {
 	class UNIENGINE_API GLObject
 	{
 	protected:
-		GLuint _ID = 0;
+		GLuint m_id = 0;
 	public:
-		GLuint ID() const
-		{
-			return _ID;
-		}
-		virtual ~GLObject() {}
+		[[nodiscard]] GLuint Id() const;
+		virtual ~GLObject();
 	};
 }

@@ -258,7 +258,7 @@ UniEngine::CameraComponent::CameraComponent()
 	_ResolutionY = 1;
 	
 	_ColorTexture = std::make_shared<Texture2D>();
-	_ColorTexture->Name = "CameraTexture";
+	_ColorTexture->m_name = "CameraTexture";
 	_ColorTexture->_Texture = std::make_shared<GLTexture2D>(0, GL_RGBA32F, _ResolutionX, _ResolutionY, false);
 	_ColorTexture->_Texture->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
 	_ColorTexture->_Texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -356,7 +356,7 @@ void UniEngine::CameraComponent::OnGui()
 	ImGui::DragFloat("FOV", &FOV, 1.0f, 1, 359);
 	if (ImGui::TreeNode("Content"))
 	{
-		ImGui::Image((ImTextureID)_ColorTexture->Texture()->ID(), ImVec2(_ResolutionX / 5.0f, _ResolutionY / 5.0f), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)_ColorTexture->Texture()->Id(), ImVec2(_ResolutionX / 5.0f, _ResolutionY / 5.0f), ImVec2(0, 1), ImVec2(1, 0));
 		if (ImGui::Button("Take Screenshot"))
 		{
 			StoreToJpg("screenshot.jpg");

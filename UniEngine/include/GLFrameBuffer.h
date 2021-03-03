@@ -6,56 +6,28 @@
 namespace UniEngine {
 	class UNIENGINE_API GLFrameBuffer : public GLObject
 	{
-		bool _Color;
-		bool _Depth;
-		bool _Stencil;
+		bool m_color;
+		bool m_depth;
+		bool m_stencil;
 	public:
-		static void Enable(GLenum cap)
-		{
-			glEnable(cap);
-		}
-		static void Disable(GLenum cap)
-		{
-			glDisable(cap);
-		}
-		void Bind();
-		void ClearColor(glm::vec4 value)
-		{
-			Bind();
-			glClearColor(value.r, value.g, value.b, value.a);
-		}
-		void ViewPort(glm::ivec4 value)
-		{
-			Bind();
-			glViewport(value[0], value[1], value[2], value[3]);
-		}
-		void Check()
-		{
-			Bind();
-			auto status = glCheckNamedFramebufferStatus(_ID, GL_FRAMEBUFFER);
-			if (status != GL_FRAMEBUFFER_COMPLETE)
-				Debug::Error("GLFrameBuffer: Not Complete!");
-		}
-		void DrawBuffer(GLenum buffer)
-		{
-			Bind();
-			glNamedFramebufferDrawBuffer(_ID, buffer);
-		}
-		void DrawBuffers(GLsizei n,
-			const GLenum* bufs)
-		{
-			Bind();
-			glNamedFramebufferDrawBuffers(_ID, n, bufs);
-		}
+		static void Enable(const GLenum& cap);
+		static void Disable(const GLenum& cap);
+		void Bind() const;
+		void ClearColor(const glm::vec4& value) const;
+		void ViewPort(const glm::ivec4& value) const;
+		void Check() const;
+		void DrawBuffer(const GLenum& buffer) const;
+		void DrawBuffers(const GLsizei& n,
+		                 const GLenum* buffers) const;
 		static void BindDefault();
 		GLFrameBuffer();
 		~GLFrameBuffer() override;
-		bool Color();
-		bool Depth();
-		bool Stencil();
-		void AttachRenderBuffer(GLRenderBuffer* buffer, GLenum attachPoint);
-		void AttachTexture(GLTexture* texture, GLenum attachPoint);
-		void AttachTextureLayer(GLTexture* texture, GLenum attachPoint, GLint layer);
+		bool Color() const;
+		bool Depth() const;
+		bool Stencil() const;
+		void AttachRenderBuffer(const GLRenderBuffer* buffer, const GLenum& attachPoint);
+		void AttachTexture(const GLTexture* texture, const GLenum& attachPoint);
+		void AttachTextureLayer(const GLTexture* texture, const GLenum& attachPoint, const GLint& layer);
 		void Clear();
 	};
 }

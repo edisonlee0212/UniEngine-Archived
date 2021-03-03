@@ -134,12 +134,12 @@ namespace UniEngine {
 	{
 		const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
 		const std::string tag = "##" + (ptr ? std::to_string(ptr->GetHashCode()) : "");
-		ImGui::Button(ptr ? (ptr->Name + tag).c_str() : "none");
+		ImGui::Button(ptr ? (ptr->m_name + tag).c_str() : "none");
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
 			ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<T>));
-			if(ptr && ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
+			if(ptr && ptr->m_icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->m_icon->Texture()->Id()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
 			else ImGui::TextColored(ImVec4(0, 0, 1, 1), (std::string(typeid(T).name()) + tag).substr(6).c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -150,7 +150,7 @@ namespace UniEngine {
 			{
 				static char newName[256];
 				ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-				if (ImGui::Button(("Confirm" + tag).c_str())) ptr->Name = std::string(newName);
+				if (ImGui::Button(("Confirm" + tag).c_str())) ptr->m_name = std::string(newName);
 				ImGui::EndMenu();
 			}
 			if (ImGui::Button(("Remove" + tag).c_str())) {
@@ -178,12 +178,12 @@ namespace UniEngine {
 	{
 		const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
 		const std::string tag = "##" + (ptr ? std::to_string(ptr->GetHashCode()) : "");
-		ImGui::Button(ptr ? (ptr->Name + tag).c_str() : "none");
+		ImGui::Button(ptr ? (ptr->m_name + tag).c_str() : "none");
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
 			const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
 			ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
-			if (ptr && ptr->_Icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->_Icon->Texture()->ID()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
+			if (ptr && ptr->m_icon)ImGui::Image(reinterpret_cast<ImTextureID>(ptr->m_icon->Texture()->Id()), ImVec2(30, 30), ImVec2(0, 1), ImVec2(1, 0));
 			else ImGui::TextColored(ImVec4(0, 0, 1, 1), (std::string(typeid(T).name()) + tag).substr(6).c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -194,7 +194,7 @@ namespace UniEngine {
 			{
 				static char newName[256];
 				ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-				if (ImGui::Button(("Confirm" + tag).c_str())) ptr->Name = std::string(newName);
+				if (ImGui::Button(("Confirm" + tag).c_str())) ptr->m_name = std::string(newName);
 				ImGui::EndMenu();
 			}
 			if (ImGui::Button(("Remove" + tag).c_str())) {
