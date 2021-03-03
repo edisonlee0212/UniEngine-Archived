@@ -327,7 +327,7 @@ namespace UniEngine {
 						}
 						if (threadIndex < loadReminder)
 						{
-							const int i = (threadIndex + 1) * threadLoad;
+							const int i = threadIndex + threadSize * threadLoad;
 							const auto chunkIndex = i / capacity;
 							const auto remainder = i % capacity;
 							auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
@@ -394,7 +394,7 @@ namespace UniEngine {
 						}
 						if (threadIndex < loadReminder)
 						{
-							const int i = (threadIndex + 1) * threadLoad;
+							const int i = threadIndex + threadSize * threadLoad;
 							const auto chunkIndex = i / capacity;
 							const auto remainder = i % capacity;
 							auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
@@ -470,7 +470,7 @@ namespace UniEngine {
 						}
 						if (threadIndex < loadReminder)
 						{
-							const int i = (threadIndex + 1) * threadLoad;
+							const int i = threadIndex + threadSize * threadLoad;
 							const auto chunkIndex = i / capacity;
 							const auto remainder = i % capacity;
 							auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
@@ -557,7 +557,7 @@ namespace UniEngine {
 						}
 						if(threadIndex < loadReminder)
 						{
-							const int i = (threadIndex + 1) * threadLoad;
+							const int i = threadIndex + threadSize * threadLoad;
 							const auto chunkIndex = i / capacity;
 							const auto remainder = i % capacity;
 							auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
@@ -654,7 +654,7 @@ namespace UniEngine {
 						}
 						if (threadIndex < loadReminder)
 						{
-							const int i = (threadIndex + 1) * threadLoad;
+							const int i = threadIndex + threadSize * threadLoad;
 							const auto chunkIndex = i / capacity;
 							const auto remainder = i % capacity;
 							auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
@@ -762,7 +762,7 @@ namespace UniEngine {
 						}
 						if (threadIndex < loadReminder)
 						{
-							const int i = (threadIndex + 1) * threadLoad;
+							const int i = threadIndex + threadSize * threadLoad;
 							const auto chunkIndex = i / capacity;
 							const auto remainder = i % capacity;
 							auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
@@ -881,7 +881,7 @@ namespace UniEngine {
 						}
 						if (threadIndex < loadReminder)
 						{
-							const int i = (threadIndex + 1) * threadLoad;
+							const int i = threadIndex + threadSize * threadLoad;
 							const auto chunkIndex = i / capacity;
 							const auto remainder = i % capacity;
 							auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
@@ -1011,7 +1011,7 @@ namespace UniEngine {
 						}
 						if (threadIndex < loadReminder)
 						{
-							const int i = (threadIndex + 1) * threadLoad;
+							const int i = threadIndex + threadSize * threadLoad;
 							const auto chunkIndex = i / capacity;
 							const auto remainder = i % capacity;
 							auto* data = static_cast<char*>(chunkArray->Chunks[chunkIndex].m_data);
