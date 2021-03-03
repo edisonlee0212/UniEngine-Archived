@@ -258,6 +258,13 @@ namespace Galaxy {
 		std::vector<StarClusterPattern*> _Patterns;
 		EntityQuery _StarQuery;
 		EntityArchetype _StarArchetype;
+
+		bool _UseParticles = false;
+		std::mutex _SwapMutex;
+		bool _UseFront = true;
+		std::vector<glm::mat4> _MatricesFront;
+		std::vector<glm::mat4> _MatricesBack;
+
 		float _ApplyPositionTimer;
 		float _CopyPositionTimer;
 		float _CalcPositionTimer;

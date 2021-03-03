@@ -66,7 +66,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	JobManager::ResizePrimaryWorkers(1);
 	JobManager::ResizeSecondaryWorkers(6);
 	
-	size_t starAmount = 200000;
+	size_t starAmount = 200;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];
@@ -94,52 +94,104 @@ void Galaxy::StarClusterSystem::Update()
 	ImGui::InputFloat("Apply", &_ApplyPositionTimer);
 	ImGui::InputFloat("Copy", &_CopyPositionTimer);
 	ImGui::InputFloat("Calc", &_CalcPositionResult);
+	ImGui::Checkbox("Use particles", &_UseParticles);
 	ImGui::End();
 	_GalaxyTime += m_world->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
 
+	if(!_UseParticles)
+	{
+		bool useFront;
+		{
+			std::lock_guard<std::mutex> lock(_SwapMutex);
+			useFront = _UseFront;
+		}
+		auto& imr = _StarCluster.GetPrivateComponent<Particles>();
+		auto* camera = RenderManager::GetMainCamera();
+		RenderManager::DrawMeshInstanced(imr->m_mesh.get(), imr->m_material.get(), glm::mat4(1.0f),
+			useFront ? _MatricesFront.data() : _MatricesBack.data(),
+			useFront ? _MatricesFront.size() : _MatricesBack.size(),
+			camera,
+			false);
+	}
+	
 	if(_FirstTime || _CurrentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
 		_CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
 		_FirstTime = false;
-		_ApplyPositionTimer = Application::EngineTime();
-		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
-			JobManager::PrimaryWorkers(), _StarQuery,
-			[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
-			{
-				//Code here will be exec in parallel
-				globalTransform.m_value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
-				transform.m_value = globalTransform.m_value;
-			}, false
-		);
-		_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
-
-		_CopyPositionTimer = Application::EngineTime();
-		auto& imr = _StarCluster.GetPrivateComponent<Particles>();
-		imr->m_matrices.resize(_StarQuery.GetEntityAmount());
-		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
-			JobManager::PrimaryWorkers(), _StarQuery,
-			[&](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
-			{
-				imr->m_matrices[i] = globalTransform.m_value;
-			}, false
-			);
-		_CopyPositionTimer = Application::EngineTime() - _CopyPositionTimer;
-
+		if (_UseParticles) {
+			_ApplyPositionTimer = Application::EngineTime();
+			EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
+				JobManager::SecondaryWorkers(), _StarQuery,
+				[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
+				{
+					//Code here will be exec in parallel
+					globalTransform.m_value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
+					transform.m_value = globalTransform.m_value;
+				}, false
+				);
+			_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
+			_CopyPositionTimer = Application::EngineTime();
+			auto& imr = _StarCluster.GetPrivateComponent<Particles>();
+			imr->m_matrices.resize(_StarQuery.GetEntityAmount());
+			EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
+				JobManager::SecondaryWorkers(), _StarQuery,
+				[&](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
+				{
+					imr->m_matrices[i] = globalTransform.m_value;
+				}, false
+				);
+			_CopyPositionTimer = Application::EngineTime() - _CopyPositionTimer;
+		}
 		_CalcPositionTimer = Application::EngineTime();
 		_CurrentStatus = std::async(std::launch::async, [=]()
 			{
-				auto task =
-					EntityManager::CreateParallelTask<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
+				EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
+						JobManager::SecondaryWorkers(), _StarQuery,
 						[time](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
 						{
 							//Code here will be exec in parallel
 							position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + time, true);
-						}
+						}, false
 				);
-				//Retrieve std::future for the task
-				//Dispatch the task
-				task(JobManager::SecondaryWorkers(), _StarQuery, false);
+				if(!_UseParticles)
+				{
+					_ApplyPositionTimer = Application::EngineTime();
+					EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
+						JobManager::SecondaryWorkers(), _StarQuery,
+						[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
+						{
+							//Code here will be exec in parallel
+							globalTransform.m_value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
+							transform.m_value = globalTransform.m_value;
+						}, false
+						);
+					_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
+					if (_UseFront)
+					{
+						_MatricesBack.resize(_StarQuery.GetEntityAmount());
+						EntityManager::ForEach<GlobalTransform>(
+							JobManager::SecondaryWorkers(), _StarQuery,
+							[&](int i, Entity entity, GlobalTransform& globalTransform)
+							{
+								_MatricesBack[i] = globalTransform.m_value;
+							}, false
+							);
+					}
+					else
+					{
+						_MatricesFront.resize(_StarQuery.GetEntityAmount());
+						EntityManager::ForEach<GlobalTransform>(
+							JobManager::SecondaryWorkers(), _StarQuery,
+							[&](int i, Entity entity, GlobalTransform& globalTransform)
+							{
+								_MatricesFront[i] = globalTransform.m_value;
+							}, false
+							);
+					}
+					std::lock_guard<std::mutex> lock(_SwapMutex);
+					_UseFront = !_UseFront;
+				}
 			}
 		);
 		//Generate a parallel task to calculate position (double precision) for each star
