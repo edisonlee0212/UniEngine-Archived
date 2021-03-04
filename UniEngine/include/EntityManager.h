@@ -546,15 +546,24 @@ namespace UniEngine {
 							T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
 							T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
 							T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+							T1 copy1 = address1[remainder];
+							T2 copy2 = address2[remainder];
+							T3 copy3 = address3[remainder];
+							T4 copy4 = address4[remainder];
 							const auto entity = entities->at(i);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) return;
 							func(static_cast<int>(i), entity,
-								address1[remainder],
-								address2[remainder],
-								address3[remainder],
-								address4[remainder]
+								copy1,
+								copy2,
+								copy3,
+								copy4
 							);
+							address1[remainder] = copy1;
+							address2[remainder] = copy2;
+							address3[remainder] = copy3;
+							address4[remainder] = copy4;
 						}
+						
 						if(threadIndex < loadReminder)
 						{
 							const int i = threadIndex + threadSize * threadLoad;
@@ -565,14 +574,22 @@ namespace UniEngine {
 							T2* address2 = reinterpret_cast<T2*>(data + targetType2.m_offset * capacity);
 							T3* address3 = reinterpret_cast<T3*>(data + targetType3.m_offset * capacity);
 							T4* address4 = reinterpret_cast<T4*>(data + targetType4.m_offset * capacity);
+							T1 copy1 = address1[remainder];
+							T2 copy2 = address2[remainder];
+							T3 copy3 = address3[remainder];
+							T4 copy4 = address4[remainder];
 							const auto entity = entities->at(i);
 							if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled) return;
 							func(static_cast<int>(i), entity,
-								address1[remainder],
-								address2[remainder],
-								address3[remainder],
-								address4[remainder]
+								copy1,
+								copy2,
+								copy3,
+								copy4
 							);
+							address1[remainder] = copy1;
+							address2[remainder] = copy2;
+							address3[remainder] = copy3;
+							address4[remainder] = copy4;
 						}
 					}
 			).share());

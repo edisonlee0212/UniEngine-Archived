@@ -74,9 +74,9 @@ void Galaxy::StarClusterSystem::OnCreate()
 	StarOrbitProportion proportion;
 
 	JobManager::ResizePrimaryWorkers(1);
-	JobManager::ResizeSecondaryWorkers(6);
+	JobManager::ResizeSecondaryWorkers(16);
 
-	size_t starAmount = 200000;
+	size_t starAmount = 600;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];

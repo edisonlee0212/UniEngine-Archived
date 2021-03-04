@@ -33,6 +33,17 @@ namespace UniEngine {
 		bool m_enableConsoleErrors = true;
 		bool m_enableConsoleWarnings = false;
 		bool m_sceneWindowFocused = false;
+
+#pragma region Transfer
+		bool m_lockCamera;
+		glm::quat m_previousRotation;
+		glm::vec3 m_previousPosition;
+		glm::quat m_targetRotation;
+		glm::vec3 m_targetPosition;
+		float m_transitionTime;
+		float m_transitionTimer;
+#pragma endregion
+
 #pragma region Scene Camera
 		friend class RenderManager;
 		friend class InputManager;
@@ -69,9 +80,13 @@ namespace UniEngine {
 		static void HighLightEntityPrePassHelper(const Entity& entity);
 		static void HighLightEntityHelper(const Entity& entity);
 	public:
+		static void MoveCamera(const glm::quat& targetRotation, const glm::vec3& targetPosition, const float& transitionTime = 1.0f);
 		std::unique_ptr<CameraComponent> m_sceneCamera;
-		glm::quat m_sceneCameraRotation = glm::quat(glm::radians(glm::vec3(-14.0f, 0.0f, 0.0f)));
-		glm::vec3 m_sceneCameraPosition = glm::vec3(0, 5, 10);
+		glm::quat m_sceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
+		glm::vec3 m_sceneCameraPosition = glm::vec3(0, 5, 20);
+		glm::quat m_defaultSceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
+		glm::vec3 m_defaultSceneCameraPosition = glm::vec3(0, 5, 20);
+		bool m_enableInfoWindow = true;
 		static void HighLightEntity(const Entity& entity, const glm::vec4& color);
 		static void LateUpdate();
 		template<typename T1 = ComponentBase>

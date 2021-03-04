@@ -177,6 +177,20 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 	}
 }
 
+void EditorManager::MoveCamera(const glm::quat& targetRotation, const glm::vec3& targetPosition, const float& transitionTime)
+{
+	GetInstance().m_previousRotation = GetInstance().m_sceneCameraRotation;
+	GetInstance().m_previousPosition = GetInstance().m_sceneCameraPosition;
+	GetInstance().m_transitionTime = transitionTime;
+	GetInstance().m_transitionTimer = 0;
+	GetInstance().m_targetRotation = targetRotation;
+	GetInstance().m_targetPosition = targetPosition;
+	GetInstance().m_lockCamera = true;
+	GetInstance().m_leftMouseButtonHold = false;
+	GetInstance().m_rightMouseButtonHold = false;
+	GetInstance().m_startMouse = false;
+}
+
 void EditorManager::HighLightEntity(const Entity& entity, const glm::vec4& color)
 {
 	if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled()) return;
@@ -460,6 +474,7 @@ void UniEngine::EditorManager::Init()
 	GetInstance().m_configFlags += EntityEditorSystem_EnableEntityInspector;
 	GetInstance().m_sceneCamera = std::make_unique<CameraComponent>();
 	GetInstance().m_sceneCamera->m_drawSkyBox = false;
+	GetInstance().m_sceneCamera->m_skyBox = Default::Textures::DefaultSkybox;
 }
 
 void UniEngine::EditorManager::Destroy()
@@ -508,6 +523,20 @@ void EditorManager::PreUpdate()
 	}
 	GetInstance().m_sceneCamera->Clear();
 	GetInstance().m_sceneCameraEntityRecorder->Clear();
+	if(GetInstance().m_lockCamera)
+	{
+		GetInstance().m_transitionTimer += Application::GetCurrentWorld()->Time()->DeltaTime();
+		const float a = 1.0 - glm::pow(1.0 - GetInstance().m_transitionTimer / GetInstance().m_transitionTime, 4.0f);
+		GetInstance().m_sceneCameraRotation = glm::mix(GetInstance().m_previousRotation, GetInstance().m_targetRotation, a);
+		GetInstance().m_sceneCameraPosition = glm::mix(GetInstance().m_previousPosition, GetInstance().m_targetPosition, a);
+		if (a >= 1.0f) {
+			GetInstance().m_lockCamera = false;
+			GetInstance().m_sceneCameraRotation = GetInstance().m_targetRotation;
+			GetInstance().m_sceneCameraPosition = GetInstance().m_targetPosition;
+			GetInstance().m_sceneCameraYawAngle = -90;
+			GetInstance().m_sceneCameraPitchAngle = 0;
+		}
+	}
 }
 
 
@@ -563,7 +592,6 @@ void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
 		ImGui::TreePop();
 	}
 }
-
 
 void EditorManager::LateUpdate()
 {
@@ -755,7 +783,7 @@ void EditorManager::LateUpdate()
 			}
 		}
 		else {
-		GetInstance().m_selectedEntity.m_index = 0;
+			GetInstance().m_selectedEntity.m_index = 0;
 		}
 		ImGui::End();
 	}
@@ -799,6 +827,35 @@ void EditorManager::LateUpdate()
 				}
 				ImGui::EndDragDropTarget();
 			}
+			static int corner = 1;
+			ImVec2 overlayPos = ImGui::GetWindowPos();
+			ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+			if (GetInstance().m_enableInfoWindow)
+			{
+				ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+				ImGui::SetNextWindowBgAlpha(0.35f);
+				ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+				ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
+				ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+				ImGui::Checkbox("Skybox", &GetInstance().m_sceneCamera->m_drawSkyBox);
+				if (ImGui::Button("Reset camera"))
+				{
+					MoveCamera(GetInstance().m_defaultSceneCameraRotation, GetInstance().m_defaultSceneCameraPosition);
+				}
+				ImGui::Separator();
+				if (ImGui::IsMousePosValid()) {
+					glm::vec2 pos;
+					InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), pos);
+					ImGui::Text("Mouse Position: (%.1f,%.1f)", pos.x, pos.y);
+				}
+				else {
+					ImGui::Text("Mouse Position: <invalid>");
+				}
+				ImGui::EndChild();
+			}
+
 			glm::vec2 mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
 			if (GetInstance().m_sceneWindowFocused)
 			{
@@ -820,7 +877,7 @@ void EditorManager::LateUpdate()
 						InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow())) {
 						GetInstance().m_rightMouseButtonHold = true;
 					}
-					if (GetInstance().m_rightMouseButtonHold)
+					if (GetInstance().m_rightMouseButtonHold && !GetInstance().m_lockCamera)
 					{
 						glm::vec3 front = GetInstance().m_sceneCameraRotation * glm::vec3(0, 0, -1);
 						glm::vec3 right = GetInstance().m_sceneCameraRotation * glm::vec3(1, 0, 0);
