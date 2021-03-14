@@ -76,7 +76,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	JobManager::ResizePrimaryWorkers(1);
 	JobManager::ResizeSecondaryWorkers(16);
 
-	size_t starAmount = 600;
+	size_t starAmount = 200000;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];
@@ -108,13 +108,15 @@ void Galaxy::StarClusterSystem::Update()
 	_GalaxyTime += m_world->Time()->DeltaTime() * _Speed;
 	float time = _GalaxyTime;
 
-	if (_FirstTime || _CurrentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	const bool enableAsync = true;
+	
+	if (!enableAsync || _FirstTime || _CurrentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
 		_UseFront = !_UseFront;
 		_StarClusterBack.SetEnabled(!_UseFront);
 		_StarClusterFront.SetEnabled(_UseFront);
 		
-		_CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
+		if(enableAsync) _CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
 		_FirstTime = false;
 
 		_ApplyPositionTimer = Application::EngineTime();
@@ -167,7 +169,8 @@ void Galaxy::StarClusterSystem::Update()
 				}				
 			}
 		);
-		
+		if (!enableAsync) _CurrentStatus.wait();
+		if (!enableAsync) _CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
 	}
 }
 
