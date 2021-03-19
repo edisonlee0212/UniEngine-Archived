@@ -293,6 +293,7 @@ void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vect
 			normal += j;
 		}
 		normals.push_back(glm::normalize(normal));
+		vertices[i].m_normal = normal;
 	}
 
 	m_vao->SubData(size * sizeof(glm::vec3), size * sizeof(glm::vec3), &normals[0]);
@@ -333,6 +334,7 @@ void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vec
 			tangent += j;
 		}
 		tangents.push_back(glm::normalize(tangent));
+		vertices[i].m_tangent = tangent;
 	}
 
 	m_vao->SubData(size * 2 * sizeof(glm::vec3), size * sizeof(glm::vec3), &tangents[0]);
