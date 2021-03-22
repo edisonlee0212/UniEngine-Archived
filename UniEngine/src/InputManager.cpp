@@ -95,14 +95,6 @@ bool InputManager::GetMousePosition(glm::vec2& pos)
 	return retVal;
 }
 
-inline void InputManager::Update()
-{
-}
-
-void InputManager::PreUpdate()
-{
-}
-
 void InputManager::LateUpdate()
 {
 	if (ImGui::BeginMainMenuBar()) {
