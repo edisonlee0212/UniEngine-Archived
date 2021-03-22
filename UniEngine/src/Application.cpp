@@ -173,7 +173,6 @@ void UniEngine::Application::PreUpdateInternal()
 #pragma endregion
 	EditorManager::PreUpdate();
 	WindowManager::PreUpdate();
-	InputManager::PreUpdate();
 	RenderManager::PreUpdate();
 	
 	for (const auto& i : m_externalPreUpdateFunctions) i();
@@ -188,7 +187,6 @@ void UniEngine::Application::UpdateInternal()
 	if (!m_initialized) return;
 	
 	EditorManager::Update();
-	InputManager::Update();
 	
 	for (const auto& i : m_externalUpdateFunctions) i();
 	if (m_playing) {
