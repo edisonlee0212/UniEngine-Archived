@@ -35,7 +35,7 @@ namespace UniEngine {
 		bool m_sceneWindowFocused = false;
 
 #pragma region Transfer
-		bool m_lockCamera;
+		
 		glm::quat m_previousRotation;
 		glm::vec3 m_previousPosition;
 		glm::quat m_targetRotation;
@@ -59,12 +59,10 @@ namespace UniEngine {
 		std::unique_ptr<GLTexture2D> m_sceneCameraEntityRecorderTexture;
 		std::unique_ptr<GLRenderBuffer> m_sceneCameraEntityRecorderRenderBuffer;
 		
-		float m_sceneCameraYawAngle = -90;
-		float m_sceneCameraPitchAngle = 0;
+		
+		
 		int m_sceneCameraResolutionX = 1;
 		int m_sceneCameraResolutionY = 1;
-		float m_velocity = 20.0f;
-		float m_sensitivity = 0.1f;
 		float m_lastX = 0;
 		float m_lastY = 0;
 		float m_lastScrollY = 0;
@@ -81,6 +79,13 @@ namespace UniEngine {
 		static void HighLightEntityHelper(const Entity& entity);
 	public:
 		static void MoveCamera(const glm::quat& targetRotation, const glm::vec3& targetPosition, const float& transitionTime = 1.0f);
+
+		float m_sceneCameraYawAngle = -90;
+		float m_sceneCameraPitchAngle = 0;
+		float m_velocity = 20.0f;
+		float m_sensitivity = 0.1f;
+		bool m_lockCamera;
+		
 		std::unique_ptr<CameraComponent> m_sceneCamera;
 		glm::quat m_sceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
 		glm::vec3 m_sceneCameraPosition = glm::vec3(0, 5, 20);
