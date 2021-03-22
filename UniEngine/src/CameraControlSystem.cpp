@@ -16,33 +16,33 @@ void CameraControlSystem::LateUpdate()
 			{
 #pragma region Scene Camera Controller
 				auto transform = mainCamera->GetOwner().GetComponentData<Transform>();
-				auto rotation = transform.GetRotation();
+				const auto rotation = transform.GetRotation();
 				auto position = transform.GetPosition();
-				glm::vec3 front = rotation * glm::vec3(0, 0, -1);
-				glm::vec3 right = rotation * glm::vec3(1, 0, 0);
-				bool moved = false;
+				const auto front = rotation * glm::vec3(0, 0, -1);
+				const auto right = rotation * glm::vec3(1, 0, 0);
+				auto moved = false;
 				if (InputManager::GetKey(GLFW_KEY_W)) {
-					position += glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * m_velocity;
+					position += front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * m_velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_S)) {
-					position -= glm::vec3(front.x, 0.0f, front.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * m_velocity;
+					position -= front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * m_velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_A)) {
-					position -= glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * m_velocity;
+					position -= right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * m_velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_D)) {
-					position += glm::vec3(right.x, 0.0f, right.z) * (float)Application::GetCurrentWorld()->Time()->DeltaTime() * m_velocity;
+					position += right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * m_velocity;
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT)) {
-					position.y += m_velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
+					position.y += m_velocity * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
 					moved = true;
 				}
 				if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL)) {
-					position.y -= m_velocity * (float)Application::GetCurrentWorld()->Time()->DeltaTime();
+					position.y -= m_velocity * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
 					moved = true;
 				}
 				if (moved)
