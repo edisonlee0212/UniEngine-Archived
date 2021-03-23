@@ -455,11 +455,10 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const 
 		retVal->m_texture->SetData(0, format, GL_UNSIGNED_BYTE, data);
 		retVal->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
 		retVal->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
-		retVal->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		retVal->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, generateMipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 		retVal->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		if(generateMipmap) retVal->m_texture->GenerateMipMap();
 		stbi_image_free(data);
-		
 	}
 	else {
 		Debug::Log("Texture failed to load at path: " + filename);
@@ -513,7 +512,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 		}
 	}
 	
-	texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	texture->SetInt(GL_TEXTURE_MIN_FILTER, generateMipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 	texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
