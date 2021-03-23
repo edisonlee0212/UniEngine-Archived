@@ -1268,8 +1268,6 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 
 void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program)
 {
-	GetInstance().m_materialSettings = MaterialSettingsBlock();
-	
 	GetInstance().m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
 	GetInstance().m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
 	GetInstance().m_materialSettings.m_displacementScale = material->m_displacementMapScale;
@@ -1278,12 +1276,15 @@ void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program
 	GetInstance().m_materialSettings.m_metallicVal = material->m_metallic;
 	GetInstance().m_materialSettings.m_roughnessVal = material->m_roughness;
 	GetInstance().m_materialSettings.m_aoVal = material->m_ambientOcclusion;
-	
 	GetInstance().m_materialSettings.m_directionalShadowMap = GetInstance().m_directionalLightShadowMap->DepthMapArray()->GetHandle();
 	GetInstance().m_materialSettings.m_pointShadowMap = GetInstance().m_pointLightShadowMap->DepthMapArray()->GetHandle();
 	GetInstance().m_materialSettings.m_spotShadowMap = GetInstance().m_spotLightShadowMap->DepthMap()->GetHandle();
-	
-	for(const auto& i : material->m_textures)
+	GetInstance().m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &GetInstance().m_materialSettings);
+}
+
+void RenderManager::BindTextureHandles(Material* material)
+{
+	for (const auto& i : material->m_textures)
 	{
 		if (!i.second || !i.second->Texture()) continue;
 		switch (i.second->m_type)
@@ -1330,7 +1331,15 @@ void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program
 			break;
 		}
 	}
-	GetInstance().m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &GetInstance().m_materialSettings);
+}
+
+void RenderManager::ReleaseTextureHandles(Material* material)
+{
+	for (const auto& i : material->m_textures)
+	{
+		if (!i.second || !i.second->Texture()) continue;
+		i.second->Texture()->MakeNonResident();
+	}
 }
 
 void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
@@ -1353,8 +1362,11 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 		program->SetFloat4x4(j.m_name, j.m_value);
 	}
 	MaterialPropertySetter(material, true);
+	GetInstance().m_materialSettings = MaterialSettingsBlock();
+	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program.get());
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	ReleaseTextureHandles(material);
 	GLVAO::BindDefault();
 }
 
@@ -1389,8 +1401,11 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 		program->SetFloat4x4(j.m_name, j.m_value);
 	}
 	MaterialPropertySetter(material, true);
+	GetInstance().m_materialSettings = MaterialSettingsBlock();
+	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program.get());
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	ReleaseTextureHandles(material);
 	GLVAO::BindDefault();
 }
 
@@ -1427,8 +1442,11 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	}
 	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
+	GetInstance().m_materialSettings = MaterialSettingsBlock();
+	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	ReleaseTextureHandles(material);
 	GLVAO::BindDefault();
 }
 
@@ -1454,9 +1472,12 @@ void UniEngine::RenderManager::DrawMesh(
 		program->SetFloat4x4(j.m_name, j.m_value);
 	}
 	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
+	GetInstance().m_materialSettings = MaterialSettingsBlock();
 	MaterialPropertySetter(material);
+	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	ReleaseTextureHandles(material);
 	GLVAO::BindDefault();
 }
 

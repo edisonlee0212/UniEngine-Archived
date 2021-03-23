@@ -150,6 +150,8 @@ namespace UniEngine {
 
 		static void MaterialPropertySetter(Material* material, bool disableBlending = false);
 		static void ApplyMaterialSettings(Material* material, GLProgram* program);
+		static void BindTextureHandles(Material* material);
+		static void ReleaseTextureHandles(Material* material);
 		static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);
 		static void RenderBackGround(const std::unique_ptr<CameraComponent>& cameraComponent);
 		static void RenderToCameraForward(const std::unique_ptr<CameraComponent>& cameraComponent, const GlobalTransform& cameraTransform, glm::vec3& minBound, glm::vec3& maxBound, bool calculateBounds = false);

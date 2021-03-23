@@ -429,7 +429,7 @@ void UniEngine::ResourceManager::AttachChildren(EntityArchetype archetype, std::
 	}
 }
 
-std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const std::string& path, TextureType type)
+std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const std::string& path, TextureType type, bool generateMipmap)
 {
 	stbi_set_flip_vertically_on_load(true);
 	auto retVal = std::make_shared<Texture2D>(type);
@@ -440,28 +440,24 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const 
 	if (data)
 	{
 		GLenum format = GL_RED;
-		GLenum iformat = GL_R8;
+		GLenum iformat = GL_RGBA32F;
 		if (nrComponents == 2) {
 			format = GL_RG;
-			iformat = GL_RG8;
 		}
 		else if (nrComponents == 3) {
 			format = GL_RGB;
-			iformat = GL_RGB8;
 		}
 		else if (nrComponents == 4) {
 			format = GL_RGBA;
-			iformat = GL_RGBA8;
 		}
-		GLsizei mipmap = static_cast<GLsizei>(log2(std::max(width, height))) + 1;
+		GLsizei mipmap = generateMipmap ? static_cast<GLsizei>(log2(std::max(width, height))) + 1 : 1;
 		retVal->m_texture = std::make_shared<GLTexture2D>(mipmap, iformat, width, height, true);
 		retVal->m_texture->SetData(0, format, GL_UNSIGNED_BYTE, data);
 		retVal->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
 		retVal->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
 		retVal->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		retVal->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		retVal->m_texture->GenerateMipMap();
-		retVal->m_texture->MakeResident();
+		if(generateMipmap) retVal->m_texture->GenerateMipMap();
 		stbi_image_free(data);
 		
 	}
@@ -477,7 +473,7 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const 
 }
 
 
-std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const std::vector<std::string>& paths)
+std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const std::vector<std::string>& paths, bool generateMipmap)
 {
 	int width, height, nrComponents;
 	auto size = paths.size();
@@ -487,28 +483,26 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 	}
 	unsigned char* temp = stbi_load(paths[0].c_str(), &width, &height, &nrComponents, 0);
 	stbi_image_free(temp);
-	auto texture = std::make_unique<GLTextureCubeMap>(1, GL_RGB, width, height, false);
+	GLsizei mipmap = generateMipmap ? static_cast<GLsizei>(log2(std::max(width, height))) + 1 : 1;
+	auto texture = std::make_unique<GLTextureCubeMap>(mipmap, GL_RGBA32F, width, height, true);
 	for (int i = 0; i < size; i++)
 	{
 		unsigned char* data = stbi_load(paths[i].c_str(), &width, &height, &nrComponents, 0);
+		GLenum iformat = GL_RGBA32F;
 		if (data)
 		{
-			GLenum iformat = GL_R8;
 			GLenum format = GL_RED;
 			if (nrComponents == 2) {
 				format = GL_RG;
-				iformat = GL_RG8;
 			}
 			else if (nrComponents == 3) {
 				format = GL_RGB;
-				iformat = GL_RGB8;
 			}
 			else if (nrComponents == 4) {
 				format = GL_RGBA;
-				iformat = GL_RGBA8;
 			}
 
-			texture->SetData((CubeMapIndex)i, 0, iformat, format, GL_UNSIGNED_BYTE, data);
+			texture->SetData((CubeMapIndex)i, 0, format, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
 		}
 		else
@@ -518,13 +512,13 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 			return nullptr;
 		}
 	}
+	
 	texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	texture->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	//texture->GenerateMipMap();
-	texture->MakeResident();
+	if(generateMipmap) texture->GenerateMipMap();
 	auto retVal = std::make_shared<Cubemap>();
 	retVal->m_texture = std::move(texture);
 	retVal->m_paths = paths;

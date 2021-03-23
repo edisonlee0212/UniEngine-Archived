@@ -47,8 +47,11 @@ void GLTexture::MakeResident()
 void GLTexture::MakeNonResident()
 {
 	Bind(0);
-	glMakeTextureHandleNonResidentARB(glGetTextureHandleARB(m_id));
-	m_resident = false;
+	if (m_resident)
+	{
+		glMakeTextureHandleNonResidentARB(glGetTextureHandleARB(m_id));
+		m_resident = false;
+	}
 }
 
 void GLTexture::Clear(const GLint& level) const
@@ -263,7 +266,7 @@ void GLTextureCubeMap::SetData(const CubeMapIndex& index, const GLint& level, co
 		Debug::Error("Error!");
 	}
 	Bind(0);
-	glTexSubImage3D(m_type, level, 0, 0, (size_t)index, m_width, m_height, 1, format, type, pixels);
+	glTextureSubImage3D(m_id, level, 0, 0, (size_t)index, m_width, m_height, 1, format, type, pixels);
 }
 
 void GLTextureCubeMap::SetData(const CubeMapIndex& index, const GLint& level, const GLenum& internalFormat,
