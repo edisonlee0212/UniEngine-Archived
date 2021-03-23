@@ -38,12 +38,11 @@ namespace UniEngine {
 	};
 	class UNIENGINE_API Material : public ResourceBehaviour
 	{
-		friend class RenderManager;
+	public:
 		std::map<TextureType, std::shared_ptr<Texture2D>> m_textures;
 		std::shared_ptr<GLProgram> m_program;
 		std::vector<MaterialFloatProperty> m_floatPropertyList;
 		std::vector<MaterialMat4Property> m_float4X4PropertyList;
-	public:
 		MaterialPolygonMode m_polygonMode = MaterialPolygonMode::Fill;
 		MaterialCullingMode m_cullingMode = MaterialCullingMode::Back;
 		MaterialBlendingMode m_blendingMode = MaterialBlendingMode::Off;
