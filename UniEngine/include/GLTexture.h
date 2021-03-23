@@ -30,11 +30,14 @@ namespace UniEngine {
 	{
 		friend class GLCore;
 		static GLint m_maxAllowedTexture;
+		static std::list<GLTexture*> m_currentlyResidentTexture;
 	protected:
 		bool m_resident = false;
 		GLuint64 m_handle = 0;
 		GLenum m_type;
 		GLenum m_format;
+		void MakeResidentInternal();
+		void MakeNonResidentInternal();
 	public:
 		static GLint GetMaxAllowedTexture();
 		GLuint64 GetHandle();

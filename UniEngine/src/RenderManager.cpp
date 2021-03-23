@@ -1335,6 +1335,7 @@ void RenderManager::BindTextureHandles(Material* material)
 
 void RenderManager::ReleaseTextureHandles(Material* material)
 {
+	return;
 	for (const auto& i : material->m_textures)
 	{
 		if (!i.second || !i.second->Texture()) continue;

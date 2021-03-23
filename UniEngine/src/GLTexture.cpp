@@ -3,7 +3,7 @@
 using namespace UniEngine;
 
 GLint GLTexture::m_maxAllowedTexture = 0;
-
+std::list<GLTexture*> GLTexture::m_currentlyResidentTexture;
 TextureBinding::TextureBinding()
 {
 	m_1d = 0;
@@ -17,6 +17,24 @@ TextureBinding::TextureBinding()
 	m_cubeMapArray = 0;
 	m_2dMS = 0;
 	m_2dMSArray = 0;
+}
+
+void GLTexture::MakeResidentInternal()
+{
+	Bind(0);
+	m_handle = glGetTextureHandleARB(m_id);
+	glMakeTextureHandleResidentARB(m_handle);
+	m_resident = true;
+}
+
+void GLTexture::MakeNonResidentInternal()
+{
+	Bind(0);
+	if (m_resident)
+	{
+		glMakeTextureHandleNonResidentARB(m_handle);
+		m_resident = false;
+	}
 }
 
 GLint GLTexture::GetMaxAllowedTexture()
@@ -38,20 +56,30 @@ bool GLTexture::IsResident() const
 
 void GLTexture::MakeResident()
 {
-	Bind(0);
-	m_handle = glGetTextureHandleARB(m_id);
-	glMakeTextureHandleResidentARB(m_handle);
-	m_resident = true;
+	if(!m_resident)
+	{
+		if(m_currentlyResidentTexture.size() > 1024)
+		{
+			auto* textureToRelease = m_currentlyResidentTexture.front();
+			textureToRelease->MakeNonResidentInternal();
+			m_currentlyResidentTexture.pop_front();
+		}
+		MakeResidentInternal();
+		m_currentlyResidentTexture.push_back(this);
+	}
 }
 
 void GLTexture::MakeNonResident()
 {
-	Bind(0);
-	if (m_resident)
+	for(auto i = m_currentlyResidentTexture.begin(); i != m_currentlyResidentTexture.end(); ++i)
 	{
-		glMakeTextureHandleNonResidentARB(glGetTextureHandleARB(m_id));
-		m_resident = false;
+		if(*i == this)
+		{
+			m_currentlyResidentTexture.erase(i);
+			break;
+		}
 	}
+	MakeNonResidentInternal();
 }
 
 void GLTexture::Clear(const GLint& level) const
@@ -121,10 +149,6 @@ GLTexture::GLTexture(const GLenum& target, const GLenum& format)
 
 GLTexture::~GLTexture()
 {
-	if (m_resident)
-	{
-		MakeNonResident();
-	}
 	glDeleteTextures(1, &m_id);
 }
 
