@@ -14,7 +14,7 @@ void ResourceManager::Remove(size_t id, size_t hashCode)
 	m_resources[id].second.erase(hashCode);
 }
 
-std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(bool addResource, std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
+std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(bool addResource, std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
 {
 	stbi_set_flip_vertically_on_load(true);
 	// read file via ASSIMP
@@ -32,7 +32,7 @@ std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(bool addResource, 
 	auto retVal = std::make_shared<Model>();
 	retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
 	ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
-	if(addResource) Push(retVal);
+	if (addResource) Push(retVal);
 	return retVal;
 }
 
@@ -273,7 +273,7 @@ void ResourceManager::ReadMesh(unsigned meshIndex, std::unique_ptr<ModelNode>& m
 		}
 		if (!skip)
 		{   // if Texture2D hasn't been loaded already, load it
-			auto texture2D = LoadTexture(false,directory + "/" + str.C_Str(), TextureType::Metallic);
+			auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Metallic);
 			material->SetTexture(texture2D);
 			Texture2DsLoaded.push_back(texture2D);  // store it as Texture2D loaded for entire model, to ensure we won't unnecesery load duplicate Texture2Ds.
 		}
@@ -457,7 +457,7 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const 
 		retVal->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
 		retVal->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, generateMipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 		retVal->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		if(generateMipmap) retVal->m_texture->GenerateMipMap();
+		if (generateMipmap) retVal->m_texture->GenerateMipMap();
 		stbi_image_free(data);
 	}
 	else {
@@ -511,18 +511,18 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 			return nullptr;
 		}
 	}
-	
+
 	texture->SetInt(GL_TEXTURE_MIN_FILTER, generateMipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 	texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	texture->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	if(generateMipmap) texture->GenerateMipMap();
+	if (generateMipmap) texture->GenerateMipMap();
 	auto retVal = std::make_shared<Cubemap>();
 	retVal->m_texture = std::move(texture);
 	retVal->m_paths = paths;
 	retVal->m_name = paths[0].substr(paths[0].find_last_of("/\\") + 1);
-	if(addResource) Push(retVal);
+	if (addResource) Push(retVal);
 	return retVal;
 }
 
@@ -531,7 +531,7 @@ std::shared_ptr<Material> ResourceManager::LoadMaterial(bool addResource, const 
 	auto retVal = std::make_shared<Material>();
 	retVal->m_shininess = 32.0f;
 	retVal->SetProgram(program);
-	if(addResource) Push(retVal);
+	if (addResource) Push(retVal);
 	return retVal;
 }
 
@@ -542,7 +542,7 @@ std::shared_ptr<GLProgram> ResourceManager::LoadProgram(bool addResource, const 
 	retVal->Attach(vertex);
 	retVal->Attach(fragment);
 	retVal->Link();
-	if(addResource) Push(retVal);
+	if (addResource) Push(retVal);
 	return retVal;
 }
 
@@ -554,7 +554,7 @@ std::shared_ptr<GLProgram> ResourceManager::LoadProgram(bool addResource, const 
 	retVal->Attach(geometry);
 	retVal->Attach(fragment);
 	retVal->Link();
-	if(addResource) Push(retVal);
+	if (addResource) Push(retVal);
 	return retVal;
 }
 
@@ -684,7 +684,7 @@ void ResourceManager::LateUpdate()
 					ImGui::EndTabItem();
 				}
 			}
-			
+
 		}
 		ImGui::EndTabBar();
 		ImGui::End();
