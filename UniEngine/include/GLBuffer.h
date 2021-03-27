@@ -3,9 +3,7 @@
 namespace UniEngine {
 	class UNIENGINE_API GLBuffer : public GLObject
 	{
-		friend class GLCore;
 		GLenum m_target;
-		static std::map<GLenum, GLuint> m_currentBoundGLBuffer;
 	public:
 		GLBuffer(GLenum target);
 		void Bind() const;
@@ -41,6 +39,7 @@ namespace UniEngine {
 	class UNIENGINE_API GLUBO : public GLBuffer {
 	public:
 		GLUBO();
+		static void BindDefault();
 		void SetBase(const GLuint& index) const;
 		void SetRange(const GLuint& index,
 		              const GLintptr& offset,
@@ -54,6 +53,7 @@ namespace UniEngine {
 	public:
 		~GLVAO() override;
 		void Bind() const;
+		static void BindDefault();
 		GLVAO();
 		GLVBO* Vbo();
 		GLEBO* Ebo();

@@ -4,19 +4,15 @@
 #include "GLShader.h"
 using namespace UniEngine;
 
-GLuint GLProgram::m_currentBoundGLProgram = 0;
 
 inline void UniEngine::GLProgram::Bind() const
 {
-	if(m_currentBoundGLProgram == m_id) return;
 	glUseProgram(m_id);
-	m_currentBoundGLProgram = m_id;
 }
 
 inline void UniEngine::GLProgram::BindDefault()
 {
 	glUseProgram(0);
-	m_currentBoundGLProgram = 0;
 }
 
 inline UniEngine::GLProgram::GLProgram()

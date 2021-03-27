@@ -7,6 +7,5 @@ namespace UniEngine {
 	{
 	public:
 		static void Init();
-		static void PreUpdate();
 	};
 }

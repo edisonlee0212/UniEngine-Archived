@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "GLBuffer.h"
 using namespace UniEngine;
-std::map<GLenum, GLuint> GLBuffer::m_currentBoundGLBuffer;
+
 GLBuffer::GLBuffer(GLenum target)
 {
 	glGenBuffers(1, &m_id);
@@ -10,9 +10,7 @@ GLBuffer::GLBuffer(GLenum target)
 
 void GLBuffer::Bind() const
 {
-	if (m_currentBoundGLBuffer[m_target] == m_id) return;
 	glBindBuffer(m_target, m_id);
-	m_currentBoundGLBuffer[m_target] = m_id;
 }
 
 void GLBuffer::SetData(const GLsizei& length, const GLvoid* data, const GLenum& usage) const
@@ -72,6 +70,10 @@ GLUBO::GLUBO(): GLBuffer(GL_UNIFORM_BUFFER)
 {
 }
 
+void GLUBO::BindDefault()
+{
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
 
 void GLUBO::SetBase(const GLuint& index) const
 {
@@ -85,12 +87,18 @@ void GLUBO::SetRange(const GLuint& index, const GLintptr& offset, const GLsizeip
 
 GLVAO::~GLVAO()
 {
+	BindDefault();
 	glDeleteVertexArrays(1, &m_id);
 }
 
 void GLVAO::Bind() const
 {
 	glBindVertexArray(m_id);
+}
+
+void GLVAO::BindDefault()
+{
+	glBindVertexArray(0);
 }
 
 GLVAO::GLVAO()

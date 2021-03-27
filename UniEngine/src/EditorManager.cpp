@@ -819,8 +819,9 @@ void EditorManager::LateUpdate()
 					auto meshRenderer = std::make_unique<MeshRenderer>();
 					meshRenderer->m_mesh = payload_n;
 					meshRenderer->m_material = std::make_shared<Material>();
+					meshRenderer->m_material->SetTexture(Default::Textures::StandardTexture);
 					meshRenderer->m_material->SetProgram(Default::GLPrograms::StandardProgram);
-					Entity entity = EntityManager::CreateEntity(meshRenderer->m_mesh->m_name);
+					Entity entity = EntityManager::CreateEntity("Mesh");
 					entity.SetComponentData(ltw);
 					entity.SetPrivateComponent(std::move(meshRenderer));
 				}

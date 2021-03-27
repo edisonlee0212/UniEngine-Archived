@@ -4,7 +4,6 @@ using namespace UniEngine;
 
 GLint GLTexture::m_maxAllowedTexture = 0;
 std::list<GLTexture*> GLTexture::m_currentlyResidentTexture;
-std::vector<std::map<GLenum, GLuint>> GLTexture::m_currentBoundTextures;
 TextureBinding::TextureBinding()
 {
 	m_1d = 0;
@@ -133,14 +132,12 @@ void GLTexture::GenerateMipMap() const
 
 void GLTexture::Bind(const GLenum& activate) const
 {
-	if (static_cast<GLint>(activate) >= m_maxAllowedTexture)
+	if ((GLint)activate >= m_maxAllowedTexture)
 	{
 		Debug::Error("Max allowed texture exceeded!");
 	}
-	if (m_currentBoundTextures[activate][m_type] == m_id) return;
 	glActiveTexture(GL_TEXTURE0 + activate);
 	glBindTexture(m_type, m_id);
-	m_currentBoundTextures[activate][m_type] = m_id;
 }
 
 GLTexture::GLTexture(const GLenum& target, const GLenum& format)
