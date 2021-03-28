@@ -629,7 +629,7 @@ void UniEngine::RenderManager::PreUpdate()
 									mesh->Vao()->DisableAttributeArray(13);
 									mesh->Vao()->DisableAttributeArray(14);
 									mesh->Vao()->DisableAttributeArray(15);
-									glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+									glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 
 								}
 							}
@@ -667,7 +667,7 @@ void UniEngine::RenderManager::PreUpdate()
 									mesh->Vao()->SetAttributeDivisor(13, 1);
 									mesh->Vao()->SetAttributeDivisor(14, 1);
 									mesh->Vao()->SetAttributeDivisor(15, 1);
-									glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+									glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 									GLVAO::BindDefault();
 								}
 							}
@@ -752,7 +752,7 @@ void UniEngine::RenderManager::PreUpdate()
 									mesh->Vao()->DisableAttributeArray(13);
 									mesh->Vao()->DisableAttributeArray(14);
 									mesh->Vao()->DisableAttributeArray(15);
-									glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+									glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 								}
 							}
 							enabledSize++;
@@ -788,7 +788,7 @@ void UniEngine::RenderManager::PreUpdate()
 									mesh->Vao()->SetAttributeDivisor(13, 1);
 									mesh->Vao()->SetAttributeDivisor(14, 1);
 									mesh->Vao()->SetAttributeDivisor(15, 1);
-									glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+									glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 									GLVAO::BindDefault();
 								}
 							}
@@ -874,7 +874,7 @@ void UniEngine::RenderManager::PreUpdate()
 									mesh->Vao()->DisableAttributeArray(13);
 									mesh->Vao()->DisableAttributeArray(14);
 									mesh->Vao()->DisableAttributeArray(15);
-									glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+									glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 								}
 							}
 							enabledSize++;
@@ -910,7 +910,7 @@ void UniEngine::RenderManager::PreUpdate()
 									mesh->Vao()->SetAttributeDivisor(13, 1);
 									mesh->Vao()->SetAttributeDivisor(14, 1);
 									mesh->Vao()->SetAttributeDivisor(15, 1);
-									glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+									glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 									GLVAO::BindDefault();
 								}
 							}
@@ -981,7 +981,7 @@ void UniEngine::RenderManager::PreUpdate()
 				mesh->Vao()->DisableAttributeArray(15);
 				EditorManager::GetInstance().m_sceneCameraEntityRecorderProgram->SetInt("EntityIndex", owner.m_index);
 				EditorManager::GetInstance().m_sceneCameraEntityRecorderProgram->SetFloat4x4("model", ltw);
-				glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+				glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 			}
 			GLVAO::BindDefault();
 		}
@@ -1012,7 +1012,7 @@ void UniEngine::RenderManager::PreUpdate()
 				mesh->Vao()->SetAttributeDivisor(15, 1);
 				EditorManager::GetInstance().m_sceneCameraEntityInstancedRecorderProgram->SetInt("EntityIndex", owner.m_index);
 				EditorManager::GetInstance().m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4("model", ltw);
-				glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+				glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 			}
 		}
 #pragma endregion
@@ -1353,7 +1353,7 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	mesh->Vao()->DisableAttributeArray(15);
 
 	GetInstance().m_drawCall++;
-	GetInstance().m_triangles += mesh->Size() / 3;
+	GetInstance().m_triangles += mesh->GetTriangleAmount();
 	auto& program = GetInstance().m_gBufferPrepass;
 	program->SetFloat4x4("model", model);
 	for (auto j : material->m_floatPropertyList) {
@@ -1366,7 +1366,7 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	GetInstance().m_materialSettings = MaterialSettingsBlock();
 	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program.get());
-	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 	ReleaseTextureHandles(material);
 	GLVAO::BindDefault();
 }
@@ -1392,7 +1392,7 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 	mesh->Vao()->SetAttributeDivisor(15, 1);
 
 	GetInstance().m_drawCall++;
-	GetInstance().m_triangles += mesh->Size() * count / 3;
+	GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
 	auto& program = GetInstance().m_gBufferInstancedPrepass;
 	program->SetFloat4x4("model", model);
 	for (auto j : material->m_floatPropertyList) {
@@ -1405,7 +1405,7 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 	GetInstance().m_materialSettings = MaterialSettingsBlock();
 	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program.get());
-	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 	ReleaseTextureHandles(material);
 	GLVAO::BindDefault();
 }
@@ -1430,7 +1430,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	mesh->Vao()->SetAttributeDivisor(14, 1);
 	mesh->Vao()->SetAttributeDivisor(15, 1);
 	GetInstance().m_drawCall++;
-	GetInstance().m_triangles += mesh->Size() * count / 3;
+	GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
 	auto program = material->m_program.get();
 	if (program == nullptr) program = Default::GLPrograms::StandardInstancedProgram.get();
 	program->Bind();
@@ -1446,7 +1446,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	GetInstance().m_materialSettings = MaterialSettingsBlock();
 	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program);
-	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 	ReleaseTextureHandles(material);
 	GLVAO::BindDefault();
 }
@@ -1461,7 +1461,7 @@ void UniEngine::RenderManager::DrawMesh(
 	mesh->Vao()->DisableAttributeArray(14);
 	mesh->Vao()->DisableAttributeArray(15);
 	GetInstance().m_drawCall++;
-	GetInstance().m_triangles += mesh->Size() / 3;
+	GetInstance().m_triangles += mesh->GetTriangleAmount();
 	auto program = material->m_program.get();
 	if (program == nullptr) program = Default::GLPrograms::StandardProgram.get();
 	program->Bind();
@@ -1477,7 +1477,7 @@ void UniEngine::RenderManager::DrawMesh(
 	MaterialPropertySetter(material);
 	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program);
-	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 	ReleaseTextureHandles(material);
 	GLVAO::BindDefault();
 }
@@ -1523,8 +1523,8 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", model);
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
 	GetInstance().m_drawCall++;
-	GetInstance().m_triangles += mesh->Size() * count / 3;
-	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+	GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 	GLVAO::BindDefault();
 }
 
@@ -1547,8 +1547,8 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 	Default::GLPrograms::GizmoProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
 
 	GetInstance().m_drawCall++;
-	GetInstance().m_triangles += mesh->Size() / 3;
-	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+	GetInstance().m_triangles += mesh->GetTriangleAmount();
+	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 	GLVAO::BindDefault();
 }
 #pragma endregion

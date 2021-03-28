@@ -91,7 +91,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
 			mesh->Vao()->DisableAttributeArray(14);
 			mesh->Vao()->DisableAttributeArray(15);
 			GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4("model", ltw.m_value);
-			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 		}
 	}
 	if (entity.HasPrivateComponent<Particles>())
@@ -118,7 +118,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity& entity)
 			mesh->Vao()->SetAttributeDivisor(14, 1);
 			mesh->Vao()->SetAttributeDivisor(15, 1);
 			GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4("model", ltw.m_value);
-			glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+			glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 		}
 	}
 }
@@ -145,7 +145,7 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 			mesh->Vao()->DisableAttributeArray(15);
 			GetInstance().m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
 			GetInstance().m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
-			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 		}
 	}
 	if (entity.HasPrivateComponent<Particles>())
@@ -172,7 +172,7 @@ void EditorManager::HighLightEntityHelper(const Entity& entity)
 			mesh->Vao()->SetAttributeDivisor(14, 1);
 			mesh->Vao()->SetAttributeDivisor(15, 1);
 			GetInstance().m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
-			glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->Size(), GL_UNSIGNED_INT, 0, (GLsizei)count);
+			glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 		}
 	}
 }

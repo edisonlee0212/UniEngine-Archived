@@ -7,14 +7,13 @@
 #include "SerializationManager.h"
 #include "Application.h"
 using namespace UniEngine;
-std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> ResourceManager::m_resources;
 
 void ResourceManager::Remove(size_t id, size_t hashCode)
 {
-	m_resources[id].second.erase(hashCode);
+	GetInstance().m_resources[id].second.erase(hashCode);
 }
 
-std::shared_ptr<Model> UniEngine::ResourceManager:: LoadModel(bool addResource, std::string const& path, std::shared_ptr<GLProgram> shader, bool gamma, unsigned flags)
+std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(const bool& addResource, std::string const& path, std::shared_ptr<GLProgram> shader, const bool& gamma, const unsigned& flags)
 {
 	stbi_set_flip_vertically_on_load(true);
 	// read file via ASSIMP
@@ -429,18 +428,18 @@ void UniEngine::ResourceManager::AttachChildren(EntityArchetype archetype, std::
 	}
 }
 
-std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const std::string& path, TextureType type, bool generateMipmap)
+std::shared_ptr<Texture2D> ResourceManager::LoadTexture(const bool& addResource, const std::string& path, TextureType type, const bool& generateMipmap, const float& gamma)
 {
 	stbi_set_flip_vertically_on_load(true);
 	auto retVal = std::make_shared<Texture2D>(type);
 	const std::string filename = path;
 	retVal->m_path = filename;
 	int width, height, nrComponents;
-	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+	stbi_ldr_to_hdr_gamma(gamma);
+	float* data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{
 		GLenum format = GL_RED;
-		GLenum iformat = GL_RGBA32F;
 		if (nrComponents == 2) {
 			format = GL_RG;
 		}
@@ -451,8 +450,8 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const 
 			format = GL_RGBA;
 		}
 		GLsizei mipmap = generateMipmap ? static_cast<GLsizei>(log2(std::max(width, height))) + 1 : 1;
-		retVal->m_texture = std::make_shared<GLTexture2D>(mipmap, iformat, width, height, true);
-		retVal->m_texture->SetData(0, format, GL_UNSIGNED_BYTE, data);
+		retVal->m_texture = std::make_shared<GLTexture2D>(mipmap, GL_RGBA32F, width, height, true);
+		retVal->m_texture->SetData(0, format, GL_FLOAT, data);
 		retVal->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
 		retVal->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
 		retVal->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, generateMipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
@@ -472,7 +471,7 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(bool addResource, const 
 }
 
 
-std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const std::vector<std::string>& paths, bool generateMipmap)
+std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(const bool& addResource, const std::vector<std::string>& paths, const bool& generateMipmap, const float& gamma)
 {
 	int width, height, nrComponents;
 	auto size = paths.size();
@@ -480,14 +479,14 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 		Debug::Error("Texture::LoadCubeMap: Size error.");
 		return nullptr;
 	}
-	unsigned char* temp = stbi_load(paths[0].c_str(), &width, &height, &nrComponents, 0);
+	stbi_ldr_to_hdr_gamma(gamma);
+	float* temp = stbi_loadf(paths[0].c_str(), &width, &height, &nrComponents, 0);
 	stbi_image_free(temp);
 	GLsizei mipmap = generateMipmap ? static_cast<GLsizei>(log2(std::max(width, height))) + 1 : 1;
 	auto texture = std::make_unique<GLTextureCubeMap>(mipmap, GL_RGBA32F, width, height, true);
 	for (int i = 0; i < size; i++)
 	{
-		unsigned char* data = stbi_load(paths[i].c_str(), &width, &height, &nrComponents, 0);
-		GLenum iformat = GL_RGBA32F;
+		float* data = stbi_loadf(paths[i].c_str(), &width, &height, &nrComponents, 0);
 		if (data)
 		{
 			GLenum format = GL_RED;
@@ -500,8 +499,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 			else if (nrComponents == 4) {
 				format = GL_RGBA;
 			}
-
-			texture->SetData((CubeMapIndex)i, 0, format, GL_UNSIGNED_BYTE, data);
+			texture->SetData(static_cast<CubeMapIndex>(i), 0, format, GL_FLOAT, data);
 			stbi_image_free(data);
 		}
 		else
@@ -526,7 +524,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(bool addResource, const st
 	return retVal;
 }
 
-std::shared_ptr<Material> ResourceManager::LoadMaterial(bool addResource, const std::shared_ptr<GLProgram>& program)
+std::shared_ptr<Material> ResourceManager::LoadMaterial(const bool& addResource, const std::shared_ptr<GLProgram>& program)
 {
 	auto retVal = std::make_shared<Material>();
 	retVal->m_shininess = 32.0f;
@@ -535,7 +533,7 @@ std::shared_ptr<Material> ResourceManager::LoadMaterial(bool addResource, const 
 	return retVal;
 }
 
-std::shared_ptr<GLProgram> ResourceManager::LoadProgram(bool addResource, const std::shared_ptr<GLShader>& vertex,
+std::shared_ptr<GLProgram> ResourceManager::LoadProgram(const bool& addResource, const std::shared_ptr<GLShader>& vertex,
 	const std::shared_ptr<GLShader>& fragment)
 {
 	auto retVal = std::make_shared<GLProgram>();
@@ -546,7 +544,7 @@ std::shared_ptr<GLProgram> ResourceManager::LoadProgram(bool addResource, const 
 	return retVal;
 }
 
-std::shared_ptr<GLProgram> ResourceManager::LoadProgram(bool addResource, const std::shared_ptr<GLShader>& vertex,
+std::shared_ptr<GLProgram> ResourceManager::LoadProgram(const bool& addResource, const std::shared_ptr<GLShader>& vertex,
 	const std::shared_ptr<GLShader>& geometry, const std::shared_ptr<GLShader>& fragment)
 {
 	auto retVal = std::make_shared<GLProgram>();
@@ -658,7 +656,7 @@ void ResourceManager::LateUpdate()
 				}
 				ImGui::EndTabItem();
 			}
-			for (auto& collection : m_resources) {
+			for (auto& collection : GetInstance().m_resources) {
 				if (ImGui::BeginTabItem(collection.second.first.substr(6).c_str()))
 				{
 					if (ImGui::BeginDragDropTarget())

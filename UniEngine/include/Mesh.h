@@ -37,7 +37,7 @@ namespace UniEngine {
 	{
 		std::shared_ptr<GLVAO> m_vao;
 		size_t m_verticesSize;
-		size_t m_indicesSize;
+		size_t m_triangleSize;
 		unsigned m_mask;
 		Bound m_bound;
 		friend class MeshRenderer;
@@ -45,21 +45,21 @@ namespace UniEngine {
 		friend class EditorManager;
 		bool m_localStored;
 		std::vector<Vertex> m_vertices;
-		std::vector<unsigned> m_indices;
+		std::vector<glm::uvec3> m_indices;
 	public:
 		void OnGui();
-		glm::vec3 GetCenter() const;
-		Bound GetBound() const;
+		[[nodiscard]] glm::vec3 GetCenter() const;
+		[[nodiscard]] Bound GetBound() const;
 		Mesh();
-		void SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store = true);
-		size_t GetVerticesAmount();
-		size_t Size();
-		void RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
-		void RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
-		std::shared_ptr<GLVAO> Vao();
-		void Enable();
+		void SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, const bool& store = true);
+		void SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<glm::uvec3>& triangles, const bool& store = true);
+		[[nodiscard]] size_t GetVerticesAmount() const;
+		[[nodiscard]] size_t GetTriangleAmount() const;
+		void RecalculateNormal(std::vector<Vertex>& vertices, std::vector<glm::uvec3>& indices) const;
+		void RecalculateTangent(std::vector<Vertex>& vertices, std::vector<glm::uvec3>& indices) const;
+		[[nodiscard]] std::shared_ptr<GLVAO> Vao() const;
+		void Enable() const;
 		std::vector<Vertex>& GetVerticesUnsafe();
-		std::vector<unsigned>& GetIndicesUnsafe();
-		void LoadBin(std::string& fileName);
+		std::vector<glm::uvec3>& GetIndicesUnsafe();
 	};
 }

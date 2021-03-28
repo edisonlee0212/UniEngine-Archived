@@ -30,15 +30,28 @@ Bound UniEngine::Mesh::GetBound() const
 UniEngine::Mesh::Mesh()
 {
 	m_vao = std::make_shared<GLVAO>();
-	m_indicesSize = 0;
+	m_triangleSize = 0;
 	m_bound = Bound();
 	m_name = "New mesh";
 }
 
-void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, bool store)
+void UniEngine::Mesh::SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices, const bool& store)
+{
+	if(indices.size() % 3 != 0)
+	{
+		Debug::Error("Triangle size wrong!");
+		return;
+	} 
+	std::vector<glm::uvec3> triangles;
+	triangles.resize(indices.size() / 3);
+	memcpy(triangles.data(), indices.data(), indices.size() * sizeof(unsigned));
+	SetVertices(mask, vertices, triangles, store);
+}
+
+void Mesh::SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<glm::uvec3>& triangles, const bool& store)
 {
 	m_mask = mask;
-	m_indicesSize = indices.size();
+	m_triangleSize = triangles.size();
 	m_verticesSize = vertices.size();
 	if (m_verticesSize == 0) {
 		Debug::Log("Mesh: SetVertices empty!");
@@ -48,22 +61,18 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, 
 		Debug::Error("No Position Data!");
 		return;
 	}
-	if (!(mask & (unsigned)VertexAttribute::TexCoord0)) {
-		Debug::Error("No TexCoord0!");
-		//return;
-	}
-	std::vector<glm::vec3> positions = std::vector<glm::vec3>();
-	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
-	std::vector<glm::vec3> tangents = std::vector<glm::vec3>();
-	std::vector<glm::vec4> colors = std::vector<glm::vec4>();
-	std::vector<glm::vec2> texcoords0s = std::vector<glm::vec2>();
-	std::vector<glm::vec2> texcoords1s = std::vector<glm::vec2>();
-	std::vector<glm::vec2> texcoords2s = std::vector<glm::vec2>();
-	std::vector<glm::vec2> texcoords3s = std::vector<glm::vec2>();
-	std::vector<glm::vec2> texcoords4s = std::vector<glm::vec2>();
-	std::vector<glm::vec2> texcoords5s = std::vector<glm::vec2>();
-	std::vector<glm::vec2> texcoords6s = std::vector<glm::vec2>();
-	std::vector<glm::vec2> texcoords7s = std::vector<glm::vec2>();
+	auto positions = std::vector<glm::vec3>();
+	auto normals = std::vector<glm::vec3>();
+	auto tangents = std::vector<glm::vec3>();
+	auto colors = std::vector<glm::vec4>();
+	auto texcoords0s = std::vector<glm::vec2>();
+	auto texcoords1s = std::vector<glm::vec2>();
+	auto texcoords2s = std::vector<glm::vec2>();
+	auto texcoords3s = std::vector<glm::vec2>();
+	auto texcoords4s = std::vector<glm::vec2>();
+	auto texcoords5s = std::vector<glm::vec2>();
+	auto texcoords6s = std::vector<glm::vec2>();
+	auto texcoords7s = std::vector<glm::vec2>();
 #pragma region DataAllocation
 	size_t attributeSize = 3 * sizeof(glm::vec3);
 	if (mask & (unsigned)VertexAttribute::Color) {
@@ -147,13 +156,13 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, 
 	if (mask & (unsigned)VertexAttribute::Normal)
 		m_vao->SubData(m_verticesSize * sizeof(glm::vec3), m_verticesSize * sizeof(glm::vec3), &normals[0]);
 	else {
-		RecalculateNormal(vertices, indices);
+		RecalculateNormal(vertices, triangles);
 	}
 	if (mask & (unsigned)VertexAttribute::Tangent) {
 		m_vao->SubData(m_verticesSize * 2 * sizeof(glm::vec3), m_verticesSize * sizeof(glm::vec3), &tangents[0]);
 	}
 	else {
-		RecalculateTangent(vertices, indices);
+		RecalculateTangent(vertices, triangles);
 	}
 	attributeSize = 3 * sizeof(glm::vec3);
 	if (mask & (unsigned)VertexAttribute::Color) {
@@ -247,48 +256,51 @@ void UniEngine::Mesh::SetVertices(unsigned mask, std::vector<Vertex>& vertices, 
 		attributeSize += sizeof(glm::vec2);
 	}
 #pragma endregion
-	m_vao->Ebo()->SetData((GLsizei)m_indicesSize * sizeof(unsigned), &indices.at(0), GL_STATIC_DRAW);
+	m_vao->Ebo()->SetData((GLsizei)m_triangleSize * sizeof(glm::uvec3), triangles.data(), GL_STATIC_DRAW);
 
 	m_localStored = store;
 	if (store)
 	{
-		m_vertices.resize(vertices.size());
-		m_indices.resize(indices.size());
-		memcpy(m_vertices.data(), vertices.data(), vertices.size() * sizeof(Vertex));
-		memcpy(m_indices.data(), indices.data(), indices.size() * sizeof(unsigned));
+		m_vertices.clear();
+		m_indices.clear();
+		m_vertices.insert(m_vertices.begin(), vertices.begin(), vertices.end());
+		m_indices.insert(m_indices.begin(), triangles.begin(), triangles.end());
 	}
 }
 
 
-size_t UniEngine::Mesh::GetVerticesAmount()
+size_t UniEngine::Mesh::GetVerticesAmount() const
 {
-	return m_indicesSize;
+	return m_triangleSize;
 }
 
-size_t UniEngine::Mesh::Size()
+size_t UniEngine::Mesh::GetTriangleAmount() const
 {
-	return m_indicesSize;
+	return m_triangleSize;
 }
 
-void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
+void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vector<glm::uvec3>& indices) const
 {
 	std::vector<std::vector<glm::vec3>> normalLists = std::vector<std::vector<glm::vec3>>();
 	auto size = vertices.size();
 	for (auto i = 0; i < size; i++) {
 		normalLists.push_back(std::vector<glm::vec3>());
 	}
-	for (size_t i = 0; i < m_indicesSize / 3; i++) {
-		auto v1 = vertices.at(indices.at(3 * i)).m_position;
-		auto v2 = vertices.at(indices.at(3 * i + 1)).m_position;
-		auto v3 = vertices.at(indices.at(3 * i + 2)).m_position;
+	for (size_t i = 0; i < m_triangleSize; i++) {
+		const auto i1 = indices[i].x;
+		const auto i2 = indices[i].y;
+		const auto i3 = indices[i].z;
+		auto v1 = vertices[i1].m_position;
+		auto v2 = vertices[i2].m_position;
+		auto v3 = vertices[i3].m_position;
 		auto normal = glm::normalize(glm::cross(v1 - v2, v1 - v3));
-		normalLists[indices.at(3 * i)].push_back(normal);
-		normalLists[indices.at(3 * i + 1)].push_back(normal);
-		normalLists[indices.at(3 * i + 2)].push_back(normal);
+		normalLists[i1].push_back(normal);
+		normalLists[i2].push_back(normal);
+		normalLists[i3].push_back(normal);
 	}
 	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
 	for (auto i = 0; i < size; i++) {
-		glm::vec3 normal = glm::vec3(0.0f);
+		auto normal = glm::vec3(0.0f);
 		for (auto j : normalLists[i]) {
 			normal += j;
 		}
@@ -299,37 +311,43 @@ void UniEngine::Mesh::RecalculateNormal(std::vector<Vertex>& vertices, std::vect
 	m_vao->SubData(size * sizeof(glm::vec3), size * sizeof(glm::vec3), &normals[0]);
 }
 
-void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
+void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vector<glm::uvec3>& indices) const
 {
 	std::vector<std::vector<glm::vec3>> tangentLists = std::vector<std::vector<glm::vec3>>();
 	auto size = vertices.size();
 	for (auto i = 0; i < size; i++) {
 		tangentLists.push_back(std::vector<glm::vec3>());
 	}
-	for (size_t i = 0; i < m_indicesSize / 3; i++) {
-		auto v1 = vertices.at(indices.at(3 * i)).m_position;
-		auto v2 = vertices.at(indices.at(3 * i + 1)).m_position;
-		auto v3 = vertices.at(indices.at(3 * i + 2)).m_position;
-		auto uv1 = vertices.at(indices.at(3 * i)).m_texCoords0;
-		auto uv2 = vertices.at(indices.at(3 * i + 1)).m_texCoords0;
-		auto uv3 = vertices.at(indices.at(3 * i + 2)).m_texCoords0;
+	for (size_t i = 0; i < m_triangleSize; i++) {
+		const auto i1 = indices[i].x;
+		const auto i2 = indices[i].y;
+		const auto i3 = indices[i].z;
+		auto& v1 = vertices[i1];
+		auto& v2 = vertices[i2];
+		auto& v3 = vertices[i3];
+		auto p1 = v1.m_position;
+		auto p2 = v2.m_position;
+		auto p3 = v3.m_position;
+		auto uv1 = v1.m_texCoords0;
+		auto uv2 = v2.m_texCoords0;
+		auto uv3 = v3.m_texCoords0;
 
-		auto e21 = v2 - v1;
+		auto e21 = p2 - p1;
 		auto d21 = uv2 - uv1;
-		auto e31 = v3 - v1;
+		auto e31 = p3 - p1;
 		auto d31 = uv3 - uv1;
 		float f = 1.0f / (d21.x * d31.y - d31.x * d21.y);
 		auto tangent = f * glm::vec3(
 			d31.y * e21.x - d21.y * e31.x,
 			d31.y * e21.y - d21.y * e31.y,
 			d31.y * e21.z - d21.y * e31.z);
-		tangentLists[indices.at(3 * i)].push_back(tangent);
-		tangentLists[indices.at(3 * i + 1)].push_back(tangent);
-		tangentLists[indices.at(3 * i + 2)].push_back(tangent);
+		tangentLists[i1].push_back(tangent);
+		tangentLists[i2].push_back(tangent);
+		tangentLists[i3].push_back(tangent);
 	}
 	std::vector<glm::vec3> tangents = std::vector<glm::vec3>();
 	for (auto i = 0; i < size; i++) {
-		glm::vec3 tangent = glm::vec3(0.0f);
+		auto tangent = glm::vec3(0.0f);
 		for (auto j : tangentLists[i]) {
 			tangent += j;
 		}
@@ -341,12 +359,12 @@ void UniEngine::Mesh::RecalculateTangent(std::vector<Vertex>& vertices, std::vec
 }
 
 
-std::shared_ptr<GLVAO> UniEngine::Mesh::Vao()
+std::shared_ptr<GLVAO> UniEngine::Mesh::Vao() const
 {
 	return m_vao;
 }
 
-void UniEngine::Mesh::Enable()
+void UniEngine::Mesh::Enable() const
 {
 	m_vao->Bind();
 }
@@ -356,95 +374,8 @@ std::vector<Vertex>& Mesh::GetVerticesUnsafe()
 	return m_vertices;
 }
 
-std::vector<unsigned>& Mesh::GetIndicesUnsafe()
+std::vector<glm::uvec3>& Mesh::GetIndicesUnsafe()
 {
 	return m_indices;
 }
-
-void Mesh::LoadBin(std::string& fileName)
-{
-	std::ifstream ifs(fileName, std::ios::binary);
-	if (ifs.fail()) {
-		Debug::Error("INFO: cannot open file: ");
-		return;
-	}
-	int vertN = 0;
-	ifs.read((char*)&vertN, sizeof(int));
-	m_verticesSize = vertN;
-	char yn;
-	ifs.read(&yn, 1); // always xyz
-	if (yn != 'y') {
-		Debug::Error("INTERNAL ERROR: there should always be vertex xyz data");
-		return;
-	}
-	m_vertices.resize(m_verticesSize);
-	bool hasColor = false;
-	bool hasNormal = false;
-	bool hasTextureCoords = false;
-	ifs.read(&yn, 1); // Color
-	if (yn == 'y') {
-		hasColor = true;
-	}
-	ifs.read(&yn, 1); // Normal
-	if (yn == 'y') {
-		hasNormal = true;
-	}
-	ifs.read(&yn, 1); // TexCoords
-	if (yn == 'y') {
-		hasTextureCoords = true;
-	}
-	for(int i = 0; i < m_verticesSize; i++)
-	{
-		ifs.read((char*)&m_vertices[i], sizeof(glm::vec3));
-	}
-	if(hasColor)
-	{
-		for (int i = 0; i < m_verticesSize; i++)
-		{
-			ifs.read((char*)(&m_vertices[i]) + offsetof(Vertex, m_color), sizeof(glm::vec3));
-		}
-	}
-	if (hasNormal)
-	{
-		for (int i = 0; i < m_verticesSize; i++)
-		{
-			ifs.read((char*)(&m_vertices[i]) + offsetof(Vertex, m_normal), sizeof(glm::vec3));
-		}
-	}
-	glm::vec3 temp;
-	if (hasTextureCoords)
-	{
-		for (int i = 0; i < m_verticesSize; i++)
-		{
-			//ifs.read((char*)(&_Vertices[i]) + offsetof(Vertex, TexCoords0), sizeof(glm::vec2));
-			ifs.read((char*)&temp, sizeof(glm::vec2));
-		}
-	}
-	int trisN = 0;
-	ifs.read((char*)&trisN, sizeof(int));
-	m_indicesSize = trisN;
-	m_indicesSize = m_indicesSize * 3;
-	m_indices.resize(m_indicesSize);
-
-	for (int i = 0; i < m_indicesSize; i++)
-	{
-		ifs.read((char*)&m_indices[i], sizeof(unsigned));
-	}
-	unsigned mask = 1;
-	if (hasColor)
-	{
-		mask += (unsigned)VertexAttribute::Color;
-	}
-	if (hasNormal)
-	{
-		mask += (unsigned)VertexAttribute::Normal;
-	}
-	if (hasTextureCoords)
-	{
-		//mask += (int)VertexAttribute::TexCoord0;
-	}
-	SetVertices(mask, m_vertices, m_indices);
-	m_localStored = true;
-}
-
 
