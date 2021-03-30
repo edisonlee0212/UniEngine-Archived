@@ -950,6 +950,35 @@ void EditorManager::LateUpdate()
 					{
 						GetInstance().m_selectedEntity.m_index = 0;
 					}
+					else
+					{
+						Entity walker = focusedEntity;
+						bool found = false;
+						while(!walker.IsNull())
+						{
+							if(walker == GetInstance().m_selectedEntity)
+							{
+								found = true;
+								break;
+							}
+							walker = EntityManager::GetParent(walker);
+						}
+						if(found)
+						{
+							walker = EntityManager::GetParent(walker);
+							if(walker.IsNull())
+							{
+								GetInstance().m_selectedEntity = focusedEntity;
+							}else
+							{
+								GetInstance().m_selectedEntity = walker;
+							}
+						}else
+						{
+							GetInstance().m_selectedEntity = focusedEntity;
+						}
+					}
+					/*
 					else if (GetInstance().m_selectedEntity == rootEntity)
 					{
 						GetInstance().m_selectedEntity = focusedEntity;
@@ -958,6 +987,7 @@ void EditorManager::LateUpdate()
 					{
 						GetInstance().m_selectedEntity = rootEntity;
 					}
+					*/
 					GetInstance().m_leftMouseButtonHold = true;
 				}
 			}
