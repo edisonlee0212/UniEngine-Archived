@@ -74,6 +74,7 @@ namespace UniEngine {
 		static void CalculatePlanes(std::vector<Plane>& planes, glm::mat4 projection, glm::mat4 view);
 		void CalculateFrustumPoints(float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3* points) const;
 		static glm::quat ProcessMouseMovement(float yawAngle, float pitchAngle, bool constrainPitch = true);
+		static void ReverseAngle(const glm::quat& rotation, float& pitchAngle, float& yawAngle, const bool& constrainPitch = true);
 		[[nodiscard]] std::shared_ptr<Texture2D> GetTexture() const;
 		[[nodiscard]] glm::mat4 GetProjection() const;
 		static glm::vec3 Project(GlobalTransform& ltw, glm::vec3 position);

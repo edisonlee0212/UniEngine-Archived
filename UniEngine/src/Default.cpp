@@ -114,6 +114,7 @@ void UniEngine::Default::Load(World* world)
 	};
 
 	Textures::DefaultSkybox = ResourceManager::LoadCubemap(true, facesPath);
+	Textures::DefaultSkybox->m_name = "Default";
 	
 	auto skyboxvert = std::make_shared<GLShader>(ShaderType::Vertex);
 	std::string vertShaderCode = std::string("#version 460 core\n")

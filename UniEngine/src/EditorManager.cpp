@@ -12,7 +12,7 @@
 #include "TransformManager.h"
 #include "PostProcessing.h"
 using namespace UniEngine;
-inline bool UniEngine::EditorManager::DrawEntityMenu(bool enabled, Entity& entity)
+inline bool UniEngine::EditorManager::DrawEntityMenu(const bool& enabled, const Entity& entity)
 {
 	bool deleted = false;
 	if (ImGui::BeginPopupContextItem(std::to_string(entity.m_index).c_str()))
@@ -182,7 +182,7 @@ void EditorManager::MoveCamera(const glm::quat& targetRotation, const glm::vec3&
 	GetInstance().m_previousRotation = GetInstance().m_sceneCameraRotation;
 	GetInstance().m_previousPosition = GetInstance().m_sceneCameraPosition;
 	GetInstance().m_transitionTime = transitionTime;
-	GetInstance().m_transitionTimer = 0;
+	GetInstance().m_transitionTimer = Application::EngineTime();
 	GetInstance().m_targetRotation = targetRotation;
 	GetInstance().m_targetPosition = targetPosition;
 	GetInstance().m_lockCamera = true;
@@ -525,16 +525,15 @@ void EditorManager::PreUpdate()
 	GetInstance().m_sceneCameraEntityRecorder->Clear();
 	if(GetInstance().m_lockCamera)
 	{
-		GetInstance().m_transitionTimer += Application::GetCurrentWorld()->Time()->DeltaTime();
-		const float a = 1.0 - glm::pow(1.0 - GetInstance().m_transitionTimer / GetInstance().m_transitionTime, 4.0f);
+		const float elapsedTime = Application::EngineTime() - GetInstance().m_transitionTimer;
+		const float a = 1.0f - glm::pow(1.0 - elapsedTime / GetInstance().m_transitionTime, 4.0f);
 		GetInstance().m_sceneCameraRotation = glm::mix(GetInstance().m_previousRotation, GetInstance().m_targetRotation, a);
 		GetInstance().m_sceneCameraPosition = glm::mix(GetInstance().m_previousPosition, GetInstance().m_targetPosition, a);
 		if (a >= 1.0f) {
 			GetInstance().m_lockCamera = false;
 			GetInstance().m_sceneCameraRotation = GetInstance().m_targetRotation;
 			GetInstance().m_sceneCameraPosition = GetInstance().m_targetPosition;
-			GetInstance().m_sceneCameraYawAngle = -90;
-			GetInstance().m_sceneCameraPitchAngle = 0;
+			CameraComponent::ReverseAngle(GetInstance().m_targetRotation, GetInstance().m_sceneCameraPitchAngle, GetInstance().m_sceneCameraYawAngle);
 		}
 	}
 }
@@ -542,7 +541,6 @@ void EditorManager::PreUpdate()
 
 void UniEngine::EditorManager::Update()
 {
-
 }
 
 Entity EditorManager::GetSelectedEntity()
@@ -550,15 +548,20 @@ Entity EditorManager::GetSelectedEntity()
 	return GetInstance().m_selectedEntity;
 }
 
-void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
+void UniEngine::EditorManager::DrawEntityNode(const Entity& entity, const unsigned& hierarchyLevel)
 {
+	auto& manager = GetInstance();
 	std::string title = std::to_string(entity.m_index) + ": ";
 	title += entity.GetName();
-	bool enabled = entity.IsEnabled();
+	const bool enabled = entity.IsEnabled();
 	if (enabled) {
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
 	}
-	bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (GetInstance().m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
+	if (!manager.m_selectedEntityHierarchyList.empty() && manager.m_selectedEntityHierarchyList[manager.m_selectedEntityHierarchyList.size() - hierarchyLevel - 1] == entity) {
+		ImGui::SetNextItemOpen(true);
+		manager.m_selectedEntityHierarchyList.erase(manager.m_selectedEntityHierarchyList.begin() + manager.m_selectedEntityHierarchyList.size() - hierarchyLevel - 1);
+	}
+	const bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (GetInstance().m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
 	if (ImGui::BeginDragDropSource())
 	{
 		const std::string hash = std::to_string(std::hash<std::string>{}(typeid(Entity).name()));
@@ -581,13 +584,13 @@ void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
 		ImGui::PopStyleColor();
 	}
 	if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
-		GetInstance().m_selectedEntity = entity;
+		SetSelectedEntity(entity, false);
 	}
 	const bool deleted = DrawEntityMenu(enabled, entity);
 	if (opened && !deleted) {
 		ImGui::TreePush();
-		EntityManager::ForEachChild(entity, [](Entity child) {
-			DrawEntityNode(child);
+		EntityManager::ForEachChild(entity, [=](Entity child) {
+			DrawEntityNode(child, hierarchyLevel + 1);
 			});
 		ImGui::TreePop();
 	}
@@ -595,17 +598,19 @@ void UniEngine::EditorManager::DrawEntityNode(Entity& entity)
 
 void EditorManager::LateUpdate()
 {
-	if (GetInstance().m_leftMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+	
+	auto& manager = GetInstance();
+	if (manager.m_leftMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
 	{
-		GetInstance().m_leftMouseButtonHold = false;
+		manager.m_leftMouseButtonHold = false;
 	}
-	if (GetInstance().m_rightMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow()))
+	if (manager.m_rightMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow()))
 	{
-		GetInstance().m_rightMouseButtonHold = false;
-		GetInstance().m_startMouse = false;
+		manager.m_rightMouseButtonHold = false;
+		manager.m_startMouse = false;
 	}
 #pragma region Entity Explorer
-	if (GetInstance().m_configFlags & EntityEditorSystem_EnableEntityHierarchy) {
+	if (manager.m_configFlags & EntityEditorSystem_EnableEntityHierarchy) {
 		ImGui::Begin("Entity Explorer");
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -623,15 +628,15 @@ void EditorManager::LateUpdate()
 		{
 			if (ImGui::Button("Create new entity"))
 			{
-				auto newEntity = EntityManager::CreateEntity(GetInstance().m_basicEntityArchetype);
+				auto newEntity = EntityManager::CreateEntity(manager.m_basicEntityArchetype);
 				newEntity.SetComponentData(Transform());
 				newEntity.SetComponentData(GlobalTransform());
 			}
 			ImGui::EndPopup();
 		}
-		ImGui::Combo("Display mode", &GetInstance().m_selectedHierarchyDisplayMode, HierarchyDisplayMode, IM_ARRAYSIZE(HierarchyDisplayMode));
-		if (GetInstance().m_selectedHierarchyDisplayMode == 0) {
-			EntityManager::UnsafeForEachEntityStorage([](int i, EntityComponentStorage storage) {
+		ImGui::Combo("Display mode", &manager.m_selectedHierarchyDisplayMode, HierarchyDisplayMode, IM_ARRAYSIZE(HierarchyDisplayMode));
+		if (manager.m_selectedHierarchyDisplayMode == 0) {
+			EntityManager::UnsafeForEachEntityStorage([&](int i, EntityComponentStorage storage) {
 				ImGui::Separator();
 				std::string title = std::to_string(i) + ". " + storage.m_archetypeInfo->m_name;
 				if (ImGui::CollapsingHeader(title.c_str())) {
@@ -642,17 +647,17 @@ void EditorManager::LateUpdate()
 						Entity entity = storage.m_chunkArray->Entities.at(j);
 						std::string title = std::to_string(entity.m_index) + ": ";
 						title += entity.GetName();
-						bool enabled = entity.IsEnabled();
+						const bool enabled = entity.IsEnabled();
 						if (enabled) {
 							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
 						}
-						ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (GetInstance().m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
+						ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (manager.m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
 						if (enabled) {
 							ImGui::PopStyleColor();
 						}
 						DrawEntityMenu(enabled, entity);
 						if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
-							GetInstance().m_selectedEntity = entity;
+							SetSelectedEntity(entity, false);
 						}
 					}
 					ImGui::PopStyleColor();
@@ -661,12 +666,12 @@ void EditorManager::LateUpdate()
 				}
 				});
 		}
-		else if (GetInstance().m_selectedHierarchyDisplayMode == 1) {
+		else if (manager.m_selectedHierarchyDisplayMode == 1) {
 			ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
 			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
 			ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
 			EntityManager::ForAllEntities([](int i, Entity entity) {
-				if (EntityManager::GetParent(entity).IsNull()) DrawEntityNode(entity);
+				if (EntityManager::GetParent(entity).IsNull()) DrawEntityNode(entity, 0);
 				});
 			ImGui::PopStyleColor();
 			ImGui::PopStyleColor();
@@ -677,28 +682,28 @@ void EditorManager::LateUpdate()
 	}
 #pragma endregion
 #pragma region Entity Inspector
-	if (GetInstance().m_configFlags & EntityEditorSystem_EnableEntityInspector) {
+	if (manager.m_configFlags & EntityEditorSystem_EnableEntityInspector) {
 		ImGui::Begin("Entity Inspector");
-		if (!GetInstance().m_selectedEntity.IsNull() && !GetInstance().m_selectedEntity.IsDeleted()) {
-			std::string title = std::to_string(GetInstance().m_selectedEntity.m_index) + ": ";
-			title += GetInstance().m_selectedEntity.GetName();
-			bool enabled = GetInstance().m_selectedEntity.IsEnabled();
+		if (!manager.m_selectedEntity.IsNull() && !manager.m_selectedEntity.IsDeleted()) {
+			std::string title = std::to_string(manager.m_selectedEntity.m_index) + ": ";
+			title += manager.m_selectedEntity.GetName();
+			bool enabled = manager.m_selectedEntity.IsEnabled();
 			if (ImGui::Checkbox((title + "##EnabledCheckbox").c_str(), &enabled)) {
-				if (GetInstance().m_selectedEntity.IsEnabled() != enabled)
+				if (manager.m_selectedEntity.IsEnabled() != enabled)
 				{
-					GetInstance().m_selectedEntity.SetEnabled(enabled);
+					manager.m_selectedEntity.SetEnabled(enabled);
 				}
 			}
 			ImGui::SameLine();
-			bool isStatic = GetInstance().m_selectedEntity.IsStatic();
+			bool isStatic = manager.m_selectedEntity.IsStatic();
 			if (ImGui::Checkbox("Static", &isStatic))
 			{
-				if (GetInstance().m_selectedEntity.IsStatic() != isStatic)
+				if (manager.m_selectedEntity.IsStatic() != isStatic)
 				{
-					GetInstance().m_selectedEntity.SetStatic(isStatic);
+					manager.m_selectedEntity.SetStatic(isStatic);
 				}
 			}
-			bool deleted = DrawEntityMenu(GetInstance().m_selectedEntity.IsEnabled(), GetInstance().m_selectedEntity);
+			bool deleted = DrawEntityMenu(manager.m_selectedEntity.IsEnabled(), manager.m_selectedEntity);
 			ImGui::Separator();
 			if (!deleted) {
 				if (ImGui::CollapsingHeader("Data components", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -706,16 +711,16 @@ void EditorManager::LateUpdate()
 					{
 						ImGui::Text("Add data component: ");
 						ImGui::Separator();
-						for (auto& i : GetInstance().m_componentDataMenuList)
+						for (auto& i : manager.m_componentDataMenuList)
 						{
-							i.second(GetInstance().m_selectedEntity);
+							i.second(manager.m_selectedEntity);
 						}
 						ImGui::Separator();
 						ImGui::EndPopup();
 					}
 					bool skip = false;
 					int i = 0;
-					EntityManager::UnsafeForEachComponent(GetInstance().m_selectedEntity, [&skip, &i](ComponentType type, void* data)
+					EntityManager::UnsafeForEachComponent(manager.m_selectedEntity, [&skip, &i, &manager](ComponentType type, void* data)
 						{
 							if (skip) return;
 							std::string info = type.m_name.substr(7);
@@ -727,12 +732,12 @@ void EditorManager::LateUpdate()
 								if (ImGui::Button("Remove"))
 								{
 									skip = true;
-									EntityManager::RemoveComponentData(GetInstance().m_selectedEntity, type.m_typeId);
+									EntityManager::RemoveComponentData(manager.m_selectedEntity, type.m_typeId);
 								}
 								ImGui::EndPopup();
 							}
 							ImGui::PopID();
-							InspectComponentData(GetInstance().m_selectedEntity, static_cast<ComponentBase*>(data), type, EntityManager::GetParent(GetInstance().m_selectedEntity).IsNull());
+							InspectComponentData(manager.m_selectedEntity, static_cast<ComponentBase*>(data), type, EntityManager::GetParent(manager.m_selectedEntity).IsNull());
 							ImGui::Separator();
 							i++;
 						}
@@ -744,9 +749,9 @@ void EditorManager::LateUpdate()
 					{
 						ImGui::Text("Add private component: ");
 						ImGui::Separator();
-						for (auto& i : GetInstance().m_privateComponentMenuList)
+						for (auto& i : manager.m_privateComponentMenuList)
 						{
-							i.second(GetInstance().m_selectedEntity);
+							i.second(manager.m_selectedEntity);
 						}
 						ImGui::Separator();
 						ImGui::EndPopup();
@@ -754,7 +759,7 @@ void EditorManager::LateUpdate()
 
 					int i = 0;
 					bool skip = false;
-					EntityManager::ForEachPrivateComponent(GetInstance().m_selectedEntity, [&i, &skip](PrivateComponentElement& data)
+					EntityManager::ForEachPrivateComponent(manager.m_selectedEntity, [&i, &skip, &manager](PrivateComponentElement& data)
 						{
 							if (skip) return;
 							ImGui::Checkbox(data.m_name.substr(6).c_str(), &data.m_privateComponentData->m_enabled);
@@ -764,7 +769,7 @@ void EditorManager::LateUpdate()
 								if (ImGui::Button("Remove"))
 								{
 									skip = true;
-									EntityManager::RemovePrivateComponent(GetInstance().m_selectedEntity, data.m_typeId);
+									EntityManager::RemovePrivateComponent(manager.m_selectedEntity, data.m_typeId);
 								}
 								ImGui::EndPopup();
 							}
@@ -783,7 +788,7 @@ void EditorManager::LateUpdate()
 			}
 		}
 		else {
-			GetInstance().m_selectedEntity.m_index = 0;
+			manager.m_selectedEntity.m_index = 0;
 		}
 		ImGui::End();
 	}
@@ -798,7 +803,7 @@ void EditorManager::LateUpdate()
 		if (ImGui::BeginChild("CameraRenderer")) {
 			viewPortSize = ImGui::GetWindowSize();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
-			ImGui::Image((ImTextureID)GetInstance().m_sceneCamera->GetTexture()->Texture()->Id(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image((ImTextureID)manager.m_sceneCamera->GetTexture()->Texture()->Id(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
 			{
 				const std::string modelTypeHash = std::to_string(std::hash<std::string>{}(typeid(Model).name()));
@@ -830,7 +835,7 @@ void EditorManager::LateUpdate()
 			static int corner = 1;
 			ImVec2 overlayPos = ImGui::GetWindowPos();
 			ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
-			if (GetInstance().m_enableInfoWindow)
+			if (manager.m_enableInfoWindow)
 			{
 				ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
 				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
@@ -839,75 +844,73 @@ void EditorManager::LateUpdate()
 
 				ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
 				ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-				ImGui::Checkbox("Skybox", &GetInstance().m_sceneCamera->m_drawSkyBox);
+				DragAndDrop(manager.m_sceneCamera->m_skyBox);
+				ImGui::Checkbox("Skybox", &manager.m_sceneCamera->m_drawSkyBox);
 				if (ImGui::Button("Reset camera"))
 				{
-					MoveCamera(GetInstance().m_defaultSceneCameraRotation, GetInstance().m_defaultSceneCameraPosition);
+					MoveCamera(manager.m_defaultSceneCameraRotation, manager.m_defaultSceneCameraPosition);
 				}
-				ImGui::Separator();
-				if (ImGui::IsMousePosValid()) {
-					glm::vec2 pos;
-					InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), pos);
-					ImGui::Text("Mouse Position: (%.1f,%.1f)", pos.x, pos.y);
-				}
-				else {
-					ImGui::Text("Mouse Position: <invalid>");
+				if(ImGui::Button("Set default"))
+				{
+					manager.m_defaultSceneCameraPosition = manager.m_sceneCameraPosition;
+					manager.m_defaultSceneCameraRotation = manager.m_sceneCameraRotation;
+					
 				}
 				ImGui::EndChild();
 			}
 
 			glm::vec2 mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
-			if (GetInstance().m_sceneWindowFocused)
+			if (manager.m_sceneWindowFocused)
 			{
 				bool valid = InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), mousePosition);
 				float xOffset = 0;
 				float yOffset = 0;
 				if (valid) {
-					if (!GetInstance().m_startMouse) {
-						GetInstance().m_lastX = mousePosition.x;
-						GetInstance().m_lastY = mousePosition.y;
-						GetInstance().m_startMouse = true;
+					if (!manager.m_startMouse) {
+						manager.m_lastX = mousePosition.x;
+						manager.m_lastY = mousePosition.y;
+						manager.m_startMouse = true;
 					}
-					xOffset = mousePosition.x - GetInstance().m_lastX;
-					yOffset = -mousePosition.y + GetInstance().m_lastY;
-					GetInstance().m_lastX = mousePosition.x;
-					GetInstance().m_lastY = mousePosition.y;
+					xOffset = mousePosition.x - manager.m_lastX;
+					yOffset = -mousePosition.y + manager.m_lastY;
+					manager.m_lastX = mousePosition.x;
+					manager.m_lastY = mousePosition.y;
 #pragma region Scene Camera Controller
-					if (!GetInstance().m_rightMouseButtonHold && !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x || mousePosition.y > viewPortSize.y) &&
+					if (!manager.m_rightMouseButtonHold && !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x || mousePosition.y > viewPortSize.y) &&
 						InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow())) {
-						GetInstance().m_rightMouseButtonHold = true;
+						manager.m_rightMouseButtonHold = true;
 					}
-					if (GetInstance().m_rightMouseButtonHold && !GetInstance().m_lockCamera)
+					if (manager.m_rightMouseButtonHold && !manager.m_lockCamera)
 					{
-						glm::vec3 front = GetInstance().m_sceneCameraRotation * glm::vec3(0, 0, -1);
-						glm::vec3 right = GetInstance().m_sceneCameraRotation * glm::vec3(1, 0, 0);
+						glm::vec3 front = manager.m_sceneCameraRotation * glm::vec3(0, 0, -1);
+						glm::vec3 right = manager.m_sceneCameraRotation * glm::vec3(1, 0, 0);
 						if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow())) {
-							GetInstance().m_sceneCameraPosition += front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * GetInstance().m_velocity;
+							manager.m_sceneCameraPosition += front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * manager.m_velocity;
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow())) {
-							GetInstance().m_sceneCameraPosition -= front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * GetInstance().m_velocity;
+							manager.m_sceneCameraPosition -= front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * manager.m_velocity;
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow())) {
-							GetInstance().m_sceneCameraPosition -= right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * GetInstance().m_velocity;
+							manager.m_sceneCameraPosition -= right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * manager.m_velocity;
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow())) {
-							GetInstance().m_sceneCameraPosition += right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * GetInstance().m_velocity;
+							manager.m_sceneCameraPosition += right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * manager.m_velocity;
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow())) {
-							GetInstance().m_sceneCameraPosition.y += GetInstance().m_velocity * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
+							manager.m_sceneCameraPosition.y += manager.m_velocity * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
 						}
 						if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, WindowManager::GetWindow())) {
-							GetInstance().m_sceneCameraPosition.y -= GetInstance().m_velocity * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
+							manager.m_sceneCameraPosition.y -= manager.m_velocity * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
 						}
 						if (xOffset != 0.0f || yOffset != 0.0f) {
-							GetInstance().m_sceneCameraYawAngle += xOffset * GetInstance().m_sensitivity;
-							GetInstance().m_sceneCameraPitchAngle += yOffset * GetInstance().m_sensitivity;
-							if (GetInstance().m_sceneCameraPitchAngle > 89.0f)
-								GetInstance().m_sceneCameraPitchAngle = 89.0f;
-							if (GetInstance().m_sceneCameraPitchAngle < -89.0f)
-								GetInstance().m_sceneCameraPitchAngle = -89.0f;
-
-							GetInstance().m_sceneCameraRotation = CameraComponent::ProcessMouseMovement(GetInstance().m_sceneCameraYawAngle, GetInstance().m_sceneCameraPitchAngle, false);
+							manager.m_sceneCameraYawAngle += xOffset * manager.m_sensitivity;
+							manager.m_sceneCameraPitchAngle += yOffset * manager.m_sensitivity;
+							if (manager.m_sceneCameraPitchAngle > 89.0f)
+								manager.m_sceneCameraPitchAngle = 89.0f;
+							if (manager.m_sceneCameraPitchAngle < -89.0f)
+								manager.m_sceneCameraPitchAngle = -89.0f;
+							
+							manager.m_sceneCameraRotation = CameraComponent::ProcessMouseMovement(manager.m_sceneCameraYawAngle, manager.m_sceneCameraPitchAngle, false);
 						}
 					}
 #pragma endregion
@@ -915,40 +918,40 @@ void EditorManager::LateUpdate()
 			}
 #pragma region Gizmos and Entity Selection
 			bool mouseSelectEntity = true;
-			if (!GetInstance().m_selectedEntity.IsNull() && !GetInstance().m_selectedEntity.IsDeleted() && !GetInstance().m_selectedEntity.IsStatic())
+			if (!manager.m_selectedEntity.IsNull() && !manager.m_selectedEntity.IsDeleted() && !manager.m_selectedEntity.IsStatic())
 			{
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
 				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y);
-				glm::mat4 cameraView = glm::inverse(glm::translate(GetInstance().m_sceneCameraPosition) * glm::mat4_cast(GetInstance().m_sceneCameraRotation));
-				glm::mat4 cameraProjection = GetInstance().m_sceneCamera->GetProjection();
-				const auto op = GetInstance().m_localPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : GetInstance().m_localRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
+				glm::mat4 cameraView = glm::inverse(glm::translate(manager.m_sceneCameraPosition) * glm::mat4_cast(manager.m_sceneCameraRotation));
+				glm::mat4 cameraProjection = manager.m_sceneCamera->GetProjection();
+				const auto op = manager.m_localPositionSelected ? ImGuizmo::OPERATION::TRANSLATE : manager.m_localRotationSelected ? ImGuizmo::OPERATION::ROTATE : ImGuizmo::OPERATION::SCALE;
 
-				auto transform = GetInstance().m_selectedEntity.GetComponentData<Transform>();
+				auto transform = manager.m_selectedEntity.GetComponentData<Transform>();
 				GlobalTransform parentGlobalTransform;
-				Entity parentEntity = EntityManager::GetParent(GetInstance().m_selectedEntity);
+				Entity parentEntity = EntityManager::GetParent(manager.m_selectedEntity);
 				if (!parentEntity.IsNull())
 				{
-					parentGlobalTransform = EntityManager::GetParent(GetInstance().m_selectedEntity).GetComponentData<GlobalTransform>();
+					parentGlobalTransform = EntityManager::GetParent(manager.m_selectedEntity).GetComponentData<GlobalTransform>();
 				}
-				auto globalTransform = GetInstance().m_selectedEntity.GetComponentData<GlobalTransform>();
+				auto globalTransform = manager.m_selectedEntity.GetComponentData<GlobalTransform>();
 				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), op, ImGuizmo::LOCAL, glm::value_ptr(globalTransform.m_value));
 				if (ImGuizmo::IsUsing()) {
 					transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
-					GetInstance().m_selectedEntity.SetComponentData(transform);
-					transform.Decompose(GetInstance().m_previouslyStoredPosition, GetInstance().m_previouslyStoredRotation, GetInstance().m_previouslyStoredScale);
+					manager.m_selectedEntity.SetComponentData(transform);
+					transform.Decompose(manager.m_previouslyStoredPosition, manager.m_previouslyStoredRotation, manager.m_previouslyStoredScale);
 					mouseSelectEntity = false;
 				}
 			}
-			if (GetInstance().m_sceneWindowFocused && mouseSelectEntity)
+			if (manager.m_sceneWindowFocused && mouseSelectEntity)
 			{
-				if (!GetInstance().m_leftMouseButtonHold && !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x || mousePosition.y > viewPortSize.y) && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+				if (!manager.m_leftMouseButtonHold && !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x || mousePosition.y > viewPortSize.y) && InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
 				{
 					Entity focusedEntity = MouseEntitySelection(mousePosition);
 					Entity rootEntity = EntityManager::GetRoot(focusedEntity);
 					if (focusedEntity.m_index == 0)
 					{
-						GetInstance().m_selectedEntity.m_index = 0;
+						SetSelectedEntity(Entity());
 					}
 					else
 					{
@@ -956,7 +959,7 @@ void EditorManager::LateUpdate()
 						bool found = false;
 						while(!walker.IsNull())
 						{
-							if(walker == GetInstance().m_selectedEntity)
+							if(walker == manager.m_selectedEntity)
 							{
 								found = true;
 								break;
@@ -968,66 +971,56 @@ void EditorManager::LateUpdate()
 							walker = EntityManager::GetParent(walker);
 							if(walker.IsNull())
 							{
-								GetInstance().m_selectedEntity = focusedEntity;
+								SetSelectedEntity(focusedEntity);
 							}else
 							{
-								GetInstance().m_selectedEntity = walker;
+								SetSelectedEntity(walker);
 							}
 						}else
 						{
-							GetInstance().m_selectedEntity = focusedEntity;
+							SetSelectedEntity(focusedEntity);
 						}
 					}
-					/*
-					else if (GetInstance().m_selectedEntity == rootEntity)
-					{
-						GetInstance().m_selectedEntity = focusedEntity;
-					}
-					else
-					{
-						GetInstance().m_selectedEntity = rootEntity;
-					}
-					*/
-					GetInstance().m_leftMouseButtonHold = true;
+					manager.m_leftMouseButtonHold = true;
 				}
 			}
-			HighLightEntity(GetInstance().m_selectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
+			HighLightEntity(manager.m_selectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
 #pragma endregion
 			if (ImGui::IsWindowFocused())
 			{
-				if (!GetInstance().m_sceneWindowFocused) {
-					GetInstance().m_sceneWindowFocused = true;
-					GetInstance().m_rightMouseButtonHold = true;
-					GetInstance().m_leftMouseButtonHold = true;
+				if (!manager.m_sceneWindowFocused) {
+					manager.m_sceneWindowFocused = true;
+					manager.m_rightMouseButtonHold = true;
+					manager.m_leftMouseButtonHold = true;
 				}
 			}
 			else
 			{
-				GetInstance().m_sceneWindowFocused = false;
+				manager.m_sceneWindowFocused = false;
 			}
 		}
 		ImGui::EndChild();
-		GetInstance().m_sceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
+		manager.m_sceneCamera->SetEnabled(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
-	GetInstance().m_sceneCameraResolutionX = viewPortSize.x;
-	GetInstance().m_sceneCameraResolutionY = viewPortSize.y;
+	manager.m_sceneCameraResolutionX = viewPortSize.x;
+	manager.m_sceneCameraResolutionY = viewPortSize.y;
 	if (InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow())) {
-		if (!GetInstance().m_selectedEntity.IsNull() && !GetInstance().m_selectedEntity.IsDeleted())
+		if (!manager.m_selectedEntity.IsNull() && !manager.m_selectedEntity.IsDeleted())
 		{
-			EntityManager::DeleteEntity(GetInstance().m_selectedEntity);
+			EntityManager::DeleteEntity(manager.m_selectedEntity);
 		}
 	}
 #pragma endregion
 #pragma region Logs and errors
-	if (GetInstance().m_enableConsole) {
+	if (manager.m_enableConsole) {
 		ImGui::Begin("Console");
-		ImGui::Checkbox("Log", &GetInstance().m_enableConsoleLogs);
+		ImGui::Checkbox("Log", &manager.m_enableConsoleLogs);
 		ImGui::SameLine();
-		ImGui::Checkbox("Warning", &GetInstance().m_enableConsoleWarnings);
+		ImGui::Checkbox("Warning", &manager.m_enableConsoleWarnings);
 		ImGui::SameLine();
-		ImGui::Checkbox("Error", &GetInstance().m_enableConsoleErrors);
+		ImGui::Checkbox("Error", &manager.m_enableConsoleErrors);
 		int i = 0;
 		for (auto msg = Debug::GetConsoleMessages().rbegin(); msg != Debug::GetConsoleMessages().rend(); ++msg)
 		{
@@ -1036,7 +1029,7 @@ void EditorManager::LateUpdate()
 			switch (msg->m_type)
 			{
 			case ConsoleMessageType::Log:
-				if (GetInstance().m_enableConsoleLogs)
+				if (manager.m_enableConsoleLogs)
 				{
 					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
 					ImGui::SameLine();
@@ -1045,7 +1038,7 @@ void EditorManager::LateUpdate()
 				}
 				break;
 			case ConsoleMessageType::Warning:
-				if (GetInstance().m_enableConsoleWarnings)
+				if (manager.m_enableConsoleWarnings)
 				{
 					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
 					ImGui::SameLine();
@@ -1054,7 +1047,7 @@ void EditorManager::LateUpdate()
 				}
 				break;
 			case ConsoleMessageType::Error:
-				if (GetInstance().m_enableConsoleErrors)
+				if (manager.m_enableConsoleErrors)
 				{
 					ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
 					ImGui::SameLine();
@@ -1073,10 +1066,25 @@ void EditorManager::LateUpdate()
 
 
 
-void UniEngine::EditorManager::SetSelectedEntity(Entity entity)
+void UniEngine::EditorManager::SetSelectedEntity(const Entity& entity, const bool& openMenu)
 {
-	if (entity.IsNull() || entity.IsDeleted()) return;
+	auto& manager = GetInstance();
+	if(entity == manager.m_selectedEntity) return;
+	manager.m_selectedEntityHierarchyList.clear();
+	if(entity.IsNull())
+	{
+		manager.m_selectedEntity = Entity();
+		return;
+	}
+	if (entity.IsDeleted()) return;
 	GetInstance().m_selectedEntity = entity;
+	if(!openMenu) return;
+	auto walker = entity;
+	while(!walker.IsNull())
+	{
+		manager.m_selectedEntityHierarchyList.push_back(walker);
+		walker = EntityManager::GetParent(walker);
+	}
 }
 
 std::unique_ptr<CameraComponent>& EditorManager::GetSceneCamera()

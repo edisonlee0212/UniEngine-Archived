@@ -123,6 +123,20 @@ glm::quat UniEngine::CameraComponent::ProcessMouseMovement(float yawAngle, float
 	return glm::quatLookAt(front, up);
 }
 
+void UniEngine::CameraComponent::ReverseAngle(const glm::quat& rotation, float& pitchAngle, float& yawAngle, const bool& constrainPitch)
+{
+	const auto angle = glm::degrees(glm::eulerAngles(rotation));
+	pitchAngle = angle.x;
+	yawAngle = glm::abs(angle.z) > 90.0f ? 90.0f - angle.y : -90.0f - angle.y;
+	if (constrainPitch)
+	{
+		if (pitchAngle > 89.0f)
+			pitchAngle = 89.0f;
+		if (pitchAngle < -89.0f)
+			pitchAngle = -89.0f;
+	}
+}
+
 std::shared_ptr<UniEngine::Texture2D> UniEngine::CameraComponent::GetTexture() const
 {
 	return m_colorTexture;

@@ -60,6 +60,7 @@ namespace UniEngine {
 		std::unique_ptr<GLRenderBuffer> m_sceneCameraEntityRecorderRenderBuffer;
 		
 		
+		std::vector<Entity> m_selectedEntityHierarchyList;
 		
 		int m_sceneCameraResolutionX = 1;
 		int m_sceneCameraResolutionY = 1;
@@ -71,8 +72,8 @@ namespace UniEngine {
 		bool m_leftMouseButtonHold = false;
 		bool m_rightMouseButtonHold = false;
 #pragma endregion
-		static bool DrawEntityMenu(bool enabled, Entity& entity);
-		static void DrawEntityNode(Entity& entity);
+		static bool DrawEntityMenu(const bool& enabled, const Entity& entity);
+		static void DrawEntityNode(const Entity& entity, const unsigned& hierarchyLevel);
 		static void InspectComponentData(Entity entity, ComponentBase* data, ComponentType type, bool isRoot);
 		static Entity MouseEntitySelection(const glm::vec2& mousePosition);
 		static void HighLightEntityPrePassHelper(const Entity& entity);
@@ -105,7 +106,7 @@ namespace UniEngine {
 		static void PreUpdate();
 		static void Update();
 		static Entity GetSelectedEntity();
-		static void SetSelectedEntity(Entity entity);
+		static void SetSelectedEntity(const Entity& entity, const bool& openMenu = true);
 		static std::unique_ptr<CameraComponent>& GetSceneCamera();
 		template<typename T = ResourceBehaviour>
 		static bool DragAndDrop(std::shared_ptr<T>& target);
