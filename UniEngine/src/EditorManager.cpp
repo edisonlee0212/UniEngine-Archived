@@ -559,7 +559,6 @@ void UniEngine::EditorManager::DrawEntityNode(const Entity& entity, const unsign
 	}
 	if (!manager.m_selectedEntityHierarchyList.empty() && manager.m_selectedEntityHierarchyList[manager.m_selectedEntityHierarchyList.size() - hierarchyLevel - 1] == entity) {
 		ImGui::SetNextItemOpen(true);
-		manager.m_selectedEntityHierarchyList.erase(manager.m_selectedEntityHierarchyList.begin() + manager.m_selectedEntityHierarchyList.size() - hierarchyLevel - 1);
 	}
 	const bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (GetInstance().m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
 	if (ImGui::BeginDragDropSource())
@@ -598,7 +597,6 @@ void UniEngine::EditorManager::DrawEntityNode(const Entity& entity, const unsign
 
 void EditorManager::LateUpdate()
 {
-	
 	auto& manager = GetInstance();
 	if (manager.m_leftMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
 	{
@@ -673,6 +671,7 @@ void EditorManager::LateUpdate()
 			EntityManager::ForAllEntities([](int i, Entity entity) {
 				if (EntityManager::GetParent(entity).IsNull()) DrawEntityNode(entity, 0);
 				});
+			manager.m_selectedEntityHierarchyList.clear();
 			ImGui::PopStyleColor();
 			ImGui::PopStyleColor();
 			ImGui::PopStyleColor();
