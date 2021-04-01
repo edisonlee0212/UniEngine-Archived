@@ -22,7 +22,7 @@ namespace UniEngine
 		void SetPrivateComponent(Entity entity);
 		void SetPrivateComponent(Entity entity, size_t id);
 		template <typename T = PrivateComponentBase>
-		void RemovePrivateComponent(Entity entity);
+		UNIENGINE_API void RemovePrivateComponent(Entity entity);
 		template <typename T>
 		const std::vector<Entity>* GetOwnersList();
 	};
