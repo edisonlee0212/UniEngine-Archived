@@ -557,7 +557,8 @@ void UniEngine::EditorManager::DrawEntityNode(const Entity& entity, const unsign
 	if (enabled) {
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({ 1, 1, 1, 1 }));
 	}
-	if (!manager.m_selectedEntityHierarchyList.empty() && manager.m_selectedEntityHierarchyList[manager.m_selectedEntityHierarchyList.size() - hierarchyLevel - 1] == entity) {
+	const int index = manager.m_selectedEntityHierarchyList.size() - hierarchyLevel - 1;
+	if (!manager.m_selectedEntityHierarchyList.empty() && index >= 0 && index < manager.m_selectedEntityHierarchyList.size() && manager.m_selectedEntityHierarchyList[index] == entity) {
 		ImGui::SetNextItemOpen(true);
 	}
 	const bool opened = ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog | (GetInstance().m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
