@@ -2244,9 +2244,9 @@ namespace UniEngine {
 	}
 
 	template <typename T>
-	bool Entity::RemovePrivateComponent() const
+	void Entity::RemovePrivateComponent() const
 	{
-		return EntityManager::RemovePrivateComponent<T>();
+		return EntityManager::RemovePrivateComponent<T>(*this);
 	}
 
 	template <typename T>

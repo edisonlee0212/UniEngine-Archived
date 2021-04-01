@@ -43,7 +43,7 @@ namespace UniEngine {
 		template <typename T = PrivateComponentBase>
 		void SetPrivateComponent(std::unique_ptr<T> value) const;
 		template <typename T = PrivateComponentBase>
-		[[nodiscard]] bool RemovePrivateComponent() const;
+		void RemovePrivateComponent() const;
 		template <typename T = PrivateComponentBase>
 		[[nodiscard]] bool HasPrivateComponent() const;
 		[[nodiscard]] inline std::string GetName() const;
