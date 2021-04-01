@@ -16,13 +16,13 @@ namespace UniEngine
 		std::unordered_map<std::size_t, size_t> m_pOwnersCollectionsMap;
 		std::vector<std::pair<size_t, std::unique_ptr<POwnersCollection>>> m_pOwnersCollectionsList;
 	public:
-		void RemovePrivateComponent(Entity entity, size_t typeID);
+		UNIENGINE_API void RemovePrivateComponent(Entity entity, size_t typeID);
 		void DeleteEntity(Entity entity);
 		template <typename T = PrivateComponentBase>
 		void SetPrivateComponent(Entity entity);
 		void SetPrivateComponent(Entity entity, size_t id);
 		template <typename T = PrivateComponentBase>
-		UNIENGINE_API void RemovePrivateComponent(Entity entity);
+		void RemovePrivateComponent(Entity entity);
 		template <typename T>
 		const std::vector<Entity>* GetOwnersList();
 	};
