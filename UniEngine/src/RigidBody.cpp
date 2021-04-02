@@ -12,7 +12,7 @@ void UniEngine::RigidBody::RegisterCheck()
 		m_currentRegistered = true;
 		PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
 	}
-	if(m_currentRegistered == true && GetOwner().IsValid() && !(GetOwner().IsEnabled() && IsEnabled()))
+	else if(m_currentRegistered == true && (!GetOwner().IsValid() || !GetOwner().IsEnabled() || !IsEnabled()))
 	{
 		m_currentRegistered = false;
 		PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
@@ -35,7 +35,6 @@ UniEngine::RigidBody::RigidBody()
 	m_density = 10.0f;
 	PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic*>(m_rigidBody), m_density);
 	m_currentRegistered = false;
-	SetEnabled(true);
 }
 
 void UniEngine::RigidBody::SetShapeType(ShapeType type)
@@ -168,13 +167,12 @@ void UniEngine::RigidBody::UpdateBody()
 
 void UniEngine::RigidBody::Init()
 {
-	RegisterCheck();
+	SetEnabled(false);
 }
 
 void UniEngine::RigidBody::OnEntityDisable()
 {
-	m_currentRegistered = false;
-	PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
+	RegisterCheck();
 }
 void UniEngine::RigidBody::OnEntityEnable()
 {
@@ -182,8 +180,7 @@ void UniEngine::RigidBody::OnEntityEnable()
 }
 void UniEngine::RigidBody::OnDisable()
 {
-	m_currentRegistered = false;
-	PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
+	RegisterCheck();
 }
 
 void UniEngine::RigidBody::OnEnable()

@@ -797,9 +797,10 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, co
 }
 
 void EntityManager::SetPrivateComponent(const Entity& entity, const std::string& name, const size_t& id,
-	PrivateComponentBase* ptr)
+	PrivateComponentBase* ptr, const bool& enabled)
 {
-	if (!entity.IsValid()) return;
+	if (!ptr || !entity.IsValid()) return;
+	ptr->m_enabled = true;
 	bool found = false;
 	size_t i = 0;
 	for (auto& element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)

@@ -101,7 +101,7 @@ namespace UniEngine {
 		friend class SerializationManager;
 		static ComponentBase* GetComponentDataPointer(const Entity& entity, const size_t& id);
 		static EntityArchetype CreateEntityArchetype(const std::string& name, const std::vector<ComponentType>& types);
-		static void SetPrivateComponent(const Entity& entity, const std::string& name, const size_t& id, PrivateComponentBase* ptr);
+		static void SetPrivateComponent(const Entity& entity, const std::string& name, const size_t& id, PrivateComponentBase* ptr, const bool& enabled = true);
 		static bool IsEntityArchetypeValid(const EntityArchetype& archetype);
 	public:
 #pragma region Unsafe
@@ -1566,6 +1566,7 @@ namespace UniEngine {
 	void EntityManager::SetPrivateComponent(const Entity& entity, std::unique_ptr<T> value)
 	{
 		if (!entity.IsValid()) return;
+		value->m_enabled = true;
 		bool found = false;
 		size_t i = 0;
 		for (auto& element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
