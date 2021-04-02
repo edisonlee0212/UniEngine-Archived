@@ -103,7 +103,11 @@ namespace UniEngine {
 		static EntityArchetype CreateEntityArchetype(const std::string& name, const std::vector<ComponentType>& types);
 		static void SetPrivateComponent(const Entity& entity, const std::string& name, const size_t& id, PrivateComponentBase* ptr, const bool& enabled = true);
 		static bool IsEntityArchetypeValid(const EntityArchetype& archetype);
+
+		static void EntityHierarchyIteratorHelper(const Entity& target, const std::function<void(const Entity& entity)>& func);
 	public:
+		static void EntityHierarchyIterator(const Entity& target, const std::function<void(const Entity& entity)>& func, const bool& fromRoot = true);
+		
 #pragma region Unsafe
 		//Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
 		static std::vector<Entity>* UnsafeGetAllEntities();

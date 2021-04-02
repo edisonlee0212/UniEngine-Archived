@@ -136,17 +136,17 @@ void EntityManager::EraseDuplicates(std::vector<ComponentType>& types)
 	std::vector<ComponentType> copy;
 	copy.insert(copy.begin(), types.begin(), types.end());
 	types.clear();
-	for(const auto& i : copy)
+	for (const auto& i : copy)
 	{
 		bool found = false;
-		for(const auto j : types)
+		for (const auto j : types)
 		{
 			if (i == j) {
 				found = true;
 				break;
 			}
 		}
-		if(found) continue;
+		if (found) continue;
 		types.push_back(i);
 	}
 }
@@ -206,6 +206,15 @@ void EntityManager::Detach()
 	GetInstance().m_entityQueries = nullptr;
 	GetInstance().m_entityQueryInfos = nullptr;
 	GetInstance().m_entityQueryPools = nullptr;
+}
+
+void EntityManager::EntityHierarchyIterator(const Entity& target, const std::function<void(const Entity& entity)>& func,
+	const bool& fromRoot)
+{
+	Entity realTarget = target;
+	if (!realTarget.IsValid()) return;
+	if (fromRoot) realTarget = GetRoot(realTarget);
+	EntityHierarchyIteratorHelper(realTarget, func);
 }
 
 std::vector<Entity>* UniEngine::EntityManager::UnsafeGetAllEntities()
@@ -294,7 +303,7 @@ Entity UniEngine::EntityManager::CreateEntity(const EntityArchetype& archetype, 
 	const GlobalTransform globalTransform;
 	retVal.SetComponentData(transform);
 	retVal.SetComponentData(globalTransform);
-	
+
 	return retVal;
 }
 
@@ -312,7 +321,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 	auto remainAmount = amount;
 	const Transform transform;
 	const GlobalTransform globalTransform;
-	while(remainAmount > 0 && info->m_entityAliveCount != info->m_entityCount)
+	while (remainAmount > 0 && info->m_entityAliveCount != info->m_entityCount)
 	{
 		remainAmount--;
 		Entity entity = storage.m_chunkArray->Entities.at(info->m_entityAliveCount);
@@ -348,27 +357,27 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 	const size_t originalSize = GetInstance().m_entities->size();
 	GetInstance().m_entities->resize(originalSize + remainAmount);
 	GetInstance().m_entityInfos->resize(originalSize + remainAmount);
-	
-	for(int i = 0; i < remainAmount; i++)
+
+	for (int i = 0; i < remainAmount; i++)
 	{
 		auto& entity = GetInstance().m_entities->at(originalSize + i);
 		entity.m_index = originalSize + i;
 		entity.m_version = 1;
-		
+
 		auto& entityInfo = GetInstance().m_entityInfos->at(originalSize + i);
 		entityInfo = EntityInfo();
 		entityInfo.m_name = name;
 		entityInfo.m_archetypeInfoIndex = archetype.m_index;
 		entityInfo.m_chunkArrayIndex = info->m_entityAliveCount - remainAmount + i;
 	}
-	
+
 	storage.m_chunkArray->Entities.insert(storage.m_chunkArray->Entities.end(), GetInstance().m_entities->begin() + originalSize, GetInstance().m_entities->end());
 	const int threadSize = JobManager::PrimaryWorkers().Size();
 	int perThreadAmount = remainAmount / threadSize;
-	if(perThreadAmount > 0)
+	if (perThreadAmount > 0)
 	{
 		std::vector<std::shared_future<void>> results;
-		for(int i = 0; i < threadSize; i++)
+		for (int i = 0; i < threadSize; i++)
 		{
 			results.push_back(
 				JobManager::PrimaryWorkers().Push([i, perThreadAmount, originalSize](int id)
@@ -455,21 +464,24 @@ void EntityManager::SetEntityName(const Entity& entity, const std::string& name)
 void UniEngine::EntityManager::SetParent(const Entity& entity, const Entity& parent, const bool& recalculateTransform)
 {
 	if (!entity.IsValid() || !parent.IsValid()) return;
+	//Check self-contain.
+	bool contained = false;
+	EntityHierarchyIterator(parent, [&](const Entity& iterator)
+		{
+			if (!contained && iterator == entity) contained = true;
+		}
+	);
+	if (contained) {
+		Debug::Warning("Set parent failed");
+		return;
+	}
 	GetInstance().m_currentAttachedWorldEntityStorage->m_parentHierarchyVersion++;
 	const size_t childIndex = entity.m_index;
 	const size_t parentIndex = parent.m_index;
-	if (entity != GetInstance().m_entities->at(childIndex)) {
-		Debug::Error("Child already deleted!");
-		return;
-	}
-	if (parent != GetInstance().m_entities->at(parentIndex)) {
-		Debug::Error("Parent already deleted!");
-		return;
-	}
 	if (GetInstance().m_entityInfos->at(childIndex).m_parent.m_index != 0) {
 		RemoveChild(entity, GetInstance().m_entities->at(GetInstance().m_entityInfos->at(childIndex).m_parent.m_index));
 	}
-	if(recalculateTransform)
+	if (recalculateTransform)
 	{
 		const auto childGlobalTransform = entity.GetComponentData<GlobalTransform>();
 		const auto parentGlobalTransform = parent.GetComponentData<GlobalTransform>();
@@ -485,10 +497,6 @@ Entity UniEngine::EntityManager::GetParent(const Entity& entity)
 {
 	if (!entity.IsValid()) return Entity();
 	const size_t entityIndex = entity.m_index;
-	if (entity != GetInstance().m_entities->at(entityIndex)) {
-		Debug::Error("Entity already deleted!");
-		return Entity();
-	}
 	return GetInstance().m_entityInfos->at(entityIndex).m_parent;
 }
 
@@ -496,10 +504,6 @@ std::vector<Entity> UniEngine::EntityManager::GetChildren(const Entity& entity)
 {
 	if (!entity.IsValid()) return std::vector<Entity>();
 	const size_t entityIndex = entity.m_index;
-	if (entity != GetInstance().m_entities->at(entityIndex)) {
-		Debug::Error("Parent already deleted!");
-		return std::vector<Entity>();
-	}
 	return GetInstance().m_entityInfos->at(entityIndex).m_children;
 }
 
@@ -507,10 +511,6 @@ size_t UniEngine::EntityManager::GetChildrenAmount(const Entity& entity)
 {
 	if (!entity.IsValid()) return 0;
 	const size_t entityIndex = entity.m_index;
-	if (entity != GetInstance().m_entities->at(entityIndex)) {
-		Debug::Error("Parent already deleted!");
-		return 0;
-	}
 	return GetInstance().m_entityInfos->at(entityIndex).m_children.size();
 }
 
@@ -528,22 +528,13 @@ void UniEngine::EntityManager::RemoveChild(const Entity& entity, const Entity& p
 	if (!entity.IsValid() || !parent.IsValid()) return;
 	const size_t childIndex = entity.m_index;
 	const size_t parentIndex = parent.m_index;
-
-	if (entity != GetInstance().m_entities->at(childIndex)) {
-		Debug::Error("Child already deleted!");
-		return;
-	}
-	if (parent != GetInstance().m_entities->at(parentIndex)) {
-		Debug::Error("Parent already deleted!");
-		return;
-	}
 	if (GetInstance().m_entityInfos->at(childIndex).m_parent.m_index == 0) {
 		Debug::Error("No child by the parent!");
 	}
 	GetInstance().m_currentAttachedWorldEntityStorage->m_parentHierarchyVersion++;
 	GetInstance().m_entityInfos->at(childIndex).m_parent = Entity();
 	const size_t childrenCount = GetInstance().m_entityInfos->at(parentIndex).m_children.size();
-	
+
 	for (int i = 0; i < childrenCount; i++) {
 		if (GetInstance().m_entityInfos->at(parentIndex).m_children[i].m_index == childIndex) {
 			GetInstance().m_entityInfos->at(parentIndex).m_children[i] = GetInstance().m_entityInfos->at(parentIndex).m_children.back();
@@ -574,10 +565,6 @@ void EntityManager::RemoveComponentData(const Entity& entity, const size_t& type
 		return;
 	}
 	EntityInfo& entityInfo = GetInstance().m_entityInfos->at(entity.m_index);
-	if (GetInstance().m_entities->at(entity.m_index) != entity) {
-		Debug::Error("Entity version mismatch!");
-		return;
-	}
 	EntityArchetypeInfo* archetypeInfo = GetInstance().m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex).m_archetypeInfo;
 	if (archetypeInfo->m_componentTypes.size() <= 1)
 	{
@@ -674,72 +661,62 @@ void EntityManager::SetComponentData(const Entity& entity, size_t id, size_t siz
 	if (!entity.IsValid()) return;
 	EntityInfo& info = GetInstance().m_entityInfos->at(entity.m_index);
 
-	if (GetInstance().m_entities->at(entity.m_index) == entity) {
-		auto* chunkInfo = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
-		const auto chunkIndex = info.m_chunkArrayIndex / chunkInfo->m_chunkCapacity;
-		const auto chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
-		const auto chunk = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-		if (id == typeid(Transform).hash_code())
+	auto* chunkInfo = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
+	const auto chunkIndex = info.m_chunkArrayIndex / chunkInfo->m_chunkCapacity;
+	const auto chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
+	const auto chunk = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
+	if (id == typeid(Transform).hash_code())
+	{
+		const auto& type = chunkInfo->m_componentTypes[0];
+		chunk.SetData(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), size, data);
+		return;
+	}
+	if (id == typeid(GlobalTransform).hash_code())
+	{
+		const auto& type = chunkInfo->m_componentTypes[1];
+		chunk.SetData(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), size, data);
+		return;
+	}
+	for (const auto& type : chunkInfo->m_componentTypes)
+	{
+
+		if (type.m_typeId == id)
 		{
-			const auto& type = chunkInfo->m_componentTypes[0];
 			chunk.SetData(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), size, data);
 			return;
 		}
-		if (id == typeid(GlobalTransform).hash_code())
-		{
-			const auto& type = chunkInfo->m_componentTypes[1];
-			chunk.SetData(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), size, data);
-			return;
-		}
-		for (const auto& type : chunkInfo->m_componentTypes)
-		{
-			
-			if (type.m_typeId == id)
-			{
-				chunk.SetData(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), size, data);
-				return;
-			}
-		}
-		Debug::Log("ComponentData doesn't exist");
 	}
-	else {
-		Debug::Error("Entity already deleted!");
-	}
+	Debug::Log("ComponentData doesn't exist");
 }
 
 ComponentBase* EntityManager::GetComponentDataPointer(const Entity& entity, const size_t& id)
 {
 	if (!entity.IsValid()) return nullptr;
 	EntityInfo& info = GetInstance().m_entityInfos->at(entity.m_index);
-	if (GetInstance().m_entities->at(entity.m_index) == entity) {
-		EntityArchetypeInfo* chunkInfo = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
-		const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo->m_chunkCapacity;
-		const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
-		const ComponentDataChunk chunk = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-		if (id == typeid(Transform).hash_code())
+
+	EntityArchetypeInfo* chunkInfo = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
+	const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo->m_chunkCapacity;
+	const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
+	const ComponentDataChunk chunk = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
+	if (id == typeid(Transform).hash_code())
+	{
+		const auto& type = chunkInfo->m_componentTypes[0];
+		return chunk.GetDataPointer(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+	}
+	if (id == typeid(GlobalTransform).hash_code())
+	{
+		const auto& type = chunkInfo->m_componentTypes[1];
+		return chunk.GetDataPointer(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+	}
+	for (const auto& type : chunkInfo->m_componentTypes)
+	{
+		if (type.m_typeId == id)
 		{
-			const auto& type = chunkInfo->m_componentTypes[0];
 			return chunk.GetDataPointer(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
 		}
-		if (id == typeid(GlobalTransform).hash_code())
-		{
-			const auto& type = chunkInfo->m_componentTypes[1];
-			return chunk.GetDataPointer(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
-		}
-		for (const auto& type : chunkInfo->m_componentTypes)
-		{
-			if (type.m_typeId == id)
-			{
-				return chunk.GetDataPointer(static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
-			}
-		}
-		Debug::Log("ComponentData doesn't exist");
-		return nullptr;
 	}
-	else {
-		Debug::Error("Entity already deleted!");
-		return nullptr;
-	}
+	Debug::Log("ComponentData doesn't exist");
+	return nullptr;
 }
 
 EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, const std::vector<ComponentType>& types)
@@ -770,7 +747,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, co
 		if (info->m_chunkCapacity != compareInfo->m_chunkCapacity) continue;
 		if (info->m_entitySize != compareInfo->m_entitySize) continue;
 		bool typeCheck = true;
-		for(const auto& j : info->m_componentTypes)
+		for (const auto& j : info->m_componentTypes)
 		{
 			if (!compareInfo->HasType(j.m_typeId)) typeCheck = false;
 		}
@@ -824,6 +801,17 @@ void EntityManager::SetPrivateComponent(const Entity& entity, const std::string&
 bool EntityManager::IsEntityArchetypeValid(const EntityArchetype& archetype)
 {
 	return archetype.IsNull() && GetInstance().m_entityComponentStorage->size() > archetype.m_index;
+}
+
+void EntityManager::EntityHierarchyIteratorHelper(const Entity& target,
+	const std::function<void(const Entity& entity)>& func)
+{
+	func(target);
+	ForEachChild(target, [&](Entity child)
+		{
+			EntityHierarchyIteratorHelper(child, func);
+		}
+	);
 }
 
 EntityArchetypeInfo EntityManager::GetArchetypeInfo(const EntityArchetype& entityArchetype)
@@ -887,7 +875,7 @@ void UniEngine::EntityManager::SetEnable(const Entity& entity, const bool& value
 		}
 	}
 	GetInstance().m_entityInfos->at(entity.m_index).m_enabled = value;
-	
+
 	for (const auto& i : GetInstance().m_entityInfos->at(entity.m_index).m_children) {
 		SetEnable(i, value);
 	}
@@ -896,7 +884,11 @@ void UniEngine::EntityManager::SetEnable(const Entity& entity, const bool& value
 void EntityManager::SetStatic(const Entity& entity, const bool& value)
 {
 	if (!entity.IsValid()) return;
-	GetInstance().m_entityInfos->at(entity.m_index).m_static = value;
+	EntityHierarchyIterator(entity, [=](const Entity iterator)
+		{
+			GetInstance().m_entityInfos->at(iterator.m_index).m_static = value;
+		}
+	);
 }
 
 void EntityManager::SetEnableSingle(const Entity& entity, const bool& value)
@@ -950,7 +942,7 @@ EntityQuery UniEngine::EntityManager::CreateEntityQuery()
 	const EntityQueryInfo info;
 	GetInstance().m_entityQueryInfos->push_back(info);
 	RefreshEntityQueryInfos(retVal.m_index);
-	
+
 	return retVal;
 }
 
