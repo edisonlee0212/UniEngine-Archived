@@ -254,7 +254,6 @@ bool Application::IsInitialized()
 
 void UniEngine::Application::End()
 {
-	m_world->Purge();
 	PhysicsSimulationManager::Destroy();
 	EditorManager::Destroy();
 	glfwTerminate();
