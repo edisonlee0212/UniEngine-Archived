@@ -43,7 +43,7 @@ inline bool UniEngine::EditorManager::DrawEntityMenu(const bool& enabled, const 
 }
 
 
-void UniEngine::EditorManager::InspectComponentData(Entity entity, ComponentBase* data, ComponentType type, bool isRoot)
+void UniEngine::EditorManager::InspectComponentData(Entity entity, ComponentDataBase* data, ComponentDataType type, bool isRoot)
 {
 	if (GetInstance().m_componentDataInspectorMap.find(type.m_typeId) != GetInstance().m_componentDataInspectorMap.end()) {
 		GetInstance().m_componentDataInspectorMap.at(type.m_typeId)(entity, data, isRoot);
@@ -323,7 +323,7 @@ void UniEngine::EditorManager::Init()
 		fragShader
 		);
 
-	RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentBase* data, bool isRoot)
+	RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentDataBase* data, bool isRoot)
 		{
 			auto* ltw = reinterpret_cast<GlobalTransform*>(data);
 			glm::vec3 er;
@@ -338,7 +338,7 @@ void UniEngine::EditorManager::Init()
 	);
 
 
-	RegisterComponentDataInspector<Transform>([](Entity entity, ComponentBase* data, bool isRoot)
+	RegisterComponentDataInspector<Transform>([](Entity entity, ComponentDataBase* data, bool isRoot)
 		{
 			static Entity previousEntity;
 			if (entity.IsStatic())
@@ -635,7 +635,7 @@ void EditorManager::LateUpdate()
 		}
 		ImGui::Combo("Display mode", &manager.m_selectedHierarchyDisplayMode, HierarchyDisplayMode, IM_ARRAYSIZE(HierarchyDisplayMode));
 		if (manager.m_selectedHierarchyDisplayMode == 0) {
-			EntityManager::UnsafeForEachEntityStorage([&](int i, EntityComponentStorage storage) {
+			EntityManager::UnsafeForEachEntityStorage([&](int i, EntityComponentDataStorage storage) {
 				ImGui::Separator();
 				std::string title = std::to_string(i) + ". " + storage.m_archetypeInfo->m_name;
 				if (ImGui::CollapsingHeader(title.c_str())) {
@@ -720,7 +720,7 @@ void EditorManager::LateUpdate()
 					}
 					bool skip = false;
 					int i = 0;
-					EntityManager::UnsafeForEachComponent(manager.m_selectedEntity, [&skip, &i, &manager](ComponentType type, void* data)
+					EntityManager::UnsafeForEachComponent(manager.m_selectedEntity, [&skip, &i, &manager](ComponentDataType type, void* data)
 						{
 							if (skip) return;
 							std::string info = type.m_name.substr(7);
@@ -737,7 +737,7 @@ void EditorManager::LateUpdate()
 								ImGui::EndPopup();
 							}
 							ImGui::PopID();
-							InspectComponentData(manager.m_selectedEntity, static_cast<ComponentBase*>(data), type, EntityManager::GetParent(manager.m_selectedEntity).IsNull());
+							InspectComponentData(manager.m_selectedEntity, static_cast<ComponentDataBase*>(data), type, EntityManager::GetParent(manager.m_selectedEntity).IsNull());
 							ImGui::Separator();
 							i++;
 						}

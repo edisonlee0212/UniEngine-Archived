@@ -3,7 +3,7 @@
 #include "Entity.h"
 #include "UniEngineAPI.h"
 namespace UniEngine {
-	struct UNIENGINE_API GlobalTransform : ComponentBase {
+	struct UNIENGINE_API GlobalTransform : ComponentDataBase {
 		glm::mat4 m_value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f)))* glm::scale(glm::vec3(1.0f));;
 		bool operator ==(const GlobalTransform& other) const {
 			return other.m_value == m_value;
@@ -294,7 +294,7 @@ namespace UniEngine {
 		}
 #pragma endregion
 	};
-	struct UNIENGINE_API Transform : ComponentBase {
+	struct UNIENGINE_API Transform : ComponentDataBase {
 		glm::mat4 m_value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));;
 		bool operator ==(const Transform& other) const {
 			return other.m_value == m_value;

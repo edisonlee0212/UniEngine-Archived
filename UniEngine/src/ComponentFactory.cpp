@@ -4,12 +4,12 @@
 using namespace UniEngine;
 
 bool ComponentFactory::Register(const std::string& id,
-	const std::function<std::shared_ptr<ComponentBase>(size_t&, size_t&)>& func)
+	const std::function<std::shared_ptr<ComponentDataBase>(size_t&, size_t&)>& func)
 {
 	return GetInstance().m_componentDataGenerators.insert({ id, func }).second;
 }
 
-std::shared_ptr<ComponentBase> ComponentFactory::ProduceComponentData(const std::string& id, size_t& hashCode, size_t& size)
+std::shared_ptr<ComponentDataBase> ComponentFactory::ProduceComponentData(const std::string& id, size_t& hashCode, size_t& size)
 {
 	auto& factory = GetInstance();
 	const auto it = factory.m_componentDataGenerators.find(id);

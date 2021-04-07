@@ -13,7 +13,7 @@ namespace UniEngine {
 		DebugCamera = 1 << 1,
 	};
 
-	struct UNIENGINE_API CameraLayerMask : ComponentBase
+	struct UNIENGINE_API CameraLayerMask : ComponentDataBase
 	{
 		size_t m_value;
 		bool operator ==(const CameraLayerMask& other) const {

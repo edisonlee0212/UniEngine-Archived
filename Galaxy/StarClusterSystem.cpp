@@ -76,7 +76,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	JobManager::ResizePrimaryWorkers(1);
 	JobManager::ResizeSecondaryWorkers(16);
 
-	size_t starAmount = 200000;
+	size_t starAmount = 10000;
 	auto stars = EntityManager::CreateEntities(_StarArchetype, starAmount, "Star");
 	for (auto i = 0; i < starAmount; i++) {
 		auto starEntity = stars[i];
@@ -109,7 +109,7 @@ void Galaxy::StarClusterSystem::Update()
 	float time = _GalaxyTime;
 
 	const bool enableAsync = true;
-	
+	auto list = EntityManager::UnsafeGetComponentDataArray<GlobalTransform>(_StarQuery);
 	if (!enableAsync || _FirstTime || _CurrentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
 	{
 		_UseFront = !_UseFront;

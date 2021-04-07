@@ -5,15 +5,15 @@
 namespace UniEngine {
 	class UNIENGINE_API ComponentFactory : public Singleton<ComponentFactory>
 	{
-		std::unordered_map<std::string, std::function<std::shared_ptr<ComponentBase>(size_t&, size_t&)>> m_componentDataGenerators;
+		std::unordered_map<std::string, std::function<std::shared_ptr<ComponentDataBase>(size_t&, size_t&)>> m_componentDataGenerators;
 		std::unordered_map<std::string, std::function<Serializable* (size_t&)>> m_classComponentGenerators;
 	public:
 		template <typename T = Serializable>
 		static bool RegisterComponentData();
-		template <typename T = ComponentBase>
+		template <typename T = ComponentDataBase>
 		static bool RegisterSerializable();
-		static bool Register(const std::string& id, const std::function<std::shared_ptr<ComponentBase>(size_t&, size_t&)>& func);
-		static std::shared_ptr<ComponentBase> ProduceComponentData(const std::string& id, size_t& hashCode, size_t& size);
+		static bool Register(const std::string& id, const std::function<std::shared_ptr<ComponentDataBase>(size_t&, size_t&)>& func);
+		static std::shared_ptr<ComponentDataBase> ProduceComponentData(const std::string& id, size_t& hashCode, size_t& size);
 		static bool Register(const std::string& id, const std::function<Serializable* (size_t&)>& func);
 		static Serializable* ProduceSerializableObject(const std::string& id, size_t& hashCode);
 	};
@@ -26,7 +26,7 @@ namespace UniEngine {
 			{
 				hashCode = typeid(T).hash_code();
 				size = sizeof(T);
-				return std::move(std::dynamic_pointer_cast<ComponentBase>(std::make_shared<T>()));
+				return std::move(std::dynamic_pointer_cast<ComponentDataBase>(std::make_shared<T>()));
 			}
 		);
 	}
@@ -45,7 +45,7 @@ namespace UniEngine {
 
 
 
-	template <typename T = ComponentBase>
+	template <typename T = ComponentDataBase>
 	class UNIENGINE_API ComponentDataRegistration
 	{
 	public:
@@ -56,7 +56,7 @@ namespace UniEngine {
 				{
 					hashCode = typeid(T).hash_code();
 					size = sizeof(T);
-					return std::move(std::dynamic_pointer_cast<ComponentBase>(std::make_shared<T>()));
+					return std::move(std::dynamic_pointer_cast<ComponentDataBase>(std::make_shared<T>()));
 				}
 			);
 		}

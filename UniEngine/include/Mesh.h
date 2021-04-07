@@ -59,7 +59,7 @@ namespace UniEngine {
 		void RecalculateTangent(std::vector<Vertex>& vertices, std::vector<glm::uvec3>& indices) const;
 		[[nodiscard]] std::shared_ptr<GLVAO> Vao() const;
 		void Enable() const;
-		std::vector<Vertex>& GetVerticesUnsafe();
-		std::vector<glm::uvec3>& GetIndicesUnsafe();
+		[[nodiscard]] std::vector<Vertex>& UnsafeGetVertices();
+		[[nodiscard]] std::vector<glm::uvec3>& UnsafeGetTriangles();
 	};
 }

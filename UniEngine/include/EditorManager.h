@@ -15,7 +15,7 @@ namespace UniEngine {
 	{
 		EntityArchetype m_basicEntityArchetype;
 		bool m_enabled = false;
-		std::map<size_t, std::function<void(Entity entity, ComponentBase* data, bool isRoot)>> m_componentDataInspectorMap;
+		std::map<size_t, std::function<void(Entity entity, ComponentDataBase* data, bool isRoot)>> m_componentDataInspectorMap;
 		std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_privateComponentMenuList;
 		std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_componentDataMenuList;
 		unsigned int m_configFlags = 0;
@@ -74,7 +74,7 @@ namespace UniEngine {
 #pragma endregion
 		static bool DrawEntityMenu(const bool& enabled, const Entity& entity);
 		static void DrawEntityNode(const Entity& entity, const unsigned& hierarchyLevel);
-		static void InspectComponentData(Entity entity, ComponentBase* data, ComponentType type, bool isRoot);
+		static void InspectComponentData(Entity entity, ComponentDataBase* data, ComponentDataType type, bool isRoot);
 		static Entity MouseEntitySelection(const glm::vec2& mousePosition);
 		static void HighLightEntityPrePassHelper(const Entity& entity);
 		static void HighLightEntityHelper(const Entity& entity);
@@ -95,11 +95,11 @@ namespace UniEngine {
 		bool m_enableInfoWindow = true;
 		static void HighLightEntity(const Entity& entity, const glm::vec4& color);
 		static void LateUpdate();
-		template<typename T1 = ComponentBase>
-		static void RegisterComponentDataInspector(const std::function<void(Entity entity, ComponentBase* data, bool isRoot)>& func);
+		template<typename T1 = ComponentDataBase>
+		static void RegisterComponentDataInspector(const std::function<void(Entity entity, ComponentDataBase* data, bool isRoot)>& func);
 		template<typename T1 = PrivateComponentBase>
 		static void RegisterPrivateComponentMenu(const std::function<void(Entity owner)>& func);
-		template<typename T1 = ComponentBase>
+		template<typename T1 = ComponentDataBase>
 		static void RegisterComponentDataMenu(const std::function<void(Entity owner)>& func);
 		static void Init();
 		static void Destroy();
@@ -117,7 +117,7 @@ namespace UniEngine {
 	};
 
 	template <typename T1>
-	void EditorManager::RegisterComponentDataInspector(const std::function<void(Entity entity, ComponentBase* data, bool isRoot)>& func)
+	void EditorManager::RegisterComponentDataInspector(const std::function<void(Entity entity, ComponentDataBase* data, bool isRoot)>& func)
 	{
 		GetInstance().m_componentDataInspectorMap.insert_or_assign(typeid(T1).hash_code(), func);
 	}

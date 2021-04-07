@@ -4,7 +4,7 @@
 
 namespace UniEngine
 {
-	struct UNIENGINE_API BezierCubic2D : ComponentBase
+	struct UNIENGINE_API BezierCubic2D : ComponentDataBase
 	{
 		bool m_fixed = true;
 		glm::vec2 m_controlPoints[4];

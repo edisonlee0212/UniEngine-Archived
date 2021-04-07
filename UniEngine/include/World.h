@@ -27,7 +27,7 @@ namespace UniEngine {
 		size_t m_parentHierarchyVersion = 0;
 		std::vector<Entity> m_entities;
 		std::vector<EntityInfo> m_entityInfos;
-		std::vector<EntityComponentStorage> m_entityComponentStorage;
+		std::vector<EntityComponentDataStorage> m_entityComponentStorage;
 		PrivateComponentStorage m_entityPrivateComponentStorage;
 		std::vector<EntityQuery> m_entityQueries;
 		std::vector<EntityQueryInfo> m_entityQueryInfos;

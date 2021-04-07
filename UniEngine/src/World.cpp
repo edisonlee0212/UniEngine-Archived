@@ -131,6 +131,7 @@ void World::ResetTime() const
 
 
 UniEngine::World::~World() {
+	Purge();
 	for (auto i : m_preparationSystems) {
 		i->OnDestroy();
 		delete i;

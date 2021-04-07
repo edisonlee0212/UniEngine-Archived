@@ -369,12 +369,12 @@ void UniEngine::Mesh::Enable() const
 	m_vao->Bind();
 }
 
-std::vector<Vertex>& Mesh::GetVerticesUnsafe()
+std::vector<Vertex>& Mesh::UnsafeGetVertices()
 {
 	return m_vertices;
 }
 
-std::vector<glm::uvec3>& Mesh::GetIndicesUnsafe()
+std::vector<glm::uvec3>& Mesh::UnsafeGetTriangles()
 {
 	return m_indices;
 }

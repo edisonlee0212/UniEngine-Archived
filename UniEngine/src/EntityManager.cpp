@@ -6,12 +6,12 @@
 using namespace UniEngine;
 
 #pragma region EntityManager
-bool UniEngine::ComponentTypeComparator(const ComponentType& a, const ComponentType& b)
+bool UniEngine::ComponentTypeComparator(const ComponentDataType& a, const ComponentDataType& b)
 {
 	return a.m_typeId < b.m_typeId;
 }
 
-void UniEngine::EntityManager::UnsafeForEachComponent(const Entity& entity, const std::function<void(const ComponentType& type, void* data)>& func)
+void UniEngine::EntityManager::UnsafeForEachComponent(const Entity& entity, const std::function<void(const ComponentDataType& type, void* data)>& func)
 {
 	if (!entity.IsValid()) return;
 	EntityInfo& info = GetInstance().m_entityInfos->at(entity.m_index);
@@ -40,7 +40,7 @@ void EntityManager::ForEachPrivateComponent(const Entity& entity,
 	}
 }
 
-void UniEngine::EntityManager::UnsafeForEachEntityStorage(const std::function<void(int i, const EntityComponentStorage& storage)>& func)
+void UniEngine::EntityManager::UnsafeForEachEntityStorage(const std::function<void(int i, const EntityComponentDataStorage& storage)>& func)
 {
 	for (size_t i = 1; i < GetInstance().m_entityComponentStorage->size(); i++) {
 		if (GetInstance().m_entityComponentStorage->at(i).m_archetypeInfo->m_entityAliveCount != 0) {
@@ -64,7 +64,7 @@ void UniEngine::EntityManager::DeleteEntityInternal(const Entity& entity)
 		info.m_privateComponentElements.clear();
 		//Set to version 0, marks it as deleted.
 		actualEntity.m_version = 0;
-		EntityComponentStorage storage = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex);
+		EntityComponentDataStorage storage = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex);
 		storage.m_chunkArray->Entities[info.m_chunkArrayIndex] = actualEntity;
 		const auto originalIndex = info.m_chunkArrayIndex;
 		if (info.m_chunkArrayIndex != storage.m_archetypeInfo->m_entityAliveCount - 1) {
@@ -131,9 +131,9 @@ void UniEngine::EntityManager::RefreshEntityQueryInfos(const size_t& index)
 	}
 }
 
-void EntityManager::EraseDuplicates(std::vector<ComponentType>& types)
+void EntityManager::EraseDuplicates(std::vector<ComponentDataType>& types)
 {
-	std::vector<ComponentType> copy;
+	std::vector<ComponentDataType> copy;
 	copy.insert(copy.begin(), types.begin(), types.end());
 	types.clear();
 	for (const auto& i : copy)
@@ -151,7 +151,7 @@ void EntityManager::EraseDuplicates(std::vector<ComponentType>& types)
 	}
 }
 
-void UniEngine::EntityManager::GetEntityStorage(const EntityComponentStorage& storage, std::vector<Entity>& container)
+void UniEngine::EntityManager::GetEntityStorage(const EntityComponentDataStorage& storage, std::vector<Entity>& container)
 {
 	const size_t amount = storage.m_archetypeInfo->m_entityAliveCount;
 	if (amount == 0) return;
@@ -160,7 +160,7 @@ void UniEngine::EntityManager::GetEntityStorage(const EntityComponentStorage& st
 	memcpy(&container.at(container.size() - amount), storage.m_chunkArray->Entities.data(), amount * sizeof(Entity));
 }
 
-size_t UniEngine::EntityManager::SwapEntity(const EntityComponentStorage& storage, size_t index1, size_t index2)
+size_t UniEngine::EntityManager::SwapEntity(const EntityComponentDataStorage& storage, size_t index1, size_t index2)
 {
 	if (index1 == index2) return -1;
 	auto* info = storage.m_archetypeInfo;
@@ -257,7 +257,7 @@ Entity UniEngine::EntityManager::CreateEntity(const EntityArchetype& archetype, 
 	}
 	if (archetype.IsValid()) return Entity();
 	Entity retVal;
-	EntityComponentStorage storage = GetInstance().m_entityComponentStorage->at(archetype.m_index);
+	EntityComponentDataStorage storage = GetInstance().m_entityComponentStorage->at(archetype.m_index);
 	EntityArchetypeInfo* info = storage.m_archetypeInfo;
 	if (info->m_entityCount == info->m_entityAliveCount) {
 		const size_t chunkIndex = info->m_entityCount / info->m_chunkCapacity + 1;
@@ -316,7 +316,7 @@ std::vector<Entity> EntityManager::CreateEntities(const EntityArchetype& archety
 	}
 	if (archetype.IsValid()) return std::vector<Entity>();
 	std::vector<Entity> retVal;
-	EntityComponentStorage storage = GetInstance().m_entityComponentStorage->at(archetype.m_index);
+	EntityComponentDataStorage storage = GetInstance().m_entityComponentStorage->at(archetype.m_index);
 	EntityArchetypeInfo* info = storage.m_archetypeInfo;
 	auto remainAmount = amount;
 	const Transform transform;
@@ -594,7 +594,7 @@ void EntityManager::RemoveComponentData(const Entity& entity, const size_t& type
 	}
 #pragma region Sort types and check duplicate
 	size_t offset = 0;
-	ComponentType prev = newArchetypeInfo->m_componentTypes[0];
+	ComponentDataType prev = newArchetypeInfo->m_componentTypes[0];
 	for (auto& i : newArchetypeInfo->m_componentTypes)
 	{
 		i.m_offset = offset;
@@ -625,7 +625,7 @@ void EntityManager::RemoveComponentData(const Entity& entity, const size_t& type
 	if (duplicateIndex == -1) {
 		archetype.m_index = GetInstance().m_entityComponentStorage->size();
 		newArchetypeInfo->m_index = archetype.m_index;
-		GetInstance().m_entityComponentStorage->push_back(EntityComponentStorage(newArchetypeInfo, new ComponentDataChunkArray()));
+		GetInstance().m_entityComponentStorage->push_back(EntityComponentDataStorage(newArchetypeInfo, new ComponentDataChunkArray()));
 	}
 	else {
 		archetype.m_index = duplicateIndex;
@@ -656,7 +656,7 @@ void EntityManager::RemoveComponentData(const Entity& entity, const size_t& type
 	}
 }
 
-void EntityManager::SetComponentData(const Entity& entity, size_t id, size_t size, ComponentBase* data)
+void EntityManager::SetComponentData(const Entity& entity, size_t id, size_t size, ComponentDataBase* data)
 {
 	if (!entity.IsValid()) return;
 	EntityInfo& info = GetInstance().m_entityInfos->at(entity.m_index);
@@ -689,7 +689,7 @@ void EntityManager::SetComponentData(const Entity& entity, size_t id, size_t siz
 	Debug::Log("ComponentData doesn't exist");
 }
 
-ComponentBase* EntityManager::GetComponentDataPointer(const Entity& entity, const size_t& id)
+ComponentDataBase* EntityManager::GetComponentDataPointer(const Entity& entity, const size_t& id)
 {
 	if (!entity.IsValid()) return nullptr;
 	EntityInfo& info = GetInstance().m_entityInfos->at(entity.m_index);
@@ -719,18 +719,18 @@ ComponentBase* EntityManager::GetComponentDataPointer(const Entity& entity, cons
 	return nullptr;
 }
 
-EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, const std::vector<ComponentType>& types)
+EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, const std::vector<ComponentDataType>& types)
 {
 	auto* info = new EntityArchetypeInfo();
 	info->m_name = name;
 	info->m_entityCount = 0;
-	std::vector<ComponentType> actualTypes;
+	std::vector<ComponentDataType> actualTypes;
 	actualTypes.push_back(Typeof<Transform>());
 	actualTypes.push_back(Typeof<GlobalTransform>());
 	actualTypes.insert(actualTypes.end(), types.begin(), types.end());
 	std::sort(actualTypes.begin() + 2, actualTypes.end(), ComponentTypeComparator);
 	size_t offset = 0;
-	ComponentType prev = actualTypes[0];
+	ComponentDataType prev = actualTypes[0];
 	//Erase duplicates
 	EraseDuplicates(actualTypes);
 	for (auto& i : actualTypes)
@@ -762,7 +762,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string& name, co
 	if (duplicateIndex == -1) {
 		retVal.m_index = GetInstance().m_entityComponentStorage->size();
 		info->m_index = retVal.m_index;
-		GetInstance().m_entityComponentStorage->push_back(EntityComponentStorage(info, new ComponentDataChunkArray()));
+		GetInstance().m_entityComponentStorage->push_back(EntityComponentDataStorage(info, new ComponentDataChunkArray()));
 	}
 	else {
 		retVal.m_index = duplicateIndex;
@@ -946,21 +946,15 @@ EntityQuery UniEngine::EntityManager::CreateEntityQuery()
 	return retVal;
 }
 
-std::vector<EntityComponentStorage> UniEngine::EntityManager::UnsafeQueryStorage(const EntityQuery& entityQuery)
+std::vector<EntityComponentDataStorage> UniEngine::EntityManager::UnsafeGetComponentDataStorage(const EntityQuery& entityQuery)
 {
-	if (entityQuery.IsNull()) return std::vector<EntityComponentStorage>();
+	if (entityQuery.IsNull()) return std::vector<EntityComponentDataStorage>();
 	const size_t index = entityQuery.m_index;
 	if (GetInstance().m_entityQueries->at(index) != entityQuery) {
 		Debug::Error("EntityQuery out of date!");
-		return std::vector<EntityComponentStorage>();
+		return std::vector<EntityComponentDataStorage>();
 	}
 	return GetInstance().m_entityQueryInfos->at(index).m_queriedStorage;
-}
-
-ComponentDataChunkArray* UniEngine::EntityManager::UnsafeGetEntityComponentDataChunkArray(const EntityArchetype& entityArchetype)
-{
-	if (entityArchetype.IsNull()) return nullptr;
-	return GetInstance().m_entityComponentStorage->at(entityArchetype.m_index).m_chunkArray;
 }
 
 void UniEngine::EntityManager::ForAllEntities(const std::function<void(int i, Entity entity)>& func)
@@ -995,7 +989,7 @@ void UniEngine::EntityQuery::ToEntityArray(std::vector<Entity>& container) const
 	EntityManager::GetEntityArray(*this, container);
 }
 
-UniEngine::EntityComponentStorage::EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array)
+UniEngine::EntityComponentDataStorage::EntityComponentDataStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array)
 {
 	m_archetypeInfo = info;
 	m_chunkArray = array;

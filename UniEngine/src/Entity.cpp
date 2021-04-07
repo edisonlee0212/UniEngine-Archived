@@ -5,7 +5,7 @@
 #include "EntityManager.h"
 using namespace UniEngine;
 
-ComponentType::ComponentType(const std::string& name, const size_t& id, const size_t& size)
+ComponentDataType::ComponentDataType(const std::string& name, const size_t& id, const size_t& size)
 {
 	m_name = name;
 	m_typeId = id;
@@ -13,12 +13,12 @@ ComponentType::ComponentType(const std::string& name, const size_t& id, const si
 	m_offset = 0;
 }
 
-bool ComponentType::operator==(const ComponentType& other) const
+bool ComponentDataType::operator==(const ComponentDataType& other) const
 {
 	return (other.m_typeId == m_typeId) && (other.m_size == m_size);
 }
 
-bool ComponentType::operator!=(const ComponentType& other) const
+bool ComponentDataType::operator!=(const ComponentDataType& other) const
 {
 	return (other.m_typeId != m_typeId) || (other.m_size != m_size);
 }
@@ -158,12 +158,12 @@ PrivateComponentBase::~PrivateComponentBase()
 {
 }
 
-ComponentBase* ComponentDataChunk::GetDataPointer(const size_t& offset) const
+ComponentDataBase* ComponentDataChunk::GetDataPointer(const size_t& offset) const
 {
-	return reinterpret_cast<ComponentBase*>(static_cast<char*>(m_data) + offset);
+	return reinterpret_cast<ComponentDataBase*>(static_cast<char*>(m_data) + offset);
 }
 
-void ComponentDataChunk::SetData(const size_t& offset, const size_t& size, ComponentBase* data) const
+void ComponentDataChunk::SetData(const size_t& offset, const size_t& size, ComponentDataBase* data) const
 {
 	memcpy(static_cast<void*>(static_cast<char*>(m_data) + offset), data, size);
 }

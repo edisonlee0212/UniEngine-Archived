@@ -5,18 +5,18 @@ namespace Galaxy {
 	/// <summary>
 	/// The calculated precise position of the star.
 	/// </summary>
-	struct StarPosition : ComponentBase
+	struct StarPosition : ComponentDataBase
 	{
 		glm::dvec3 Value;
 	};
-	struct SelectionStatus : ComponentBase
+	struct SelectionStatus : ComponentDataBase
 	{
 		int Value;
 	};
 	/// <summary>
 	/// The seed of the star, use this to calculate initial position.
 	/// </summary>
-	struct StarSeed : ComponentBase
+	struct StarSeed : ComponentDataBase
 	{
 
 		float Value;
@@ -24,47 +24,47 @@ namespace Galaxy {
 	/// <summary>
 	/// This keep track of the position of the star in the list.
 	/// </summary>
-	struct StarIndex : ComponentBase
+	struct StarIndex : ComponentDataBase
 	{
 		int Value;
 	};
 	/// <summary>
 	/// Original color of the star
 	/// </summary>
-	struct OriginalColor : ComponentBase
+	struct OriginalColor : ComponentDataBase
 	{
 		glm::vec4 Value;
 	};
 	/// <summary>
 	/// The deviation of its orbit
 	/// </summary>
-	struct StarOrbitOffset : ComponentBase
+	struct StarOrbitOffset : ComponentDataBase
 	{
 		glm::dvec3 Value;
 	};
 	/// <summary>
 	/// This will help calculate the orbit. Smaller = close to center, bigger = close to disk
 	/// </summary>
-	struct StarOrbitProportion : ComponentBase
+	struct StarOrbitProportion : ComponentDataBase
 	{
 		double Value;
 	};
 	/// <summary>
 	/// This will help calculate the orbit. Smaller = close to center, bigger = close to disk
 	/// </summary>
-	struct SurfaceColor : ComponentBase
+	struct SurfaceColor : ComponentDataBase
 	{
 		glm::vec4 Value;
 	};
 	/// <summary>
 	/// The actual display color after selection system.
 	/// </summary>
-	struct DisplayColor : ComponentBase
+	struct DisplayColor : ComponentDataBase
 	{
 		glm::vec4 Value;
 	};
 
-	struct StarOrbit : ComponentBase
+	struct StarOrbit : ComponentDataBase
 	{
 		double A;
 		double B;
@@ -116,7 +116,7 @@ namespace Galaxy {
 	/// <summary>
 	/// The star cluster it actually belongs to.
 	/// </summary>
-	struct StarClusterIndex : ComponentBase
+	struct StarClusterIndex : ComponentDataBase
 	{
 		int Value;
 	};

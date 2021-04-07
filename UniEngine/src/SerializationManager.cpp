@@ -30,7 +30,7 @@ void UniEngine::SerializationManager::Init()
 {
 	RegisterComponentDataSerializerDeserializer<Transform>(
 		{
-		[](ComponentBase* data)
+		[](ComponentDataBase* data)
 		{
 			Transform* out = static_cast<Transform*>(data);
 			glm::mat4 val = out->m_value;
@@ -38,7 +38,7 @@ void UniEngine::SerializationManager::Init()
 			EXPORT_PARAM(stream, val);
 			return stream.str();
 		},
-		[](const std::string& data, ComponentBase* ptr)
+		[](const std::string& data, ComponentDataBase* ptr)
 		{
 			std::stringstream stream;
 			stream << data;
@@ -50,7 +50,7 @@ void UniEngine::SerializationManager::Init()
 	);
 	RegisterComponentDataSerializerDeserializer<GlobalTransform>(
 		{
-		[](ComponentBase* data)
+		[](ComponentDataBase* data)
 		{
 			GlobalTransform* out = static_cast<GlobalTransform*>(data);
 			glm::mat4 val = out->m_value;
@@ -58,7 +58,7 @@ void UniEngine::SerializationManager::Init()
 			EXPORT_PARAM(stream, val);
 			return stream.str();
 		},
-		[](const std::string& data, ComponentBase* ptr)
+		[](const std::string& data, ComponentDataBase* ptr)
 		{
 			std::stringstream stream;
 			stream << data;
@@ -71,7 +71,7 @@ void UniEngine::SerializationManager::Init()
 
 	RegisterComponentDataSerializerDeserializer<Ray>(
 		{
-		[](ComponentBase* data)
+		[](ComponentDataBase* data)
 		{
 			Ray* out = static_cast<Ray*>(data);
 			std::stringstream stream;
@@ -80,7 +80,7 @@ void UniEngine::SerializationManager::Init()
 			EXPORT_PARAM(stream, out->m_length);
 			return stream.str();
 		},
-		[](const std::string& data, ComponentBase* ptr)
+		[](const std::string& data, ComponentDataBase* ptr)
 		{
 			std::stringstream stream;
 			stream << data;
@@ -95,7 +95,7 @@ void UniEngine::SerializationManager::Init()
 	/*
 	RegisterComponentDataSerializerDeserializer<SpotLight>(
 		{
-		[](ComponentBase* data)
+		[](ComponentDataBase* data)
 		{
 			SpotLight* out = static_cast<SpotLight*>(data);
 			std::stringstream stream;
@@ -113,7 +113,7 @@ void UniEngine::SerializationManager::Init()
 			EXPORT_PARAM(stream, out->lightSize);
 			return stream.str();
 		},
-		[](const std::string& data, ComponentBase* ptr)
+		[](const std::string& data, ComponentDataBase* ptr)
 		{
 			std::stringstream stream;
 			stream << data;
@@ -136,7 +136,7 @@ void UniEngine::SerializationManager::Init()
 	);
 	RegisterComponentDataSerializerDeserializer<PointLight>(
 		{
-		[](ComponentBase* data)
+		[](ComponentDataBase* data)
 		{
 			PointLight* out = static_cast<PointLight*>(data);
 			std::stringstream stream;
@@ -152,7 +152,7 @@ void UniEngine::SerializationManager::Init()
 			EXPORT_PARAM(stream, out->lightSize);
 			return stream.str();
 		},
-		[](const std::string& data, ComponentBase* ptr)
+		[](const std::string& data, ComponentDataBase* ptr)
 		{
 			std::stringstream stream;
 			stream << data;
@@ -173,7 +173,7 @@ void UniEngine::SerializationManager::Init()
 	);
 	RegisterComponentDataSerializerDeserializer<DirectionalLight>(
 		{
-		[](ComponentBase* data)
+		[](ComponentDataBase* data)
 		{
 			DirectionalLight* out = static_cast<DirectionalLight*>(data);
 			std::stringstream stream;
@@ -186,7 +186,7 @@ void UniEngine::SerializationManager::Init()
 			EXPORT_PARAM(stream, out->lightSize);
 			return stream.str();
 		},
-		[](const std::string& data, ComponentBase* ptr)
+		[](const std::string& data, ComponentDataBase* ptr)
 		{
 			std::stringstream stream;
 			stream << data;
@@ -205,14 +205,14 @@ void UniEngine::SerializationManager::Init()
 	*/
 	RegisterComponentDataSerializerDeserializer<CameraLayerMask>(
 		{
-		[](ComponentBase* data)
+		[](ComponentDataBase* data)
 		{
 			CameraLayerMask* out = static_cast<CameraLayerMask*>(data);
 			std::stringstream stream;
 			EXPORT_PARAM(stream, out->m_value);
 			return stream.str();
 		},
-		[](const std::string& data, ComponentBase* ptr)
+		[](const std::string& data, ComponentDataBase* ptr)
 		{
 			std::stringstream stream;
 			stream << data;
@@ -323,7 +323,7 @@ void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& wo
 #pragma region ComponentData
 	out << YAML::Key << "ComponentData" << YAML::Value << YAML::BeginSeq;
 	auto& storage = world->m_worldEntityStorage;
-	std::vector<ComponentType>& componentTypes =
+	std::vector<ComponentDataType>& componentTypes =
 		storage.m_entityComponentStorage[storage.m_entityInfos[entity.m_index].m_archetypeInfoIndex].m_archetypeInfo->m_componentTypes;
 	for (const auto& type : componentTypes)
 	{
@@ -333,7 +333,7 @@ void UniEngine::SerializationManager::SerializeEntity(std::unique_ptr<World>& wo
 		const auto it = GetInstance().m_componentDataSerializers.find(type.m_typeId);
 		if (it != GetInstance().m_componentDataSerializers.end())
 		{
-			ComponentBase* ptr = EntityManager::GetComponentDataPointer(entity, type.m_typeId);
+			ComponentDataBase* ptr = EntityManager::GetComponentDataPointer(entity, type.m_typeId);
 			value = it->second.first(ptr);
 		}
 		out << YAML::Key << "Content" << YAML::Value << value;
@@ -368,8 +368,8 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(std::unique
 	auto componentDatum = node["ComponentData"];
 	Entity retVal;
 
-	std::vector<std::shared_ptr<ComponentBase>> ptrs;
-	std::vector<ComponentType> types;
+	std::vector<std::shared_ptr<ComponentDataBase>> ptrs;
+	std::vector<ComponentDataType> types;
 	for (const auto& componentData : componentDatum)
 	{
 		auto name = componentData["Name"].as<std::string>();

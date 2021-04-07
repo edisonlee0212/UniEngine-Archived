@@ -4,7 +4,7 @@
 #include "UniEngineAPI.h"
 namespace UniEngine
 {
-	struct UNIENGINE_API Ray : ComponentBase {
+	struct UNIENGINE_API Ray : ComponentDataBase {
 		glm::vec3 m_start;
 		glm::vec3 m_direction;
 		float m_length;

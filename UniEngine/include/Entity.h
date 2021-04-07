@@ -4,17 +4,17 @@
 namespace UniEngine {
 #pragma region EntityManager
 #pragma region Entity
-	struct UNIENGINE_API ComponentType final {
+	struct UNIENGINE_API ComponentDataType final {
 		std::string m_name;
 		size_t m_typeId = 0;
 		size_t m_size = 0;
 		size_t m_offset = 0;
-		ComponentType() = default;
-		ComponentType(const std::string& name, const size_t& id, const size_t& size);
-		bool operator ==(const ComponentType& other) const;
-		bool operator !=(const ComponentType& other) const;
+		ComponentDataType() = default;
+		ComponentDataType(const std::string& name, const size_t& id, const size_t& size);
+		bool operator ==(const ComponentDataType& other) const;
+		bool operator !=(const ComponentDataType& other) const;
 	};
-	struct UNIENGINE_API ComponentBase {
+	struct UNIENGINE_API ComponentDataBase {
 	};
 	class PrivateComponentBase;
 	struct UNIENGINE_API Entity final {
@@ -32,11 +32,11 @@ namespace UniEngine {
 		[[nodiscard]] bool IsStatic() const;
 		[[nodiscard]] bool IsDeleted() const;
 		[[nodiscard]] bool IsValid() const;
-		template<typename T = ComponentBase>
+		template<typename T = ComponentDataBase>
 		void SetComponentData(const T& value) const;
-		template<typename T = ComponentBase>
+		template<typename T = ComponentDataBase>
 		T GetComponentData() const;
-		template<typename T = ComponentBase>
+		template<typename T = ComponentDataBase>
 		[[nodiscard]] bool HasComponentData() const;
 		template <typename T = PrivateComponentBase>
 		std::unique_ptr<T>& GetPrivateComponent() const;
@@ -74,8 +74,8 @@ namespace UniEngine {
 	};
 
 	template<typename T>
-	ComponentType Typeof() {
-		ComponentType type;
+	ComponentDataType Typeof() {
+		ComponentDataType type;
 		type.m_name = std::string(typeid(T).name());
 		type.m_size = sizeof(T);
 		type.m_offset = 0;
@@ -89,10 +89,10 @@ namespace UniEngine {
 		void* m_data;
 		template<typename T>
 		T GetData(const size_t& offset);
-		[[nodiscard]] ComponentBase* GetDataPointer(const size_t& offset) const;
+		[[nodiscard]] ComponentDataBase* GetDataPointer(const size_t& offset) const;
 		template<typename T>
 		void SetData(const size_t& offset, const T& data);
-		void SetData(const size_t& offset, const size_t& size, ComponentBase* data) const;
+		void SetData(const size_t& offset, const size_t& size, ComponentDataBase* data) const;
 		void ClearData(const size_t& offset, const size_t& size) const;
 	};
 
@@ -133,7 +133,7 @@ namespace UniEngine {
 	struct UNIENGINE_API EntityArchetypeInfo {
 		std::string m_name;
 		size_t m_index = 0;
-		std::vector<ComponentType> m_componentTypes;
+		std::vector<ComponentDataType> m_componentTypes;
 		size_t m_entitySize = 0;
 		size_t m_chunkCapacity = 0;
 		size_t m_entityCount = 0;
@@ -149,39 +149,39 @@ namespace UniEngine {
 		bool operator !=(const EntityQuery& other) const;
 		size_t operator()(const EntityQuery& key) const;
 		[[nodiscard]] bool IsNull() const;
-		template<typename T = ComponentBase, typename... Ts>
+		template<typename T = ComponentDataBase, typename... Ts>
 		void SetAllFilters(T arg, Ts... args);
-		template<typename T = ComponentBase, typename... Ts>
+		template<typename T = ComponentDataBase, typename... Ts>
 		void SetAnyFilters(T arg, Ts... args);
-		template<typename T = ComponentBase, typename... Ts>
+		template<typename T = ComponentDataBase, typename... Ts>
 		void SetNoneFilters(T arg, Ts... args);
-		template<typename T1 = ComponentBase>
+		template<typename T1 = ComponentDataBase>
 		void ToComponentDataArray(std::vector<T1>& container);
-		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
 		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(const T2&)>& filterFunc);
-		template<typename T1 = ComponentBase, typename T2 = ComponentBase, typename T3 = ComponentBase>
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase>
 		void ToComponentDataArray(std::vector<T1>& container, const std::function<bool(const T2&, const T3&)>& filterFunc);
-		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
 		void ToComponentDataArray(const T1& filter, std::vector<T2>& container);
 		void ToEntityArray(std::vector<Entity>& container) const;
-		template<typename T1 = ComponentBase>
+		template<typename T1 = ComponentDataBase>
 		void ToEntityArray(const T1& filter, std::vector<Entity>& container);
-		template<typename T1 = ComponentBase>
+		template<typename T1 = ComponentDataBase>
 		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&)>& filterFunc);
-		template<typename T1 = ComponentBase, typename T2 = ComponentBase>
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
 		void ToEntityArray(std::vector<Entity>& container, const std::function<bool(const Entity&, const T1&, const T2&)>& filterFunc);
 		[[nodiscard]] size_t GetEntityAmount() const;
 	};
-	struct UNIENGINE_API EntityComponentStorage {
+	struct UNIENGINE_API EntityComponentDataStorage {
 		EntityArchetypeInfo* m_archetypeInfo;
 		ComponentDataChunkArray* m_chunkArray;
-		EntityComponentStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array);
+		EntityComponentDataStorage(EntityArchetypeInfo* info, ComponentDataChunkArray* array);
 	};
 	struct EntityQueryInfo {
-		std::vector<ComponentType> m_allComponentTypes;
-		std::vector<ComponentType> m_anyComponentTypes;
-		std::vector<ComponentType> m_noneComponentTypes;
-		std::vector<EntityComponentStorage> m_queriedStorage;
+		std::vector<ComponentDataType> m_allComponentTypes;
+		std::vector<ComponentDataType> m_anyComponentTypes;
+		std::vector<ComponentDataType> m_noneComponentTypes;
+		std::vector<EntityComponentDataStorage> m_queriedStorage;
 	};
 #pragma endregion
 #pragma endregion
