@@ -273,6 +273,10 @@ namespace Galaxy {
 		std::future<void> _CurrentStatus;
 		bool _FirstTime = true;
 	public:
+		void CalculateStarPositionAsync();
+		void CalculateStarPositionSync();
+		void SetRenderers();
+		void LateUpdate() override;
 		void OnCreate() override;
 		void Update() override;
 		void FixedUpdate() override;

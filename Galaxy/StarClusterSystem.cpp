@@ -1,5 +1,126 @@
 #include "StarClusterSystem.h"
 
+void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
+{
+	auto list = EntityManager::UnsafeGetComponentDataArray<GlobalTransform>(_StarQuery);
+	if (_FirstTime || _CurrentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	{
+		_UseFront = !_UseFront;
+		_CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
+		_FirstTime = false;
+
+		_ApplyPositionTimer = Application::EngineTime();
+		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
+			JobManager::SecondaryWorkers(), _StarQuery,
+			[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
+			{
+				//Code here will be exec in parallel
+				globalTransform.m_value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
+				transform.m_value = globalTransform.m_value;
+			}, false
+			);
+		_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
+
+		_CalcPositionTimer = Application::EngineTime();
+		_CurrentStatus = std::async(std::launch::async, [=]()
+			{
+				EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
+					JobManager::SecondaryWorkers(), _StarQuery,
+					[=](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
+					{
+						//Code here will be exec in parallel
+						position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + _GalaxyTime, true);
+					}, false
+					);
+
+				if (_UseFront)
+				{
+					auto& imr = _StarClusterBack.GetPrivateComponent<Particles>();
+					imr->m_matrices.resize(_StarQuery.GetEntityAmount());
+					EntityManager::ForEach<GlobalTransform>(
+						JobManager::SecondaryWorkers(), _StarQuery,
+						[&](int i, Entity entity, GlobalTransform& globalTransform)
+						{
+							imr->m_matrices[i] = globalTransform.m_value;
+						}, false
+						);
+				}
+				else
+				{
+					auto& imr = _StarClusterFront.GetPrivateComponent<Particles>();
+					imr->m_matrices.resize(_StarQuery.GetEntityAmount());
+					EntityManager::ForEach<GlobalTransform>(
+						JobManager::SecondaryWorkers(), _StarQuery,
+						[&](int i, Entity entity, GlobalTransform& globalTransform)
+						{
+							imr->m_matrices[i] = globalTransform.m_value;
+						}, false
+						);
+				}
+			}
+		);
+	}
+}
+
+void Galaxy::StarClusterSystem::CalculateStarPositionSync()
+{
+	_CalcPositionTimer = Application::EngineTime();
+	EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
+		JobManager::SecondaryWorkers(), _StarQuery,
+		[=](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
+		{
+			//Code here will be exec in parallel
+			position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + _GalaxyTime, true);
+		}, false
+		);
+	_CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
+	
+	
+}
+
+void Galaxy::StarClusterSystem::ApplyPositionSync()
+{
+	_ApplyPositionTimer = Application::EngineTime();
+	EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
+		JobManager::SecondaryWorkers(), _StarQuery,
+		[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
+		{
+			//Code here will be exec in parallel
+			globalTransform.m_value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
+			transform.m_value = globalTransform.m_value;
+		}, false
+		);
+	_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
+
+	auto& imr = _StarClusterFront.GetPrivateComponent<Particles>();
+	imr->m_matrices.resize(_StarQuery.GetEntityAmount());
+	EntityManager::ForEach<GlobalTransform>(
+		JobManager::SecondaryWorkers(), _StarQuery,
+		[&](int i, Entity entity, GlobalTransform& globalTransform)
+		{
+			imr->m_matrices[i] = globalTransform.m_value;
+		}, false
+		);
+	_UseFront = true;
+}
+
+void Galaxy::StarClusterSystem::SetRenderers()
+{
+	_StarClusterBack.SetEnabled(!_UseFront);
+	_StarClusterFront.SetEnabled(_UseFront);
+}
+
+void Galaxy::StarClusterSystem::LateUpdate()
+{
+	ImGui::Begin("Galaxy Control Panel");
+	ImGui::DragFloat("Speed", &_Speed, 1.0f, 0.1f, 30000.0f);
+	ImGui::DragFloat("Star Size", &_Size, 0.1f, 0.1f, 10.0f);
+	ImGui::InputFloat("Apply", &_ApplyPositionTimer);
+	ImGui::InputFloat("Copy", &_CopyPositionTimer);
+	ImGui::InputFloat("Calc", &_CalcPositionResult);
+	ImGui::End();
+}
+
 void Galaxy::StarClusterSystem::OnCreate()
 {
 	_StarClusterArchetype = EntityManager::CreateEntityArchetype("Star Cluster",
@@ -98,80 +219,14 @@ void Galaxy::StarClusterSystem::OnCreate()
 
 void Galaxy::StarClusterSystem::Update()
 {
-	ImGui::Begin("Galaxy Control Panel");
-	ImGui::DragFloat("Speed", &_Speed, 1.0f, 0.1f, 30000.0f);
-	ImGui::DragFloat("Star Size", &_Size, 0.1f, 0.1f, 10.0f);
-	ImGui::InputFloat("Apply", &_ApplyPositionTimer);
-	ImGui::InputFloat("Copy", &_CopyPositionTimer);
-	ImGui::InputFloat("Calc", &_CalcPositionResult);
-	ImGui::End();
 	_GalaxyTime += m_world->Time()->DeltaTime() * _Speed;
-	float time = _GalaxyTime;
+	
+	//This method calculate the position for each star. Remove this line if you use your own implementation.
+	CalculateStarPositionSync();
 
-	const bool enableAsync = true;
-	auto list = EntityManager::UnsafeGetComponentDataArray<GlobalTransform>(_StarQuery);
-	if (!enableAsync || _FirstTime || _CurrentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-	{
-		_UseFront = !_UseFront;
-		_StarClusterBack.SetEnabled(!_UseFront);
-		_StarClusterFront.SetEnabled(_UseFront);
-		
-		if(enableAsync) _CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
-		_FirstTime = false;
-
-		_ApplyPositionTimer = Application::EngineTime();
-		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
-			JobManager::SecondaryWorkers(), _StarQuery,
-			[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
-			{
-				//Code here will be exec in parallel
-				globalTransform.m_value = glm::translate(glm::vec3(position.Value) / 20.0f) * glm::scale(_Size * glm::vec3(1.0f));
-				transform.m_value = globalTransform.m_value;
-			}, false
-			);
-		_ApplyPositionTimer = Application::EngineTime() - _ApplyPositionTimer;
-
-		_CalcPositionTimer = Application::EngineTime();
-		_CurrentStatus = std::async(std::launch::async, [=]()
-			{
-				EntityManager::ForEach<StarSeed, StarPosition, StarOrbit, StarOrbitOffset>(
-					JobManager::SecondaryWorkers(), _StarQuery,
-					[time](int i, Entity entity, StarSeed& seed, StarPosition& position, StarOrbit& orbit, StarOrbitOffset& offset)
-					{
-						//Code here will be exec in parallel
-						position.Value = orbit.GetPoint(offset.Value, seed.Value * 360.0f + time, true);
-					}, false
-					);
-
-				if (_UseFront)
-				{
-					auto& imr = _StarClusterBack.GetPrivateComponent<Particles>();
-					imr->m_matrices.resize(_StarQuery.GetEntityAmount());
-					EntityManager::ForEach<GlobalTransform>(
-						JobManager::SecondaryWorkers(), _StarQuery,
-						[&](int i, Entity entity, GlobalTransform& globalTransform)
-						{
-							imr->m_matrices[i] = globalTransform.m_value;
-						}, false
-						);
-				}
-				else
-				{
-					auto& imr = _StarClusterFront.GetPrivateComponent<Particles>();
-					imr->m_matrices.resize(_StarQuery.GetEntityAmount());
-					EntityManager::ForEach<GlobalTransform>(
-						JobManager::SecondaryWorkers(), _StarQuery,
-						[&](int i, Entity entity, GlobalTransform& globalTransform)
-						{
-							imr->m_matrices[i] = globalTransform.m_value;
-						}, false
-						);
-				}				
-			}
-		);
-		if (!enableAsync) _CurrentStatus.wait();
-		if (!enableAsync) _CalcPositionResult = Application::EngineTime() - _CalcPositionTimer;
-	}
+	//Do not touch below functions.
+	ApplyPositionSync();
+	SetRenderers();
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()
