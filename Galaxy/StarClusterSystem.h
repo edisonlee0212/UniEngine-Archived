@@ -275,6 +275,7 @@ namespace Galaxy {
 	public:
 		void CalculateStarPositionAsync();
 		void CalculateStarPositionSync();
+		void ApplyPositionSync();
 		void SetRenderers();
 		void LateUpdate() override;
 		void OnCreate() override;
