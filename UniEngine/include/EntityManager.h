@@ -231,6 +231,25 @@ namespace UniEngine {
 		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
 		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase, typename T4 = ComponentDataBase, typename T5 = ComponentDataBase, typename T6 = ComponentDataBase, typename T7 = ComponentDataBase, typename T8 = ComponentDataBase>
 		static void ForEach(ThreadPool& workers, const EntityQuery& entityQuery, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
+		//For implicit parallel task dispatching
+		template<typename T1 = ComponentDataBase>
+		static void ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&)>& func, bool checkEnable = true);
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
+		static void ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&, T2&)>& func, bool checkEnable = true);
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase>
+		static void ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable = true);
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase, typename T4 = ComponentDataBase>
+		static void ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable = true);
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase, typename T4 = ComponentDataBase, typename T5 = ComponentDataBase>
+		static void ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable = true);
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase, typename T4 = ComponentDataBase, typename T5 = ComponentDataBase, typename T6 = ComponentDataBase>
+		static void ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable = true);
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase, typename T4 = ComponentDataBase, typename T5 = ComponentDataBase, typename T6 = ComponentDataBase, typename T7 = ComponentDataBase>
+		static void ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable = true);
+		template<typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase, typename T4 = ComponentDataBase, typename T5 = ComponentDataBase, typename T6 = ComponentDataBase, typename T7 = ComponentDataBase, typename T8 = ComponentDataBase>
+		static void ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable = true);
+
+
 		//For explicit parallel task dispatching
 		template<typename T1 = ComponentDataBase>
 		static std::packaged_task<void(ThreadPool&, const EntityQuery&, bool)> CreateParallelTask(const std::function<void(int i, Entity entity, T1&)>& func);
@@ -1766,6 +1785,94 @@ namespace UniEngine {
 		}
 		for (const auto& i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage) {
 			ForEachStorage(workers, i, func, checkEnable);
+		}
+	}
+
+	template <typename T1>
+	void EntityManager::ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&)>& func,
+		bool checkEnable)
+	{
+		auto& manager = GetInstance();
+		auto* storages = manager.m_entityComponentStorage;
+		for (auto i = storages->begin() + 1; i < storages->end(); ++i) {
+			ForEachStorage(workers, *i, func, checkEnable);
+		}
+	}
+
+	template <typename T1, typename T2>
+	void EntityManager::ForEach(ThreadPool& workers, const std::function<void(int i, Entity entity, T1&, T2&)>& func,
+		bool checkEnable)
+	{
+		auto& manager = GetInstance();
+		auto* storages = manager.m_entityComponentStorage;
+		for (auto i = storages->begin() + 1; i < storages->end(); ++i) {
+			ForEachStorage(workers, *i, func, checkEnable);
+		}
+	}
+
+	template <typename T1, typename T2, typename T3>
+	void EntityManager::ForEach(ThreadPool& workers,
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&)>& func, bool checkEnable)
+	{
+		auto& manager = GetInstance();
+		auto* storages = manager.m_entityComponentStorage;
+		for (auto i = storages->begin() + 1; i < storages->end(); ++i) {
+			ForEachStorage(workers, *i, func, checkEnable);
+		}
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4>
+	void EntityManager::ForEach(ThreadPool& workers,
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&)>& func, bool checkEnable)
+	{
+		auto& manager = GetInstance();
+		auto* storages = manager.m_entityComponentStorage;
+		for (auto i = storages->begin() + 1; i < storages->end(); ++i) {
+			ForEachStorage(workers, *i, func, checkEnable);
+		}
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5>
+	void EntityManager::ForEach(ThreadPool& workers,
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&)>& func, bool checkEnable)
+	{
+		auto& manager = GetInstance();
+		auto* storages = manager.m_entityComponentStorage;
+		for (auto i = storages->begin() + 1; i < storages->end(); ++i) {
+			ForEachStorage(workers, *i, func, checkEnable);
+		}
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+	void EntityManager::ForEach(ThreadPool& workers,
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&)>& func, bool checkEnable)
+	{
+		auto& manager = GetInstance();
+		auto* storages = manager.m_entityComponentStorage;
+		for (auto i = storages->begin() + 1; i < storages->end(); ++i) {
+			ForEachStorage(workers, *i, func, checkEnable);
+		}
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+	void EntityManager::ForEach(ThreadPool& workers,
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&)>& func, bool checkEnable)
+	{
+		auto& manager = GetInstance();
+		auto* storages = manager.m_entityComponentStorage;
+		for (auto i = storages->begin() + 1; i < storages->end(); ++i) {
+			ForEachStorage(workers, *i, func, checkEnable);
+		}
+	}
+
+	template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+	void EntityManager::ForEach(ThreadPool& workers,
+		const std::function<void(int i, Entity entity, T1&, T2&, T3&, T4&, T5&, T6&, T7&, T8&)>& func, bool checkEnable)
+	{
+		auto& manager = GetInstance();
+		auto* storages = manager.m_entityComponentStorage;
+		for (auto i = storages->begin() + 1; i < storages->end(); ++i) {
+			ForEachStorage(workers, *i, func, checkEnable);
 		}
 	}
 
