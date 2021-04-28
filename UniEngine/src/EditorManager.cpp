@@ -637,7 +637,7 @@ void EditorManager::LateUpdate()
 		if (manager.m_selectedHierarchyDisplayMode == 0) {
 			EntityManager::UnsafeForEachEntityStorage([&](int i, EntityComponentDataStorage storage) {
 				ImGui::Separator();
-				std::string title = std::to_string(i) + ". " + storage.m_archetypeInfo->m_name;
+				const std::string title = std::to_string(i) + ". " + storage.m_archetypeInfo->m_name;
 				if (ImGui::CollapsingHeader(title.c_str())) {
 					ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
 					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));

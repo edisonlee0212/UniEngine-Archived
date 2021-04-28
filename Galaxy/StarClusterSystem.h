@@ -16,17 +16,11 @@ namespace Galaxy {
 	/// <summary>
 	/// The seed of the star, use this to calculate initial position.
 	/// </summary>
-	struct StarSeed : ComponentDataBase
+	struct StarInfo : ComponentDataBase
 	{
-		float m_value;
+		bool m_initialized = false;
 	};
-	/// <summary>
-	/// This keep track of the position of the star in the list.
-	/// </summary>
-	struct StarIndex : ComponentDataBase
-	{
-		int m_value;
-	};
+	
 	/// <summary>
 	/// Original color of the star
 	/// </summary>
@@ -120,7 +114,7 @@ namespace Galaxy {
 		int m_value = 0;
 	};
 
-	class StarClusterPattern : public PrivateComponentBase
+	class StarClusterPattern
 	{
 		double m_diskA = 0;
 		double m_diskB = 0;
@@ -128,19 +122,21 @@ namespace Galaxy {
 		double m_coreB = 0;
 		double m_centerA = 0;
 		double m_centerB = 0;
-		double m_coreAb = 0;
-	public:		
-		void OnGui() override;
+		double m_coreDiameter = 0;
+	public:
+		std::string m_name = "Cluster Pattern";
+		StarClusterIndex m_starClusterIndex;
+		void OnGui();
 		double m_ySpread = 0.05;
 		double m_xzSpread = 0.015;
 		
-		double m_diskAb = 3000;
+		double m_diskDiameter = 3000;
 		double m_diskEccentricity = 0.5;
 		
 		double m_coreProportion = 0.4;
 		double m_coreEccentricity = 0.5;
 		
-		double m_centerAb = 10;
+		double m_centerDiameter = 10;
 		double m_centerEccentricity = 0.5;
 		
 
@@ -159,22 +155,24 @@ namespace Galaxy {
 		glm::vec4 m_coreColor = glm::vec4(1, 1, 0, 1);
 		glm::vec4 m_centerColor = glm::vec4(1, 1, 1, 1);
 
-		double m_rotation = 360;
+		double m_twist = 360;
 		glm::dvec3 m_centerPosition = glm::dvec3(0);
 
-		void Apply();
+		glm::dvec3 m_position = glm::dvec3(0);
+		
+		void Apply(const bool& forceUpdateAllStars = false);
 		
 		void SetAb()
 		{
-			m_diskA = m_diskAb * m_diskEccentricity;
-			m_diskB = m_diskAb * (1 - m_diskEccentricity);
-			m_centerA = m_centerAb * m_centerEccentricity;
-			m_centerB = m_centerAb * (1 - m_centerEccentricity);
-			m_coreAb = m_centerAb / 2 + m_centerAb / 2 +
-				(m_diskA + m_diskB - m_centerAb / 2 - m_centerAb / 2)
+			m_diskA = m_diskDiameter * m_diskEccentricity;
+			m_diskB = m_diskDiameter * (1 - m_diskEccentricity);
+			m_centerA = m_centerDiameter * m_centerEccentricity;
+			m_centerB = m_centerDiameter * (1 - m_centerEccentricity);
+			m_coreDiameter = m_centerDiameter / 2 + m_centerDiameter / 2 +
+				(m_diskA + m_diskB - m_centerDiameter / 2 - m_centerDiameter / 2)
 				* m_coreProportion;
-			m_coreA = m_coreAb * m_coreEccentricity;
-			m_coreB = m_coreAb * (1 - m_coreEccentricity);
+			m_coreA = m_coreDiameter * m_coreEccentricity;
+			m_coreB = m_coreDiameter * (1 - m_coreEccentricity);
 		}
 
 		/// <summary>
@@ -208,8 +206,8 @@ namespace Galaxy {
 				orbit.m_tiltZ = m_centerTiltZ - (m_centerTiltZ - m_coreTiltZ) * actualProportion;
 				orbit.m_speedMultiplier = m_centerSpeed + (m_coreSpeed - m_centerSpeed) * actualProportion;
 			}
-			orbit.m_tiltY = -m_rotation * starOrbitProportion;
-			orbit.m_center = m_centerPosition * (1 - starOrbitProportion);
+			orbit.m_tiltY = -m_twist * starOrbitProportion;
+			orbit.m_center = m_centerPosition * m_diskDiameter * (1 - starOrbitProportion);
 			return orbit;
 		}
 
@@ -247,14 +245,11 @@ namespace Galaxy {
 	class StarClusterSystem :
 		public SystemBase
 	{
-		EntityArchetype m_starClusterArchetype;
-		Entity m_starClusterFront;
-		Entity m_starClusterBack;
-
-		Entity m_starClusterEntity;
+		Entity m_rendererFront;
+		Entity m_rendererBack;
 		EntityQuery m_starQuery;
 		EntityArchetype m_starArchetype;
-
+		std::vector<StarClusterPattern> m_starClusterPatterns;
 		bool m_useFront = true;
 		
 		float m_applyPositionTimer = 0;
@@ -266,14 +261,18 @@ namespace Galaxy {
 		float m_galaxyTime = 0.0f;
 		std::future<void> m_currentStatus;
 		bool m_firstTime = true;
+		void OnGui();
 	public:
 		void CalculateStarPositionAsync();
 		void CalculateStarPositionSync();
 		void ApplyPositionSync();
-		void SetRenderer();
+		void SetRenderer() const;
 		void LateUpdate() override;
 		void OnCreate() override;
 		void Update() override;
+		void PushStars(StarClusterPattern& pattern, const size_t& amount = 10000) const;
+		void RandomlyRemoveStars(const size_t& amount = 10000) const;
+		void ClearAllStars() const;
 		void FixedUpdate() override;
 		void OnStartRunning() override;
 	};

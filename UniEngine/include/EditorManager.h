@@ -19,7 +19,7 @@ namespace UniEngine {
 		std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_privateComponentMenuList;
 		std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_componentDataMenuList;
 		unsigned int m_configFlags = 0;
-		int m_selectedHierarchyDisplayMode = 1;
+		
 		Entity m_selectedEntity;
 		bool m_enableConsole = true;
 		glm::vec3 m_previouslyStoredPosition;
@@ -79,6 +79,7 @@ namespace UniEngine {
 		static void HighLightEntityPrePassHelper(const Entity& entity);
 		static void HighLightEntityHelper(const Entity& entity);
 	public:
+		int m_selectedHierarchyDisplayMode = 1;
 		static void MoveCamera(const glm::quat& targetRotation, const glm::vec3& targetPosition, const float& transitionTime = 1.0f);
 
 		float m_sceneCameraYawAngle = -90;
