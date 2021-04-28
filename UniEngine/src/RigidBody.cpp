@@ -241,7 +241,7 @@ void UniEngine::RigidBody::OnGui()
 		{
 		case ShapeType::Sphere:
 			if (ImGui::DragFloat("Radius", &m_shapeParam.x, 0.01f, 0.0001f)) statusChanged = true;
-			if (m_drawBounds) RenderManager::DrawGizmoPoint(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x * 2.0f))), 1);
+			if (m_drawBounds) RenderManager::DrawGizmoMesh(Default::Primitives::Sphere.get(), EditorManager::GetSceneCamera().get(), glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x * 2.0f))), 1);
 			break;
 		case ShapeType::Box:
 			if (ImGui::Button("Apply mesh bound"))
@@ -257,11 +257,11 @@ void UniEngine::RigidBody::OnGui()
 				}
 			}
 			if (ImGui::DragFloat3("XYZ Size", &m_shapeParam.x, 0.01f, 0.0f)) statusChanged = true;
-			if (m_drawBounds) RenderManager::DrawGizmoCube(glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))), 1);
+			if (m_drawBounds) RenderManager::DrawGizmoMesh(Default::Primitives::Cube.get(), EditorManager::GetSceneCamera().get(), glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))), 1);
 			break;
 		case ShapeType::Capsule:
 			if (ImGui::DragFloat2("R/HalfH", &m_shapeParam.x, 0.01f, 0.0001f)) statusChanged = true;
-			if (m_drawBounds) RenderManager::DrawGizmoMesh(Default::Primitives::Cylinder.get(), glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))), 1);
+			if (m_drawBounds) RenderManager::DrawGizmoMesh(Default::Primitives::Cylinder.get(), EditorManager::GetSceneCamera().get(), glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))), 1);
 			break;
 		}
 		if (ImGui::DragFloat("Density", &m_density, 0.1f, 0.001f)) statusChanged = true;

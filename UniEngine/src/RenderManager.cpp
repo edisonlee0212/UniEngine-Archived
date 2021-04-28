@@ -1050,7 +1050,7 @@ void UniEngine::RenderManager::PreUpdate()
 #pragma endregion
 }
 
-inline float RenderManager::Lerp(float a, float b, float f)
+inline float RenderManager::Lerp(const float& a, const float& b, const float& f)
 {
 	return a + f * (b - a);
 }
@@ -1059,7 +1059,7 @@ inline float RenderManager::Lerp(float a, float b, float f)
 #pragma endregion
 #pragma region Shadow
 
-void UniEngine::RenderManager::SetSplitRatio(float r1, float r2, float r3, float r4)
+void UniEngine::RenderManager::SetSplitRatio(const float& r1, const float& r2, const float& r3, const float& r4)
 {
 	GetInstance().m_shadowCascadeSplit[0] = r1;
 	GetInstance().m_shadowCascadeSplit[1] = r2;
@@ -1067,13 +1067,13 @@ void UniEngine::RenderManager::SetSplitRatio(float r1, float r2, float r3, float
 	GetInstance().m_shadowCascadeSplit[3] = r4;
 }
 
-void UniEngine::RenderManager::SetShadowMapResolution(size_t value)
+void UniEngine::RenderManager::SetShadowMapResolution(const size_t& value)
 {
 	GetInstance().m_shadowMapResolution = value;
 	if (GetInstance().m_directionalLightShadowMap != nullptr)GetInstance().m_directionalLightShadowMap->SetResolution(value);
 }
 
-glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(glm::vec3 point, glm::vec3 a, glm::vec3 b)
+glm::vec3 UniEngine::RenderManager::ClosestPointOnLine(const glm::vec3& point, const glm::vec3& a, const glm::vec3& b)
 {
 	const float lineLength = distance(a, b);
 	const glm::vec3 vector = point - a;
@@ -1222,7 +1222,7 @@ void RenderManager::LateUpdate()
 #pragma region Internal
 
 
-void RenderManager::MaterialPropertySetter(Material* material, bool disableBlending)
+void RenderManager::MaterialPropertySetter(const Material* material, const bool& disableBlending)
 {
 	switch (material->m_polygonMode)
 	{
@@ -1266,7 +1266,7 @@ void RenderManager::MaterialPropertySetter(Material* material, bool disableBlend
 	glEnable(GL_DEPTH_TEST);
 }
 
-void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program)
+void RenderManager::ApplyMaterialSettings(const Material* material, const GLProgram* program)
 {
 	GetInstance().m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
 	GetInstance().m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
@@ -1282,7 +1282,7 @@ void RenderManager::ApplyMaterialSettings(Material* material, GLProgram* program
 	GetInstance().m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &GetInstance().m_materialSettings);
 }
 
-void RenderManager::BindTextureHandles(Material* material)
+void RenderManager::BindTextureHandles(const Material* material)
 {
 	for (const auto& i : material->m_textures)
 	{
@@ -1333,7 +1333,7 @@ void RenderManager::BindTextureHandles(Material* material)
 	}
 }
 
-void RenderManager::ReleaseTextureHandles(Material* material)
+void RenderManager::ReleaseTextureHandles(const Material* material)
 {
 	return;
 	for (const auto& i : material->m_textures)
@@ -1343,7 +1343,7 @@ void RenderManager::ReleaseTextureHandles(Material* material)
 	}
 }
 
-void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 model)
+void RenderManager::DeferredPrepass(const Mesh* mesh, const Material* material, const glm::mat4& model)
 {
 	if (mesh == nullptr || material == nullptr) return;
 	mesh->Enable();
@@ -1371,8 +1371,7 @@ void RenderManager::DeferredPrepass(Mesh* mesh, Material* material, glm::mat4 mo
 	GLVAO::BindDefault();
 }
 
-void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices,
-	size_t count)
+void RenderManager::DeferredPrepassInstanced(const Mesh* mesh, const Material* material, const glm::mat4& model, glm::mat4* matrices, const size_t& count)
 {
 	if (mesh == nullptr || material == nullptr || matrices == nullptr || count == 0) return;
 	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
@@ -1411,7 +1410,7 @@ void RenderManager::DeferredPrepassInstanced(Mesh* mesh, Material* material, glm
 }
 
 void UniEngine::RenderManager::DrawMeshInstanced(
-	Mesh* mesh, Material* material, glm::mat4 model, const glm::mat4* matrices, size_t count, bool receiveShadow)
+	const Mesh* mesh, const Material* material, const glm::mat4& model, const glm::mat4* matrices, const size_t& count, const bool& receiveShadow)
 {
 	if (mesh == nullptr || material == nullptr || matrices == nullptr || count == 0) return;
 	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
@@ -1441,9 +1440,10 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 	for (auto j : material->m_float4X4PropertyList) {
 		program->SetFloat4x4(j.m_name, j.m_value);
 	}
-	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
+	
 	MaterialPropertySetter(material);
 	GetInstance().m_materialSettings = MaterialSettingsBlock();
+	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
 	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
@@ -1452,7 +1452,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
 }
 
 void UniEngine::RenderManager::DrawMesh(
-	Mesh* mesh, Material* material, glm::mat4 model, bool receiveShadow)
+	const Mesh* mesh, const Material* material, const glm::mat4& model, const bool& receiveShadow)
 {
 	if (mesh == nullptr || material == nullptr) return;
 	mesh->Enable();
@@ -1472,8 +1472,8 @@ void UniEngine::RenderManager::DrawMesh(
 	for (auto j : material->m_float4X4PropertyList) {
 		program->SetFloat4x4(j.m_name, j.m_value);
 	}
-	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
 	GetInstance().m_materialSettings = MaterialSettingsBlock();
+	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
 	BindTextureHandles(material);
 	ApplyMaterialSettings(material, program);
@@ -1482,9 +1482,9 @@ void UniEngine::RenderManager::DrawMesh(
 	GLVAO::BindDefault();
 }
 
-void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size)
+void UniEngine::RenderManager::DrawTexture2D(const GLTexture2D* texture, const float& depth, const glm::vec2& center, const glm::vec2& size)
 {
-	auto program = Default::GLPrograms::ScreenProgram;
+	const auto program = Default::GLPrograms::ScreenProgram;
 	program->Bind();
 	Default::GLPrograms::ScreenVAO->Bind();
 	texture->Bind(0);
@@ -1495,28 +1495,32 @@ void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4* matrices, size_t count, glm::mat4 scaleMatrix)
+void UniEngine::RenderManager::DrawGizmoMeshInstanced(
+	const Mesh* mesh, const glm::vec4& color, const glm::mat4& model, const glm::mat4* matrices, const size_t& count, const glm::mat4& scaleMatrix)
 {
 	if (mesh == nullptr || matrices == nullptr || count == 0) return;
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
-	std::unique_ptr<GLVBO> matricesBuffer = std::make_unique<GLVBO>();
-	matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
 	mesh->Enable();
-	mesh->Vao()->EnableAttributeArray(12);
-	mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-	mesh->Vao()->EnableAttributeArray(13);
-	mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-	mesh->Vao()->EnableAttributeArray(14);
-	mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-	mesh->Vao()->EnableAttributeArray(15);
-	mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-	mesh->Vao()->SetAttributeDivisor(12, 1);
-	mesh->Vao()->SetAttributeDivisor(13, 1);
-	mesh->Vao()->SetAttributeDivisor(14, 1);
-	mesh->Vao()->SetAttributeDivisor(15, 1);
+	const auto vao = mesh->Vao();
+	const GLVBO matricesBuffer;
+	matricesBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	vao->EnableAttributeArray(12);
+	vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	vao->EnableAttributeArray(13);
+	vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	vao->EnableAttributeArray(14);
+	vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	vao->EnableAttributeArray(15);
+	vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	vao->SetAttributeDivisor(12, 1);
+	vao->SetAttributeDivisor(13, 1);
+	vao->SetAttributeDivisor(14, 1);
+	vao->SetAttributeDivisor(15, 1);
 
 	Default::GLPrograms::GizmoInstancedProgram->Bind();
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
@@ -1524,11 +1528,64 @@ void UniEngine::RenderManager::DrawGizmoInstanced(Mesh* mesh, glm::vec4 color, g
 	Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
 	GetInstance().m_drawCall++;
 	GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
-	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->GetTriangleAmount()) * 3, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(count));
+
+	vao->DisableAttributeArray(12);
+	vao->DisableAttributeArray(13);
+	vao->DisableAttributeArray(14);
+	vao->DisableAttributeArray(15);
 	GLVAO::BindDefault();
 }
 
-void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 model, glm::mat4 scaleMatrix)
+void RenderManager::DrawGizmoMeshInstancedColored(const Mesh* mesh, const glm::vec4* colors, const glm::mat4* matrices,
+	const size_t& count, const glm::mat4& model, const glm::mat4& scaleMatrix)
+{
+	if (mesh == nullptr || matrices == nullptr || count == 0) return;
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	mesh->Enable();
+	const auto vao = mesh->Vao();
+	const GLVBO colorsBuffer;
+	colorsBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::vec4), colors, GL_STATIC_DRAW);
+	vao->EnableAttributeArray(11);
+	vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+	vao->SetAttributeDivisor(11, 1);
+
+	const GLVBO matricesBuffer;
+	matricesBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+	vao->EnableAttributeArray(12);
+	vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	vao->EnableAttributeArray(13);
+	vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	vao->EnableAttributeArray(14);
+	vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	vao->EnableAttributeArray(15);
+	vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	vao->SetAttributeDivisor(12, 1);
+	vao->SetAttributeDivisor(13, 1);
+	vao->SetAttributeDivisor(14, 1);
+	vao->SetAttributeDivisor(15, 1);
+
+	Default::GLPrograms::GizmoInstancedColoredProgram->Bind();
+	Default::GLPrograms::GizmoInstancedColoredProgram->SetFloat4x4("model", model);
+	Default::GLPrograms::GizmoInstancedColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+	GetInstance().m_drawCall++;
+	GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
+	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->GetTriangleAmount()) * 3, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(count));
+
+	vao->DisableAttributeArray(11);
+	vao->DisableAttributeArray(12);
+	vao->DisableAttributeArray(13);
+	vao->DisableAttributeArray(14);
+	vao->DisableAttributeArray(15);
+	GLVAO::BindDefault();
+}
+
+void UniEngine::RenderManager::DrawGizmoMesh(const Mesh* mesh, const glm::vec4& color, const glm::mat4& model, const glm::mat4& scaleMatrix)
 {
 	if (mesh == nullptr) return;
 	glEnable(GL_DEPTH_TEST);
@@ -1554,48 +1611,92 @@ void UniEngine::RenderManager::DrawGizmo(Mesh* mesh, glm::vec4 color, glm::mat4 
 #pragma endregion
 
 #pragma region External
-void UniEngine::RenderManager::DrawGizmoMeshInstanced(Mesh* mesh, glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model, float size)
+void UniEngine::RenderManager::DrawGizmoMeshInstanced(
+	const Mesh* mesh, const CameraComponent* cameraComponent, const glm::vec4& color, const glm::mat4* matrices, const size_t& count, const glm::mat4& model, const float& size)
 {
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
+	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
+	const auto entity = cameraComponent->GetOwner();
+	if (entity.IsNull() || !entity.IsValid() || !entity.IsEnabled()) return;
+
+	if (EditorManager::GetInstance().m_enabled) {
+		auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
+		if (cameraComponent != sceneCamera.get() && sceneCamera->IsEnabled()) {
+			CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
+				EditorManager::GetInstance().m_sceneCameraPosition,
+				EditorManager::GetInstance().m_sceneCameraRotation
+			);
+			CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
+			sceneCamera->Bind();
+			DrawGizmoMeshInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+		}
+	}
+
+	const auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+	glm::vec3 scale;
+	glm::vec3 trans;
+	glm::quat rotation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(ltw.m_value, scale, rotation, trans, skew, perspective);
+	CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent,
+		trans,
+		rotation
 	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
-	DrawGizmoInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+	CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+	cameraComponent->Bind();
+	DrawGizmoMeshInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
-void RenderManager::DrawGizmoRay(glm::vec4 color, glm::vec3 start, glm::vec3 end, float width)
+void RenderManager::DrawGizmoMeshInstancedColored(const Mesh* mesh, const CameraComponent* cameraComponent,
+	const glm::vec4* colors, const glm::mat4* matrices, const size_t& count, const glm::mat4& model, const float& size)
 {
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
+	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
+	const auto entity = cameraComponent->GetOwner();
+	if (entity.IsNull() || !entity.IsValid() || !entity.IsEnabled()) return;
+
+	if(EditorManager::GetInstance().m_enabled){
+		auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
+		if (cameraComponent != sceneCamera.get() && sceneCamera->IsEnabled()) {
+			CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
+				EditorManager::GetInstance().m_sceneCameraPosition,
+				EditorManager::GetInstance().m_sceneCameraRotation
+			);
+			CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
+			sceneCamera->Bind();
+			DrawGizmoMeshInstancedColored(mesh, colors, matrices, count, model, glm::scale(glm::vec3(size)));
+		}
+	}
+
+	const auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+	glm::vec3 scale;
+	glm::vec3 trans;
+	glm::quat rotation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(ltw.m_value, scale, rotation, trans, skew, perspective);
+	CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent,
+		trans,
+		rotation
 	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
+	CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+	cameraComponent->Bind();
+	DrawGizmoMeshInstancedColored(mesh, colors, matrices, count, model, glm::scale(glm::vec3(size)));
+}
+
+void RenderManager::DrawGizmoRay(
+	const CameraComponent* cameraComponent, const glm::vec4& color, const glm::vec3& start, const glm::vec3& end, const float& width)
+{
 	glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
 	rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
 	glm::mat4 rotationMat = glm::mat4_cast(rotation);
 	auto model = glm::translate((start + end) / 2.0f) * rotationMat * glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-	DrawGizmoMesh(Default::Primitives::Cylinder.get(), color, model);
+	DrawGizmoMesh(Default::Primitives::Cylinder.get(), cameraComponent, color, model);
 }
 
-void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<std::pair<glm::vec3, glm::vec3>> connections,
-	float width)
+void RenderManager::DrawGizmoRays(
+	const CameraComponent* cameraComponent, const glm::vec4& color, std::vector<std::pair<glm::vec3, glm::vec3>>& connections, const float& width)
 {
 	if (connections.empty()) return;
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
 	std::vector<glm::mat4> models;
 	models.resize(connections.size());
 	for(int i = 0; i < connections.size(); i++)
@@ -1609,20 +1710,13 @@ void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<std::pair<glm::ve
 		models[i] = model;
 	}
 	
-	DrawGizmoMeshInstanced(Default::Primitives::Cylinder.get(), color, models.data(), connections.size()); 
+	DrawGizmoMeshInstanced(Default::Primitives::Cylinder.get(), cameraComponent, color, models.data(), connections.size());
 }
 
-void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<Ray>& rays, float width)
+void RenderManager::DrawGizmoRays(
+	const CameraComponent* cameraComponent, const glm::vec4& color, std::vector<Ray>& rays, const float& width)
 {
 	if(rays.empty()) return;
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
 	std::vector<glm::mat4> models;
 	models.resize(rays.size());
 	for (int i = 0; i < rays.size(); i++)
@@ -1634,44 +1728,39 @@ void RenderManager::DrawGizmoRays(glm::vec4 color, std::vector<Ray>& rays, float
 		auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat * glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
 		models[i] = model;
 	}
-	DrawGizmoMeshInstanced(Default::Primitives::Cylinder.get(), color, models.data(), rays.size());
+	DrawGizmoMeshInstanced(Default::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
 }
 
-void RenderManager::DrawGizmoRay(glm::vec4 color, Ray& ray, float width)
+void RenderManager::DrawGizmoRay(
+	const CameraComponent* cameraComponent, const glm::vec4& color, Ray& ray, const float& width)
 {
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
 	glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
 	rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
 	const glm::mat4 rotationMat = glm::mat4_cast(rotation);
-	auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat * glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-	DrawGizmoMesh(Default::Primitives::Cylinder.get(), color, model);
+	const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat * glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
+	DrawGizmoMesh(Default::Primitives::Cylinder.get(), cameraComponent, color, model);
 }
 
-void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
-	CameraComponent* cameraComponent, bool receiveShadow)
+void RenderManager::DrawMesh(
+	const Mesh* mesh, const Material* material, const glm::mat4& model, const CameraComponent* cameraComponent, const bool& receiveShadow)
 {
-	{
-		auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-		if (cameraComponent == sceneCamera.get()) return;
-		if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-		CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-			EditorManager::GetInstance().m_sceneCameraPosition,
-			EditorManager::GetInstance().m_sceneCameraRotation
-		);
-		CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-		sceneCamera->Bind();
-		DrawMesh(mesh, material, model, receiveShadow);
-	}
 	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
 	const auto entity = cameraComponent->GetOwner();
-	if (!entity.IsEnabled()) return;
+	if (entity.IsNull() || !entity.IsValid() || !entity.IsEnabled()) return;
+	
+	if (EditorManager::GetInstance().m_enabled) {
+		auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
+		if (cameraComponent != sceneCamera.get() && sceneCamera->IsEnabled()) {
+			CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
+				EditorManager::GetInstance().m_sceneCameraPosition,
+				EditorManager::GetInstance().m_sceneCameraRotation
+			);
+			CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
+			sceneCamera->Bind();
+			DrawMesh(mesh, material, model, receiveShadow);
+		}
+	}
+	
 	const auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 	glm::vec3 scale;
 	glm::vec3 trans;
@@ -1688,22 +1777,26 @@ void RenderManager::DrawMesh(Mesh* mesh, Material* material, glm::mat4 model,
 	DrawMesh(mesh, material, model, receiveShadow);
 }
 
-void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices,
-	size_t count, CameraComponent* cameraComponent, bool receiveShadow)
+void RenderManager::DrawMeshInstanced(
+	const Mesh* mesh, const Material* material, const glm::mat4& model, const glm::mat4* matrices, const size_t& count, const CameraComponent* cameraComponent, const bool& receiveShadow)
 {
-	{
-		auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-		if (cameraComponent == sceneCamera.get()) return;
-		if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-		CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-			EditorManager::GetInstance().m_sceneCameraPosition,
-			EditorManager::GetInstance().m_sceneCameraRotation
-		);
-		DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
-	}
 	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
 	const auto entity = cameraComponent->GetOwner();
-	if (!entity.IsEnabled()) return;
+	if (entity.IsNull() || !entity.IsValid() || !entity.IsEnabled()) return;
+	
+	if (EditorManager::GetInstance().m_enabled) {
+		auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
+		if (cameraComponent != sceneCamera.get() && sceneCamera->IsEnabled()) {
+			CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
+				EditorManager::GetInstance().m_sceneCameraPosition,
+				EditorManager::GetInstance().m_sceneCameraRotation
+			);
+			CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
+			sceneCamera->Bind();
+			DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
+		}
+	}
+	
 	const auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
 	glm::vec3 scale;
 	glm::vec3 trans;
@@ -1720,31 +1813,26 @@ void RenderManager::DrawMeshInstanced(Mesh* mesh, Material* material, glm::mat4 
 	DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
 }
 
-void UniEngine::RenderManager::DrawMesh(
-	Mesh* mesh, Material* material, glm::mat4 model, RenderTarget* target, bool receiveShadow)
-{
-	target->Bind();
-	DrawMesh(mesh, material, model, receiveShadow);
-}
-
 #pragma region DrawTexture
-void UniEngine::RenderManager::DrawTexture2D(GLTexture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
+void UniEngine::RenderManager::DrawTexture2D(const GLTexture2D* texture, const float& depth, const glm::vec2& center, const glm::vec2& size, const RenderTarget* target)
 {
 	target->Bind();
 	DrawTexture2D(texture, depth, center, size);
 }
 
-void RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, CameraComponent* cameraComponent)
+void RenderManager::DrawTexture2D(const Texture2D* texture, const float& depth, const glm::vec2& center, const glm::vec2& size, const CameraComponent* cameraComponent)
 {
-	{
+	if (EditorManager::GetInstance().m_enabled) {
 		auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-		if (cameraComponent == sceneCamera.get()) return;
-		if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-		CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-			EditorManager::GetInstance().m_sceneCameraPosition,
-			EditorManager::GetInstance().m_sceneCameraRotation
-		);
-		DrawTexture2D(texture->Texture().get(), depth, center, size);
+		if (cameraComponent != sceneCamera.get() && sceneCamera->IsEnabled()) {
+			CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
+				EditorManager::GetInstance().m_sceneCameraPosition,
+				EditorManager::GetInstance().m_sceneCameraRotation
+			);
+			CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
+			sceneCamera->Bind();
+			DrawTexture2D(texture->Texture().get(), depth, center, size);
+		}
 	}
 	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
 	const auto entity = cameraComponent->GetOwner();
@@ -1767,109 +1855,48 @@ CameraComponent* RenderManager::GetMainCamera()
 	return GetInstance().m_mainCameraComponent;
 }
 
-void UniEngine::RenderManager::DrawTexture2D(Texture2D* texture, float depth, glm::vec2 center, glm::vec2 size, RenderTarget* target)
+void UniEngine::RenderManager::DrawTexture2D(const Texture2D* texture, const float& depth, const glm::vec2& center, const glm::vec2& size, const RenderTarget* target)
 {
 	target->Bind();
 	DrawTexture2D(texture->Texture().get(), depth, center, size);
 }
 #pragma endregion
 #pragma region Gizmo
-void UniEngine::RenderManager::DrawMeshInstanced(
-	Mesh* mesh, Material* material, glm::mat4 model, glm::mat4* matrices, size_t count, RenderTarget* target, bool receiveShadow)
-{
-	target->Bind();
-	DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
-}
 
-void UniEngine::RenderManager::DrawGizmoPoint(glm::vec4 color, glm::mat4 model, float size)
+void UniEngine::RenderManager::DrawGizmoMesh(
+	const Mesh* mesh, const CameraComponent* cameraComponent, const glm::vec4& color, const glm::mat4& model, const float& size)
 {
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
-	DrawGizmo(Default::Primitives::Sphere.get(), color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
-}
+	if (cameraComponent == nullptr || !cameraComponent->IsEnabled()) return;
+	const auto entity = cameraComponent->GetOwner();
+	if (entity.IsNull() || !entity.IsValid() || !entity.IsEnabled()) return;
 
-void UniEngine::RenderManager::DrawGizmoPointInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model, float size)
-{
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
-	DrawGizmoInstanced(Default::Primitives::Sphere.get(), color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
-}
+	if (EditorManager::GetInstance().m_enabled) {
+		auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
+		if (cameraComponent != sceneCamera.get() && sceneCamera->IsEnabled()) {
+			CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
+				EditorManager::GetInstance().m_sceneCameraPosition,
+				EditorManager::GetInstance().m_sceneCameraRotation
+			);
+			CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
+			sceneCamera->Bind();
+			DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+		}
+	}
 
-void UniEngine::RenderManager::DrawGizmoCube(glm::vec4 color, glm::mat4 model, float size)
-{
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
+	const auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+	glm::vec3 scale;
+	glm::vec3 trans;
+	glm::quat rotation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(ltw.m_value, scale, rotation, trans, skew, perspective);
+	CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent,
+		trans,
+		rotation
 	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
-	DrawGizmo(Default::Primitives::Cube.get(), color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
-}
-
-void UniEngine::RenderManager::DrawGizmoCubeInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model, float size)
-{
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
-	DrawGizmoInstanced(Default::Primitives::Cube.get(), color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
-}
-
-void UniEngine::RenderManager::DrawGizmoQuad(glm::vec4 color, glm::mat4 model, float size)
-{
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
-	DrawGizmo(Default::Primitives::Quad.get(), color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
-}
-
-void UniEngine::RenderManager::DrawGizmoQuadInstanced(glm::vec4 color, glm::mat4* matrices, size_t count, glm::mat4 model, float size)
-{
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
-	DrawGizmoInstanced(Default::Primitives::Quad.get(), color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
-}
-
-void UniEngine::RenderManager::DrawGizmoMesh(Mesh* mesh, glm::vec4 color, glm::mat4 model, float size)
-{
-	auto& sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-	if (!EditorManager::GetInstance().m_enabled || !sceneCamera->IsEnabled()) return;
-	CameraComponent::m_cameraInfoBlock.UpdateMatrices(sceneCamera.get(),
-		EditorManager::GetInstance().m_sceneCameraPosition,
-		EditorManager::GetInstance().m_sceneCameraRotation
-	);
-	CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
-	sceneCamera->Bind();
-	DrawGizmo(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+	CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+	cameraComponent->Bind();
+	DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 #pragma endregion
 #pragma endregion

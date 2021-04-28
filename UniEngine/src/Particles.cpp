@@ -42,7 +42,7 @@ void UniEngine::Particles::RecalculateBoundingBox()
 void UniEngine::Particles::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering##Particles", &m_forwardRendering);
-	ImGui::Checkbox("Receive shadow##Particles", &m_receiveShadow);
+	if(!m_forwardRendering) ImGui::Checkbox("Receive shadow##Particles", &m_receiveShadow);
 	ImGui::Checkbox("Cast shadow##Particles", &m_castShadow);
 	ImGui::Text(("Instance count##Particles" + std::to_string(m_matrices.size())).c_str());
 	ImGui::Checkbox("Display bounds##Particles", &m_displayBound);
@@ -53,9 +53,9 @@ void UniEngine::Particles::OnGui()
 	if (m_displayBound)
 	{
 		RecalculateBoundingBox();
-		ImGui::ColorEdit4("Color:##Particles", (float*)(void*)&m_displayBoundColor);
-		auto transform = GetOwner().GetComponentData<GlobalTransform>().m_value;
-		RenderManager::DrawGizmoCube(m_displayBoundColor, transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()), 1);
+		ImGui::ColorEdit4("Color:##Particles", static_cast<float*>(static_cast<void*>(&m_displayBoundColor)));
+		const auto transform = GetOwner().GetComponentData<GlobalTransform>().m_value;
+		RenderManager::DrawGizmoMesh(Default::Primitives::Cube.get(), EditorManager::GetSceneCamera().get(), m_displayBoundColor, transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()), 1);
 	}
 	ImGui::Text("Material:##Particles");
 	ImGui::SameLine();

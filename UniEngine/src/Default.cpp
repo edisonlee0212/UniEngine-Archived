@@ -13,7 +13,7 @@ std::shared_ptr<GLProgram> Default::GLPrograms::StandardProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::StandardInstancedProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::GizmoProgram;
 std::shared_ptr<GLProgram> Default::GLPrograms::GizmoInstancedProgram;
-
+std::shared_ptr<GLProgram> Default::GLPrograms::GizmoInstancedColoredProgram;
 GLVAO* Default::GLPrograms::ScreenVAO;
 std::shared_ptr<GLVAO> Default::GLPrograms::SkyboxVAO;
 std::string* Default::ShaderIncludes::Uniform;
@@ -236,6 +236,22 @@ void UniEngine::Default::Load(World* world)
 	standardFrag->Compile(fragShaderCode);
 	GLPrograms::GizmoInstancedProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
 	GLPrograms::GizmoInstancedProgram->m_name = "Gizmo Instanced";
+
+	vertShaderCode = std::string("#version 460 core\n")
+		+ *ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
+	fragShaderCode = std::string("#version 460 core\n")
+		+ *ShaderIncludes::Uniform
+		+ "\n"
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
+
+	standardVert = std::make_shared<GLShader>(ShaderType::Vertex);
+	standardVert->Compile(vertShaderCode);
+	standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
+	standardFrag->Compile(fragShaderCode);
+	GLPrograms::GizmoInstancedColoredProgram = std::make_unique<GLProgram>(standardVert, standardFrag);
+	GLPrograms::GizmoInstancedColoredProgram->m_name = "Gizmo Instanced Colored";
 #pragma endregion
 
 #pragma region Models & Primitives

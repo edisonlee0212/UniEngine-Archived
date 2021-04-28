@@ -299,8 +299,8 @@ namespace Galaxy {
 		void RenderStars(std::unique_ptr<CameraComponent>& camera, const glm::vec3& cameraPosition, const glm::quat& cameraRotation);
 		void CalculateStarPositionAsync();
 		void CalculateStarPositionSync();
-		void ApplyPositionSync();
-		void SetRenderer() const;
+		void ApplyPosition();
+		void CopyPosition(const bool& reverse = false);
 		void LateUpdate() override;
 		void OnCreate() override;
 		void Update() override;

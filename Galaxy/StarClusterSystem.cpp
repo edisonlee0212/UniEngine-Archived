@@ -278,19 +278,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 		m_useFront = !m_useFront;
 		m_calcPositionResult = Application::EngineTime() - m_calcPositionTimer;
 		m_firstTime = false;
-
-		m_applyPositionTimer = Application::EngineTime();
-		EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
-			JobManager::SecondaryWorkers(), m_starQuery,
-			[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
-			{
-				//Code here will be exec in parallel
-				globalTransform.m_value = glm::translate(glm::vec3(position.m_value) / 20.0f) * glm::scale(m_size * glm::vec3(1.0f));
-				transform.m_value = globalTransform.m_value;
-			}, false
-			);
-		m_applyPositionTimer = Application::EngineTime() - m_applyPositionTimer;
-
+		ApplyPosition();
 		m_calcPositionTimer = Application::EngineTime();
 		m_currentStatus = std::async(std::launch::async, [=]()
 			{
@@ -302,31 +290,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 						starPosition.m_value = starOrbit.GetPoint(starOrbitOffset.m_value, starProportion.m_value * 360.0f + m_galaxyTime, true);
 					}, false
 					);
-
-				if (m_useFront)
-				{
-					auto& imr = m_rendererBack.GetPrivateComponent<Particles>();
-					imr->m_matrices.resize(m_starQuery.GetEntityAmount());
-					EntityManager::ForEach<GlobalTransform>(
-						JobManager::SecondaryWorkers(), m_starQuery,
-						[&](int i, Entity entity, GlobalTransform& globalTransform)
-						{
-							imr->m_matrices[i] = globalTransform.m_value;
-						}, false
-						);
-				}
-				else
-				{
-					auto& imr = m_rendererFront.GetPrivateComponent<Particles>();
-					imr->m_matrices.resize(m_starQuery.GetEntityAmount());
-					EntityManager::ForEach<GlobalTransform>(
-						JobManager::SecondaryWorkers(), m_starQuery,
-						[&](int i, Entity entity, GlobalTransform& globalTransform)
-						{
-							imr->m_matrices[i] = globalTransform.m_value;
-						}, false
-						);
-				}
+				CopyPosition(true);
 			}
 		);
 	}
@@ -335,6 +299,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 {
 	m_calcPositionTimer = Application::EngineTime();
+	//Star calculation happens here (SIMD transfer needed.):
 	EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
 		JobManager::SecondaryWorkers(), m_starQuery,
 		[=](int i, Entity entity, StarOrbitProportion& statProportion, StarPosition& starPosition, StarOrbit& starOrbit, StarOrbitOffset& starOrbitOffset)
@@ -344,11 +309,16 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 		}, false
 		);
 	m_calcPositionResult = Application::EngineTime() - m_calcPositionTimer;
+
+
+	//Copy data for rendering.
+	m_useFront = true;
+	ApplyPosition();
+	CopyPosition();
 }
 
-void Galaxy::StarClusterSystem::ApplyPositionSync()
+void Galaxy::StarClusterSystem::ApplyPosition()
 {
-	m_useFront = true;
 	m_applyPositionTimer = Application::EngineTime();
 	EntityManager::ForEach<StarPosition, GlobalTransform, Transform, SurfaceColor, DisplayColor>(
 		JobManager::SecondaryWorkers(), m_starQuery,
@@ -364,13 +334,13 @@ void Galaxy::StarClusterSystem::ApplyPositionSync()
 		}, false
 		);
 	m_applyPositionTimer = Application::EngineTime() - m_applyPositionTimer;
-	/*
-	auto& imr = m_rendererFront.GetPrivateComponent<Particles>();
-	imr->m_matrices.resize(m_starQuery.GetEntityAmount());
-	auto& matrices = imr->m_matrices;
-	*/
-	auto& matrices = m_useFront ? m_frontMatrices : m_backMatrices;
-	auto& colors = m_useFront ? m_frontColors : m_backColors;
+}
+
+void Galaxy::StarClusterSystem::CopyPosition(const bool& reverse)
+{
+	bool check = reverse ? !m_useFront : m_useFront;
+	auto& matrices = check ? m_frontMatrices : m_backMatrices;
+	auto& colors = check ? m_frontColors : m_backColors;
 	const auto starAmount = m_starQuery.GetEntityAmount();
 	matrices.resize(starAmount);
 	colors.resize(starAmount);
@@ -382,13 +352,6 @@ void Galaxy::StarClusterSystem::ApplyPositionSync()
 			colors[i] = glm::vec4(displayColor.m_value * displayColor.m_intensity, 1.0f);
 		}, false
 	);
-	
-}
-
-void Galaxy::StarClusterSystem::SetRenderer() const
-{
-	m_rendererBack.SetEnabled(!m_useFront);
-	m_rendererFront.SetEnabled(m_useFront);
 }
 
 void Galaxy::StarClusterSystem::LateUpdate()
@@ -467,12 +430,7 @@ void Galaxy::StarClusterSystem::Update()
 	CalculateStarPositionSync();
 
 	//Do not touch below functions.
-	ApplyPositionSync();
-	SetRenderer();
-	const auto cameraEntity = RenderManager::GetMainCamera()->GetOwner();
-	const auto cameraTransform = cameraEntity.GetComponentData<GlobalTransform>();
-	if(cameraEntity.IsEnabled()) RenderStars(cameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform.GetPosition(), cameraTransform.GetRotation());
-	RenderStars(EditorManager::GetSceneCamera(), EditorManager::GetInstance().m_sceneCameraPosition, EditorManager::GetInstance().m_sceneCameraRotation);
+	RenderManager::DrawGizmoMeshInstancedColored(Default::Primitives::Cube.get(), RenderManager::GetMainCamera(), m_useFront ? m_frontColors.data() : m_backColors.data(), m_useFront ? m_frontMatrices.data() : m_backMatrices.data(), m_useFront ? m_frontColors.size() : m_backColors.size(), glm::scale(glm::vec3(m_size)));
 }
 
 void Galaxy::StarClusterSystem::PushStars(StarClusterPattern& pattern, const size_t& amount) const

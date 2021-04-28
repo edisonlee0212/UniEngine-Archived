@@ -383,11 +383,11 @@ void UniEngine::CameraComponent::OnGui()
 	}
 }
 
-void UniEngine::CameraInfoBlock::UpdateMatrices(CameraComponent* camera, glm::vec3 position, glm::quat rotation)
+void UniEngine::CameraInfoBlock::UpdateMatrices(const CameraComponent* camera, glm::vec3 position, glm::quat rotation)
 {
-	glm::vec3 front = rotation * glm::vec3(0, 0, -1);
-	glm::vec3 up = rotation * glm::vec3(0, 1, 0);
-	auto ratio = camera->GetResolutionRatio();
+	const glm::vec3 front = rotation * glm::vec3(0, 0, -1);
+	const glm::vec3 up = rotation * glm::vec3(0, 1, 0);
+	const auto ratio = camera->GetResolutionRatio();
 	m_projection = glm::perspective(glm::radians(camera->m_fov * 0.5f), ratio, camera->m_nearDistance, camera->m_farDistance);
 	m_position = glm::vec4(position, 0);
 	m_view = glm::lookAt(position, position + front, up);
@@ -403,7 +403,7 @@ void UniEngine::CameraInfoBlock::UpdateMatrices(CameraComponent* camera, glm::ve
 	}
 }
 
-void UniEngine::CameraInfoBlock::UploadMatrices(CameraComponent* camera)
+void UniEngine::CameraInfoBlock::UploadMatrices(const CameraComponent* camera) const
 {
 	CameraComponent::m_cameraUniformBufferBlock->SubData(0, sizeof(CameraInfoBlock), this);
 }

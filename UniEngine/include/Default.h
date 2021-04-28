@@ -22,6 +22,7 @@ namespace UniEngine {
 			
 			static std::shared_ptr<GLProgram> GizmoProgram;
 			static std::shared_ptr<GLProgram> GizmoInstancedProgram;
+			static std::shared_ptr<GLProgram> GizmoInstancedColoredProgram;
 		};
 		class UNIENGINE_API Materials {
 		public:

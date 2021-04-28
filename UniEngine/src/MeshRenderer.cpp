@@ -10,13 +10,13 @@ void UniEngine::MeshRenderer::RenderBound(glm::vec4& color) const
 	if (size.x < 0.01f) size.x = 0.01f;
 	if (size.z < 0.01f) size.z = 0.01f;
 	if (size.y < 0.01f) size.y = 0.01f;
-	RenderManager::DrawGizmoCube(color, transform * (glm::translate(m_mesh->m_bound.Center()) * glm::scale(size)), 1);
+	RenderManager::DrawGizmoMesh(Default::Primitives::Cube.get(), EditorManager::GetSceneCamera().get(), color, transform * (glm::translate(m_mesh->m_bound.Center()) * glm::scale(size)), 1);
 }
 
 void UniEngine::MeshRenderer::OnGui()
 {
 	ImGui::Checkbox("Forward Rendering##MeshRenderer", &m_forwardRendering);
-	ImGui::Checkbox("Receive shadow##MeshRenderer", &m_receiveShadow);
+	if(!m_forwardRendering) ImGui::Checkbox("Receive shadow##MeshRenderer", &m_receiveShadow);
 	ImGui::Checkbox("Cast shadow##MeshRenderer", &m_castShadow);
 	ImGui::Text("Material:");
 	ImGui::SameLine();

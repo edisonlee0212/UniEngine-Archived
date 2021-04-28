@@ -35,8 +35,8 @@ namespace UniEngine {
 		glm::vec4 m_backGroundColor;
 		GLuint64 m_skybox = 0;
 		int m_skyboxEnabled = 0;
-		void UpdateMatrices(CameraComponent* camera, glm::vec3 position, glm::quat rotation);
-		void UploadMatrices(CameraComponent* camera);
+		void UpdateMatrices(const CameraComponent* camera, glm::vec3 position, glm::quat rotation);
+		void UploadMatrices(const CameraComponent* camera) const;
 	};
 	struct Ray;
 	
