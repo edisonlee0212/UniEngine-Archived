@@ -20,8 +20,7 @@ int main()
 	ccs->Enable();
 #pragma endregion
 #pragma region Star System
-	auto starClusterSystem = world->CreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
-	starClusterSystem->Enable();
+	auto* starClusterSystem = world->CreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
 	/*
 #pragma region Light

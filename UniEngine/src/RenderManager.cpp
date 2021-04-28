@@ -55,13 +55,13 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 		program->Bind();
 		for (auto owner : *owners) {
 			if (!owner.IsEnabled()) continue;
-			auto& immc = owner.GetPrivateComponent<Particles>();
-			if (!immc->IsEnabled() || immc->m_material == nullptr || immc->m_mesh == nullptr || immc->m_forwardRendering) continue;
-			if (immc->m_material->m_blendingMode != MaterialBlendingMode::Off) continue;
+			auto& particles = owner.GetPrivateComponent<Particles>();
+			if (!particles->IsEnabled() || particles->m_material == nullptr || particles->m_mesh == nullptr || particles->m_forwardRendering) continue;
+			if (particles->m_material->m_blendingMode != MaterialBlendingMode::Off) continue;
 			if (EntityManager::HasComponentData<CameraLayerMask>(owner) && !(EntityManager::GetComponentData<CameraLayerMask>(owner).m_value & static_cast<size_t>(CameraLayer::MainCamera))) continue;
 			auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).m_value;
 			if (calculateBounds) {
-				auto meshBound = immc->m_mesh->GetBound();
+				auto meshBound = particles->m_mesh->GetBound();
 				meshBound.ApplyTransform(ltw);
 				glm::vec3 center = meshBound.Center();
 				glm::vec3 size = meshBound.Size();
@@ -75,13 +75,13 @@ void RenderManager::RenderToCameraDeferred(const std::unique_ptr<CameraComponent
 					glm::max(maxBound.y, center.y + size.y),
 					glm::max(maxBound.z, center.z + size.z));
 			}
-			GetInstance().m_materialSettings.m_receiveShadow = immc->m_receiveShadow;
+			GetInstance().m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
 			DeferredPrepassInstanced(
-				immc->m_mesh.get(),
-				immc->m_material.get(),
+				particles->m_mesh.get(),
+				particles->m_material.get(),
 				ltw,
-				immc->m_matrices.data(),
-				immc->m_matrices.size()
+				particles->m_matrices.data(),
+				particles->m_matrices.size()
 			);
 		}
 	}

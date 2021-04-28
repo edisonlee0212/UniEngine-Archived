@@ -23,119 +23,152 @@ void Galaxy::StarClusterPattern::OnGui()
 	float centerTiltX = m_centerTiltX;
 	float centerTiltZ = m_centerTiltZ;
 	float twist = m_twist;
+	glm::vec3 centerOffset = m_centerOffset;
 	glm::vec3 centerPosition = m_centerPosition;
-	if (ImGui::DragFloat("Y Spread", &ySpread, 0.001f, 0.0f, 1.0f, "%.3f"))
-	{
-		m_ySpread = ySpread;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("XZ Spread", &xzSpread, 0.001f, 0.0f, 1.0f, "%.3f"))
-	{
-		m_xzSpread = xzSpread;
-		needUpdate = true;
-	}
+	if (ImGui::TreeNode("Shape")) {
+		if (ImGui::DragFloat("Y Spread", &ySpread, 0.001f, 0.0f, 1.0f, "%.3f"))
+		{
+			m_ySpread = ySpread;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("XZ Spread", &xzSpread, 0.001f, 0.0f, 1.0f, "%.3f"))
+		{
+			m_xzSpread = xzSpread;
+			needUpdate = true;
+		}
 
-	if (ImGui::DragFloat("Disk size", &diskDiameter, 1.0f, 1.0f, 10000.0f))
-	{
-		m_diskDiameter = diskDiameter;
-		needUpdate = true;
+		if (ImGui::DragFloat("Disk size", &diskDiameter, 1.0f, 1.0f, 10000.0f))
+		{
+			m_diskDiameter = diskDiameter;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Disk eccentricity", &diskEccentricity, 0.01f, 0.0f, 1.0f))
+		{
+			m_diskEccentricity = diskEccentricity;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Core proportion", &coreProportion, 0.01f, 0.0f, 1.0f))
+		{
+			m_coreProportion = coreProportion;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Core eccentricity", &coreEccentricity, 0.01f, 0, 1))
+		{
+			m_coreEccentricity = coreEccentricity;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Center size", &centerDiameter, 1.0f, 0, 9999))
+		{
+			m_centerDiameter = centerDiameter;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Center eccentricity", &centerEccentricity, 0.01f, 0, 1))
+		{
+			m_centerEccentricity = centerEccentricity;
+			needUpdate = true;
+		}
+		ImGui::TreePop();
+		if (ImGui::DragFloat3("Center offset", &centerOffset.x, 1.0f, -10000.0f, 10000.0f))
+		{
+			m_centerOffset = centerOffset;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat3("Center position", &centerPosition.x, 1.0f, -10000.0f, 10000.0f))
+		{
+			m_centerPosition = centerPosition;
+			needUpdate = true;
+		}
 	}
-	if (ImGui::DragFloat("Disk eccentricity", &diskEccentricity, 0.01f, 0.0f, 1.0f))
-	{
-		m_diskEccentricity = diskEccentricity;
-		needUpdate = true;
+	if (ImGui::TreeNode("Movement")) {
+		if (ImGui::DragFloat("Disk speed", &diskSpeed, 0.1f, -100, 100))
+		{
+			m_diskSpeed = diskSpeed;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Core speed", &coreSpeed, 0.1f, -100, 100))
+		{
+			m_coreSpeed = coreSpeed;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Center speed", &centerSpeed, 0.1f, -100, 100))
+		{
+			m_centerSpeed = centerSpeed;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Disk X tilt", &diskTiltX, 1.0f, -180.0f, 180.0f))
+		{
+			m_diskTiltX = diskTiltX;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Disk Z tilt", &diskTiltZ, 1.0f, -180.0f, 180.0f))
+		{
+			m_diskTiltZ = diskTiltZ;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Core X tilt", &coreTiltX, 1.0f, -180.0f, 180.0f))
+		{
+			m_coreTiltX = coreTiltX;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Core Z tilt", &coreTiltZ, 1.0f, -180.0f, 180.0f))
+		{
+			m_coreTiltZ = coreTiltZ;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Center X tilt", &centerTiltX, 1.0f, -180.0f, 180.0f))
+		{
+			m_centerTiltX = centerTiltX;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Center Z tilt", &centerTiltZ, 1.0f, -180.0f, 180.0f))
+		{
+			m_centerTiltZ = centerTiltZ;
+			needUpdate = true;
+		}
+		if (ImGui::DragFloat("Twist", &twist, 1.0f, -720.0f, 720.0f))
+		{
+			m_twist = twist;
+			needUpdate = true;
+		}
+		ImGui::TreePop();
 	}
-	if (ImGui::DragFloat("Core proportion", &coreProportion, 0.01f, 0.0f, 1.0f))
+	bool colorUpdate = false;
+	if(ImGui::TreeNode("Rendering"))
 	{
-		m_coreProportion = coreProportion;
-		needUpdate = true;
+		if (ImGui::ColorEdit3("Disk Color", &m_diskColor.x, 0.1)) colorUpdate = true;
+		if (ImGui::DragFloat("Disk Color Intensity", &m_diskEmissionIntensity, 0.01f, 1.0f, 10.0f)) colorUpdate = true;
+		if (ImGui::ColorEdit3("Core Color", &m_coreColor.x, 0.1)) colorUpdate = true;
+		if (ImGui::DragFloat("Core Color Intensity", &m_coreEmissionIntensity, 0.01f, 1.0f, 10.0f)) colorUpdate = true;
+		if (ImGui::ColorEdit3("Center Color", &m_centerColor.x, 0.1)) colorUpdate = true;
+		if (ImGui::DragFloat("Center Color Intensity", &m_centerEmissionIntensity, 0.01f, 1.0f, 10.0f)) colorUpdate = true;
+		ImGui::TreePop();
 	}
-	if (ImGui::DragFloat("Core eccentricity", &coreEccentricity, 0.01f, 0, 1))
-	{
-		m_coreEccentricity = coreEccentricity;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Center size", &centerDiameter, 1.0f, 0, 9999))
-	{
-		m_centerDiameter = centerDiameter;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Center eccentricity", &centerEccentricity, 0.01f, 0, 1))
-	{
-		m_centerEccentricity = centerEccentricity;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Disk speed", &diskSpeed, 0.1f, -100, 100))
-	{
-		m_diskSpeed = diskSpeed;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Core speed", &coreSpeed, 0.1f, -100, 100))
-	{
-		m_coreSpeed = coreSpeed;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Center speed", &centerSpeed, 0.1f, -100, 100))
-	{
-		m_centerSpeed = centerSpeed;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Disk X tilt", &diskTiltX, 1.0f, -180.0f, 180.0f))
-	{
-		m_diskTiltX = diskTiltX;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Disk Z tilt", &diskTiltZ, 1.0f, -180.0f, 180.0f))
-	{
-		m_diskTiltZ = diskTiltZ;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Core X tilt", &coreTiltX, 1.0f, -180.0f, 180.0f))
-	{
-		m_coreTiltX = coreTiltX;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Core Z tilt", &coreTiltZ, 1.0f, -180.0f, 180.0f))
-	{
-		m_coreTiltZ = coreTiltZ;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Center X tilt", &centerTiltX, 1.0f, -180.0f, 180.0f))
-	{
-		m_centerTiltX = centerTiltX;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Center Z tilt", &centerTiltZ, 1.0f, -180.0f, 180.0f))
-	{
-		m_centerTiltZ = centerTiltZ;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat3("Center position", &centerPosition.x, 0.01f, -1.0f, 1.0f))
-	{
-		m_centerPosition = centerPosition;
-		needUpdate = true;
-	}
-	if (ImGui::DragFloat("Twist", &twist, 1.0f, -720.0f, 720.0f))
-	{
-		m_twist = twist;
-		needUpdate = true;
-	}
+	
 	if (needUpdate)
 	{
 		Apply(true);
+	}else if(colorUpdate)
+	{
+		Apply(true, true);
 	}
 }
 
-void Galaxy::StarClusterPattern::Apply(const bool& forceUpdateAllStars)
+void Galaxy::StarClusterPattern::Apply(const bool& forceUpdateAllStars, const bool& onlyUpdateColors)
 {
 	SetAb();
-	EntityManager::ForEach<StarInfo, StarClusterIndex, StarOrbit, StarOrbitOffset, StarOrbitProportion>(JobManager::SecondaryWorkers(),
-		[&](int i, Entity entity, StarInfo& starInfo, StarClusterIndex& starClusterIndex, StarOrbit& starOrbit, StarOrbitOffset& starOrbitOffset, StarOrbitProportion& starOrbitProportion)
+	EntityManager::ForEach<StarInfo, StarClusterIndex, StarOrbit, StarOrbitOffset, StarOrbitProportion, SurfaceColor>(JobManager::SecondaryWorkers(),
+		[&](int i, Entity entity, StarInfo& starInfo, StarClusterIndex& starClusterIndex, StarOrbit& starOrbit, StarOrbitOffset& starOrbitOffset, StarOrbitProportion& starOrbitProportion, SurfaceColor& surfaceColor)
 		{
 			if (!forceUpdateAllStars && starInfo.m_initialized) return;
+			if (starClusterIndex.m_value != this->m_starClusterIndex.m_value) return;
 			starInfo.m_initialized = true;
-			starOrbitOffset = GetOrbitOffset(starOrbitProportion.m_value);
-			starOrbit = GetOrbit(starOrbitProportion.m_value);
+			const auto proportion = starOrbitProportion.m_value;
+			if (!onlyUpdateColors) {
+				starOrbitOffset = GetOrbitOffset(proportion);
+				starOrbit = GetOrbit(proportion);
+			}
+			surfaceColor.m_value = GetColor(proportion);
+			surfaceColor.m_intensity = GetIntensity(proportion);
 		}
 	);
 }
@@ -168,8 +201,8 @@ void Galaxy::StarClusterSystem::OnGui()
 			if (ImGui::Button("Remove all stars")) ClearAllStars();
 		}
 		if (ImGui::CollapsingHeader("Run time control", ImGuiTreeNodeFlags_DefaultOpen)) {
-			ImGui::DragFloat("Speed", &m_speed, 1.0f, 0.1f, 30000.0f);
-			ImGui::DragFloat("Star Size", &m_size, 0.1f, 0.1f, 10.0f);
+			ImGui::DragFloat("Speed", &m_speed, 1.0f, 0.0f, 40000.0f);
+			ImGui::DragFloat("Star Size", &m_size, 0.01f, 0.01f, 10.0f);
 
 		}
 		ImGui::Text("Status:");
@@ -178,6 +211,63 @@ void Galaxy::StarClusterSystem::OnGui()
 		ImGui::InputFloat("Calculation time", &m_calcPositionResult, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
 	}
 	ImGui::End();
+}
+
+void Galaxy::StarClusterSystem::RenderStars(std::unique_ptr<CameraComponent>& camera, const glm::vec3& cameraPosition, const glm::quat& cameraRotation)
+{
+	auto& matrices = m_useFront ? m_frontMatrices : m_backMatrices;
+	auto& colors = m_useFront ? m_frontColors : m_backColors;
+	if(matrices.empty() || colors.empty() || matrices.size() != colors.size()) return;
+	if (!camera->IsEnabled()) return;
+#pragma region Render
+	CameraComponent::m_cameraInfoBlock.UpdateMatrices(camera.get(),
+		cameraPosition,
+		cameraRotation
+	);
+	CameraComponent::m_cameraInfoBlock.UploadMatrices(camera.get());
+	camera->Bind();
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	glEnable(GL_DEPTH_TEST);
+	const auto mesh = Default::Primitives::Cube;
+	mesh->Enable();
+	const auto vao = mesh->Vao();
+	
+	const size_t count = colors.size();
+	m_renderColorBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);	
+	vao->EnableAttributeArray(11);
+	vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+	vao->SetAttributeDivisor(11, 1);
+
+	m_renderTransformBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
+	vao->EnableAttributeArray(12);
+	vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	vao->EnableAttributeArray(13);
+	vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	vao->EnableAttributeArray(14);
+	vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	vao->EnableAttributeArray(15);
+	vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	vao->SetAttributeDivisor(12, 1);
+	vao->SetAttributeDivisor(13, 1);
+	vao->SetAttributeDivisor(14, 1);
+	vao->SetAttributeDivisor(15, 1);
+
+	m_starRenderProgram->Bind();
+	const glm::mat4 translation = glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f));
+	const glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), glm::vec3(1.0));
+	const glm::mat4 model = translation * scale;
+	m_starRenderProgram->SetFloat4x4("model", model);
+
+	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh->GetTriangleAmount()) * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+	vao->DisableAttributeArray(11);
+	vao->DisableAttributeArray(12);
+	vao->DisableAttributeArray(13);
+	vao->DisableAttributeArray(14);
+	vao->DisableAttributeArray(15);
+#pragma endregion
 }
 
 void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
@@ -254,34 +344,45 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 		}, false
 		);
 	m_calcPositionResult = Application::EngineTime() - m_calcPositionTimer;
-
-
 }
 
 void Galaxy::StarClusterSystem::ApplyPositionSync()
 {
+	m_useFront = true;
 	m_applyPositionTimer = Application::EngineTime();
-	EntityManager::ForEach<StarPosition, GlobalTransform, Transform>(
+	EntityManager::ForEach<StarPosition, GlobalTransform, Transform, SurfaceColor, DisplayColor>(
 		JobManager::SecondaryWorkers(), m_starQuery,
-		[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform)
+		[this](int i, Entity entity, StarPosition& position, GlobalTransform& globalTransform, Transform& transform,
+			SurfaceColor& surfaceColor,
+			DisplayColor& displayColor)
 		{
 			//Code here will be exec in parallel
 			globalTransform.m_value = glm::translate(glm::vec3(position.m_value) / 20.0f) * glm::scale(m_size * glm::vec3(1.0f));
 			transform.m_value = globalTransform.m_value;
+			displayColor.m_value = surfaceColor.m_value;
+			displayColor.m_intensity = surfaceColor.m_intensity;
 		}, false
 		);
 	m_applyPositionTimer = Application::EngineTime() - m_applyPositionTimer;
-
+	/*
 	auto& imr = m_rendererFront.GetPrivateComponent<Particles>();
 	imr->m_matrices.resize(m_starQuery.GetEntityAmount());
-	EntityManager::ForEach<GlobalTransform>(
+	auto& matrices = imr->m_matrices;
+	*/
+	auto& matrices = m_useFront ? m_frontMatrices : m_backMatrices;
+	auto& colors = m_useFront ? m_frontColors : m_backColors;
+	const auto starAmount = m_starQuery.GetEntityAmount();
+	matrices.resize(starAmount);
+	colors.resize(starAmount);
+	EntityManager::ForEach<GlobalTransform, DisplayColor>(
 		JobManager::SecondaryWorkers(), m_starQuery,
-		[&](int i, Entity entity, GlobalTransform& globalTransform)
+		[&](int i, Entity entity, GlobalTransform& globalTransform, DisplayColor& displayColor)
 		{
-			imr->m_matrices[i] = globalTransform.m_value;
+			matrices[i] = globalTransform.m_value;
+			colors[i] = glm::vec4(displayColor.m_value * displayColor.m_intensity, 1.0f);
 		}, false
-		);
-	m_useFront = true;
+	);
+	
 }
 
 void Galaxy::StarClusterSystem::SetRenderer() const
@@ -297,6 +398,21 @@ void Galaxy::StarClusterSystem::LateUpdate()
 
 void Galaxy::StarClusterSystem::OnCreate()
 {
+	const auto vertShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform +
+		+"\n"
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
+	const auto fragShaderCode = std::string("#version 460 core\n")
+		+ *Default::ShaderIncludes::Uniform
+		+ "\n"
+		+ FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
+
+	auto standardVert = std::make_shared<GLShader>(ShaderType::Vertex);
+	standardVert->Compile(vertShaderCode);
+	auto standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
+	standardFrag->Compile(fragShaderCode);
+	m_starRenderProgram = std::make_unique<GLProgram>(standardVert, standardFrag);
+	
 	EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
 	m_rendererFront = EntityManager::CreateEntity("Renderer 1");
 	GlobalTransform ltw;
@@ -323,9 +439,11 @@ void Galaxy::StarClusterSystem::OnCreate()
 	m_rendererBack.SetPrivateComponent(std::move(imr));
 	m_rendererBack.SetComponentData(ltw);
 
-	m_starClusterPatterns.resize(1);
-	auto& pattern = m_starClusterPatterns[0];
-
+	m_starClusterPatterns.resize(2);
+	auto& starClusterPattern1 = m_starClusterPatterns[0];
+	auto& starClusterPattern2 = m_starClusterPatterns[1];
+	starClusterPattern1.m_starClusterIndex.m_value = 0;
+	starClusterPattern2.m_starClusterIndex.m_value = 1;
 	m_starQuery = EntityManager::CreateEntityQuery();
 	EntityManager::SetEntityQueryAllFilters(m_starQuery, StarInfo());
 
@@ -335,36 +453,10 @@ void Galaxy::StarClusterSystem::OnCreate()
 		StarInfo(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),
 		SelectionStatus(), OriginalColor(), SurfaceColor(), DisplayColor()
 	);
-	pattern.m_ySpread = 0.05;
-	pattern.m_xzSpread = 0.015;
-	pattern.m_diskDiameter = 3000;
-	pattern.m_diskEccentricity = 0.5;
-	pattern.m_coreProportion = 0.4;
-	pattern.m_coreEccentricity = 0.8;
-	pattern.m_centerDiameter = 10;
-	pattern.m_centerEccentricity = 0.5;
-	pattern.m_diskSpeed = 1;
-	pattern.m_coreSpeed = 5;
-	pattern.m_centerSpeed = 10;
-	pattern.m_diskTiltX = 0;
-	pattern.m_diskTiltZ = 0;
-	pattern.m_coreTiltX = 0;
-	pattern.m_coreTiltZ = 0;
-	pattern.m_centerTiltX = 0;
-	pattern.m_centerTiltZ = 0;
-	pattern.m_diskColor = glm::vec4(0, 0, 1, 1);
-	pattern.m_coreColor = glm::vec4(1, 1, 0, 1);
-	pattern.m_centerColor = glm::vec4(1, 1, 1, 1);
-	pattern.m_twist = 360;
-	pattern.m_centerPosition = glm::dvec3(0);
-	pattern.SetAb();
-
-
 	JobManager::ResizePrimaryWorkers(1);
 	JobManager::ResizeSecondaryWorkers(16);
-
-
 	m_firstTime = true;
+	Enable();
 }
 
 void Galaxy::StarClusterSystem::Update()
@@ -377,6 +469,10 @@ void Galaxy::StarClusterSystem::Update()
 	//Do not touch below functions.
 	ApplyPositionSync();
 	SetRenderer();
+	const auto cameraEntity = RenderManager::GetMainCamera()->GetOwner();
+	const auto cameraTransform = cameraEntity.GetComponentData<GlobalTransform>();
+	if(cameraEntity.IsEnabled()) RenderStars(cameraEntity.GetPrivateComponent<CameraComponent>(), cameraTransform.GetPosition(), cameraTransform.GetRotation());
+	RenderStars(EditorManager::GetSceneCamera(), EditorManager::GetInstance().m_sceneCameraPosition, EditorManager::GetInstance().m_sceneCameraRotation);
 }
 
 void Galaxy::StarClusterSystem::PushStars(StarClusterPattern& pattern, const size_t& amount) const

@@ -26,7 +26,7 @@ namespace Galaxy {
 	/// </summary>
 	struct OriginalColor : ComponentDataBase
 	{
-		glm::vec4 m_value;
+		glm::vec3 m_value;
 	};
 	/// <summary>
 	/// The deviation of its orbit
@@ -47,14 +47,16 @@ namespace Galaxy {
 	/// </summary>
 	struct SurfaceColor : ComponentDataBase
 	{
-		glm::vec4 m_value;
+		glm::vec3 m_value;
+		float m_intensity = 1.0f;
 	};
 	/// <summary>
 	/// The actual display color after selection system.
 	/// </summary>
 	struct DisplayColor : ComponentDataBase
 	{
-		glm::vec4 m_value;
+		glm::vec3 m_value;
+		float m_intensity = 1.0f;
 	};
 
 	struct StarOrbit : ComponentDataBase
@@ -134,10 +136,10 @@ namespace Galaxy {
 		double m_diskEccentricity = 0.5;
 		
 		double m_coreProportion = 0.4;
-		double m_coreEccentricity = 0.5;
+		double m_coreEccentricity = 0.7;
 		
 		double m_centerDiameter = 10;
-		double m_centerEccentricity = 0.5;
+		double m_centerEccentricity = 0.3;
 		
 
 		double m_diskSpeed = 1;
@@ -151,16 +153,19 @@ namespace Galaxy {
 		double m_centerTiltX = 0;
 		double m_centerTiltZ = 0;
 
-		glm::vec4 m_diskColor = glm::vec4(0, 0, 1, 1);
-		glm::vec4 m_coreColor = glm::vec4(1, 1, 0, 1);
-		glm::vec4 m_centerColor = glm::vec4(1, 1, 1, 1);
+
+		float m_diskEmissionIntensity = 3.0f;
+		float m_coreEmissionIntensity = 2.0f;
+		float m_centerEmissionIntensity = 1.0f;
+		glm::vec3 m_diskColor = glm::vec3(0, 0, 1);
+		glm::vec3 m_coreColor = glm::vec3(1, 1, 0);
+		glm::vec3 m_centerColor = glm::vec3(1, 1, 1);
 
 		double m_twist = 360;
+		glm::dvec3 m_centerOffset = glm::dvec3(0);
 		glm::dvec3 m_centerPosition = glm::dvec3(0);
-
-		glm::dvec3 m_position = glm::dvec3(0);
 		
-		void Apply(const bool& forceUpdateAllStars = false);
+		void Apply(const bool& forceUpdateAllStars = false, const bool& onlyUpdateColors = false);
 		
 		void SetAb()
 		{
@@ -207,7 +212,7 @@ namespace Galaxy {
 				orbit.m_speedMultiplier = m_centerSpeed + (m_coreSpeed - m_centerSpeed) * actualProportion;
 			}
 			orbit.m_tiltY = -m_twist * starOrbitProportion;
-			orbit.m_center = m_centerPosition * m_diskDiameter * (1 - starOrbitProportion);
+			orbit.m_center = m_centerOffset * (1 - starOrbitProportion) + m_centerPosition;
 			return orbit;
 		}
 
@@ -223,9 +228,9 @@ namespace Galaxy {
 			return orbitOffset;
 		}
 
-		[[nodiscard]] glm::vec4 GetColor(const double& proportion) const
+		[[nodiscard]] glm::vec3 GetColor(const double& proportion) const
 		{
-			glm::vec4 color = glm::vec4();
+			glm::vec3 color = glm::vec3();
 			if (proportion > m_coreProportion)
 			{
 				//If the wave is outside the disk;
@@ -237,8 +242,24 @@ namespace Galaxy {
 				const double actualProportion = proportion / m_coreProportion;
 				color = m_coreColor * static_cast<float>(actualProportion) + m_centerColor * (1 - static_cast<float>(actualProportion));
 			}
-			color = glm::normalize(color);
 			return color;
+		}
+
+		[[nodiscard]] float GetIntensity(const double& proportion) const
+		{
+			float intensity = 1.0f;
+			if (proportion > m_coreProportion)
+			{
+				//If the wave is outside the disk;
+				const double actualProportion = (proportion - m_coreProportion) / (1 - m_coreProportion);
+				intensity = m_coreEmissionIntensity * (1 - static_cast<float>(actualProportion)) + m_diskEmissionIntensity * static_cast<float>(actualProportion);
+			}
+			else
+			{
+				const double actualProportion = proportion / m_coreProportion;
+				intensity = m_coreEmissionIntensity * static_cast<float>(actualProportion) + m_centerEmissionIntensity * (1 - static_cast<float>(actualProportion));
+			}
+			return intensity;
 		}
 	};
 
@@ -251,6 +272,18 @@ namespace Galaxy {
 		EntityArchetype m_starArchetype;
 		std::vector<StarClusterPattern> m_starClusterPatterns;
 		bool m_useFront = true;
+#pragma region Rendering
+		std::vector<glm::mat4> m_frontMatrices;
+		std::vector<glm::mat4> m_backMatrices;
+		std::vector<glm::vec4> m_frontColors;
+		std::vector<glm::vec4> m_backColors;
+
+		GLVBO m_renderTransformBuffer;
+		GLVBO m_renderColorBuffer;
+		std::unique_ptr<GLProgram> m_starRenderProgram;
+#pragma endregion
+
+		
 		
 		float m_applyPositionTimer = 0;
 		float m_copyPositionTimer = 0;
@@ -263,6 +296,7 @@ namespace Galaxy {
 		bool m_firstTime = true;
 		void OnGui();
 	public:
+		void RenderStars(std::unique_ptr<CameraComponent>& camera, const glm::vec3& cameraPosition, const glm::quat& cameraRotation);
 		void CalculateStarPositionAsync();
 		void CalculateStarPositionSync();
 		void ApplyPositionSync();

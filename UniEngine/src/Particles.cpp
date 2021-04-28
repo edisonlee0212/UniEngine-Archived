@@ -17,8 +17,8 @@ void UniEngine::Particles::RecalculateBoundingBox()
 		m_boundingBox.m_max = glm::vec3(0.0f);
 		return;
 	}
-	glm::vec3 minBound = glm::vec3((int)INT_MAX);
-	glm::vec3 maxBound = glm::vec3((int)INT_MIN);
+	glm::vec3 minBound = glm::vec3(static_cast<int>(INT_MAX));
+	glm::vec3 maxBound = glm::vec3(static_cast<int>(INT_MIN));
 	auto meshBound = m_mesh->GetBound();
 	for(auto& i : m_matrices)
 	{
@@ -44,7 +44,7 @@ void UniEngine::Particles::OnGui()
 	ImGui::Checkbox("Forward Rendering##Particles", &m_forwardRendering);
 	ImGui::Checkbox("Receive shadow##Particles", &m_receiveShadow);
 	ImGui::Checkbox("Cast shadow##Particles", &m_castShadow);
-	ImGui::Text(("Instance count:##Particles" + std::to_string(m_matrices.size())).c_str());
+	ImGui::Text(("Instance count##Particles" + std::to_string(m_matrices.size())).c_str());
 	ImGui::Checkbox("Display bounds##Particles", &m_displayBound);
 	if(ImGui::Button("Calculate bounds##Particles"))
 	{
