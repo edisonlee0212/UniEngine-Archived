@@ -387,6 +387,8 @@ namespace Galaxy {
 
 		bool m_useSimd = false;
 		
+		int m_counter = 0;
+		
 		float m_applyPositionTimer = 0;
 		float m_copyPositionTimer = 0;
 		float m_calcPositionTimer = 0;
@@ -406,9 +408,9 @@ namespace Galaxy {
 		void LateUpdate() override;
 		void OnCreate() override;
 		void Update() override;
-		void PushStars(StarClusterPattern& pattern, const size_t& amount = 10000) const;
-		void RandomlyRemoveStars(const size_t& amount = 10000) const;
-		void ClearAllStars() const;
+		void PushStars(StarClusterPattern& pattern, const size_t& amount = 10000);
+		void RandomlyRemoveStars(const size_t& amount = 10000);
+		void ClearAllStars();
 		void FixedUpdate() override;
 		void OnStartRunning() override;
 	};

@@ -133,7 +133,7 @@ void Galaxy::StarClusterPattern::OnGui()
 		ImGui::TreePop();
 	}
 	bool colorUpdate = false;
-	if(ImGui::TreeNode("Rendering"))
+	if (ImGui::TreeNode("Rendering"))
 	{
 		if (ImGui::ColorEdit3("Disk Color", &m_diskColor.x, 0.1)) colorUpdate = true;
 		if (ImGui::DragFloat("Disk Color Intensity", &m_diskEmissionIntensity, 0.01f, 1.0f, 10.0f)) colorUpdate = true;
@@ -143,11 +143,12 @@ void Galaxy::StarClusterPattern::OnGui()
 		if (ImGui::DragFloat("Center Color Intensity", &m_centerEmissionIntensity, 0.01f, 1.0f, 10.0f)) colorUpdate = true;
 		ImGui::TreePop();
 	}
-	
+
 	if (needUpdate)
 	{
 		Apply(true);
-	}else if(colorUpdate)
+	}
+	else if (colorUpdate)
 	{
 		Apply(true, true);
 	}
@@ -172,7 +173,7 @@ void Galaxy::StarClusterPattern::Apply(const bool& forceUpdateAllStars, const bo
 		}
 	);
 	EntityManager::ForEach<StarOrbit, StarOrbitA, StarOrbitB, StarOrbitSpeedMultiplier, StarTiltX, StarTiltY, StarTiltZ, OrbitCenter>(JobManager::SecondaryWorkers(),
-		[&](int i, Entity entity, StarOrbit& starOrbit, StarOrbitA& starOrbitA, StarOrbitB& starOrbitB, 
+		[&](int i, Entity entity, StarOrbit& starOrbit, StarOrbitA& starOrbitA, StarOrbitB& starOrbitB,
 			StarOrbitSpeedMultiplier& starOrbitSpeedMultiplier
 			, StarTiltX& starTiltX, StarTiltY& starTiltY, StarTiltZ& starTiltZ, OrbitCenter& starCenter)
 		{
@@ -191,7 +192,7 @@ void Galaxy::StarClusterSystem::OnGui()
 {
 	if (ImGui::Begin("Star Cluster System"))
 	{
-		ImGui::Checkbox("Enable SIMD", &m_useSimd);
+		if (ImGui::Checkbox("Enable SIMD", &m_useSimd)) m_counter = 0;
 		static int amount = 10000;
 		ImGui::DragInt("Amount", &amount, 1, 1, 100000);
 		if (ImGui::CollapsingHeader("Star clusters", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -206,6 +207,7 @@ void Galaxy::StarClusterSystem::OnGui()
 					if (ImGui::Button("Add stars"))
 					{
 						PushStars(pattern, amount);
+						
 					}
 					ImGui::TreePop();
 				}
@@ -221,9 +223,9 @@ void Galaxy::StarClusterSystem::OnGui()
 
 		}
 		ImGui::Text("Status:");
-		ImGui::InputFloat("Apply time", &m_applyPositionTimer, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat("Copy time", &m_copyPositionTimer, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat("Calculation time", &m_calcPositionResult, 0, 0, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat("Apply time", &m_applyPositionTimer, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat("Copy time", &m_copyPositionTimer, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat("Calculation time", &m_calcPositionResult, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
 	}
 	ImGui::End();
 }
@@ -232,7 +234,7 @@ void Galaxy::StarClusterSystem::RenderStars(std::unique_ptr<CameraComponent>& ca
 {
 	auto& matrices = m_useFront ? m_frontMatrices : m_backMatrices;
 	auto& colors = m_useFront ? m_frontColors : m_backColors;
-	if(matrices.empty() || colors.empty() || matrices.size() != colors.size()) return;
+	if (matrices.empty() || colors.empty() || matrices.size() != colors.size()) return;
 	if (!camera->IsEnabled()) return;
 #pragma region Render
 	CameraComponent::m_cameraInfoBlock.UpdateMatrices(camera.get(),
@@ -249,9 +251,9 @@ void Galaxy::StarClusterSystem::RenderStars(std::unique_ptr<CameraComponent>& ca
 	const auto mesh = Default::Primitives::Cube;
 	mesh->Enable();
 	const auto vao = mesh->Vao();
-	
+
 	const size_t count = colors.size();
-	m_renderColorBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);	
+	m_renderColorBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);
 	vao->EnableAttributeArray(11);
 	vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
 	vao->SetAttributeDivisor(11, 1);
@@ -313,9 +315,8 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 
 void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 {
-	m_calcPositionTimer = Application::EngineTime();
 	//Star calculation happens here:
-	if(m_useSimd)
+	if (m_useSimd)
 	{
 		const auto orbitALists = EntityManager::UnsafeGetComponentDataArray<StarOrbitA>(m_starQuery);
 		const auto orbitBLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitB>(m_starQuery);
@@ -331,30 +332,150 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 		const auto positionLists = EntityManager::UnsafeGetComponentDataArray<StarPosition>(m_starQuery);
 
 		std::vector<std::shared_future<void>> results;
-		for(int i = 0; i < orbitALists.size(); i++)
+		m_calcPositionTimer = Application::EngineTime();
+		const auto threadSize = JobManager::SecondaryWorkers().Size();
+		const auto chunkSize = orbitALists.size();
+		const auto chunkPerThread = chunkSize / threadSize;
+		const auto chunkReminder = chunkSize % threadSize;
+		const auto lastChunkIndex = chunkPerThread * threadSize;
+		for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
 		{
-			results.push_back(JobManager::SecondaryWorkers().Push([&](int id)
+			results.push_back(JobManager::SecondaryWorkers().Push([=](int id)
 				{
-					const auto& orbitAList = orbitALists[i];
-					const auto& orbitBList = orbitBLists[i];
-					const auto& orbitSpeedMultiplierList = orbitSpeedMultiplierLists[i];
-					const auto& orbitTiltXList = orbitTiltXLists[i];
-					const auto& orbitTiltYList = orbitTiltYLists[i];
-					const auto& orbitTiltZList = orbitTiltZLists[i];
-					const auto& orbitCenterList = orbitCenterLists[i];
+					const auto maxChunkIndex = chunkPerThread + (threadIndex < chunkReminder ? 1 : 0);
+					std::vector<glm::dvec3> points;
+					std::vector<double> angles;
+					for (auto allocatedChunkIndex = 0; allocatedChunkIndex < maxChunkIndex; allocatedChunkIndex++) {
+						auto chunkIndex = allocatedChunkIndex + chunkPerThread * threadIndex;
+						if(threadIndex < chunkReminder && allocatedChunkIndex == maxChunkIndex - 1)
+						{
+							chunkIndex = lastChunkIndex + threadIndex;
+						}
+						auto* const orbitAList = orbitALists[chunkIndex].first;
+						auto* const orbitBList = orbitBLists[chunkIndex].first;
+						auto* const orbitSpeedMultiplierList = orbitSpeedMultiplierLists[chunkIndex].first;
+						auto* const orbitTiltXList = orbitTiltXLists[chunkIndex].first;
+						auto* const orbitTiltYList = orbitTiltYLists[chunkIndex].first;
+						auto* const orbitTiltZList = orbitTiltZLists[chunkIndex].first;
+						auto* const orbitCenterList = orbitCenterLists[chunkIndex].first;
+						auto* const proportionList = proportionLists[chunkIndex].first;
+						auto* const starOrbitOffsetList = starOrbitOffsetLists[chunkIndex].first;
+						auto* const positionList = positionLists[chunkIndex].first;
+						const auto size = orbitALists[chunkIndex].second;
+						points.resize(size);
+						angles.resize(size);
+						//SIMD Capable
+						const bool useSIMD = false;
+						if (useSIMD) {
+							const auto div = size / 4;
+							for (auto i = 0; i < div; i++)
+							{
+								const auto orbitA4 = _mm256_load_pd((double*)((char*)orbitAList + i * 4 * sizeof(double)));
+								const auto orbitB4 = _mm256_load_pd((double*)((char*)orbitBList + i * 4 * sizeof(double)));
+								const auto speedMul4 = _mm256_load_pd((double*)((char*)orbitSpeedMultiplierList + i * 4 * sizeof(double)));
+								const auto proportion4 = _mm256_load_pd((double*)((char*)proportionList + i * 4 * sizeof(double)));
 
-					const auto& proportionList = proportionLists[i];
-					const auto& starOrbitOffsetList = starOrbitOffsetLists[i];
+								const double d360[4] = { 360.0, 360.0, 360.0, 360.0 };
+								const double times[4] = { m_galaxyTime, m_galaxyTime, m_galaxyTime, m_galaxyTime };
+								const auto d4 = _mm256_load_pd(d360);
+								__m256d time4 = _mm256_load_pd(times);
+								time4 = _mm256_add_pd(_mm256_mul_pd(proportion4, d4), time4);
+								// proportion->m_value * 360.0f + m_galaxyTime;
 
-					const auto& positionList = positionLists[i];
+								_mm256_storeu_pd(
+									&angles[i * 4],
+									_mm256_mul_pd(_mm256_div_pd(time4, _mm256_sqrt_pd(_mm256_add_pd(orbitA4, orbitB4))), speedMul4)
+								);
+								//angles[i] = time / glm::sqrt(orbitA->m_value + orbitB->m_value) * speedMul->m_value;
+							}
 
-					
+							for (auto i = div * 4; i < size; i++)
+							{
+								auto* orbitA = (StarOrbitA*)((char*)orbitAList + i * sizeof(StarOrbitA));
+								auto* orbitB = (StarOrbitB*)((char*)orbitBList + i * sizeof(StarOrbitB));
+								auto* speedMul = (StarOrbitSpeedMultiplier*)((char*)orbitSpeedMultiplierList + i * sizeof(StarOrbitSpeedMultiplier));
+								auto* proportion = (StarOrbitProportion*)((char*)proportionList + i * sizeof(StarOrbitProportion));
+
+								const double time = proportion->m_value * 360.0f + m_galaxyTime;
+								angles[i] = time / glm::sqrt(orbitA->m_value + orbitB->m_value) * speedMul->m_value;
+							}
+						}
+						else {
+							for (auto i = 0; i < size; i++)
+							{
+								auto* orbitA = (StarOrbitA*)((char*)orbitAList + i * sizeof(StarOrbitA));
+								auto* orbitB = (StarOrbitB*)((char*)orbitBList + i * sizeof(StarOrbitB));
+								auto* speedMul = (StarOrbitSpeedMultiplier*)((char*)orbitSpeedMultiplierList + i * sizeof(StarOrbitSpeedMultiplier));
+								auto* proportion = (StarOrbitProportion*)((char*)proportionList + i * sizeof(StarOrbitProportion));
+
+								const double time = proportion->m_value * 360.0f + m_galaxyTime;
+								angles[i] = time / glm::sqrt(orbitA->m_value + orbitB->m_value) * speedMul->m_value;
+							}
+						}
+						for (auto i = 0; i < size; i++)
+						{
+							auto* orbitA = (StarOrbitA*)((char*)orbitAList + i * sizeof(StarOrbitA));
+							auto* orbitB = (StarOrbitB*)((char*)orbitBList + i * sizeof(StarOrbitB));
+							points[i].x = glm::sin(glm::radians(angles[i])) * orbitA->m_value;
+							points[i].y = 0;
+							points[i].z = glm::cos(glm::radians(angles[i])) * orbitB->m_value;
+						}
+						for (auto i = 0; i < size; i++)
+						{
+							auto* tiltX = (StarTiltX*)((char*)orbitTiltXList + i * sizeof(StarTiltX));
+							auto* tiltY = (StarTiltY*)((char*)orbitTiltYList + i * sizeof(StarTiltY));
+							auto* tiltZ = (StarTiltZ*)((char*)orbitTiltZList + i * sizeof(StarTiltZ));
+
+							points[i] = StarOrbit::Rotate(glm::angleAxis(glm::radians(tiltX->m_value), glm::dvec3(1, 0, 0)), points[i]);
+							points[i] = StarOrbit::Rotate(glm::angleAxis(glm::radians(tiltY->m_value), glm::dvec3(0, 1, 0)), points[i]);
+							points[i] = StarOrbit::Rotate(glm::angleAxis(glm::radians(tiltZ->m_value), glm::dvec3(0, 0, 1)), points[i]);
+						}
+						//SIMD Capable
+						if (useSIMD) {
+							const auto div2 = 3 * size / 4;
+							for (auto i = 0; i < div2; i++)
+							{
+								const auto point4 = _mm256_load_pd((double*)((char*)points.data() + i * 4 * sizeof(double)));
+								const auto center4 = _mm256_load_pd((double*)((char*)orbitCenterList + i * 4 * sizeof(double)));
+								const auto offset4 = _mm256_load_pd((double*)((char*)starOrbitOffsetList + i * 4 * sizeof(double)));
+								_mm256_storeu_pd(
+									(double*)((char*)positionList + i * 4 * sizeof(double)),
+									_mm256_add_pd(point4, _mm256_add_pd(center4, offset4))
+								);
+							}
+							for (auto i = div2 * 4; i < size * 3; i++)
+							{
+								auto point = *(double*)((char*)points.data() + i * sizeof(double));
+								const auto center = *(double*)((char*)orbitCenterList + i * sizeof(double));
+								const auto offset = *(double*)((char*)starOrbitOffsetList + i * sizeof(double));
+								auto* position = (double*)((char*)positionList + i * sizeof(double));
+								point += center;
+								point += offset;
+								*position = point;
+							}
+						}
+						else {
+							for (auto i = 0; i < size; i++)
+							{
+								auto* center = (OrbitCenter*)((char*)orbitCenterList + i * sizeof(OrbitCenter));
+								auto* offset = (StarOrbitOffset*)((char*)starOrbitOffsetList + i * sizeof(StarOrbitOffset));
+								auto* position = (StarPosition*)((char*)positionList + i * sizeof(StarPosition));
+								points[i] += center->m_value;
+								points[i] += offset->m_value;
+								position->m_value = points[i];
+							}
+						}
+					}
 				}
+
 			).share());
 		}
 		for (const auto& i : results) i.wait();
+		const auto usedTime = Application::EngineTime() - m_calcPositionTimer;
+		m_calcPositionResult = m_calcPositionResult * m_counter / (m_counter + 1) + usedTime / (m_counter + 1);
 	}
 	else {
+		m_calcPositionTimer = Application::EngineTime();
 		EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
 			JobManager::SecondaryWorkers(), m_starQuery,
 			[=](int i, Entity entity, StarOrbitProportion& starProportion, StarPosition& starPosition, StarOrbit& starOrbit, StarOrbitOffset& starOrbitOffset)
@@ -363,10 +484,9 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 				starPosition.m_value = starOrbit.GetPoint(starOrbitOffset.m_value, starProportion.m_value * 360.0f + m_galaxyTime, true);
 			}, false
 			);
+		const auto usedTime = Application::EngineTime() - m_calcPositionTimer;
+		m_calcPositionResult = m_calcPositionResult * m_counter / (m_counter + 1) + usedTime / (m_counter + 1);
 	}
-	m_calcPositionResult = Application::EngineTime() - m_calcPositionTimer;
-
-
 	//Copy data for rendering.
 	m_useFront = true;
 	ApplyPosition();
@@ -407,7 +527,7 @@ void Galaxy::StarClusterSystem::CopyPosition(const bool& reverse)
 			matrices[i] = globalTransform.m_value;
 			colors[i] = glm::vec4(displayColor.m_value * displayColor.m_intensity, 1.0f);
 		}, false
-	);
+		);
 }
 
 void Galaxy::StarClusterSystem::LateUpdate()
@@ -431,7 +551,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 	auto standardFrag = std::make_shared<GLShader>(ShaderType::Fragment);
 	standardFrag->Compile(fragShaderCode);
 	m_starRenderProgram = std::make_unique<GLProgram>(standardVert, standardFrag);
-	
+
 	EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
 	m_rendererFront = EntityManager::CreateEntity("Renderer 1");
 	GlobalTransform ltw;
@@ -491,10 +611,13 @@ void Galaxy::StarClusterSystem::Update()
 
 	//Do not touch below functions.
 	RenderManager::DrawGizmoMeshInstancedColored(Default::Primitives::Cube.get(), RenderManager::GetMainCamera(), m_useFront ? m_frontColors.data() : m_backColors.data(), m_useFront ? m_frontMatrices.data() : m_backMatrices.data(), m_useFront ? m_frontColors.size() : m_backColors.size(), glm::scale(glm::vec3(m_size)));
+
+	m_counter++;
 }
 
-void Galaxy::StarClusterSystem::PushStars(StarClusterPattern& pattern, const size_t& amount) const
+void Galaxy::StarClusterSystem::PushStars(StarClusterPattern& pattern, const size_t& amount)
 {
+	m_counter = 0;
 	auto stars = EntityManager::CreateEntities(m_starArchetype, amount, "Star");
 	for (auto i = 0; i < amount; i++) {
 		auto starEntity = stars[i];
@@ -509,8 +632,9 @@ void Galaxy::StarClusterSystem::PushStars(StarClusterPattern& pattern, const siz
 	pattern.Apply();
 }
 
-void Galaxy::StarClusterSystem::RandomlyRemoveStars(const size_t& amount) const
+void Galaxy::StarClusterSystem::RandomlyRemoveStars(const size_t& amount)
 {
+	m_counter = 0;
 	std::vector<Entity> stars;
 	m_starQuery.ToEntityArray(stars);
 	size_t residue = amount;
@@ -521,8 +645,9 @@ void Galaxy::StarClusterSystem::RandomlyRemoveStars(const size_t& amount) const
 	}
 }
 
-void Galaxy::StarClusterSystem::ClearAllStars() const
+void Galaxy::StarClusterSystem::ClearAllStars()
 {
+	m_counter = 0;
 	std::vector<Entity> stars;
 	m_starQuery.ToEntityArray(stars);
 	for (const auto& i : stars) EntityManager::DeleteEntity(i);
