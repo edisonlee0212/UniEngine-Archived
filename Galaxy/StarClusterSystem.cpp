@@ -317,21 +317,42 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 	//Star calculation happens here:
 	if(m_useSimd)
 	{
-		auto orbitALists = EntityManager::UnsafeGetComponentDataArray<StarOrbitA>(m_starQuery);
-		auto orbitBLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitB>(m_starQuery);
-		auto orbitSpeedMultiplierLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitSpeedMultiplier>(m_starQuery);
-		auto orbitTiltXLists = EntityManager::UnsafeGetComponentDataArray<StarTiltX>(m_starQuery);
-		auto orbitTiltYLists = EntityManager::UnsafeGetComponentDataArray<StarTiltY>(m_starQuery);
-		auto orbitTiltZLists = EntityManager::UnsafeGetComponentDataArray<StarTiltZ>(m_starQuery);
-		auto orbitCenter = EntityManager::UnsafeGetComponentDataArray<OrbitCenter>(m_starQuery);
+		const auto orbitALists = EntityManager::UnsafeGetComponentDataArray<StarOrbitA>(m_starQuery);
+		const auto orbitBLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitB>(m_starQuery);
+		const auto orbitSpeedMultiplierLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitSpeedMultiplier>(m_starQuery);
+		const auto orbitTiltXLists = EntityManager::UnsafeGetComponentDataArray<StarTiltX>(m_starQuery);
+		const auto orbitTiltYLists = EntityManager::UnsafeGetComponentDataArray<StarTiltY>(m_starQuery);
+		const auto orbitTiltZLists = EntityManager::UnsafeGetComponentDataArray<StarTiltZ>(m_starQuery);
+		const auto orbitCenterLists = EntityManager::UnsafeGetComponentDataArray<OrbitCenter>(m_starQuery);
 
-		
-		auto proportionLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitProportion>(m_starQuery);
-		auto starOrbitOffsetLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitOffset>(m_starQuery);
+		const auto proportionLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitProportion>(m_starQuery);
+		const auto starOrbitOffsetLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitOffset>(m_starQuery);
 
-		auto positionLists = EntityManager::UnsafeGetComponentDataArray<StarPosition>(m_starQuery);
+		const auto positionLists = EntityManager::UnsafeGetComponentDataArray<StarPosition>(m_starQuery);
 
-		
+		std::vector<std::shared_future<void>> results;
+		for(int i = 0; i < orbitALists.size(); i++)
+		{
+			results.push_back(JobManager::SecondaryWorkers().Push([&](int id)
+				{
+					const auto& orbitAList = orbitALists[i];
+					const auto& orbitBList = orbitBLists[i];
+					const auto& orbitSpeedMultiplierList = orbitSpeedMultiplierLists[i];
+					const auto& orbitTiltXList = orbitTiltXLists[i];
+					const auto& orbitTiltYList = orbitTiltYLists[i];
+					const auto& orbitTiltZList = orbitTiltZLists[i];
+					const auto& orbitCenterList = orbitCenterLists[i];
+
+					const auto& proportionList = proportionLists[i];
+					const auto& starOrbitOffsetList = starOrbitOffsetLists[i];
+
+					const auto& positionList = positionLists[i];
+
+					
+				}
+			).share());
+		}
+		for (const auto& i : results) i.wait();
 	}
 	else {
 		EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
