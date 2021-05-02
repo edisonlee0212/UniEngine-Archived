@@ -61,23 +61,59 @@ namespace Galaxy {
 		float m_intensity = 1.0f;
 	};
 
+	struct StarOrbitA : ComponentDataBase
+	{
+		double m_value;
+	};
+
+	struct StarOrbitB : ComponentDataBase
+	{
+		double m_value;
+	};
+	struct StarOrbitSpeedMultiplier : ComponentDataBase
+	{
+		double m_value;
+	};
+
+	struct StarTiltX : ComponentDataBase
+	{
+		double m_value;
+	};
+
+	struct StarTiltY : ComponentDataBase
+	{
+		double m_value;
+	};
+
+	struct StarTiltZ : ComponentDataBase
+	{
+		double m_value;
+	};
+
+	struct OrbitCenter : ComponentDataBase
+	{
+		glm::dvec3 m_value;
+	};
 	struct StarOrbit : ComponentDataBase
 	{
 		double m_a;
 		double m_b;
+		double m_speedMultiplier;
+		
 		double m_tiltY;
 		double m_tiltX;
 		double m_tiltZ;
-		double m_speedMultiplier;
+		
 		glm::dvec3 m_center;
 		[[nodiscard]] glm::dvec3 GetPoint(const glm::dvec3& orbitOffset, const double& time, const bool& isStar = true) const
 		{
 			const double angle = isStar ? time / glm::sqrt(m_a + m_b) * m_speedMultiplier : time;
 
 			glm::dvec3 point;
-			point.x = glm::sin(glm::radians(angle)) * m_a + orbitOffset.x;
-			point.y = orbitOffset.y;
-			point.z = glm::cos(glm::radians(angle)) * m_b + orbitOffset.z;
+			point.x = glm::sin(glm::radians(angle)) * m_a;
+			point.y = 0;
+			point.z = glm::cos(glm::radians(angle)) * m_b;
+			
 			
 			point = Rotate(glm::angleAxis(glm::radians(m_tiltX), glm::dvec3(1, 0, 0)), point);
 			point = Rotate(glm::angleAxis(glm::radians(m_tiltY), glm::dvec3(0, 1, 0)), point);
@@ -86,11 +122,13 @@ namespace Galaxy {
 			point.x += m_center.x;
 			point.y += m_center.y;
 			point.z += m_center.z;
+			
+			point += orbitOffset;
 			return point;
 		}
-		static glm::dvec3 Rotate(const glm::qua<double>& rotation, const glm::dvec3& point)
+		
+		static glm::dvec3 RotateSIMD(const glm::qua<double>& rotation, const glm::dvec3& point)
 		{
-			auto start = std::chrono::high_resolution_clock::now();
 			const double dtwo[4] = { 2, 2, 2, 0 };
 			const double dxyz[4] = { rotation.x,rotation.y,rotation.z,0 };
 			const double dxxy[4] = { rotation.x,rotation.x,rotation.y,0 };
@@ -142,34 +180,16 @@ namespace Galaxy {
 			res = _mm256_add_pd(res, c3);
 			double dres[4];
 			_mm256_storeu_pd(dres, res);
-			auto elapsed1 = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - start);
 			
-			start = std::chrono::high_resolution_clock::now();
-			const double x = rotation.x * 2.0;
-			const double y = rotation.y * 2.0;
-			const double z = rotation.z * 2.0;
-			const double xx = rotation.x * x;
-			const double yy = rotation.y * y;
-			const double zz = rotation.z * z;
-			const double xy = rotation.x * y;
-			const double xz = rotation.x * z;
-			const double yz = rotation.y * z;
-			const double wx = rotation.w * x;
-			const double wy = rotation.w * y;
-			const double wz = rotation.w * z;
 			glm::dvec3 resvec;
-			resvec.x = (1.0 - (yy + zz)) * point.x + (xy - wz) * point.y + (xz + wy) * point.z;
-			resvec.y = (1.0 - (xx + zz)) * point.y + (yz - wx) * point.z + (xy + wz) * point.x;
-			resvec.z = (1.0 - (xx + yy)) * point.z + (xz - wy) * point.x + (yz + wx) * point.y;
-			auto elapsed2 = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - start);
-			std::cout << "res is :" << dres[0] << " " << dres[1] << " " << dres[2] << std::endl;
-			std::cout << " Res time" <<elapsed1.count() << " nanoseconds used" << std::endl;
-			std::cout << "resvec is :" << resvec.x << " " << resvec.y << " " << resvec.z << std::endl;
-			std::cout << " Resvec time " << elapsed2.count() << " nanoseconds used" << std::endl;
+			resvec.x = dres[0];
+			resvec.y = dres[1];
+			resvec.z = dres[2];
+			
 			return resvec;
 		}
-
-		/*static glm::dvec3 Rotate(const glm::qua<double>& rotation, const glm::dvec3& point)
+		
+		static glm::dvec3 Rotate(const glm::qua<double>& rotation, const glm::dvec3& point)
 		{
 			const double x = rotation.x * 2.0;
 			const double y = rotation.y * 2.0;
@@ -188,7 +208,7 @@ namespace Galaxy {
 			res.y = (1.0 - (xx + zz)) * point.y + (yz - wx) * point.z + (xy + wz) * point.x;
 			res.z = (1.0 - (xx + yy)) * point.z + (xz - wy) * point.x + (yz + wx) * point.y;
 			return res;
-		}*/
+		}
 	};
 	/// <summary>
 	/// The star cluster it actually belongs to.
@@ -365,7 +385,7 @@ namespace Galaxy {
 		std::unique_ptr<GLProgram> m_starRenderProgram;
 #pragma endregion
 
-		
+		bool m_useSimd = false;
 		
 		float m_applyPositionTimer = 0;
 		float m_copyPositionTimer = 0;

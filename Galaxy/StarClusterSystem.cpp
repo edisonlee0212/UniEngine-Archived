@@ -171,12 +171,27 @@ void Galaxy::StarClusterPattern::Apply(const bool& forceUpdateAllStars, const bo
 			surfaceColor.m_intensity = GetIntensity(proportion);
 		}
 	);
+	EntityManager::ForEach<StarOrbit, StarOrbitA, StarOrbitB, StarOrbitSpeedMultiplier, StarTiltX, StarTiltY, StarTiltZ, OrbitCenter>(JobManager::SecondaryWorkers(),
+		[&](int i, Entity entity, StarOrbit& starOrbit, StarOrbitA& starOrbitA, StarOrbitB& starOrbitB, 
+			StarOrbitSpeedMultiplier& starOrbitSpeedMultiplier
+			, StarTiltX& starTiltX, StarTiltY& starTiltY, StarTiltZ& starTiltZ, OrbitCenter& starCenter)
+		{
+			starOrbitA.m_value = starOrbit.m_a;
+			starOrbitB.m_value = starOrbit.m_b;
+			starOrbitSpeedMultiplier.m_value = starOrbit.m_speedMultiplier;
+			starTiltX.m_value = starOrbit.m_tiltX;
+			starTiltY.m_value = starOrbit.m_tiltY;
+			starTiltZ.m_value = starOrbit.m_tiltZ;
+			starCenter.m_value = starOrbit.m_center;
+		}
+	);
 }
 
 void Galaxy::StarClusterSystem::OnGui()
 {
 	if (ImGui::Begin("Star Cluster System"))
 	{
+		ImGui::Checkbox("Enable SIMD", &m_useSimd);
 		static int amount = 10000;
 		ImGui::DragInt("Amount", &amount, 1, 1, 100000);
 		if (ImGui::CollapsingHeader("Star clusters", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -299,15 +314,35 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 {
 	m_calcPositionTimer = Application::EngineTime();
-	//Star calculation happens here (SIMD transfer needed.):
-	EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
-		JobManager::SecondaryWorkers(), m_starQuery,
-		[=](int i, Entity entity, StarOrbitProportion& statProportion, StarPosition& starPosition, StarOrbit& starOrbit, StarOrbitOffset& starOrbitOffset)
-		{
-			//Code here will be exec in parallel
-			starPosition.m_value = starOrbit.GetPoint(starOrbitOffset.m_value, statProportion.m_value * 360.0f + m_galaxyTime, true);
-		}, false
-		);
+	//Star calculation happens here:
+	if(m_useSimd)
+	{
+		auto orbitALists = EntityManager::UnsafeGetComponentDataArray<StarOrbitA>(m_starQuery);
+		auto orbitBLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitB>(m_starQuery);
+		auto orbitSpeedMultiplierLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitSpeedMultiplier>(m_starQuery);
+		auto orbitTiltXLists = EntityManager::UnsafeGetComponentDataArray<StarTiltX>(m_starQuery);
+		auto orbitTiltYLists = EntityManager::UnsafeGetComponentDataArray<StarTiltY>(m_starQuery);
+		auto orbitTiltZLists = EntityManager::UnsafeGetComponentDataArray<StarTiltZ>(m_starQuery);
+		auto orbitCenter = EntityManager::UnsafeGetComponentDataArray<OrbitCenter>(m_starQuery);
+
+		
+		auto proportionLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitProportion>(m_starQuery);
+		auto starOrbitOffsetLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitOffset>(m_starQuery);
+
+		auto positionLists = EntityManager::UnsafeGetComponentDataArray<StarPosition>(m_starQuery);
+
+		
+	}
+	else {
+		EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
+			JobManager::SecondaryWorkers(), m_starQuery,
+			[=](int i, Entity entity, StarOrbitProportion& starProportion, StarPosition& starPosition, StarOrbit& starOrbit, StarOrbitOffset& starOrbitOffset)
+			{
+				//Code here will be exec in parallel
+				starPosition.m_value = starOrbit.GetPoint(starOrbitOffset.m_value, starProportion.m_value * 360.0f + m_galaxyTime, true);
+			}, false
+			);
+	}
 	m_calcPositionResult = Application::EngineTime() - m_calcPositionTimer;
 
 
@@ -414,7 +449,11 @@ void Galaxy::StarClusterSystem::OnCreate()
 		GlobalTransform(),
 		StarClusterIndex(),
 		StarInfo(), StarOrbit(), StarOrbitOffset(), StarOrbitProportion(), StarPosition(),
-		SelectionStatus(), OriginalColor(), SurfaceColor(), DisplayColor()
+		SelectionStatus(), OriginalColor(), SurfaceColor(), DisplayColor(),
+		//SIMD
+		StarOrbitA(), StarOrbitB(), StarOrbitSpeedMultiplier(),
+		StarTiltX(), StarTiltY(), StarTiltZ(),
+		OrbitCenter()
 	);
 	JobManager::ResizePrimaryWorkers(1);
 	JobManager::ResizeSecondaryWorkers(16);
