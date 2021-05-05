@@ -316,7 +316,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 {
 	//Star calculation happens here:
-	if (m_useSimd)
+	if constexpr (true)
 	{
 		const auto orbitALists = EntityManager::UnsafeGetComponentDataArray<StarOrbitA>(m_starQuery);
 		const auto orbitBLists = EntityManager::UnsafeGetComponentDataArray<StarOrbitB>(m_starQuery);
@@ -365,8 +365,8 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 						points.resize(size);
 						angles.resize(size);
 						//SIMD Capable
-						const bool useSIMD = false;
-						if (useSIMD) {
+					
+						if (m_useSimd) {
 							const auto div = size / 4;
 							for (auto i = 0; i < div; i++)
 							{
@@ -420,6 +420,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 							points[i].y = 0;
 							points[i].z = glm::cos(glm::radians(angles[i])) * orbitB->m_value;
 						}
+						
 						for (auto i = 0; i < size; i++)
 						{
 							auto* tiltX = (StarTiltX*)((char*)orbitTiltXList + i * sizeof(StarTiltX));
@@ -431,7 +432,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 							points[i] = StarOrbit::Rotate(glm::angleAxis(glm::radians(tiltZ->m_value), glm::dvec3(0, 0, 1)), points[i]);
 						}
 						//SIMD Capable
-						if (useSIMD) {
+						if (m_useSimd) {
 							const auto div2 = 3 * size / 4;
 							for (auto i = 0; i < div2; i++)
 							{
@@ -476,12 +477,18 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 	}
 	else {
 		m_calcPositionTimer = Application::EngineTime();
+		//StarOrbitProportion: The relative position of the star, here it is used to calculate the speed of the star around its orbit.
+		//StarPosition: The final output of this operation, records the position of the star in the galaxy.
+		//StarOrbit: The orbit which contains the function for calculating the position based on current time and proportion value.
+		//StarOrbitOffset: The position offset of the star, used to add irregularity to the position.
 		EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
 			JobManager::SecondaryWorkers(), m_starQuery,
-			[=](int i, Entity entity, StarOrbitProportion& starProportion, StarPosition& starPosition, StarOrbit& starOrbit, StarOrbitOffset& starOrbitOffset)
+			[=](int i, Entity entity, StarOrbitProportion& starProportion, 
+				StarPosition& starPosition, StarOrbit& starOrbit, StarOrbitOffset& starOrbitOffset)
 			{
 				//Code here will be exec in parallel
-				starPosition.m_value = starOrbit.GetPoint(starOrbitOffset.m_value, starProportion.m_value * 360.0f + m_galaxyTime, true);
+				starPosition.m_value = 
+					starOrbit.GetPoint(starOrbitOffset.m_value, starProportion.m_value * 360.0f + m_galaxyTime, true);
 			}, false
 			);
 		const auto usedTime = Application::EngineTime() - m_calcPositionTimer;

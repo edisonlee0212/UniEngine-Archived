@@ -94,35 +94,30 @@ namespace Galaxy {
 	{
 		glm::dvec3 m_value;
 	};
+	
 	struct StarOrbit : ComponentDataBase
 	{
 		double m_a;
 		double m_b;
 		double m_speedMultiplier;
 		
-		double m_tiltY;
 		double m_tiltX;
+		double m_tiltY;
 		double m_tiltZ;
 		
 		glm::dvec3 m_center;
-		[[nodiscard]] glm::dvec3 GetPoint(const glm::dvec3& orbitOffset, const double& time, const bool& isStar = true) const
+		[[nodiscard]] glm::dvec3 GetPoint
+		(const glm::dvec3& orbitOffset, const double& time, const bool& isStar = true) const
 		{
 			const double angle = isStar ? time / glm::sqrt(m_a + m_b) * m_speedMultiplier : time;
 
-			glm::dvec3 point;
-			point.x = glm::sin(glm::radians(angle)) * m_a;
-			point.y = 0;
-			point.z = glm::cos(glm::radians(angle)) * m_b;
-			
-			
+			glm::dvec3 point { glm::sin(glm::radians(angle)) * m_a , 0, glm::cos(glm::radians(angle)) * m_b };
+
 			point = Rotate(glm::angleAxis(glm::radians(m_tiltX), glm::dvec3(1, 0, 0)), point);
 			point = Rotate(glm::angleAxis(glm::radians(m_tiltY), glm::dvec3(0, 1, 0)), point);
 			point = Rotate(glm::angleAxis(glm::radians(m_tiltZ), glm::dvec3(0, 0, 1)), point);
 
-			point.x += m_center.x;
-			point.y += m_center.y;
-			point.z += m_center.z;
-			
+			point += m_center;
 			point += orbitOffset;
 			return point;
 		}
