@@ -390,7 +390,7 @@ namespace Galaxy {
 		float m_calcPositionResult = 0;
 		float m_speed = 0.0f;
 		float m_size = 0.1f;
-		float m_galaxyTime = 0.0f;
+		float m_galaxyTime = 0.0;
 		std::future<void> m_currentStatus;
 		bool m_firstTime = true;
 		void OnGui();

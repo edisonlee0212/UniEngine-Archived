@@ -193,8 +193,10 @@ void Galaxy::StarClusterSystem::OnGui()
 	if (ImGui::Begin("Star Cluster System"))
 	{
 		if (ImGui::Checkbox("Enable SIMD", &m_useSimd)) m_counter = 0;
+		ImGui::InputFloat("Time", &m_galaxyTime);
 		static int amount = 10000;
 		ImGui::DragInt("Amount", &amount, 1, 1, 100000);
+		if (amount < 1) amount = 1;
 		if (ImGui::CollapsingHeader("Star clusters", ImGuiTreeNodeFlags_DefaultOpen)) {
 			int i = 0;
 			for (auto& pattern : m_starClusterPatterns) {
@@ -204,7 +206,7 @@ void Galaxy::StarClusterSystem::OnGui()
 						pattern.OnGui();
 						ImGui::TreePop();
 					}
-					if (ImGui::Button("Add stars"))
+					if (ImGui::Button(("Add " + std::to_string(amount) + " stars").c_str()))
 					{
 						PushStars(pattern, amount);
 						
@@ -214,7 +216,7 @@ void Galaxy::StarClusterSystem::OnGui()
 			}
 		}
 		if (ImGui::CollapsingHeader("Star removal", ImGuiTreeNodeFlags_DefaultOpen)) {
-			if (ImGui::Button("Remove stars")) RandomlyRemoveStars(amount);
+			if (ImGui::Button(("Remove " + std::to_string(amount) + " stars").c_str())) RandomlyRemoveStars(amount);
 			if (ImGui::Button("Remove all stars")) ClearAllStars();
 		}
 		if (ImGui::CollapsingHeader("Run time control", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -617,9 +619,8 @@ void Galaxy::StarClusterSystem::Update()
 	CalculateStarPositionSync();
 
 	//Do not touch below functions.
-	RenderManager::DrawGizmoMeshInstancedColored(Default::Primitives::Cube.get(), RenderManager::GetMainCamera(), m_useFront ? m_frontColors.data() : m_backColors.data(), m_useFront ? m_frontMatrices.data() : m_backMatrices.data(), m_useFront ? m_frontColors.size() : m_backColors.size(), glm::scale(glm::vec3(m_size)));
-
 	m_counter++;
+	RenderManager::DrawGizmoMeshInstancedColored(Default::Primitives::Cube.get(), RenderManager::GetMainCamera(), m_useFront ? m_frontColors.data() : m_backColors.data(), m_useFront ? m_frontMatrices.data() : m_backMatrices.data(), m_useFront ? m_frontColors.size() : m_backColors.size(), glm::mat4(1.0f), m_size);
 }
 
 void Galaxy::StarClusterSystem::PushStars(StarClusterPattern& pattern, const size_t& amount)
