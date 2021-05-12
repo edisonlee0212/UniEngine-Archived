@@ -84,6 +84,7 @@ xcopy /y /d "..\external\PhysX\d\*.dll" "$(OutDir)" </Command>
       <ConformanceMode>true</ConformanceMode>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>Full</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
