@@ -179,34 +179,30 @@ namespace UniEngine {
 
 		static void SetMainCamera(CameraComponent* value);
 		static CameraComponent* GetMainCamera();
-
-		static void DrawGizmoMesh(const Mesh* mesh, const CameraComponent* cameraComponent,  const glm::vec4& color = glm::vec4(1.0f), const glm::mat4& model = glm::mat4(1.0f), const float& size = 1.0f);
+#pragma region Gizmos
+		static void DrawGizmoMesh(const Mesh* mesh, const CameraComponent* cameraComponent, const glm::vec4& color = glm::vec4(1.0f), const glm::mat4& model = glm::mat4(1.0f), const float& size = 1.0f);
 		static void DrawGizmoMeshInstanced(const Mesh* mesh, const CameraComponent* cameraComponent, const glm::vec4& color, const glm::mat4* matrices, const size_t& count, const glm::mat4& model = glm::mat4(1.0f), const float& size = 1.0f);
 		static void DrawGizmoMeshInstancedColored(const Mesh* mesh, const CameraComponent* cameraComponent, const glm::vec4* colors, const glm::mat4* matrices, const size_t& count, const glm::mat4& model = glm::mat4(1.0f), const float& size = 1.0f);
+
+		static void DrawGizmoMesh(const Mesh* mesh, const CameraComponent* cameraComponent, const glm::vec3& cameraPosition, const glm::quat& cameraRotation, const glm::vec4& color = glm::vec4(1.0f), const glm::mat4& model = glm::mat4(1.0f), const float& size = 1.0f);
+		static void DrawGizmoMeshInstanced(const Mesh* mesh, const CameraComponent* cameraComponent, const glm::vec3& cameraPosition, const glm::quat& cameraRotation, const glm::vec4& color, const glm::mat4* matrices, const size_t& count, const glm::mat4& model = glm::mat4(1.0f), const float& size = 1.0f);
+		static void DrawGizmoMeshInstancedColored(const Mesh* mesh, const CameraComponent* cameraComponent, const glm::vec3& cameraPosition, const glm::quat& cameraRotation, const glm::vec4* colors, const glm::mat4* matrices, const size_t& count, const glm::mat4& model = glm::mat4(1.0f), const float& size = 1.0f);
+
 
 		static void DrawGizmoRay(const CameraComponent* cameraComponent, const glm::vec4& color, const glm::vec3& start, const glm::vec3& end, const float& width = 0.01f);
 		static void DrawGizmoRays(const CameraComponent* cameraComponent, const glm::vec4& color, std::vector<std::pair<glm::vec3, glm::vec3>>& connections, const float& width = 0.01f);
 		static void DrawGizmoRays(const CameraComponent* cameraComponent, const glm::vec4& color, std::vector<Ray>& rays, const float& width = 0.01f);
 		static void DrawGizmoRay(const CameraComponent* cameraComponent, const glm::vec4& color, Ray& ray, const float& width = 0.01f);
 
+		static void DrawGizmoRay(const CameraComponent* cameraComponent, const glm::vec3& cameraPosition, const glm::quat& cameraRotation, const glm::vec4& color, const glm::vec3& start, const glm::vec3& end, const float& width = 0.01f);
+		static void DrawGizmoRays(const CameraComponent* cameraComponent, const glm::vec3& cameraPosition, const glm::quat& cameraRotation, const glm::vec4& color, std::vector<std::pair<glm::vec3, glm::vec3>>& connections, const float& width = 0.01f);
+		static void DrawGizmoRays(const CameraComponent* cameraComponent, const glm::vec3& cameraPosition, const glm::quat& cameraRotation, const glm::vec4& color, std::vector<Ray>& rays, const float& width = 0.01f);
+		static void DrawGizmoRay(const CameraComponent* cameraComponent, const glm::vec3& cameraPosition, const glm::quat& cameraRotation, const glm::vec4& color, Ray& ray, const float& width = 0.01f);
+#pragma endregion
+
 		static void DrawMesh(const Mesh* mesh, const Material* material, const glm::mat4& model, const CameraComponent* cameraComponent, const bool& receiveShadow = true);
 		static void DrawMeshInstanced(const Mesh* mesh, const Material* material, const glm::mat4& model, const glm::mat4* matrices, const size_t& count, const CameraComponent* cameraComponent, const bool& receiveShadow = true);
 
 #pragma endregion
 	};
-
-	/*
-	 * void UniEngine::RenderManager::DrawMesh(
-	const Mesh* mesh, const Material* material, const glm::mat4& model, const RenderTarget* target, const bool& receiveShadow)
-{
-	target->Bind();
-	DrawMesh(mesh, material, model, receiveShadow);
-}
-void UniEngine::RenderManager::DrawMeshInstanced(
-	const Mesh* mesh, const Material* material, const glm::mat4& model, const glm::mat4* matrices, const size_t& count, const RenderTarget* target, const bool& receiveShadow)
-{
-	target->Bind();
-	DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
-}
-	 */
 }
