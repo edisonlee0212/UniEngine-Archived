@@ -800,8 +800,34 @@ void EditorManager::LateUpdate()
 	{
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
-		if (ImGui::BeginChild("CameraRenderer")) {
+		if (ImGui::BeginChild("CameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_None | ImGuiWindowFlags_MenuBar)) {
+			if (ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu("Settings"))
+				{
+#pragma region Menu
+					DragAndDrop(manager.m_sceneCamera->m_skyBox);
+					ImGui::Checkbox("Skybox", &manager.m_sceneCamera->m_drawSkyBox);
+					if (ImGui::Button("Reset camera"))
+					{
+						MoveCamera(manager.m_defaultSceneCameraRotation, manager.m_defaultSceneCameraPosition);
+					}
+					if (ImGui::Button("Set default"))
+					{
+						manager.m_defaultSceneCameraPosition = manager.m_sceneCameraPosition;
+						manager.m_defaultSceneCameraRotation = manager.m_sceneCameraRotation;
+					}
+					ImGui::SliderFloat("FOV", &manager.m_sceneCamera->m_fov,  30.0f, 120.0f);
+#pragma endregion
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
 			viewPortSize = ImGui::GetWindowSize();
+			viewPortSize.y -= 20;
+			if (viewPortSize.y < 0) viewPortSize.y = 0;
+			manager.m_sceneCameraResolutionX = viewPortSize.x;
+			manager.m_sceneCameraResolutionY = viewPortSize.y;
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
 			ImGui::Image((ImTextureID)manager.m_sceneCamera->GetTexture()->Texture()->Id(), viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
 			if (ImGui::BeginDragDropTarget())
@@ -832,33 +858,6 @@ void EditorManager::LateUpdate()
 				}
 				ImGui::EndDragDropTarget();
 			}
-			static int corner = 1;
-			ImVec2 overlayPos = ImGui::GetWindowPos();
-			ImVec2 window_pos = ImVec2((corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x), (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
-			if (manager.m_enableInfoWindow)
-			{
-				ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
-				ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-				ImGui::SetNextWindowBgAlpha(0.35f);
-				ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-
-				ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
-				ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-				DragAndDrop(manager.m_sceneCamera->m_skyBox);
-				ImGui::Checkbox("Skybox", &manager.m_sceneCamera->m_drawSkyBox);
-				if (ImGui::Button("Reset camera"))
-				{
-					MoveCamera(manager.m_defaultSceneCameraRotation, manager.m_defaultSceneCameraPosition);
-				}
-				if(ImGui::Button("Set default"))
-				{
-					manager.m_defaultSceneCameraPosition = manager.m_sceneCameraPosition;
-					manager.m_defaultSceneCameraRotation = manager.m_sceneCameraRotation;
-					
-				}
-				ImGui::EndChild();
-			}
-
 			glm::vec2 mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
 			if (manager.m_sceneWindowFocused)
 			{
@@ -1004,8 +1003,7 @@ void EditorManager::LateUpdate()
 	}
 	ImGui::End();
 	ImGui::PopStyleVar();
-	manager.m_sceneCameraResolutionX = viewPortSize.x;
-	manager.m_sceneCameraResolutionY = viewPortSize.y;
+	
 	if (InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow())) {
 		if (!manager.m_selectedEntity.IsNull() && !manager.m_selectedEntity.IsDeleted())
 		{

@@ -93,7 +93,6 @@ namespace UniEngine {
 		glm::vec3 m_sceneCameraPosition = glm::vec3(0, 5, 20);
 		glm::quat m_defaultSceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
 		glm::vec3 m_defaultSceneCameraPosition = glm::vec3(0, 5, 20);
-		bool m_enableInfoWindow = true;
 		static void HighLightEntity(const Entity& entity, const glm::vec4& color);
 		static void LateUpdate();
 		template<typename T1 = ComponentDataBase>
