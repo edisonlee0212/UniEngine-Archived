@@ -1,5 +1,10 @@
 UniEngine
 
+====================================================================
+
+The development of UniEngine is moved to a new repo edisonlee0212/UniEngine-dev, with cross-platform support by CMake. I will not update on this repo anymore.
+
+====================================================================
 Project description: This is a framework that can be used to develop games or do scientific researches. 
 
 1.	A fully functional Entity Component System (ECS) combined with multithreading to provide the best performance under the era of multi-core CPUs.
